@@ -14,11 +14,10 @@
 <style>
     nav {
         padding: 1rem;
-        box-shadow: -1px 1px 11px 4px #898989;
+        box-shadow: -2px 2px 10px 5px darkgray;
     }
     a {
         text-decoration: none;
-        color: gray;
         margin-right: 1rem;
     }
 </style>

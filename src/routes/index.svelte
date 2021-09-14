@@ -44,16 +44,14 @@
         justify-content: center;
     }
     .box {
-        padding: 0.25rem;
-        margin: 1.5rem;
-        color: salmon;
-        box-shadow: 4px 5px 11px 2px lightgray;
+        padding: 1rem;
+        margin: 1rem;
+        box-shadow: 5px 5px 10px 2px lightgray;
     }
     .box:hover {
-        box-shadow: 4px 5px 11px 10px lightgray;
+        box-shadow: 5px 5px 10px 10px lightgray;
     }
     img {
-        width: 15rem;
-        object-fit: contain;
+        width: 10rem;
     }
   </style>
