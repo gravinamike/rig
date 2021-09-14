@@ -1,15 +1,7 @@
 <script context="module" lang="ts">
-    export type fetchType = (arg0: string) => Promise< any >
-    export type paramSet = {[paramId: string]: string;}
-    export type pageType = { host: string, path: string, params: paramSet, query: URLSearchParams }
-    export type loadedProps = { props: { [propId: string]: Person | Person[] } }
-    export type loadedError = { status: string, error: Error }
-    export interface Person {
-        name: string;
-        avatar: string;
-    }
+    import type { Person } from './api'
 
-    export async function load({ fetch }: { fetch: fetchType }): Promise< loadedProps | loadedError > {
+    export async function load({ fetch }: { fetch: any }) {
         const res = await fetch('/api');
   
         if (res.ok) return {

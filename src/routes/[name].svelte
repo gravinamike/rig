@@ -1,7 +1,5 @@
 <script context="module" lang="ts">
-    import type { fetchType, pageType, loadedProps, loadedError, Person } from './index.svelte'
-
-    export async function load({ fetch, page }: { fetch: fetchType, page: pageType }): Promise< loadedProps | loadedError > {
+    export async function load({ fetch, page }: { fetch: any, page: any }) {
         const { name } = page.params;
         const res = await fetch(`/api/${name}`);
         
@@ -16,6 +14,7 @@
 </script>
   
 <script lang="ts">
+    import type { Person } from './api'
     export let person: Person;
 </script>
 

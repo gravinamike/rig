@@ -1,4 +1,4 @@
-import type { Person } from '../index.svelte';
+export interface Person { name: string, avatar: string }
 
 const names = ['Abby', 'Bernie', 'Carmen', 'Dimitri', 'Eloise',];
 

@@ -1,6 +1,4 @@
-import type { paramSet, Person } from '../index.svelte';
-
-export async function get({ params }: {params: paramSet}): Promise<{ body: Person }> {
+export async function get({ params }: {params: any}) {
   const { name } = params;
   return {
     body: {
