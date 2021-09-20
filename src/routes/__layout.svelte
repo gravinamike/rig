@@ -3,7 +3,7 @@
 </svelte:head>
 
 <nav>
-    <a href=".">HOME</a>
+    <a href=".">GRAPH</a>
     <a href="/about">ABOUT</a>
 </nav>
 
