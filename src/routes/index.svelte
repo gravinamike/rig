@@ -1,4 +1,6 @@
 <script context="module" lang="ts">
+    import type { Thing } from "./api/thing";
+
     export async function load({ fetch }: { fetch: any }) {
         const res = await fetch(`/api/thing`);
   
@@ -13,15 +15,25 @@
 </script>
   
 <script lang="ts">
-    export let things: any[];// Narrow this from any to Thing[]
+    export let things: Thing[];
 </script>
 
 
 <main>
-    {#each things as { text, note }}
+    {#each things as { text, note, a_relations, b_relations }}
         <div class="box">
             <h1>{text}</h1>
-            {@html note.text}
+            {#each a_relations as { id, relationshipThingAId, relationshipThingBId }}
+                <h3>{id} {relationshipThingAId} {relationshipThingBId}</h3>
+            {/each}
+            {#each b_relations as { id, relationshipThingAId, relationshipThingBId }}
+                <h3>{id} {relationshipThingBId} {relationshipThingAId}</h3>
+            {/each}
+            {#if note}
+                {@html note.text}
+            {:else}
+                <h2>NO NOTES YET</h2>
+            {/if}
         </div>
     {/each}
 </main>

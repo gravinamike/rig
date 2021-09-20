@@ -1,5 +1,5 @@
 import  Knex from 'knex'
-import { Model, knexSnakeCaseMappers } from 'objection'
+import { Model, knexSnakeCaseMappers, RelationMappings, RelationMappingsThunk } from 'objection'
 
 
 // Initialize Knex.
@@ -21,17 +21,61 @@ Model.knex(knex);
 
 
 // Thing model.
-class Thing extends Model {
+export class Thing extends Model {
+  id!: number
+  text!: string
+  note!: Note | null
+  a_relations!: Thing[]
+  b_relations!: Thing[]
+  relationshipThingAId: number | null = null
+  relationshipThingBId: number | null = null
+
   static tableName = 'things'
 
-  static get relationMappings() {
+  static get relationMappings(): RelationMappings | RelationMappingsThunk {
     return {
-      relationships: {
+      a_relationships: {
         relation: Model.HasManyRelation,
         modelClass: Relationship,
         join: {
           from: 'things.id',
-          to: 'relationships.thingbid'//NOTE THIS IS ONLY HALF THE RELATIONSHIPS...
+          to: 'relationships.thingaid'
+        }
+      },
+      b_relationships: {
+        relation: Model.HasManyRelation,
+        modelClass: Relationship,
+        join: {
+          from: 'things.id',
+          to: 'relationships.thingbid'
+        }
+      },
+      a_relations: {
+        relation: Model.ManyToManyRelation,
+        modelClass: Thing,
+        join: {
+          from: 'things.id',
+          through: {
+            from: 'relationships.thingbid',
+            to: 'relationships.thingaid',
+            modelClass: Relationship,
+            extra: { relationship_thing_a_id: 'thingaid', relationship_thing_b_id: 'thingbid' }
+          },
+          to: 'things.id'
+        }
+      },
+      b_relations: {
+        relation: Model.ManyToManyRelation,
+        modelClass: Thing,
+        join: {
+          from: 'things.id',
+          through: {
+            from: 'relationships.thingaid',
+            to: 'relationships.thingbid',
+            modelClass: Relationship,
+            extra: { relationship_thing_a_id: 'thingaid', relationship_thing_b_id: 'thingbid' }
+          },
+          to: 'things.id'
         }
       },
       note: {
@@ -51,10 +95,11 @@ class Thing extends Model {
 }
 
 
+// Relationship model.
 class Relationship extends Model {
   static tableName = 'relationships'
 
-  static get relationMappings() {
+  static get relationMappings(): RelationMappings | RelationMappingsThunk {
     return {
       things: {
         relation: Model.HasOneRelation,
@@ -69,10 +114,13 @@ class Relationship extends Model {
 }
 
 
+// Notes model.
 class Note extends Model {
+  text!: string
+
   static tableName = 'notes'
 
-  static get relationMappings() {
+  static get relationMappings(): RelationMappings | RelationMappingsThunk {
     return {
       things: {
         relation: Model.HasOneThroughRelation,
@@ -93,8 +141,8 @@ class Note extends Model {
 
 async function generateThings(): Promise< Thing[] > {
   const things = await Thing.query()
-    .allowGraph('[relationships, note]')
-    .withGraphFetched('[relationships, note]')
+    .allowGraph('[a_relations, b_relations, note]')
+    .withGraphFetched('[a_relations, b_relations, note]')
     .limit(3)
     .where("text", "Set of today's tasks")
     .orderBy('id')
