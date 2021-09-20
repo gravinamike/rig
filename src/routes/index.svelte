@@ -1,11 +1,9 @@
 <script context="module" lang="ts">
-    import type { Person } from './api'
-
     export async function load({ fetch }: { fetch: any }) {
-        const res = await fetch('/api');
+        const res = await fetch(`/api/thing`);
   
         if (res.ok) return {
-            props: { people: await res.json() }
+            props: { things: await res.json() }
         };
         return {
             status: res.status,
@@ -15,16 +13,16 @@
 </script>
   
 <script lang="ts">
-    export let people: Person[];
+    export let things: any[];// Narrow this from any to Thing[]
 </script>
 
 
 <main>
-    {#each people as { name, avatar }}
-        <a href={`./${name}`} class="box">
-            <img src={avatar} alt={name} />
-            <h2>{name}</h2>
-        </a>
+    {#each things as { text, note }}
+        <div class="box">
+            <h1>{text}</h1>
+            {@html note.text}
+        </div>
     {/each}
 </main>
 
@@ -42,8 +40,5 @@
     }
     .box:hover {
         box-shadow: 5px 5px 10px 10px lightgray;
-    }
-    img {
-        width: 10rem;
     }
   </style>
