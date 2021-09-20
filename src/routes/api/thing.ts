@@ -1,23 +1,4 @@
-import  Knex from 'knex'
-import { Model, knexSnakeCaseMappers, RelationMappings, RelationMappingsThunk } from 'objection'
-
-
-// Initialize Knex.
-const knex = Knex({
-  client: 'pg',
-  version: '1.4',
-  connection: {
-    user: 'sa',
-    host: 'localhost',
-    database: 'C:/Users/mtgra/Desktop/LifeSeahorse_test/LifeGrid_graph/graph',
-    password: 'goodguess',
-    port: 5435,
-  },
-  ...knexSnakeCaseMappers({ upperCase: true })
-});
-
-// Pass Knex instance to Objection.
-Model.knex(knex);
+import { Model, RelationMappings, RelationMappingsThunk } from 'objection'
 
 
 // Thing model.
