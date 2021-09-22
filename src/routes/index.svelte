@@ -1,5 +1,7 @@
 <script context="module" lang="ts">
     import type { Thing } from "./api/graph";
+    import ThingsStoreView from "./thingsStoreView.svelte";
+    import GraphPortal from "./graphPortal.svelte";
 
     const pThing = 251;
 
@@ -22,37 +24,19 @@
 
 
 <main>
-    {#each things as { text, note, a_relations, b_relations }}
-        <div class="box">
-            <h1>{text}</h1>
-            {#each a_relations as { id, relationshipThingAId, relationshipThingBId }}
-                <h3>{id} {relationshipThingAId} {relationshipThingBId}</h3>
-            {/each}
-            {#each b_relations as { id, relationshipThingAId, relationshipThingBId }}
-                <h3>{id} {relationshipThingBId} {relationshipThingAId}</h3>
-            {/each}
-            {#if note}
-                {@html note.text}
-            {:else}
-                <h2>NO NOTES YET</h2>
-            {/if}
-        </div>
-    {/each}
+    <ThingsStoreView
+        {things}
+    />
+    <GraphPortal
+        {things}
+    />
 </main>
 
 
 <style>
     main {
         display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
+        flex-direction: row;
+        justify-content: space-evenly;
     }
-    .box {
-        padding: 1rem;
-        margin: 1rem;
-        box-shadow: 5px 5px 10px 2px lightgray;
-    }
-    .box:hover {
-        box-shadow: 5px 5px 10px 10px lightgray;
-    }
-  </style>
+</style>
