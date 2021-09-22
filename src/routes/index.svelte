@@ -1,8 +1,10 @@
 <script context="module" lang="ts">
-    import type { Thing } from "./api/thing";
+    import type { Thing } from "./api/graph";
+
+    const pThing = 251;
 
     export async function load({ fetch }: { fetch: any }) {
-        const res = await fetch(`/api/thing`);
+        const res = await fetch(`/api/thing-${pThing}`);
   
         if (res.ok) return {
             props: { things: await res.json() }

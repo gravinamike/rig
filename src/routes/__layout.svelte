@@ -1,6 +1,15 @@
+<script context="module" lang="ts">
+    // Create the Things store.
+    const t: { [id: number]: Thing } = {};
+    export const things = writable( t );
+</script>
+
 <script lang="ts">
     import  Knex from 'knex'
     import { Model, knexSnakeCaseMappers } from 'objection'
+    import { writable } from 'svelte/store';
+    import type { Thing } from "./api/graph";
+
 
     // Initialize Knex.
     const knex = Knex({
