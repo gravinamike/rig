@@ -8,16 +8,19 @@
 
 
 <main>
-    {#each things as { id, text, a_relations, b_relations }}
+    {#each things as { id, text, defaultplane, a_relations, b_relations }}
         <div class="box">
             <h3>{id}: {text}</h3>
+            <h3>SPACE: {defaultplane}</h3>
             <strong>A-RELATIONS:</strong>
-            {#each a_relations as { id, relationshipThingAId, relationshipThingBId }}
-                <p>ID: {id} IDA: {relationshipThingAId} IDB: {relationshipThingBId}</p>
+            {#each a_relations as { id, relationshipDirection, relationshipThingAId, relationshipThingBId }}
+                <p>ID: {id} DIR: {relationshipDirection}</p>
+                <p>IDA: {relationshipThingAId} IDB: {relationshipThingBId}</p>
             {/each}
             <strong>B-RELATIONS:</strong>
-            {#each b_relations as { id, relationshipThingAId, relationshipThingBId }}
-                <p>ID: {id} IDB: {relationshipThingBId} IDA: {relationshipThingAId}</p>
+            {#each b_relations as { id, relationshipDirection, relationshipThingAId, relationshipThingBId }}
+                <p>ID: {id} DIR: {relationshipDirection}</p>
+                <p>IDB: {relationshipThingBId} IDA: {relationshipThingAId}</p>
             {/each}
         </div>
     {/each}

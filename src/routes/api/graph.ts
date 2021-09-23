@@ -7,8 +7,10 @@ export class Thing extends Model {
     id!: number
     text!: string
     note!: Note | null
+    defaultplane!: number | null//CAN WE RENAME TO DEFAULTSPACE?
     a_relations!: Thing[]
     b_relations!: Thing[]
+    relationshipDirection: number | null = null
     relationshipThingAId: number | null = null
     relationshipThingBId: number | null = null
 
@@ -16,22 +18,6 @@ export class Thing extends Model {
 
     static get relationMappings(): RelationMappings | RelationMappingsThunk {
         return {
-            a_relationships: {
-                relation: Model.HasManyRelation,
-                modelClass: Relationship,
-                join: {
-                    from: 'things.id',
-                    to: 'relationships.thingaid'
-                }
-            },
-            b_relationships: {
-                relation: Model.HasManyRelation,
-                modelClass: Relationship,
-                join: {
-                    from: 'things.id',
-                    to: 'relationships.thingbid'
-                }
-            },
             a_relations: {
                 relation: Model.ManyToManyRelation,
                 modelClass: Thing,
@@ -41,7 +27,11 @@ export class Thing extends Model {
                         from: 'relationships.thingbid',
                         to: 'relationships.thingaid',
                         modelClass: Relationship,
-                        extra: { relationship_thing_a_id: 'thingaid', relationship_thing_b_id: 'thingbid' }
+                        extra: {
+                            relationship_direction: 'direction',
+                            relationship_thing_a_id: 'thingaid',
+                            relationship_thing_b_id: 'thingbid'
+                        }
                     },
                     to: 'things.id'
                 }
@@ -55,7 +45,11 @@ export class Thing extends Model {
                         from: 'relationships.thingaid',
                         to: 'relationships.thingbid',
                         modelClass: Relationship,
-                        extra: { relationship_thing_a_id: 'thingaid', relationship_thing_b_id: 'thingbid' }
+                        extra: {
+                            direction: 'direction',
+                            relationship_thing_a_id: 'thingaid',
+                            relationship_thing_b_id: 'thingbid'
+                        }
                     },
                     to: 'things.id'
                 }
@@ -136,7 +130,7 @@ async function queryThings(thingIds: number | number[]): Promise<null | Thing | 
             .withGraphFetched('[a_relations, b_relations, note]')
             .orderBy('id')
             .debug();
-        //.then(results => results.forEach( (r) => console.log(r) ));
+        //console.log(queriedThings);
         return queriedThings.length ? queriedThings[0] : null;
     } else {
         const queriedThings = await Thing.query()
@@ -147,7 +141,7 @@ async function queryThings(thingIds: number | number[]): Promise<null | Thing | 
             .withGraphFetched('[a_relations, b_relations, note]')
             .orderBy('id')
             .debug();
-        //.then(results => results.forEach( (r) => console.log(r) ));
+        //console.log(queriedThings);
         return queriedThings;
     }
 }
