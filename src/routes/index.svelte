@@ -35,6 +35,7 @@
 
 <style>
     main {
+        flex-grow: 1;
         display: flex;
         flex-direction: row;
         justify-content: space-evenly;

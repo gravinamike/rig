@@ -35,16 +35,21 @@
 </svelte:head>
 
 
-<nav>
-    <a href=".">GRAPH</a>
-    <a href="/about">ABOUT</a>
-</nav>
-
-
-<slot />
+<main>
+    <nav>
+        <a href=".">GRAPH</a>
+        <a href="/about">ABOUT</a>
+    </nav>
+    <slot />
+</main>
 
 
 <style>
+    main {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
     nav {
         padding: 1rem;
         box-shadow: -2px 2px 10px 5px darkgray;

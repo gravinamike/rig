@@ -10,15 +10,14 @@
 <main>
     {#each things as { id, text, a_relations, b_relations }}
         <div class="box">
-            <h3>ID: {id}</h3>
-            <h3>TEXT: {text}</h3>
+            <h3>{id}: {text}</h3>
             <strong>A-RELATIONS:</strong>
             {#each a_relations as { id, relationshipThingAId, relationshipThingBId }}
-                <p>ID: {id} THING A: {relationshipThingAId} THING B: {relationshipThingBId}</p>
+                <p>ID: {id} IDA: {relationshipThingAId} IDB: {relationshipThingBId}</p>
             {/each}
             <strong>B-RELATIONS:</strong>
             {#each b_relations as { id, relationshipThingAId, relationshipThingBId }}
-                <p>ID: {id} THING B: {relationshipThingBId} THING A: {relationshipThingAId}</p>
+                <p>ID: {id} IDB: {relationshipThingBId} IDA: {relationshipThingAId}</p>
             {/each}
         </div>
     {/each}
@@ -27,17 +26,21 @@
 
 <style>
     main {
-        outline: solid 1px;
-        flex-grow: 1;
+        width: 225px;
         display: flex;
         flex-wrap: wrap;
         justify-content: center;
+        overflow: auto;
+        outline: solid 1px;
     }
     .box {
         padding: 1rem;
         margin: 1rem;
         height: max-content;
-        box-shadow: 5px 5px 10px 2px lightgray;
+        font-size: 0.75rem;
+        font-weight: 400;
         text-align: center;
+        border-radius: 10px;
+        box-shadow: 5px 5px 10px 2px lightgray;
     }
   </style>

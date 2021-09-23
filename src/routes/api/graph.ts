@@ -97,7 +97,7 @@ class Relationship extends Model {
 
 
 // Notes model.
-class Note extends Model {
+export class Note extends Model {
     text!: string
 
     static tableName = 'notes'
