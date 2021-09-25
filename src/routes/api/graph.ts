@@ -1,5 +1,168 @@
 import { Model, RelationMappings, RelationMappingsThunk } from 'objection';
-import { things } from '../__layout.svelte';
+import { spaces, things } from '../__layout.svelte';
+
+
+// Direction model.
+export class Direction extends Model {
+    id!: number
+    oppositeid!: number | null
+    text!: string | null
+    nameforobjects!: string | null
+    spaces!: Space[]
+
+    static tableName = 'directions'
+
+    static get relationMappings(): RelationMappings | RelationMappingsThunk {
+        return {
+            spaces: {
+                relation: Model.ManyToManyRelation,
+                modelClass: Space,
+                join: {
+                    from: 'directions.id',
+                    through: {
+                        from: 'directiontospace.directionid',
+                        to: 'directiontospace.spaceid'
+                    },
+                    to: 'spaces.id'
+                }
+            }
+        };
+    }
+}
+
+
+// Space model.
+export class Space extends Model {
+    id!: number
+    text!: string | null
+    directions!: Direction[]
+
+    static tableName = 'spaces'
+
+    static get relationMappings(): RelationMappings | RelationMappingsThunk {
+        return {
+            directions: {
+                relation: Model.ManyToManyRelation,
+                modelClass: Direction,
+                join: {
+                    from: 'spaces.id',
+                    through: {
+                        from: 'directiontospace.spaceid',
+                        to: 'directiontospace.directionid'
+                    },
+                    to: 'directions.id'
+                }
+            }
+        };
+    }
+}
+
+
+let spacesValue: { [id: number]: Space };//Rename spacesValue
+spaces.subscribe(value => {
+    spacesValue = value;
+});
+
+async function querySpaces(spaceIds: number): Promise<null | Space>;
+async function querySpaces(spaceIds: number[]): Promise<Space[]>;
+async function querySpaces(spaceIds: null, idsToExclude?: number[]): Promise<Space[]>;
+async function querySpaces(spaceIds: number | number[] | null, idsToExclude?: number[]): Promise<null | Space | Space[]> {
+    if (typeof spaceIds === "number") {
+        const queriedSpaces = await Space.query()
+            .where("id", spaceIds)
+            .allowGraph('directions')
+            .withGraphFetched('directions')
+            .orderBy('id')
+            .debug();
+        return queriedSpaces.length ? queriedSpaces[0] : null;
+    } else if (spaceIds === null) {
+        if (!idsToExclude) {
+            const queriedSpaces = await Space.query()
+                .where(
+                    (builder) => builder.whereIn('id', spaceIds)
+                )
+                .allowGraph('directions')
+                .withGraphFetched('directions')
+                .orderBy('id')
+                .debug();
+            return queriedSpaces;
+        } else {
+            const queriedSpaces = await Space.query()
+                .where(
+                    (builder) => builder.whereNotIn('id', idsToExclude)
+                )
+                .allowGraph('directions')
+                .withGraphFetched('directions')
+                .orderBy('id')
+                .debug();
+            return queriedSpaces;
+        }
+    } else if (spaceIds.length) {
+        const queriedSpaces = await Space.query()
+            .where(
+                (builder) => builder.whereIn('id', spaceIds)
+            )
+            .allowGraph('directions')
+            .withGraphFetched('directions')
+            .orderBy('id')
+            .debug();
+        return queriedSpaces;
+    } else {
+        const queriedSpaces = await Space.query()
+            .allowGraph('directions')
+            .withGraphFetched('directions')
+            .orderBy('id')
+            .debug();
+        return queriedSpaces;
+    }
+}
+
+
+export async function getSpaces(spaceIds: number): Promise<Space | null>;
+export async function getSpaces(spaceIds: null): Promise<Space[]>;
+export async function getSpaces(spaceIds: number[]): Promise<Space[]>;
+export async function getSpaces(spaceIds: number | number[] | null): Promise<Space | Space[] | null> {
+    if (spaceIds === null) {
+        const retrievedSpaces = Object.values(spacesValue);
+        const idsNotToQuery = Object.keys(spacesValue).map(x => Number(x));
+        const queriedSpaces = await querySpaces(null, idsNotToQuery);
+        const retrievedAndQueriedSpaces = queriedSpaces.concat(retrievedSpaces);
+        return retrievedAndQueriedSpaces;
+    } else if (typeof spaceIds === "number") {
+        if (spaceIds in spacesValue) {
+            // For ids that are represented in the Spaces store, retrieve those Spaces.
+            return spacesValue[spaceIds];
+        } else {
+            // For ids that aren't represented in the Spaces store, query those Spaces.
+            const queriedSpace = await querySpaces(spaceIds);
+            if (queriedSpace) {
+                // Add the queried Spaces to the Spaces store.
+                spacesValue[queriedSpace.id] = queriedSpace;
+                spaces.set(spacesValue);
+            }
+            return queriedSpace;
+        }
+    } else {
+        // For ids that are represented in the Spaces store, retrieve those Spaces.
+        const idsToRetrieve = spaceIds.filter((id: number) => (id in spacesValue));
+        const retrievedSpaces: Space[] = [];
+        for (const id of idsToRetrieve) {
+            retrievedSpaces.push(spacesValue[id]);
+        }
+        // For ids that aren't represented in the Spaces store, query those Spaces.
+        const idsToQuery = spaceIds.filter((id: number) => !(id in spacesValue));
+        const queriedSpaces = idsToQuery.length ? await querySpaces(idsToQuery) : [];
+        // Add the queried Spaces to the Spaces store.
+        for (const queriedSpace of queriedSpaces) {
+            spacesValue[queriedSpace.id] = queriedSpace;
+            spaces.set(spacesValue);
+        }
+        // Return combined queried and retrieved Spaces (or null if none were found for supplied ids).
+        const retrievedAndQueriedSpaces = queriedSpaces.concat(retrievedSpaces);
+        return retrievedAndQueriedSpaces;
+    }
+}
+
 
 
 // Thing model.
@@ -130,7 +293,6 @@ async function queryThings(thingIds: number | number[]): Promise<null | Thing | 
             .withGraphFetched('[a_relations, b_relations, note]')
             .orderBy('id')
             .debug();
-        //console.log(queriedThings);
         return queriedThings.length ? queriedThings[0] : null;
     } else {
         const queriedThings = await Thing.query()
@@ -141,7 +303,6 @@ async function queryThings(thingIds: number | number[]): Promise<null | Thing | 
             .withGraphFetched('[a_relations, b_relations, note]')
             .orderBy('id')
             .debug();
-        //console.log(queriedThings);
         return queriedThings;
     }
 }

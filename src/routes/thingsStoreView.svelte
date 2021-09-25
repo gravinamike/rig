@@ -1,8 +1,5 @@
-<script context="module" lang="ts">
-    import type { Thing } from "./api/graph";
-</script>
-  
 <script lang="ts">
+    import type { Thing } from "./api/graph";
     export let things: Thing[];
 </script>
 
@@ -33,7 +30,8 @@
         display: flex;
         flex-wrap: wrap;
         justify-content: center;
-        overflow: auto;
+        overflow-x: hidden;
+        overflow-y: auto;
         outline: solid 1px;
     }
     .box {
