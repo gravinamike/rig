@@ -1,18 +1,19 @@
 <script context="module" lang="ts">
-    // Create the Spaces store.
-    const s: { [id: number]: Space } = {};
-    export const spaces = writable( s );
-    // Create the Things store.
-    const t: { [id: number]: Thing } = {};
-    export const things = writable( t );
-</script>
-
-<script lang="ts">
-    import  Knex from 'knex'
-    import { Model, knexSnakeCaseMappers } from 'objection'
     import { writable } from 'svelte/store';
     import type { Space, Thing } from "./api/graph";
 
+    // Create the Spaces store.
+    const s: { [id: number]: Space } = {};
+    export const spacesStore = writable( s );
+    // Create the Things store.
+    const t: { [id: number]: Thing } = {};
+    export const thingsStore = writable( t );
+</script>
+
+
+<script lang="ts">
+    import Knex from 'knex';
+    import { Model, knexSnakeCaseMappers } from 'objection';
 
     // Initialize Knex.
     const knex = Knex({
@@ -27,7 +28,6 @@
         },
         ...knexSnakeCaseMappers({ upperCase: true })
     });
-    
     // Pass Knex instance to Objection.
     Model.knex(knex);
 </script>
@@ -36,7 +36,6 @@
 <svelte:head>
     <title>SvelteKit/TypeScript template</title>
 </svelte:head>
-
 
 <main>
     <nav>
@@ -58,7 +57,7 @@
         box-shadow: -2px 2px 10px 5px darkgray;
     }
     a {
-        text-decoration: none;
         margin-right: 1rem;
+        text-decoration: none;
     }
 </style>

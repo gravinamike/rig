@@ -1,5 +1,6 @@
 <script lang="ts">
-    import type { Space } from "./api/graph";
+    import type { Space } from "../api/graph";
+
     export let spaces: Space[];
 </script>
 
@@ -22,8 +23,7 @@
     main {
         width: 225px;
         display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
+        flex-direction: column;
         overflow-x: hidden;
         overflow-y: auto;
         outline: solid 1px;
@@ -33,7 +33,6 @@
         margin: 1rem;
         height: max-content;
         font-size: 0.75rem;
-        font-weight: 400;
         text-align: center;
         border-radius: 10px;
         box-shadow: 5px 5px 10px 2px lightgray;

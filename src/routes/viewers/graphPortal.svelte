@@ -1,10 +1,9 @@
-<script context="module" lang="ts">
-    import type { Thing } from "./api/graph";
-    import ThingWidget from "./thingWidget.svelte";
-</script>
-  
 <script lang="ts">
+    import type { Space, Thing } from "../api/graph";
+    import ThingWidget from "./thingWidget.svelte";
+
     export let things: Thing[];
+    export let spacesStore: { [id: number]: Space };
 </script>
 
 
@@ -13,6 +12,7 @@
         {#each things as thing}
             <ThingWidget
                 {thing}
+                {spacesStore}
             />
         {/each}
     </div>
