@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { Space, Thing } from "../api/graph";
-    import ThingWidget from "./thingWidget.svelte";
+    import CohortWidget from "./cohortWidget.svelte"
 
     export let things: Thing[];
     export let spacesStore: { [id: number]: Space };
@@ -8,13 +8,14 @@
 
 
 <main>
-    <div class="centralAnchor">
-        {#each things as thing}
-            <ThingWidget
-                {thing}
-                {spacesStore}
-            />
-        {/each}
+    <div class="centralAnchor"><!-- DO VWE NEED THIS? -->
+        <CohortWidget
+            parentGeneration={null}
+            halfAxisId={0}
+            parentSpace={null}
+            {spacesStore}
+            {things}
+        />
     </div>
 </main>
 

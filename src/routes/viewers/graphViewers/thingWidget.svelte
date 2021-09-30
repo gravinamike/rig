@@ -3,22 +3,15 @@
     const halfAxisIds = [0, 1, 2, 3, 4] as const;
     const oddHalfAxisIds = [1, 3];
     const offsetSignsByHalfAxisId = { 0: [0, 0], 1: [0, 1], 2: [0, -1], 3: [1, 0], 4: [-1, 0] };
-    
-    /*let spacesStore: { [id: number]: Space }; ///////////// POSSIBLE THIS SHOULD BE DONE IN A LOAD FUNCTION?
-    export async function load() {
-        spaces.subscribe(value => { spacesStore = value; });
-    }*/
 </script>
 
 <script lang="ts">
-    import type { Space, Direction, Thing, Note } from "../api/graph";
-    //import { spaces } from '../__layout.svelte';
-    import ThingWidget from "./thingWidget.svelte";
+    import type { Space, Direction, Thing, Note } from "../../api/graph";
+    import CohortWidget from "./cohortWidget.svelte"
 
     export let thing: Thing;
     export let parentGeneration: number | null = null;
     export let parentSpace: Space | null = null;
-    export let halfAxisId: 0 | 1 | 2 | 3 | 4 = 0;
     export let spacesStore: { [id: number]: Space };
     
     
@@ -59,11 +52,6 @@
     }
     // ... for the Thing's generation.
     $: if (parentGeneration) generation = parentGeneration + 1;
-    // ... for the parent relation's Space (which this Thing is rendered into).
-    $: {
-        const offsetSigns = offsetSignsByHalfAxisId[halfAxisId];
-        offsets = [offsetLength * offsetSigns[0], offsetLength * offsetSigns[1]];
-    }
     // ... for the Space child relations are rendered into.
     $: {
         defaultplane = thing.defaultplane ? thing.defaultplane : null;
@@ -100,14 +88,15 @@
         for (const halfAxisId of halfAxisIds) {
             const directionId = directionIdsByHalfAxisIds[halfAxisId];
             const halfAxisWithThings = { id: halfAxisId, things: relationsForDirection(halfAxisId) };
-            halfAxesWithThings.push(halfAxisWithThings);
+            if (halfAxisWithThings.things.length) halfAxesWithThings.push(halfAxisWithThings);
         }
     }
 </script>
 
 
 <main>
-    <div class="box" style="left: {offsets[0]}px; top: {offsets[1]}px;">
+    
+    <div class="box">
         <h1>{id}: {text}</h1>
         {#if showNotes}
             {#if note}
@@ -117,18 +106,17 @@
             {/if}
         {/if}
     </div>
+
     {#each halfAxesWithThings as halfAxis}
-        <!-- THIS IS THE PLACE WHERE THE COHORT SHOULD GO, WITH THE OFFSETS. -->
-        {#each halfAxis.things as thing}
-            <ThingWidget
-                {thing}
-                parentGeneration={generation}
-                parentSpace={space}
-                halfAxisId={halfAxis.id}
-                {spacesStore}
-            />
-        {/each}
+        <CohortWidget
+            parentGeneration={generation}
+            halfAxisId={halfAxis.id}
+            parentSpace={space}
+            {spacesStore}
+            things={halfAxis.things}
+        />
     {/each}
+
 </main>
 
 
@@ -136,10 +124,6 @@
     .box {
         width: 50px;
         height: 50px;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
         padding: 1rem;
         font-size: 0.35rem;
         font-weight: 400;

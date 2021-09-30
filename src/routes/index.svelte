@@ -29,7 +29,7 @@
     import type { Space, Thing } from "./api/graph";
     import SpacesStoreView from "./viewers/spacesStoreView.svelte";
     import ThingsStoreView from "./viewers/thingsStoreView.svelte";
-    import GraphPortal from "./viewers/graphPortal.svelte";
+    import GraphPortal from "./viewers/graphViewers/graphPortal.svelte";
     
     export let spaces: Space[];
     export let things: Thing[];
