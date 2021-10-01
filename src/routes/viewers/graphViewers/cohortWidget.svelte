@@ -1,5 +1,6 @@
 <script context="module" lang="ts">
-    // Component constants.
+    // Component types and constants.
+    import type { HalfAxisId } from "./thingWidget.svelte"
     const offsetSignsByHalfAxisId = { 0: [0, 0], 1: [0, 1], 2: [0, -1], 3: [1, 0], 4: [-1, 0] };
 </script>
 
@@ -8,9 +9,8 @@
     import ThingWidget from "./thingWidget.svelte";
 
     export let parentGeneration: number | null;
-    export let halfAxisId: 0 | 1 | 2 | 3 | 4;
+    export let halfAxisId: HalfAxisId;
     export let parentSpace: Space | null;
-    export let spacesStore: { [id: number]: Space };
     export let things: Thing[];
 
     let offsetLength = 250;
@@ -29,7 +29,6 @@
             {thing}
             {parentGeneration}
             {parentSpace}
-            {spacesStore}
         />
     {/each}
 </main>

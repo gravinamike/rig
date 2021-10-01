@@ -1,6 +1,13 @@
 import { Model, RelationMappings, RelationMappingsThunk } from 'objection';
 import { spacesStore, thingsStore } from '../__layout.svelte';
 
+// Subscribe to Spaces and Things stores.
+let spacesStoreValue: { [id: number]: Space };
+spacesStore.subscribe(value => {spacesStoreValue = value});
+let thingsStoreValue: { [id: number]: Thing };
+thingsStore.subscribe(value => {thingsStoreValue = value});
+
+
 
 // Direction model.
 export class Direction extends Model {
@@ -58,116 +65,10 @@ export class Space extends Model {
 }
 
 
-let spacesValue: { [id: number]: Space };//Rename spacesValue
-spacesStore.subscribe(value => {
-    spacesValue = value;
-});
-
-async function querySpaces(spaceIds: number): Promise<null | Space>;
-async function querySpaces(spaceIds: number[]): Promise<Space[]>;
-async function querySpaces(spaceIds: null, idsToExclude?: number[]): Promise<Space[]>;
-async function querySpaces(spaceIds: number | number[] | null, idsToExclude?: number[]): Promise<null | Space | Space[]> {
-    if (typeof spaceIds === "number") {
-        const queriedSpaces = await Space.query()
-            .where("id", spaceIds)
-            .allowGraph('directions')
-            .withGraphFetched('directions')
-            .orderBy('id');
-            //.debug();
-        return queriedSpaces.length ? queriedSpaces[0] : null;
-    } else if (spaceIds === null) {
-        if (!idsToExclude) {
-            const queriedSpaces = await Space.query()
-                .where(
-                    (builder) => builder.whereIn('id', spaceIds)
-                )
-                .allowGraph('directions')
-                .withGraphFetched('directions')
-                .orderBy('id');
-                //.debug();
-            return queriedSpaces;
-        } else {
-            const queriedSpaces = await Space.query()
-                .where(
-                    (builder) => builder.whereNotIn('id', idsToExclude)
-                )
-                .allowGraph('directions')
-                .withGraphFetched('directions')
-                .orderBy('id');
-                //.debug();
-            return queriedSpaces;
-        }
-    } else if (spaceIds.length) {
-        const queriedSpaces = await Space.query()
-            .where(
-                (builder) => builder.whereIn('id', spaceIds)
-            )
-            .allowGraph('directions')
-            .withGraphFetched('directions')
-            .orderBy('id');
-            //.debug();
-        return queriedSpaces;
-    } else {
-        const queriedSpaces = await Space.query()
-            .allowGraph('directions')
-            .withGraphFetched('directions')
-            .orderBy('id');
-            //.debug();
-        return queriedSpaces;
-    }
+// Relationship model.
+class Relationship extends Model {
+    static tableName = 'relationships'
 }
-
-
-export async function getSpaces(spaceIds: number): Promise<Space | null>;
-export async function getSpaces(spaceIds: null): Promise<Space[]>;
-export async function getSpaces(spaceIds: number[]): Promise<Space[]>;
-export async function getSpaces(spaceIds: number | number[] | null): Promise<Space | Space[] | null> {
-    if (spaceIds === null) {
-        const retrievedSpaces = Object.values(spacesValue);
-        const idsNotToQuery = Object.keys(spacesValue).map(x => Number(x));
-        const queriedSpaces = await querySpaces(null, idsNotToQuery);
-        for (const queriedSpace of queriedSpaces) {
-            // Add the queried Spaces to the Spaces store.
-            spacesValue[queriedSpace.id] = queriedSpace;
-            spacesStore.set(spacesValue);
-        }
-        const retrievedAndQueriedSpaces = queriedSpaces.concat(retrievedSpaces);
-        return retrievedAndQueriedSpaces;
-    } else if (typeof spaceIds === "number") {
-        if (spaceIds in spacesValue) {
-            // For ids that are represented in the Spaces store, retrieve those Spaces.
-            return spacesValue[spaceIds];
-        } else {
-            // For ids that aren't represented in the Spaces store, query those Spaces.
-            const queriedSpace = await querySpaces(spaceIds);
-            if (queriedSpace) {
-                // Add the queried Spaces to the Spaces store.
-                spacesValue[queriedSpace.id] = queriedSpace;
-                spacesStore.set(spacesValue);
-            }
-            return queriedSpace;
-        }
-    } else {
-        // For ids that are represented in the Spaces store, retrieve those Spaces.
-        const idsToRetrieve = spaceIds.filter((id: number) => (id in spacesValue));
-        const retrievedSpaces: Space[] = [];
-        for (const id of idsToRetrieve) {
-            retrievedSpaces.push(spacesValue[id]);
-        }
-        // For ids that aren't represented in the Spaces store, query those Spaces.
-        const idsToQuery = spaceIds.filter((id: number) => !(id in spacesValue));
-        const queriedSpaces = idsToQuery.length ? await querySpaces(idsToQuery) : [];
-        // Add the queried Spaces to the Spaces store.
-        for (const queriedSpace of queriedSpaces) {
-            spacesValue[queriedSpace.id] = queriedSpace;
-            spacesStore.set(spacesValue);
-        }
-        // Return combined queried and retrieved Spaces (or null if none were found for supplied ids).
-        const retrievedAndQueriedSpaces = queriedSpaces.concat(retrievedSpaces);
-        return retrievedAndQueriedSpaces;
-    }
-}
-
 
 
 // Thing model.
@@ -239,25 +140,6 @@ export class Thing extends Model {
 }
 
 
-// Relationship model.
-class Relationship extends Model {
-    static tableName = 'relationships'
-
-    static get relationMappings(): RelationMappings | RelationMappingsThunk {
-        return {
-            things: {
-                relation: Model.HasOneRelation,
-                modelClass: Thing,
-                join: {
-                    from: 'relationships.thingbid',//NOTE THIS IS ONLY HALF THE RELATIONSHIPS...
-                    to: 'things.id'
-                }
-            }
-        };
-    }
-}
-
-
 // Notes model.
 export class Note extends Model {
     text!: string
@@ -283,10 +165,112 @@ export class Note extends Model {
 }
 
 
-let thingsValue: { [id: number]: Thing };//Rename thingsValue
-thingsStore.subscribe(value => {
-    thingsValue = value;
-});
+
+async function querySpaces(spaceIds: number): Promise<null | Space>;
+async function querySpaces(spaceIds: number[]): Promise<Space[]>;
+async function querySpaces(spaceIds: null, idsToExclude?: number[]): Promise<Space[]>;
+async function querySpaces(spaceIds: number | number[] | null, idsToExclude?: number[]): Promise<null | Space | Space[]> {
+    if (typeof spaceIds === "number") {
+        const queriedSpaces = await Space.query()
+            .where("id", spaceIds)
+            .allowGraph('directions')
+            .withGraphFetched('directions')
+            .orderBy('id');
+            //.debug();
+        return queriedSpaces.length ? queriedSpaces[0] : null;
+    } else if (spaceIds === null) {
+        if (!idsToExclude) {
+            const queriedSpaces = await Space.query()
+                .where(
+                    (builder) => builder.whereIn('id', spaceIds)
+                )
+                .allowGraph('directions')
+                .withGraphFetched('directions')
+                .orderBy('id');
+                //.debug();
+            return queriedSpaces;
+        } else {
+            const queriedSpaces = await Space.query()
+                .where(
+                    (builder) => builder.whereNotIn('id', idsToExclude)
+                )
+                .allowGraph('directions')
+                .withGraphFetched('directions')
+                .orderBy('id');
+                //.debug();
+            return queriedSpaces;
+        }
+    } else if (spaceIds.length) {
+        const queriedSpaces = await Space.query()
+            .where(
+                (builder) => builder.whereIn('id', spaceIds)
+            )
+            .allowGraph('directions')
+            .withGraphFetched('directions')
+            .orderBy('id');
+            //.debug();
+        return queriedSpaces;
+    } else {
+        const queriedSpaces = await Space.query()
+            .allowGraph('directions')
+            .withGraphFetched('directions')
+            .orderBy('id');
+            //.debug();
+        return queriedSpaces;
+    }
+}
+
+
+export async function getSpaces(spaceIds: number): Promise<Space | null>;
+export async function getSpaces(spaceIds: null): Promise<Space[]>;
+export async function getSpaces(spaceIds: number[]): Promise<Space[]>;
+export async function getSpaces(spaceIds: number | number[] | null): Promise<Space | Space[] | null> {
+    if (spaceIds === null) {
+        const retrievedSpaces = Object.values(spacesStoreValue);
+        const idsNotToQuery = Object.keys(spacesStoreValue).map(x => Number(x));
+        const queriedSpaces = await querySpaces(null, idsNotToQuery);
+        for (const queriedSpace of queriedSpaces) {
+            // Add the queried Spaces to the Spaces store.
+            spacesStoreValue[queriedSpace.id] = queriedSpace;
+            spacesStore.set(spacesStoreValue);
+        }
+        const retrievedAndQueriedSpaces = queriedSpaces.concat(retrievedSpaces);
+        return retrievedAndQueriedSpaces;
+    } else if (typeof spaceIds === "number") {
+        if (spaceIds in spacesStoreValue) {
+            // For ids that are represented in the Spaces store, retrieve those Spaces.
+            return spacesStoreValue[spaceIds];
+        } else {
+            // For ids that aren't represented in the Spaces store, query those Spaces.
+            const queriedSpace = await querySpaces(spaceIds);
+            if (queriedSpace) {
+                // Add the queried Spaces to the Spaces store.
+                spacesStoreValue[queriedSpace.id] = queriedSpace;
+                spacesStore.set(spacesStoreValue);
+            }
+            return queriedSpace;
+        }
+    } else {
+        // For ids that are represented in the Spaces store, retrieve those Spaces.
+        const idsToRetrieve = spaceIds.filter((id: number) => (id in spacesStoreValue));
+        const retrievedSpaces: Space[] = [];
+        for (const id of idsToRetrieve) {
+            retrievedSpaces.push(spacesStoreValue[id]);
+        }
+        // For ids that aren't represented in the Spaces store, query those Spaces.
+        const idsToQuery = spaceIds.filter((id: number) => !(id in spacesStoreValue));
+        const queriedSpaces = idsToQuery.length ? await querySpaces(idsToQuery) : [];
+        // Add the queried Spaces to the Spaces store.
+        for (const queriedSpace of queriedSpaces) {
+            spacesStoreValue[queriedSpace.id] = queriedSpace;
+            spacesStore.set(spacesStoreValue);
+        }
+        // Return combined queried and retrieved Spaces (or null if none were found for supplied ids).
+        const retrievedAndQueriedSpaces = queriedSpaces.concat(retrievedSpaces);
+        return retrievedAndQueriedSpaces;
+    }
+}
+
 
 async function queryThings(thingIds: number): Promise<null | Thing>;
 async function queryThings(thingIds: number[]): Promise<Thing[]>;
@@ -318,20 +302,20 @@ export async function getThings(thingIds: number | number[]): Promise<Thing | Th
     if (typeof thingIds === "number") thingIds = [thingIds];
 
     // For ids that are represented in the Things store, retrieve those Things.
-    const idsToRetrieve = thingIds.filter((id: number) => (id in thingsValue));
+    const idsToRetrieve = thingIds.filter((id: number) => (id in thingsStoreValue));
     const retrievedThings: Thing[] = [];
     for (const id of idsToRetrieve) {
-        retrievedThings.push(thingsValue[id]);
+        retrievedThings.push(thingsStoreValue[id]);
     }
 
     // For ids that aren't represented in the Things store, query those Things.
-    const idsToQuery = thingIds.filter((id: number) => !(id in thingsValue));
+    const idsToQuery = thingIds.filter((id: number) => !(id in thingsStoreValue));
     const queriedThings = await queryThings(idsToQuery);
 
     // Add the queried Things to the Things store.
     for (const queriedThing of queriedThings) {
-        thingsValue[queriedThing.id] = queriedThing;
-        thingsStore.set(thingsValue);
+        thingsStoreValue[queriedThing.id] = queriedThing;
+        thingsStore.set(thingsStoreValue);
     }
 
     // Return combined queried and retrieved Things (or null if none were found for supplied ids).

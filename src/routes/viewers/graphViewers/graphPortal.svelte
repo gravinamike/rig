@@ -1,19 +1,17 @@
 <script lang="ts">
-    import type { Space, Thing } from "../api/graph";
+    import type { Thing } from "../../api/graph";
     import CohortWidget from "./cohortWidget.svelte"
 
     export let things: Thing[];
-    export let spacesStore: { [id: number]: Space };
 </script>
 
 
 <main>
-    <div class="centralAnchor"><!-- DO VWE NEED THIS? -->
+    <div class="centralAnchor">
         <CohortWidget
             parentGeneration={null}
             halfAxisId={0}
             parentSpace={null}
-            {spacesStore}
             {things}
         />
     </div>
@@ -22,9 +20,8 @@
 
 <style>
     main {
-        flex-grow: 9;
+        flex-grow: 1;
         display: flex;
-        flex-wrap: wrap;
         justify-content: center;
         align-items: center;
         overflow: auto;

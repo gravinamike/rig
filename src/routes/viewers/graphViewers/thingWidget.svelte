@@ -1,18 +1,23 @@
 <script context="module" lang="ts">
-    // Component constants and stores.
+    import { spacesStore } from '../../__layout.svelte';
+
+    // Component types and constants.
+    export type HalfAxisId = 0 | 1 | 2 | 3 | 4;
     const halfAxisIds = [0, 1, 2, 3, 4] as const;
     const oddHalfAxisIds = [1, 3];
-    const offsetSignsByHalfAxisId = { 0: [0, 0], 1: [0, 1], 2: [0, -1], 3: [1, 0], 4: [-1, 0] };
+
+    // Subscribe to Spaces store.
+    let spacesStoreValue: { [id: number]: Space };
+    spacesStore.subscribe(value => {spacesStoreValue = value});
 </script>
 
 <script lang="ts">
-    import type { Space, Direction, Thing, Note } from "../../api/graph";
+    import type { Space, Thing, Note } from "../../api/graph";
     import CohortWidget from "./cohortWidget.svelte"
 
     export let thing: Thing;
     export let parentGeneration: number | null = null;
     export let parentSpace: Space | null = null;
-    export let spacesStore: { [id: number]: Space };
     
     
     // Intrinsic (non-relational) attributes.
@@ -40,7 +45,7 @@
     let relations: Thing[] = [];
 
     // Attributes positioning child relations in their Space.
-    let halfAxesWithThings: { id: 0 | 1 | 2 | 3 | 4, things: Thing[] }[] = [];
+    let halfAxesWithThings: { id: HalfAxisId, things: Thing[] }[] = [];
 
 
     // Reactive assignments...
@@ -55,14 +60,13 @@
     // ... for the Space child relations are rendered into.
     $: {
         defaultplane = thing.defaultplane ? thing.defaultplane : null;
-        //console.log('DEFAULTPLANE', defaultplane, spacesStore);
     }
-    $: if ( !inheritSpace && defaultplane && defaultplane in spacesStore ) {
-        space = spacesStore[defaultplane];
+    $: if ( !inheritSpace && defaultplane && defaultplane in spacesStoreValue ) {
+        space = spacesStoreValue[defaultplane];
     } else if (parentSpace) {
         space = parentSpace;
     } else {
-        space = spacesStore[1];//What if there is no spacesStore[1]? Supply an empty Space.
+        space = spacesStoreValue[1];//What if there is no spacesStoreValue[1]? Supply an empty Space.
     }
     $: if (space) {
         directionIdsByHalfAxisIds = {};
@@ -112,7 +116,6 @@
             parentGeneration={generation}
             halfAxisId={halfAxis.id}
             parentSpace={space}
-            {spacesStore}
             things={halfAxis.things}
         />
     {/each}
