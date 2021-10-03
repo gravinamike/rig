@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { Space } from "../api/graph";
+    import type { Space } from "$lib/graph";
 
     export let spaces: Space[];
 </script>

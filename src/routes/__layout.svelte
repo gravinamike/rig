@@ -1,6 +1,6 @@
 <script context="module" lang="ts">
     import { writable } from 'svelte/store';
-    import type { Space, Thing } from "./api/graph";
+    import type { Space, Thing } from "$lib/graph";
 
     // Create the Spaces store.
     const s: { [id: number]: Space } = {};
@@ -8,33 +8,17 @@
     // Create the Things store.
     const t: { [id: number]: Thing } = {};
     export const thingsStore = writable( t );
+    console.log('foo');
 </script>
 
 
 <script lang="ts">
-    import Knex from 'knex';
-    import { Model, knexSnakeCaseMappers } from 'objection';
 
-    // Initialize Knex.
-    const knex = Knex({
-        client: 'pg',
-        version: '1.4',
-        connection: {
-            user: 'sa',
-            host: 'localhost',
-            database: 'C:/Users/mtgra/Desktop/LifeSeahorse_test/LifeGrid_graph/graph',
-            password: 'goodguess',
-            port: 5435,
-        },
-        ...knexSnakeCaseMappers({ upperCase: true })
-    });
-    // Pass Knex instance to Objection.
-    Model.knex(knex);
 </script>
 
 
 <svelte:head>
-    <title>SvelteKit/TypeScript template</title>
+    <title>Rig</title>
 </svelte:head>
 
 <main>

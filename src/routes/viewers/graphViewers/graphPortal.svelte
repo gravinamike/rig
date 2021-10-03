@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { Thing } from "../../api/graph";
+    import type { Thing } from "$lib/graph";
     import CohortWidget from "./cohortWidget.svelte"
 
     export let things: Thing[];

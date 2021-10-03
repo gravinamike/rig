@@ -12,7 +12,7 @@
 </script>
 
 <script lang="ts">
-    import type { Space, Thing, Note } from "../../api/graph";
+    import type { Space, Thing, Note } from "$lib/graph";
     import CohortWidget from "./cohortWidget.svelte"
 
     export let thing: Thing;
@@ -28,10 +28,6 @@
 
     // Attributes related to parent relation.
     let generation = 0;
-
-    // Attributes related to the parent relation's Space (which this Thing is rendered into).
-    let offsetLength = 250;
-    let offsets = [0, 0];
 
     // Attributes related to the Space child relations are rendered into.
     let defaultplane: number | null = null;
@@ -90,17 +86,20 @@
         relations;
         halfAxesWithThings = [];
         for (const halfAxisId of halfAxisIds) {
-            const directionId = directionIdsByHalfAxisIds[halfAxisId];
             const halfAxisWithThings = { id: halfAxisId, things: relationsForDirection(halfAxisId) };
             if (halfAxisWithThings.things.length) halfAxesWithThings.push(halfAxisWithThings);
         }
+    }
+
+    function handleClick() {
+        console.log(id);
     }
 </script>
 
 
 <main>
     
-    <div class="box">
+    <div class="box" on:click={handleClick}>
         <h1>{id}: {text}</h1>
         {#if showNotes}
             {#if note}

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { Thing } from "../api/graph";
+    import type { Thing } from "$lib/graph";
     
     export let things: Thing[];
 </script>

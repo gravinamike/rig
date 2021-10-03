@@ -25,7 +25,7 @@
 </script>
   
 <script lang="ts">
-    import type { Space, Thing } from "./api/graph";
+    import type { Space, Thing } from "$lib/graph";
     import SpacesStoreView from "./viewers/spacesStoreView.svelte";
     import ThingsStoreView from "./viewers/thingsStoreView.svelte";
     import GraphPortal from "./viewers/graphViewers/graphPortal.svelte";

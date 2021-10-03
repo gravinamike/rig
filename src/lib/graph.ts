@@ -1,5 +1,5 @@
 import { Model, RelationMappings, RelationMappingsThunk } from 'objection';
-import { spacesStore, thingsStore } from '../__layout.svelte';
+import { spacesStore, thingsStore } from '../routes/__layout.svelte';
 
 // Subscribe to Spaces and Things stores.
 let spacesStoreValue: { [id: number]: Space };

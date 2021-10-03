@@ -5,7 +5,7 @@
 </script>
 
 <script lang="ts">
-    import type { Space, Thing } from "../../api/graph";
+    import type { Space, Thing } from "$lib/graph";
     import ThingWidget from "./thingWidget.svelte";
 
     export let parentGeneration: number | null;
