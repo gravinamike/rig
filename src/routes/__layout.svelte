@@ -1,17 +1,3 @@
-<script context="module" lang="ts">
-    import { writable } from 'svelte/store';
-    import type { Space, Thing } from "$lib/graph";
-
-    // Create the Spaces store.
-    const s: { [id: number]: Space } = {};
-    export const spacesStore = writable( s );
-    // Create the Things store.
-    const t: { [id: number]: Thing } = {};
-    export const thingsStore = writable( t );
-    console.log('foo');
-</script>
-
-
 <script lang="ts">
 
 </script>

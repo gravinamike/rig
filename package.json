@@ -23,7 +23,7 @@
   },
   "type": "module",
   "dependencies": {
-    "knex": "^0.21.21",
+    "knex": "^0.95.11",
     "objection": "^2.2.15",
     "pg": "^8.7.1",
     "svelte-kit": "^1.0.0"

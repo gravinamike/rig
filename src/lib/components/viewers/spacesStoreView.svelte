@@ -1,12 +1,10 @@
 <script lang="ts">
-    import type { Space } from "$lib/graph";
-
-    export let spaces: Space[];
+    import { spacesStoreAsArray } from '$lib/shared/stores';
 </script>
 
 
 <main>
-    {#each spaces as { id, text, directions }}
+    {#each $spacesStoreAsArray as { id, text, directions }}
         <div class="box">
             <h3>{id}: {text}</h3>
             <strong>DIRECTIONS:</strong>

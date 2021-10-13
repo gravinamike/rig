@@ -1,27 +1,30 @@
 <script context="module" lang="ts">
-    import { spacesStore } from '../../__layout.svelte';
+    import { spacesStore, thingsStore } from '$lib/shared/stores';
 
     // Component types and constants.
     export type HalfAxisId = 0 | 1 | 2 | 3 | 4;
     const halfAxisIds = [0, 1, 2, 3, 4] as const;
     const oddHalfAxisIds = [1, 3];
-
-    // Subscribe to Spaces store.
-    let spacesStoreValue: { [id: number]: Space };
-    spacesStore.subscribe(value => {spacesStoreValue = value});
 </script>
 
 <script lang="ts">
-    import type { Space, Thing, Note } from "$lib/graph";
-    import CohortWidget from "./cohortWidget.svelte"
+    import type { Space, Thing, Note } from "$lib/shared/graph";
+    import CohortWidget from "$lib/components/graphWidgets/cohortWidget.svelte"
 
-    export let thing: Thing;
+    export let thingId: number | null = null;
     export let parentGeneration: number | null = null;
     export let parentSpace: Space | null = null;
+
+
+    // Subscribe to Spaces and Things stores.
+    let spacesStoreValue: { [id: number]: Space };
+    spacesStore.subscribe(value => {spacesStoreValue = value});
+    let thingsStoreValue: { [id: number]: Thing };
+    thingsStore.subscribe(value => {thingsStoreValue = value});
     
     
     // Intrinsic (non-relational) attributes.
-    let id: number | null = null;
+    let thing: Thing | null = null;
     let text: string = "";
     let note: Note | null = null;
     let showNotes = false;
@@ -41,21 +44,22 @@
     let relations: Thing[] = [];
 
     // Attributes positioning child relations in their Space.
-    let halfAxesWithThings: { id: HalfAxisId, things: Thing[] }[] = [];
+    let halfAxesWithThingIds: { id: HalfAxisId, thingIds: number[] }[] = [];
 
 
     // Reactive assignments...
     // ... for Thing's intrinsic attributes.
-    $: {
-        id = thing.id;
-        text = thing.text;
-        note = thing.note;
+    $: thing = thingId && thingId in thingsStoreValue ? thingsStoreValue[thingId] : null;
+    $: if (thing) {
+        console.log("Changing...", thing.text)
+        text = thing.text
+        note = thing.note
     }
     // ... for the Thing's generation.
     $: if (parentGeneration) generation = parentGeneration + 1;
     // ... for the Space child relations are rendered into.
     $: {
-        defaultplane = thing.defaultplane ? thing.defaultplane : null;
+        defaultplane = thing && thing.defaultplane ? thing.defaultplane : null;
     }
     $: if ( !inheritSpace && defaultplane && defaultplane in spacesStoreValue ) {
         space = spacesStoreValue[defaultplane];
@@ -73,34 +77,36 @@
         }
     }
     // ... for child relations.
-    $: if (Object.keys(thing).includes("a_relations")) {
+    $: if (thing && Object.keys(thing).includes("a_relations")) {
         a_relations = thing.a_relations;
         b_relations = thing.b_relations;
         relations = a_relations.concat(b_relations);
     }
     // ... for positioning child relations in their Space.
-    function relationsForDirection(directionId: number): Thing[] {
-        return relations.filter( (t) => (t.relationshipDirection === directionId) );
+    function relationIdsForDirection(directionId: number): number[] {
+        const relationsForDirection = relations.filter( (t) => (t.relationshipDirection === directionId) )
+        const idsForDirection = relationsForDirection.map((x) => x.id)
+        return idsForDirection
     }
     $: {
         relations;
-        halfAxesWithThings = [];
+        halfAxesWithThingIds = [];
         for (const halfAxisId of halfAxisIds) {
-            const halfAxisWithThings = { id: halfAxisId, things: relationsForDirection(halfAxisId) };
-            if (halfAxisWithThings.things.length) halfAxesWithThings.push(halfAxisWithThings);
+            const halfAxisWithThingIds = { id: halfAxisId, thingIds: relationIdsForDirection(halfAxisId) };
+            if (halfAxisWithThingIds.thingIds.length) halfAxesWithThingIds.push(halfAxisWithThingIds);
         }
     }
 
     function handleClick() {
-        console.log(id);
+        console.log(thingId);
     }
 </script>
 
 
-<main>
+<main class="thing-widget">
     
-    <div class="box" on:click={handleClick}>
-        <h1>{id}: {text}</h1>
+    <div class="thing-image" on:click={handleClick}>
+        <h1>{thingId}: {text}</h1>
         {#if showNotes}
             {#if note}
                 {@html note.text}
@@ -110,12 +116,12 @@
         {/if}
     </div>
 
-    {#each halfAxesWithThings as halfAxis}
+    {#each halfAxesWithThingIds as halfAxis}
         <CohortWidget
             parentGeneration={generation}
             halfAxisId={halfAxis.id}
             parentSpace={space}
-            things={halfAxis.things}
+            thingIds={halfAxis.thingIds}
         />
     {/each}
 
@@ -123,7 +129,7 @@
 
 
 <style>
-    .box {
+    .thing-image {
         width: 50px;
         height: 50px;
         padding: 1rem;
@@ -132,7 +138,7 @@
         border-radius: 10px;
         box-shadow: 5px 5px 10px 2px lightgray;
     }
-    .box:hover {
+    .thing-image:hover {
         box-shadow: 5px 5px 10px 10px lightgray;
     }
 </style>

@@ -1,12 +1,4 @@
 import { Model, RelationMappings, RelationMappingsThunk } from 'objection';
-import { spacesStore, thingsStore } from '../routes/__layout.svelte';
-
-// Subscribe to Spaces and Things stores.
-let spacesStoreValue: { [id: number]: Space };
-spacesStore.subscribe(value => {spacesStoreValue = value});
-let thingsStoreValue: { [id: number]: Thing };
-thingsStore.subscribe(value => {thingsStoreValue = value});
-
 
 
 // Direction model.
@@ -37,7 +29,6 @@ export class Direction extends Model {
     }
 }
 
-
 // Space model.
 export class Space extends Model {
     id!: number
@@ -64,12 +55,10 @@ export class Space extends Model {
     }
 }
 
-
 // Relationship model.
 class Relationship extends Model {
     static tableName = 'relationships'
 }
-
 
 // Thing model.
 export class Thing extends Model {
@@ -139,8 +128,7 @@ export class Thing extends Model {
     }
 }
 
-
-// Notes model.
+// Note model.
 export class Note extends Model {
     text!: string
 
@@ -165,7 +153,6 @@ export class Note extends Model {
 }
 
 
-
 async function querySpaces(spaceIds: number): Promise<null | Space>;
 async function querySpaces(spaceIds: number[]): Promise<Space[]>;
 async function querySpaces(spaceIds: null, idsToExclude?: number[]): Promise<Space[]>;
@@ -181,9 +168,6 @@ async function querySpaces(spaceIds: number | number[] | null, idsToExclude?: nu
     } else if (spaceIds === null) {
         if (!idsToExclude) {
             const queriedSpaces = await Space.query()
-                .where(
-                    (builder) => builder.whereIn('id', spaceIds)
-                )
                 .allowGraph('directions')
                 .withGraphFetched('directions')
                 .orderBy('id');
@@ -221,53 +205,19 @@ async function querySpaces(spaceIds: number | number[] | null, idsToExclude?: nu
 }
 
 
+export async function getSpaces(): Promise<Space[]>;
 export async function getSpaces(spaceIds: number): Promise<Space | null>;
-export async function getSpaces(spaceIds: null): Promise<Space[]>;
 export async function getSpaces(spaceIds: number[]): Promise<Space[]>;
-export async function getSpaces(spaceIds: number | number[] | null): Promise<Space | Space[] | null> {
-    if (spaceIds === null) {
-        const retrievedSpaces = Object.values(spacesStoreValue);
-        const idsNotToQuery = Object.keys(spacesStoreValue).map(x => Number(x));
-        const queriedSpaces = await querySpaces(null, idsNotToQuery);
-        for (const queriedSpace of queriedSpaces) {
-            // Add the queried Spaces to the Spaces store.
-            spacesStoreValue[queriedSpace.id] = queriedSpace;
-            spacesStore.set(spacesStoreValue);
-        }
-        const retrievedAndQueriedSpaces = queriedSpaces.concat(retrievedSpaces);
-        return retrievedAndQueriedSpaces;
+export async function getSpaces(spaceIds?: number | number[]): Promise<Space | Space[] | null> {
+    if (typeof spaceIds === "undefined") {
+        const queriedSpaces = await querySpaces(null);
+        return queriedSpaces;
     } else if (typeof spaceIds === "number") {
-        if (spaceIds in spacesStoreValue) {
-            // For ids that are represented in the Spaces store, retrieve those Spaces.
-            return spacesStoreValue[spaceIds];
-        } else {
-            // For ids that aren't represented in the Spaces store, query those Spaces.
-            const queriedSpace = await querySpaces(spaceIds);
-            if (queriedSpace) {
-                // Add the queried Spaces to the Spaces store.
-                spacesStoreValue[queriedSpace.id] = queriedSpace;
-                spacesStore.set(spacesStoreValue);
-            }
-            return queriedSpace;
-        }
+        const queriedSpace = await querySpaces(spaceIds);
+        return queriedSpace;
     } else {
-        // For ids that are represented in the Spaces store, retrieve those Spaces.
-        const idsToRetrieve = spaceIds.filter((id: number) => (id in spacesStoreValue));
-        const retrievedSpaces: Space[] = [];
-        for (const id of idsToRetrieve) {
-            retrievedSpaces.push(spacesStoreValue[id]);
-        }
-        // For ids that aren't represented in the Spaces store, query those Spaces.
-        const idsToQuery = spaceIds.filter((id: number) => !(id in spacesStoreValue));
-        const queriedSpaces = idsToQuery.length ? await querySpaces(idsToQuery) : [];
-        // Add the queried Spaces to the Spaces store.
-        for (const queriedSpace of queriedSpaces) {
-            spacesStoreValue[queriedSpace.id] = queriedSpace;
-            spacesStore.set(spacesStoreValue);
-        }
-        // Return combined queried and retrieved Spaces (or null if none were found for supplied ids).
-        const retrievedAndQueriedSpaces = queriedSpaces.concat(retrievedSpaces);
-        return retrievedAndQueriedSpaces;
+        const queriedSpaces = await querySpaces(spaceIds);
+        return queriedSpaces;
     }
 }
 
@@ -299,38 +249,11 @@ async function queryThings(thingIds: number | number[]): Promise<null | Thing | 
 export async function getThings(thingIds: number): Promise<Thing | null>;
 export async function getThings(thingIds: number[]): Promise<Thing[]>;
 export async function getThings(thingIds: number | number[]): Promise<Thing | Thing[] | null> {
-    if (typeof thingIds === "number") thingIds = [thingIds];
-
-    // For ids that are represented in the Things store, retrieve those Things.
-    const idsToRetrieve = thingIds.filter((id: number) => (id in thingsStoreValue));
-    const retrievedThings: Thing[] = [];
-    for (const id of idsToRetrieve) {
-        retrievedThings.push(thingsStoreValue[id]);
-    }
-
-    // For ids that aren't represented in the Things store, query those Things.
-    const idsToQuery = thingIds.filter((id: number) => !(id in thingsStoreValue));
-    const queriedThings = await queryThings(idsToQuery);
-
-    // Add the queried Things to the Things store.
-    for (const queriedThing of queriedThings) {
-        thingsStoreValue[queriedThing.id] = queriedThing;
-        thingsStore.set(thingsStoreValue);
-    }
-
-    // Return combined queried and retrieved Things (or null if none were found for supplied ids).
-    const retrievedAndQueriedThings = queriedThings.concat(retrievedThings);
-    if (thingIds.length) {
-        if (typeof thingIds === "number") {
-            return retrievedAndQueriedThings[0];
-        } else {
-            return retrievedAndQueriedThings;
-        }
+    if (typeof thingIds === "number") {
+        const queriedThing = await queryThings(thingIds);
+        return queriedThing;
     } else {
-        return null
+        const queriedThings = await queryThings(thingIds);
+        return queriedThings;
     }
 }
-
-
-
-// HERE CREATE A CLEARTHINGS METHOD, TO BE USED WHEN REFRESHING THE GRAPH

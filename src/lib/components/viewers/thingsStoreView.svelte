@@ -1,12 +1,10 @@
 <script lang="ts">
-    import type { Thing } from "$lib/graph";
-    
-    export let things: Thing[];
+    import { thingsStoreAsArray } from '$lib/shared/stores';
 </script>
 
 
 <main>
-    {#each things as { id, text, defaultplane, a_relations, b_relations }}
+    {#each $thingsStoreAsArray as { id, text, defaultplane, a_relations, b_relations }}
         <div class="box">
             <h3>{id}: {text}</h3>
             <h3>SPACE: {defaultplane}</h3>

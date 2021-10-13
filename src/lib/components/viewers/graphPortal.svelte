@@ -1,8 +1,8 @@
 <script lang="ts">
-    import type { Thing } from "$lib/graph";
-    import CohortWidget from "./cohortWidget.svelte"
+    import type { Thing } from "$lib/shared/graph";
+    import CohortWidget from "$lib/components/graphWidgets/cohortWidget.svelte"
 
-    export let things: Thing[];
+    export let thingIds: number[];
 </script>
 
 
@@ -12,7 +12,7 @@
             parentGeneration={null}
             halfAxisId={0}
             parentSpace={null}
-            {things}
+            {thingIds}
         />
     </div>
 </main>
