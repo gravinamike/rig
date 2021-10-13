@@ -1,4 +1,4 @@
-import { Thing, getThings } from '$lib/shared/graph';
+import { Thing, queryThings } from '$lib/shared/graph'
 
 let thingIds: string | number[];
 
@@ -13,7 +13,7 @@ export async function get(
     try {
         
         ({ thingIds } = params)
-        const things = await getThings(thingIds.split(",").map(x => Number(x)))
+        const things = await queryThings(thingIds.split(",").map(x => Number(x)))
         return {
             status: 200,
             body: things

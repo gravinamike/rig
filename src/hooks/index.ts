@@ -1,7 +1,5 @@
 import type { Handle } from '@sveltejs/kit'
 import { connectToDatabase } from "$lib/shared/db"
-import pkg from 'objection'
-const { Model } = pkg
 
 
 export const handle: Handle = async ({ request, resolve }) => {

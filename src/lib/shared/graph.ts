@@ -153,10 +153,11 @@ export class Note extends Model {
 }
 
 
-async function querySpaces(spaceIds: number): Promise<null | Space>;
-async function querySpaces(spaceIds: number[]): Promise<Space[]>;
-async function querySpaces(spaceIds: null, idsToExclude?: number[]): Promise<Space[]>;
-async function querySpaces(spaceIds: number | number[] | null, idsToExclude?: number[]): Promise<null | Space | Space[]> {
+// Functions to query Graph constructs.
+export async function querySpaces(spaceIds: number): Promise<null | Space>;
+export async function querySpaces(spaceIds: number[]): Promise<Space[]>;
+export async function querySpaces(spaceIds: null, idsToExclude?: number[]): Promise<Space[]>;
+export async function querySpaces(spaceIds: number | number[] | null, idsToExclude?: number[]): Promise<null | Space | Space[]> {
     if (typeof spaceIds === "number") {
         const queriedSpaces = await Space.query()
             .where("id", spaceIds)
@@ -204,27 +205,9 @@ async function querySpaces(spaceIds: number | number[] | null, idsToExclude?: nu
     }
 }
 
-
-export async function getSpaces(): Promise<Space[]>;
-export async function getSpaces(spaceIds: number): Promise<Space | null>;
-export async function getSpaces(spaceIds: number[]): Promise<Space[]>;
-export async function getSpaces(spaceIds?: number | number[]): Promise<Space | Space[] | null> {
-    if (typeof spaceIds === "undefined") {
-        const queriedSpaces = await querySpaces(null);
-        return queriedSpaces;
-    } else if (typeof spaceIds === "number") {
-        const queriedSpace = await querySpaces(spaceIds);
-        return queriedSpace;
-    } else {
-        const queriedSpaces = await querySpaces(spaceIds);
-        return queriedSpaces;
-    }
-}
-
-
-async function queryThings(thingIds: number): Promise<null | Thing>;
-async function queryThings(thingIds: number[]): Promise<Thing[]>;
-async function queryThings(thingIds: number | number[]): Promise<null | Thing | Thing[]> {
+export async function queryThings(thingIds: number): Promise<null | Thing>;
+export async function queryThings(thingIds: number[]): Promise<Thing[]>;
+export async function queryThings(thingIds: number | number[]): Promise<null | Thing | Thing[]> {
     if (typeof thingIds === "number") {
         const queriedThings = await Thing.query()
             .where("id", thingIds)
@@ -242,18 +225,6 @@ async function queryThings(thingIds: number | number[]): Promise<null | Thing | 
             .withGraphFetched('[a_relations, b_relations, note]')
             .orderBy('id');
             //.debug();
-        return queriedThings;
-    }
-}
-
-export async function getThings(thingIds: number): Promise<Thing | null>;
-export async function getThings(thingIds: number[]): Promise<Thing[]>;
-export async function getThings(thingIds: number | number[]): Promise<Thing | Thing[] | null> {
-    if (typeof thingIds === "number") {
-        const queriedThing = await queryThings(thingIds);
-        return queriedThing;
-    } else {
-        const queriedThings = await queryThings(thingIds);
         return queriedThings;
     }
 }

@@ -1,4 +1,4 @@
-import { Space, getSpaces } from '$lib/shared/graph';
+import { Space, querySpaces } from '$lib/shared/graph'
 
 let spaceIds: string | number[]
 
@@ -13,7 +13,7 @@ export async function get(
     try {
 
         ({ spaceIds } = params)
-        const spaces = spaceIds === "all" ? await getSpaces() : await getSpaces(spaceIds.split(",").map(x => Number(x)))
+        const spaces = spaceIds === "all" ? await querySpaces(null) : await querySpaces(spaceIds.split(",").map(x => Number(x)))
         
         return {
             status: 200,
