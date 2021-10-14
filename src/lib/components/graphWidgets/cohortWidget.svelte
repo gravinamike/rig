@@ -1,12 +1,15 @@
 <script context="module" lang="ts">
+    import { thingIdsNotFoundStore } from '$lib/shared/stores'
+
     // Component types and constants.
     import type { HalfAxisId } from "./thingWidget.svelte"
     const offsetSignsByHalfAxisId = { 0: [0, 0], 1: [0, 1], 2: [0, -1], 3: [1, 0], 4: [-1, 0] };
 </script>
 
 <script lang="ts">
-    import type { Space, Thing } from "$lib/shared/graph"
+    import type { Space } from "$lib/shared/graph"
     import ThingWidget from "$lib/components/graphWidgets/thingWidget.svelte"
+    import DeadThingLinkWidget from "$lib/components/graphWidgets/deadThingLinkWidget.svelte"
 
     export let parentGeneration: number | null;
     export let halfAxisId: HalfAxisId;
@@ -25,11 +28,17 @@
 
 <main class="cohort-widget" style="left: calc({offsets[0]}px + 50%); top: calc({offsets[1]}px + 50%); flex-direction: {[3, 4].includes(halfAxisId) ? "column" : "row"};">
     {#each thingIds as thingId}
-        <ThingWidget
-            {thingId}
-            {parentGeneration}
-            {parentSpace}
-        />
+        {#if $thingIdsNotFoundStore.includes(thingId)}
+            <DeadThingLinkWidget
+                {thingId}
+            />
+        {:else}
+            <ThingWidget
+                {thingId}
+                {parentGeneration}
+                {parentSpace}
+            />
+        {/if}
     {/each}
 </main>
 

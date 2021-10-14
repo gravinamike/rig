@@ -1,9 +1,12 @@
 <script lang="ts">
-    import { thingsStoreAsArray } from '$lib/shared/stores';
+    import { thingsStoreAsArray, thingIdsNotFoundStore } from '$lib/shared/stores';
 </script>
 
 
 <main>
+    {#if $thingsStoreAsArray.length}
+        <h2>Things found:</h2>
+    {/if}
     {#each $thingsStoreAsArray as { id, text, defaultplane, a_relations, b_relations }}
         <div class="box">
             <h3>{id}: {text}</h3>
@@ -20,6 +23,15 @@
             {/each}
         </div>
     {/each}
+
+    {#if $thingIdsNotFoundStore.length}
+        <h2>Things not found:</h2>
+    {/if}
+    {#each $thingIdsNotFoundStore as id}
+        <div class="box">
+            <h3>{id}</h3>
+        </div>
+    {/each}
 </main>
 
 
@@ -32,6 +44,7 @@
         overflow-x: hidden;
         overflow-y: auto;
         outline: solid 1px;
+        text-align: center;
     }
     .box {
         padding: 1rem;

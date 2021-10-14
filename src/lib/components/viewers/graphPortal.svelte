@@ -1,5 +1,4 @@
 <script lang="ts">
-    import type { Thing } from "$lib/shared/graph";
     import CohortWidget from "$lib/components/graphWidgets/cohortWidget.svelte"
 
     export let thingIds: number[];
