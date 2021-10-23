@@ -1,5 +1,5 @@
-import { writable, derived } from 'svelte/store';
-import type { Space, Thing } from "$lib/shared/graph";
+import { writable, derived } from 'svelte/store'
+import type { Space, Thing } from "$lib/shared/graph/graphDb"
 
 
 // Create Space-related stores.
@@ -63,7 +63,7 @@ export function updateThingIdsNotFoundStore( ids: number | number[] ): void {
 }
 
 // Functions to get Spaces and Things from the API and add them to the stores.
-export async function storeSpaces( spaceIds?: number | number[] ): Promise<void> {
+export async function storeSpaces( spaceIds?: number | number[] ): Promise<Space[]> {
     let res: Response
     if (typeof spaceIds === "undefined") {
         res = await fetch("api/spaces-all");
@@ -82,12 +82,34 @@ export async function storeSpaces( spaceIds?: number | number[] ): Promise<void>
             const idsNotFound = spaceIds.filter( x => !idsFound.includes(x) )
             updateSpaceIdsNotFoundStore(idsNotFound)
         }
+        return queriedSpaces
     } else {
         res.text().then(text => {throw Error(text)})
+        return []
     }
 }
 
-export async function storeThings( thingIds: number | number[] ): Promise<void> {
+export function retrieveSpaces( spaceIds: number ): Space | null
+export function retrieveSpaces( spaceIds: number[] ): Space[]
+export function retrieveSpaces( spaceIds: number | number[] ): Space[] | Space | null {
+    if (typeof spaceIds === "number") {
+        const output = spaceIds in spacesStoreValue ? spacesStoreValue[spaceIds] : null
+        return output
+    } else {
+        const output: Space[] = []
+        for (const spaceId of spaceIds) {
+            if (spaceId in spacesStoreValue) output.push(spacesStoreValue[spaceId])
+        }
+        return output
+    }
+}
+
+export function spaceInStore( spaceId: number ): boolean {
+    if (spaceId in spacesStoreValue) return true
+    return false
+}
+
+export async function storeThings( thingIds: number | number[] ): Promise<Thing[]> {
     if ( typeof thingIds === "number" ) thingIds = [thingIds]
     const idsNotToQuery = Object.keys(thingsStoreValue).map(x => Number(x));
     const idsToQuery = thingIds.filter( x => !idsNotToQuery.includes(x) )
@@ -99,7 +121,29 @@ export async function storeThings( thingIds: number | number[] ): Promise<void> 
         const idsFound = queriedThings.map(x => x.id)
         const idsNotFound = thingIds.filter( x => !idsFound.includes(x) )
         updateThingIdsNotFoundStore(idsNotFound)
+        return queriedThings
     } else {
         res.text().then(text => {throw Error(text)})
+        return []
     }
+}
+
+export function retrieveThings( thingIds: number ): Thing | null
+export function retrieveThings( thingIds: number[] ): Thing[]
+export function retrieveThings( thingIds: number | number[] ): Thing[] | Thing | null {
+    if (typeof thingIds === "number") {
+        const output = thingIds in thingsStoreValue ? thingsStoreValue[thingIds] : null
+        return output
+    } else {
+        const output: Thing[] = []
+        for (const thingId of thingIds) {
+            if (thingId in thingsStoreValue) output.push(thingsStoreValue[thingId])
+        }
+        return output
+    }
+}
+
+export function thingInStore( thingId: number ): boolean {
+    if (thingId in thingsStoreValue) return true
+    return false
 }

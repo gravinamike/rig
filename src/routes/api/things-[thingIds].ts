@@ -1,4 +1,4 @@
-import { Thing, queryThings } from '$lib/shared/graph'
+import { Thing, queryThings } from '$lib/shared/graph/graphDb'
 
 let thingIds: string | number[];
 
@@ -9,7 +9,6 @@ export async function get(
     status: number;
     body: Thing[] | { error: string }
 }> {
-
     try {
         
         ({ thingIds } = params)

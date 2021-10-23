@@ -1,4 +1,4 @@
-import { Space, querySpaces } from '$lib/shared/graph'
+import { Space, querySpaces } from '$lib/shared/graph/graphDb'
 
 let spaceIds: string | number[]
 

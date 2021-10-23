@@ -1,18 +1,20 @@
 <script lang="ts">
+    import type { Graph, Cohort } from "$lib/shared/graph/graph"
     import CohortWidget from "$lib/components/graphWidgets/cohortWidget.svelte"
 
-    export let thingIds: number[];
+    export let graph: Graph
+    $: rootCohort = graph.rootCohort
 </script>
 
 
 <main>
     <div class="centralAnchor">
-        <CohortWidget
-            parentGeneration={null}
-            halfAxisId={0}
-            parentSpace={null}
-            {thingIds}
-        />
+        {#if rootCohort}
+            <CohortWidget
+                cohort={rootCohort}
+                {graph}
+            />
+        {/if}
     </div>
 </main>
 

@@ -7,19 +7,19 @@
     {#if $thingsStoreAsArray.length}
         <h2>Things found:</h2>
     {/if}
-    {#each $thingsStoreAsArray as { id, text, defaultplane, a_relations, b_relations }}
+    {#each $thingsStoreAsArray as { id, text, defaultplane, a_relationships, b_relationships }}
         <div class="box">
             <h3>{id}: {text}</h3>
             <h3>SPACE: {defaultplane}</h3>
             <strong>A-RELATIONS:</strong>
-            {#each a_relations as { id, relationshipDirection, relationshipThingAId, relationshipThingBId }}
-                <p>ID: {id} DIR: {relationshipDirection}</p>
-                <p>IDA: {relationshipThingAId} IDB: {relationshipThingBId}</p>
+            {#each a_relationships as { id, direction, thingaid, thingbid }}
+                <p>ID: {id} DIR: {direction}</p>
+                <p>IDA: {thingaid} IDB: {thingbid}</p>
             {/each}
             <strong>B-RELATIONS:</strong>
-            {#each b_relations as { id, relationshipDirection, relationshipThingAId, relationshipThingBId }}
-                <p>ID: {id} DIR: {relationshipDirection}</p>
-                <p>IDB: {relationshipThingBId} IDA: {relationshipThingAId}</p>
+            {#each b_relationships as { id, direction, thingaid, thingbid }}
+                <p>ID: {id} DIR: {direction}</p>
+                <p>IDA: {thingaid} IDB: {thingbid}</p>
             {/each}
         </div>
     {/each}
