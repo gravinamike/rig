@@ -200,9 +200,15 @@ export class Cohort {
 
 // Graph.
 export class Graph {
-    depth: number | null = null
+    _pThingIds: number[]
+    _depth: number
     rootCohort: Cohort | null = null
     generations: Generation[] = []
+
+    constructor(pThingIds: number[], depth: number) {
+        this._pThingIds = pThingIds
+        this._depth = depth
+    }
 
     addGeneration( members: GenerationMember[] ): void {
         this.generations.push(new Generation(members))
@@ -218,22 +224,45 @@ export class Graph {
         return thingWidgetModels
     }
 
-    async buildGraph(pThingIds: number[], graphDepth: number): Promise<void> {
-        this.depth = graphDepth
+    async pThingIds(): Promise<number[]>
+    async pThingIds( pThingIds: number[] ): Promise<void>
+    async pThingIds( pThingIds?: number[] ): Promise<number[] | void> {
+        if ( pThingIds === undefined ) {
+            return this._pThingIds
+        } else {
+            this._pThingIds = pThingIds
+            await this.build()
+        }
+    }
+
+    async depth(): Promise<number | null>
+    async depth( depth: number ): Promise<void>
+    async depth( depth?: number ): Promise<number | null | void> {
+        if ( depth === undefined ) {
+            return this._depth
+        } else {
+            this._depth = depth
+            await this.build()
+        }
+    }
+
+    async build(): Promise<void> {
+        this.rootCohort = null
         this.generations = []
 
-        for (let i = 0; i <= graphDepth; i++) {
+        for (let i = 0; i <= this._depth; i++) {
             // For generation 0, start from the Perspective Thing IDs.
             // For generations >1, start from the IDs of the last generation's Relation Things.
             const thingIdsForGeneration = i === 0 ?
-                pThingIds :
+                this._pThingIds :
                 (this.generation(i-1) as Generation).thingWidgetModels().
                     map(thingWidgetModel => thingWidgetModel.relatedThingIds).flat()
-            //console.log('Thing IDs for Generation:', thingIdsForGeneration)
+            //console.log(`Thing IDs for Generation ${i}:`, thingIdsForGeneration)
 
             // Filter out Thing IDs already represented in the Graph (to avoid recursion).
             const thingIdsOfGraph = this.thingWidgetModels().map(thingWidgetModel => thingWidgetModel.thingId)
             const thingIdsToStore = thingIdsForGeneration.filter( id => !thingIdsOfGraph.includes(id) )
+            //console.log(`Thing IDs to store:`, thingIdsToStore)
 
             // Store Things from the IDs.
             const storedThings = await storeThings(thingIdsToStore)
@@ -247,6 +276,7 @@ export class Graph {
                 id => { return thingInStore(id) ? new ThingWidgetModel(id) : new ThingPlaceholderWidgetModel(id) }
             )
             this.addGeneration(membersForGeneration)
+            //console.log(`Generation ${i} added.`)
 
             /* A Generation is just a list of Things and Placeholders. But the
              * Things are related across Generations. After building each

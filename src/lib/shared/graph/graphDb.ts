@@ -145,9 +145,9 @@ export class Thing extends Model {
 
     get relationshipInfos(): { relatedThingId: number, directionId: number }[] {
         let relationshipInfos: { relatedThingId: number, directionId: number }[] = []
-        for (const relationship of this.a_relationships) relationshipInfos.push(
+        /*for (const relationship of this.a_relationships) relationshipInfos.push(
             { relatedThingId: relationship.thingaid, directionId: relationship.direction }
-        )
+        )*/
         for (const relationship of this.b_relationships) relationshipInfos.push(
             { relatedThingId: relationship.thingbid, directionId: relationship.direction }
         )

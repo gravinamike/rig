@@ -23,8 +23,8 @@ export const thingsStoreAsArray = derived(
     $thingsStore => Object.values($thingsStore)
 )
 
-const tnf: number[] = [];
-export const thingIdsNotFoundStore = writable( tnf );
+const tinf: number[] = [];
+export const thingIdsNotFoundStore = writable( tinf );
 
 // Subscribe to stores in order to access their values.
 let spacesStoreValue: { [id: number]: Space };
@@ -113,18 +113,23 @@ export async function storeThings( thingIds: number | number[] ): Promise<Thing[
     if ( typeof thingIds === "number" ) thingIds = [thingIds]
     const idsNotToQuery = Object.keys(thingsStoreValue).map(x => Number(x));
     const idsToQuery = thingIds.filter( x => !idsNotToQuery.includes(x) )
-    const res = await fetch(`api/things-${idsToQuery.join(",")}`)
 
-    if (res.ok) {
-        const queriedThings = await res.json() as Thing[]
-        updateThingsStore(queriedThings)
-        const idsFound = queriedThings.map(x => x.id)
-        const idsNotFound = thingIds.filter( x => !idsFound.includes(x) )
-        updateThingIdsNotFoundStore(idsNotFound)
-        return queriedThings
-    } else {
-        res.text().then(text => {throw Error(text)})
+    if (!idsToQuery.length) {
         return []
+    } else {
+        const res = await fetch(`api/things-${idsToQuery.join(",")}`)
+
+        if (res.ok) {
+            const queriedThings = await res.json() as Thing[]
+            updateThingsStore(queriedThings)
+            const idsFound = queriedThings.map(x => x.id)
+            const idsNotFound = idsToQuery.filter( x => !idsFound.includes(x) )
+            updateThingIdsNotFoundStore(idsNotFound)
+            return queriedThings
+        } else {
+            res.text().then(text => {throw Error(text)})
+            return []
+        }
     }
 }
 

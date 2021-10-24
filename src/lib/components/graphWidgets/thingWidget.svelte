@@ -5,14 +5,16 @@
     export let thingWidgetModel: ThingWidgetModel
     export let graph: Graph
     
-    const thingId = thingWidgetModel.thingId
-    const text = thingWidgetModel.text
-    const note = thingWidgetModel.note
+    $: thingId = thingWidgetModel.thingId
+    $: text = thingWidgetModel.text
+    $: note = thingWidgetModel.note
+    $: cohorts = thingWidgetModel.childCohorts
     const showNotes = false
 
-    const cohorts = thingWidgetModel.childCohorts
-
-    function handleClick() { console.log(thingId) }
+    async function handleClick() {
+        await graph.pThingIds([thingId])
+        graph = graph
+    }
 </script>
 
 
@@ -32,7 +34,7 @@
     {#each cohorts as cohort}
         <CohortWidget
             {cohort}
-            {graph}
+            bind:graph
         />
     {/each}
 

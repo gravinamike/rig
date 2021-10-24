@@ -7,15 +7,15 @@
     import GraphPortal from "$lib/components/viewers/graphPortal.svelte"
 
     
-    let graph = new Graph()
     const graphDepth = 1
     const pThingIds = [251]
+    let graph = new Graph(pThingIds, graphDepth)
 
     onMount(async () => {
         // Store Spaces.
         await storeSpaces()
         // Store Things and build Graph.
-        await graph.buildGraph(pThingIds, graphDepth)
+        await graph.build()
         graph = graph // Needed for reactivity.
 	})
 </script>
@@ -25,7 +25,7 @@
     <SpacesStoreView />
     <ThingsStoreView />
     <GraphPortal
-        {graph}
+        bind:graph
     />
 </main>
 

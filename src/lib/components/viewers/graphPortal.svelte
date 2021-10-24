@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { Graph, Cohort } from "$lib/shared/graph/graph"
+    import type { Graph } from "$lib/shared/graph/graph"
     import CohortWidget from "$lib/components/graphWidgets/cohortWidget.svelte"
 
     export let graph: Graph
@@ -12,7 +12,7 @@
         {#if rootCohort}
             <CohortWidget
                 cohort={rootCohort}
-                {graph}
+                bind:graph
             />
         {/if}
     </div>

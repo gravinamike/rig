@@ -11,6 +11,7 @@
     export let cohort: Cohort
     export let graph: Graph
 
+
     const halfAxisId = cohort.address ? cohort.address.halfAxisId : 0
     const offsetSigns = offsetSignsByHalfAxisId[halfAxisId]
     const offsets = [offsetLength * offsetSigns[0], offsetLength * offsetSigns[1]]
@@ -22,7 +23,7 @@
         {#if cohortMember.kind === "thingWidgetModel"}
             <ThingWidget
                 thingWidgetModel={cohortMember}
-                {graph}
+                bind:graph
             />
         {:else}
             <ThingPlaceholderWidget />
