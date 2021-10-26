@@ -2,15 +2,18 @@ import { HalfAxisId, oddHalfAxisIds } from "$lib/shared/graph/graph"
 import { Model, RelationMappings, RelationMappingsThunk } from "objection"
 
 
-// Direction model.
+/*
+ * Direction model.
+ */
 export class Direction extends Model {
+    kind = "direction" as const
+    static tableName = "directions" as const
+
     id!: number
     oppositeid!: number | null
     text!: string | null
     nameforobjects!: string | null
     spaces!: Space[]
-
-    static tableName = 'directions'
 
     static get relationMappings(): RelationMappings | RelationMappingsThunk {
         return {
@@ -30,13 +33,18 @@ export class Direction extends Model {
     }
 }
 
-// Space model.
+
+/*
+ * Space model.
+ */
 export class Space extends Model {
+    kind = "space" as const
+    static tableName = "spaces" as const
+
     id!: number
     text!: string | null
     directions!: Direction[]
 
-    static tableName = 'spaces'
 
     static get relationMappings(): RelationMappings | RelationMappingsThunk {
         return {
@@ -83,19 +91,26 @@ export class Space extends Model {
     }
 }
 
-// Relationship model.
+
+/*
+ * Relationship model.
+ */
 class Relationship extends Model {
+    kind = "relationship" as const
+    static tableName = "relationships" as const
+
     id!: number
     direction!: number
     thingaid!: number
     thingbid!: number
-
-    static tableName = 'relationships'
 }
 
-// Thing model.
+/*
+ * Thing model.
+ */
 export class Thing extends Model {
-    kind = 'thing'
+    kind = "thing" as const
+    static tableName = "things" as const
 
     id!: number
     text!: string
@@ -103,8 +118,6 @@ export class Thing extends Model {
     defaultplane!: number | null//CAN WE RENAME TO DEFAULTSPACEID?
     a_relationships!: Relationship[]
     b_relationships!: Relationship[]
-
-    static tableName = 'things'
 
     static get relationMappings(): RelationMappings | RelationMappingsThunk {
         return {
@@ -175,11 +188,15 @@ export class Thing extends Model {
     }
 }
 
-// Note model.
+/*
+ * Note model.
+ */
 export class Note extends Model {
-    text!: string
+    kind = "note" as const
+    static tableName = "notes" as const
 
-    static tableName = 'notes'
+    id!: number
+    text!: string
 
     static get relationMappings(): RelationMappings | RelationMappingsThunk {
         return {
@@ -200,27 +217,24 @@ export class Note extends Model {
 }
 
 
-// Functions to query Graph constructs.
+/*
+ * Functions to query Graph constructs.
+ */
 export async function querySpaces(spaceIds: number): Promise<null | Space>;
 export async function querySpaces(spaceIds: number[]): Promise<Space[]>;
 export async function querySpaces(spaceIds: null, idsToExclude?: number[]): Promise<Space[]>;
 export async function querySpaces(spaceIds: number | number[] | null, idsToExclude?: number[]): Promise<null | Space | Space[]> {
-    if (typeof spaceIds === "number") {
-        const queriedSpaces = await Space.query()
-            .where("id", spaceIds)
-            .allowGraph('directions')
-            .withGraphFetched('directions')
-            .orderBy('id');
-            //.debug();
-        return queriedSpaces.length ? queriedSpaces[0] : null;
-    } else if (spaceIds === null) {
+    
+    // If a null ID is supplied,
+    if (spaceIds === null) {
+        // If no IDs to exclude are supplied, query all Spaces.
         if (!idsToExclude) {
             const queriedSpaces = await Space.query()
                 .allowGraph('directions')
                 .withGraphFetched('directions')
-                .orderBy('id');
-                //.debug();
-            return queriedSpaces;
+                .orderBy('id')
+            return queriedSpaces
+        // If IDs to exclude are supplied, query all Spaces not matching those IDs.
         } else {
             const queriedSpaces = await Space.query()
                 .where(
@@ -228,10 +242,20 @@ export async function querySpaces(spaceIds: number | number[] | null, idsToExclu
                 )
                 .allowGraph('directions')
                 .withGraphFetched('directions')
-                .orderBy('id');
-                //.debug();
-            return queriedSpaces;
+                .orderBy('id')
+            return queriedSpaces
         }
+
+    // If a single ID is supplied, query based on match to that ID (or return null if nothing is found).
+    } else if (typeof spaceIds === "number") {
+        const queriedSpaces = await Space.query()
+            .where("id", spaceIds)
+            .allowGraph('directions')
+            .withGraphFetched('directions')
+            .orderBy('id')
+        return queriedSpaces.length ? queriedSpaces[0] : null
+
+    // If multiple IDs are supplied, query based on match to those IDs.
     } else if (spaceIds.length) {
         const queriedSpaces = await Space.query()
             .where(
@@ -239,30 +263,29 @@ export async function querySpaces(spaceIds: number | number[] | null, idsToExclu
             )
             .allowGraph('directions')
             .withGraphFetched('directions')
-            .orderBy('id');
-            //.debug();
-        return queriedSpaces;
+            .orderBy('id')
+        return queriedSpaces
+
+    // If an empty array is supplied, return an empty array.
     } else {
-        const queriedSpaces = await Space.query()
-            .allowGraph('directions')
-            .withGraphFetched('directions')
-            .orderBy('id');
-            //.debug();
-        return queriedSpaces;
+        return []
     }
 }
 
 export async function queryThings(thingIds: number): Promise<null | Thing>;
 export async function queryThings(thingIds: number[]): Promise<Thing[]>;
 export async function queryThings(thingIds: number | number[]): Promise<null | Thing | Thing[]> {
+
+    // If a single ID is supplied, query based on match to that ID (or return null if nothing is found).
     if (typeof thingIds === "number") {
         const queriedThings = await Thing.query()
             .where("id", thingIds)
             .allowGraph('[a_relationships, b_relationships, note]')
             .withGraphFetched('[a_relationships, b_relationships, note]')
-            .orderBy('id');
-            //.debug();
-        return queriedThings.length ? queriedThings[0] : null;
+            .orderBy('id')
+        return queriedThings.length ? queriedThings[0] : null
+
+    // If multiple IDs are supplied, query based on match to those IDs.
     } else {
         const queriedThings = await Thing.query()
             .where(
@@ -270,8 +293,7 @@ export async function queryThings(thingIds: number | number[]): Promise<null | T
             )
             .allowGraph('[a_relationships, b_relationships, note]')
             .withGraphFetched('[a_relationships, b_relationships, note]')
-            .orderBy('id');
-            //.debug();
-        return queriedThings;
+            .orderBy('id')
+        return queriedThings
     }
 }

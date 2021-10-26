@@ -11,10 +11,10 @@
     export let cohort: Cohort
     export let graph: Graph
 
-
+    // Calculate x and y offsets relative to parent Thing Widget.
     const halfAxisId = cohort.address ? cohort.address.halfAxisId : 0
     const offsetSigns = offsetSignsByHalfAxisId[halfAxisId]
-    const offsets = [offsetLength * offsetSigns[0], offsetLength * offsetSigns[1]]
+    const offsets = [ offsetLength * offsetSigns[0], offsetLength * offsetSigns[1] ]
 </script>
 
 
@@ -26,7 +26,9 @@
                 bind:graph
             />
         {:else}
-            <ThingPlaceholderWidget />
+            <ThingPlaceholderWidget
+                thingPlaceholderWidgetModel={cohortMember}
+            />
         {/if}
     {/each}
 </main>

@@ -1,22 +1,16 @@
 <script lang="ts">
-    import { onMount } from 'svelte'
-    import { Graph } from "$lib/shared/graph/graph"
-    import { storeSpaces, storeThings } from '$lib/shared/stores'
+    import { onMount } from "svelte"
+    import { storeSpaces } from '$lib/shared/stores'
     import SpacesStoreView from "$lib/components/viewers/spacesStoreView.svelte"
     import ThingsStoreView from "$lib/components/viewers/thingsStoreView.svelte"
     import GraphPortal from "$lib/components/viewers/graphPortal.svelte"
 
     
-    const graphDepth = 1
     const pThingIds = [251]
-    let graph = new Graph(pThingIds, graphDepth)
+    const graphDepth = 1
 
     onMount(async () => {
-        // Store Spaces.
         await storeSpaces()
-        // Store Things and build Graph.
-        await graph.build()
-        graph = graph // Needed for reactivity.
 	})
 </script>
 
@@ -25,7 +19,8 @@
     <SpacesStoreView />
     <ThingsStoreView />
     <GraphPortal
-        bind:graph
+        {pThingIds}
+        depth={graphDepth}
     />
 </main>
 

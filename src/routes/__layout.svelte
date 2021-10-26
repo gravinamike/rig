@@ -21,6 +21,7 @@
         flex-grow: 1;
         height: 100%;
         max-height: 100%;
+        font-family: Arial;
     }
     nav {
         padding: 1rem;

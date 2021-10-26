@@ -1,12 +1,13 @@
 <script lang="ts">
-    import { thingsStoreAsArray, thingIdsNotFoundStore } from '$lib/shared/stores';
+    import { thingsStoreAsArray, thingIdsNotFoundStore } from "$lib/shared/stores"
 </script>
 
 
 <main>
     {#if $thingsStoreAsArray.length}
-        <h2>Things found:</h2>
+        <h2>{$thingsStoreAsArray.length} Things found:</h2>
     {/if}
+
     {#each $thingsStoreAsArray as { id, text, defaultplane, a_relationships, b_relationships }}
         <div class="box">
             <h3>{id}: {text}</h3>
@@ -25,8 +26,9 @@
     {/each}
 
     {#if $thingIdsNotFoundStore.length}
-        <h2>Things not found:</h2>
+        <h2>{$thingsStoreAsArray.length} Things not found:</h2>
     {/if}
+    
     {#each $thingIdsNotFoundStore as id}
         <div class="box">
             <h3>{id}</h3>

@@ -1,11 +1,13 @@
 <script lang="ts">
+    import type { ThingPlaceholderWidgetModel } from "$lib/shared/graph/graph"
 
+    export let thingPlaceholderWidgetModel: ThingPlaceholderWidgetModel
 </script>
 
 
 <main class="thing-placeholder-widget">
     <div class="box">
-        PLACEHOLDER
+        PLACEHOLDER FOR THING {thingPlaceholderWidgetModel.thingId}
     </div>
 </main>
 

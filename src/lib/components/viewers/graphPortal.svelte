@@ -1,9 +1,18 @@
 <script lang="ts">
-    import type { Graph } from "$lib/shared/graph/graph"
+    import { Graph } from "$lib/shared/graph/graph"
+    import { onMount } from "svelte"
     import CohortWidget from "$lib/components/graphWidgets/cohortWidget.svelte"
 
-    export let graph: Graph
+    export let pThingIds: number[]
+    export let depth: number
+
+    let graph = new Graph(pThingIds, depth)
     $: rootCohort = graph.rootCohort
+
+    onMount(async () => {
+        await graph.build()
+        graph = graph // Needed for reactivity.
+	})
 </script>
 
 

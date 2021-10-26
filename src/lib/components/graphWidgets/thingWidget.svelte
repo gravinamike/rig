@@ -12,16 +12,18 @@
     const showNotes = false
 
     async function handleClick() {
-        await graph.pThingIds([thingId])
-        graph = graph
+        await graph.pThingIds([thingId]) // Re-Perspect to this Thing.
+        graph = graph // Needed for reactivity.
     }
 </script>
 
 
 <main class="thing-widget">
     
+    <!-- The Thing itself. -->
     <div class="thing-image" on:click={handleClick}>
         <h1>{thingId}: {text}</h1>
+
         {#if showNotes}
             {#if note}
                 {@html note.text}
@@ -31,6 +33,7 @@
         {/if}
     </div>
 
+    <!-- The Thing's child Cohorts. -->
     {#each cohorts as cohort}
         <CohortWidget
             {cohort}

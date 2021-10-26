@@ -1,12 +1,13 @@
 <script lang="ts">
-    import { spacesStoreAsArray, spaceIdsNotFoundStore } from '$lib/shared/stores'
+    import { spacesStoreAsArray, spaceIdsNotFoundStore } from "$lib/shared/stores"
 </script>
 
 
 <main>
     {#if $spacesStoreAsArray.length}
-        <h2>Spaces found:</h2>
+        <h2>{$spacesStoreAsArray.length} Spaces found:</h2>
     {/if}
+
     {#each $spacesStoreAsArray as { id, text, directions }}
         <div class="box">
             <h3>{id}: {text}</h3>
@@ -19,8 +20,9 @@
     {/each}
 
     {#if $spaceIdsNotFoundStore.length}
-        <h2>Spaces not found:</h2>
+        <h2>{$spaceIdsNotFoundStore.length} Spaces not found:</h2>
     {/if}
+
     {#each $spaceIdsNotFoundStore as id}
         <div class="box">
             <h3>{id}</h3>

@@ -1,5 +1,5 @@
 import type { Space, Thing, Note } from "$lib/shared/graph/graphDb"
-import { retrieveSpaces, spaceInStore, storeThings, retrieveThings, thingInStore } from '$lib/shared/stores'
+import { retrieveSpaces, spaceInStore, storeThings, retrieveThings, thingInStore } from "$lib/shared/stores"
 
 export type HalfAxisId = 1 | 2 | 3 | 4
 export const halfAxisIds = [1, 2, 3, 4] as const
@@ -18,7 +18,8 @@ type ThingAddress = {
 }
 
 export class ThingWidgetModel {
-    kind: 'thingWidgetModel' = 'thingWidgetModel'
+    kind = "thingWidgetModel" as const
+
     thingId: number
     thing: Thing | null
     parentCohort: Cohort | null = null
@@ -31,6 +32,16 @@ export class ThingWidgetModel {
     }
 
     // The following getter functions pass along the corresponding attributes from the encapsulated Thing.
+    get text(): string {
+        const text = this.thing ? this.thing.text : ""
+        return text
+    }
+
+    get note(): Note | null {
+        const note = this.thing ? this.thing.note : null
+        return note
+    }
+    
     get defaultSpaceId(): number | null {
         const defaultSpaceId = this.thing ? this.thing.defaultplane : null
         return defaultSpaceId
@@ -49,16 +60,6 @@ export class ThingWidgetModel {
     get relatedThingDirectionIds(): number[] {
         const relatedThingDirectionIds = Object.keys(this.relatedThingIdsByDirectionId).map(k => Number(k))
         return relatedThingDirectionIds
-    }
-
-    get text(): string {
-        const text = this.thing ? this.thing.text : ""
-        return text
-    }
-
-    get note(): Note | null {
-        const note = this.thing ? this.thing.note : null
-        return note
     }
 
     // The following getter functions pass along the corresponding attributes from the Thing Widget's Cohort.
@@ -111,6 +112,11 @@ export class ThingWidgetModel {
         return directionIdByHalfAxisId
     }
 
+    get childCohorts(): Cohort[] {
+        const childCohorts = Object.values(this.childCohortsByHalfAxisId)
+        return childCohorts
+    }
+
     relatedThingIdsByHalfAxisId(halfAxisId: HalfAxisId): number[] {
         const directionId = this.space.directionIdByHalfAxisId[halfAxisId]
         const relatedThingIds = directionId ? this.relatedThingIdsByDirectionId[directionId] : [] as number[]
@@ -127,16 +133,12 @@ export class ThingWidgetModel {
             this.childCohortsByHalfAxisId[halfAxisId] = cohort
         }
     }
-
-    get childCohorts(): Cohort[] {
-        const childCohorts = Object.values(this.childCohortsByHalfAxisId)
-        return childCohorts
-    }
 }
 
 
 export class ThingPlaceholderWidgetModel {
-    kind: 'thingPlaceholderWidgetModel' = 'thingPlaceholderWidgetModel'
+    kind = "thingPlaceholderWidgetModel"
+
     thingId: number
     thing: Thing | null
     parentCohort: Cohort | null = null
@@ -153,6 +155,8 @@ type GenerationMember = ThingWidgetModel | ThingPlaceholderWidgetModel
 
 // Generation.
 export class Generation {
+    kind = "generation"
+
     members: GenerationMember[]
 
     constructor(members: GenerationMember[]) {
@@ -180,6 +184,8 @@ type CohortAddress = {
 }
 
 export class Cohort {
+    kind = "cohort"
+
     address: CohortAddress | null
     members: GenerationMember[]
 
