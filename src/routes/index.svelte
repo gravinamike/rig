@@ -1,6 +1,7 @@
 <script lang="ts">
     import { onMount } from "svelte"
     import { storeSpaces } from '$lib/shared/stores'
+    import Collapser from "$lib/components/layoutElements/collapser.svelte"
     import SpacesStoreView from "$lib/components/viewers/spacesStoreView.svelte"
     import ThingsStoreView from "$lib/components/viewers/thingsStoreView.svelte"
     import GraphPortal from "$lib/components/viewers/graphPortal.svelte"
@@ -16,8 +17,12 @@
 
 
 <main>
-    <SpacesStoreView />
-    <ThingsStoreView />
+    <Collapser headerText={"Stored Spaces"} contentDirection={"left"} expanded={false}>
+        <SpacesStoreView />
+    </Collapser>
+    <Collapser headerText={"Stored Things"} contentDirection={"left"} expanded={false}>
+        <ThingsStoreView />
+    </Collapser>
     <GraphPortal
         {pThingIds}
         depth={graphDepth}

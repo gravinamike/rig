@@ -35,7 +35,8 @@
         justify-content: center;
         align-items: center;
         overflow: auto;
-        outline: solid 1px;
+        outline: solid 1px lightgrey;
+        outline-offset: -1px;
     }
     .centralAnchor {
         position: relative;

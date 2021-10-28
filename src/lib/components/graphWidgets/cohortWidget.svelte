@@ -20,7 +20,7 @@
 
 <main class="cohort-widget" style="left: calc({offsets[0]}px + 50%); top: calc({offsets[1]}px + 50%); flex-direction: {[3, 4].includes(halfAxisId) ? "column" : "row"};">
     {#each cohort.members as cohortMember}
-        {#if cohortMember.kind === "thingWidgetModel"}
+        {#if "text" in cohortMember}
             <ThingWidget
                 thingWidgetModel={cohortMember}
                 bind:graph

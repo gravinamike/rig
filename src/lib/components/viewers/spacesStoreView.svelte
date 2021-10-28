@@ -1,5 +1,6 @@
 <script lang="ts">
     import { spacesStoreAsArray, spaceIdsNotFoundStore } from "$lib/shared/stores"
+    import Collapser from "$lib/components/layoutElements/collapser.svelte"
 </script>
 
 
@@ -10,12 +11,18 @@
 
     {#each $spacesStoreAsArray as { id, text, directions }}
         <div class="box">
-            <h3>{id}: {text}</h3>
-            <strong>DIRECTIONS:</strong>
-            {#each directions as { id, oppositeid, text, nameforobjects }}
-                <p>ID: {id} OPP: {oppositeid}</p>
-                <p>TEXT: {text} OBJ: {nameforobjects}</p>
-            {/each}
+            <h4>{`${id} ${text}`}</h4>
+            <Collapser headerText={"Directions"}>
+                <div class="directions-list">
+                    {#each directions as { id, oppositeid, text, nameforobjects }}
+                        <p>
+                            Id: {id} Opposite: {oppositeid}<br>
+                            Text: {text}<br>
+                            Objects: {nameforobjects}<br>
+                        </p>
+                    {/each}
+                </div>
+            </Collapser>
         </div>
     {/each}
 
@@ -34,20 +41,38 @@
 <style>
     main {
         width: 225px;
+        height: 100%;
         display: flex;
         flex-direction: column;
         overflow-x: hidden;
         overflow-y: auto;
-        outline: solid 1px;
         text-align: center;
+        background-color: #fafafa;
+        outline: solid 1px lightgrey;
+        outline-offset: -1px;
     }
+
     .box {
         padding: 1rem;
-        margin: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin: 0.75rem;
         height: max-content;
         font-size: 0.75rem;
-        text-align: center;
+        text-align: left;
+        background-color: white;
         border-radius: 10px;
         box-shadow: 5px 5px 10px 2px lightgray;
+    }
+
+    h4 {
+        margin: 0;
+        overflow-wrap: break-word;
+    }
+
+    .directions-list {
+        padding: 5px;
+        background-color: whitesmoke;
     }
   </style>

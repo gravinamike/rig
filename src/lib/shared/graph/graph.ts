@@ -18,7 +18,7 @@ type ThingAddress = {
 }
 
 export class ThingWidgetModel {
-    kind = "thingWidgetModel" as const
+    kind = "thingWidgetModel"
 
     thingId: number
     thing: Thing | null
