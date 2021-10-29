@@ -1,6 +1,6 @@
 <script lang="ts">
     import { thingsStoreAsArray, thingIdsNotFoundStore } from "$lib/shared/stores"
-    import Collapser from "$lib/components/layoutElements/collapser.svelte"
+    import ThingDetailsWidget from "$lib/components/graphWidgets/thingDetailsWidget.svelte"
 </script>
 
 
@@ -9,25 +9,10 @@
         <h2>{$thingsStoreAsArray.length} Things found:</h2>
     {/if}
 
-    {#each $thingsStoreAsArray as { id, text, defaultplane, a_relationships, b_relationships }}
-        <div class="box">
-            <h4>{`${id} ${text}`}</h4>
-            <h4>Space: {defaultplane}</h4>
-            <Collapser headerText={"Related Things"}>
-                <div class="related-things-list">
-                    <strong>A-relations:</strong>
-                    {#each a_relationships as { id, direction, thingaid, thingbid }}
-                        <p>Id: {id} Dir: {direction}</p>
-                        <p>Id A: {thingaid} Id B: {thingbid}</p>
-                    {/each}
-                    <strong>B-relations:</strong>
-                    {#each b_relationships as { id, direction, thingaid, thingbid }}
-                        <p>Id: {id} Dir: {direction}</p>
-                        <p>Id A: {thingaid} Id B: {thingbid}</p>
-                    {/each}
-                </div>
-            </Collapser>
-        </div>
+    {#each $thingsStoreAsArray as thing}
+        <ThingDetailsWidget
+            {thing}
+        />
     {/each}
 
     {#if $thingIdsNotFoundStore.length}
@@ -68,15 +53,5 @@
         background-color: white;
         border-radius: 10px;
         box-shadow: 5px 5px 10px 2px lightgray;
-    }
-
-    h4 {
-        margin: 0;
-        overflow-wrap: break-word;
-    }
-
-    .related-things-list {
-        padding: 5px;
-        background-color: whitesmoke;
     }
   </style>
