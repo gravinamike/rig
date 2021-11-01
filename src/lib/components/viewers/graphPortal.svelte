@@ -1,6 +1,8 @@
 <script lang="ts">
     import { Graph } from "$lib/shared/graph/graph"
     import { onMount } from "svelte"
+    import Collapser from "$lib/components/layoutElements/collapser.svelte"
+    import GraphSchematicView from "$lib/components/viewers/graphSchematicView.svelte"
     import CohortWidget from "$lib/components/graphWidgets/cohortWidget.svelte"
 
     export let pThingIds: number[]
@@ -17,19 +19,32 @@
 
 
 <main>
-    <div class="centralAnchor">
-        {#if rootCohort}
-            <CohortWidget
-                cohort={rootCohort}
-                bind:graph
-            />
-        {/if}
+    <Collapser headerText={"Graph schematic"} contentDirection={"left"} expanded={false}>
+        <GraphSchematicView
+            {graph}
+        />
+    </Collapser>
+
+    <div class="portal">
+        <div class="centralAnchor">
+            {#if rootCohort}
+                <CohortWidget
+                    cohort={rootCohort}
+                    bind:graph
+                />
+            {/if}
+        </div>
     </div>
 </main>
 
 
 <style>
     main {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: row;
+    }
+    .portal {
         flex-grow: 1;
         display: flex;
         justify-content: center;
