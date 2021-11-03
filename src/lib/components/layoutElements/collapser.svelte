@@ -11,7 +11,7 @@
 <div class="collapser {verticalOrHorizontal}">
     <div class="header {verticalOrHorizontal} {contentDirection}">
         <h3>
-            <div class="button" aria-expanded={expanded} on:click={() => expanded = !expanded}>
+            <div class="button" aria-expanded={expanded} on:click|stopPropagation={() => expanded = !expanded}>
                 {#if contentDirection === "down"}
                     {expanded ? "▼" : "►"}
                 {:else if contentDirection === "up"}

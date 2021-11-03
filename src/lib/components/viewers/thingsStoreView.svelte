@@ -32,7 +32,6 @@
         width: 225px;
         height: 100%;
         display: flex;
-        display: flex;
         flex-direction: column;
         overflow-x: hidden;
         overflow-y: auto;
