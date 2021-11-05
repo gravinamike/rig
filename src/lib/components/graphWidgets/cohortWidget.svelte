@@ -1,14 +1,14 @@
 <script context="module" lang="ts">
-    const offsetSignsByHalfAxisId = { 0: [0, 0], 1: [0, 1], 2: [0, -1], 3: [1, 0], 4: [-1, 0] } as const
-    const offsetLength = 250
+    import type { Graph, Cohort } from "$lib/shared/graph/graph"
+    import { offsetSignsByHalfAxisId } from "$lib/shared/constants"
 </script>
 
 <script lang="ts">
-    import type { Graph, Cohort } from "$lib/shared/graph/graph"
     import ThingWidget from "$lib/components/graphWidgets/thingWidget.svelte"
     import ThingPlaceholderWidget from "$lib/components/graphWidgets/thingPlaceholderWidget.svelte"
 
     export let cohort: Cohort
+    export let offsetLength: number
     export let graph: Graph
 
     // Calculate x and y offsets relative to parent Thing Widget.
@@ -23,6 +23,7 @@
         {#if "text" in cohortMember}
             <ThingWidget
                 thingWidgetModel={cohortMember}
+                {offsetLength}
                 bind:graph
             />
         {:else}

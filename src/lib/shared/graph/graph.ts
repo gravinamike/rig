@@ -150,7 +150,7 @@ export class ThingPlaceholderWidgetModel {
 }
 
 
-type GenerationMember = ThingWidgetModel | ThingPlaceholderWidgetModel
+export type GenerationMember = ThingWidgetModel | ThingPlaceholderWidgetModel
 
 
 // Generation.

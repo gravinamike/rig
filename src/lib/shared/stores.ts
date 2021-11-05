@@ -1,6 +1,13 @@
 import { writable, derived } from "svelte/store"
-import type { Space, Thing } from "$lib/shared/graph/graphDb"
+import type { Direction, Space, Thing } from "$lib/shared/graph/graphDb"
 
+
+// Create Direction-related stores (and subscriptions where applicable).
+export const directionsStore = writable( {} as { [id: number]: Direction } )
+let directionsStoreValue: { [id: number]: Direction }
+directionsStore.subscribe(value => {directionsStoreValue = value})
+export const directionsStoreAsArray = derived( directionsStore, $directionsStore => Object.values($directionsStore) )
+export const directionIdsNotFoundStore = writable( [] as number[] );
 
 // Create Space-related stores (and subscriptions where applicable).
 export const spacesStore = writable( {} as { [id: number]: Space } )
@@ -18,8 +25,15 @@ export const thingIdsNotFoundStore = writable( [] as number[] );
 
 
 /* 
- * Functions to get Spaces and Things from the API and add them to the stores.
+ * Functions to get Directions, Spaces and Things from the API and add them to the stores.
  */
+function updateDirectionsStore( directions: Direction | Direction[] ): void {
+    if (!("length" in directions)) directions = [directions]
+    directions.forEach((direction) => {
+        directionsStore.update( (current) => { current[direction.id] = direction; return current } )
+    })
+}
+
 function updateSpacesStore( spaces: Space | Space[] ): void {
     if (!("length" in spaces)) spaces = [spaces]
     spaces.forEach((space) => {
@@ -31,6 +45,13 @@ function updateThingsStore( things: Thing | Thing[] ): void {
     if (!("length" in things)) things = [things]
     things.forEach((thing) => {
         thingsStore.update( (current) => { current[thing.id] = thing; return current } )
+    })
+}
+
+function updateDirectionIdsNotFoundStore( ids: number | number[] ): void {
+    if (typeof ids === "number") ids = [ids]
+    ids.forEach((id) => {
+        directionIdsNotFoundStore.update( (current) => { if (!current.includes(id)) current.push(id); return current } )
     })
 }
 
@@ -50,8 +71,49 @@ function updateThingIdsNotFoundStore( ids: number | number[] ): void {
 
 
 /* 
- * Functions to get Spaces and Things from the API and add them to the stores.
+ * Functions to get Directions, Spaces and Things from the API and add them to the stores.
  */
+export async function storeDirections( directionIds?: number | number[] ): Promise<Direction[]> {
+    let res: Response
+    let idsToQuery: number[] = []
+    
+    // If no ids were provided, fetch all Directions.
+    if (typeof directionIds === "undefined") {
+        res = await fetch("api/directions-all")
+
+    // If ids were provided,
+    } else {
+        // Convert single ids into arrays for processing (if needed).
+        if ( typeof directionIds === "number" ) directionIds = [directionIds]
+        // Only fetch Directions that aren't already stored.
+        const idsNotToQuery = Object.keys(directionsStoreValue).map(x => Number(x));
+        idsToQuery = directionIds.filter( x => !idsNotToQuery.includes(x) )
+        // Fetch the Directions from the API.
+        res = await fetch(`api/directions-${idsToQuery.join(",")}`);
+    }
+
+    // If the response is ok,
+    if (res.ok) {
+        // Unpack the response JSON as an array of Directions.
+        const queriedDirections = await res.json() as Direction[]
+        // Update the store with these Directions.
+        updateDirectionsStore(queriedDirections)
+        // Update the IDs Not Found store with any IDs that weren't fetched.
+        if (!(typeof directionIds === "undefined")) {
+            const idsFound = queriedDirections.map(x => x.id)
+            const idsNotFound = idsToQuery.filter( x => !idsFound.includes(x) )
+            updateDirectionIdsNotFoundStore(idsNotFound)
+        }
+        // Return the array of Directions.
+        return queriedDirections
+
+    // Handle errors if needed.
+    } else {
+        res.text().then(text => {throw Error(text)})
+        return []
+    }
+}
+
 export async function storeSpaces( spaceIds?: number | number[] ): Promise<Space[]> {
     let res: Response
     let idsToQuery: number[] = []
@@ -133,8 +195,12 @@ export async function storeThings( thingIds: number | number[] ): Promise<Thing[
 
 
 /* 
- * Functions to check whether Spaces and Things are in the stores.
+ * Functions to check whether Directions, Spaces and Things are in the stores.
  */
+export function directionInStore( directionId: number ): boolean {
+    return directionId in directionsStoreValue ? true : false
+}
+
 export function spaceInStore( spaceId: number ): boolean {
     return spaceId in spacesStoreValue ? true : false
 }
@@ -145,8 +211,25 @@ export function thingInStore( thingId: number ): boolean {
 
 
 /* 
- * Functions to retrieve Spaces and Things from the stores.
+ * Functions to retrieve Directions, Spaces and Things from the stores.
  */
+export function retrieveDirections( directionIds: number ): Direction | null
+export function retrieveDirections( directionIds: number[] ): Direction[]
+export function retrieveDirections( directionIds: number | number[] ): Direction[] | Direction | null {
+    // For single IDs, return the stored Direction or null if there isn't one stored.
+    if (typeof directionIds === "number") {
+        const output = directionInStore(directionIds) ? directionsStoreValue[directionIds] : null
+        return output
+    // For an array of IDs, return an array of the stored Spaces that match.
+    } else {
+        const output: Direction[] = []
+        for (const directionId of directionIds) {
+            if (directionInStore(directionId)) output.push(directionsStoreValue[directionId])
+        }
+        return output
+    }
+}
+
 export function retrieveSpaces( spaceIds: number ): Space | null
 export function retrieveSpaces( spaceIds: number[] ): Space[]
 export function retrieveSpaces( spaceIds: number | number[] ): Space[] | Space | null {

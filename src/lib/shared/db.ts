@@ -8,7 +8,7 @@ const knexConfig = {
     version: '1.4',
     connection: {
         user: 'sa',
-        host: '192.168.0.102',
+        host: 'localhost',//'192.168.0.100',
         database: 'C:/Users/mtgra/Desktop/LifeSeahorse_test/LifeGrid_graph/graph',
         password: 'goodguess',
         port: 5435,

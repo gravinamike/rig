@@ -7,6 +7,7 @@
 
     export let pThingIds: number[]
     export let depth: number
+    let offsetLength = 250
 
     let graph = new Graph(pThingIds, depth)
     $: rootCohort = graph.rootCohort
@@ -30,6 +31,7 @@
             {#if rootCohort}
                 <CohortWidget
                     cohort={rootCohort}
+                    {offsetLength}
                     bind:graph
                 />
             {/if}

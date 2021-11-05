@@ -1,14 +1,17 @@
 <script lang="ts">
     import type { ThingWidgetModel, Graph } from "$lib/shared/graph/graph"
+    import RelationshipsWidget from "$lib/components/graphWidgets/relationshipsWidget.svelte"
     import CohortWidget from "$lib/components/graphWidgets/cohortWidget.svelte"
     import ThingDetailsWidget from "$lib/components/graphWidgets/thingDetailsWidget.svelte"
 
     export let thingWidgetModel: ThingWidgetModel
+    export let offsetLength: number
     export let graph: Graph
     
     $: thingId = thingWidgetModel.thingId
     $: text = thingWidgetModel.text
     $: note = thingWidgetModel.note
+    $: space = thingWidgetModel.space
     $: cohorts = thingWidgetModel.childCohorts
     const showNotes = false
     let showDetails = false
@@ -50,10 +53,16 @@
         {/if}
     {/if}
 
-    <!-- The Thing's child Cohorts. -->
+    <!-- The Thing's Relationships and child Cohorts. -->
     {#each cohorts as cohort}
+        <RelationshipsWidget
+            {cohort}
+            {space}
+            {offsetLength}
+        />
         <CohortWidget
             {cohort}
+            {offsetLength}
             bind:graph
         />
     {/each}

@@ -14,23 +14,6 @@ export class Direction extends Model {
     text!: string | null
     nameforobjects!: string | null
     spaces!: Space[]
-
-    static get relationMappings(): RelationMappings | RelationMappingsThunk {
-        return {
-            spaces: {
-                relation: Model.ManyToManyRelation,
-                modelClass: Space,
-                join: {
-                    from: 'directions.id',
-                    through: {
-                        from: 'directiontospace.directionid',
-                        to: 'directiontospace.spaceid'
-                    },
-                    to: 'spaces.id'
-                }
-            }
-        };
-    }
 }
 
 
@@ -220,6 +203,50 @@ export class Note extends Model {
 /*
  * Functions to query Graph constructs.
  */
+export async function queryDirections(directionIds: number): Promise<null | Direction>;
+export async function queryDirections(directionIds: number[]): Promise<Direction[]>;
+export async function queryDirections(directionIds: null, idsToExclude?: number[]): Promise<Direction[]>;
+export async function queryDirections(directionIds: number | number[] | null, idsToExclude?: number[]): Promise<null | Direction | Direction[]> {
+    
+    // If a null ID is supplied,
+    if (directionIds === null) {
+        // If no IDs to exclude are supplied, query all Directions.
+        if (!idsToExclude) {
+            const queriedDirections = await Direction.query()
+                .orderBy('id')
+            return queriedDirections
+        // If IDs to exclude are supplied, query all Directions not matching those IDs.
+        } else {
+            const queriedDirections = await Direction.query()
+                .where(
+                    (builder) => builder.whereNotIn('id', idsToExclude)
+                )
+                .orderBy('id')
+            return queriedDirections
+        }
+
+    // If a single ID is supplied, query based on match to that ID (or return null if nothing is found).
+    } else if (typeof directionIds === "number") {
+        const queriedDirections = await Direction.query()
+            .where("id", directionIds)
+            .orderBy('id')
+        return queriedDirections.length ? queriedDirections[0] : null
+
+    // If multiple IDs are supplied, query based on match to those IDs.
+    } else if (directionIds.length) {
+        const queriedDirections = await Direction.query()
+            .where(
+                (builder) => builder.whereIn('id', directionIds)
+            )
+            .orderBy('id')
+        return queriedDirections
+
+    // If an empty array is supplied, return an empty array.
+    } else {
+        return []
+    }
+}
+
 export async function querySpaces(spaceIds: number): Promise<null | Space>;
 export async function querySpaces(spaceIds: number[]): Promise<Space[]>;
 export async function querySpaces(spaceIds: null, idsToExclude?: number[]): Promise<Space[]>;
