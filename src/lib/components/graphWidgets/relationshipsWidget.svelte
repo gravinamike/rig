@@ -1,6 +1,6 @@
 <script context="module" lang="ts">
     import type { Direction, Space } from "$lib/shared/graph/graphDb"
-    import type { Graph, GenerationMember, Cohort } from "$lib/shared/graph/graph"
+    import type { GenerationMember, Cohort } from "$lib/shared/graph/graph"
     import { offsetSignsByHalfAxisId } from "$lib/shared/constants"
     import { retrieveDirections } from "$lib/shared/stores"
 </script>

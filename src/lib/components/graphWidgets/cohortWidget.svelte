@@ -39,6 +39,7 @@
     main {
         position: absolute;
         transform: translate(-50%, -50%);
+        
         display: flex;
         gap: 20px;
     }

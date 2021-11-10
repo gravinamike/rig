@@ -6,7 +6,7 @@
 
 <main>
     {#if $spacesStoreAsArray.length}
-        <h2>{$spacesStoreAsArray.length} Spaces found:</h2>
+        <h4>{$spacesStoreAsArray.length} Spaces found:</h4>
     {/if}
 
     {#each $spacesStoreAsArray as space}
@@ -16,7 +16,7 @@
     {/each}
 
     {#if $spaceIdsNotFoundStore.length}
-        <h2>{$spaceIdsNotFoundStore.length} Spaces not found:</h2>
+        <h4>{$spaceIdsNotFoundStore.length} Spaces not found:</h4>
     {/if}
 
     {#each $spaceIdsNotFoundStore as id}
@@ -29,29 +29,41 @@
 
 <style>
     main {
-        width: 225px;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        overflow-x: hidden;
-        overflow-y: auto;
-        text-align: center;
-        background-color: #fafafa;
         outline: solid 1px lightgrey;
         outline-offset: -1px;
+
+        width: 225px;
+        height: 100%;
+        background-color: #fafafa;
+
+        overflow-x: hidden;
+        overflow-y: auto;
+
+        display: flex;
+        flex-direction: column;
+        padding: 0.75rem;
+        gap: 0.75rem;
+        
+        text-align: center; 
+    }
+
+    h4 {
+        margin: 0;
     }
 
     .box {
-        padding: 1rem;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        margin: 0.75rem;
-        height: max-content;
-        font-size: 0.75rem;
-        text-align: left;
-        background-color: white;
         border-radius: 10px;
         box-shadow: 5px 5px 10px 2px lightgray;
+
+        height: max-content;
+        background-color: white;
+        
+        display: flex;
+        flex-direction: column;
+        padding: 1rem;
+        gap: 10px;
+
+        font-size: 0.75rem;
+        text-align: left;
     }
   </style>

@@ -72,19 +72,23 @@
 
 <style>
     .box {
-        box-sizing: border-box;
-        padding: 1rem;
-        height: max-content;
-        text-align: left;
-        background-color: white;
         border-radius: 8px;
         box-shadow: 5px 5px 10px 2px lightgray;
+
+        box-sizing: border-box;
+        height: max-content;
+        background-color: white;
+
+        padding: 1rem;
+        
+        text-align: left;
     }
 
     .thing-image {
         position: relative;
         width: 80px;
         height: 80px;
+
         font-size: 0.35rem;
         font-weight: 400;
         overflow-wrap: break-word;
@@ -101,17 +105,20 @@
     }
 
     .toggle-button {
+        border-radius: 8px;
+        outline: solid 1px lightgrey;
+        outline-offset: -1px;
+        
         position: absolute;
         bottom: 1px;
         right: 1px;
         height: 16px;
         width: 16px;
+
         text-align: center;
         font-size: 0.5rem;
         color: lightgrey;
-        border-radius: 8px;
-        outline: solid 1px lightgrey;
-        outline-offset: -1px;
+        
         cursor: pointer;
     }
 
