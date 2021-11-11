@@ -3,11 +3,11 @@
     import { onMount } from "svelte"
     import Collapser from "$lib/components/layoutElements/collapser.svelte"
     import GraphSchematicView from "$lib/components/viewers/graphSchematicView.svelte"
+    import GraphSettingsView from "$lib/components/viewers/graphSettingsView.svelte"
     import CohortWidget from "$lib/components/graphWidgets/cohortWidget.svelte"
 
     export let pThingIds: number[]
     export let depth: number
-    let offsetLength = 250
 
     let graph = new Graph(pThingIds, depth)
     $: rootCohort = graph.rootCohort
@@ -26,12 +26,17 @@
         />
     </Collapser>
 
+    <Collapser headerText={"Graph settings"} contentDirection={"left"} expanded={true}>
+        <GraphSettingsView
+            bind:graph
+        />
+    </Collapser>
+
     <div class="portal">
         <div class="centralAnchor">
             {#if rootCohort}
                 <CohortWidget
                     cohort={rootCohort}
-                    {offsetLength}
                     bind:graph
                 />
             {/if}

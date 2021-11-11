@@ -5,7 +5,6 @@
     import ThingDetailsWidget from "$lib/components/graphWidgets/thingDetailsWidget.svelte"
 
     export let thingWidgetModel: ThingWidgetModel
-    export let offsetLength: number
     export let graph: Graph
     
     $: thingId = thingWidgetModel.thingId
@@ -13,6 +12,7 @@
     $: note = thingWidgetModel.note
     $: space = thingWidgetModel.space
     $: cohorts = thingWidgetModel.childCohorts
+    $: thingSize = graph.format.thingSize
     const showNotes = false
     let showDetails = false
     let lockDetails = false
@@ -27,10 +27,12 @@
 <main class="thing-widget">
     
     <!-- The Thing itself. -->
-    <div class="box thing-image" on:click={handleClick}>
-        <h1>{text}</h1>
+    <div class="box thing-image" on:click={handleClick} style="width: {thingSize}px; height: {thingSize}px;">
+        <h1 style="font-size: {graph.format.thingTextSize}px">
+            {text}
+        </h1>
         {#if ( showDetails || lockDetails ) && thingWidgetModel.thing}
-            <div class="thing-details-container">
+            <div class="thing-details-container" style="top: {thingSize - 18}px; left: {thingSize - 18}px;">
                 <ThingDetailsWidget
                     thing={thingWidgetModel.thing}
                 />
@@ -58,11 +60,10 @@
         <RelationshipsWidget
             {cohort}
             {space}
-            {offsetLength}
+            {graph}
         />
         <CohortWidget
             {cohort}
-            {offsetLength}
             bind:graph
         />
     {/each}
@@ -86,8 +87,6 @@
 
     .thing-image {
         position: relative;
-        width: 80px;
-        height: 80px;
 
         font-size: 0.35rem;
         font-weight: 400;
@@ -100,8 +99,6 @@
 
     .thing-details-container {
         position: absolute;
-        top: 50px;
-        left: 50px;
     }
 
     .toggle-button {

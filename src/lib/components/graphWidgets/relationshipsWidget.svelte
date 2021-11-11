@@ -1,6 +1,6 @@
 <script context="module" lang="ts">
     import type { Direction, Space } from "$lib/shared/graph/graphDb"
-    import type { GenerationMember, Cohort } from "$lib/shared/graph/graph"
+    import type { GenerationMember, Cohort, Graph } from "$lib/shared/graph/graph"
     import { offsetSignsByHalfAxisId } from "$lib/shared/constants"
     import { retrieveDirections } from "$lib/shared/stores"
 </script>
@@ -8,24 +8,28 @@
 <script lang="ts">
     export let cohort: Cohort
     export let space: Space
-    export let offsetLength: number
+    export let graph: Graph
 
-    const edgeToEdgeDimension = offsetLength - 80
+    $: offsetLength = graph.format.offsetLength
+    $: thingSize = graph.format.thingSize
+    $: betweenThingGap = graph.format.betweenThingGap
+
+    $: edgeToEdgeDimension = offsetLength - thingSize
 
     const cohortMembersWithIndices: { index: number, member: GenerationMember }[] = []
     cohort.members.forEach(function (member, index) {
         cohortMembersWithIndices.push({ index: index, member: member })
     })
-    const childrenDimension = cohort.members.length * 80 + (cohort.members.length - 1) * 20
+    $: childrenDimension = cohort.members.length * thingSize + (cohort.members.length - 1) * betweenThingGap
 
     // Calculate x and y offsets relative to parent Thing Widget.
     const halfAxisId = cohort.address ? cohort.address.halfAxisId : 0
     const offsetSigns = offsetSignsByHalfAxisId[halfAxisId]
-    const offsets = [ 0.5 * offsetLength * offsetSigns[0], 0.5 * offsetLength * offsetSigns[1] ]
+    $: offsets = [ 0.5 * offsetLength * offsetSigns[0], 0.5 * offsetLength * offsetSigns[1] ]
 
     // Calculate width and height.
-    const height = [1, 2].includes(halfAxisId) ? edgeToEdgeDimension : childrenDimension
-    const width = [3, 4].includes(halfAxisId) ? edgeToEdgeDimension : childrenDimension
+    $: height = [1, 2].includes(halfAxisId) ? edgeToEdgeDimension : childrenDimension
+    $: width = [3, 4].includes(halfAxisId) ? edgeToEdgeDimension : childrenDimension
 
     // Retrieve Direction information.
     const directionId = space.directionIdByHalfAxisId[halfAxisId] as number
@@ -34,7 +38,7 @@
 
 
 <main class="relationships-widget" style="left: calc({offsets[0]}px + 50%); top: calc({offsets[1]}px + 50%); width: {width}px; height: {height}px;">
-    <div class="direction-text">
+    <div class="direction-text" style="font-size: {graph.format.relationshipTextSize}px">
         {direction.text}
     </div>
     <svg class="relationship-image">
@@ -45,11 +49,11 @@
         {#each cohortMembersWithIndices as memberWithIndex}
             <line style="stroke-dasharray: 1 5;"
                 x1="{childrenDimension * 0.5}" y1="{edgeToEdgeDimension * 2 / 3}"
-                x2="{40 + (80 + 20) * memberWithIndex.index}" y2="{edgeToEdgeDimension * 1 / 3}"
+                x2="{thingSize * 0.5 + (thingSize + betweenThingGap) * memberWithIndex.index}" y2="{edgeToEdgeDimension * 1 / 3}"
             />
             <line style="stroke-width: 2;"
-                x1="{40 + (80 + 20) * memberWithIndex.index}" y1="{edgeToEdgeDimension * 1 / 3}"
-                x2="{40 + (80 + 20) * memberWithIndex.index}" y2="0"
+                x1="{thingSize * 0.5 + (thingSize + betweenThingGap) * memberWithIndex.index}" y1="{edgeToEdgeDimension * 1 / 3}"
+                x2="{thingSize * 0.5 + (thingSize + betweenThingGap) * memberWithIndex.index}" y2="0"
             />
         {/each}
     </svg> 

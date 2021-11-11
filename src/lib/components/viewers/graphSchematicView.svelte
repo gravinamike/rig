@@ -21,17 +21,19 @@
 
         <div class="box">
             <Collapser headerText={`Generation ${id}`} expanded={true}>
-                {#each generation.members as member}
-                    {#if "text" in member && member.thing}
-                        <ThingDetailsWidget
-                            thing={member.thing}
-                        />
-                    {:else}
-                        <div class="box">
-                            ID: {member.thingId}
-                        </div>
-                    {/if}
-                {/each}
+                <div class="related-things-list">
+                    {#each generation.members as member}
+                        {#if "text" in member && member.thing}
+                            <ThingDetailsWidget
+                                thing={member.thing}
+                            />
+                        {:else}
+                            <div class="box">
+                                ID: {member.thingId}
+                            </div>
+                        {/if}
+                    {/each}
+                </div>
             </Collapser>
         </div>
 
@@ -77,5 +79,11 @@
 
         font-size: 0.75rem;
         text-align: left;
+    }
+
+    .related-things-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
     }
   </style>

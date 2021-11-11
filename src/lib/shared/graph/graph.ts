@@ -205,11 +205,26 @@ export class Cohort {
 
 
 // Graph.
+interface GraphFormat {
+    offsetLength: number,
+    thingSize: number,
+    betweenThingGap: number,
+    relationshipTextSize: number,
+    thingTextSize: number,
+}
+
 export class Graph {
     _pThingIds: number[]
     _depth: number
     rootCohort: Cohort | null = null
     generations: Generation[] = []
+    format: GraphFormat = {
+        offsetLength: 250,
+        thingSize: 80,
+        betweenThingGap: 20,
+        relationshipTextSize: 18,
+        thingTextSize: 11,
+    }
 
     constructor(pThingIds: number[], depth: number) {
         this._pThingIds = pThingIds
