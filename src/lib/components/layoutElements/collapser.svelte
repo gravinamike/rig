@@ -41,6 +41,8 @@
 
 <style>
     .collapser {
+        height: 100%;
+
         display: flex;
     }
     
@@ -119,6 +121,10 @@
     .header.left .header-text {
         transform: translateY(25%) rotate(90deg);
         transform-origin: bottom left;
+    }
+
+    .content {
+        height: 100%;
     }
 
     .content.up, .content.left {
