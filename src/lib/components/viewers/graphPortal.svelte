@@ -33,6 +33,7 @@
     </Collapser>
 
     <div class="portal">
+        
         <div class="centralAnchor">
             {#if rootCohort}
                 <CohortWidget

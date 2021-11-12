@@ -1,9 +1,9 @@
 import type { Space, Thing, Note } from "$lib/shared/graph/graphDb"
 import { retrieveSpaces, spaceInStore, storeThings, retrieveThings, thingInStore } from "$lib/shared/stores"
 
-export type HalfAxisId = 1 | 2 | 3 | 4
-export const halfAxisIds = [1, 2, 3, 4] as const
-export const oddHalfAxisIds = [1, 3] as const
+export type HalfAxisId = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
+export const halfAxisIds = [1, 2, 3, 4, 5, 6, 7, 8] as const
+export const oddHalfAxisIds = [1, 3, 5, 7] as const
 
 
 /*
@@ -83,10 +83,17 @@ export class ThingWidgetModel {
 
     get space(): Space {
         let space: Space
-        if ( !this.inheritSpace && this.defaultSpaceId && spaceInStore(this.defaultSpaceId) ) {
+        // If not inheriting Space from parent, and the Thing Widget Model's own default Space
+        // is available, use the Thing Widget Model's own default Space.
+        if (
+            !( this.parentThingWidgetModel && this.inheritSpace )
+            && this.defaultSpaceId && spaceInStore(this.defaultSpaceId)
+        ) {
             space = retrieveSpaces(this.defaultSpaceId) as Space
+        // Else, if the Thing Widget model has a parent, use the parent's Space.
         } else if (this.parentThingWidgetModel) {
             space = this.parentThingWidgetModel.space
+        // Else use the first Space in the list of Spaces.
         } else {
             space = retrieveSpaces(1) as Space//What if there is no spacesStoreValue[1]? Supply an empty Space.
         }
@@ -219,7 +226,7 @@ export class Graph {
     rootCohort: Cohort | null = null
     generations: Generation[] = []
     format: GraphFormat = {
-        offsetLength: 250,
+        offsetLength: 150,//250,
         thingSize: 80,
         betweenThingGap: 20,
         relationshipTextSize: 18,

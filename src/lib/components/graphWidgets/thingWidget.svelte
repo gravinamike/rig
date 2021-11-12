@@ -56,12 +56,14 @@
     {/if}
 
     <!-- The Thing's Relationships and child Cohorts. -->
-    {#each cohorts as cohort}
-        <RelationshipsWidget
-            {cohort}
-            {space}
-            {graph}
-        />
+    {#each cohorts as cohort (cohort.address)}
+        {#if [1, 2, 3, 4].includes(cohort.address.halfAxisId)}
+            <RelationshipsWidget
+                {cohort}
+                {space}
+                {graph}
+            />
+        {/if}
         <CohortWidget
             {cohort}
             bind:graph

@@ -22,10 +22,12 @@
     })
     $: childrenDimension = cohort.members.length * thingSize + (cohort.members.length - 1) * betweenThingGap
 
-    // Calculate x and y offsets relative to parent Thing Widget.
+    // Calculate x and y offsets and z-index relative to parent Thing Widget.
+    const generationId = cohort.address?.generationId || 0
     const halfAxisId = cohort.address ? cohort.address.halfAxisId : 0
     const offsetSigns = offsetSignsByHalfAxisId[halfAxisId]
     $: offsets = [ 0.5 * offsetLength * offsetSigns[0], 0.5 * offsetLength * offsetSigns[1] ]
+    $: zIndex = (generationId * 2 - 1) * offsetSigns[2]
 
     // Calculate width and height.
     $: height = [1, 2].includes(halfAxisId) ? edgeToEdgeDimension : childrenDimension
@@ -37,7 +39,7 @@
 </script>
 
 
-<main class="relationships-widget" style="left: calc({offsets[0]}px + 50%); top: calc({offsets[1]}px + 50%); width: {width}px; height: {height}px;">
+<main class="relationships-widget" style="left: calc({offsets[0]}px + 50%); top: calc({offsets[1]}px + 50%); z-index: {zIndex}; width: {width}px; height: {height}px;">
     <div class="direction-text" style="font-size: {graph.format.relationshipTextSize}px">
         {direction.text}
     </div>
