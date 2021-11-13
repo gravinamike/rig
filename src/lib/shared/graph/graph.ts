@@ -226,7 +226,7 @@ export class Graph {
     rootCohort: Cohort | null = null
     generations: Generation[] = []
     format: GraphFormat = {
-        offsetLength: 150,//250,
+        offsetLength: 250,
         thingSize: 80,
         betweenThingGap: 20,
         relationshipTextSize: 18,

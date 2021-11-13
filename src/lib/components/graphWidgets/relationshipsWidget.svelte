@@ -1,7 +1,7 @@
 <script context="module" lang="ts">
     import type { Direction, Space } from "$lib/shared/graph/graphDb"
     import type { GenerationMember, Cohort, Graph } from "$lib/shared/graph/graph"
-    import { offsetSignsByHalfAxisId } from "$lib/shared/constants"
+    import { rotationByHalfAxisId, offsetSignsByHalfAxisId } from "$lib/shared/constants"
     import { retrieveDirections } from "$lib/shared/stores"
 </script>
 
@@ -30,8 +30,13 @@
     $: zIndex = (generationId * 2 - 1) * offsetSigns[2]
 
     // Calculate width and height.
-    $: height = [1, 2].includes(halfAxisId) ? edgeToEdgeDimension : childrenDimension
-    $: width = [3, 4].includes(halfAxisId) ? edgeToEdgeDimension : childrenDimension
+    $: widgetHeight = [1, 2].includes(halfAxisId) ? edgeToEdgeDimension : childrenDimension
+    $: widgetWidth = [3, 4].includes(halfAxisId) ? edgeToEdgeDimension : childrenDimension
+    $: imageHeight = edgeToEdgeDimension
+    $: imageWidth = childrenDimension
+
+    // Calculate rotation of Relationship image.
+    const rotation = rotationByHalfAxisId[halfAxisId]
 
     // Retrieve Direction information.
     const directionId = space.directionIdByHalfAxisId[halfAxisId] as number
@@ -39,12 +44,12 @@
 </script>
 
 
-<main class="relationships-widget" style="left: calc({offsets[0]}px + 50%); top: calc({offsets[1]}px + 50%); z-index: {zIndex}; width: {width}px; height: {height}px;">
+<main class="relationships-widget" style="left: calc({offsets[0]}px + 50%); top: calc({offsets[1]}px + 50%); z-index: {zIndex}; width: {widgetWidth}px; height: {widgetHeight}px;">
     <div class="direction-text" style="font-size: {graph.format.relationshipTextSize}px">
         {direction.text}
     </div>
-    <svg class="relationship-image">
-        <line style="stroke-width: 2;"
+    <svg class="relationship-image" style="width: {imageWidth}px; height: {imageHeight}px; transform: rotate({rotation}deg);">
+        <line style="stroke-width: 2; cursor: pointer;"
             x1="{childrenDimension * 0.5}" y1="{edgeToEdgeDimension}"
             x2="{childrenDimension * 0.5}" y2="{edgeToEdgeDimension * 2 / 3}"
         />
@@ -66,6 +71,7 @@
     main {
         position: absolute;
         transform: translate(-50%, -50%);
+
         display: flex;
         justify-content: center;
         align-items: center;
@@ -78,8 +84,7 @@
 
     .relationship-image {
         position: absolute;
-        height: 100%;
-        width: 100%;
+
         stroke:grey;
     }
 </style>
