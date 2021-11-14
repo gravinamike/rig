@@ -19,6 +19,7 @@
 
     async function handleClick() {
         await graph.pThingIds([thingId]) // Re-Perspect to this Thing.
+        graph.addThingIdsToHistory([thingId]) // Add this Thing to the History.
         graph = graph // Needed for reactivity.
     }
 </script>

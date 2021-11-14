@@ -4,6 +4,7 @@
     import Collapser from "$lib/components/layoutElements/collapser.svelte"
     import GraphSchematicView from "$lib/components/viewers/graphSchematicView.svelte"
     import GraphSettingsView from "$lib/components/viewers/graphSettingsView.svelte"
+    import GraphHistoryView from "$lib/components/viewers/graphHistoryView.svelte"
     import CohortWidget from "$lib/components/graphWidgets/cohortWidget.svelte"
 
     export let pThingIds: number[]
@@ -14,6 +15,7 @@
 
     onMount(async () => {
         await graph.build()
+        graph.addThingIdsToHistory(pThingIds)
         graph = graph // Needed for reactivity.
 	})
 </script>
@@ -43,6 +45,12 @@
             {/if}
         </div>
     </div>
+
+    <Collapser headerText={"History"} contentDirection={"right"} expanded={true}>
+        <GraphHistoryView
+            bind:graph
+        />
+    </Collapser>
 </main>
 
 
