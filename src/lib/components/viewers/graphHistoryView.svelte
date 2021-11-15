@@ -5,11 +5,17 @@
 
     export let graph: Graph
 
-    const dateDividerOptions = { year: 'numeric', month: 'short', day: 'numeric', weekday: 'long' } as const
+    const dateDividerOptions = { year: 'numeric', month: 'short', day: 'numeric', weekday: 'short' } as const
 
-    function addDaysToDate(date: Date, days: number) {
+    function addDaysToDate(date: Date, days: number): Date {
         const newDate = new Date(date.getTime())
         newDate.setDate(date.getDate() + days)
+        return newDate
+    }
+
+    function endOfDay(inputDate: Date) {
+        const newDate = new Date(inputDate.getTime())
+        newDate.setHours(23, 59, 59)
         return newDate
     }
 
@@ -17,7 +23,7 @@
         const dates: Date[] = []
         let currentDate = startDate
         while (currentDate <= endDate) {
-            dates.push(currentDate)
+            dates.push(endOfDay(currentDate))
             currentDate = addDaysToDate(currentDate, 1)
         }
         return dates
@@ -63,7 +69,7 @@
 
 
 <main>
-    <h4>History:</h4>
+    <h4>History</h4>
 
     {#each reverseHistoryWithDateDividers as entryOrDivider}
         {#if "thingId" in entryOrDivider}
@@ -84,6 +90,7 @@
         {:else}
             <div class="date-divider">
                 {entryOrDivider.timestamp.toLocaleDateString("en-US", dateDividerOptions)}
+                <hr>
             </div>
         {/if}
         
@@ -142,8 +149,9 @@
     }
 
     .date-divider {
-        margin: 1rem 0 1rem 0;
+        margin-top: 1rem;
 
+        text-align: left;
         font-size: 0.85rem;
     }
   </style>
