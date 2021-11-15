@@ -232,7 +232,7 @@ export class Graph {
         relationshipTextSize: 18,
         thingTextSize: 11,
     }
-    perspectiveHistory: number[] = []
+    perspectiveHistory: { timestamp: Date, thingId: number }[] = []
 
     constructor(pThingIds: number[], depth: number) {
         this._pThingIds = pThingIds
@@ -256,7 +256,6 @@ export class Graph {
     async pThingIds(): Promise<number[]>
     async pThingIds( pThingIds: number[] ): Promise<void>
     async pThingIds( pThingIds?: number[] ): Promise<number[] | void> {
-        console.log('CHANGING')
         if ( pThingIds === undefined ) {
             return this._pThingIds
         } else {
@@ -351,8 +350,12 @@ export class Graph {
         }
     }
 
-    addThingIdsToHistory( thingIds: number | number[] ): void {
+    addEntriesToHistory( thingIds: number | number[] ): void {
         if (typeof thingIds === "number") thingIds = [thingIds]
-        this.perspectiveHistory.push(...thingIds)
+        const timestamp = new Date()
+        const entries = thingIds.map(
+            (thingId) => { return { timestamp: timestamp, thingId: thingId } }
+        )
+        this.perspectiveHistory.push(...entries)
     }
 }

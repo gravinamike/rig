@@ -1,20 +1,61 @@
 <script lang="ts">
     import type { Graph } from "$lib/shared/graph/graph"
+    import type { Thing } from "$lib/shared/graph/graphDb"
     import { retrieveThings, thingInStore, hoveredThingIdStore } from "$lib/shared/stores"
 
     export let graph: Graph
 
-    $: visitedThings = graph.perspectiveHistory.slice().reverse().map(
-        (thingId) => { return thingInStore(thingId) ? retrieveThings(thingId) : null }
+    const dateDividerOptions = { year: 'numeric', month: 'short', day: 'numeric', weekday: 'long' } as const
+
+    function addDaysToDate(date: Date, days: number) {
+        const newDate = new Date(date.getTime())
+        newDate.setDate(date.getDate() + days)
+        return newDate
+    }
+
+    function getDatesBetweenTwoDates(startDate: Date, endDate: Date): Date[] {
+        const dates: Date[] = []
+        let currentDate = startDate
+        while (currentDate <= endDate) {
+            dates.push(currentDate)
+            currentDate = addDaysToDate(currentDate, 1)
+        }
+        return dates
+    }
+
+    interface HistoryEntryWithThing {
+        timestamp: Date,
+        thingId: number,
+        thing: Thing | null
+    }
+
+    interface DateDivider {
+        timestamp: Date
+    }
+
+    $: historyWithThings = graph.perspectiveHistory.map(
+        (entry) => {
+            return {
+                timestamp: entry.timestamp,
+                thingId: entry.thingId,
+                thing: thingInStore(entry.thingId) ? retrieveThings(entry.thingId) : null
+            }
+        }
     )
+
+    $: datesInHistory = historyWithThings.length ?
+        getDatesBetweenTwoDates(historyWithThings[0].timestamp, historyWithThings[historyWithThings.length - 1].timestamp) :
+        []
+    $: dateDividers = datesInHistory.map((date) => {return {timestamp: date}})
+    $: historyWithDateDividers = (historyWithThings as (HistoryEntryWithThing | DateDivider)[]).concat(dateDividers)
+    $: reverseHistoryWithDateDividers = historyWithDateDividers.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
 
     let hoveredThingIdStoreValue: number | null
     hoveredThingIdStore.subscribe(value => {hoveredThingIdStoreValue = value})
-    //$: isHoveredThing = thingId === hoveredThingIdStoreValue
 
     async function handleClick(thingId: number) {
         await graph.pThingIds([thingId]) // Re-Perspect to this Thing.
-        graph.addThingIdsToHistory([thingId]) // Add this Thing to the History.
+        graph.addEntriesToHistory([thingId]) // Add this Thing to the History.
         hoveredThingIdStore.set(null) // Clear the hovered-Thing highlighting.
         graph = graph // Needed for reactivity.
     }
@@ -24,21 +65,28 @@
 <main>
     <h4>History:</h4>
 
-    {#each visitedThings as visitedThing}
-        {#if visitedThing}
-            <div
-                class="box { visitedThing.id === hoveredThingIdStoreValue ? "hovered-thing" : "" }"
-                on:mouseenter={()=>{ if (visitedThing) hoveredThingIdStore.set(visitedThing.id) }}
-                on:mouseleave={()=>{hoveredThingIdStore.set(null)}}
-                on:click={ () => { if (visitedThing) handleClick(visitedThing.id)}
-            }>
-                {visitedThing.text}
-            </div>
+    {#each reverseHistoryWithDateDividers as entryOrDivider}
+        {#if "thingId" in entryOrDivider}
+            {#if entryOrDivider.thing}
+                <div
+                    class="box { entryOrDivider.thingId === hoveredThingIdStoreValue ? "hovered-thing" : "" }"
+                    on:mouseenter={()=>{ if (entryOrDivider) hoveredThingIdStore.set(entryOrDivider.thingId) }}
+                    on:mouseleave={()=>{hoveredThingIdStore.set(null)}}
+                    on:click={ () => { if (entryOrDivider) handleClick(entryOrDivider.thingId)}
+                }>
+                    {entryOrDivider.thing.text}
+                </div>
+            {:else}
+                <div>
+                    THING {entryOrDivider.thingId} NOT FOUND IN STORE
+                </div>
+            {/if}
         {:else}
-            <div>
-                NOT FOUND IN STORE
+            <div class="date-divider">
+                {entryOrDivider.timestamp.toLocaleDateString("en-US", dateDividerOptions)}
             </div>
         {/if}
+        
         
     {/each}
 </main>
@@ -91,5 +139,11 @@
 
     .hovered-thing {
         outline: solid 2px black;
+    }
+
+    .date-divider {
+        margin: 1rem 0 1rem 0;
+
+        font-size: 0.85rem;
     }
   </style>

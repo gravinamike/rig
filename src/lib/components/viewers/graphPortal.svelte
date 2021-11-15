@@ -15,7 +15,7 @@
 
     onMount(async () => {
         await graph.build()
-        graph.addThingIdsToHistory(pThingIds)
+        graph.addEntriesToHistory(pThingIds)
         graph = graph // Needed for reactivity.
 	})
 </script>

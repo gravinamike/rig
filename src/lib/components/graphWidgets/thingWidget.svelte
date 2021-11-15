@@ -25,7 +25,7 @@
 
     async function handleClick() {
         await graph.pThingIds([thingId]) // Re-Perspect to this Thing.
-        graph.addThingIdsToHistory([thingId]) // Add this Thing to the History.
+        graph.addEntriesToHistory([thingId]) // Add this Thing to the History.
         hoveredThingIdStore.set(null) // Clear the hovered-Thing highlighting.
         graph = graph // Needed for reactivity.
     }
