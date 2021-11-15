@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { Graph } from "$lib/shared/graph/graph"
-    import { retrieveThings, thingInStore } from "$lib/shared/stores"
+    import { retrieveThings, thingInStore, hoveredThingIdStore } from "$lib/shared/stores"
 
     export let graph: Graph
 
@@ -8,10 +8,14 @@
         (thingId) => { return thingInStore(thingId) ? retrieveThings(thingId) : null }
     )
 
+    let hoveredThingIdStoreValue: number | null
+    hoveredThingIdStore.subscribe(value => {hoveredThingIdStoreValue = value})
+    //$: isHoveredThing = thingId === hoveredThingIdStoreValue
+
     async function handleClick(thingId: number) {
-        console.log(thingId)
         await graph.pThingIds([thingId]) // Re-Perspect to this Thing.
         graph.addThingIdsToHistory([thingId]) // Add this Thing to the History.
+        hoveredThingIdStore.set(null) // Clear the hovered-Thing highlighting.
         graph = graph // Needed for reactivity.
     }
 </script>
@@ -21,13 +25,21 @@
     <h4>History:</h4>
 
     {#each visitedThings as visitedThing}
-        <div class="box" on:click={ () => { if (visitedThing) handleClick(visitedThing.id)} }>
-            {#if visitedThing}
+        {#if visitedThing}
+            <div
+                class="box { visitedThing.id === hoveredThingIdStoreValue ? "hovered-thing" : "" }"
+                on:mouseenter={()=>{ if (visitedThing) hoveredThingIdStore.set(visitedThing.id) }}
+                on:mouseleave={()=>{hoveredThingIdStore.set(null)}}
+                on:click={ () => { if (visitedThing) handleClick(visitedThing.id)}
+            }>
                 {visitedThing.text}
-            {:else}
+            </div>
+        {:else}
+            <div>
                 NOT FOUND IN STORE
-            {/if}
-        </div>
+            </div>
+        {/if}
+        
     {/each}
 </main>
 
@@ -75,5 +87,9 @@
 
     .box:hover {
         box-shadow: 5px 5px 10px 10px lightgray;
+    }
+
+    .hovered-thing {
+        outline: solid 2px black;
     }
   </style>

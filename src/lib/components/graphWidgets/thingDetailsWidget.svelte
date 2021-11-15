@@ -1,13 +1,22 @@
 <script lang="ts">
     import type { Thing } from "$lib/shared/graph/graphDb"
+    import { hoveredThingIdStore } from "$lib/shared/stores"
     import Collapser from "$lib/components/layoutElements/collapser.svelte"
 
     export let thing: Thing
+
+    let hoveredThingIdStoreValue: number | null
+    hoveredThingIdStore.subscribe(value => {hoveredThingIdStoreValue = value})
+    $: isHoveredThing = thing.id === hoveredThingIdStoreValue
 </script>
 
 
 <main>
-    <div class="box">
+    <div
+        class="box { isHoveredThing ? "hovered-thing" : "" }"
+        on:mouseenter={()=>{hoveredThingIdStore.set(thing.id)}}
+        on:mouseleave={()=>{hoveredThingIdStore.set(null)}}
+    >
 
         <h4>{`${thing.id} ${thing.text}`}</h4>
 
@@ -50,6 +59,10 @@
         
         font-size: 0.75rem;
         text-align: left;
+    }
+
+    .hovered-thing {
+        outline: solid 2px black;
     }
 
     h4 {

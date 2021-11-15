@@ -1,5 +1,6 @@
 <script lang="ts">
     import type { ThingWidgetModel, Graph } from "$lib/shared/graph/graph"
+    import { hoveredThingIdStore } from "$lib/shared/stores"
     import RelationshipsWidget from "$lib/components/graphWidgets/relationshipsWidget.svelte"
     import CohortWidget from "$lib/components/graphWidgets/cohortWidget.svelte"
     import ThingDetailsWidget from "$lib/components/graphWidgets/thingDetailsWidget.svelte"
@@ -13,6 +14,11 @@
     $: space = thingWidgetModel.space
     $: cohorts = thingWidgetModel.childCohorts
     $: thingSize = graph.format.thingSize
+
+    let hoveredThingIdStoreValue: number | null
+    hoveredThingIdStore.subscribe(value => {hoveredThingIdStoreValue = value})
+    $: isHoveredThing = thingId === hoveredThingIdStoreValue
+
     const showNotes = false
     let showDetails = false
     let lockDetails = false
@@ -20,6 +26,7 @@
     async function handleClick() {
         await graph.pThingIds([thingId]) // Re-Perspect to this Thing.
         graph.addThingIdsToHistory([thingId]) // Add this Thing to the History.
+        hoveredThingIdStore.set(null) // Clear the hovered-Thing highlighting.
         graph = graph // Needed for reactivity.
     }
 </script>
@@ -28,7 +35,13 @@
 <main class="thing-widget">
     
     <!-- The Thing itself. -->
-    <div class="box thing-image" on:click={handleClick} style="width: {thingSize}px; height: {thingSize}px;">
+    <div
+        class="box thing-image { isHoveredThing ? "hovered-thing" : "" }"
+        on:mouseenter={()=>{hoveredThingIdStore.set(thingId)}}
+        on:mouseleave={()=>{hoveredThingIdStore.set(null)}}
+        on:click={handleClick}
+        style="width: {thingSize}px; height: {thingSize}px;"
+    >
         <h1 style="font-size: {graph.format.thingTextSize}px">
             {text}
         </h1>
@@ -98,6 +111,10 @@
 
     .thing-image:hover {
         box-shadow: 5px 5px 10px 10px lightgray;
+    }
+
+    .hovered-thing {
+        outline: solid 2px black;
     }
 
     .thing-details-container {

@@ -23,6 +23,9 @@ thingsStore.subscribe(value => {thingsStoreValue = value})
 export const thingsStoreAsArray = derived( thingsStore, $thingsStore => Object.values($thingsStore) )
 export const thingIdsNotFoundStore = writable( [] as number[] );
 
+// Create UI-related stores.
+export const hoveredThingIdStore = writable( null as number | null )
+
 
 /* 
  * Functions to get Directions, Spaces and Things from the API and add them to the stores.
