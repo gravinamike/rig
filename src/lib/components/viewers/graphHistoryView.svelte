@@ -2,10 +2,12 @@
     import type { Graph } from "$lib/shared/graph/graph"
     import type { Thing } from "$lib/shared/graph/graphDb"
     import { retrieveThings, thingInStore, hoveredThingIdStore } from "$lib/shared/stores"
+    import Toggle from "$lib/components/layoutElements/toggle.svelte"
 
     export let graph: Graph
 
     const dateDividerOptions = { year: 'numeric', month: 'short', day: 'numeric', weekday: 'short' } as const
+    let useUniqueHistory = false
 
     function addDaysToDate(date: Date, days: number): Date {
         const newDate = new Date(date.getTime())
@@ -39,7 +41,16 @@
         timestamp: Date
     }
 
-    $: historyWithThings = graph.perspectiveHistory.map(
+    $: uniqueHistory = graph.perspectiveHistory.filter(
+        (element, index, array) => {
+            const historyThingIds = array.map(visitedThing => visitedThing.thingId)
+            const firstIndexOfId = historyThingIds.indexOf(element.thingId)
+            return firstIndexOfId === index
+        }
+    )
+    $: historyToUse = useUniqueHistory ? uniqueHistory : graph.perspectiveHistory
+
+    $: historyWithThings = historyToUse.map(
         (entry) => {
             return {
                 timestamp: entry.timestamp,
@@ -70,6 +81,13 @@
 
 <main>
     <h4>History</h4>
+
+    <div class="unique-toggle {useUniqueHistory ? "toggled": ""}">
+        Unique
+        <Toggle
+            bind:toggled={useUniqueHistory}
+        />
+    </div>
 
     {#each reverseHistoryWithDateDividers as entryOrDivider}
         {#if "thingId" in entryOrDivider}
@@ -122,6 +140,20 @@
 
     h4 {
         margin: 0;
+    }
+
+    .unique-toggle {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+        gap: 5px;
+
+        font-size: 0.75rem;
+        color: lightgrey;
+    }
+
+    .unique-toggle.toggled {
+        color: darkgrey;
     }
 
     .box {
