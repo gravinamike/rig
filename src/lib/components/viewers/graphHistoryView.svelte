@@ -7,7 +7,7 @@
     export let graph: Graph
 
     const dateDividerOptions = { year: 'numeric', month: 'short', day: 'numeric', weekday: 'short' } as const
-    let useUniqueHistory = false
+    let useUniqueHistory = true
 
     function addDaysToDate(date: Date, days: number): Date {
         const newDate = new Date(date.getTime())

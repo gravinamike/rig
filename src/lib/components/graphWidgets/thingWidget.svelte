@@ -13,7 +13,12 @@
     $: note = thingWidgetModel.note
     $: space = thingWidgetModel.space
     $: cohorts = thingWidgetModel.childCohorts
-    $: thingSize = graph.format.thingSize
+    $: encapsulatingDepth = thingWidgetModel.parentCohort?.encapsulatingDepth || 0
+    $: encapsulatingPadding = encapsulatingDepth >= 0 ? 40 : 20
+    $: cohortSize = thingWidgetModel.parentCohort?.members.length || 1
+    $: thingSize = graph.format.thingSize + encapsulatingPadding * encapsulatingDepth
+    $: thingWidth = thingSize
+    $: thingHeight = encapsulatingDepth >= 0 ? thingSize : thingSize / cohortSize - 2
 
     let hoveredThingIdStoreValue: number | null
     hoveredThingIdStore.subscribe(value => {hoveredThingIdStoreValue = value})
@@ -40,13 +45,14 @@
         on:mouseenter={()=>{hoveredThingIdStore.set(thingId)}}
         on:mouseleave={()=>{hoveredThingIdStore.set(null)}}
         on:click={handleClick}
-        style="width: {thingSize}px; height: {thingSize}px;"
+        style="border-radius: {8 + 4 * encapsulatingDepth}px; width: {thingWidth}px; height: {thingHeight}px;"
     >
-        <h1 style="font-size: {graph.format.thingTextSize}px">
+        <div class="thing-text" style="font-size: {encapsulatingDepth >= 0 ? graph.format.thingTextSize : graph.format.thingTextSize / Math.log2(cohortSize)}px">
             {text}
-        </h1>
+        </div>
+        
         {#if ( showDetails || lockDetails ) && thingWidgetModel.thing}
-            <div class="thing-details-container" style="top: {thingSize - 18}px; left: {thingSize - 18}px;">
+            <div class="thing-details-container" style="top: {thingHeight - 18}px; left: {thingWidth - 18}px;">
                 <ThingDetailsWidget
                     thing={thingWidgetModel.thing}
                 />
@@ -89,24 +95,17 @@
 
 <style>
     .box {
-        border-radius: 8px;
         box-shadow: 5px 5px 10px 2px lightgray;
 
         box-sizing: border-box;
         height: max-content;
         background-color: white;
 
-        padding: 1rem;
-        
-        text-align: left;
+        cursor: default;
     }
 
     .thing-image {
         position: relative;
-
-        font-size: 0.35rem;
-        font-weight: 400;
-        overflow-wrap: break-word;
     }
 
     .thing-image:hover {
@@ -115,6 +114,16 @@
 
     .hovered-thing {
         outline: solid 2px black;
+    }
+
+    .thing-text {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+
+        font-weight: 600;
+        overflow-wrap: break-word;
     }
 
     .thing-details-container {

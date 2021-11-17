@@ -21,7 +21,10 @@
 </script>
 
 
-<main class="cohort-widget" style="left: calc({offsets[0]}px + 50%); top: calc({offsets[1]}px + 50%); z-index: {zIndex}; flex-direction: {[3, 4].includes(halfAxisId) ? "column" : "row"}; gap: {betweenThingGap}px">
+<main
+    class="cohort-widget"
+    style="left: calc({offsets[0]}px + 50%); top: calc({offsets[1]}px + 50%); z-index: {zIndex}; flex-direction: {[3, 4, 5, 6, 7, 8].includes(halfAxisId) ? "column" : "row"}; gap: {[5, 6, 7, 8].includes(halfAxisId) ? 4 : betweenThingGap}px"
+>
     {#each cohort.members as cohortMember}
         {#if "text" in cohortMember}
             <ThingWidget

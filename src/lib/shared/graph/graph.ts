@@ -1,4 +1,5 @@
 import type { Space, Thing, Note } from "$lib/shared/graph/graphDb"
+import { encapsulationChangeByHalfAxisId } from "$lib/shared/constants"
 import { retrieveSpaces, spaceInStore, storeThings, retrieveThings, thingInStore } from "$lib/shared/stores"
 
 export type HalfAxisId = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
@@ -195,12 +196,15 @@ export class Cohort {
 
     address: CohortAddress | null
     members: GenerationMember[]
+    encapsulatingDepth: number
 
     constructor(address: CohortAddress | null, members: GenerationMember[]) {
         this.address = address
         this.members = members
-
         for (const member of members) member.parentCohort = this
+        const parentEncapsulatingDepth = this.address?.parentThingWidgetModel.parentCohort?.encapsulatingDepth || 0
+        const changeInEncapsulatingDepth = encapsulationChangeByHalfAxisId[this.address?.halfAxisId || 0]
+        this.encapsulatingDepth = parentEncapsulatingDepth + changeInEncapsulatingDepth
     }
 
     indexOfMember(member: GenerationMember): number | null {
@@ -227,10 +231,10 @@ export class Graph {
     generations: Generation[] = []
     format: GraphFormat = {
         offsetLength: 250,
-        thingSize: 80,
+        thingSize: 100,
         betweenThingGap: 20,
         relationshipTextSize: 18,
-        thingTextSize: 11,
+        thingTextSize: 12,
     }
     perspectiveHistory: { timestamp: Date, thingId: number }[] = []
 

@@ -17,6 +17,18 @@ export const offsetSignsByHalfAxisId = {
     8: [0,  0,  -1],// Outwards
 } as const
 
+export const encapsulationChangeByHalfAxisId = {
+    0: 0,  //Center
+    1: 0,  // Down
+    2: 0,  // Up
+    3: 0,  // Right
+    4: 0,  // Left
+    5: 0,  // Away
+    6: 0,  // Towards
+    7: -1, // Inwards
+    8: 1,  // Outwards
+} as const
+
 export const rotationByHalfAxisId = {
     0: 0,  //Center
     1: 180,// Down
