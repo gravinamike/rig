@@ -49,9 +49,12 @@
         {direction.text}
     </div>
     <svg class="relationship-image" style="width: {imageWidth}px; height: {imageHeight}px; transform: rotate({rotation}deg);">
-        <line style="stroke-width: 2; cursor: pointer;"
+        <line style="stroke-width: 6; cursor: pointer;"
             x1="{childrenDimension * 0.5}" y1="{edgeToEdgeDimension}"
-            x2="{childrenDimension * 0.5}" y2="{edgeToEdgeDimension * 2 / 3}"
+            x2="{childrenDimension * 0.5}" y2="{edgeToEdgeDimension * 2 / 3 + 6}"
+        />
+        <polygon style="cursor: pointer;"
+            points="{childrenDimension * 0.5 - 3},{edgeToEdgeDimension * 2 / 3 + 6} {childrenDimension * 0.5 + 3},{edgeToEdgeDimension * 2 / 3 + 6} {childrenDimension * 0.5},{edgeToEdgeDimension * 2 / 3}"
         />
         {#each cohortMembersWithIndices as memberWithIndex}
             <line style="stroke-dasharray: 1 5;"
@@ -84,7 +87,11 @@
 
     .relationship-image {
         position: absolute;
-
-        stroke:grey;
+        stroke:lightgrey;
+    }
+    
+    .relationship-image polygon {
+        stroke-width: 3;
+        fill:lightgrey;
     }
 </style>
