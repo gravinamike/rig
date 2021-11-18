@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { spacesStoreAsArray, spaceIdsNotFoundStore } from "$lib/shared/stores"
+    import { spacesStoreAsArray, spaceIdsNotFoundStore } from "$lib/shared/stores/graphStores"
     import SpaceDetailsWidget from "$lib/components/graphWidgets/spaceDetailsWidget.svelte"
 </script>
 

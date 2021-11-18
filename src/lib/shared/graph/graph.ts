@@ -1,6 +1,6 @@
 import type { Space, Thing, Note } from "$lib/shared/graph/graphDb"
 import { encapsulationChangeByHalfAxisId } from "$lib/shared/constants"
-import { retrieveSpaces, spaceInStore, storeThings, retrieveThings, thingInStore } from "$lib/shared/stores"
+import { retrieveSpaces, graphConstructInStore, storeGraphConstructs, retrieveThings } from "$lib/shared/stores/graphStores"
 
 export type HalfAxisId = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
 export const halfAxisIds = [1, 2, 3, 4, 5, 6, 7, 8] as const
@@ -88,7 +88,7 @@ export class ThingWidgetModel {
         // is available, use the Thing Widget Model's own default Space.
         if (
             !( this.parentThingWidgetModel && this.inheritSpace )
-            && this.defaultSpaceId && spaceInStore(this.defaultSpaceId)
+            && this.defaultSpaceId && graphConstructInStore("Space", this.defaultSpaceId)
         ) {
             space = retrieveSpaces(this.defaultSpaceId) as Space
         // Else, if the Thing Widget model has a parent, use the parent's Space.
@@ -298,7 +298,7 @@ export class Graph {
             //console.log(`Thing IDs to store:`, thingIdsToStore)
 
             // Store Things from the IDs.
-            const storedThings = await storeThings(thingIdsToStore)
+            const storedThings = await storeGraphConstructs<Thing>("Thing", thingIdsToStore)
             const storedThingsById: { [thingId: number]: Thing } = {}
             storedThings.forEach(
                 storedThing => storedThingsById[storedThing.id] = storedThing
@@ -306,7 +306,7 @@ export class Graph {
 
             //Add Thing Widgets (or Placeholders) based on those IDs to the current Graph generation.
             const membersForGeneration = thingIdsForGeneration.map(
-                id => { return thingInStore(id) ? new ThingWidgetModel(id) : new ThingPlaceholderWidgetModel(id) }
+                id => { return graphConstructInStore("Thing", id) ? new ThingWidgetModel(id) : new ThingPlaceholderWidgetModel(id) }
             )
             this.addGeneration(membersForGeneration)
             //console.log(`Generation ${i} added.`)

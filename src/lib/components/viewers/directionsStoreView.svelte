@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { directionsStoreAsArray, directionIdsNotFoundStore } from "$lib/shared/stores"
+    import { directionsStoreAsArray, directionIdsNotFoundStore } from "$lib/shared/stores/graphStores"
     import DirectionDetailsWidget from "$lib/components/graphWidgets/directionDetailsWidget.svelte"
 </script>
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { thingsStoreAsArray, thingIdsNotFoundStore } from "$lib/shared/stores"
+    import { thingsStoreAsArray, thingIdsNotFoundStore } from "$lib/shared/stores/graphStores"
     import ThingDetailsWidget from "$lib/components/graphWidgets/thingDetailsWidget.svelte"
 </script>
 

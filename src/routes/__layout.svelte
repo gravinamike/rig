@@ -1,5 +1,5 @@
 <script lang="ts">
-
+    import { navHeight } from "$lib/shared/constants"
 </script>
 
 
@@ -7,11 +7,15 @@
     <title>Rig</title>
 </svelte:head>
 
+
 <main>
-    <nav>
+    <!-- Navbar -->
+    <nav style="height: {navHeight};">
         <a href=".">GRAPH</a>
         <a href="/about">ABOUT</a>
     </nav>
+
+    <!-- Page content -->
     <slot />
 </main>
 
@@ -21,14 +25,22 @@
         flex-grow: 1;
         height: 100%;
         max-height: 100%;
+        
         font-family: Arial;
     }
+    
     nav {
-        padding: 1rem;
         box-shadow: -2px 2px 10px 5px darkgray;
+
+        box-sizing: border-box;
+
+        display: flex;
+        flex-direction: row;
+        padding: 1rem;
+        gap: 1rem;
     }
+
     a {
-        margin-right: 1rem;
         text-decoration: none;
     }
 </style>

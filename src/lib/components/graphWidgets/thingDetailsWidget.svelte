@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { Thing } from "$lib/shared/graph/graphDb"
-    import { hoveredThingIdStore } from "$lib/shared/stores"
+    import { hoveredThingIdStore } from "$lib/shared/stores/appStores"
     import Collapser from "$lib/components/layoutElements/collapser.svelte"
 
     export let thing: Thing

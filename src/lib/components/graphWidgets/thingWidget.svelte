@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { ThingWidgetModel, Graph } from "$lib/shared/graph/graph"
-    import { hoveredThingIdStore } from "$lib/shared/stores"
+    import { hoveredThingIdStore } from "$lib/shared/stores/appStores"
     import RelationshipsWidget from "$lib/components/graphWidgets/relationshipsWidget.svelte"
     import CohortWidget from "$lib/components/graphWidgets/cohortWidget.svelte"
     import ThingDetailsWidget from "$lib/components/graphWidgets/thingDetailsWidget.svelte"

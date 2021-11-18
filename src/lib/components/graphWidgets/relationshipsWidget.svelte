@@ -2,7 +2,7 @@
     import type { Direction, Space } from "$lib/shared/graph/graphDb"
     import type { GenerationMember, Cohort, Graph } from "$lib/shared/graph/graph"
     import { rotationByHalfAxisId, offsetSignsByHalfAxisId } from "$lib/shared/constants"
-    import { retrieveDirections } from "$lib/shared/stores"
+    import { retrieveDirections } from "$lib/shared/stores/graphStores"
 </script>
 
 <script lang="ts">

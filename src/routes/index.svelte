@@ -1,43 +1,49 @@
 <script lang="ts">
     import { onMount } from "svelte"
-    import { storeDirections, storeSpaces } from '$lib/shared/stores'
+    import { startingPThingIds, startingGraphDepth, navHeight } from "$lib/shared/constants"
+    import { storeGraphConstructs } from '$lib/shared/stores/graphStores'
     import Collapser from "$lib/components/layoutElements/collapser.svelte"
     import DirectionsStoreView from "$lib/components/viewers/directionsStoreView.svelte"
     import SpacesStoreView from "$lib/components/viewers/spacesStoreView.svelte"
     import ThingsStoreView from "$lib/components/viewers/thingsStoreView.svelte"
     import GraphPortal from "$lib/components/viewers/graphPortal.svelte"
 
-    
-    const pThingIds = [251]
-    const graphDepth = 1
 
     onMount(async () => {
-        await storeDirections()
-        await storeSpaces()
+        // Graph constructs which are small in number (Directions, Spaces) are stored
+        // when the app is initialized, rather than when each Graph is initialized.
+        await storeGraphConstructs("Direction")
+        await storeGraphConstructs("Space")
 	})
 </script>
 
 
-<main>
-    <Collapser headerText={"Stored Directions"} contentDirection={"left"} expanded={false}>
+<main style="height: calc( 100% - {navHeight} )">
+    <!-- Directions Store view --> 
+    <Collapser headerText={"Stored Directions"} contentDirection={"left"}>
         <DirectionsStoreView />
     </Collapser>
-    <Collapser headerText={"Stored Spaces"} contentDirection={"left"} expanded={false}>
+    
+    <!-- Spaces Store view --> 
+    <Collapser headerText={"Stored Spaces"} contentDirection={"left"}>
         <SpacesStoreView />
     </Collapser>
-    <Collapser headerText={"Stored Things"} contentDirection={"left"} expanded={false}>
+
+    <!-- Things Store view --> 
+    <Collapser headerText={"Stored Things"} contentDirection={"left"}>
         <ThingsStoreView />
     </Collapser>
+
+    <!-- Graph Portal. --> 
     <GraphPortal
-        {pThingIds}
-        depth={graphDepth}
+        pThingIds={startingPThingIds}
+        depth={startingGraphDepth}
     />
 </main>
 
 
 <style>
     main {
-        height: calc( 100% - 3.2rem );
         display: flex;
         flex-direction: row;
     }

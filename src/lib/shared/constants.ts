@@ -1,4 +1,15 @@
 /*
+ * "Constants" that will eventually be moved into a mutable config file.
+ */
+export const startingPThingIds = [251]
+export const startingGraphDepth = 1
+
+/*
+ * Layout parameters.
+ */
+export const navHeight = "3rem"
+
+/*
  * Offset signs specify how a Cohort Widget is rendered
  * relative to its parent:
  * The first number describes the x-axis (with right being positive).
