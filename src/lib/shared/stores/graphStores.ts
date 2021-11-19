@@ -114,6 +114,7 @@ export async function storeGraphConstructs<Type extends GraphConstruct>( constru
         const idsNotToQuery = Object.keys(storeValue).map(x => Number(x));
         idsToQuery = ids.filter( x => !idsNotToQuery.includes(x) )
         // Fetch the instances from the API.
+        if (!idsToQuery.length) return []
         res = await fetch(`api/${ constructName.toLowerCase() }s-${idsToQuery.join(",")}`);
     }
 

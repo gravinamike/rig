@@ -5,6 +5,7 @@
     import GraphSchematicView from "$lib/components/viewers/graphViewers/graphSchematicView.svelte"
     import GraphSettingsView from "$lib/components/viewers/settingsViewers/graphSettingsView.svelte"
     import GraphHistoryView from "$lib/components/viewers/graphViewers/graphHistoryView.svelte"
+    import GraphPinsView from "$lib/components/viewers/graphViewers/graphPinsView.svelte"
     import CohortWidget from "$lib/components/graphWidgets/basicWidgets/cohortWidget.svelte"
 
     export let pThingIds: number[]
@@ -48,6 +49,12 @@
 
     <Collapser headerText={"History"} contentDirection={"right"} expanded={true}>
         <GraphHistoryView
+            bind:graph
+        />
+    </Collapser>
+
+    <Collapser headerText={"Pins"} contentDirection={"right"} expanded={true}>
+        <GraphPinsView
             bind:graph
         />
     </Collapser>

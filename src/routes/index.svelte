@@ -1,6 +1,7 @@
 <script lang="ts">
     import { onMount } from "svelte"
     import { startingPThingIds, startingGraphDepth, navHeight } from "$lib/shared/constants"
+    import { pinIdsStore } from '$lib/shared/stores/appStores'
     import { storeGraphConstructs } from '$lib/shared/stores/graphStores'
     import Collapser from "$lib/components/layoutElements/collapser.svelte"
     import DirectionsStoreView from "$lib/components/viewers/storeViewers/directionsStoreView.svelte"
@@ -14,6 +15,7 @@
         // when the app is initialized, rather than when each Graph is initialized.
         await storeGraphConstructs("Direction")
         await storeGraphConstructs("Space")
+        pinIdsStore.set([251])
 	})
 </script>
 

@@ -124,7 +124,7 @@
         outline-offset: -1px;
 
         box-sizing: border-box;
-        width: 225px;
+        width: 200px;
         height: 100%;
         background-color: #fafafa;
 
