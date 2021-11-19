@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { Direction } from "$lib/shared/graph/graphDb"
+    import type { Direction } from "$lib/shared/graph/graphDbConstructs"
 
     export let direction: Direction
 </script>

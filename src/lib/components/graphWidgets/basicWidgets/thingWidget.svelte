@@ -1,9 +1,10 @@
 <script lang="ts">
-    import type { ThingWidgetModel, Graph } from "$lib/shared/graph/graph"
+    import type { Graph } from "$lib/shared/graph/graph"
+    import type { ThingWidgetModel } from "$lib/shared/graph/graphWidgets"
     import { hoveredThingIdStore } from "$lib/shared/stores/appStores"
-    import RelationshipsWidget from "$lib/components/graphWidgets/relationshipsWidget.svelte"
-    import CohortWidget from "$lib/components/graphWidgets/cohortWidget.svelte"
-    import ThingDetailsWidget from "$lib/components/graphWidgets/thingDetailsWidget.svelte"
+    import RelationshipsWidget from "$lib/components/graphWidgets/basicWidgets/relationshipsWidget.svelte"
+    import CohortWidget from "$lib/components/graphWidgets/basicWidgets/cohortWidget.svelte"
+    import ThingDetailsWidget from "$lib/components/graphWidgets/detailsWidgets/thingDetailsWidget.svelte"
 
     export let thingWidgetModel: ThingWidgetModel
     export let graph: Graph
@@ -16,7 +17,7 @@
     $: encapsulatingDepth = thingWidgetModel.parentCohort?.encapsulatingDepth || 0
     $: encapsulatingPadding = encapsulatingDepth >= 0 ? 40 : 20
     $: cohortSize = thingWidgetModel.parentCohort?.members.length || 1
-    $: thingSize = graph.format.thingSize + encapsulatingPadding * encapsulatingDepth
+    $: thingSize = graph.style.thingSize + encapsulatingPadding * encapsulatingDepth
     $: thingWidth = thingSize
     $: thingHeight = encapsulatingDepth >= 0 ? thingSize : thingSize / cohortSize - 2
 
@@ -47,7 +48,7 @@
         on:click={handleClick}
         style="border-radius: {8 + 4 * encapsulatingDepth}px; width: {thingWidth}px; height: {thingHeight}px;"
     >
-        <div class="thing-text" style="font-size: {encapsulatingDepth >= 0 ? graph.format.thingTextSize : graph.format.thingTextSize / Math.log2(cohortSize)}px">
+        <div class="thing-text" style="font-size: {encapsulatingDepth >= 0 ? graph.style.thingTextSize : graph.style.thingTextSize / Math.log2(cohortSize)}px">
             {text}
         </div>
         

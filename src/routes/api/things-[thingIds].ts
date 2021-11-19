@@ -1,4 +1,4 @@
-import { Thing, queryThings } from "$lib/shared/graph/graphDb"
+import { Thing, queryThings } from "$lib/shared/graph/graphDbConstructs"
 
 
 let thingIds: string | number[]

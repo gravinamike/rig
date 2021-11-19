@@ -15,35 +15,35 @@
 
     <SettingWidget
         labelText={"Relation offset length"}
-        bind:boundValue={graph.format.offsetLength}
+        bind:boundValue={graph.style.offsetLength}
         maxValue={1000}
         onChangeFunction={updateGraphFormat}
     />
 
     <SettingWidget
         labelText={"Thing size"}
-        bind:boundValue={graph.format.thingSize}
+        bind:boundValue={graph.style.thingSize}
         maxValue={1000}
         onChangeFunction={updateGraphFormat}
     />
 
     <SettingWidget
         labelText={"Between-Thing gap"}
-        bind:boundValue={graph.format.betweenThingGap}
+        bind:boundValue={graph.style.betweenThingGap}
         maxValue={1000}
         onChangeFunction={updateGraphFormat}
     />
 
     <SettingWidget
         labelText={"Relationship text size"}
-        bind:boundValue={graph.format.relationshipTextSize}
+        bind:boundValue={graph.style.relationshipTextSize}
         maxValue={100}
         onChangeFunction={updateGraphFormat}
     />
 
     <SettingWidget
         labelText={"Thing text size"}
-        bind:boundValue={graph.format.thingTextSize}
+        bind:boundValue={graph.style.thingTextSize}
         maxValue={100}
         onChangeFunction={updateGraphFormat}
     />

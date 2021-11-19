@@ -1,14 +1,8 @@
-import type { HalfAxisId } from "$lib/shared/graph/graph"
-import { oddHalfAxisIds } from "$lib/shared/graph/graph"
+import type { HalfAxisId } from "$lib/shared/constants"
+import { oddHalfAxisIds } from "$lib/shared/constants"
 import { Model, RelationMappings, RelationMappingsThunk } from "objection"
 
-
-
 export type GraphConstruct = Direction | Space | Thing
-
-
-
-
 
 
 /*
@@ -256,6 +250,26 @@ export async function queryDirections(directionIds: number | number[] | null, id
     }
 }
 
+
+/*
+ * Typeguard functions for Graph construct classes.
+ */
+export function isDirection(construct: GraphConstruct): construct is Direction {
+    return construct.kind === "direction"
+}
+
+export function isSpace(construct: GraphConstruct): construct is Space {
+    return construct.kind === "space"
+}
+
+export function isThing(construct: GraphConstruct): construct is Thing {
+    return construct.kind === "thing"
+}
+
+
+/*
+ * Functions to query Graph constructs from the database.
+ */
 export async function querySpaces(spaceIds: number): Promise<null | Space>;
 export async function querySpaces(spaceIds: number[]): Promise<Space[]>;
 export async function querySpaces(spaceIds: null, idsToExclude?: number[]): Promise<Space[]>;
@@ -332,21 +346,4 @@ export async function queryThings(thingIds: number | number[]): Promise<null | T
             .orderBy('id')
         return queriedThings
     }
-}
-
-
-
-
-
-
-export function isDirection(construct: GraphConstruct): construct is Direction {
-    return construct.kind === "direction"
-}
-
-export function isSpace(construct: GraphConstruct): construct is Space {
-    return construct.kind === "space"
-}
-
-export function isThing(construct: GraphConstruct): construct is Thing {
-    return construct.kind === "thing"
 }

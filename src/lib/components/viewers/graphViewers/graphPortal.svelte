@@ -1,11 +1,11 @@
 <script lang="ts">
-    import { Graph } from "$lib/shared/graph/graph"
     import { onMount } from "svelte"
+    import { Graph } from "$lib/shared/graph/graph"
     import Collapser from "$lib/components/layoutElements/collapser.svelte"
-    import GraphSchematicView from "$lib/components/viewers/graphSchematicView.svelte"
-    import GraphSettingsView from "$lib/components/viewers/graphSettingsView.svelte"
-    import GraphHistoryView from "$lib/components/viewers/graphHistoryView.svelte"
-    import CohortWidget from "$lib/components/graphWidgets/cohortWidget.svelte"
+    import GraphSchematicView from "$lib/components/viewers/graphViewers/graphSchematicView.svelte"
+    import GraphSettingsView from "$lib/components/viewers/settingsViewers/graphSettingsView.svelte"
+    import GraphHistoryView from "$lib/components/viewers/graphViewers/graphHistoryView.svelte"
+    import CohortWidget from "$lib/components/graphWidgets/basicWidgets/cohortWidget.svelte"
 
     export let pThingIds: number[]
     export let depth: number

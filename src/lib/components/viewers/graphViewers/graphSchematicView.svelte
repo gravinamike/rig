@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { Generation, Graph } from "$lib/shared/graph/graph"
     import Collapser from "$lib/components/layoutElements/collapser.svelte"
-    import ThingDetailsWidget from "$lib/components/graphWidgets/thingDetailsWidget.svelte"
+    import ThingDetailsWidget from "$lib/components/graphWidgets/detailsWidgets/thingDetailsWidget.svelte"
 
     export let graph: Graph
 

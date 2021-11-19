@@ -1,7 +1,7 @@
 import type { Writable } from "svelte/store"
-import type { GraphConstruct, Direction, Space, Thing } from "$lib/shared/graph/graphDb"
+import type { GraphConstruct, Direction, Space, Thing } from "$lib/shared/graph/graphDbConstructs"
 import { writable, derived } from "svelte/store"
-import { isDirection, isSpace, isThing } from "$lib/shared/graph/graphDb"
+import { isDirection, isSpace, isThing } from "$lib/shared/graph/graphDbConstructs"
 
 
 // Create Direction-related stores (and subscriptions where applicable).
@@ -13,6 +13,7 @@ export const directionsStoreAsArray = derived( directionsStore, $directionsStore
 
 export const directionIdsNotFoundStore = writable( [] as number[] );
 
+
 // Create Space-related stores (and subscriptions where applicable).
 export const spacesStore = writable( {} as { [id: number]: Space } )
 let spacesStoreValue: { [id: number]: Space }
@@ -22,6 +23,7 @@ export const spacesStoreAsArray = derived( spacesStore, $spacesStore => Object.v
 
 export const spaceIdsNotFoundStore = writable( [] as number[] );
 
+
 // Create Things-related stores (and subscriptions where applicable).
 export const thingsStore = writable( {} as { [id: number]: Thing } )
 let thingsStoreValue: { [id: number]: Thing }
@@ -30,12 +32,6 @@ thingsStore.subscribe(value => {thingsStoreValue = value})
 export const thingsStoreAsArray = derived( thingsStore, $thingsStore => Object.values($thingsStore) )
 
 export const thingIdsNotFoundStore = writable( [] as number[] );
-
-
-
-
-
-
 
 
 /* 
@@ -80,9 +76,21 @@ function updateIdStore( constructName: "Direction" | "Space" | "Thing", ids: num
     })
 }
 
+/* 
+ * Functions to check whether Graph constructs are in the stores.
+ */
+export function graphConstructInStore( constructName: "Direction" | "Space" | "Thing", id: number ): boolean {
+    const storeValue = {
+        "Direction": directionsStoreValue,
+        "Space": spacesStoreValue,
+        "Thing": thingsStoreValue
+    }[constructName]
+
+    return id in storeValue ? true : false
+}
 
 /* 
- * Function to get Graph constructs from the API and add them to the stores.
+ * Function to fetch Graph constructs from the API, then add them to the stores.
  */
 export async function storeGraphConstructs<Type extends GraphConstruct>( constructName: "Direction" | "Space" | "Thing", ids?: number | number[] ): Promise<Type[]> {
     const storeValue = {
@@ -131,70 +139,40 @@ export async function storeGraphConstructs<Type extends GraphConstruct>( constru
     }
 }
 
-
 /* 
- * Functions to check whether Graph constructs are in the stores.
+ * Function to retrieve Graph constructs from the stores.
  */
-export function graphConstructInStore( constructName: "Direction" | "Space" | "Thing", id: number ): boolean {
-    const storeValue = {
-        "Direction": directionsStoreValue,
-        "Space": spacesStoreValue,
-        "Thing": thingsStoreValue
-    }[constructName]
-
-    return id in storeValue ? true : false
-}
-
-
-/* 
- * Functions to retrieve Directions, Spaces and Things from the stores.
- */
-export function retrieveDirections( directionIds: number ): Direction | null
-export function retrieveDirections( directionIds: number[] ): Direction[]
-export function retrieveDirections( directionIds: number | number[] ): Direction[] | Direction | null {
-    // For single IDs, return the stored Direction or null if there isn't one stored.
-    if (typeof directionIds === "number") {
-        const output = graphConstructInStore("Direction", directionIds) ? directionsStoreValue[directionIds] : null
-        return output
-    // For an array of IDs, return an array of the stored Spaces that match.
+export function retrieveGraphConstructs<Type extends GraphConstruct>(
+    constructName: "Direction" | "Space" | "Thing",
+    ids: number
+): Type | null
+export function retrieveGraphConstructs<Type extends GraphConstruct>(
+    constructName: "Direction" | "Space" | "Thing",
+    ids: number[]
+): Type[]
+export function retrieveGraphConstructs<Type extends GraphConstruct>(
+    constructName: "Direction" | "Space" | "Thing",
+    ids: number | number[]
+): Type[] | Type | null {
+    let storeValue: { [id: number]: GraphConstruct }
+    if (constructName === "Direction") {
+        storeValue = directionsStoreValue
+    } else if (constructName === "Space") {
+        storeValue = spacesStoreValue
     } else {
-        const output: Direction[] = []
-        for (const directionId of directionIds) {
-            if (graphConstructInStore("Direction", directionId)) output.push(directionsStoreValue[directionId])
-        }
-        return output
+        storeValue = thingsStoreValue
     }
-}
-
-export function retrieveSpaces( spaceIds: number ): Space | null
-export function retrieveSpaces( spaceIds: number[] ): Space[]
-export function retrieveSpaces( spaceIds: number | number[] ): Space[] | Space | null {
-    // For single IDs, return the stored Space or null if there isn't one stored.
-    if (typeof spaceIds === "number") {
-        const output = graphConstructInStore("Space", spaceIds) ? spacesStoreValue[spaceIds] : null
+    storeValue
+    
+    // For single IDs, return the stored construct or null if there isn't one stored.
+    if (typeof ids === "number") {
+        const output = graphConstructInStore(constructName, ids) ? storeValue[ids] as Type : null
         return output
-    // For an array of IDs, return an array of the stored Spaces that match.
+    // For an array of IDs, return an array of the stored constructs that match.
     } else {
-        const output: Space[] = []
-        for (const spaceId of spaceIds) {
-            if (graphConstructInStore("Space", spaceId)) output.push(spacesStoreValue[spaceId])
-        }
-        return output
-    }
-}
-
-export function retrieveThings( thingIds: number ): Thing | null
-export function retrieveThings( thingIds: number[] ): Thing[]
-export function retrieveThings( thingIds: number | number[] ): Thing[] | Thing | null {
-    // For single IDs, return the stored Thing or null if there isn't one stored.
-    if (typeof thingIds === "number") {
-        const output = graphConstructInStore("Thing", thingIds) ? thingsStoreValue[thingIds] : null
-        return output
-    // For an array of IDs, return an array of the stored Things that match.
-    } else {
-        const output: Thing[] = []
-        for (const thingId of thingIds) {
-            if (graphConstructInStore("Thing", thingId)) output.push(thingsStoreValue[thingId])
+        const output: Type[] = []
+        for (const id of ids) {
+            if (graphConstructInStore(constructName, id)) output.push(storeValue[id] as Type)
         }
         return output
     }

@@ -1,8 +1,8 @@
 <script lang="ts">
     import type { Graph } from "$lib/shared/graph/graph"
-    import type { Thing } from "$lib/shared/graph/graphDb"
+    import type { Thing } from "$lib/shared/graph/graphDbConstructs"
     import { hoveredThingIdStore } from "$lib/shared/stores/appStores";
-    import { retrieveThings, graphConstructInStore } from "$lib/shared/stores/graphStores"
+    import { retrieveGraphConstructs, graphConstructInStore } from "$lib/shared/stores/graphStores"
     import Toggle from "$lib/components/layoutElements/toggle.svelte"
 
     export let graph: Graph
@@ -56,7 +56,7 @@
             return {
                 timestamp: entry.timestamp,
                 thingId: entry.thingId,
-                thing: graphConstructInStore("Thing", entry.thingId) ? retrieveThings(entry.thingId) : null
+                thing: graphConstructInStore("Thing", entry.thingId) ? retrieveGraphConstructs("Thing", entry.thingId) : null
             }
         }
     )

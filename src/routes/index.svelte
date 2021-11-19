@@ -3,10 +3,10 @@
     import { startingPThingIds, startingGraphDepth, navHeight } from "$lib/shared/constants"
     import { storeGraphConstructs } from '$lib/shared/stores/graphStores'
     import Collapser from "$lib/components/layoutElements/collapser.svelte"
-    import DirectionsStoreView from "$lib/components/viewers/directionsStoreView.svelte"
-    import SpacesStoreView from "$lib/components/viewers/spacesStoreView.svelte"
-    import ThingsStoreView from "$lib/components/viewers/thingsStoreView.svelte"
-    import GraphPortal from "$lib/components/viewers/graphPortal.svelte"
+    import DirectionsStoreView from "$lib/components/viewers/storeViewers/directionsStoreView.svelte"
+    import SpacesStoreView from "$lib/components/viewers/storeViewers/spacesStoreView.svelte"
+    import ThingsStoreView from "$lib/components/viewers/storeViewers/thingsStoreView.svelte"
+    import GraphPortal from "$lib/components/viewers/graphViewers/graphPortal.svelte"
 
 
     onMount(async () => {

@@ -1,8 +1,8 @@
 <script context="module" lang="ts">
-    import type { Direction, Space } from "$lib/shared/graph/graphDb"
+    import type { Direction, Space } from "$lib/shared/graph/graphDbConstructs"
     import type { GenerationMember, Cohort, Graph } from "$lib/shared/graph/graph"
     import { rotationByHalfAxisId, offsetSignsByHalfAxisId } from "$lib/shared/constants"
-    import { retrieveDirections } from "$lib/shared/stores/graphStores"
+    import { retrieveGraphConstructs } from "$lib/shared/stores/graphStores"
 </script>
 
 <script lang="ts">
@@ -10,9 +10,9 @@
     export let space: Space
     export let graph: Graph
 
-    $: offsetLength = graph.format.offsetLength
-    $: thingSize = graph.format.thingSize
-    $: betweenThingGap = graph.format.betweenThingGap
+    $: offsetLength = graph.style.offsetLength
+    $: thingSize = graph.style.thingSize
+    $: betweenThingGap = graph.style.betweenThingGap
 
     $: edgeToEdgeDimension = offsetLength - thingSize
 
@@ -40,12 +40,12 @@
 
     // Retrieve Direction information.
     const directionId = space.directionIdByHalfAxisId[halfAxisId] as number
-    const direction = retrieveDirections(directionId) as Direction
+    const direction = retrieveGraphConstructs("Direction", directionId) as Direction
 </script>
 
 
 <main class="relationships-widget" style="left: calc({offsets[0]}px + 50%); top: calc({offsets[1]}px + 50%); z-index: {zIndex}; width: {widgetWidth}px; height: {widgetHeight}px;">
-    <div class="direction-text" style="font-size: {graph.format.relationshipTextSize}px">
+    <div class="direction-text" style="font-size: {graph.style.relationshipTextSize}px">
         {direction.text}
     </div>
     <svg class="relationship-image" style="width: {imageWidth}px; height: {imageHeight}px; transform: rotate({rotation}deg);">

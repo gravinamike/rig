@@ -5,6 +5,15 @@ export const startingPThingIds = [251]
 export const startingGraphDepth = 1
 
 /*
+ * Graph constants.
+ */
+export type HalfAxisId = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
+export const halfAxisIds = [1, 2, 3, 4, 5, 6, 7, 8] as const
+export const oddHalfAxisIds = [1, 3, 5, 7] as const
+
+
+
+/*
  * Layout parameters.
  */
 export const navHeight = "3rem"

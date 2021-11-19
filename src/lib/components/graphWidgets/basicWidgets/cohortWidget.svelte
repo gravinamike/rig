@@ -4,19 +4,19 @@
 </script>
 
 <script lang="ts">
-    import ThingWidget from "$lib/components/graphWidgets/thingWidget.svelte"
-    import ThingPlaceholderWidget from "$lib/components/graphWidgets/thingPlaceholderWidget.svelte"
+    import ThingWidget from "$lib/components/graphWidgets/basicWidgets/thingWidget.svelte"
+    import ThingPlaceholderWidget from "$lib/components/graphWidgets/basicWidgets/thingPlaceholderWidget.svelte"
 
     export let cohort: Cohort
     export let graph: Graph
 
-    $: betweenThingGap = graph.format.betweenThingGap
+    $: betweenThingGap = graph.style.betweenThingGap
 
     // Calculate x and y offsets and z-index relative to parent Thing Widget.
     const generationId = cohort.address?.generationId || 0
     const halfAxisId = cohort.address ? cohort.address.halfAxisId : 0
     const offsetSigns = offsetSignsByHalfAxisId[halfAxisId]
-    $: offsets = [ graph.format.offsetLength * offsetSigns[0], graph.format.offsetLength * offsetSigns[1] ]
+    $: offsets = [ graph.style.offsetLength * offsetSigns[0], graph.style.offsetLength * offsetSigns[1] ]
     $: zIndex = (generationId * 2) * offsetSigns[2]
 </script>
 

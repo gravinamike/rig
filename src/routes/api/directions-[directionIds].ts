@@ -1,4 +1,4 @@
-import { Direction, queryDirections } from "$lib/shared/graph/graphDb"
+import { Direction, queryDirections } from "$lib/shared/graph/graphDbConstructs"
 
 
 let directionIds: string | number[]

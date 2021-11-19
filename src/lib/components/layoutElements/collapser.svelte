@@ -8,7 +8,10 @@
     let verticalOrHorizontal = ["down", "up"].includes(contentDirection) ? "vertical" : "horizontal"
 </script>
 
+
 <div class="collapser {verticalOrHorizontal}">
+
+    <!-- Collapser header -->
     <div class="header {verticalOrHorizontal} {contentDirection}">
         <h3>
             <div class="button" aria-expanded={expanded} on:click|stopPropagation={() => expanded = !expanded}>
@@ -22,11 +25,14 @@
                     {expanded ? "◄" : "▼"}
                 {/if}
             </div>
+
             <div class="header-text">{headerText}</div>
         </h3>
     </div>
     
+    <!-- Collapser content -->
     {#if expanded}
+
         {#if verticalOrHorizontal === "vertical"}
             <div class="content" transition:slide>
                 <slot></slot>
@@ -36,8 +42,10 @@
                 <slot></slot>
             </div>
         {/if}
+        
     {/if}
 </div>
+
 
 <style>
     .collapser {
