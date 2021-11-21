@@ -124,7 +124,7 @@
         outline-offset: -1px;
 
         box-sizing: border-box;
-        width: 200px;
+        width: 150px;
         height: 100%;
         background-color: #fafafa;
 
@@ -169,7 +169,7 @@
         padding: 1rem;
         gap: 10px;
 
-        font-size: 0.75rem;
+        font-size: 0.65rem;
         text-align: left;
     }
 

@@ -29,8 +29,20 @@
         />
     </Collapser>
 
-    <Collapser headerText={"Graph settings"} contentDirection={"left"} expanded={true}>
+    <Collapser headerText={"Graph settings"} contentDirection={"left"}>
         <GraphSettingsView
+            bind:graph
+        />
+    </Collapser>
+
+    <Collapser headerText={"Pins"} contentDirection={"left"} expanded={true}>
+        <GraphPinsView
+            bind:graph
+        />
+    </Collapser>
+    
+    <Collapser headerText={"History"} contentDirection={"left"} expanded={true}>
+        <GraphHistoryView
             bind:graph
         />
     </Collapser>
@@ -46,18 +58,6 @@
             {/if}
         </div>
     </div>
-
-    <Collapser headerText={"History"} contentDirection={"right"} expanded={true}>
-        <GraphHistoryView
-            bind:graph
-        />
-    </Collapser>
-
-    <Collapser headerText={"Pins"} contentDirection={"right"} expanded={true}>
-        <GraphPinsView
-            bind:graph
-        />
-    </Collapser>
 </main>
 
 
