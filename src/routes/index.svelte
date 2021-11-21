@@ -8,7 +8,6 @@
     import SpacesStoreView from "$lib/components/viewers/storeViewers/spacesStoreView.svelte"
     import ThingsStoreView from "$lib/components/viewers/storeViewers/thingsStoreView.svelte"
     import GraphPortal from "$lib/components/viewers/graphViewers/graphPortal.svelte"
-    import NotesViewer from "$lib/components/viewers/notesViewer/notesViewer.svelte"
 
 
     onMount(async () => {
@@ -42,11 +41,6 @@
         pThingIds={startingPThingIds}
         depth={startingGraphDepth}
     />
-
-    <!-- Notes editor --> 
-    <Collapser headerText={"Notes"} contentDirection={"right"} expanded={true}>
-        <NotesViewer />
-    </Collapser>
 </main>
 
 

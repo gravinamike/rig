@@ -7,6 +7,7 @@
     import GraphHistoryView from "$lib/components/viewers/graphViewers/graphHistoryView.svelte"
     import GraphPinsView from "$lib/components/viewers/graphViewers/graphPinsView.svelte"
     import CohortWidget from "$lib/components/graphWidgets/basicWidgets/cohortWidget.svelte"
+    import NotesViewer from "$lib/components/viewers/notesViewer/notesViewer.svelte"
 
     export let pThingIds: number[]
     export let depth: number
@@ -58,6 +59,12 @@
             {/if}
         </div>
     </div>
+
+    <Collapser headerText={"Notes"} contentDirection={"right"} expanded={true}>
+        <NotesViewer
+            {graph}
+        />
+    </Collapser>
 </main>
 
 
