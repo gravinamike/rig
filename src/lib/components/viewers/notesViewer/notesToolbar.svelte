@@ -181,6 +181,8 @@
 
 <style>
     .notes-toolbar {
+        flex: 0 0;
+
         display: flex;
         flex-direction: column;
     }
