@@ -1,38 +1,127 @@
-# create-svelte
+# Rig
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte);
+This is Mike Gravina's attempt at building a domain-general, high-dimensional semantic medium.
 
-## Creating a project
 
-If you're seeing this, you've probably already done this step. Congrats!
+## Terminology of a Graph
 
-```bash
-# create a new project in the current directory
-npm init svelte@next
 
-# create a new project in my-app
-npm init svelte@next my-app
-```
+### Basic building block terminology
 
-> Note: the `@next` is temporary
+* **Thing**: 
+A Thing is one of the two basic building blocks of a Graph. When defining a Thing,
+we try to respect the "relational" model of representation, which says that Things
+have no intrinsic attributes. They are, essentially, "empty". A Thing's attributes,
+and more than that, its *identity*, are completely dependent on its Relationships.
+With this in mind, a Thing can be described as a vertex in the network of a Graph -
+whether that means an endpoint of a single Relationship, or a convergence point of
+many Relationships.
 
-## Developing
+* **Relationship**:
+A Relationship describes the connection between two Things. Relationships form the
+edges of the network of a Graph.
+Because Relationships are bidirectional (one can go from the first Thing to the
+second Thing, or from the second Thing to the first Thing), they are implemented
+in Rig as pairs of relationship entries in the database. Both entries share the
+same two endpoint Things, but they differ in terms of the Direction that those
+Things are related in. The paired relationship entries always have opposite
+Directions to one another.
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+* **Related Things**: 
+Two Things connected by a Relationship are Related Things.
 
-```bash
-npm run dev
+* **Direction**: 
+A Direction represents a way that two Things can be related; in other words, a
+Direction is a category that Relationships can belong to.
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
+* **Opposite Direction**:
+Each Direction has an Opposite Direction; in turn, that Opposite
+Direction's own Opposite Direction is the first Direction.
 
-## Building
+* **Reciprocal Direction**
+In rare cases, a Direction can be its own Opposite Direction. A good example is
+the root Direction, "is related to", since by definition, if one Thing is related
+to a second Thing, then the second Thing is also related to the first). A Direction
+that is its own Opposite Direction is called a "Reciprocal Direction".
 
-Before creating a production version of your app, install an [adapter](https://kit.svelte.dev/docs#adapters) for your target environment. Then:
+* **Space**: 
+A Space is a set of Directions. (Identical to a set of Axes composed of these
+Directions.)
 
-```bash
-npm run build
-```
 
-> You can preview the built app with `npm run preview`, regardless of whether you installed an adapter. This should _not_ be used to serve your app in production.
+### Graph terminology
+
+* **Unigraph**: A network of Things connected by Relationships, stored as entries in
+Rig's relational database.
+
+* **Graph**: A network of Things connected by Relationships that serves to
+visualize a bounded part of a Unigraph.
+
+* **Perspective Thing**: The process of building a Graph works outwards from a
+single starting Thing. Because the rest of the Graph is built in relation to this
+starting Thing, and may depend on this Thing to determine many of its
+characteristics, we say that the Graph is built "from the Perspective of" this
+Thing, and call this Thing the Perspective Thing of the Graph.
+
+* **Child/Parent Thing (of a Thing)**: After the Perspective Thing, other Things
+are added into a Graph as Related Things to a Thing that already exists in the
+Graph. Things added this way are called Child Things to the Thing that they are
+first related to, and in return, that Thing is called their Parent Thing.
+
+* **Cohort** All Child Things in a single Direction from the Parent Thing. (Note
+that if the Parent Thing's own Parent Thing is a Related Thing in that Direction,
+the Cohort does *not* include that "grandparent" Thing.)
+
+* **Brood**: All Child Things of a single Parent Thing, regardless of Direction.
+(Identical to all Cohorts of a single parent Thing.)
+
+* **Clade**: A Parent Thing, together with its Brood.
+
+* **Parent Thing (of a Clade)**: The Parent Thing of the Clade's central Thing.
+(Identical to the "grandparent" Thing of the Clade's peripheral Things.)
+
+* **Generation**: As a Graph is build outward from a Perspective Thing, each
+"step" of Relationships is called a Generation. The Perspective Thing itself
+is considered Generation "0". All of its immediate Related Things (1 "step"
+away from the Perspective Thing) are called Generation 1. Then, when the next
+set of Things is added as Related Things from each of the Things in Generation
+1, these new Things are called Generation 2, and so on.
+
+
+### Graph display terminology
+
+* **Axis**: Relationships are shown on one of several display "axes" in the
+Graph viewer. These include 1. the vertical and horizontal screen axes; the
+perpendicular axis (which emulates depth on the 2-dimensional screen); and
+the "encapsulation" axis, which is made up of Things which either enclose
+other Things or are enclosed by other Things.
+
+* **Half-Axis**: Each Axis is composed of two opposite Half-Axes. The vertical
+Axis is composed of 1 (Down) and 2 (Up). The horizontal Axis is composed of
+3 (Right) and 4 (Left). The perpendicular Axis is composed of 5 (Away) and 6
+(Towards). The encapsulation Axis is composed of 7 (Inwards) and 8 (Outwards).
+When a Clade is displayed in a given Space, one pair of opposite Directions of
+that Space is mapped to each Axis. Opposite Directions are generally mapped to
+opposite Half-Axes.
+
+* **Relationships Stem**: All of the Relationships for a given Cohort share a
+source Thing and a Direction, so they're shown in a way that highlights
+these shared elements. The parts of all the Relationships closest to the source
+Thing are joined together visually into a single "Stem". Interacting with the
+Stem allows the user to perform operations on all the Relationships in the
+Cohort at the same time.
+
+* **Relationships Fan**: The "Fan" shows the separation of the Relationships
+into separate Branches (see below). The diagonal lines of the fan are generally
+displayed with a dotted stroke, in order to convey the idea that Relationships
+are "orthogonal", i.e. that the non-diagonal lines of the Stem and Branches
+represent ends of the true, "broken" line.
+
+* **Relationships Branches**: The parts of the Relationships furthest from the
+source Thing are shown as separate "Branches". Interacting with a Branch allows
+the user to perform operations on a single Relationship at a time.
+
+* **Portal**: A Clade that is shown with a discrete boundary, separating it from
+the surrounding Graph. Generally a Clade is shown as a Portal when it adopts a
+different Space from the Clade's Parent Thing, in order to clearly indicate that
+Relationships within that Clade are on different axes.
