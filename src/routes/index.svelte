@@ -4,6 +4,7 @@
     import { pinIdsStore } from '$lib/shared/stores/appStores'
     import { storeGraphConstructs } from '$lib/shared/stores/graphStores'
     import Collapser from "$lib/components/layoutElements/collapser.svelte"
+    import { TabBlock, TabFlap, TabFlaps, TabBody } from "$lib/components/layoutElements/tabs"
     import DirectionsStoreView from "$lib/components/viewers/storeViewers/directionsStoreView.svelte"
     import SpacesStoreView from "$lib/components/viewers/storeViewers/spacesStoreView.svelte"
     import ThingsStoreView from "$lib/components/viewers/storeViewers/thingsStoreView.svelte"
@@ -21,19 +22,31 @@
 
 
 <main style="height: calc( 100% - {navHeight} )">
-    <!-- Directions Store view --> 
-    <Collapser headerText={"Stored Directions"} contentDirection={"left"}>
-        <DirectionsStoreView />
-    </Collapser>
-    
-    <!-- Spaces Store view --> 
-    <Collapser headerText={"Stored Spaces"} contentDirection={"left"}>
-        <SpacesStoreView />
-    </Collapser>
-
-    <!-- Things Store view --> 
-    <Collapser headerText={"Stored Things"} contentDirection={"left"}>
-        <ThingsStoreView />
+    <Collapser headerText={"Stores"} contentDirection={"left"}>
+        <div class="tabs-container">
+            <TabBlock>
+                <TabFlaps>
+                    <TabFlap>Directions</TabFlap>
+                    <TabFlap>Spaces</TabFlap>
+                    <TabFlap>Things</TabFlap>
+                </TabFlaps>
+            
+                <!-- Directions Store view --> 
+                <TabBody>
+                    <DirectionsStoreView />
+                </TabBody>
+            
+                <!-- Spaces Store view --> 
+                <TabBody>
+                    <SpacesStoreView />
+                </TabBody>
+            
+                <!-- Things Store view --> 
+                <TabBody>
+                    <ThingsStoreView />
+                </TabBody>
+            </TabBlock>
+        </div>
     </Collapser>
 
     <!-- Graph Portal. --> 
@@ -48,5 +61,13 @@
     main {
         display: flex;
         flex-direction: row;
+    }
+
+    .tabs-container {
+        width: 200px;
+        height: 100%;
+        
+        overflow-x: hidden;
+        overflow-y: hidden;
     }
 </style>

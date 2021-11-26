@@ -34,7 +34,7 @@
     {#if expanded}
 
         {#if verticalOrHorizontal === "vertical"}
-            <div class="content" transition:slide>
+            <div class="content"><!-- transition:slide - More bother than it's worth! -->
                 <slot></slot>
             </div>
         {:else}

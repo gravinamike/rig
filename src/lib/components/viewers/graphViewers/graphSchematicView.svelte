@@ -47,7 +47,6 @@
         outline-offset: -1px;
 
         box-sizing: border-box;
-        width: 225px;
         height: 100%;
         background-color: #fafafa;
 
@@ -70,6 +69,7 @@
         border-radius: 10px;
         box-shadow: 5px 5px 10px 2px lightgray;
 
+        box-sizing: border-box;
         height: max-content;
         background-color: white;
         

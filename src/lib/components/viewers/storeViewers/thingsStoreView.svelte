@@ -33,7 +33,6 @@
         outline-offset: -1px;
 
         box-sizing: border-box;
-        width: 225px;
         height: 100%;
         background-color: #fafafa;
 
