@@ -1,10 +1,12 @@
 <script lang="ts">
+    import type { SvelteComponent } from "svelte"
     import type { Graph } from "$lib/shared/graph/graph"
     import type { ThingWidgetModel } from "$lib/shared/graph/graphWidgets"
     import { hoveredThingIdStore } from "$lib/shared/stores/appStores"
     import RelationshipsWidget from "$lib/components/graphWidgets/basicWidgets/relationshipsWidget.svelte"
     import CohortWidget from "$lib/components/graphWidgets/basicWidgets/cohortWidget.svelte"
     import ThingDetailsWidget from "$lib/components/graphWidgets/detailsWidgets/thingDetailsWidget.svelte"
+    import { ContextMenuFrame, ContextMenuOption, ContextMenuDivider } from "$lib/components/layoutElements/contextMenu"
 
     export let thingWidgetModel: ThingWidgetModel
     export let graph: Graph
@@ -35,6 +37,8 @@
         hoveredThingIdStore.set(null) // Clear the hovered-Thing highlighting.
         graph = graph // Needed for reactivity.
     }
+
+    let contextMenu: SvelteComponent
 </script>
 
 
@@ -46,6 +50,7 @@
         on:mouseenter={()=>{hoveredThingIdStore.set(thingId)}}
         on:mouseleave={()=>{hoveredThingIdStore.set(null)}}
         on:click={handleClick}
+        on:contextmenu|preventDefault={contextMenu.openContextMenu}
         style="border-radius: {8 + 4 * encapsulatingDepth}px; width: {thingWidth}px; height: {thingHeight}px;"
     >
         <div class="thing-text" style="font-size: {encapsulatingDepth >= 0 ? graph.style.thingTextSize : graph.style.thingTextSize / Math.log2(cohortSize)}px">
@@ -66,6 +71,27 @@
             on:mouseleave={()=>{showDetails = false}}
             >
         </div>
+
+        <ContextMenuFrame bind:this={contextMenu}>
+            <ContextMenuOption
+                text="Do nothing"
+                on:click={console.log}
+            />
+    
+            <ContextMenuOption
+                text="Do nothing, but twice"
+                on:click={console.log}
+            />
+    
+            <ContextMenuDivider />
+    
+            <ContextMenuOption
+                disabled={true}
+                text="Whoops, disabled!"
+                on:click={console.log}
+            />
+    
+        </ContextMenuFrame>
     </div>
 
     {#if showNotes}

@@ -1,0 +1,53 @@
+<script lang="ts">
+	import { getContext, createEventDispatcher } from "svelte"
+	import { MENU } from "./ContextMenuFrame.svelte"
+	const { dispatchClick } = getContext(MENU)
+	
+	export let text = ""
+	export let disabled = false
+	
+
+	// Events.
+	const dispatch = createEventDispatcher()
+	function handleClick(event: MouseEvent) {
+		if (!disabled) {
+			dispatch('click')
+			dispatchClick()
+		}
+	}
+</script>
+
+
+<div 
+  class="context-menu-option {disabled ? "disabled" : ""}"
+  on:click={handleClick}
+>
+	{#if text}
+		{text}
+	{:else}
+		<slot />
+	{/if}
+</div>
+
+
+<style>
+	.context-menu-option {
+		grid-gap: 5px;
+
+		display: flex;
+		padding: 0.25rem 0.5rem;
+		align-items: center;
+
+		font-size: 0.75rem;
+
+		cursor: default;
+	}
+
+	.context-menu-option.disabled {
+		color: lightgrey;
+	}
+
+	.context-menu-option:not(.disabled):hover {
+		background: lightgrey;
+	}
+</style>

@@ -89,6 +89,7 @@
 
 <style>
     main {
+        position: relative;
         flex-grow: 1;
         display: flex;
         flex-direction: row;
