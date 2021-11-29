@@ -90,7 +90,6 @@
                 text="Whoops, disabled!"
                 on:click={console.log}
             />
-    
         </ContextMenuFrame>
     </div>
 

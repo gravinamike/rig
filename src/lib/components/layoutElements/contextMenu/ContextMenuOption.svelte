@@ -45,6 +45,8 @@
 
 	.context-menu-option.disabled {
 		color: lightgrey;
+		
+		pointer-events: none;
 	}
 
 	.context-menu-option:not(.disabled):hover {
