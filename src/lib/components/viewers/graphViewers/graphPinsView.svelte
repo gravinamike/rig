@@ -1,11 +1,17 @@
 <script lang="ts">
     import type { Graph } from "$lib/shared/graph/graph"
-    import { pinIdsStore, hoveredThingIdStore } from "$lib/shared/stores/appStores"
-    import { graphConstructInStore, retrieveGraphConstructs } from "$lib/shared/stores/graphStores"
+    import type { Thing } from "$lib/shared/graph/graphDbConstructs"
+    import { pinIdsStore } from "$lib/shared/stores/appStores"
+    import { storeGraphConstructs, graphConstructInStore, retrieveGraphConstructs } from "$lib/shared/stores/graphStores"
+    import PinsViewerWidget from "$lib/components/viewers/graphViewers/pinsViewerWidget.svelte"
 
     export let graph: Graph
 
-
+    $: $pinIdsStore.forEach(
+        async (pinId) => {
+            if (!graphConstructInStore("Thing", pinId)) await storeGraphConstructs<Thing>("Thing", pinId)
+        }
+    )
     $: pins = $pinIdsStore.map(
         (pinId) => {
             graph // Needed for reactivity.
@@ -15,16 +21,6 @@
             }
         }
     )
-    
-    let hoveredThingIdStoreValue: number | null
-    hoveredThingIdStore.subscribe(value => {hoveredThingIdStoreValue = value})
-
-    async function handleClick(thingId: number) {
-        await graph.pThingIds([thingId]) // Re-Perspect to this Thing.
-        graph.addEntriesToHistory([thingId]) // Add this Thing to the History.
-        hoveredThingIdStore.set(null) // Clear the hovered-Thing highlighting.
-        graph = graph // Needed for reactivity.
-    }
 </script>
 
 
@@ -33,14 +29,11 @@
 
     {#each pins as pin (pin.thingId)}
         {#if pin.thing}
-            <div
-                class="box { pin.thingId === hoveredThingIdStoreValue ? "hovered-thing" : "" }"
-                on:mouseenter={()=>{hoveredThingIdStore.set(pin.thingId)}}
-                on:mouseleave={()=>{hoveredThingIdStore.set(null)}}
-                on:click={ () => { handleClick(pin.thingId) }
-            }>
-                {pin.thing.text}
-            </div>
+            <PinsViewerWidget
+                thingId={pin.thingId}
+                thingText={pin.thing.text}
+                bind:graph
+            />
         {:else}
             <div>
                 THING {pin.thingId} NOT FOUND IN STORE
@@ -72,29 +65,5 @@
 
     h4 {
         margin: 0;
-    }
-
-    .box {
-        border-radius: 10px;
-        box-shadow: 5px 5px 10px 2px lightgray;
-
-        height: max-content;
-        background-color: white;
-        
-        display: flex;
-        flex-direction: column;
-        padding: 1rem;
-        gap: 10px;
-
-        font-size: 0.65rem;
-        text-align: left;
-    }
-
-    .box:hover {
-        box-shadow: 5px 5px 10px 10px lightgray;
-    }
-
-    .hovered-thing {
-        outline: solid 2px black;
     }
   </style>

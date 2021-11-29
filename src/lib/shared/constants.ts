@@ -1,4 +1,12 @@
 /*
+ * App-level interfaces and types.
+ */
+export interface Config {
+    pinIds: number[]
+}
+
+
+/*
  * "Constants" that will eventually be moved into a mutable config file.
  */
 export const startingPThingIds = [251]

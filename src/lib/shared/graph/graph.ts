@@ -175,7 +175,6 @@ export class Graph {
                 const thisGeneration = this.generation(i) as Generation
                 // For each Thing (not Placeholder) in the previous Generation,
                 for (const prevThingWidgetModel of prevGeneration.thingWidgetModels()) {
-                    //console.log('PREVIOUS THING WIDGET MODEL:', prevThingWidgetModel.thingId)
                     // For the ID of each half-axis from that Thing,
                     if (
                         prevThingWidgetModel.thing

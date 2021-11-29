@@ -1,8 +1,8 @@
 <script lang="ts">
     import { onMount } from "svelte"
     import { startingPThingIds, startingGraphDepth, navHeight } from "$lib/shared/constants"
-    import { pinIdsStore } from '$lib/shared/stores/appStores'
-    import { storeGraphConstructs } from '$lib/shared/stores/graphStores'
+    import { storeConfig } from "$lib/shared/stores/appStores"
+    import { storeGraphConstructs } from "$lib/shared/stores/graphStores"
     import Collapser from "$lib/components/layoutElements/collapser.svelte"
     import { TabBlock, TabFlap, TabFlaps, TabBody } from "$lib/components/layoutElements/tabs"
     import DirectionsStoreView from "$lib/components/viewers/storeViewers/directionsStoreView.svelte"
@@ -10,13 +10,15 @@
     import ThingsStoreView from "$lib/components/viewers/storeViewers/thingsStoreView.svelte"
     import GraphPortal from "$lib/components/viewers/graphViewers/graphPortal.svelte"
 
-
+    
     onMount(async () => {
+        // App constructs are stored when the app is initialized.
+        storeConfig()
+
         // Graph constructs which are small in number (Directions, Spaces) are stored
         // when the app is initialized, rather than when each Graph is initialized.
         await storeGraphConstructs("Direction")
         await storeGraphConstructs("Space")
-        pinIdsStore.set([251])
 	})
 </script>
 

@@ -1,5 +1,6 @@
 <script lang="ts">
     import type { SvelteComponent } from "svelte"
+    import { saveConfig } from "$lib/shared/stores/appStores"
     import type { Graph } from "$lib/shared/graph/graph"
     import type { ThingWidgetModel } from "$lib/shared/graph/graphWidgets"
     import { pinIdsStore, hoveredThingIdStore } from "$lib/shared/stores/appStores"
@@ -40,8 +41,9 @@
 
     let contextMenu: SvelteComponent
 
-    function addPin() {
+    async function addPin() {
         pinIdsStore.update( (current) => { if (!current.includes(thingId)) current.push(thingId); return current } )
+        await saveConfig()
     }
 </script>
 
