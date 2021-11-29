@@ -26,9 +26,13 @@
 	const dispatch = createEventDispatcher()
 	setContext(
 		MENU,
-		{ dispatchClick: () => dispatch('click') }
+		{
+			dispatchClick: () => dispatch('click'),
+			closeMenu: () => showMenu = false,
+		}
 	)
 	function handlePossibleOutsideClick(event: MouseEvent) {
+
 		if (menu && !(menu === event.target)) {
 			showMenu = false
 		}

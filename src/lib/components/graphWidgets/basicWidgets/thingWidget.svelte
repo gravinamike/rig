@@ -2,11 +2,11 @@
     import type { SvelteComponent } from "svelte"
     import type { Graph } from "$lib/shared/graph/graph"
     import type { ThingWidgetModel } from "$lib/shared/graph/graphWidgets"
-    import { hoveredThingIdStore } from "$lib/shared/stores/appStores"
+    import { pinIdsStore, hoveredThingIdStore } from "$lib/shared/stores/appStores"
     import RelationshipsWidget from "$lib/components/graphWidgets/basicWidgets/relationshipsWidget.svelte"
     import CohortWidget from "$lib/components/graphWidgets/basicWidgets/cohortWidget.svelte"
     import ThingDetailsWidget from "$lib/components/graphWidgets/detailsWidgets/thingDetailsWidget.svelte"
-    import { ContextMenuFrame, ContextMenuOption, ContextMenuDivider } from "$lib/components/layoutElements/contextMenu"
+    import { ContextMenuFrame, ContextMenuOption } from "$lib/components/layoutElements/contextMenu"
 
     export let thingWidgetModel: ThingWidgetModel
     export let graph: Graph
@@ -39,6 +39,10 @@
     }
 
     let contextMenu: SvelteComponent
+
+    function addPin() {
+        pinIdsStore.update( (current) => { if (!current.includes(thingId)) current.push(thingId); return current } )
+    }
 </script>
 
 
@@ -74,21 +78,8 @@
 
         <ContextMenuFrame bind:this={contextMenu}>
             <ContextMenuOption
-                text="Do nothing"
-                on:click={console.log}
-            />
-    
-            <ContextMenuOption
-                text="Do nothing, but twice"
-                on:click={console.log}
-            />
-    
-            <ContextMenuDivider />
-    
-            <ContextMenuOption
-                disabled={true}
-                text="Whoops, disabled!"
-                on:click={console.log}
+                text="Add Thing to Pins"
+                on:click={addPin}
             />
         </ContextMenuFrame>
     </div>

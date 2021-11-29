@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { getContext, createEventDispatcher } from "svelte"
 	import { MENU } from "./ContextMenuFrame.svelte"
-	const { dispatchClick } = getContext(MENU)
+	const { dispatchClick, closeMenu } = getContext(MENU)
 	
 	export let text = ""
 	export let disabled = false
@@ -13,6 +13,7 @@
 		if (!disabled) {
 			dispatch('click')
 			dispatchClick()
+			closeMenu()
 		}
 	}
 </script>
@@ -20,7 +21,7 @@
 
 <div 
   class="context-menu-option {disabled ? "disabled" : ""}"
-  on:click={handleClick}
+  on:click|stopPropagation={handleClick}
 >
 	{#if text}
 		{text}
