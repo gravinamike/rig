@@ -89,6 +89,7 @@ class Relationship extends Model {
     direction!: number
     thingaid!: number
     thingbid!: number
+    relationshiporder!: number | null
 }
 
 /*
@@ -142,15 +143,13 @@ export class Thing extends Model {
         return ['relationshipInfos', 'relatedThingIds', 'relatedThingIdsByDirectionId']
     }
 
-    get relationshipInfos(): { relatedThingId: number, directionId: number }[] {
-        let relationshipInfos: { relatedThingId: number, directionId: number }[] = []
-        /*for (const relationship of this.a_relationships) relationshipInfos.push(
-            { relatedThingId: relationship.thingaid, directionId: relationship.direction }
-        )*/
+    get relationshipInfos(): { relatedThingId: number, directionId: number, order: number | null }[] {
+        let relationshipInfos: { relatedThingId: number, directionId: number, order: number | null }[] = []
         for (const relationship of this.b_relationships) relationshipInfos.push(
-            { relatedThingId: relationship.thingbid, directionId: relationship.direction }
+            { relatedThingId: relationship.thingbid, directionId: relationship.direction, order: relationship.relationshiporder }
         )
         relationshipInfos = Array.from(new Set(relationshipInfos))
+        relationshipInfos.sort((a, b) => (a.order ? a.order : 0) - (b.order ? b.order : 0))
         return relationshipInfos
     }
 
