@@ -5,25 +5,27 @@
 
 
 <main>
+    <!-- List of Directions found. -->
     {#if $directionsStoreAsArray.length}
         <h4>{$directionsStoreAsArray.length} Directions found:</h4>
+
+        {#each $directionsStoreAsArray as direction}
+            <DirectionDetailsWidget
+                {direction}
+            />
+        {/each}
     {/if}
 
-    {#each $directionsStoreAsArray as direction}
-        <DirectionDetailsWidget
-            {direction}
-        />
-    {/each}
-
+    <!-- List of Directions not found. -->
     {#if $directionIdsNotFoundStore.length}
         <h4>{$directionIdsNotFoundStore.length} Directions not found:</h4>
-    {/if}
 
-    {#each $directionIdsNotFoundStore as id}
-        <div class="box">
-            <h3>{id}</h3>
-        </div>
-    {/each}
+        {#each $directionIdsNotFoundStore as id}
+            <div class="box">
+                <h3>{id}</h3>
+            </div>
+        {/each}
+    {/if}
 </main>
 
 

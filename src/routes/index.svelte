@@ -1,15 +1,17 @@
 <script lang="ts">
     import { onMount } from "svelte"
-    import { startingPThingIds, startingGraphDepth, navHeight } from "$lib/shared/constants"
-    import { storeConfig } from "$lib/shared/stores/appStores"
-    import { storeGraphConstructs } from "$lib/shared/stores/graphStores"
     import Collapser from "$lib/components/layoutElements/collapser.svelte"
     import { TabBlock, TabFlap, TabFlaps, TabBody } from "$lib/components/layoutElements/tabs"
+
+    import { startingPThingIds, startingGraphDepth, navHeight } from "$lib/shared/constants"
+    import { storeConfig } from "$lib/shared/config"
+    import { storeGraphConstructs } from "$lib/shared/stores/graphStores"
+
     import DirectionsStoreView from "$lib/components/viewers/storeViewers/directionsStoreView.svelte"
     import SpacesStoreView from "$lib/components/viewers/storeViewers/spacesStoreView.svelte"
     import ThingsStoreView from "$lib/components/viewers/storeViewers/thingsStoreView.svelte"
     import GraphPortal from "$lib/components/viewers/graphViewers/graphPortal.svelte"
-
+    
     
     onMount(async () => {
         // App constructs are stored when the app is initialized.
@@ -24,8 +26,10 @@
 
 
 <main style="height: calc( 100% - {navHeight} )">
+
     <Collapser headerText={"Stores"} contentDirection={"left"}>
         <div class="tabs-container">
+
             <TabBlock>
                 <TabFlaps>
                     <TabFlap>Directions</TabFlap>
@@ -48,6 +52,7 @@
                     <ThingsStoreView />
                 </TabBody>
             </TabBlock>
+            
         </div>
     </Collapser>
 
@@ -56,6 +61,7 @@
         pThingIds={startingPThingIds}
         depth={startingGraphDepth}
     />
+
 </main>
 
 

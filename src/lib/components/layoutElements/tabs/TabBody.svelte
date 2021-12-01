@@ -10,7 +10,7 @@
 
 {#if tabBody === $activeTabBody}
 	<div class="tab-body">
-		<slot></slot>
+		<slot />
 	</div>
 {/if}
 

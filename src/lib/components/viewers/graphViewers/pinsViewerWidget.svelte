@@ -1,7 +1,8 @@
 <script lang="ts">
     import type { SvelteComponent } from "svelte"
     import type { Graph } from "$lib/shared/graph/graph"
-    import { pinIdsStore, hoveredThingIdStore, saveConfig } from "$lib/shared/stores/appStores"
+    import { saveConfig } from "$lib/shared/config"
+    import { pinIdsStore, hoveredThingIdStore } from "$lib/shared/stores/appStores"
     import { ContextMenuFrame, ContextMenuOption } from "$lib/components/layoutElements/contextMenu"
 
     export let thingId: number

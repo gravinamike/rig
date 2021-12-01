@@ -1,7 +1,7 @@
 <script context="module" lang="ts">
     import type { Direction, Space } from "$lib/shared/graph/graphDbConstructs"
     import type { GenerationMember, Cohort, Graph } from "$lib/shared/graph/graph"
-    import { rotationByHalfAxisId, offsetSignsByHalfAxisId } from "$lib/shared/constants"
+    import { rotationByHalfAxisId, offsetsByHalfAxisId } from "$lib/shared/constants"
     import { retrieveGraphConstructs } from "$lib/shared/stores/graphStores"
 </script>
 
@@ -10,9 +10,9 @@
     export let space: Space
     export let graph: Graph
 
-    $: offsetLength = graph.style.offsetLength
-    $: thingSize = graph.style.thingSize
-    $: betweenThingGap = graph.style.betweenThingGap
+    $: offsetLength = graph.graphWidgetStyle.offsetLength
+    $: thingSize = graph.graphWidgetStyle.thingSize
+    $: betweenThingGap = graph.graphWidgetStyle.betweenThingGap
 
     $: edgeToEdgeDimension = offsetLength - thingSize
 
@@ -25,7 +25,7 @@
     // Calculate x and y offsets and z-index relative to parent Thing Widget.
     const generationId = cohort.address?.generationId || 0
     const halfAxisId = cohort.address ? cohort.address.halfAxisId : 0
-    const offsetSigns = offsetSignsByHalfAxisId[halfAxisId]
+    const offsetSigns = offsetsByHalfAxisId[halfAxisId]
     $: offsets = [ 0.5 * offsetLength * offsetSigns[0], 0.5 * offsetLength * offsetSigns[1] ]
     $: zIndex = (generationId * 2 - 1) * offsetSigns[2]
 
@@ -45,7 +45,7 @@
 
 
 <main class="relationships-widget" style="left: calc({offsets[0]}px + 50%); top: calc({offsets[1]}px + 50%); z-index: {zIndex}; width: {widgetWidth}px; height: {widgetHeight}px;">
-    <div class="direction-text" style="font-size: {graph.style.relationshipTextSize}px">
+    <div class="direction-text" style="font-size: {graph.graphWidgetStyle.relationshipTextSize}px">
         {direction.text}
     </div>
     <svg class="relationship-image" style="width: {imageWidth}px; height: {imageHeight}px; transform: rotate({rotation}deg);">

@@ -38,8 +38,10 @@ export const thingIdsNotFoundStore = writable( [] as number[] );
  * Function to add Graph constructs to stores.
  */
 function updateConstructStore<Type extends GraphConstruct>( constructs: Type | Type[] ): void {
+    // If necessary, pack a single supplied construct in an array for processing.
     if (!("length" in constructs)) constructs = [constructs]
 
+    // Determine which store to update based on construct type.
     let store: Writable<{ [id: number]: GraphConstruct }>
     if ( isDirection(constructs[0]) ) {
         store = directionsStore
@@ -51,6 +53,7 @@ function updateConstructStore<Type extends GraphConstruct>( constructs: Type | T
         return
     }
 
+    // Update the store with each supplied construct.
     constructs.forEach((construct) => {
         store.update( (current) => { current[construct.id] = construct; return current } )
     })
@@ -60,8 +63,10 @@ function updateConstructStore<Type extends GraphConstruct>( constructs: Type | T
  * Function to add Graph construct ids to stores.
  */
 function updateIdStore( constructName: "Direction" | "Space" | "Thing", ids: number | number[] ): void {
+    // If necessary, pack a single supplied id in an array for processing.
     if (typeof ids === "number") ids = [ids]
 
+    // Determine which store to update based on construct name.
     let store: Writable<number[]>
     if (constructName === "Direction") {
         store = directionIdsNotFoundStore
@@ -71,21 +76,24 @@ function updateIdStore( constructName: "Direction" | "Space" | "Thing", ids: num
         store = thingIdsNotFoundStore
     }
 
+    // Update the store with each supplied id.
     ids.forEach((id) => {
         store.update( (current) => { if (!current.includes(id)) current.push(id); return current } )
     })
 }
 
 /* 
- * Functions to check whether Graph constructs are in the stores.
+ * Function to check whether a Graph construct is in the store (by ID).
  */
 export function graphConstructInStore( constructName: "Direction" | "Space" | "Thing", id: number ): boolean {
+    // Determine which store to check based on construct name.
     const storeValue = {
         "Direction": directionsStoreValue,
         "Space": spacesStoreValue,
         "Thing": thingsStoreValue
     }[constructName]
 
+    // Determine if the construct id is in the store.
     return id in storeValue ? true : false
 }
 
@@ -93,6 +101,7 @@ export function graphConstructInStore( constructName: "Direction" | "Space" | "T
  * Function to fetch Graph constructs from the API, then add them to the stores.
  */
 export async function storeGraphConstructs<Type extends GraphConstruct>( constructName: "Direction" | "Space" | "Thing", ids?: number | number[] ): Promise<Type[]> {
+    // Determine which store to check based on construct name.
     const storeValue = {
         "Direction": directionsStoreValue,
         "Space": spacesStoreValue,
@@ -155,6 +164,7 @@ export function retrieveGraphConstructs<Type extends GraphConstruct>(
     constructName: "Direction" | "Space" | "Thing",
     ids: number | number[]
 ): Type[] | Type | null {
+    // Determine which store to get construct from based on construct name.
     let storeValue: { [id: number]: GraphConstruct }
     if (constructName === "Direction") {
         storeValue = directionsStoreValue
@@ -163,7 +173,6 @@ export function retrieveGraphConstructs<Type extends GraphConstruct>(
     } else {
         storeValue = thingsStoreValue
     }
-    storeValue
     
     // For single IDs, return the stored construct or null if there isn't one stored.
     if (typeof ids === "number") {

@@ -2,7 +2,7 @@ import fs from "fs"
 import type { Config } from "$lib/shared/constants"
 
 
-const configPath = "./static/config.json"
+const configPath = "./static/config/config.json"
 
 
 export async function get(

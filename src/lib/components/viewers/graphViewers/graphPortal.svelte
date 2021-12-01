@@ -1,31 +1,40 @@
 <script lang="ts">
     import { onMount } from "svelte"
-    import { Graph } from "$lib/shared/graph/graph"
     import Collapser from "$lib/components/layoutElements/collapser.svelte"
     import { TabBlock, TabFlap, TabFlaps, TabBody } from "$lib/components/layoutElements/tabs"
+
+    import { Graph } from "$lib/shared/graph/graph"
+
     import GraphSchematicView from "$lib/components/viewers/graphViewers/graphSchematicView.svelte"
     import GraphSettingsView from "$lib/components/viewers/settingsViewers/graphSettingsView.svelte"
     import GraphHistoryView from "$lib/components/viewers/graphViewers/graphHistoryView.svelte"
     import GraphPinsView from "$lib/components/viewers/graphViewers/graphPinsView.svelte"
+
     import CohortWidget from "$lib/components/graphWidgets/basicWidgets/cohortWidget.svelte"
     import NotesViewer from "$lib/components/viewers/notesViewer/notesViewer.svelte"
 
     export let pThingIds: number[]
     export let depth: number
 
+
+    // Initialize the Graph.
     let graph = new Graph(pThingIds, depth)
-    $: rootCohort = graph.rootCohort
 
     onMount(async () => {
+        // Build the Graph.
         await graph.build()
-        graph.addEntriesToHistory(pThingIds)
         graph = graph // Needed for reactivity.
 	})
 </script>
 
 
 <main>
-    <Collapser headerText={"Graph"} contentDirection={"left"} expanded={false}>
+
+    <!-- Graph-related viewers (Schematic and Settings) -->
+    <Collapser
+        headerText={"Graph"}
+        contentDirection={"left"}
+    >
         <div class="tabs-container">
             <TabBlock>
                 <TabFlaps>
@@ -33,14 +42,14 @@
                     <TabFlap>Settings</TabFlap>
                 </TabFlaps>
             
-                <!-- Graph Schematic view -->
+                <!-- Graph Schematic viewer -->
                 <TabBody>
                     <GraphSchematicView
                         {graph}
                     />
                 </TabBody>
             
-                <!-- Graph settings view -->
+                <!-- Graph Settings viewer -->
                 <TabBody>
                     <GraphSettingsView
                         bind:graph
@@ -50,16 +59,22 @@
         </div>
     </Collapser>
 
-    <Collapser headerText={"Navigation"} contentDirection={"left"} expanded={true}>
+    <!-- Navigation-related viewers (Pins and History) -->
+    <Collapser
+        headerText={"Navigation"}
+        contentDirection={"left"}
+        expanded={true}
+    >
         <div class="navigation-view">
-            <div style="flex: 0 0 auto;">
-                <!-- Graph pins view -->
+            <div class="pins-container">
+                <!-- Graph pins viewer -->
                 <GraphPinsView
                     bind:graph
                 />
             </div>
-            <div style="flex: 1 1 auto;">
-                <!-- Graph history view -->
+
+            <div class="history-container">
+                <!-- Graph history viewer -->
                 <GraphHistoryView
                     bind:graph
                 />
@@ -67,30 +82,34 @@
         </div>
     </Collapser>
 
+    <!-- Graph Portal -->
     <div class="portal">
-        
         <div class="centralAnchor">
-            {#if rootCohort}
+            {#if graph.rootCohort}
                 <CohortWidget
-                    cohort={rootCohort}
+                    cohort={graph.rootCohort}
                     bind:graph
                 />
             {/if}
         </div>
     </div>
 
-    <Collapser headerText={"Notes"} contentDirection={"right"} expanded={true}>
+    <!-- Notes viewer -->
+    <Collapser headerText={"Notes"} contentDirection={"right"}>
         <NotesViewer
             {graph}
         />
     </Collapser>
+
 </main>
 
 
 <style>
     main {
-        position: relative;
         flex-grow: 1;
+
+        position: relative;
+
         display: flex;
         flex-direction: row;
     }
@@ -99,8 +118,7 @@
         width: 200px;
         height: 100%;
         
-        overflow-x: hidden;
-        overflow-y: hidden;
+        overflow: hidden;
     }
 
     .navigation-view {
@@ -114,14 +132,25 @@
         overflow-y: auto;
     }
 
+    .pins-container {
+        flex: 0 0 auto;
+    }
+
+    .history-container {
+        flex: 1 1 auto;
+    }
+
     .portal {
-        flex-grow: 1;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        overflow: auto;
         outline: solid 1px lightgrey;
         outline-offset: -1px;
+
+        overflow: auto;
+
+        flex-grow: 1;
+        display: flex;
+
+        justify-content: center;
+        align-items: center;
     }
 
     .centralAnchor {

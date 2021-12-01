@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { SvelteComponent } from "svelte"
-    import { saveConfig } from "$lib/shared/stores/appStores"
+    import { saveConfig } from "$lib/shared/config"
     import type { Graph } from "$lib/shared/graph/graph"
     import type { ThingWidgetModel } from "$lib/shared/graph/graphWidgets"
     import { pinIdsStore, hoveredThingIdStore } from "$lib/shared/stores/appStores"
@@ -20,7 +20,7 @@
     $: encapsulatingDepth = thingWidgetModel.parentCohort?.encapsulatingDepth || 0
     $: encapsulatingPadding = encapsulatingDepth >= 0 ? 40 : 20
     $: cohortSize = thingWidgetModel.parentCohort?.members.length || 1
-    $: thingSize = graph.style.thingSize + encapsulatingPadding * encapsulatingDepth
+    $: thingSize = graph.graphWidgetStyle.thingSize + encapsulatingPadding * encapsulatingDepth
     $: thingWidth = thingSize
     $: thingHeight = encapsulatingDepth >= 0 ? thingSize : thingSize / cohortSize - 2
 
@@ -59,7 +59,7 @@
         on:contextmenu|preventDefault={contextMenu.openContextMenu}
         style="border-radius: {8 + 4 * encapsulatingDepth}px; width: {thingWidth}px; height: {thingHeight}px;"
     >
-        <div class="thing-text" style="font-size: {encapsulatingDepth >= 0 ? graph.style.thingTextSize : graph.style.thingTextSize / Math.log2(cohortSize)}px">
+        <div class="thing-text" style="font-size: {encapsulatingDepth >= 0 ? graph.graphWidgetStyle.thingTextSize : graph.graphWidgetStyle.thingTextSize / Math.log2(cohortSize)}px">
             {text}
         </div>
         

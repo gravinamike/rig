@@ -1,107 +1,30 @@
-import type { HalfAxisId } from "$lib/shared/constants"
+import type { HalfAxisId, GraphWidgetStyle } from "$lib/shared/constants"
 import type { Thing } from "$lib/shared/graph/graphDbConstructs"
-import { encapsulationChangeByHalfAxisId } from "$lib/shared/constants"
+
+import { defaultGraphWidgetStyle, offsetsByHalfAxisId } from "$lib/shared/constants"
 import { storeGraphConstructs, graphConstructInStore } from "$lib/shared/stores/graphStores"
 import { ThingWidgetModel, ThingPlaceholderWidgetModel } from "$lib/shared/graph/graphWidgets"
-
 
 export type GenerationMember = ThingWidgetModel | ThingPlaceholderWidgetModel
 
 
-// Generation.
-export class Generation {
-    kind = "generation"
-
-    members: GenerationMember[]
-
-    constructor(members: GenerationMember[]) {
-        this.members = members
-    }
-
-    get membersById(): { [memberId: number]: GenerationMember } {
-        const membersById: { [memberId: number]: GenerationMember } = {}
-        for (const member of this.members) membersById[member.thingId] = member
-        return membersById
-    }
-
-    thingWidgetModels(): ThingWidgetModel[] {
-        const thingWidgetModels = this.members.filter(member => member.kind === "thingWidgetModel") as ThingWidgetModel[]
-        return thingWidgetModels
-    }
-}
-
-
-// Cohort.
-type CohortAddress = {
-    generationId: number,
-    parentThingWidgetModel: ThingWidgetModel,
-    halfAxisId: HalfAxisId
-}
-
-export class Cohort {
-    kind = "cohort"
-
-    address: CohortAddress | null
-    members: GenerationMember[]
-    encapsulatingDepth: number
-
-    constructor(address: CohortAddress | null, members: GenerationMember[]) {
-        this.address = address
-        this.members = members
-        for (const member of members) member.parentCohort = this
-        const parentEncapsulatingDepth = this.address?.parentThingWidgetModel.parentCohort?.encapsulatingDepth || 0
-        const changeInEncapsulatingDepth = encapsulationChangeByHalfAxisId[this.address?.halfAxisId || 0]
-        this.encapsulatingDepth = parentEncapsulatingDepth + changeInEncapsulatingDepth
-    }
-
-    indexOfMember(member: GenerationMember): number | null {
-        const index = this.members.indexOf(member)
-        const output = index !== -1 ? index : null
-        return output
-    }
-}
-
-
-// Graph.
-interface GraphStyle {
-    offsetLength: number,
-    thingSize: number,
-    betweenThingGap: number,
-    relationshipTextSize: number,
-    thingTextSize: number,
-}
-
+/** Class representing a Graph. */
 export class Graph {
     _pThingIds: number[]
     _depth: number
     rootCohort: Cohort | null = null
     generations: Generation[] = []
-    style: GraphStyle = {
-        offsetLength: 250,
-        thingSize: 100,
-        betweenThingGap: 20,
-        relationshipTextSize: 18,
-        thingTextSize: 12,
-    }
+    graphWidgetStyle: GraphWidgetStyle = defaultGraphWidgetStyle
     perspectiveHistory: { timestamp: Date, thingId: number }[] = []
 
+    /**
+     * Create a Graph.
+     * @param {number[]} pThingIds - IDs for the Graph's starting Perspective Things.
+     * @param {number}   depth     - How many Relationship "steps" to grow the Graph from the Perspective Things.
+     */
     constructor(pThingIds: number[], depth: number) {
         this._pThingIds = pThingIds
         this._depth = depth
-    }
-
-    addGeneration( members: GenerationMember[] ): void {
-        this.generations.push(new Generation(members))
-    }
-
-    generation( generationId: number ): Generation | null {
-        const generation = 0 <= generationId && generationId < this.generations.length ? this.generations[generationId] : null
-        return generation
-    }
-
-    thingWidgetModels(): ThingWidgetModel[] {
-        const thingWidgetModels = this.generations.map(generation => generation.thingWidgetModels()).flat()
-        return thingWidgetModels
     }
 
     async pThingIds(): Promise<number[]>
@@ -124,6 +47,29 @@ export class Graph {
             this._depth = depth
             await this.build()
         }
+    }
+
+    /**
+     * Add a Generation to the Graph (containing supplied Generation Members).
+     * @param {GenerationMember[]} members - Thing Widget Models (and/or Thing Widget Placeholder Models) that will constitute the Generation.
+     */
+    addGeneration( members: GenerationMember[] ): void {
+        this.generations.push(new Generation(members))
+    }
+
+    /**
+     * Get one of the Graph's Generations by ID.
+     * @param  {number} generationId - The ID of the Generation to retrieve.
+     * @return {Generation | null}   - The specified Generation (or null if it doesn't exist).
+     */
+    generation( generationId: number ): Generation | null {
+        const generation = 0 <= generationId && generationId < this.generations.length ? this.generations[generationId] : null
+        return generation
+    }
+
+    thingWidgetModels(): ThingWidgetModel[] {
+        const thingWidgetModels = this.generations.map(generation => generation.thingWidgetModels()).flat()
+        return thingWidgetModels
     }
 
     async build(): Promise<void> {
@@ -198,6 +144,9 @@ export class Graph {
                 }
             }
         }
+
+        // Initialize the History based on the starting Perspective Thing IDs.
+        this.addEntriesToHistory(this._pThingIds)
     }
 
     addEntriesToHistory( thingIds: number | number[] ): void {
@@ -207,5 +156,59 @@ export class Graph {
             (thingId) => { return { timestamp: timestamp, thingId: thingId } }
         )
         this.perspectiveHistory.push(...entries)
+    }
+}
+
+
+// Generation.
+export class Generation {
+    kind = "generation"
+
+    members: GenerationMember[]
+
+    constructor(members: GenerationMember[]) {
+        this.members = members
+    }
+
+    get membersById(): { [memberId: number]: GenerationMember } {
+        const membersById: { [memberId: number]: GenerationMember } = {}
+        for (const member of this.members) membersById[member.thingId] = member
+        return membersById
+    }
+
+    thingWidgetModels(): ThingWidgetModel[] {
+        const thingWidgetModels = this.members.filter(member => member.kind === "thingWidgetModel") as ThingWidgetModel[]
+        return thingWidgetModels
+    }
+}
+
+
+// Cohort.
+type CohortAddress = {
+    generationId: number,
+    parentThingWidgetModel: ThingWidgetModel,
+    halfAxisId: HalfAxisId
+}
+
+export class Cohort {
+    kind = "cohort"
+
+    address: CohortAddress | null
+    members: GenerationMember[]
+    encapsulatingDepth: number
+
+    constructor(address: CohortAddress | null, members: GenerationMember[]) {
+        this.address = address
+        this.members = members
+        for (const member of members) member.parentCohort = this
+        const parentEncapsulatingDepth = this.address?.parentThingWidgetModel.parentCohort?.encapsulatingDepth || 0
+        const changeInEncapsulatingDepth = offsetsByHalfAxisId[this.address?.halfAxisId || 0][3]
+        this.encapsulatingDepth = parentEncapsulatingDepth + changeInEncapsulatingDepth
+    }
+
+    indexOfMember(member: GenerationMember): number | null {
+        const index = this.members.indexOf(member)
+        const output = index !== -1 ? index : null
+        return output
     }
 }

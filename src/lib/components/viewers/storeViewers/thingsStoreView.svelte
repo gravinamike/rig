@@ -5,25 +5,27 @@
 
 
 <main>
+    <!-- List of Things found. -->
     {#if $thingsStoreAsArray.length}
         <h4>{$thingsStoreAsArray.length} Things found:</h4>
+
+        {#each $thingsStoreAsArray as thing}
+            <ThingDetailsWidget
+                {thing}
+            />
+        {/each}
     {/if}
 
-    {#each $thingsStoreAsArray as thing}
-        <ThingDetailsWidget
-            {thing}
-        />
-    {/each}
-
+    <!-- List of Things not found. -->
     {#if $thingIdsNotFoundStore.length}
         <h4>{$thingsStoreAsArray.length} Things not found:</h4>
+
+        {#each $thingIdsNotFoundStore as id}
+            <div class="box">
+                <h3>{id}</h3>
+            </div>
+        {/each}
     {/if}
-    
-    {#each $thingIdsNotFoundStore as id}
-        <div class="box">
-            <h3>{id}</h3>
-        </div>
-    {/each}
 </main>
 
 

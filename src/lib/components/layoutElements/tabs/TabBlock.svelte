@@ -11,7 +11,6 @@
 	const tabBodies: {}[] = []
 	const activeTabFlap = writable(null as {} | null)
 	const activeTabBody = writable(null as {} | null)
-	///////////////////////////// Try one of each, with keyed flap and body
 
 	setContext(TABS, {
 		activeTabFlap,

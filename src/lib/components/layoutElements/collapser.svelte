@@ -1,9 +1,7 @@
 <script lang="ts">
-    import { slide } from "svelte/transition"
-
     export let headerText: string
     export let contentDirection: "down" | "up" | "right" | "left" = "down"
-    export let expanded: boolean = false
+    export let expanded = false
     
     let verticalOrHorizontal = ["down", "up"].includes(contentDirection) ? "vertical" : "horizontal"
 </script>
@@ -32,17 +30,9 @@
     
     <!-- Collapser content -->
     {#if expanded}
-
-        {#if verticalOrHorizontal === "vertical"}
-            <div class="content"><!-- transition:slide - More bother than it's worth! -->
-                <slot></slot>
-            </div>
-        {:else}
-            <div class="content">
-                <slot></slot>
-            </div>
-        {/if}
-        
+        <div class="content">
+            <slot />
+        </div>
     {/if}
 </div>
 
@@ -69,9 +59,9 @@
     }
 
     .header.horizontal {
-        margin: 0;
         display: flex;
         flex-direction: row;
+        margin: 0;
     }
 
     .header.down{
@@ -113,7 +103,9 @@
     .button {
         height: 1.5rem;
         width: 1.5rem;
+
         text-align: center;
+        
         cursor: pointer;
     }
 

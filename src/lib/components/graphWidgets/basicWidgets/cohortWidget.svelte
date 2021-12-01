@@ -1,6 +1,6 @@
 <script context="module" lang="ts">
     import type { Graph, Cohort } from "$lib/shared/graph/graph"
-    import { offsetSignsByHalfAxisId } from "$lib/shared/constants"
+    import { offsetsByHalfAxisId } from "$lib/shared/constants"
 </script>
 
 <script lang="ts">
@@ -10,13 +10,13 @@
     export let cohort: Cohort
     export let graph: Graph
 
-    $: betweenThingGap = graph.style.betweenThingGap
+    $: betweenThingGap = graph.graphWidgetStyle.betweenThingGap
 
     // Calculate x and y offsets and z-index relative to parent Thing Widget.
     const generationId = cohort.address?.generationId || 0
     const halfAxisId = cohort.address ? cohort.address.halfAxisId : 0
-    const offsetSigns = offsetSignsByHalfAxisId[halfAxisId]
-    $: offsets = [ graph.style.offsetLength * offsetSigns[0], graph.style.offsetLength * offsetSigns[1] ]
+    const offsetSigns = offsetsByHalfAxisId[halfAxisId]
+    $: offsets = [ graph.graphWidgetStyle.offsetLength * offsetSigns[0], graph.graphWidgetStyle.offsetLength * offsetSigns[1] ]
     $: zIndex = (generationId * 2) * offsetSigns[2]
 </script>
 

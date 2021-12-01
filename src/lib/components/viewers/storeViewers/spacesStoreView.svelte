@@ -5,25 +5,27 @@
 
 
 <main>
+    <!-- List of Spaces found. -->
     {#if $spacesStoreAsArray.length}
         <h4>{$spacesStoreAsArray.length} Spaces found:</h4>
+
+        {#each $spacesStoreAsArray as space}
+            <SpaceDetailsWidget
+                {space}
+            />
+        {/each}
     {/if}
 
-    {#each $spacesStoreAsArray as space}
-        <SpaceDetailsWidget
-            {space}
-        />
-    {/each}
-
+    <!-- List of Spaces not found. -->
     {#if $spaceIdsNotFoundStore.length}
         <h4>{$spaceIdsNotFoundStore.length} Spaces not found:</h4>
-    {/if}
 
-    {#each $spaceIdsNotFoundStore as id}
-        <div class="box">
-            <h3>{id}</h3>
-        </div>
-    {/each}
+        {#each $spaceIdsNotFoundStore as id}
+            <div class="box">
+                <h3>{id}</h3>
+            </div>
+        {/each}
+    {/if}
 </main>
 
 
