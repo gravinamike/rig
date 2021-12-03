@@ -17,10 +17,12 @@
     $: note = thingWidgetModel.note
     $: space = thingWidgetModel.space
     $: cohorts = thingWidgetModel.childCohorts
+    $: planeId = thingWidgetModel.parentCohort?.plane?.id || 0
+    const planePadding = 20
     $: encapsulatingDepth = thingWidgetModel.parentCohort?.encapsulatingDepth || 0
     $: encapsulatingPadding = encapsulatingDepth >= 0 ? 40 : 20
     $: cohortSize = thingWidgetModel.parentCohort?.members.length || 1
-    $: thingSize = graph.graphWidgetStyle.thingSize + encapsulatingPadding * encapsulatingDepth
+    $: thingSize = graph.graphWidgetStyle.thingSize + planePadding * planeId + encapsulatingPadding * encapsulatingDepth
     $: thingWidth = thingSize
     $: thingHeight = encapsulatingDepth >= 0 ? thingSize : thingSize / cohortSize - 2
 
@@ -96,7 +98,7 @@
 
     <!-- The Thing's Relationships and child Cohorts. -->
     {#each cohorts as cohort (cohort.address)}
-        {#if [1, 2, 3, 4].includes(cohort.address.halfAxisId)}
+        {#if cohort.address.halfAxisId && [1, 2, 3, 4].includes(cohort.address.halfAxisId)}
             <RelationshipsWidget
                 {cohort}
                 {space}

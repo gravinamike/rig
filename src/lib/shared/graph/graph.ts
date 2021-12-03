@@ -14,6 +14,7 @@ export class Graph {
     _depth: number
     rootCohort: Cohort | null = null
     generations: Generation[] = []
+    planes: { [planeId: number]: Plane } = {}
     graphWidgetStyle: GraphWidgetStyle = defaultGraphWidgetStyle
     perspectiveHistory: { timestamp: Date, thingId: number }[] = []
 
@@ -67,6 +68,16 @@ export class Graph {
         return generation
     }
 
+    /**
+     * Add a Cohort to the Graph's Planes by ID.
+     * @param {Cohort} cohort - The Cohort which will be added to the Plane.
+     * @param {number} planeId - The ID of the Plane to which the Cohort will be added.
+     */
+    addCohortToPlane( cohort: Cohort, planeId: number ): void {
+        if (!(planeId in this.planes)) this.planes[planeId] = new Plane(planeId)
+        this.planes[planeId].addCohort(cohort)
+    }
+
     thingWidgetModels(): ThingWidgetModel[] {
         const thingWidgetModels = this.generations.map(generation => generation.thingWidgetModels()).flat()
         return thingWidgetModels
@@ -75,6 +86,7 @@ export class Graph {
     async build(): Promise<void> {
         this.rootCohort = null
         this.generations = []
+        this.planes = {}
 
         for (let i = 0; i <= this._depth; i++) {
             // For generation 0, start from the Perspective Thing IDs.
@@ -113,7 +125,14 @@ export class Graph {
             // serve as the starting point of the Graph.
             if (i === 0) {
                 const membersForCohort = (this.generation(i) as Generation).members
-                this.rootCohort = new Cohort(null, membersForCohort)
+                const addressForCohort = {
+                    graph: this,
+                    generationId: i,
+                    parentThingWidgetModel: null,
+                    halfAxisId: null
+                }
+                this.rootCohort = new Cohort(addressForCohort, membersForCohort)
+                this.addCohortToPlane(this.rootCohort, 0)
             // Starting at Generation 1, hook up each Generation's Things, packaged in
             // Cohorts, to the parent Things of the previous Generation.
             } else {
@@ -127,6 +146,7 @@ export class Graph {
                     ) for (const halfAxisId of prevThingWidgetModel.relatedThingHalfAxisIds) {
                         // Get the address for that half axis' Cohort.
                         const addressForCohort = {
+                            graph: this,
                             generationId: i,
                             parentThingWidgetModel: prevThingWidgetModel,
                             halfAxisId: halfAxisId
@@ -185,30 +205,65 @@ export class Generation {
 
 // Cohort.
 type CohortAddress = {
+    graph: Graph,
     generationId: number,
-    parentThingWidgetModel: ThingWidgetModel,
-    halfAxisId: HalfAxisId
+    parentThingWidgetModel: ThingWidgetModel | null,
+    halfAxisId: HalfAxisId | null
 }
 
 export class Cohort {
     kind = "cohort"
 
-    address: CohortAddress | null
+    address: CohortAddress
     members: GenerationMember[]
     encapsulatingDepth: number
+    plane: Plane | null = null
 
-    constructor(address: CohortAddress | null, members: GenerationMember[]) {
+    constructor(address: CohortAddress, members: GenerationMember[]) {
         this.address = address
         this.members = members
         for (const member of members) member.parentCohort = this
-        const parentEncapsulatingDepth = this.address?.parentThingWidgetModel.parentCohort?.encapsulatingDepth || 0
+
+        // Plane.
+        let planeId: number
+        if (!this.address) {
+            planeId = 0
+        } else {
+            const parentPlaneId = this.parentCohort()?.plane?.id || 0
+            const changeInPlane = offsetsByHalfAxisId[this.address?.halfAxisId || 0][2]
+            planeId = parentPlaneId + changeInPlane
+        }
+        this.address.graph.addCohortToPlane(this, planeId)
+
+        // Encapsulation depth.
+        const parentEncapsulatingDepth = this.parentCohort()?.encapsulatingDepth || 0
         const changeInEncapsulatingDepth = offsetsByHalfAxisId[this.address?.halfAxisId || 0][3]
         this.encapsulatingDepth = parentEncapsulatingDepth + changeInEncapsulatingDepth
+    }
+
+    parentCohort(): Cohort | null {
+        return this.address.parentThingWidgetModel?.parentCohort || null
     }
 
     indexOfMember(member: GenerationMember): number | null {
         const index = this.members.indexOf(member)
         const output = index !== -1 ? index : null
         return output
+    }
+}
+
+export class Plane {
+    kind = "plane"
+
+    id: number
+    cohorts: Cohort[] = []
+
+    constructor(id: number) {
+        this.id = id
+    }
+
+    addCohort(cohort: Cohort): void {
+        this.cohorts.push(cohort)
+        cohort.plane = this
     }
 }

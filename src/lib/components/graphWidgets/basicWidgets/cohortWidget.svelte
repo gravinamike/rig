@@ -14,16 +14,22 @@
 
     // Calculate x and y offsets and z-index relative to parent Thing Widget.
     const generationId = cohort.address?.generationId || 0
-    const halfAxisId = cohort.address ? cohort.address.halfAxisId : 0
+    const halfAxisId = cohort.address?.halfAxisId || 0
     const offsetSigns = offsetsByHalfAxisId[halfAxisId]
-    $: offsets = [ graph.graphWidgetStyle.offsetLength * offsetSigns[0], graph.graphWidgetStyle.offsetLength * offsetSigns[1] ]
+
+    $: planeId = cohort.plane?.id || 0
+    $: offsets = [
+        graph.graphWidgetStyle.offsetLength * offsetSigns[0] + 100 * planeId,
+        graph.graphWidgetStyle.offsetLength * offsetSigns[1] + 100 * planeId
+    ]
     $: zIndex = (generationId * 2) * offsetSigns[2]
+    $: opacity = 1 / (1 - (planeId < 0 ? 0.5 : 0) + Math.abs(planeId))
 </script>
 
 
 <main
     class="cohort-widget"
-    style="left: calc({offsets[0]}px + 50%); top: calc({offsets[1]}px + 50%); z-index: {zIndex}; flex-direction: {[3, 4, 5, 6, 7, 8].includes(halfAxisId) ? "column" : "row"}; gap: {[5, 6, 7, 8].includes(halfAxisId) ? 4 : betweenThingGap}px"
+    style="left: calc({offsets[0]}px + 50%); top: calc({offsets[1]}px + 50%); z-index: {zIndex}; flex-direction: {[3, 4, 5, 6, 7, 8].includes(halfAxisId) ? "column" : "row"}; gap: {[5, 6, 7, 8].includes(halfAxisId) ? 4 : betweenThingGap}px;  opacity: {opacity}"
 >
     {#each cohort.members as cohortMember}
         {#if "text" in cohortMember}
