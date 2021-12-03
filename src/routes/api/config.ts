@@ -5,9 +5,7 @@ import type { Config } from "$lib/shared/constants"
 const configPath = "./static/config/config.json"
 
 
-export async function get(
-    { params }: { params: {directionIds: string} }
-): Promise<{
+export async function get(): Promise<{
     status: number;
     body: Config | { error: string }
 }> {

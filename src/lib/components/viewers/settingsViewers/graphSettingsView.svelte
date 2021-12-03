@@ -15,36 +15,44 @@
 
     <SettingWidget
         labelText={"Relation offset length"}
-        bind:boundValue={graph.style.offsetLength}
+        bind:boundValue={graph.graphWidgetStyle.offsetLength}
         maxValue={1000}
         onChangeFunction={updateGraphFormat}
     />
 
     <SettingWidget
         labelText={"Thing size"}
-        bind:boundValue={graph.style.thingSize}
+        bind:boundValue={graph.graphWidgetStyle.thingSize}
         maxValue={1000}
         onChangeFunction={updateGraphFormat}
     />
 
     <SettingWidget
         labelText={"Between-Thing gap"}
-        bind:boundValue={graph.style.betweenThingGap}
+        bind:boundValue={graph.graphWidgetStyle.betweenThingGap}
         maxValue={1000}
         onChangeFunction={updateGraphFormat}
     />
 
     <SettingWidget
         labelText={"Relationship text size"}
-        bind:boundValue={graph.style.relationshipTextSize}
+        bind:boundValue={graph.graphWidgetStyle.relationshipTextSize}
         maxValue={100}
         onChangeFunction={updateGraphFormat}
     />
 
     <SettingWidget
         labelText={"Thing text size"}
-        bind:boundValue={graph.style.thingTextSize}
+        bind:boundValue={graph.graphWidgetStyle.thingTextSize}
         maxValue={100}
+        onChangeFunction={updateGraphFormat}
+    />
+
+    <SettingWidget
+        labelText={"Focal Plane"}
+        bind:boundValue={graph.focalPlaneId}
+        minValue={-10}
+        maxValue={10}
         onChangeFunction={updateGraphFormat}
     />
 </main>

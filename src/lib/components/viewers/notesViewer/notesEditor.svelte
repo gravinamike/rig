@@ -22,7 +22,7 @@
             element: textField,
             extensions: [ StarterKit, Underline ],
             content: '<p>Starting text...</p>',
-            onTransaction: ({editor: Editor, transaction}) => {
+            onTransaction: () => {
                 editor = editor // Force re-render so `editor.isActive` works correctly.
             },
         })

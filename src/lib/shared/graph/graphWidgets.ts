@@ -1,6 +1,6 @@
 import type { HalfAxisId } from "$lib/shared/constants"
 import type { Space, Thing, Note } from "$lib/shared/graph/graphDbConstructs"
-import type { Cohort } from "$lib/shared/graph/graph"
+import type { Cohort, Graph } from "$lib/shared/graph/graph"
 import { oddHalfAxisIds } from "$lib/shared/constants"
 import { graphConstructInStore, retrieveGraphConstructs } from "$lib/shared/stores/graphStores"
 
@@ -10,9 +10,10 @@ import { graphConstructInStore, retrieveGraphConstructs } from "$lib/shared/stor
  * Specifies info to build the widget representing a Thing within a specific Graph Portal.
  */
 type ThingAddress = {
+    graph: Graph;
     generationId: number,
-    parentThingWidgetModel: ThingWidgetModel,
-    halfAxisId: number,
+    parentThingWidgetModel: ThingWidgetModel | null,
+    halfAxisId: number | null,
     indexInCohort: number
 }
 
@@ -71,7 +72,8 @@ export class ThingWidgetModel {
 
     // The following getter functions are derived from the pass-along getter functions above.
     get address(): ThingAddress | null {
-        const address = this.parentCohort && this.parentCohort.address ? {
+        const address = this.parentCohort ? {
+            graph: this.parentCohort.address.graph,
             generationId: this.parentCohort.address.generationId,
             parentThingWidgetModel: this.parentCohort.address.parentThingWidgetModel,
             halfAxisId: this.parentCohort.address.halfAxisId,

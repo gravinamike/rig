@@ -19,17 +19,16 @@
 
     $: planeId = cohort.plane?.id || 0
     $: offsets = [
-        graph.graphWidgetStyle.offsetLength * offsetSigns[0] + 100 * planeId,
-        graph.graphWidgetStyle.offsetLength * offsetSigns[1] + 100 * planeId
+        graph.graphWidgetStyle.offsetLength * offsetSigns[0] + 50 * planeId,
+        graph.graphWidgetStyle.offsetLength * offsetSigns[1] + 50 * planeId
     ]
     $: zIndex = (generationId * 2) * offsetSigns[2]
-    $: opacity = 1 / (1 - (planeId < 0 ? 0.5 : 0) + Math.abs(planeId))
 </script>
 
 
 <main
     class="cohort-widget"
-    style="left: calc({offsets[0]}px + 50%); top: calc({offsets[1]}px + 50%); z-index: {zIndex}; flex-direction: {[3, 4, 5, 6, 7, 8].includes(halfAxisId) ? "column" : "row"}; gap: {[5, 6, 7, 8].includes(halfAxisId) ? 4 : betweenThingGap}px;  opacity: {opacity}"
+    style="left: calc({offsets[0]}px + 50%); top: calc({offsets[1]}px + 50%); z-index: {zIndex}; flex-direction: {[3, 4, 5, 6, 7, 8].includes(halfAxisId) ? "column" : "row"}; gap: {[5, 6, 7, 8].includes(halfAxisId) ? 4 : betweenThingGap}px;"
 >
     {#each cohort.members as cohortMember}
         {#if "text" in cohortMember}

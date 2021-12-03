@@ -18,6 +18,7 @@
     $: space = thingWidgetModel.space
     $: cohorts = thingWidgetModel.childCohorts
     $: planeId = thingWidgetModel.parentCohort?.plane?.id || 0
+    $: distanceFromFocalPlane = planeId - graph.focalPlaneId
     const planePadding = 20
     $: encapsulatingDepth = thingWidgetModel.parentCohort?.encapsulatingDepth || 0
     $: encapsulatingPadding = encapsulatingDepth >= 0 ? 40 : 20
@@ -25,6 +26,7 @@
     $: thingSize = graph.graphWidgetStyle.thingSize + planePadding * planeId + encapsulatingPadding * encapsulatingDepth
     $: thingWidth = thingSize
     $: thingHeight = encapsulatingDepth >= 0 ? thingSize : thingSize / cohortSize - 2
+    $: opacity = 1 / (1 + (distanceFromFocalPlane < 0 ? 1 : (distanceFromFocalPlane > 0 ? 2 : 0)) * Math.abs(distanceFromFocalPlane))
 
     let hoveredThingIdStoreValue: number | null
     hoveredThingIdStore.subscribe(value => {hoveredThingIdStoreValue = value})
@@ -59,7 +61,7 @@
         on:mouseleave={()=>{hoveredThingIdStore.set(null)}}
         on:click={handleClick}
         on:contextmenu|preventDefault={contextMenu.openContextMenu}
-        style="border-radius: {8 + 4 * encapsulatingDepth}px; width: {thingWidth}px; height: {thingHeight}px;"
+        style="border-radius: {8 + 4 * encapsulatingDepth}px; width: {thingWidth}px; height: {thingHeight}px; opacity: {opacity}; pointer-events: {distanceFromFocalPlane === 0 ? "auto" : "none"};"
     >
         <div class="thing-text" style="font-size: {encapsulatingDepth >= 0 ? graph.graphWidgetStyle.thingTextSize : graph.graphWidgetStyle.thingTextSize / Math.log2(cohortSize)}px">
             {text}

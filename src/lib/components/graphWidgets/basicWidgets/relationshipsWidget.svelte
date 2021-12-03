@@ -24,7 +24,7 @@
 
     // Calculate x and y offsets and z-index relative to parent Thing Widget.
     const generationId = cohort.address?.generationId || 0
-    const halfAxisId = cohort.address ? cohort.address.halfAxisId : 0
+    const halfAxisId = cohort.address && cohort.address.halfAxisId ? cohort.address.halfAxisId : 0
     const offsetSigns = offsetsByHalfAxisId[halfAxisId]
     $: offsets = [ 0.5 * offsetLength * offsetSigns[0], 0.5 * offsetLength * offsetSigns[1] ]
     $: zIndex = (generationId * 2 - 1) * offsetSigns[2]
@@ -38,13 +38,18 @@
     // Calculate rotation of Relationship image.
     const rotation = rotationByHalfAxisId[halfAxisId]
 
+    // Calculate opacity.
+    $: planeId = cohort?.plane?.id || 0
+    $: distanceFromFocalPlane = planeId - graph.focalPlaneId
+    $: opacity = 1 / (1 + (distanceFromFocalPlane < 0 ? 1 : (distanceFromFocalPlane > 0 ? 2 : 0)) * Math.abs(distanceFromFocalPlane))
+
     // Retrieve Direction information.
     const directionId = space.directionIdByHalfAxisId[halfAxisId] as number
     const direction = retrieveGraphConstructs("Direction", directionId) as Direction
 </script>
 
 
-<main class="relationships-widget" style="left: calc({offsets[0]}px + 50%); top: calc({offsets[1]}px + 50%); z-index: {zIndex}; width: {widgetWidth}px; height: {widgetHeight}px;">
+<main class="relationships-widget" style="left: calc({offsets[0]}px + 50%); top: calc({offsets[1]}px + 50%); z-index: {zIndex}; width: {widgetWidth}px; height: {widgetHeight}px; opacity: {opacity};">
     <div class="direction-text" style="font-size: {graph.graphWidgetStyle.relationshipTextSize}px">
         {direction.text}
     </div>
@@ -66,7 +71,7 @@
                 x2="{thingSize * 0.5 + (thingSize + betweenThingGap) * memberWithIndex.index}" y2="0"
             />
         {/each}
-    </svg> 
+    </svg>
 </main>
 
 
