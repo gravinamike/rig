@@ -15,6 +15,7 @@ export class Graph {
     rootCohort: Cohort | null = null
     generations: Generation[] = []
     planes: { [planeId: number]: Plane } = {}
+    planeOffsets = [0, 0]
     focalPlaneId = 0
     graphWidgetStyle: GraphWidgetStyle = defaultGraphWidgetStyle
     perspectiveHistory: { timestamp: Date, thingId: number }[] = []

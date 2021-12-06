@@ -11,6 +11,7 @@
     import GraphPinsView from "$lib/components/viewers/graphViewers/graphPinsView.svelte"
 
     import CohortWidget from "$lib/components/graphWidgets/basicWidgets/cohortWidget.svelte"
+    import PlaneControls from "$lib/components/controlElements/planeControls.svelte"
     import NotesViewer from "$lib/components/viewers/notesViewer/notesViewer.svelte"
 
     export let pThingIds: number[]
@@ -92,6 +93,11 @@
                 />
             {/if}
         </div>
+        <div class="plane-controls-container">
+            <PlaneControls
+                bind:graph
+            />
+        </div>
     </div>
 
     <!-- Notes viewer -->
@@ -141,21 +147,34 @@
     }
 
     .portal {
+        flex-grow: 1;
+
         outline: solid 1px lightgrey;
         outline-offset: -1px;
 
+        position: relative;
+
         overflow: auto;
 
-        flex-grow: 1;
         display: flex;
-
         justify-content: center;
         align-items: center;
+        
+        user-select: none;
     }
 
     .centralAnchor {
         position: relative;
         width: 0px;
         height: 0px;
+    }
+
+    .plane-controls-container {
+        border-radius: 5px;
+        box-shadow: 5px 5px 10px 2px lightgray;
+
+        position: absolute;
+        right: 10px;
+        bottom: 10px;
     }
   </style>
