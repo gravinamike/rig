@@ -1,5 +1,4 @@
 <script lang="ts">
-    import type { SvelteComponent } from "svelte"
     import type { Graph } from "$lib/shared/graph/graph"
     import { saveConfig } from "$lib/shared/config"
     import { pinIdsStore, hoveredThingIdStore } from "$lib/shared/stores/appStores"
@@ -20,7 +19,7 @@
         graph = graph // Needed for reactivity.
     }
 
-    let contextMenu: SvelteComponent
+    let contextMenu: ContextMenuFrame
 
     async function removePin(thingId: number) {
         pinIdsStore.update( (current) => {

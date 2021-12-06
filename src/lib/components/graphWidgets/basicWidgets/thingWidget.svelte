@@ -1,5 +1,4 @@
 <script lang="ts">
-    import type { SvelteComponent } from "svelte"
     import { saveConfig } from "$lib/shared/config"
     import type { Graph } from "$lib/shared/graph/graph"
     import type { ThingWidgetModel } from "$lib/shared/graph/graphWidgets"
@@ -43,7 +42,7 @@
         graph = graph // Needed for reactivity.
     }
 
-    let contextMenu: SvelteComponent
+    let contextMenu: ContextMenuFrame
 
     async function addPin() {
         pinIdsStore.update( (current) => { if (!current.includes(thingId)) current.push(thingId); return current } )

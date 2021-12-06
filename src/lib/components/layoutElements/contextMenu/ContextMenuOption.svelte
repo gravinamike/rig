@@ -9,7 +9,7 @@
 
 	// Events.
 	const dispatch = createEventDispatcher()
-	function handleClick(event: MouseEvent) {
+	function handleClick() {
 		if (!disabled) {
 			dispatch('click')
 			dispatchClick()
