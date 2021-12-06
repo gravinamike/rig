@@ -139,6 +139,7 @@
         box-sizing: border-box;
         width: 100px;
         height: 100px;
+        background-color: white;
 
         display: flex;
         justify-content: center;

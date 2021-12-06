@@ -84,19 +84,21 @@
     </Collapser>
 
     <!-- Graph Portal -->
-    <div class="portal">
-        <div class="centralAnchor">
-            {#if graph.rootCohort}
-                <CohortWidget
-                    cohort={graph.rootCohort}
+    <div class="portal-container">
+        <div class="portal">
+            <div class="centralAnchor">
+                {#if graph.rootCohort}
+                    <CohortWidget
+                        cohort={graph.rootCohort}
+                        bind:graph
+                    />
+                {/if}
+            </div>
+            <div class="plane-controls-container">
+                <PlaneControls
                     bind:graph
                 />
-            {/if}
-        </div>
-        <div class="plane-controls-container">
-            <PlaneControls
-                bind:graph
-            />
+            </div>
         </div>
     </div>
 
@@ -146,13 +148,18 @@
         flex: 1 1 auto;
     }
 
-    .portal {
+    .portal-container {
         flex-grow: 1;
 
         outline: solid 1px lightgrey;
         outline-offset: -1px;
 
         position: relative;
+    }
+
+    .portal {
+        width: 100%;
+        height: 100%;
 
         overflow: auto;
 
@@ -174,7 +181,7 @@
         box-shadow: 5px 5px 10px 2px lightgray;
 
         position: absolute;
-        right: 10px;
-        bottom: 10px;
+        right: 20px;
+        bottom: 20px;
     }
   </style>
