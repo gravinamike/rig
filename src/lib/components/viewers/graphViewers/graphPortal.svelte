@@ -39,21 +39,21 @@
         <div class="tabs-container">
             <TabBlock>
                 <TabFlaps>
-                    <TabFlap>Schematic</TabFlap>
                     <TabFlap>Settings</TabFlap>
+                    <TabFlap>Schematic</TabFlap>
                 </TabFlaps>
-            
-                <!-- Graph Schematic viewer -->
-                <TabBody>
-                    <GraphSchematicView
-                        {graph}
-                    />
-                </TabBody>
             
                 <!-- Graph Settings viewer -->
                 <TabBody>
                     <GraphSettingsView
                         bind:graph
+                    />
+                </TabBody>
+
+                <!-- Graph Schematic viewer -->
+                <TabBody>
+                    <GraphSchematicView
+                        {graph}
                     />
                 </TabBody>
             </TabBlock>

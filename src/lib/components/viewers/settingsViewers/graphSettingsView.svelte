@@ -4,17 +4,13 @@
 
     export let graph: Graph
 
+
+    async function setGraphDepth() {
+        await graph.adjustGenerationsToDepth()
+        graph = graph // Needed for reactivity.
+    }
+
     function updateGraphFormat() {
-        graph = graph // Needed for reactivity.
-    }
-
-    async function buildGeneration() {
-        await graph.buildGeneration()
-        graph = graph // Needed for reactivity.
-    }
-
-    async function stripGeneration() {
-        await graph.stripGeneration()
         graph = graph // Needed for reactivity.
     }
 </script>
@@ -22,6 +18,14 @@
 
 <main>
     <h4>Graph settings</h4>
+
+    <SettingWidget
+        labelText={"Graph Depth"}
+        bind:boundValue={graph._depth}
+        minValue={0}
+        maxValue={3}
+        onChangeFunction={setGraphDepth}
+    />
 
     <SettingWidget
         labelText={"Relation offset length"}
@@ -65,14 +69,6 @@
         maxValue={10}
         onChangeFunction={updateGraphFormat}
     />
-
-    <button on:click={buildGeneration}>
-        Build Generation
-    </button>
-    
-    <button on:click={stripGeneration}>
-        Strip Generation
-    </button>
 </main>
 
 

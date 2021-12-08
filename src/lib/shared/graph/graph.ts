@@ -2,7 +2,7 @@ import type { HalfAxisId, GraphWidgetStyle } from "$lib/shared/constants"
 import type { Thing } from "$lib/shared/graph/graphDbConstructs"
 
 import { defaultGraphWidgetStyle, offsetsByHalfAxisId } from "$lib/shared/constants"
-import { storeGraphConstructs, graphConstructInStore } from "$lib/shared/stores/graphStores"
+import { storeGraphConstructs, graphConstructInStore, thingIdsNotFoundStore } from "$lib/shared/stores/graphStores"
 import { ThingWidgetModel, ThingPlaceholderWidgetModel } from "$lib/shared/graph/graphWidgets"
 
 export type GenerationMember = ThingWidgetModel | ThingPlaceholderWidgetModel
@@ -30,6 +30,9 @@ export class Graph {
         this._depth = depth
     }
 
+
+    /* Basic informational methods. */
+
     async pThingIds(): Promise<number[]>
     async pThingIds( pThingIds: number[] ): Promise<void>
     async pThingIds( pThingIds?: number[] ): Promise<number[] | void> {
@@ -48,21 +51,8 @@ export class Graph {
             return this._depth
         } else {
             this._depth = depth
-            await this.build()
+            await this.adjustGenerationsToDepth()
         }
-    }
-
-    /**
-     * Add a Generation to the Graph (containing supplied Generation Members).
-     * @param {GenerationMember[]} members - Thing Widget Models (and/or Thing Widget Placeholder Models) that will constitute the Generation.
-     */
-    async addGeneration(): Promise<void> {
-        const membersForGeneration = await this.thingIdsForGeneration(this.generationIdToBuild).map(
-            id => { return graphConstructInStore("Thing", id) ? new ThingWidgetModel(id) : new ThingPlaceholderWidgetModel(id) }
-        )
-
-        this.generations.push(new Generation(this, membersForGeneration))
-        //console.log(`Generation ${generationIdToBuild} added.`)
     }
 
     /**
@@ -75,89 +65,13 @@ export class Graph {
         return generation
     }
 
-    /**
-     * Add a Cohort to the Graph's Generations by ID.
-     * @param {Cohort} cohort - The Cohort which will be added to the Generation.
-     * @param {number} generationId - The ID of the Generation to which the Cohort will be added.
-     */
-    addCohortToGeneration( cohort: Cohort, generationId: number ): void {
-        const generation = this.generation(generationId)
-        if (!generation) {
-            return
-        } else {
-            generation.cohorts.push(cohort)
-        }
-    }
-
-    /**
-     * Add a Cohort to the Graph's Planes by ID.
-     * @param {Cohort} cohort - The Cohort which will be added to the Plane.
-     * @param {number} planeId - The ID of the Plane to which the Cohort will be added.
-     */
-    addCohortToPlane( cohort: Cohort, planeId: number ): void {
-        if (!(planeId in this.planes)) this.planes[planeId] = new Plane(planeId)
-        this.planes[planeId].addCohort(cohort)
-    }
-
     thingWidgetModels(): ThingWidgetModel[] {
         const thingWidgetModels = this.generations.map(generation => generation.thingWidgetModels()).flat()
         return thingWidgetModels
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    seedThingWidgetModels(): ThingWidgetModel[] {
-        if (!this.generations.length) {
-            return []
-        } else {
-            const seedGeneration = this.generations[this.generations.length - 1]
-            const seedThingWidgetModels = seedGeneration.thingWidgetModels()
-            return seedThingWidgetModels
-        }
-        // Note for the future: When adding Perspective depth deltas, filter the
-        // seedThingWidgetModels list based on depth deltas.
-    }
-
-
-
-    thingIdsForGeneration(generationId: number): number[] {
-        // For generation 0, start from the Perspective Thing IDs.
-        // For generations >1, start from the IDs of the last generation's Relation Things.
-        const thingIdsForGeneration = generationId === 0 ?
-            this._pThingIds :
-            this.seedThingWidgetModels().map(thingWidgetModel => thingWidgetModel.relatedThingIds).flat()
-        //console.log(`Thing IDs for Generation ${generationIdToBuild}:`, thingIdsForGeneration)
-        return thingIdsForGeneration
-    }
-
-
-
+    /* Informational methods for building and stripping. */
 
     get generationIdToBuild(): number {
         for (const generation of this.generations.slice().reverse()) {
@@ -173,6 +87,56 @@ export class Graph {
         return this.generations.length - 1
     }
 
+    seedThingWidgetModels(): ThingWidgetModel[] {
+        if (!this.generations.length) {
+            return []
+        } else {
+            const seedGeneration = this.generations[this.generations.length - 1]
+            const seedThingWidgetModels = seedGeneration.thingWidgetModels()
+            return seedThingWidgetModels
+        }
+        // Note for the future: When adding Perspective depth deltas, filter the
+        // seedThingWidgetModels list based on depth deltas.
+    }
+
+    thingIdsForGeneration(generationId: number): number[] {
+        // For generation 0, start from the Perspective Thing IDs.
+        // For generations >1, start from the IDs of the last generation's Relation Things.
+        const thingIdsForGeneration = generationId === 0 ?
+            this._pThingIds :
+            this.seedThingWidgetModels().map(thingWidgetModel => thingWidgetModel.relatedThingIds).flat()
+        //console.log(`Thing IDs for Generation ${generationIdToBuild}:`, thingIdsForGeneration)
+        return thingIdsForGeneration
+    }
+
+    
+    /* Methods for building/stripping. */
+
+    async build(): Promise<void> {
+        this.rootCohort = null
+        this.generations = []
+        this.planes = {}
+
+        // for (let i = 0; i <= this._depth; i++) await this.buildGeneration()
+        await this.adjustGenerationsToDepth()
+
+        // Initialize the History based on the starting Perspective Thing IDs.
+        this.addEntriesToHistory(this._pThingIds)
+    }
+
+    async buildGeneration(): Promise<void> {
+        // Store Things for new Generation.
+        await this.storeNextGenerationThings()
+
+        // Add a new Generation to the Graph, containing the corresponding Thing Widget Models (or Placeholders).
+        await this.addGeneration()
+
+        // Wrap the Thing Widget Models (or Placeholders) in Cohorts of the previous Generation's Thing Widget Models.
+        await this.connectNextGenerationThings();
+
+        // Mark the Generation as built.
+        (this.generation(this.generationIdToBuild) as Generation).lifecycleStatus = "built"
+    }
 
     async storeNextGenerationThings(): Promise<void> {
         // Filter out Thing IDs already represented in the Graph (to avoid recursion).
@@ -187,6 +151,18 @@ export class Graph {
         )
     }
 
+    /**
+     * Add a Generation to the Graph (containing supplied Generation Members).
+     * @param {GenerationMember[]} members - Thing Widget Models (and/or Thing Widget Placeholder Models) that will constitute the Generation.
+     */
+     async addGeneration(): Promise<void> {
+        const membersForGeneration = await this.thingIdsForGeneration(this.generationIdToBuild).map(
+            id => { return graphConstructInStore("Thing", id) ? new ThingWidgetModel(id) : new ThingPlaceholderWidgetModel(id) }
+        )
+
+        this.generations.push(new Generation(this, membersForGeneration))
+        //console.log(`Generation ${generationIdToBuild} added.`)
+    }
 
     /* A Generation is just a list of Things and Placeholders. But the
      * Things are related across Generations. After building each
@@ -236,25 +212,38 @@ export class Graph {
         }
     }
 
-
-    async buildGeneration(): Promise<void> {
-        // Store Things for new Generation.
-        await this.storeNextGenerationThings()
-
-        // Add a new Generation to the Graph, containing the corresponding Thing Widget Models (or Placeholders).
-        await this.addGeneration()
-
-        // Wrap the Thing Widget Models (or Placeholders) in Cohorts of the previous Generation's Thing Widget Models.
-        await this.connectNextGenerationThings();
-
-        // Mark the Generation as built.
-        (this.generation(this.generationIdToBuild) as Generation).lifecycleStatus = "built"
+    /**
+     * Add a Cohort to the Graph's Generations by ID.
+     * @param {Cohort} cohort - The Cohort which will be added to the Generation.
+     * @param {number} generationId - The ID of the Generation to which the Cohort will be added.
+     */
+    addCohortToGeneration( cohort: Cohort, generationId: number ): void {
+        const generation = this.generation(generationId)
+        if (!generation) {
+            return
+        } else {
+            generation.cohorts.push(cohort)
+        }
     }
 
+    /**
+     * Add a Cohort to the Graph's Planes by ID.
+     * @param {Cohort} cohort - The Cohort which will be added to the Plane.
+     * @param {number} planeId - The ID of the Plane to which the Cohort will be added.
+     */
+    addCohortToPlane( cohort: Cohort, planeId: number ): void {
+        if (!(planeId in this.planes)) this.planes[planeId] = new Plane(planeId)
+        this.planes[planeId].addCohort(cohort)
+    }
 
-
-
-    
+    addEntriesToHistory( thingIds: number | number[] ): void {
+        if (typeof thingIds === "number") thingIds = [thingIds]
+        const timestamp = new Date()
+        const entries = thingIds.map(
+            (thingId) => { return { timestamp: timestamp, thingId: thingId } }
+        )
+        this.perspectiveHistory.push(...entries)
+    }
 
     async stripGeneration(): Promise<void> {
         const generationToStrip = this.generation(this.generationIdToStrip)
@@ -286,62 +275,16 @@ export class Graph {
         }     
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-
-
-    async build(): Promise<void> {
-        this.rootCohort = null
-        this.generations = []
-        this.planes = {}
-
-        for (let i = 0; i <= this._depth; i++) await this.buildGeneration()
-
-        // Initialize the History based on the starting Perspective Thing IDs.
-        this.addEntriesToHistory(this._pThingIds)
-    }
-
-    addEntriesToHistory( thingIds: number | number[] ): void {
-        if (typeof thingIds === "number") thingIds = [thingIds]
-        const timestamp = new Date()
-        const entries = thingIds.map(
-            (thingId) => { return { timestamp: timestamp, thingId: thingId } }
-        )
-        this.perspectiveHistory.push(...entries)
+    async adjustGenerationsToDepth(): Promise<void> {
+        let difference = this.generations.length - (this._depth + 1)
+        while (difference) {
+            if (difference < 0) {
+                await this.buildGeneration()
+            } else {
+                await this.stripGeneration()
+            }
+            difference = this.generations.length - (this._depth + 1)
+        }
     }
 }
 
