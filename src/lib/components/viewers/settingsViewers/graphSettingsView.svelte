@@ -7,6 +7,16 @@
     function updateGraphFormat() {
         graph = graph // Needed for reactivity.
     }
+
+    async function buildGeneration() {
+        await graph.buildGeneration()
+        graph = graph // Needed for reactivity.
+    }
+
+    async function stripGeneration() {
+        await graph.stripGeneration()
+        graph = graph // Needed for reactivity.
+    }
 </script>
 
 
@@ -55,6 +65,14 @@
         maxValue={10}
         onChangeFunction={updateGraphFormat}
     />
+
+    <button on:click={buildGeneration}>
+        Build Generation
+    </button>
+    
+    <button on:click={stripGeneration}>
+        Strip Generation
+    </button>
 </main>
 
 
