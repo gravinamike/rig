@@ -181,7 +181,7 @@
         box-shadow: 5px 5px 10px 2px lightgray;
 
         position: absolute;
-        right: 20px;
+        left: 20px;
         bottom: 20px;
     }
   </style>

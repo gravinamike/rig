@@ -3,7 +3,8 @@
 
     export let graph: Graph
 
-
+    const graphOffsetMultiplier = 5
+    
     $: planeIds = Object.keys(graph.planes).map((x) => Number(x))
     $: planeDepth = Math.max(...planeIds.map((id) => Math.abs(id)))
     $: offsets = graph.planeOffsets
@@ -24,21 +25,46 @@
 
     function handleMouseMove(event: MouseEvent) {
         if (tracking && prevLocation.x && prevLocation.y) {
-            offsets[0] += (event.clientX - prevLocation.x)
-            offsets[0] = Math.max(offsets[0], -30)
-            offsets[0] = Math.min(offsets[0], 30)
-            offsets[1] += (event.clientY - prevLocation.y)
-            offsets[1] = Math.max(offsets[1], -30)
-            offsets[1] = Math.min(offsets[1], 30)
+            offsets[0] += (event.clientX - prevLocation.x) * graphOffsetMultiplier
+            offsets[0] = Math.max(offsets[0], -30 * graphOffsetMultiplier)
+            offsets[0] = Math.min(offsets[0], 30 * graphOffsetMultiplier)
+            offsets[1] += (event.clientY - prevLocation.y) * graphOffsetMultiplier
+            offsets[1] = Math.max(offsets[1], -30 * graphOffsetMultiplier)
+            offsets[1] = Math.min(offsets[1], 30 * graphOffsetMultiplier)
         }
         prevLocation.x = event.clientX
         prevLocation.y = event.clientY
+        graph = graph // Needed for reactivity.
+    }
+
+    function resetOffsets() {
+        offsets[0] = 0
+        offsets[1] = 0
+        prevLocation.x = null
+        prevLocation.y = null
         graph = graph // Needed for reactivity.
     }
 </script>
 
 
 <div class="plane-controls">
+    <div
+        class="plane-alignment-controls"
+        on:mousedown={() => tracking = true}
+        on:mouseup={() => tracking = false}
+        on:mousemove={handleMouseMove}
+    >
+        <div class="centralAnchor">
+            {#each planeIds as planeId}
+                <div
+                    class="square {planeId === 0 ? "plane-0" : ""}"
+                    style="width: {25 + 6/Math.max(planeDepth, 1) * planeId}px; height: {25 + 6/Math.max(planeDepth, 1) * planeId}px; left: calc({offsets[0]/graphOffsetMultiplier/Math.max(planeDepth, 1) * planeId}px + 50%); top: calc({offsets[1]/graphOffsetMultiplier/Math.max(planeDepth, 1) * planeId}px + 50%); opacity: {planeId === focalPlaneId ? 60 : 25}%;"
+                    on:click={() => {if (planeId === 0) resetOffsets()}}
+                ></div>
+            {/each}
+        </div>
+    </div>
+
     <div class="plane-focus-controls">
         <div class="tab top" on:click={() => changeFocalPlaneId(-1)}>
             <h2>-</h2>
@@ -50,22 +76,6 @@
 
         <div class="tab bottom" on:click={() => changeFocalPlaneId(1)}>
             <h2>+</h2>
-        </div>
-    </div>
-
-    <div
-        class="plane-alignment-controls"
-        on:mousedown={() => tracking = true}
-        on:mouseup={() => tracking = false}
-        on:mousemove={handleMouseMove}
-    >
-        <div class="centralAnchor">
-            {#each planeIds as planeId}
-                <div
-                    class="square front"
-                    style="width: {25 + 6/Math.max(planeDepth, 1) * planeId}px; height: {25 + 6/Math.max(planeDepth, 1) * planeId}px; left: calc({offsets[0]/Math.max(planeDepth, 1) * planeId}px + 50%); top: calc({offsets[1]/Math.max(planeDepth, 1) * planeId}px + 50%); opacity: {planeId === focalPlaneId ? 60 : 25}%;"
-                ></div>
-            {/each}
         </div>
     </div>
 </div>
@@ -85,10 +95,9 @@
 
     .tab {
         border-top: solid 1px lightgrey;
-        border-right: solid 1px whitesmoke;
+        border-right: solid 1px lightgrey;
         border-bottom: solid 1px lightgrey;
-        border-left: solid 1px lightgrey;
-
+        border-left: solid 1px whitesmoke;
         
         position: absolute;
         width: 30px;
@@ -110,22 +119,22 @@
     }
 
     .tab.top {
-        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
 
         top: 0px;
         height: 35px;
     }
 
     .tab.middle {
-        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
 
         top: 35px;
         height: 30px;
     }
 
     .tab.bottom {
-        border-top-left-radius: 5px;
-        border-bottom-left-radius: 5px;
+        border-top-right-radius: 5px;
+        border-bottom-right-radius: 5px;
 
         bottom: 0px;
         height: 35px;
@@ -133,8 +142,8 @@
 
     .plane-alignment-controls {
         border: solid 1px lightgrey;
-        border-top-right-radius: 5px;
-        border-bottom-right-radius: 5px;
+        border-top-left-radius: 5px;
+        border-bottom-left-radius: 5px;
 
         box-sizing: border-box;
         width: 100px;
@@ -160,5 +169,14 @@
         position: absolute;
         transform: translate(-50%, -50%);
         background-color: white;
+    }
+
+    .plane-0:hover {
+        background-color: whitesmoke;
+    }
+
+    .plane-0:active {
+        outline: solid 2px black;
+        outline-offset: -2px;
     }
 </style>

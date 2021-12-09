@@ -116,6 +116,7 @@ export class Graph {
         this.rootCohort = null
         this.generations = []
         this.planes = {}
+        this.focalPlaneId = 0
 
         // for (let i = 0; i <= this._depth; i++) await this.buildGeneration()
         await this.adjustGenerationsToDepth()
@@ -234,6 +235,20 @@ export class Graph {
     addCohortToPlane( cohort: Cohort, planeId: number ): void {
         if (!(planeId in this.planes)) this.planes[planeId] = new Plane(planeId)
         this.planes[planeId].addCohort(cohort)
+    }
+
+    /**
+     * Remove a Cohort from the Graph's Planes.
+     * @param {Cohort} cohort - The Cohort which will be removed from the Plane.
+     */
+    removeCohortFromPlane( cohort: Cohort ): void {
+        if (!cohort.plane) return
+        const plane = cohort.plane
+
+        const index = plane.cohorts.indexOf(cohort)
+        if (index > -1) plane.cohorts.splice(index, 1)
+
+        if (!plane.cohorts.length) delete this.planes[plane.id]
     }
 
     addEntriesToHistory( thingIds: number | number[] ): void {
@@ -382,8 +397,9 @@ export class Cohort {
             if (index > -1) generation.cohorts.splice(index, 1)
         }
         if (this.plane) {
-            const index = this.plane.cohorts.indexOf(this)
-            if (index > -1) this.plane.cohorts.splice(index, 1)
+            //const index = this.plane.cohorts.indexOf(this)
+            //if (index > -1) this.plane.cohorts.splice(index, 1)
+            this.address.graph.removeCohortFromPlane(this)
         }
     }
 
