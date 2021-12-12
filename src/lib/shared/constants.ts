@@ -13,6 +13,7 @@ export interface Config {
 }
 
 export interface GraphWidgetStyle {
+    zoom: number,
     offsetLength: number,
     thingSize: number,
     betweenThingGap: number,
@@ -39,6 +40,7 @@ export const oddHalfAxisIds = [1, 3, 5, 7] as const
  * Default Graph Widget Style.
  */
 export const defaultGraphWidgetStyle: GraphWidgetStyle = {
+    zoom: 0,
     offsetLength: 250,
     thingSize: 100,
     betweenThingGap: 20,

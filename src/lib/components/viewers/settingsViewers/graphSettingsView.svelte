@@ -28,6 +28,14 @@
     />
 
     <SettingWidget
+        labelText={"Zoom"}
+        bind:boundValue={graph.graphWidgetStyle.zoom}
+        minValue={-5}
+        maxValue={5}
+        onChangeFunction={updateGraphFormat}
+    />
+
+    <SettingWidget
         labelText={"Relation offset length"}
         bind:boundValue={graph.graphWidgetStyle.offsetLength}
         maxValue={1000}

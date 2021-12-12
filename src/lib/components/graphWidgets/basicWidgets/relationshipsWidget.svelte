@@ -10,6 +10,8 @@
     export let space: Space
     export let graph: Graph
 
+    $: scale = 1.45 ** graph.graphWidgetStyle.zoom
+
     $: offsetLength = graph.graphWidgetStyle.offsetLength
     $: thingSize = graph.graphWidgetStyle.thingSize
     $: betweenThingGap = graph.graphWidgetStyle.betweenThingGap
@@ -54,19 +56,19 @@
         {direction.text}
     </div>
     <svg class="relationship-image" style="width: {imageWidth}px; height: {imageHeight}px; transform: rotate({rotation}deg);">
-        <line style="stroke-width: 6; cursor: pointer;"
+        <line style="stroke-width: {6 / scale}; cursor: pointer;"
             x1="{childrenDimension * 0.5}" y1="{edgeToEdgeDimension}"
-            x2="{childrenDimension * 0.5}" y2="{edgeToEdgeDimension * 2 / 3 + 6}"
+            x2="{childrenDimension * 0.5}" y2="{edgeToEdgeDimension * 2 / 3 + 6 / scale}"
         />
-        <polygon style="cursor: pointer;"
-            points="{childrenDimension * 0.5 - 3},{edgeToEdgeDimension * 2 / 3 + 6} {childrenDimension * 0.5 + 3},{edgeToEdgeDimension * 2 / 3 + 6} {childrenDimension * 0.5},{edgeToEdgeDimension * 2 / 3}"
+        <polygon style="stroke-width: {3 / scale}; cursor: pointer;"
+            points="{childrenDimension * 0.5 - 3 / scale},{edgeToEdgeDimension * 2 / 3 + 6 / scale} {childrenDimension * 0.5 + 3 / scale},{edgeToEdgeDimension * 2 / 3 + 6 / scale} {childrenDimension * 0.5},{edgeToEdgeDimension * 2 / 3}"
         />
         {#each cohortMembersWithIndices as memberWithIndex}
-            <line style="stroke-dasharray: 1 5;"
+            <line style="stroke-width: {2 / scale}; stroke-dasharray: {1 / scale} {5 / scale};"
                 x1="{childrenDimension * 0.5}" y1="{edgeToEdgeDimension * 2 / 3}"
                 x2="{thingSize * 0.5 + (thingSize + betweenThingGap) * memberWithIndex.index}" y2="{edgeToEdgeDimension * 1 / 3}"
             />
-            <line style="stroke-width: 2;"
+            <line style="stroke-width: {2 / scale};"
                 x1="{thingSize * 0.5 + (thingSize + betweenThingGap) * memberWithIndex.index}" y1="{edgeToEdgeDimension * 1 / 3}"
                 x2="{thingSize * 0.5 + (thingSize + betweenThingGap) * memberWithIndex.index}" y2="0"
             />
@@ -96,7 +98,6 @@
     }
     
     .relationship-image polygon {
-        stroke-width: 3;
         fill:lightgrey;
     }
 </style>

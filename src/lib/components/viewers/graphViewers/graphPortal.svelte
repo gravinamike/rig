@@ -21,20 +21,104 @@
     // Initialize the Graph.
     let graph = new Graph(pThingIds, depth)
 
+    $: scale = 1.45 ** graph.graphWidgetStyle.zoom // 1.45 should be in constants as "zoomSensitivity", with a floor of 1.
+
     onMount(async () => {
         // Build the Graph.
         await graph.build()
         graph = graph // Needed for reactivity.
 	})
+
+
+
+
+
+
+
+    let portal: Element
+    let centralAnchor: Element
+    let zoomBounds: Element
+    let zoomPadding = 50
+
+    $: portalWidth = portal?.getBoundingClientRect().width || 0
+    $: portalHeight = portal?.getBoundingClientRect().height || 0
+
+    // The "Graph bounds" parameters are taken from real screen-space (taking graph
+    // scale into account). They describe the Graph as it's currently drawn.
+    let graphTop = 0
+    let graphRight = 0
+    let graphBottom = 0
+    let graphLeft = 0
+    let graphWidth = 0
+    let graphHeight = 0
+    let graphX = 0
+    let graphY = 0
+
+    // The "zoom bounds" parameters are in "scale-naive" space, calculated from the
+    // "Graph bounds".
+    let zoomBoundsX = 0
+    let zoomBoundsY = 0
+    let zoomBoundsWidth = 0
+    let zoomBoundsHeight = 0
+
+
+    function descendantElements(element: Element, descendants?: Element[]): Element[] {
+        if ( descendants === undefined ) descendants = []
+        for (var i = 0; i < element.children.length; i++) {
+            descendants.push(element.children[i])
+            descendantElements(element.children[i], descendants)
+        }
+        return descendants
+    }
+
+
+
+    function zoomToFit() {
+        // Get all elements in the Portal, except the zoom bounds element.
+        const descendants = descendantElements(centralAnchor)
+        const index = descendants.indexOf(zoomBounds)
+        if (index > -1) descendants.splice(index, 1)
+
+        // Set the Graph bounds (as the outer bounds of the above collection of elements).
+        graphTop = Math.min( ...descendants.map((descendant) => {return descendant.getBoundingClientRect().top}) )
+        graphRight = Math.max( ...descendants.map((descendant) => {return descendant.getBoundingClientRect().right}) )
+        graphBottom = Math.max( ...descendants.map((descendant) => {return descendant.getBoundingClientRect().bottom}) )
+        graphLeft = Math.min( ...descendants.map((descendant) => {return descendant.getBoundingClientRect().left}) )
+        graphWidth = graphRight - graphLeft
+        graphHeight = graphBottom - graphTop
+        graphX = graphLeft - centralAnchor?.getBoundingClientRect().x
+        graphY = graphTop - centralAnchor?.getBoundingClientRect().y
+
+        // Set the zoom bounds from the Graph bounds.
+        zoomBoundsX = (graphX - zoomPadding) / scale
+        zoomBoundsY = (graphY - zoomPadding) / scale
+        zoomBoundsWidth = (graphWidth + 2 * zoomPadding) / scale
+        zoomBoundsHeight = (graphHeight + 2 * zoomPadding) / scale
+
+        const scaleChangeX = portalWidth / (graphWidth + 2 * zoomPadding * scale)
+        const scaleChangeY = portalHeight / (graphHeight + 2 * zoomPadding * scale)
+        const scaleChange = Math.min(scaleChangeX, scaleChangeY)
+        const newScale = scaleChange * scale
+        const newZoom = Math.log(newScale) / Math.log(1.45)
+        graph.graphWidgetStyle.zoom = newZoom
+
+        // Figure out offset:
+        // Get the x/y of the centralAnchor.
+        // Determine the x/y offsets based on the distance of the centralAnchor from the edges of the descendantRect.
+        // Set the scrollbars based on those offsets.
+
+        //graph = graph // Needed for reactivity.
+    }
 </script>
 
 
 <main>
-
+    <button on:click={zoomToFit}>FIT</button>
     <!-- Graph-related viewers (Schematic and Settings) -->
     <Collapser
         headerText={"Graph"}
         contentDirection={"left"}
+        expanded={true}
     >
         <div class="tabs-container">
             <TabBlock>
@@ -85,8 +169,21 @@
 
     <!-- Graph Portal -->
     <div class="portal-container">
-        <div class="portal">
-            <div class="centralAnchor">
+        <div
+            class="portal"
+            bind:this={portal}
+        >
+            <div
+                class="central-anchor"
+                bind:this={centralAnchor}
+                style="scale: {scale};"
+            >
+                <div
+                    class="zoom-bounds"
+                    bind:this={zoomBounds}
+                    style="left: {zoomBoundsX}px; top: {zoomBoundsY}px; width: {zoomBoundsWidth}px; height: {zoomBoundsHeight}px;"
+                />
+                
                 {#if graph.rootCohort}
                     <CohortWidget
                         cohort={graph.rootCohort}
@@ -94,6 +191,7 @@
                     />
                 {/if}
             </div>
+
             <div class="plane-controls-container">
                 <PlaneControls
                     bind:graph
@@ -170,10 +268,16 @@
         user-select: none;
     }
 
-    .centralAnchor {
+    .central-anchor {
         position: relative;
         width: 0px;
         height: 0px;
+    }
+
+    .zoom-bounds {
+        outline: solid 1px black;
+
+        position: absolute; 
     }
 
     .plane-controls-container {
