@@ -21,6 +21,8 @@
     // Initialize the Graph.
     let graph = new Graph(pThingIds, depth)
 
+    $: if (graph.allowZoomAndScrollToFit) zoomAndScroll()
+
     $: scale = 1.45 ** graph.graphWidgetStyle.zoom // 1.45 should be in constants as "zoomSensitivity", with a floor of 1.
 
     onMount(async () => {
@@ -31,17 +33,10 @@
 
 
 
-
-
-
-
     let portal: Element
     let centralAnchor: Element
     let zoomBounds: Element
     let zoomPadding = 50
-
-    $: portalWidth = portal?.getBoundingClientRect().width || 0
-    $: portalHeight = portal?.getBoundingClientRect().height || 0
 
     // The "Graph bounds" parameters are taken from real screen-space (taking graph
     // scale into account). They describe the Graph as it's currently drawn.
@@ -71,49 +66,62 @@
         return descendants
     }
 
-
-
-    function zoomToFit() {
+    function updateGraphBounds() {
         // Get all elements in the Portal, except the zoom bounds element.
         const descendants = descendantElements(centralAnchor)
         const index = descendants.indexOf(zoomBounds)
         if (index > -1) descendants.splice(index, 1)
 
         // Set the Graph bounds (as the outer bounds of the above collection of elements).
-        graphTop = Math.min( ...descendants.map((descendant) => {return descendant.getBoundingClientRect().top}) )
-        graphRight = Math.max( ...descendants.map((descendant) => {return descendant.getBoundingClientRect().right}) )
-        graphBottom = Math.max( ...descendants.map((descendant) => {return descendant.getBoundingClientRect().bottom}) )
-        graphLeft = Math.min( ...descendants.map((descendant) => {return descendant.getBoundingClientRect().left}) )
+        graphTop = descendants.length ?
+            Math.min( ...descendants.map((descendant) => {return descendant.getBoundingClientRect().top}) ) : 
+            0
+        graphRight = descendants.length ?
+            Math.max( ...descendants.map((descendant) => {return descendant.getBoundingClientRect().right}) ) :
+            0
+        graphBottom = descendants.length ?
+            Math.max( ...descendants.map((descendant) => {return descendant.getBoundingClientRect().bottom}) ) :
+            0
+        graphLeft = descendants.length ?
+            Math.min( ...descendants.map((descendant) => {return descendant.getBoundingClientRect().left}) ) :
         graphWidth = graphRight - graphLeft
         graphHeight = graphBottom - graphTop
-        graphX = graphLeft - centralAnchor?.getBoundingClientRect().x
-        graphY = graphTop - centralAnchor?.getBoundingClientRect().y
+        graphX = graphLeft - centralAnchor.getBoundingClientRect().x
+        graphY = graphTop - centralAnchor.getBoundingClientRect().y
+    }
+
+    function zoomToFit() {
+        updateGraphBounds()
 
         // Set the zoom bounds from the Graph bounds.
-        zoomBoundsX = (graphX - zoomPadding) / scale
-        zoomBoundsY = (graphY - zoomPadding) / scale
-        zoomBoundsWidth = (graphWidth + 2 * zoomPadding) / scale
-        zoomBoundsHeight = (graphHeight + 2 * zoomPadding) / scale
+        zoomBoundsX = graphX / scale - zoomPadding
+        zoomBoundsY = graphY / scale - zoomPadding
+        zoomBoundsWidth = graphWidth / scale + 2 * zoomPadding
+        zoomBoundsHeight = graphHeight / scale + 2 * zoomPadding
 
-        const scaleChangeX = portalWidth / (graphWidth + 2 * zoomPadding * scale)
-        const scaleChangeY = portalHeight / (graphHeight + 2 * zoomPadding * scale)
+        const scaleChangeX = portal.getBoundingClientRect().width / (zoomBoundsWidth * scale)
+        const scaleChangeY = portal.getBoundingClientRect().height / (zoomBoundsHeight * scale)
         const scaleChange = Math.min(scaleChangeX, scaleChangeY)
+
         const newScale = scaleChange * scale
         const newZoom = Math.log(newScale) / Math.log(1.45)
         graph.graphWidgetStyle.zoom = newZoom
+    }
 
-        // Figure out offset:
-        // Get the x/y of the centralAnchor.
-        // Determine the x/y offsets based on the distance of the centralAnchor from the edges of the descendantRect.
-        // Set the scrollbars based on those offsets.
+    function scrollToCenter() {
+        updateGraphBounds()
+        zoomBounds.scrollIntoView({behavior: "smooth", block: "center", inline: "center"})
+    }
 
-        //graph = graph // Needed for reactivity.
+    async function zoomAndScroll() {
+        await zoomToFit()
+        await scrollToCenter()
+        graph.allowZoomAndScrollToFit = false
     }
 </script>
 
 
 <main>
-    <button on:click={zoomToFit}>FIT</button>
     <!-- Graph-related viewers (Schematic and Settings) -->
     <Collapser
         headerText={"Graph"}
@@ -275,8 +283,6 @@
     }
 
     .zoom-bounds {
-        outline: solid 1px black;
-
         position: absolute; 
     }
 

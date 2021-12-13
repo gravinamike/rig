@@ -19,6 +19,7 @@ export class Graph {
     focalPlaneId = 0
     graphWidgetStyle: GraphWidgetStyle = defaultGraphWidgetStyle
     perspectiveHistory: { timestamp: Date, thingId: number }[] = []
+    allowZoomAndScrollToFit = false
 
     /**
      * Create a Graph.

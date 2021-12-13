@@ -7,6 +7,7 @@
 
     async function setGraphDepth() {
         await graph.adjustGenerationsToDepth()
+        graph.allowZoomAndScrollToFit = true
         graph = graph // Needed for reactivity.
     }
 
