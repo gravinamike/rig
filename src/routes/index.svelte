@@ -18,7 +18,6 @@
         // App constructs are stored when the app is initialized.
         storeConfig()
 
-        // Graph constructs which are small in number (Directions, Spaces) are stored
         // when the app is initialized, rather than when each Graph is initialized.
         await storeGraphConstructs("Direction")
         await storeGraphConstructs("Space")

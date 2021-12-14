@@ -200,11 +200,13 @@
                 {/if}
             </div>
 
-            <div class="plane-controls-container">
-                <PlaneControls
-                    bind:graph
-                />
-            </div>
+            {#if Object.keys(graph.planes).length > 1}
+                <div class="plane-controls-container">
+                    <PlaneControls
+                        bind:graph
+                    />
+                </div>
+            {/if}
         </div>
     </div>
 
