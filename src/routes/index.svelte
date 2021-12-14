@@ -12,7 +12,8 @@
     import ThingsStoreView from "$lib/components/viewers/storeViewers/thingsStoreView.svelte"
     import GraphPortal from "$lib/components/viewers/graphViewers/graphPortal.svelte"
     
-    
+    let graphConstructsStored = false
+
     onMount(async () => {
         // App constructs are stored when the app is initialized.
         storeConfig()
@@ -21,6 +22,7 @@
         // when the app is initialized, rather than when each Graph is initialized.
         await storeGraphConstructs("Direction")
         await storeGraphConstructs("Space")
+        graphConstructsStored = true
 	})
 </script>
 
@@ -56,11 +58,13 @@
         </div>
     </Collapser>
 
-    <!-- Graph Portal. --> 
-    <GraphPortal
-        pThingIds={startingPThingIds}
-        depth={startingGraphDepth}
-    />
+    <!-- Graph Portal. -->
+    {#if graphConstructsStored}
+        <GraphPortal
+            pThingIds={startingPThingIds}
+            depth={startingGraphDepth}
+        />
+    {/if}
 
 </main>
 
