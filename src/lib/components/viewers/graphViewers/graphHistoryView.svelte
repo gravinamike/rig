@@ -75,6 +75,7 @@
         await graph.pThingIds([thingId]) // Re-Perspect to this Thing.
         graph.addEntriesToHistory([thingId]) // Add this Thing to the History.
         hoveredThingIdStore.set(null) // Clear the hovered-Thing highlighting.
+        graph.allowZoomAndScrollToFit = true
         graph = graph // Needed for reactivity.
     }
 </script>

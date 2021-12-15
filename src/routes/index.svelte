@@ -72,6 +72,8 @@
     main {
         display: flex;
         flex-direction: row;
+
+        overflow: hidden;
     }
 
     .tabs-container {

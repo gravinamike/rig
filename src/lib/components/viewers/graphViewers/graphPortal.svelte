@@ -28,6 +28,7 @@
     onMount(async () => {
         // Build the Graph.
         await graph.build()
+        graph.allowZoomAndScrollToFit = true
         graph = graph // Needed for reactivity.
 	})
 
@@ -84,6 +85,7 @@
             0
         graphLeft = descendants.length ?
             Math.min( ...descendants.map((descendant) => {return descendant.getBoundingClientRect().left}) ) :
+            0
         graphWidth = graphRight - graphLeft
         graphHeight = graphBottom - graphTop
         graphX = graphLeft - centralAnchor.getBoundingClientRect().x
@@ -181,24 +183,29 @@
             class="portal"
             bind:this={portal}
         >
-            <div
-                class="central-anchor"
-                bind:this={centralAnchor}
+            <div 
+                class="portal-backfield"
                 style="scale: {scale};"
             >
                 <div
-                    class="zoom-bounds"
-                    bind:this={zoomBounds}
-                    style="left: {zoomBoundsX}px; top: {zoomBoundsY}px; width: {zoomBoundsWidth}px; height: {zoomBoundsHeight}px;"
-                />
-                
-                {#if graph.rootCohort}
-                    <CohortWidget
-                        cohort={graph.rootCohort}
-                        bind:graph
+                    class="central-anchor"
+                    bind:this={centralAnchor}
+                >
+                    <div
+                        class="zoom-bounds"
+                        bind:this={zoomBounds}
+                        style="left: {zoomBoundsX}px; top: {zoomBoundsY}px; width: {zoomBoundsWidth}px; height: {zoomBoundsHeight}px;"
                     />
-                {/if}
+                    
+                    {#if graph.rootCohort}
+                        <CohortWidget
+                            cohort={graph.rootCohort}
+                            bind:graph
+                        />
+                    {/if}
+                </div>
             </div>
+            
 
             {#if Object.keys(graph.planes).length > 1}
                 <div class="plane-controls-container">
@@ -222,7 +229,8 @@
 
 <style>
     main {
-        flex-grow: 1;
+        flex: 1 1 auto;
+        min-width: 0;
 
         position: relative;
 
@@ -257,7 +265,8 @@
     }
 
     .portal-container {
-        flex-grow: 1;
+        flex: 1 1 auto;
+        min-width: 0;
 
         outline: solid 1px lightgrey;
         outline-offset: -1px;
@@ -269,13 +278,18 @@
         width: 100%;
         height: 100%;
 
-        overflow: auto;
+        overflow: scroll;
+        
+        user-select: none;
+    }
+
+    .portal-backfield {
+        width: 2000px;
+        height: 2000px;
 
         display: flex;
         justify-content: center;
         align-items: center;
-        
-        user-select: none;
     }
 
     .central-anchor {
@@ -285,7 +299,7 @@
     }
 
     .zoom-bounds {
-        position: absolute; 
+        position: absolute;
     }
 
     .plane-controls-container {
