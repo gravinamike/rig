@@ -120,6 +120,21 @@
         await scrollToCenter()
         graph.allowZoomAndScrollToFit = false
     }
+
+
+    let tracking = false
+    let prevLocation: { x: number | null, y: number | null } = { x: null, y: null }
+
+    function handleMouseMove(event: MouseEvent) {
+        if (tracking && prevLocation.x && prevLocation.y) {
+            let deltaX = event.clientX - prevLocation.x
+            let deltaY = event.clientY - prevLocation.y
+            portal.scrollLeft = (portal.scrollLeft - deltaX)
+            portal.scrollTop = (portal.scrollTop - deltaY)
+        }
+        prevLocation.x = event.clientX
+        prevLocation.y = event.clientY
+    }
 </script>
 
 
@@ -182,14 +197,15 @@
         <div
             class="portal"
             bind:this={portal}
+            on:mousedown={() => tracking = true}
+            on:mouseup={() => tracking = false}
+            on:mousemove={handleMouseMove}
         >
-            <div 
-                class="portal-backfield"
-                style="scale: {scale};"
-            >
+            <div class="portal-backfield">
                 <div
                     class="central-anchor"
                     bind:this={centralAnchor}
+                    style="scale: {scale};"
                 >
                     <div
                         class="zoom-bounds"
@@ -278,14 +294,14 @@
         width: 100%;
         height: 100%;
 
-        overflow: scroll;
+        overflow: hidden;
         
         user-select: none;
     }
 
     .portal-backfield {
-        width: 2000px;
-        height: 2000px;
+        width: 3000px;
+        height: 3000px;
 
         display: flex;
         justify-content: center;
