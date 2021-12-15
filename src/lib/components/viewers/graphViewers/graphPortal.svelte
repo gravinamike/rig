@@ -26,6 +26,7 @@
     $: scale = 1.45 ** graph.graphWidgetStyle.zoom // 1.45 should be in constants as "zoomSensitivity", with a floor of 1.
 
     onMount(async () => {
+        scrollToCenter(false)
         // Build the Graph.
         await graph.build()
         graph.allowZoomAndScrollToFit = true
@@ -110,9 +111,9 @@
         graph.graphWidgetStyle.zoom = newZoom
     }
 
-    function scrollToCenter() {
+    function scrollToCenter(smooth: boolean = true) {
         updateGraphBounds()
-        zoomBounds.scrollIntoView({behavior: "smooth", block: "center", inline: "center"})
+        zoomBounds.scrollIntoView({behavior: smooth ? "smooth" : "auto", block: "center", inline: "center"})
     }
 
     async function zoomAndScroll() {
@@ -134,6 +135,11 @@
         }
         prevLocation.x = event.clientX
         prevLocation.y = event.clientY
+    }
+
+    function wheelScroll(event: WheelEvent) {
+        const newZoom = graph.graphWidgetStyle.zoom + event.deltaY * -0.005
+        if (-5 <= newZoom && newZoom <= 5) graph.graphWidgetStyle.zoom = newZoom
     }
 </script>
 
@@ -200,6 +206,7 @@
             on:mousedown={() => tracking = true}
             on:mouseup={() => tracking = false}
             on:mousemove={handleMouseMove}
+            on:wheel|preventDefault={(event) => {wheelScroll(event)}}
         >
             <div class="portal-backfield">
                 <div
