@@ -1,6 +1,9 @@
 <script context="module" lang="ts">
-    import type { Direction, Space } from "$lib/shared/graph/graphDbConstructs"
-    import type { GenerationMember, Cohort, Graph } from "$lib/shared/graph/graph"
+    import type { Direction, Space } from "$lib/shared/graph/dbConstructs"
+    import type { Graph } from "$lib/shared/graph/graph"
+    import type { GenerationMember } from "$lib/shared/graph/generation"
+    import type { Cohort } from "$lib/shared/graph/cohort"
+
     import { rotationByHalfAxisId, offsetsByHalfAxisId } from "$lib/shared/constants"
     import { retrieveGraphConstructs } from "$lib/shared/stores/graphStores"
 </script>

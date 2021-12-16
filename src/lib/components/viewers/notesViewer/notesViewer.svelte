@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { Graph } from "$lib/shared/graph/graph"
-    import type { Thing } from "$lib/shared/graph/graphDbConstructs"
+    import type { Thing } from "$lib/shared/graph/dbConstructs"
     import { thingsStore, retrieveGraphConstructs, graphConstructInStore } from "$lib/shared/stores/graphStores"
     import Toggle from "$lib/components/layoutElements/toggle.svelte"
     import NotesEditor from "$lib/components/viewers/notesViewer/notesEditor.svelte"
@@ -11,7 +11,7 @@
     let editable: false
 
     let pThingIds: number[] | null = null
-    $: graph.pThingIds().then(ids => pThingIds = ids)
+    $: pThingIds = graph.pThingIds
     $: pThingId = pThingIds && pThingIds.length ? pThingIds[0] : null
     $: pThing = pThingId && $thingsStore && graphConstructInStore("Thing", pThingId) ?
         retrieveGraphConstructs<Thing>("Thing", pThingId) :

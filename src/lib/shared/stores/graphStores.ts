@@ -1,7 +1,7 @@
 import type { Writable } from "svelte/store"
-import type { GraphConstruct, Direction, Space, Thing } from "$lib/shared/graph/graphDbConstructs"
+import type { GraphConstruct, Direction, Space, Thing } from "$lib/shared/graph/dbConstructs"
 import { writable, derived } from "svelte/store"
-import { isDirection, isSpace, isThing } from "$lib/shared/graph/graphDbConstructs"
+import { isDirection, isSpace, isThing } from "$lib/shared/graph/dbConstructs"
 
 
 // Create Direction-related stores (and subscriptions where applicable).

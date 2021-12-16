@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { Graph } from "$lib/shared/graph/graph"
-    import type { Thing } from "$lib/shared/graph/graphDbConstructs"
+    import type { Thing } from "$lib/shared/graph/dbConstructs"
     import { hoveredThingIdStore } from "$lib/shared/stores/appStores";
     import { retrieveGraphConstructs, graphConstructInStore } from "$lib/shared/stores/graphStores"
     import Toggle from "$lib/components/layoutElements/toggle.svelte"
@@ -72,7 +72,7 @@
     hoveredThingIdStore.subscribe(value => {hoveredThingIdStoreValue = value})
 
     async function handleClick(thingId: number) {
-        await graph.pThingIds([thingId]) // Re-Perspect to this Thing.
+        await graph.setPThingIds([thingId]) // Re-Perspect to this Thing.
         graph.addEntriesToHistory([thingId]) // Add this Thing to the History.
         hoveredThingIdStore.set(null) // Clear the hovered-Thing highlighting.
         graph.allowZoomAndScrollToFit = true

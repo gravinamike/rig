@@ -1,11 +1,12 @@
-import type { HalfAxisId, GraphWidgetStyle } from "$lib/shared/constants"
-import type { Thing } from "$lib/shared/graph/graphDbConstructs"
+import type { GraphWidgetStyle } from "$lib/shared/constants"
+import type { Thing } from "$lib/shared/graph/dbConstructs"
 
-import { defaultGraphWidgetStyle, offsetsByHalfAxisId } from "$lib/shared/constants"
-import { storeGraphConstructs, graphConstructInStore, thingIdsNotFoundStore } from "$lib/shared/stores/graphStores"
+import { defaultGraphWidgetStyle } from "$lib/shared/constants"
+import { storeGraphConstructs, graphConstructInStore } from "$lib/shared/stores/graphStores"
+import { Generation } from "$lib/shared/graph/generation"
+import { Cohort } from "$lib/shared/graph/cohort"
+import { Plane } from "$lib/shared/graph/plane"
 import { ThingWidgetModel, ThingPlaceholderWidgetModel } from "$lib/shared/graph/graphWidgets"
-
-export type GenerationMember = ThingWidgetModel | ThingPlaceholderWidgetModel
 
 
 /** Class representing a Graph. */
@@ -34,26 +35,12 @@ export class Graph {
 
     /* Basic informational methods. */
 
-    async pThingIds(): Promise<number[]>
-    async pThingIds( pThingIds: number[] ): Promise<void>
-    async pThingIds( pThingIds?: number[] ): Promise<number[] | void> {
-        if ( pThingIds === undefined ) {
-            return this._pThingIds
-        } else {
-            this._pThingIds = pThingIds
-            await this.build()
-        }
+    get pThingIds(): number[] {
+        return this._pThingIds
     }
 
-    async depth(): Promise<number | null>
-    async depth( depth: number ): Promise<void>
-    async depth( depth?: number ): Promise<number | null | void> {
-        if ( depth === undefined ) {
-            return this._depth
-        } else {
-            this._depth = depth
-            await this.adjustGenerationsToDepth()
-        }
+    get depth(): number | null {
+        return this._depth
     }
 
     /**
@@ -61,15 +48,29 @@ export class Graph {
      * @param  {number} generationId - The ID of the Generation to retrieve.
      * @return {Generation | null}   - The specified Generation (or null if it doesn't exist).
      */
-    generation( generationId: number ): Generation | null {
+    generationById( generationId: number ): Generation | null {
         const generation = 0 <= generationId && generationId < this.generations.length ? this.generations[generationId] : null
         return generation
     }
 
-    thingWidgetModels(): ThingWidgetModel[] {
+    get thingWidgetModels(): ThingWidgetModel[] {
         const thingWidgetModels = this.generations.map(generation => generation.thingWidgetModels()).flat()
         return thingWidgetModels
     }
+
+
+    /* Basic setter methods. */
+
+    async setPThingIds(pThingIds: number[]): Promise<void> {
+        this._pThingIds = pThingIds
+        await this.build()
+    }
+
+    async setDepth(depth: number): Promise<void> {
+        this._depth = depth
+        await this.adjustGenerationsToDepth()
+    }
+
 
 
     /* Informational methods for building and stripping. */
@@ -137,12 +138,12 @@ export class Graph {
         await this.connectNextGenerationThings();
 
         // Mark the Generation as built.
-        (this.generation(this.generationIdToBuild) as Generation).lifecycleStatus = "built"
+        (this.generationById(this.generationIdToBuild) as Generation).lifecycleStatus = "built"
     }
 
     async storeNextGenerationThings(): Promise<void> {
         // Filter out Thing IDs already represented in the Graph (to avoid recursion).
-        const thingIdsOfGraph = this.thingWidgetModels().map(thingWidgetModel => thingWidgetModel.thingId)
+        const thingIdsOfGraph = this.thingWidgetModels.map(thingWidgetModel => thingWidgetModel.thingId)
         const thingIdsToStore = this.thingIdsForGeneration(this.generationIdToBuild).filter( id => !thingIdsOfGraph.includes(id) )
 
         // Store Things from the IDs.
@@ -157,8 +158,8 @@ export class Graph {
      * Add a Generation to the Graph (containing supplied Generation Members).
      * @param {GenerationMember[]} members - Thing Widget Models (and/or Thing Widget Placeholder Models) that will constitute the Generation.
      */
-     async addGeneration(): Promise<void> {
-        const membersForGeneration = await this.thingIdsForGeneration(this.generationIdToBuild).map(
+    async addGeneration(): Promise<void> {
+        const membersForGeneration = this.thingIdsForGeneration(this.generationIdToBuild).map(
             id => { return graphConstructInStore("Thing", id) ? new ThingWidgetModel(id) : new ThingPlaceholderWidgetModel(id) }
         )
 
@@ -172,7 +173,7 @@ export class Graph {
      * the child Cohorts of the Things in the previous generation.
      */
     async connectNextGenerationThings(): Promise<void> {
-        const generation = this.generation(this.generationIdToBuild) as Generation
+        const generation = this.generationById(this.generationIdToBuild) as Generation
 
         // For Generation 0, add the Things to a pre-Graph "root" Cohort that will
         // serve as the starting point of the Graph.
@@ -220,7 +221,7 @@ export class Graph {
      * @param {number} generationId - The ID of the Generation to which the Cohort will be added.
      */
     addCohortToGeneration( cohort: Cohort, generationId: number ): void {
-        const generation = this.generation(generationId)
+        const generation = this.generationById(generationId)
         if (!generation) {
             return
         } else {
@@ -229,27 +230,13 @@ export class Graph {
     }
 
     /**
-     * Add a Cohort to the Graph's Planes by ID.
+     * Add a Cohort to the Graph's Planes by ID (creating the Plane if necessary).
      * @param {Cohort} cohort - The Cohort which will be added to the Plane.
      * @param {number} planeId - The ID of the Plane to which the Cohort will be added.
      */
     addCohortToPlane( cohort: Cohort, planeId: number ): void {
-        if (!(planeId in this.planes)) this.planes[planeId] = new Plane(planeId)
+        if (!(planeId in this.planes)) this.planes[planeId] = new Plane(planeId, this)
         this.planes[planeId].addCohort(cohort)
-    }
-
-    /**
-     * Remove a Cohort from the Graph's Planes.
-     * @param {Cohort} cohort - The Cohort which will be removed from the Plane.
-     */
-    removeCohortFromPlane( cohort: Cohort ): void {
-        if (!cohort.plane) return
-        const plane = cohort.plane
-
-        const index = plane.cohorts.indexOf(cohort)
-        if (index > -1) plane.cohorts.splice(index, 1)
-
-        if (!plane.cohorts.length) delete this.planes[plane.id]
     }
 
     addEntriesToHistory( thingIds: number | number[] ): void {
@@ -262,7 +249,7 @@ export class Graph {
     }
 
     async stripGeneration(): Promise<void> {
-        const generationToStrip = this.generation(this.generationIdToStrip)
+        const generationToStrip = this.generationById(this.generationIdToStrip)
 
         if (!generationToStrip) {
             return
@@ -301,123 +288,5 @@ export class Graph {
             }
             difference = this.generations.length - (this._depth + 1)
         }
-    }
-}
-
-
-// Generation.
-export class Generation {
-    kind = "generation"
-
-    graph: Graph
-    id: number
-    members: GenerationMember[]
-    cohorts: Cohort[] = []
-    lifecycleStatus: "new" | "building" | "built" | "stripping" | "stripped" = "new"
-
-    constructor(graph: Graph, members: GenerationMember[]) {
-        this.graph = graph
-        this.id = graph.generationIdToBuild
-        this.members = members
-    }
-
-    get parentGeneration(): Generation | null {
-        if (this.id === 0) {
-            return null
-        } else {
-            return this.graph.generation(this.id - 1)
-        }
-    }
-
-    get membersById(): { [memberId: number]: GenerationMember } {
-        const membersById: { [memberId: number]: GenerationMember } = {}
-        for (const member of this.members) membersById[member.thingId] = member
-        return membersById
-    }
-
-    thingWidgetModels(): ThingWidgetModel[] {
-        const thingWidgetModels = this.members.filter(member => member.kind === "thingWidgetModel") as ThingWidgetModel[]
-        return thingWidgetModels
-    }
-}
-
-
-// Cohort.
-type CohortAddress = {
-    graph: Graph,
-    generationId: number,
-    parentThingWidgetModel: ThingWidgetModel | null,
-    halfAxisId: HalfAxisId | null
-}
-
-export class Cohort {
-    kind = "cohort"
-
-    address: CohortAddress
-    members: GenerationMember[]
-    encapsulatingDepth: number
-    plane: Plane | null = null
-
-    constructor(address: CohortAddress, members: GenerationMember[]) {
-        this.address = address
-        this.members = members
-        for (const member of members) member.parentCohort = this
-
-        // Plane.
-        let planeId: number
-        if (!this.address) {
-            planeId = 0
-        } else {
-            const parentPlaneId = this.parentCohort()?.plane?.id || 0
-            const changeInPlane = offsetsByHalfAxisId[this.address?.halfAxisId || 0][2]
-            planeId = parentPlaneId + changeInPlane
-        }
-        this.address.graph.addCohortToGeneration(this, this.address.generationId)
-        this.address.graph.addCohortToPlane(this, planeId)
-
-        // Encapsulation depth.
-        const parentEncapsulatingDepth = this.parentCohort()?.encapsulatingDepth || 0
-        const changeInEncapsulatingDepth = offsetsByHalfAxisId[this.address?.halfAxisId || 0][3]
-        this.encapsulatingDepth = parentEncapsulatingDepth + changeInEncapsulatingDepth
-    }
-
-    parentCohort(): Cohort | null {
-        return this.address.parentThingWidgetModel?.parentCohort || null
-    }
-
-    indexOfMember(member: GenerationMember): number | null {
-        const index = this.members.indexOf(member)
-        const output = index !== -1 ? index : null
-        return output
-    }
-
-    removeFromGroups(): void {
-        const generation = this.address.graph.generation(this.address.generationId)
-        if (generation) {
-            const index = generation.cohorts.indexOf(this)
-            if (index > -1) generation.cohorts.splice(index, 1)
-        }
-        if (this.plane) {
-            //const index = this.plane.cohorts.indexOf(this)
-            //if (index > -1) this.plane.cohorts.splice(index, 1)
-            this.address.graph.removeCohortFromPlane(this)
-        }
-    }
-
-}
-
-export class Plane {
-    kind = "plane"
-
-    id: number
-    cohorts: Cohort[] = []
-
-    constructor(id: number) {
-        this.id = id
-    }
-
-    addCohort(cohort: Cohort): void {
-        this.cohorts.push(cohort)
-        cohort.plane = this
     }
 }

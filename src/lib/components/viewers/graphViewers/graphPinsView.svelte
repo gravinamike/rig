@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { Graph } from "$lib/shared/graph/graph"
-    import type { Thing } from "$lib/shared/graph/graphDbConstructs"
+    import type { Thing } from "$lib/shared/graph/dbConstructs"
     import { pinIdsStore } from "$lib/shared/stores/appStores"
     import { storeGraphConstructs, graphConstructInStore, retrieveGraphConstructs } from "$lib/shared/stores/graphStores"
     import PinsViewerWidget from "$lib/components/viewers/graphViewers/pinsViewerWidget.svelte"

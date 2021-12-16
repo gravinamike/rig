@@ -1,5 +1,7 @@
 <script context="module" lang="ts">
-    import type { Graph, Cohort } from "$lib/shared/graph/graph"
+    import type { Graph } from "$lib/shared/graph/graph"
+    import type { Cohort } from "$lib/shared/graph/cohort"
+
     import { offsetsByHalfAxisId } from "$lib/shared/constants"
 </script>
 

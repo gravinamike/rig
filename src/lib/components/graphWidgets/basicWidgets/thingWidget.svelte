@@ -36,7 +36,7 @@
     let lockDetails = false
 
     async function handleClick() {
-        await graph.pThingIds([thingId]) // Re-Perspect to this Thing.
+        await graph.setPThingIds([thingId]) // Re-Perspect to this Thing.
         graph.addEntriesToHistory([thingId]) // Add this Thing to the History.
         hoveredThingIdStore.set(null) // Clear the hovered-Thing highlighting.
         graph.allowZoomAndScrollToFit = true

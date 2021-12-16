@@ -1,6 +1,8 @@
 import type { HalfAxisId } from "$lib/shared/constants"
-import type { Space, Thing, Note } from "$lib/shared/graph/graphDbConstructs"
-import type { Cohort, Graph } from "$lib/shared/graph/graph"
+import type { Space, Thing, Note } from "$lib/shared/graph/dbConstructs"
+import type { Graph } from "$lib/shared/graph/graph"
+import type { Cohort } from "$lib/shared/graph/cohort"
+
 import { oddHalfAxisIds } from "$lib/shared/constants"
 import { graphConstructInStore, retrieveGraphConstructs } from "$lib/shared/stores/graphStores"
 

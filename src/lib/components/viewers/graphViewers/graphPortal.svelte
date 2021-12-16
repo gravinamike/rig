@@ -93,7 +93,7 @@
         graphY = graphTop - centralAnchor.getBoundingClientRect().y
     }
 
-    function zoomToFit() {
+    async function zoomToFit(): Promise<void> {
         updateGraphBounds()
 
         // Set the zoom bounds from the Graph bounds.
@@ -111,7 +111,7 @@
         graph.graphWidgetStyle.zoom = newZoom
     }
 
-    function scrollToCenter(smooth: boolean = true) {
+    async function scrollToCenter(smooth: boolean = true): Promise<void> {
         updateGraphBounds()
         zoomBounds.scrollIntoView({behavior: smooth ? "smooth" : "auto", block: "center", inline: "center"})
     }
