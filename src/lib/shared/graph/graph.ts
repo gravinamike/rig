@@ -111,6 +111,11 @@ export class Graph {
         return thingIdsForGeneration
     }
 
+
+
+
+
+
     
     /* Methods for building/stripping. */
 
@@ -127,53 +132,32 @@ export class Graph {
         this.addEntriesToHistory(this._pThingIds)
     }
 
-    async buildGeneration(): Promise<void> {
-        // Store Things for new Generation.
-        await this.storeNextGenerationThings()
-
-        // Add a new Generation to the Graph, containing the corresponding Thing Widget Models (or Placeholders).
-        await this.addGeneration()
-
-        // Wrap the Thing Widget Models (or Placeholders) in Cohorts of the previous Generation's Thing Widget Models.
-        await this.connectNextGenerationThings();
-
-        // Mark the Generation as built.
-        (this.generationById(this.generationIdToBuild) as Generation).lifecycleStatus = "built"
-    }
-
-    async storeNextGenerationThings(): Promise<void> {
-        // Filter out Thing IDs already represented in the Graph (to avoid recursion).
-        const thingIdsOfGraph = this.thingWidgetModels.map(thingWidgetModel => thingWidgetModel.thingId)
-        const thingIdsToStore = this.thingIdsForGeneration(this.generationIdToBuild).filter( id => !thingIdsOfGraph.includes(id) )
-
-        // Store Things from the IDs.
-        const storedThings = await storeGraphConstructs<Thing>("Thing", thingIdsToStore)
-        const storedThingsById: { [thingId: number]: Thing } = {}
-        storedThings.forEach(
-            storedThing => storedThingsById[storedThing.id] = storedThing
-        )
+    async adjustGenerationsToDepth(): Promise<void> {
+        let difference = this.generations.length - (this._depth + 1)
+        while (difference) {
+            if (difference < 0) {
+                await this.buildGeneration()
+            } else {
+                await this.stripGeneration()
+            }
+            difference = this.generations.length - (this._depth + 1)
+        }
     }
 
     /**
-     * Add a Generation to the Graph (containing supplied Generation Members).
-     * @param {GenerationMember[]} members - Thing Widget Models (and/or Thing Widget Placeholder Models) that will constitute the Generation.
+     * Build a new Generation onto the Graph.
      */
-    async addGeneration(): Promise<void> {
+     async buildGeneration(): Promise<void> {
+        // Store Things for new Generation.
+        await this.storeNextGenerationThings()
+
         const membersForGeneration = this.thingIdsForGeneration(this.generationIdToBuild).map(
             id => { return graphConstructInStore("Thing", id) ? new ThingWidgetModel(id) : new ThingPlaceholderWidgetModel(id) }
         )
 
-        this.generations.push(new Generation(this, membersForGeneration))
-        //console.log(`Generation ${generationIdToBuild} added.`)
-    }
-
-    /* A Generation is just a list of Things and Placeholders. But the
-     * Things are related across Generations. After building each
-     * Generation, the Things in that Generation are used to fill in
-     * the child Cohorts of the Things in the previous generation.
-     */
-    async connectNextGenerationThings(): Promise<void> {
-        const generation = this.generationById(this.generationIdToBuild) as Generation
+        // Add the new, empty Generation.
+        const newGeneration = new Generation(this)
+        this.generations.push(newGeneration)
 
         // For Generation 0, add the Things to a pre-Graph "root" Cohort that will
         // serve as the starting point of the Graph.
@@ -184,7 +168,7 @@ export class Graph {
                 parentThingWidgetModel: null,
                 halfAxisId: null
             }
-            this.rootCohort = new Cohort(addressForCohort, generation.members)
+            this.rootCohort = new Cohort(addressForCohort, membersForGeneration)
             this.addCohortToPlane(this.rootCohort, 0)
 
         // For all Generations after 0, hook up that Generation's members, packaged in
@@ -192,7 +176,7 @@ export class Graph {
         } else {
 
             // For each Thing (not Placeholder) in the previous Generation,
-            for (const prevThingWidgetModel of generation.parentGeneration?.thingWidgetModels() || []) {
+            for (const prevThingWidgetModel of newGeneration.parentGeneration?.thingWidgetModels() || []) {
                 
                 // For the ID of each half-axis from that Thing,
                 for (const halfAxisId of prevThingWidgetModel.relatedThingHalfAxisIds) {
@@ -206,27 +190,30 @@ export class Graph {
                     // Get list of the Things in that half axis' Cohort.
                     const childCohortThingIds = prevThingWidgetModel.relatedThingIdsByHalfAxisId(halfAxisId)
                     // Add the members from this Generation matching those IDs as a new Cohort on that half-axis.
-                    const membersForCohort = childCohortThingIds.map(id => generation.membersById[id])
+                    const membersForCohort = membersForGeneration.filter((member) => {if (childCohortThingIds.includes(member.thingId)) return true})
                     const childCohort = new Cohort(addressForCohort, membersForCohort)
                     // Populate the Cohort for the previous Generation's Thing in that Direction from that list.
                     prevThingWidgetModel.childCohort(halfAxisId, childCohort)
                 }
             }
         }
+
+        // Mark the Generation as built.
+        newGeneration.lifecycleStatus = "built"
     }
 
-    /**
-     * Add a Cohort to the Graph's Generations by ID.
-     * @param {Cohort} cohort - The Cohort which will be added to the Generation.
-     * @param {number} generationId - The ID of the Generation to which the Cohort will be added.
-     */
-    addCohortToGeneration( cohort: Cohort, generationId: number ): void {
-        const generation = this.generationById(generationId)
-        if (!generation) {
-            return
-        } else {
-            generation.cohorts.push(cohort)
-        }
+
+    async storeNextGenerationThings(): Promise<void> {
+        // Filter out Thing IDs already represented in the Graph (to avoid recursion).
+        const thingIdsOfGraph = this.thingWidgetModels.map(thingWidgetModel => thingWidgetModel.thingId)
+        const thingIdsToStore = this.thingIdsForGeneration(this.generationIdToBuild).filter( id => !thingIdsOfGraph.includes(id) )
+
+        // Store Things from the IDs.
+        const storedThings = await storeGraphConstructs<Thing>("Thing", thingIdsToStore)
+        const storedThingsById: { [thingId: number]: Thing } = {}
+        storedThings.forEach(
+            storedThing => storedThingsById[storedThing.id] = storedThing
+        )
     }
 
     /**
@@ -276,17 +263,5 @@ export class Graph {
             // Mark the Generation as stripped.
             generationToStrip.lifecycleStatus = "stripped"
         }     
-    }
-
-    async adjustGenerationsToDepth(): Promise<void> {
-        let difference = this.generations.length - (this._depth + 1)
-        while (difference) {
-            if (difference < 0) {
-                await this.buildGeneration()
-            } else {
-                await this.stripGeneration()
-            }
-            difference = this.generations.length - (this._depth + 1)
-        }
     }
 }

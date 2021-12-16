@@ -10,14 +10,12 @@ export class Generation {
 
     graph: Graph
     id: number
-    members: GenerationMember[]
     cohorts: Cohort[] = []
     lifecycleStatus: "new" | "building" | "built" | "stripping" | "stripped" = "new"
 
-    constructor(graph: Graph, members: GenerationMember[]) {
+    constructor(graph: Graph) {
         this.graph = graph
         this.id = graph.generationIdToBuild
-        this.members = members
     }
 
     get parentGeneration(): Generation | null {
@@ -26,6 +24,14 @@ export class Generation {
         } else {
             return this.graph.generationById(this.id - 1)
         }
+    }
+
+    get members(): GenerationMember[] {
+        const members: GenerationMember[] = []
+        for (const cohort of this.cohorts) {
+            members.push(...cohort.members)
+        }
+        return members
     }
 
     get membersById(): { [memberId: number]: GenerationMember } {

@@ -36,7 +36,8 @@ export class Cohort {
             const changeInPlane = offsetsByHalfAxisId[this.address?.halfAxisId || 0][2]
             planeId = parentPlaneId + changeInPlane
         }
-        this.address.graph.addCohortToGeneration(this, this.address.generationId)/////////// INSTEAD, LET'S MAKE COHORTS THE MAIN MEMBERS OF THE GENERATION.
+        const generation = this.address.graph.generations[this.address.generationId]
+        generation.cohorts.push(this)
         this.address.graph.addCohortToPlane(this, planeId)
 
         // Encapsulation depth.
