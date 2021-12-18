@@ -38,13 +38,17 @@
     let graph = new Graph(pThingIds, depth)
 
     // Set up reactive zooming and scrolling.
-    $: if (graph.allowZoomAndScrollToFit) zoomAndScroll()
+    $: if (graph.allowScrollToThingId && graph.thingIdToScrollTo) scrollToThingId(graph.thingIdToScrollTo)
+    $: if (graph.allowZoomAndScrollToFit) {
+        scrollToCentralAnchor(false)
+        zoomAndScroll()
+    }
     $: scale = zoomBase ** graph.graphWidgetStyle.zoom
     $: zoomPadding = graph.graphWidgetStyle.zoomPadding
 
     onMount(async () => {
         // Start the portal scrolled to center.
-        scrollToCenter(false)
+        scrollToCentralAnchor(false)
 
         // Build the Graph.
         await graph.build()
@@ -78,6 +82,15 @@
     }
 
     /** Auto-zoom and auto-scroll functions. */
+
+    async function scrollToThingId(thingId: number): Promise<void> {
+        const thingWidgetId = `portal#${graph.id}-thing#${thingId}`
+        const thingWidget = document.getElementById(thingWidgetId)
+        if (thingWidget) {
+            thingWidget.scrollIntoView({behavior: "smooth", block: "center", inline: "center"})
+        }
+        graph.allowScrollToThingId = false
+    }
 
     /**
      * Update the Graph bounds for the current configuration of the Graph.
@@ -122,9 +135,16 @@
     }
 
     /**
+     * Scroll the Portal to the true center position (the location of the central anchor).
+     */
+     async function scrollToCentralAnchor(smooth: boolean = true): Promise<void> {
+        centralAnchor.scrollIntoView({behavior: smooth ? "smooth" : "auto", block: "center", inline: "center"})
+    }
+
+    /**
      * Scroll the Portal so that the Graph is centered.
      */
-    async function scrollToCenter(smooth: boolean = true): Promise<void> {
+    async function scrollToZoomBoundsCenter(smooth: boolean = true): Promise<void> {
         updateGraphBounds()
         zoomBoundsDiv.scrollIntoView({behavior: smooth ? "smooth" : "auto", block: "center", inline: "center"})
     }
@@ -134,7 +154,7 @@
      */
     async function zoomAndScroll() {
         await zoomToFit()
-        await scrollToCenter()
+        await scrollToZoomBoundsCenter()
         graph.allowZoomAndScrollToFit = false
     }
 </script>

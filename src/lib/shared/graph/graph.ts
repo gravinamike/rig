@@ -11,6 +11,7 @@ import { ThingWidgetModel, ThingPlaceholderWidgetModel } from "$lib/shared/graph
 
 /** Class representing a Graph. */
 export class Graph {
+    id: number
     _pThingIds: number[]
     _depth: number
     rootCohort: Cohort | null = null
@@ -20,6 +21,8 @@ export class Graph {
     focalPlaneId = 0
     graphWidgetStyle: GraphWidgetStyle = defaultGraphWidgetStyle
     perspectiveHistory: { timestamp: Date, thingId: number }[] = []
+    thingIdToScrollTo: number | null = null
+    allowScrollToThingId = false
     allowZoomAndScrollToFit = false
 
     /**
@@ -28,6 +31,7 @@ export class Graph {
      * @param {number}   depth     - How many Relationship "steps" to grow the Graph from the Perspective Things.
      */
     constructor(pThingIds: number[], depth: number) {
+        this.id = 1
         this._pThingIds = pThingIds
         this._depth = depth
     }

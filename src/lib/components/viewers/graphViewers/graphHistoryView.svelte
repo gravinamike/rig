@@ -1,6 +1,7 @@
 <script lang="ts">
     import type { Graph } from "$lib/shared/graph/graph"
     import type { Thing } from "$lib/shared/graph/dbConstructs"
+    import { sleep } from "$lib/shared/utility"
     import { hoveredThingIdStore } from "$lib/shared/stores/appStores";
     import { retrieveGraphConstructs, graphConstructInStore } from "$lib/shared/stores/graphStores"
     import Toggle from "$lib/components/layoutElements/toggle.svelte"
@@ -72,6 +73,11 @@
     hoveredThingIdStore.subscribe(value => {hoveredThingIdStoreValue = value})
 
     async function handleClick(thingId: number) {
+        graph.allowScrollToThingId = true
+        graph.thingIdToScrollTo = thingId
+        graph = graph // Needed for reactivity.
+        await sleep(500) // Allow for scroll time (since there's no actual feedback from the Portal to `await`).
+
         await graph.setPThingIds([thingId]) // Re-Perspect to this Thing.
         graph.addEntriesToHistory([thingId]) // Add this Thing to the History.
         hoveredThingIdStore.set(null) // Clear the hovered-Thing highlighting.

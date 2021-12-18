@@ -33,6 +33,14 @@ export class ThingWidgetModel {
         this.thing = retrieveGraphConstructs("Thing", thingId)
     }
 
+    get thingWidgetId(): string | null {
+        if (!this.address) {
+            return null
+        } else {
+            return `portal#${ this.address.graph.id }-thing#${ this.thingId }`
+        }
+    }
+
     // The following getter functions pass along the corresponding attributes from the encapsulated Thing.
     get text(): string {
         const text = this.thing ? this.thing.text : ""

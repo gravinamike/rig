@@ -1,6 +1,7 @@
 <script lang="ts">
     import type { Graph } from "$lib/shared/graph/graph"
     import { saveConfig } from "$lib/shared/config"
+    import { sleep } from "$lib/shared/utility"
     import { pinIdsStore, hoveredThingIdStore } from "$lib/shared/stores/appStores"
     import { ContextMenuFrame, ContextMenuOption } from "$lib/components/layoutElements/contextMenu"
 
@@ -13,6 +14,11 @@
     hoveredThingIdStore.subscribe(value => {hoveredThingIdStoreValue = value})
 
     async function handleClick(thingId: number) {
+        graph.allowScrollToThingId = true
+        graph.thingIdToScrollTo = thingId
+        graph = graph // Needed for reactivity.
+        await sleep(500) // Allow for scroll time (since there's no actual feedback from the Portal to `await`).
+
         await graph.setPThingIds([thingId]) // Re-Perspect to this Thing.
         graph.addEntriesToHistory([thingId]) // Add this Thing to the History.
         hoveredThingIdStore.set(null) // Clear the hovered-Thing highlighting.
