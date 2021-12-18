@@ -52,7 +52,7 @@
         class="plane-alignment-controls"
         on:mousedown={() => tracking = true}
         on:mouseup={() => tracking = false}
-        on:mousemove={handleMouseMove}
+        on:mousemove|stopPropagation={handleMouseMove}
     >
         <div class="centralAnchor">
             {#each planeIds as planeId}

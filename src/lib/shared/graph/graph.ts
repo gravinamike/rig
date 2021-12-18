@@ -35,17 +35,26 @@ export class Graph {
 
     /* Basic informational methods. */
 
+    /**
+     * Get the Graph's Perspective Thing IDs.
+     * @return {number[]} - An array of the Perspective Thing IDs.
+     */
     get pThingIds(): number[] {
         return this._pThingIds
     }
 
-    get depth(): number | null {
+    /**
+     * Get the Graph's Depth (number of Generations).
+     * @return {number} - The Graph's Depth.
+     */
+    get depth(): number {
         return this._depth
     }
 
     /**
      * Get one of the Graph's Generations by ID.
      * @param  {number} generationId - The ID of the Generation to retrieve.
+     * 
      * @return {Generation | null}   - The specified Generation (or null if it doesn't exist).
      */
     generationById( generationId: number ): Generation | null {
@@ -53,6 +62,10 @@ export class Graph {
         return generation
     }
 
+    /**
+     * Get all of the Thing Widget Models in the Graph.
+     * @return {ThingWidgetModel[]} - An array of the Graph's Thing Widget Models.
+     */
     get thingWidgetModels(): ThingWidgetModel[] {
         const thingWidgetModels = this.generations.map(generation => generation.thingWidgetModels()).flat()
         return thingWidgetModels
@@ -61,20 +74,31 @@ export class Graph {
 
     /* Basic setter methods. */
 
+    /**
+     * Set the Graph's Perspective Thing IDs.
+     * @param  {number[]} pThingIDs - An array of the new Perspective Thing IDs to be set.
+     */
     async setPThingIds(pThingIds: number[]): Promise<void> {
         this._pThingIds = pThingIds
         await this.build()
     }
 
+    /**
+     * Set the Graph's Depth.
+     * @param  {number} depth - An array of the new Depth to be set.
+     */
     async setDepth(depth: number): Promise<void> {
         this._depth = depth
         await this.adjustGenerationsToDepth()
     }
 
 
-
     /* Informational methods for building and stripping. */
 
+    /**
+     * Get the ID of the next Generation to be built.
+     * @return {number} - The ID of the next Generation to be built.
+     */
     get generationIdToBuild(): number {
         for (const generation of this.generations.slice().reverse()) {
             if (["new", "building"].includes(generation.lifecycleStatus)) return this.generations.indexOf(generation)
@@ -82,14 +106,11 @@ export class Graph {
         return this.generations.length
     }
 
-    get generationIdToStrip(): number {
-        for (const generation of this.generations.slice().reverse()) {
-            if (["built"].includes(generation.lifecycleStatus)) return this.generations.indexOf(generation)
-        }
-        return this.generations.length - 1
-    }
-
-    seedThingWidgetModels(): ThingWidgetModel[] {
+    /**
+     * Get the Thing Widget Models that would be the starting seeds of the next Generation to be built.
+     * @return {ThingWidgetModel[]} - The next Generation's seed Thing Widget Models.
+     */
+    get seedThingWidgetModels(): ThingWidgetModel[] {
         if (!this.generations.length) {
             return []
         } else {
@@ -101,37 +122,55 @@ export class Graph {
         // seedThingWidgetModels list based on depth deltas.
     }
 
-    thingIdsForGeneration(generationId: number): number[] {
+    /**
+     * Get the ID of the next Generation to be stripped.
+     * @return {number} - The ID of the next Generation to be stripped.
+     */
+     get generationIdToStrip(): number {
+        for (const generation of this.generations.slice().reverse()) {
+            if (["built"].includes(generation.lifecycleStatus)) return this.generations.indexOf(generation)
+        }
+        return this.generations.length - 1
+    }
+
+    /**
+     * Get the IDs of all the Things in a to-be-built Generation, by the Generation's ID.
+     * @param  {number} generationId - The ID of the Generation to retrieve Thing IDs for.
+     * 
+     * @return {number} - The IDs of all the Things for the to-be-built Generation.
+     */
+    thingIdsForGenerationId(generationId: number): number[] {
         // For generation 0, start from the Perspective Thing IDs.
         // For generations >1, start from the IDs of the last generation's Relation Things.
-        const thingIdsForGeneration = generationId === 0 ?
+        const thingIdsForGenerationId = generationId === 0 ?
             this._pThingIds :
-            this.seedThingWidgetModels().map(thingWidgetModel => thingWidgetModel.relatedThingIds).flat()
-        //console.log(`Thing IDs for Generation ${generationIdToBuild}:`, thingIdsForGeneration)
-        return thingIdsForGeneration
+            this.seedThingWidgetModels.map(thingWidgetModel => thingWidgetModel.relatedThingIds).flat()
+        return thingIdsForGenerationId
     }
 
 
+    /* Methods for building/stripping the Graph. */
 
-
-
-
-    
-    /* Methods for building/stripping. */
-
+    /**
+     * Reset the Graph and build Generations up to its specified Depth.
+     */
     async build(): Promise<void> {
+        // Set (or reset) build attributes to their starting values.
         this.rootCohort = null
         this.generations = []
         this.planes = {}
         this.focalPlaneId = 0
 
-        // for (let i = 0; i <= this._depth; i++) await this.buildGeneration()
+        // Adjust (build) the Generations to the Graph's specified Depth.
         await this.adjustGenerationsToDepth()
 
-        // Initialize the History based on the starting Perspective Thing IDs.
+        // Add the starting Perspective Thing IDs to History.
         this.addEntriesToHistory(this._pThingIds)
     }
 
+    /**
+     * Either build or strip Generations as needed to bring the Graph to its specified Depth.
+     */
     async adjustGenerationsToDepth(): Promise<void> {
         let difference = this.generations.length - (this._depth + 1)
         while (difference) {
@@ -151,7 +190,7 @@ export class Graph {
         // Store Things for new Generation.
         await this.storeNextGenerationThings()
 
-        const membersForGeneration = this.thingIdsForGeneration(this.generationIdToBuild).map(
+        const membersForGeneration = this.thingIdsForGenerationId(this.generationIdToBuild).map(
             id => { return graphConstructInStore("Thing", id) ? new ThingWidgetModel(id) : new ThingPlaceholderWidgetModel(id) }
         )
 
@@ -202,11 +241,13 @@ export class Graph {
         newGeneration.lifecycleStatus = "built"
     }
 
-
+    /**
+     * Add the Things required for the next Generation to the application's Thing Store.
+     */
     async storeNextGenerationThings(): Promise<void> {
         // Filter out Thing IDs already represented in the Graph (to avoid recursion).
         const thingIdsOfGraph = this.thingWidgetModels.map(thingWidgetModel => thingWidgetModel.thingId)
-        const thingIdsToStore = this.thingIdsForGeneration(this.generationIdToBuild).filter( id => !thingIdsOfGraph.includes(id) )
+        const thingIdsToStore = this.thingIdsForGenerationId(this.generationIdToBuild).filter( id => !thingIdsOfGraph.includes(id) )
 
         // Store Things from the IDs.
         const storedThings = await storeGraphConstructs<Thing>("Thing", thingIdsToStore)
@@ -226,6 +267,10 @@ export class Graph {
         this.planes[planeId].addCohort(cohort)
     }
 
+    /**
+     * Add one or multiple Thing IDs to the Graph's Perspective History.
+     * @param  {number | number[]} thingIds - The Thing ID or IDs to add to the History.
+     */
     addEntriesToHistory( thingIds: number | number[] ): void {
         if (typeof thingIds === "number") thingIds = [thingIds]
         const timestamp = new Date()
@@ -235,6 +280,9 @@ export class Graph {
         this.perspectiveHistory.push(...entries)
     }
 
+    /**
+     * Strip the most recent Generation from the Graph.
+     */
     async stripGeneration(): Promise<void> {
         const generationToStrip = this.generationById(this.generationIdToStrip)
 

@@ -3,6 +3,7 @@
  */
 export const startingPThingIds = [6080]
 export const startingGraphDepth = 1
+export const zoomBase = 1.45
 
 
 /*
@@ -14,6 +15,7 @@ export interface Config {
 
 export interface GraphWidgetStyle {
     zoom: number,
+    zoomPadding: number,
     offsetLength: number,
     thingSize: number,
     betweenThingGap: number,
@@ -41,6 +43,7 @@ export const oddHalfAxisIds = [1, 3, 5, 7] as const
  */
 export const defaultGraphWidgetStyle: GraphWidgetStyle = {
     zoom: 0,
+    zoomPadding: 50,
     offsetLength: 250,
     thingSize: 100,
     betweenThingGap: 20,

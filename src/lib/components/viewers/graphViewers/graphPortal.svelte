@@ -1,32 +1,51 @@
 <script lang="ts">
+    // Basic UI imports.
     import { onMount } from "svelte"
+    import { Rectangle, descendantElements, elementGroupEdges } from "$lib/shared/utility"
     import Collapser from "$lib/components/layoutElements/collapser.svelte"
     import { TabBlock, TabFlap, TabFlaps, TabBody } from "$lib/components/layoutElements/tabs"
 
+    // Graph model imports.
     import { Graph } from "$lib/shared/graph/graph"
 
-    import GraphSchematicView from "$lib/components/viewers/graphViewers/graphSchematicView.svelte"
+    // Side-interface imports.
     import GraphSettingsView from "$lib/components/viewers/settingsViewers/graphSettingsView.svelte"
+    import GraphSchematicView from "$lib/components/viewers/graphViewers/graphSchematicView.svelte"
     import GraphHistoryView from "$lib/components/viewers/graphViewers/graphHistoryView.svelte"
     import GraphPinsView from "$lib/components/viewers/graphViewers/graphPinsView.svelte"
-
-    import CohortWidget from "$lib/components/graphWidgets/basicWidgets/cohortWidget.svelte"
-    import PlaneControls from "$lib/components/controlElements/planeControls.svelte"
     import NotesViewer from "$lib/components/viewers/notesViewer/notesViewer.svelte"
+
+    // Portal-related imports.
+    import { zoomBase } from "$lib/shared/constants"
+    import PlaneControls from "$lib/components/controlElements/planeControls.svelte"
+    import CohortWidget from "$lib/components/graphWidgets/basicWidgets/cohortWidget.svelte"
+    
 
     export let pThingIds: number[]
     export let depth: number
 
 
+    let portal: Element
+    let centralAnchor: Element
+    let zoomBoundsDiv: Element
+    const graphBounds = new Rectangle() // The "Graph bounds" describe the Graph as it's currently drawn in real screen-space (taking scale into account).
+    const zoomBounds = new Rectangle() // The "zoom bounds" are in "scale-naive" space, calculated from the "Graph bounds".
+    let trackingMouse = false
+    let prevtrackingMouseLocation: { x: number | null, y: number | null } = { x: null, y: null }
+
+
     // Initialize the Graph.
     let graph = new Graph(pThingIds, depth)
 
+    // Set up reactive zooming and scrolling.
     $: if (graph.allowZoomAndScrollToFit) zoomAndScroll()
-
-    $: scale = 1.45 ** graph.graphWidgetStyle.zoom // 1.45 should be in constants as "zoomSensitivity", with a floor of 1.
+    $: scale = zoomBase ** graph.graphWidgetStyle.zoom
+    $: zoomPadding = graph.graphWidgetStyle.zoomPadding
 
     onMount(async () => {
+        // Start the portal scrolled to center.
         scrollToCenter(false)
+
         // Build the Graph.
         await graph.build()
         graph.allowZoomAndScrollToFit = true
@@ -34,112 +53,89 @@
 	})
 
 
+    /** Manual zoom and scroll functions. */
 
-    let portal: Element
-    let centralAnchor: Element
-    let zoomBounds: Element
-    let zoomPadding = 50
-
-    // The "Graph bounds" parameters are taken from real screen-space (taking graph
-    // scale into account). They describe the Graph as it's currently drawn.
-    let graphTop = 0
-    let graphRight = 0
-    let graphBottom = 0
-    let graphLeft = 0
-    let graphWidth = 0
-    let graphHeight = 0
-    let graphX = 0
-    let graphY = 0
-
-    // The "zoom bounds" parameters are in "scale-naive" space, calculated from the
-    // "Graph bounds".
-    let zoomBoundsX = 0
-    let zoomBoundsY = 0
-    let zoomBoundsWidth = 0
-    let zoomBoundsHeight = 0
-
-
-    function descendantElements(element: Element, descendants?: Element[]): Element[] {
-        if ( descendants === undefined ) descendants = []
-        for (var i = 0; i < element.children.length; i++) {
-            descendants.push(element.children[i])
-            descendantElements(element.children[i], descendants)
+    /**
+     * Drag the Portal when left-mouse is clicked and moving.
+     */
+     function handleMouseMove(event: MouseEvent) {
+        if (trackingMouse && prevtrackingMouseLocation.x && prevtrackingMouseLocation.y) {
+            let deltaX = event.clientX - prevtrackingMouseLocation.x
+            let deltaY = event.clientY - prevtrackingMouseLocation.y
+            portal.scrollLeft = (portal.scrollLeft - deltaX)
+            portal.scrollTop = (portal.scrollTop - deltaY)
         }
-        return descendants
+        prevtrackingMouseLocation.x = event.clientX
+        prevtrackingMouseLocation.y = event.clientY
     }
 
+    /**
+     * Zoom the Portal (within allowed bounds) when the mousewheel is moved.
+     */
+    function handleWheelScroll(event: WheelEvent) {
+        const newZoom = graph.graphWidgetStyle.zoom + event.deltaY * -0.005
+        if (-5 <= newZoom && newZoom <= 5) graph.graphWidgetStyle.zoom = newZoom
+    }
+
+    /** Auto-zoom and auto-scroll functions. */
+
+    /**
+     * Update the Graph bounds for the current configuration of the Graph.
+     */
     function updateGraphBounds() {
         // Get all elements in the Portal, except the zoom bounds element.
         const descendants = descendantElements(centralAnchor)
-        const index = descendants.indexOf(zoomBounds)
+        const index = descendants.indexOf(zoomBoundsDiv)
         if (index > -1) descendants.splice(index, 1)
 
         // Set the Graph bounds (as the outer bounds of the above collection of elements).
-        graphTop = descendants.length ?
-            Math.min( ...descendants.map((descendant) => {return descendant.getBoundingClientRect().top}) ) : 
-            0
-        graphRight = descendants.length ?
-            Math.max( ...descendants.map((descendant) => {return descendant.getBoundingClientRect().right}) ) :
-            0
-        graphBottom = descendants.length ?
-            Math.max( ...descendants.map((descendant) => {return descendant.getBoundingClientRect().bottom}) ) :
-            0
-        graphLeft = descendants.length ?
-            Math.min( ...descendants.map((descendant) => {return descendant.getBoundingClientRect().left}) ) :
-            0
-        graphWidth = graphRight - graphLeft
-        graphHeight = graphBottom - graphTop
-        graphX = graphLeft - centralAnchor.getBoundingClientRect().x
-        graphY = graphTop - centralAnchor.getBoundingClientRect().y
+        const descendantsEdges = elementGroupEdges(descendants)
+        Object.assign(graphBounds, descendantsEdges)
+        graphBounds.width = graphBounds.right - graphBounds.left
+        graphBounds.height = graphBounds.bottom - graphBounds.top
+        graphBounds.x = graphBounds.left - centralAnchor.getBoundingClientRect().x
+        graphBounds.y = graphBounds.top - centralAnchor.getBoundingClientRect().y
     }
 
+    /**
+     * Zoom the Portal to fit the Graph.
+     */
     async function zoomToFit(): Promise<void> {
+        // Update the Graph bounds.
         updateGraphBounds()
 
         // Set the zoom bounds from the Graph bounds.
-        zoomBoundsX = graphX / scale - zoomPadding
-        zoomBoundsY = graphY / scale - zoomPadding
-        zoomBoundsWidth = graphWidth / scale + 2 * zoomPadding
-        zoomBoundsHeight = graphHeight / scale + 2 * zoomPadding
+        zoomBounds.x = graphBounds.x / scale - zoomPadding
+        zoomBounds.y = graphBounds.y / scale - zoomPadding
+        zoomBounds.width = graphBounds.width / scale + 2 * zoomPadding
+        zoomBounds.height = graphBounds.height / scale + 2 * zoomPadding
 
-        const scaleChangeX = portal.getBoundingClientRect().width / (zoomBoundsWidth * scale)
-        const scaleChangeY = portal.getBoundingClientRect().height / (zoomBoundsHeight * scale)
+        // Determine the scale change based on the ratio between the portal frame and the padded Graph.
+        const scaleChangeX = portal.getBoundingClientRect().width / (zoomBounds.width * scale)
+        const scaleChangeY = portal.getBoundingClientRect().height / (zoomBounds.height * scale)
         const scaleChange = Math.min(scaleChangeX, scaleChangeY)
 
+        // Determine the new scale, and set the Graph's zoom accordingly.
         const newScale = scaleChange * scale
         const newZoom = Math.log(newScale) / Math.log(1.45)
         graph.graphWidgetStyle.zoom = newZoom
     }
 
+    /**
+     * Scroll the Portal so that the Graph is centered.
+     */
     async function scrollToCenter(smooth: boolean = true): Promise<void> {
         updateGraphBounds()
-        zoomBounds.scrollIntoView({behavior: smooth ? "smooth" : "auto", block: "center", inline: "center"})
+        zoomBoundsDiv.scrollIntoView({behavior: smooth ? "smooth" : "auto", block: "center", inline: "center"})
     }
 
+    /**
+     * Zoom, then scroll, the Portal to fit and center the Graph.
+     */
     async function zoomAndScroll() {
         await zoomToFit()
         await scrollToCenter()
         graph.allowZoomAndScrollToFit = false
-    }
-
-
-    let tracking = false
-    let prevLocation: { x: number | null, y: number | null } = { x: null, y: null }
-
-    function handleMouseMove(event: MouseEvent) {
-        if (tracking && prevLocation.x && prevLocation.y) {
-            let deltaX = event.clientX - prevLocation.x
-            let deltaY = event.clientY - prevLocation.y
-            portal.scrollLeft = (portal.scrollLeft - deltaX)
-            portal.scrollTop = (portal.scrollTop - deltaY)
-        }
-        prevLocation.x = event.clientX
-        prevLocation.y = event.clientY
-    }
-
-    function wheelScroll(event: WheelEvent) {
-        const newZoom = graph.graphWidgetStyle.zoom + event.deltaY * -0.005
-        if (-5 <= newZoom && newZoom <= 5) graph.graphWidgetStyle.zoom = newZoom
     }
 </script>
 
@@ -182,15 +178,15 @@
         expanded={true}
     >
         <div class="navigation-view">
+            <!-- Graph pins viewer -->
             <div class="pins-container">
-                <!-- Graph pins viewer -->
                 <GraphPinsView
                     bind:graph
                 />
             </div>
 
+            <!-- Graph history viewer -->
             <div class="history-container">
-                <!-- Graph history viewer -->
                 <GraphHistoryView
                     bind:graph
                 />
@@ -203,23 +199,26 @@
         <div
             class="portal"
             bind:this={portal}
-            on:mousedown={() => tracking = true}
-            on:mouseup={() => tracking = false}
+            on:mousedown={() => trackingMouse = true}
+            on:mouseup={() => trackingMouse = false}
             on:mousemove={handleMouseMove}
-            on:wheel|preventDefault={(event) => {wheelScroll(event)}}
+            on:wheel|preventDefault={(event) => {handleWheelScroll(event)}}
         >
+            <!-- Backfield (defines the outer bounds of the scrollable area). -->
             <div class="portal-backfield">
                 <div
                     class="central-anchor"
                     bind:this={centralAnchor}
                     style="scale: {scale};"
                 >
+                    <!-- Zoom bounds (closely surrounds the Graph). -->
                     <div
                         class="zoom-bounds"
-                        bind:this={zoomBounds}
-                        style="left: {zoomBoundsX}px; top: {zoomBoundsY}px; width: {zoomBoundsWidth}px; height: {zoomBoundsHeight}px;"
+                        bind:this={zoomBoundsDiv}
+                        style="left: {zoomBounds.x}px; top: {zoomBounds.y}px; width: {zoomBounds.width}px; height: {zoomBounds.height}px;"
                     />
                     
+                    <!-- Root Cohort (from which the rest of the Graph automatically "grows"). -->
                     {#if graph.rootCohort}
                         <CohortWidget
                             cohort={graph.rootCohort}
@@ -229,7 +228,7 @@
                 </div>
             </div>
             
-
+            <!-- Plane controls. -->
             {#if Object.keys(graph.planes).length > 1}
                 <div class="plane-controls-container">
                     <PlaneControls
