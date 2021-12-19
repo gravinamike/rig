@@ -1,7 +1,9 @@
 <script lang="ts">
     // Basic UI imports.
     import { onMount } from "svelte"
-    import { Rectangle, descendantElements, elementGroupEdges } from "$lib/shared/utility"
+    import { tweened } from "svelte/motion"
+	import { cubicOut } from "svelte/easing"
+    import { Rectangle, descendantElements, elementGroupEdges, sleep } from "$lib/shared/utility"
     import Collapser from "$lib/components/layoutElements/collapser.svelte"
     import { TabBlock, TabFlap, TabFlaps, TabBody } from "$lib/components/layoutElements/tabs"
 
@@ -43,7 +45,21 @@
         scrollToCentralAnchor(false)
         zoomAndScroll()
     }
+    
     $: scale = zoomBase ** graph.graphWidgetStyle.zoom
+    let tweenedScale = tweened(1, {duration: 100, easing: cubicOut})
+    $: tweenedScale.set(scale)
+
+    
+	
+
+	
+
+
+
+
+
+
     $: zoomPadding = graph.graphWidgetStyle.zoomPadding
 
     onMount(async () => {
@@ -52,7 +68,7 @@
 
         // Build the Graph.
         await graph.build()
-        graph.allowZoomAndScrollToFit = true
+        //graph.allowZoomAndScrollToFit = true`
         graph = graph // Needed for reactivity.
 	})
 
@@ -122,6 +138,7 @@
         zoomBounds.y = graphBounds.y / scale - zoomPadding
         zoomBounds.width = graphBounds.width / scale + 2 * zoomPadding
         zoomBounds.height = graphBounds.height / scale + 2 * zoomPadding
+        console.log(portal.getBoundingClientRect().width, (zoomBounds.width * scale))
 
         // Determine the scale change based on the ratio between the portal frame and the padded Graph.
         const scaleChangeX = portal.getBoundingClientRect().width / (zoomBounds.width * scale)
@@ -129,7 +146,9 @@
         const scaleChange = Math.min(scaleChangeX, scaleChangeY)
 
         // Determine the new scale, and set the Graph's zoom accordingly.
+        console.log(scaleChange, scale)
         const newScale = scaleChange * scale
+        console.log('NEW SCALE', newScale)
         const newZoom = Math.log(newScale) / Math.log(1.45)
         graph.graphWidgetStyle.zoom = newZoom
     }
@@ -154,6 +173,7 @@
      */
     async function zoomAndScroll() {
         await zoomToFit()
+        await sleep(100)
         await scrollToZoomBoundsCenter()
         graph.allowZoomAndScrollToFit = false
     }
@@ -229,7 +249,7 @@
                 <div
                     class="central-anchor"
                     bind:this={centralAnchor}
-                    style="scale: {scale};"
+                    style="scale: {$tweenedScale};"
                 >
                     <!-- Zoom bounds (closely surrounds the Graph). -->
                     <div
