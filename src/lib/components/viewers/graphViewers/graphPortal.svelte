@@ -40,27 +40,17 @@
     let graph = new Graph(pThingIds, depth)
 
     // Set up reactive zooming and scrolling.
-    $: if (graph.allowScrollToThingId && graph.thingIdToScrollTo) scrollToThingId(graph.thingIdToScrollTo)
-    $: if (graph.allowZoomAndScrollToFit) {
-        scrollToCentralAnchor(false)
-        zoomAndScroll()
-    }
-    
     $: scale = zoomBase ** graph.graphWidgetStyle.zoom
     let tweenedScale = tweened(1, {duration: 100, easing: cubicOut})
     $: tweenedScale.set(scale)
-
-    
-	
-
-	
-
-
-
-
-
-
     $: zoomPadding = graph.graphWidgetStyle.zoomPadding
+    $: if (graph.allowScrollToThingId && graph.thingIdToScrollTo) { // Before graph is re-Perspected, scroll to new Perspective Thing.
+        scrollToThingId(graph.thingIdToScrollTo)
+    }
+    $: if (graph.allowZoomAndScrollToFit) { // When graph is re-built, scroll to central anchor, then zoom and scroll to fit.
+        scrollToCentralAnchor(false)
+        zoomAndScroll()
+    }   
 
     onMount(async () => {
         // Start the portal scrolled to center.
