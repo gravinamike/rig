@@ -34,6 +34,8 @@
     hoveredThingIdStore.subscribe(value => {hoveredThingIdStoreValue = value})
     $: isHoveredThing = thingId === hoveredThingIdStoreValue
 
+    $: overlap = -Math.min(0, graph.graphWidgetStyle.betweenThingGap / 2)
+
     const showNotes = false
     let showDetails = false
     let lockDetails = false
@@ -60,7 +62,10 @@
 </script>
 
 
-<main class="thing-widget">
+<main
+    class="thing-widget"
+    style="margin: {-overlap}px;"
+>
     
     <!-- The Thing itself. -->
     <div
@@ -142,6 +147,8 @@
 
     .thing-image:hover {
         box-shadow: 5px 5px 10px 10px lightgray;
+
+        z-index: 1;
     }
 
     .hovered-thing {

@@ -12,7 +12,7 @@
     export let cohort: Cohort
     export let graph: Graph
 
-    $: betweenThingGap = graph.graphWidgetStyle.betweenThingGap
+    $: betweenThingGap = Math.max(0, graph.graphWidgetStyle.betweenThingGap)
 
     // Calculate x and y offsets and z-index relative to parent Thing Widget.
     const generationId = cohort.address?.generationId || 0

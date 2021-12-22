@@ -46,7 +46,7 @@ export const defaultGraphWidgetStyle: GraphWidgetStyle = {
     zoomPadding: 50,
     offsetLength: 250,
     thingSize: 100,
-    betweenThingGap: 20,
+    betweenThingGap: 0,
     relationshipTextSize: 18,
     thingTextSize: 12
 }

@@ -4,6 +4,9 @@
 
     export let graph: Graph
 
+    let thingSpacingPercent = 10
+    $: graph.graphWidgetStyle.betweenThingGap = 0.01 * thingSpacingPercent * graph.graphWidgetStyle.thingSize
+
 
     async function setGraphDepth() {
         await graph.adjustGenerationsToDepth()
@@ -51,9 +54,10 @@
     />
 
     <SettingWidget
-        labelText={"Between-Thing gap"}
-        bind:boundValue={graph.graphWidgetStyle.betweenThingGap}
-        maxValue={1000}
+        labelText={"% Thing spacing"}
+        bind:boundValue={thingSpacingPercent}
+        minValue={-100}
+        maxValue={100}
         onChangeFunction={updateGraphFormat}
     />
 
