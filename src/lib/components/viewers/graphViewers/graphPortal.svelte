@@ -45,12 +45,13 @@
     $: tweenedScale.set(scale)
     $: zoomPadding = graph.graphWidgetStyle.zoomPadding
     $: if (graph.allowScrollToThingId && graph.thingIdToScrollTo) { // Before graph is re-Perspected, scroll to new Perspective Thing.
-        scrollToThingId(graph.thingIdToScrollTo)
+        //scrollToThingId(graph.thingIdToScrollTo)
     }
     $: if (graph.allowZoomAndScrollToFit) { // When graph is re-built, scroll to central anchor, then zoom and scroll to fit.
         scrollToCentralAnchor(false)
+        graph.allowZoomAndScrollToFit = false
         zoomAndScroll()
-    }   
+    }
 
     onMount(async () => {
         // Start the portal scrolled to center.
@@ -58,7 +59,7 @@
 
         // Build the Graph.
         await graph.build()
-        //graph.allowZoomAndScrollToFit = true`
+        //graph.allowZoomAndScrollToFit = true
         graph = graph // Needed for reactivity.
 	})
 
@@ -128,7 +129,6 @@
         zoomBounds.y = graphBounds.y / scale - zoomPadding
         zoomBounds.width = graphBounds.width / scale + 2 * zoomPadding
         zoomBounds.height = graphBounds.height / scale + 2 * zoomPadding
-        console.log(portal.getBoundingClientRect().width, (zoomBounds.width * scale))
 
         // Determine the scale change based on the ratio between the portal frame and the padded Graph.
         const scaleChangeX = portal.getBoundingClientRect().width / (zoomBounds.width * scale)
@@ -136,9 +136,7 @@
         const scaleChange = Math.min(scaleChangeX, scaleChangeY)
 
         // Determine the new scale, and set the Graph's zoom accordingly.
-        console.log(scaleChange, scale)
         const newScale = scaleChange * scale
-        console.log('NEW SCALE', newScale)
         const newZoom = Math.log(newScale) / Math.log(1.45)
         graph.graphWidgetStyle.zoom = newZoom
     }
@@ -162,10 +160,10 @@
      * Zoom, then scroll, the Portal to fit and center the Graph.
      */
     async function zoomAndScroll() {
+        await sleep(10) // Allow time for Graph re-draw before zooming.
         await zoomToFit()
         await sleep(100)
         await scrollToZoomBoundsCenter()
-        graph.allowZoomAndScrollToFit = false
     }
 </script>
 
