@@ -20,10 +20,12 @@
     const offsetSigns = offsetsByHalfAxisId[halfAxisId]
 
     $: planeId = cohort.plane?.id || 0
-    $: offsets = [
-        graph.graphWidgetStyle.offsetLength * offsetSigns[0] + graph.planeOffsets[0] * planeId,
-        graph.graphWidgetStyle.offsetLength * offsetSigns[1] + graph.planeOffsets[1] * planeId
-    ]
+    $: offsets = [7, 8].includes(halfAxisId) ?
+        [0, 0] :
+        [
+            graph.graphWidgetStyle.offsetLength * offsetSigns[0] + graph.planeOffsets[0] * planeId,
+            graph.graphWidgetStyle.offsetLength * offsetSigns[1] + graph.planeOffsets[1] * planeId
+        ]
     $: zIndex = (generationId * 2) * offsetSigns[2]
 </script>
 

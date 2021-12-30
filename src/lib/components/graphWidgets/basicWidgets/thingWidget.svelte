@@ -19,16 +19,24 @@
     $: note = thingWidgetModel.note
     $: space = thingWidgetModel.space
     $: cohorts = thingWidgetModel.childCohorts
-    $: planeId = thingWidgetModel.parentCohort?.plane?.id || 0
+    $: halfAxisId = thingWidgetModel.parentCohort?.address?.halfAxisId || 0
+    $: planeId = [7, 8].includes(halfAxisId) ?
+        thingWidgetModel.parentCohort?.address?.parentThingWidgetModel?.parentCohort?.plane?.id || 0 :
+        thingWidgetModel.parentCohort?.plane?.id || 0
     $: distanceFromFocalPlane = planeId - graph.focalPlaneId
     const planePadding = 20
+    $: isEncapsulating = halfAxisId === 8 || 7 in thingWidgetModel.childCohortsByHalfAxisId ?
+        true :
+        false
     $: encapsulatingDepth = thingWidgetModel.parentCohort?.encapsulatingDepth || 0
     $: encapsulatingPadding = encapsulatingDepth >= 0 ? 40 : 20
     $: cohortSize = thingWidgetModel.parentCohort?.members.length || 1
     $: thingSize = graph.graphWidgetStyle.thingSize + planePadding * planeId + encapsulatingPadding * encapsulatingDepth
     $: thingWidth = thingSize
     $: thingHeight = encapsulatingDepth >= 0 ? thingSize : thingSize / cohortSize - 2
-    $: opacity = 1 / (1 + (distanceFromFocalPlane < 0 ? 1 : (distanceFromFocalPlane > 0 ? 2 : 0)) * Math.abs(distanceFromFocalPlane))
+    $: opacity = [7, 8].includes(halfAxisId) ?
+        1 :
+        1 / (1 + (distanceFromFocalPlane < 0 ? 1 : (distanceFromFocalPlane > 0 ? 2 : 0)) * Math.abs(distanceFromFocalPlane))
 
     let hoveredThingIdStoreValue: number | null
     hoveredThingIdStore.subscribe(value => {hoveredThingIdStoreValue = value})
@@ -61,7 +69,7 @@
     }
 </script>
 
-
+<!-- The top-level widget, which contains both the Thing itself and all of its child Cohorts. TODO - RENAME AS CLADEWIDGET, AND REMOVE THING TO ITS OWN WIDGET?-->
 <main
     class="thing-widget"
     style="margin: {-overlap}px;"
@@ -77,7 +85,23 @@
         on:contextmenu|preventDefault={contextMenu.openContextMenu}
         style="border-radius: {8 + 4 * encapsulatingDepth}px; width: {thingWidth}px; height: {thingHeight}px; opacity: {opacity}; pointer-events: {distanceFromFocalPlane === 0 ? "auto" : "none"};"
     >
-        <div class="thing-text" style="font-size: {encapsulatingDepth >= 0 ? graph.graphWidgetStyle.thingTextSize : graph.graphWidgetStyle.thingTextSize / Math.log2(cohortSize)}px">
+        <!-- Thing text -->
+        <div class="thing-text"
+            style="
+                {
+                    isEncapsulating ?
+                    "position: absolute; transform: translate(0%, -50%); white-space: nowrap;" :
+                    "position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); overflow-wrap: break-word;"
+                }
+                
+                font-size: {
+                    encapsulatingDepth >= 0 ?
+                    graph.graphWidgetStyle.thingTextSize :
+                    graph.graphWidgetStyle.thingTextSize / Math.log2(cohortSize)
+                }px;
+                font-weight: 600;
+            "
+        >
             {text}
         </div>
         
@@ -153,16 +177,6 @@
 
     .hovered-thing {
         outline: solid 2px black;
-    }
-
-    .thing-text {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-
-        font-weight: 600;
-        overflow-wrap: break-word;
     }
 
     .thing-details-container {
