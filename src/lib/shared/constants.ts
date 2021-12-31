@@ -28,6 +28,7 @@ export interface GraphWidgetStyle {
  * Layout parameters.
  */
 export const navHeight = "3rem"
+export const planePadding = 20
 
 
 /*

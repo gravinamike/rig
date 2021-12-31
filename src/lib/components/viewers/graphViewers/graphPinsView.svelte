@@ -6,6 +6,7 @@
     import PinsViewerWidget from "$lib/components/viewers/graphViewers/pinsViewerWidget.svelte"
 
     export let graph: Graph
+    export let rePerspectToThingId: (thingId: number) => Promise<void>
 
     $: $pinIdsStore.forEach(
         async (pinId) => {
@@ -32,7 +33,7 @@
             <PinsViewerWidget
                 thingId={pin.thingId}
                 thingText={pin.thing.text}
-                bind:graph
+                {rePerspectToThingId}
             />
         {:else}
             <div>

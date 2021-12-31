@@ -14,11 +14,12 @@
     
     let graphConstructsStored = false
 
+    // At app initialization,
     onMount(async () => {
-        // App constructs are stored when the app is initialized.
+        // Store app configuration.
         storeConfig()
 
-        // when the app is initialized, rather than when each Graph is initialized.
+        // Store Direction and Space constructs.
         await storeGraphConstructs("Direction")
         await storeGraphConstructs("Space")
         graphConstructsStored = true

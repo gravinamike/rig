@@ -1,41 +1,16 @@
 <script lang="ts">
-    import type { Graph } from "$lib/shared/graph/graph"
-    import { saveConfig } from "$lib/shared/config"
-    import { sleep } from "$lib/shared/utility"
-    import { pinIdsStore, hoveredThingIdStore } from "$lib/shared/stores/appStores"
+    import { hoveredThingIdStore, removePin } from "$lib/shared/stores/appStores"
     import { ContextMenuFrame, ContextMenuOption } from "$lib/components/layoutElements/contextMenu"
 
     export let thingId: number
     export let thingText: string | null
-    export let graph: Graph
+    export let rePerspectToThingId: (thingId: number) => Promise<void>
 
     
-    let hoveredThingIdStoreValue: number | null
-    hoveredThingIdStore.subscribe(value => {hoveredThingIdStoreValue = value})
-
-    async function handleClick(thingId: number) {
-        graph.allowScrollToThingId = true
-        graph.thingIdToScrollTo = thingId
-        graph = graph // Needed for reactivity.
-        await sleep(500) // Allow for scroll time (since there's no actual feedback from the Portal to `await`).
-
-        await graph.setPThingIds([thingId]) // Re-Perspect to this Thing.
-        graph.addEntriesToHistory([thingId]) // Add this Thing to the History.
-        hoveredThingIdStore.set(null) // Clear the hovered-Thing highlighting.
-        graph.allowZoomAndScrollToFit = true
-        graph = graph // Needed for reactivity.
-    }
-
     let contextMenu: ContextMenuFrame
 
-    async function removePin(thingId: number) {
-        pinIdsStore.update( (current) => {
-            const index = current.indexOf(thingId)
-            if (index !== -1) current.splice(index, 1)
-            return current
-        } )
-        await saveConfig()
-    }
+    let hoveredThingIdStoreValue: number | null
+    hoveredThingIdStore.subscribe(value => {hoveredThingIdStoreValue = value})
 </script>
 
 
@@ -43,7 +18,7 @@
     class="box { thingId === hoveredThingIdStoreValue ? "hovered-thing" : "" }"
     on:mouseenter={()=>{hoveredThingIdStore.set(thingId)}}
     on:mouseleave={()=>{hoveredThingIdStore.set(null)}}
-    on:click={ () => { handleClick(thingId) } }
+    on:click={ () => { rePerspectToThingId(thingId) } }
     on:contextmenu|preventDefault={contextMenu.openContextMenu}
 >
     {thingText}

@@ -1,12 +1,12 @@
 <script lang="ts">
     import type { Graph } from "$lib/shared/graph/graph"
     import type { Thing } from "$lib/shared/graph/dbConstructs"
-    import { sleep } from "$lib/shared/utility"
     import { hoveredThingIdStore } from "$lib/shared/stores/appStores";
     import { retrieveGraphConstructs, graphConstructInStore } from "$lib/shared/stores/graphStores"
     import Toggle from "$lib/components/layoutElements/toggle.svelte"
 
     export let graph: Graph
+    export let rePerspectToThingId: (thingId: number) => Promise<void>
 
     const dateDividerOptions = { year: 'numeric', month: 'short', day: 'numeric', weekday: 'short' } as const
     let useUniqueHistory = true
@@ -71,19 +71,6 @@
 
     let hoveredThingIdStoreValue: number | null
     hoveredThingIdStore.subscribe(value => {hoveredThingIdStoreValue = value})
-
-    async function handleClick(thingId: number) {
-        graph.allowScrollToThingId = true
-        graph.thingIdToScrollTo = thingId
-        graph = graph // Needed for reactivity.
-        await sleep(500) // Allow for scroll time (since there's no actual feedback from the Portal to `await`).
-
-        await graph.setPThingIds([thingId]) // Re-Perspect to this Thing.
-        graph.addEntriesToHistory([thingId]) // Add this Thing to the History.
-        hoveredThingIdStore.set(null) // Clear the hovered-Thing highlighting.
-        graph.allowZoomAndScrollToFit = true
-        graph = graph // Needed for reactivity.
-    }
 </script>
 
 
@@ -104,7 +91,7 @@
                     class="box { entryOrDivider.thingId === hoveredThingIdStoreValue ? "hovered-thing" : "" }"
                     on:mouseenter={()=>{ if (entryOrDivider) hoveredThingIdStore.set(entryOrDivider.thingId) }}
                     on:mouseleave={()=>{hoveredThingIdStore.set(null)}}
-                    on:click={ () => { if (entryOrDivider) handleClick(entryOrDivider.thingId)}
+                    on:click={ () => { if (entryOrDivider) rePerspectToThingId(entryOrDivider.thingId)}
                 }>
                     {entryOrDivider.thing.text}
                 </div>

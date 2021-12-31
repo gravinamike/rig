@@ -6,11 +6,12 @@
 </script>
 
 <script lang="ts">
-    import ThingWidget from "$lib/components/graphWidgets/basicWidgets/thingWidget.svelte"
+    import CladeWidget from "$lib/components/graphWidgets/basicWidgets/cladeWidget.svelte"
     import ThingPlaceholderWidget from "$lib/components/graphWidgets/basicWidgets/thingPlaceholderWidget.svelte"
 
     export let cohort: Cohort
     export let graph: Graph
+    export let rePerspectToThingId: (thingId: number) => Promise<void>
 
     $: betweenThingGap = Math.max(0, graph.graphWidgetStyle.betweenThingGap)
 
@@ -36,9 +37,10 @@
 >
     {#each cohort.members as cohortMember}
         {#if "text" in cohortMember}
-            <ThingWidget
+            <CladeWidget
                 thingWidgetModel={cohortMember}
                 bind:graph
+                {rePerspectToThingId}
             />
         {:else}
             <ThingPlaceholderWidget

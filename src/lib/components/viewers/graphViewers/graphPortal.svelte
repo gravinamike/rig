@@ -21,8 +21,8 @@
     import { zoomBase } from "$lib/shared/constants"
     import PlaneControls from "$lib/components/controlElements/planeControls.svelte"
     import CohortWidget from "$lib/components/graphWidgets/basicWidgets/cohortWidget.svelte"
+    import { hoveredThingIdStore } from "$lib/shared/stores/appStores"
     
-
     export let pThingIds: number[]
     export let depth: number
 
@@ -165,6 +165,19 @@
         await sleep(100)
         await scrollToZoomBoundsCenter()
     }
+
+    async function rePerspectToThingId(thingId: number) {///////////////////////////
+        graph.allowScrollToThingId = true
+        graph.thingIdToScrollTo = thingId
+        graph = graph // Needed for reactivity.
+        await sleep(500) // Allow for scroll time (since there's no actual feedback from the Portal to `await`).
+
+        await graph.setPThingIds([thingId]) // Re-Perspect to this Thing.
+        graph.addEntriesToHistory([thingId]) // Add this Thing to the History.
+        hoveredThingIdStore.set(null) // Clear the hovered-Thing highlighting.
+        graph.allowZoomAndScrollToFit = true
+        graph = graph // Needed for reactivity.
+    }
 </script>
 
 
@@ -210,6 +223,7 @@
             <div class="pins-container">
                 <GraphPinsView
                     bind:graph
+                    {rePerspectToThingId}
                 />
             </div>
 
@@ -217,6 +231,7 @@
             <div class="history-container">
                 <GraphHistoryView
                     bind:graph
+                    {rePerspectToThingId}
                 />
             </div>
         </div>
@@ -251,6 +266,7 @@
                         <CohortWidget
                             cohort={graph.rootCohort}
                             bind:graph
+                            {rePerspectToThingId}
                         />
                     {/if}
                 </div>
