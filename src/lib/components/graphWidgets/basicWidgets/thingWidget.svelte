@@ -1,8 +1,5 @@
 <script lang="ts">
-    // App imports.
-    import { sleep } from "$lib/shared/utility"
-
-    // Graph construct imports.
+    // Type imports.
     import type { Graph } from "$lib/shared/graph/graph"
     import type { ThingWidgetModel } from "$lib/shared/graph/graphWidgets"
 
@@ -55,6 +52,34 @@
 
     let showDetails = false
     let lockDetails = false
+
+
+
+
+
+
+
+    async function createNewRelatedThing() {
+
+        let res: Response
+
+        res = await fetch(`api/createNewRelatedThingFromThingId-${thingId}`)
+
+        // If the response is ok,
+        if (res.ok) {
+            console.log("CREATED")
+
+        // Handle errors if needed.
+        } else {
+            res.text().then(text => {throw Error(text)})
+        }
+
+    }
+
+
+
+
+
 </script>
 
 
@@ -107,6 +132,11 @@
         <ContextMenuOption
             text="Add Thing to Pins"
             on:click={() => {addPin(thingId)}}
+        />
+
+        <ContextMenuOption
+            text="Create new related Thing"
+            on:click={createNewRelatedThing}
         />
     </ContextMenuFrame>
 </div>

@@ -1,7 +1,5 @@
-import { Thing, queryThings } from "$lib/shared/graph/dbConstructs"
+import { Thing, queryThings} from "$lib/shared/graph/dbConstructs"
 
-
-let thingIds: string | number[]
 
 export async function get(
     { params }: { params: { thingIds: string } }
@@ -9,6 +7,8 @@ export async function get(
     status: number;
     body: Thing[] | { error: string }
 }> {
+    let thingIds: string | number[]
+
     try {
         ({ thingIds } = params)
         const things = await queryThings(thingIds.split(",").map(x => Number(x)))

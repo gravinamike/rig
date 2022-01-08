@@ -26,9 +26,12 @@
     "@tiptap/core": "^2.0.0-beta.140",
     "@tiptap/extension-underline": "^2.0.0-beta.21",
     "@tiptap/starter-kit": "^2.0.0-beta.142",
+    "@types/knex": "^0.16.1",
+    "@types/uuid": "^8.3.3",
     "knex": "^0.95.11",
     "objection": "^2.2.15",
     "pg": "^8.7.1",
-    "svelte-kit": "^1.0.0"
+    "svelte-kit": "^1.0.0",
+    "uuid": "^8.3.2"
   }
 }

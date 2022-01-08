@@ -1,6 +1,9 @@
+import type { Knex } from "knex"
 import type { HalfAxisId } from "$lib/shared/constants"
 import { oddHalfAxisIds } from "$lib/shared/constants"
 import { Model, RelationMappings, RelationMappingsThunk } from "objection"
+import { v4 as uuidv4 } from "uuid"
+
 
 export type GraphConstruct = Direction | Space | Thing
 
@@ -9,7 +12,6 @@ export type GraphConstruct = Direction | Space | Thing
  * Direction model.
  */
 export class Direction extends Model {
-    kind = "direction" as const
     static tableName = "directions" as const
 
     id!: number
@@ -24,7 +26,6 @@ export class Direction extends Model {
  * Space model.
  */
 export class Space extends Model {
-    kind = "space" as const
     static tableName = "spaces" as const
 
     id!: number
@@ -82,29 +83,60 @@ export class Space extends Model {
  * Relationship model.
  */
 class Relationship extends Model {
-    kind = "relationship" as const
     static tableName = "relationships" as const
 
     id!: number
-    direction!: number
-    thingaid!: number
-    thingbid!: number
+    guid!: string
+    thingaid!: number | null
+    thingbid!: number | null
+    whencreated!: Date | null
+    whenmodded!: Date | null
+    whentrashed!: Date | null
+    text!: string | null
+    direction!: number// Default is 1
+    meta!: number// Default is 0
     relationshiporder!: number | null
+    access!: number | null
+    ensystemed!: number | null
 }
 
 /*
  * Thing model.
  */
 export class Thing extends Model {
-    kind = "thing" as const
     static tableName = "things" as const
 
     id!: number
+    guid!: string
     text!: string
-    note!: Note | null
+    whencreated!: Date | null
+    whenmodded!: Date | null
+    whentrashed!: Date | null
+    whenvisited!: Date | null
     defaultplane!: number | null//CAN WE RENAME TO DEFAULTSPACEID?
+    depthprofile!: string// Default is "{}"
+    formula!: string// Default is "{}"
+    lastformulated!: Date | null
+    fillcolor!: string | null
+    stackbehavior!: string | null
+    xoffset!: number | null
+    yoffset!: number | null
+    zoffset!: number | null
+    perspectivedepths!: string// Default is "{}"
+    taskactivity!: number | null
+    taskactivityreps!: number// Default is 1
+    access!: number | null
+    perspectivetexts!: string// Default is "{}"
+    ensystems!: number | null
+    portalperspectivethingid!: number | null
+    portaldefaultspaceid!: number | null
+    sizemultiplier!: number// Default is 1.0
+    perspectiveviewers!: string// Default is "{}"
+
+    note!: Note | null
     a_relationships!: Relationship[]
     b_relationships!: Relationship[]
+
 
     static get relationMappings(): RelationMappings | RelationMappingsThunk {
         return {
@@ -143,8 +175,8 @@ export class Thing extends Model {
         return ['relationshipInfos', 'relatedThingIds', 'relatedThingIdsByDirectionId']
     }
 
-    get relationshipInfos(): { relatedThingId: number, directionId: number, order: number | null }[] {
-        let relationshipInfos: { relatedThingId: number, directionId: number, order: number | null }[] = []
+    get relationshipInfos(): { relatedThingId: number | null, directionId: number, order: number | null }[] {
+        let relationshipInfos: { relatedThingId: number | null, directionId: number, order: number | null }[] = []
         for (const relationship of this.b_relationships) relationshipInfos.push(
             { relatedThingId: relationship.thingbid, directionId: relationship.direction, order: relationship.relationshiporder }
         )
@@ -153,8 +185,8 @@ export class Thing extends Model {
         return relationshipInfos
     }
 
-    get relatedThingIds(): number[] {
-        const relatedThingIds: number[] = []
+    get relatedThingIds(): (number | null)[] {
+        const relatedThingIds: (number | null)[] = []
         for (const relationshipInfo of this.relationshipInfos) {
             relatedThingIds.push(relationshipInfo.relatedThingId)
         }
@@ -167,11 +199,12 @@ export class Thing extends Model {
             const directionId = relationshipInfo.directionId
             const relatedThingId = relationshipInfo.relatedThingId
             if (!(directionId in relatedThingIdsByDirectionId)) relatedThingIdsByDirectionId[directionId] = []
-            if (!(relatedThingId in relatedThingIdsByDirectionId[directionId])) relatedThingIdsByDirectionId[directionId].push(relatedThingId)
+            if (!(relatedThingId === null || relatedThingId in relatedThingIdsByDirectionId[directionId])) relatedThingIdsByDirectionId[directionId].push(relatedThingId)
         }
         return relatedThingIdsByDirectionId
     }
 }
+
 
 /*
  * Note model.
@@ -254,15 +287,15 @@ export async function queryDirections(directionIds: number | number[] | null, id
  * Typeguard functions for Graph construct classes.
  */
 export function isDirection(construct: GraphConstruct): construct is Direction {
-    return construct.kind === "direction"
+    return "oppositeid" in construct
 }
 
 export function isSpace(construct: GraphConstruct): construct is Space {
-    return construct.kind === "space"
+    return "directions" in construct
 }
 
 export function isThing(construct: GraphConstruct): construct is Thing {
-    return construct.kind === "thing"
+    return "note" in construct
 }
 
 
@@ -345,4 +378,153 @@ export async function queryThings(thingIds: number | number[]): Promise<null | T
             .orderBy('id')
         return queriedThings
     }
+}
+
+
+
+
+
+
+interface NewThingInfo {
+    guid: string,
+    text: string,
+    whencreated: string,
+    whenmodded: null,
+    whentrashed: null,
+    whenvisited: null,
+    defaultplane: number,
+    depthprofile: "{}",
+    formula: "{}",
+    lastformulated: null,
+    fillcolor: null,
+    stackbehavior: null,
+    xoffset: null,
+    yoffset: null,
+    zoffset: null,
+    perspectivedepths: "{}",
+    taskactivity: null,
+    taskactivityreps: 1,
+    access: number | null
+    perspectivetexts: "{}",
+    ensystems: null,
+    portalperspectivethingid: null,
+    portaldefaultspaceid: null,
+    sizemultiplier: 1,
+    perspectiveviewers: "{}"
+}
+
+function getNewThingInfo(text: string, whenCreated: string, defaultSpace: number): NewThingInfo {
+    const newThingInfo = {
+        guid: uuidv4(),
+        text: text,
+        whencreated: whenCreated,
+        whenmodded: null,
+        whentrashed: null,
+        whenvisited: null,
+        defaultplane: defaultSpace,
+        depthprofile: "{}" as const,
+        formula: "{}" as const,
+        lastformulated: null,
+        fillcolor: null,
+        stackbehavior: null,
+        xoffset: null,
+        yoffset: null,
+        zoffset: null,
+        perspectivedepths: "{}" as const,
+        taskactivity: null,
+        taskactivityreps: 1 as const,
+        access: null,
+        perspectivetexts: "{}" as const,
+        ensystems: null,
+        portalperspectivethingid: null,
+        portaldefaultspaceid: null,
+        sizemultiplier: 1 as const,
+        perspectiveviewers: "{}" as const
+    }
+
+    return newThingInfo
+}
+
+interface NewRelationshipInfo {
+    guid: string,
+    thingaid: number,
+    thingbid: number,
+    whencreated: string,
+    whenmodded: null,
+    whentrashed: null,
+    text: null,
+    direction: number,
+    meta: 0,
+    relationshiporder: null,
+    access: null,
+    ensystemed: null
+}
+
+function getNewRelationshipInfo(thingAId: number, thingBId: number, whenCreated: string, direction: number): NewRelationshipInfo {
+    const newRelationshipInfo = {
+        guid: uuidv4(),
+        thingaid: thingAId,
+        thingbid: thingBId,
+        whencreated: whenCreated,
+        whenmodded: null,
+        whentrashed: null,
+        text: null,
+        direction: direction,
+        meta: 0 as const,
+        relationshiporder: null,
+        access: null,
+        ensystemed: null
+    }
+
+    return newRelationshipInfo
+}
+
+// H2 doesn't mesh with Objection's PostgreSQL syntax naturally. This function is a
+// temporary fix until H2 is replaced with another database. It takes the querystring,
+// modifies it appropriately for H2 syntax, then runs it.
+async function alterQuerystringForH2AndRun(
+    querystring: string, transaction: Knex.Transaction, whenCreated: string, constructName: "Thing" | "Relationship"
+): Promise< Thing | Relationship > {
+    querystring = querystring.replace(` returning "ID"`, "")
+
+    const knex = Model.knex()
+    await knex.raw(querystring).transacting(transaction)
+    
+    const latestConstructResults = constructName === "Thing" ?
+        await Thing.query().select("id").where({whencreated: whenCreated}).transacting(transaction) :
+        await Relationship.query().select("id").where({whencreated: whenCreated}).transacting(transaction)
+    const latestConstruct = latestConstructResults[0]
+
+    return latestConstruct
+}
+
+
+export async function createNewRelatedThing(thingIdToRelateFrom: number): Promise<void> {///////////// BACK IT UP!!!!!!
+    const whenCreated = (new Date()).toISOString()
+
+    const knex = Model.knex()
+    knex.transaction(async (transaction: Knex.Transaction) => {
+
+        const newThingInfo = getNewThingInfo("TEXT", whenCreated, 2)
+        const querystring1 = Thing.query().insert(newThingInfo).toKnexQuery().toString()
+        const newRelatedThing = await alterQuerystringForH2AndRun(querystring1, transaction, whenCreated, "Thing") as Thing
+        
+        const newARelationshipInfo = getNewRelationshipInfo(thingIdToRelateFrom, newRelatedThing.id, whenCreated, 5)
+        const querystring2 = Relationship.query().insert(newARelationshipInfo).toKnexQuery().toString()
+        const newBRelationshipInfo = getNewRelationshipInfo(newRelatedThing.id, thingIdToRelateFrom, whenCreated, 6)
+        const querystring3 = Relationship.query().insert(newBRelationshipInfo).toKnexQuery().toString()
+        const [newARelationship, newBRelationship] = await Promise.all([
+            alterQuerystringForH2AndRun(querystring2, transaction, whenCreated, "Relationship"),
+            alterQuerystringForH2AndRun(querystring3, transaction, whenCreated, "Relationship")
+        ])
+
+        return [newRelatedThing, newARelationship, newBRelationship] 
+
+    })
+    .then(function() {
+        console.log('Transaction complete.')
+    })
+    .catch(function(err: Error) {
+        console.error(err)
+    })
 }
