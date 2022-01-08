@@ -503,7 +503,7 @@ export async function createNewRelatedThing(thingIdToRelateFrom: number): Promis
     const whenCreated = (new Date()).toISOString()
 
     const knex = Model.knex()
-    knex.transaction(async (transaction: Knex.Transaction) => {
+    await knex.transaction(async (transaction: Knex.Transaction) => {
 
         const newThingInfo = getNewThingInfo("TEXT", whenCreated, 2)
         const querystring1 = Thing.query().insert(newThingInfo).toKnexQuery().toString()
@@ -527,4 +527,6 @@ export async function createNewRelatedThing(thingIdToRelateFrom: number): Promis
     .catch(function(err: Error) {
         console.error(err)
     })
+
+    return
 }

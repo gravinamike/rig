@@ -40,7 +40,7 @@ export const thingIdsNotFoundStore = writable( [] as number[] );
 function updateConstructStore<Type extends GraphConstruct>( constructs: Type | Type[] ): void {
     // If necessary, pack a single supplied construct in an array for processing.
     if (!("length" in constructs)) constructs = [constructs]
-
+    
     // Determine which store to update based on construct type.
     let store: Writable<{ [id: number]: GraphConstruct }>
     if ( isDirection(constructs[0]) ) {
@@ -100,7 +100,11 @@ export function graphConstructInStore( constructName: "Direction" | "Space" | "T
 /* 
  * Function to fetch Graph constructs from the API, then add them to the stores.
  */
-export async function storeGraphConstructs<Type extends GraphConstruct>( constructName: "Direction" | "Space" | "Thing", ids?: number | number[] ): Promise<Type[]> {
+export async function storeGraphConstructs<Type extends GraphConstruct>(
+    constructName: "Direction" | "Space" | "Thing",
+    ids?: number | number[],
+    allowUpdating = false
+): Promise<Type[]> {
     // Determine which store to check based on construct name.
     const storeValue = {
         "Direction": directionsStoreValue,
@@ -111,17 +115,23 @@ export async function storeGraphConstructs<Type extends GraphConstruct>( constru
     let res: Response
     let idsToQuery: number[] = []
     
-    // If no ids were provided, fetch all instances of this construct.
+    // If no IDs were provided, fetch all instances of this construct.
     if (typeof ids === "undefined") {
         res = await fetch(`api/${ constructName.toLowerCase() }s-all`)
 
-    // If ids were provided,
+    // Else, if IDs *were* provided,
     } else {
-        // Convert single ids into arrays for processing (if needed).
+        // Convert single IDs into arrays for processing (if needed).
         if ( typeof ids === "number" ) ids = [ids]
-        // Only fetch instances that aren't already stored.
-        const idsNotToQuery = Object.keys(storeValue).map(x => Number(x));
-        idsToQuery = ids.filter( x => !idsNotToQuery.includes(x) )
+        // Get array of IDs to query.
+        if (allowUpdating) {
+            // If updating is allowed, use the full array of supplied IDs.
+            idsToQuery = ids
+        } else {
+            // If updating is not allowed, filter any IDs that are already stored out of the supplied array.
+            const idsNotToQuery = Object.keys(storeValue).map(x => Number(x))
+            idsToQuery = ids.filter( x => !idsNotToQuery.includes(x) )
+        }
         // Fetch the instances from the API.
         if (!idsToQuery.length) return []
         res = await fetch(`api/${ constructName.toLowerCase() }s-${idsToQuery.join(",")}`);

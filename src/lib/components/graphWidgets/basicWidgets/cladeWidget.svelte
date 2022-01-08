@@ -31,7 +31,7 @@
 >
     <ThingWidget
         {thingWidgetModel}
-        bind:graph={graph}
+        bind:graph
         {rePerspectToThingId}
     />
 
@@ -49,7 +49,7 @@
             <RelationshipsWidget
                 {cohort}
                 {space}
-                {graph}
+                bind:graph
             />
         {/if}
         

@@ -1,13 +1,16 @@
 <script lang="ts">
     // Type imports.
     import type { Graph } from "$lib/shared/graph/graph"
+    import type { Thing } from "$lib/shared/graph/dbConstructs"
     import type { ThingWidgetModel } from "$lib/shared/graph/graphWidgets"
 
     // Graph widget imports.
     import { hoveredThingIdStore, addPin } from "$lib/shared/stores/appStores"
+    import { storeGraphConstructs, retrieveGraphConstructs } from "$lib/shared/stores/graphStores"
     import ThingDetailsWidget from "$lib/components/graphWidgets/detailsWidgets/thingDetailsWidget.svelte"
     import { planePadding } from "$lib/shared/constants"
     import { ContextMenuFrame, ContextMenuOption } from "$lib/components/layoutElements/contextMenu"
+import { sleep } from "$lib/shared/utility";
 
     export let thingWidgetModel: ThingWidgetModel
     export let graph: Graph
@@ -55,10 +58,6 @@
 
 
 
-
-
-
-
     async function createNewRelatedThing() {
 
         let res: Response
@@ -67,7 +66,9 @@
 
         // If the response is ok,
         if (res.ok) {
-            console.log("CREATED")
+            await storeGraphConstructs<Thing>("Thing", thingId, true)
+            await graph.build()
+            graph = graph
 
         // Handle errors if needed.
         } else {
@@ -75,10 +76,6 @@
         }
 
     }
-
-
-
-
 
 </script>
 
