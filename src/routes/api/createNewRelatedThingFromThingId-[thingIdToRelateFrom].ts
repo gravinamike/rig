@@ -1,4 +1,4 @@
-import { createNewRelatedThing } from "$lib/shared/graph/dbConstructs"
+import { createNewRelatedThing } from "$lib/shared/graph/constructs/query"
 
 
 export async function get(

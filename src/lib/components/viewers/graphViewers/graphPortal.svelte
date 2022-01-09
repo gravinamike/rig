@@ -45,7 +45,7 @@
     $: tweenedScale.set(scale)
     $: zoomPadding = graph.graphWidgetStyle.zoomPadding
     $: if (graph.allowScrollToThingId && graph.thingIdToScrollTo) { // Before graph is re-Perspected, scroll to new Perspective Thing.
-        //scrollToThingId(graph.thingIdToScrollTo)
+        scrollToThingId(graph.thingIdToScrollTo)
     }
     $: if (graph.allowZoomAndScrollToFit) { // When graph is re-built, scroll to central anchor, then zoom and scroll to fit.
         scrollToCentralAnchor(false)
@@ -89,7 +89,6 @@
     }
 
     /** Auto-zoom and auto-scroll functions. */
-
     async function scrollToThingId(thingId: number): Promise<void> {
         const thingWidgetId = `portal#${graph.id}-thing#${thingId}`
         const thingWidget = document.getElementById(thingWidgetId)

@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { Graph } from "$lib/shared/graph/graph"
-    import type { Thing } from "$lib/shared/graph/dbConstructs"
+    import type { Thing } from "$lib/shared/graph/constructs/thing"
     import { thingsStore, retrieveGraphConstructs, graphConstructInStore } from "$lib/shared/stores/graphStores"
     import Toggle from "$lib/components/layoutElements/toggle.svelte"
     import NotesEditor from "$lib/components/viewers/notesViewer/notesEditor.svelte"

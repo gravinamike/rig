@@ -1,4 +1,5 @@
-import { Thing, queryThings} from "$lib/shared/graph/dbConstructs"
+import type { Thing } from "$lib/shared/graph/constructs/thing"
+import { queryThings } from "$lib/shared/graph/constructs/query"
 
 
 export async function get(

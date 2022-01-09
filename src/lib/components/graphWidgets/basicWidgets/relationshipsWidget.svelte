@@ -1,8 +1,9 @@
 <script context="module" lang="ts">
     import { tweened } from "svelte/motion"
 	import { cubicOut } from "svelte/easing"
-    import type { Direction, Space } from "$lib/shared/graph/dbConstructs"
     import type { Graph } from "$lib/shared/graph/graph"
+    import type { Direction } from "$lib/shared/graph/constructs/direction"
+    import type { Space } from "$lib/shared/graph/constructs/space"
     import type { GenerationMember } from "$lib/shared/graph/generation"
     import type { Cohort } from "$lib/shared/graph/cohort"
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { Space } from "$lib/shared/graph/dbConstructs"
+    import type { Space } from "$lib/shared/graph/constructs/space"
     import Collapser from "$lib/components/layoutElements/collapser.svelte"
 
     export let space: Space

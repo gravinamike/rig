@@ -1,5 +1,7 @@
 import type { HalfAxisId } from "$lib/shared/constants"
-import type { Space, Thing, Note } from "$lib/shared/graph/dbConstructs"
+import type { Space } from "$lib/shared/graph/constructs/space"
+import type { Thing } from "$lib/shared/graph/constructs/thing"
+import type { Note } from "$lib/shared/graph/constructs/note"
 import type { Graph } from "$lib/shared/graph/graph"
 import type { Cohort } from "$lib/shared/graph/cohort"
 
@@ -57,7 +59,7 @@ export class ThingWidgetModel {
         return defaultSpaceId
     }
 
-    get relatedThingIds(): number[] {
+    get relatedThingIds(): (number | null)[] {
         const relatedThingIds = this.thing ? this.thing.relatedThingIds : []
         return relatedThingIds
     }

@@ -1,3 +1,9 @@
+import type { Direction } from "$lib/shared/graph/constructs/direction"
+import type { Space } from "$lib/shared/graph/constructs/space"
+import type { Thing } from "$lib/shared/graph/constructs/thing"
+import type { Relationship } from "$lib/shared/graph/constructs/relationship"
+
+
 /*
  * "Constants" that will eventually be moved into a mutable config file.
  */
@@ -12,6 +18,11 @@ export const zoomBase = 1.45
 export interface Config {
     pinIds: number[]
 }
+
+/*
+ * Graph-level interfaces and types.
+ */
+export type GraphConstruct = Direction | Space | Thing | Relationship
 
 export interface GraphWidgetStyle {
     zoom: number,

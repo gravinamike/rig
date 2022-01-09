@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { Thing } from "$lib/shared/graph/dbConstructs"
+    import type { Thing } from "$lib/shared/graph/constructs/thing"
     import { hoveredThingIdStore } from "$lib/shared/stores/appStores"
     import Collapser from "$lib/components/layoutElements/collapser.svelte"
 

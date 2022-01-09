@@ -1,16 +1,15 @@
 <script lang="ts">
     // Type imports.
     import type { Graph } from "$lib/shared/graph/graph"
-    import type { Thing } from "$lib/shared/graph/dbConstructs"
+    import type { Thing } from "$lib/shared/graph/constructs/thing"
     import type { ThingWidgetModel } from "$lib/shared/graph/graphWidgets"
 
     // Graph widget imports.
     import { hoveredThingIdStore, addPin } from "$lib/shared/stores/appStores"
-    import { storeGraphConstructs, retrieveGraphConstructs } from "$lib/shared/stores/graphStores"
+    import { storeGraphConstructs } from "$lib/shared/stores/graphStores"
     import ThingDetailsWidget from "$lib/components/graphWidgets/detailsWidgets/thingDetailsWidget.svelte"
     import { planePadding } from "$lib/shared/constants"
     import { ContextMenuFrame, ContextMenuOption } from "$lib/components/layoutElements/contextMenu"
-import { sleep } from "$lib/shared/utility";
 
     export let thingWidgetModel: ThingWidgetModel
     export let graph: Graph
@@ -21,7 +20,7 @@ import { sleep } from "$lib/shared/utility";
 
     // IDs of the Thing's model and widget.
     $: thingId = thingWidgetModel.thingId
-    $: thingWidgetId = thingWidgetModel.thingWidgetId
+    $: thingWidgetId = thingWidgetModel.thingWidgetId as string
 
     $: text = thingWidgetModel.text
 

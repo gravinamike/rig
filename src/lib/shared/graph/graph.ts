@@ -1,5 +1,5 @@
 import type { GraphWidgetStyle } from "$lib/shared/constants"
-import type { Thing } from "$lib/shared/graph/dbConstructs"
+import type { Thing } from "$lib/shared/graph/constructs/thing"
 
 import { defaultGraphWidgetStyle } from "$lib/shared/constants"
 import { storeGraphConstructs, graphConstructInStore } from "$lib/shared/stores/graphStores"
@@ -146,9 +146,10 @@ export class Graph {
     thingIdsForGenerationId(generationId: number): number[] {
         // For generation 0, start from the Perspective Thing IDs.
         // For generations >1, start from the IDs of the last generation's Relation Things.
-        const thingIdsForGenerationId = generationId === 0 ?
+        const thingIdsAndNullsForGenerationId = generationId === 0 ?
             this._pThingIds :
             this.seedThingWidgetModels.map(thingWidgetModel => thingWidgetModel.relatedThingIds).flat()
+        const thingIdsForGenerationId = thingIdsAndNullsForGenerationId.filter(id => !!id) as number[]
         return thingIdsForGenerationId
     }
 
