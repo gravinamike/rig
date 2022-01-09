@@ -63,13 +63,17 @@
         {direction.text}
     </div>
     <svg class="relationship-image" style="width: {imageWidth}px; height: {imageHeight}px; transform: rotate({rotation}deg);">
-        <line style="stroke-width: {6 / $tweenedScale}; cursor: pointer;"
-            x1="{childrenDimension * 0.5}" y1="{edgeToEdgeDimension}"
-            x2="{childrenDimension * 0.5}" y2="{edgeToEdgeDimension * 2 / 3 + 6 / $tweenedScale}"
-        />
-        <polygon style="stroke-width: {3 / $tweenedScale}; cursor: pointer;"
-            points="{childrenDimension * 0.5 - 3 / $tweenedScale},{edgeToEdgeDimension * 2 / 3 + 6 / $tweenedScale} {childrenDimension * 0.5 + 3 / $tweenedScale},{edgeToEdgeDimension * 2 / 3 + 6 / $tweenedScale} {childrenDimension * 0.5},{edgeToEdgeDimension * 2 / 3}"
-        />
+        <g class="relationship-stem">
+            <line
+                x1="{childrenDimension * 0.5}" y1="{edgeToEdgeDimension}"
+                x2="{childrenDimension * 0.5}" y2="{edgeToEdgeDimension * 2 / 3 + 6 / $tweenedScale}"
+                style="stroke-width: {6 / $tweenedScale};"
+            />
+            <polygon
+                points="{childrenDimension * 0.5 - 3 / $tweenedScale},{edgeToEdgeDimension * 2 / 3 + 6 / $tweenedScale} {childrenDimension * 0.5 + 3 / $tweenedScale},{edgeToEdgeDimension * 2 / 3 + 6 / $tweenedScale} {childrenDimension * 0.5},{edgeToEdgeDimension * 2 / 3}"
+                style="stroke-width: {3 / $tweenedScale};"
+            />
+        </g>
         {#each cohortMembersWithIndices as memberWithIndex}
             <line style="stroke-width: {2 / $tweenedScale}; stroke-dasharray: {1 / $tweenedScale} {5 / $tweenedScale};"
                 x1="{childrenDimension * 0.5}" y1="{edgeToEdgeDimension * 2 / 3}"
@@ -101,10 +105,21 @@
 
     .relationship-image {
         position: absolute;
-        stroke:lightgrey;
+        stroke: lightgrey;
+        fill: lightgrey;
     }
-    
-    .relationship-image polygon {
-        fill:lightgrey;
+
+    .relationship-stem {        
+        cursor: pointer;
+    }
+
+    .relationship-stem:hover {
+        stroke: silver;
+        fill: silver;
+    }
+
+    .relationship-stem:active {
+        stroke: dimgrey;
+        fill: dimgrey;
     }
 </style>
