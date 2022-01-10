@@ -6,7 +6,8 @@ import { storeGraphConstructs, graphConstructInStore } from "$lib/shared/stores/
 import { Generation } from "$lib/shared/graph/generation"
 import { Cohort } from "$lib/shared/graph/cohort"
 import { Plane } from "$lib/shared/graph/plane"
-import { ThingWidgetModel, ThingPlaceholderWidgetModel } from "$lib/shared/graph/graphWidgets"
+import { ThingWidgetModel } from "$lib/shared/graph/widgetModels/thingWidgetModel"
+import { ThingPlaceholderWidgetModel } from "$lib/shared/graph/widgetModels/thingPlaceholderWidgetModel"
 
 
 /** Class representing a Graph. */

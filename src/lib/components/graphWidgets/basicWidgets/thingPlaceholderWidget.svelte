@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { ThingPlaceholderWidgetModel } from "$lib/shared/graph/graphWidgets"
+    import type { ThingPlaceholderWidgetModel } from "$lib/shared/graph/widgetModels/thingPlaceholderWidgetModel"
 
     export let thingPlaceholderWidgetModel: ThingPlaceholderWidgetModel
 </script>

@@ -1,6 +1,7 @@
 import type { Graph } from "$lib/shared/graph/graph"
 import type { Cohort } from "$lib/shared/graph/cohort"
-import type { ThingWidgetModel, ThingPlaceholderWidgetModel } from "$lib/shared/graph/graphWidgets"
+import type { ThingWidgetModel } from "$lib/shared/graph/widgetModels/thingWidgetModel"
+import type { ThingPlaceholderWidgetModel } from "$lib/shared/graph/widgetModels/thingPlaceholderWidgetModel"
 
 
 export type GenerationMember = ThingWidgetModel | ThingPlaceholderWidgetModel

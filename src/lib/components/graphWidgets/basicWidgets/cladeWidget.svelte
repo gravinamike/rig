@@ -1,7 +1,7 @@
 <script lang="ts">
     // Graph construct imports.
     import type { Graph } from "$lib/shared/graph/graph"
-    import type { ThingWidgetModel } from "$lib/shared/graph/graphWidgets"
+    import type { ThingWidgetModel } from "$lib/shared/graph/widgetModels/thingWidgetModel"
 
     // Graph widget imports.
     import ThingWidget from "$lib/components/graphWidgets/basicWidgets/thingWidget.svelte"

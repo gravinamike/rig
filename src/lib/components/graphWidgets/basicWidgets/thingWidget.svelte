@@ -2,7 +2,7 @@
     // Type imports.
     import type { Graph } from "$lib/shared/graph/graph"
     import type { Thing } from "$lib/shared/graph/constructs/thing"
-    import type { ThingWidgetModel } from "$lib/shared/graph/graphWidgets"
+    import type { ThingWidgetModel } from "$lib/shared/graph/widgetModels/thingWidgetModel"
 
     // Graph widget imports.
     import { hoveredThingIdStore, addPin } from "$lib/shared/stores/appStores"

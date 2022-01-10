@@ -2,7 +2,7 @@ import type { HalfAxisId } from "$lib/shared/constants"
 import type { Graph } from "$lib/shared/graph/graph"
 import type { GenerationMember } from "$lib/shared/graph/generation"
 import type { Plane } from "$lib/shared/graph/plane"
-import type { ThingWidgetModel } from "$lib/shared/graph/graphWidgets"
+import type { ThingWidgetModel } from "$lib/shared/graph/widgetModels/thingWidgetModel"
 
 import { offsetsByHalfAxisId } from "$lib/shared/constants"
 
