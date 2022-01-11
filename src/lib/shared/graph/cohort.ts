@@ -56,6 +56,13 @@ export class Cohort {
         return output
     }
 
+    addMember(member: GenerationMember): void {
+        if (!this.members.includes(member)) {
+            this.members.push(member)
+            member.parentCohort = this
+        }
+    }
+
     removeFromGroups(): void {
         const generation = this.address.graph.generationById(this.address.generationId)
         if (generation) {
@@ -66,5 +73,4 @@ export class Cohort {
             this.plane.removeCohort(this)
         }
     }
-
 }

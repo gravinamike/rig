@@ -5,6 +5,7 @@
 
     // Graph widget imports.
     import ThingWidget from "$lib/components/graphWidgets/basicWidgets/thingWidget.svelte"
+    import ThingFormWidget from "$lib/components/graphWidgets/basicWidgets/thingFormWidget.svelte"
     import RelationshipsWidget from "$lib/components/graphWidgets/basicWidgets/relationshipsWidget.svelte"
     import CohortWidget from "$lib/components/graphWidgets/basicWidgets/cohortWidget.svelte"
 
@@ -29,11 +30,18 @@
     class="clade-widget"
     style="margin: {-overlap}px;"
 >
-    <ThingWidget
-        {thingWidgetModel}
-        bind:graph
-        {rePerspectToThingId}
-    />
+    {#if thingWidgetModel.thing}
+        <ThingWidget
+            {thingWidgetModel}
+            bind:graph
+            {rePerspectToThingId}
+        />
+    {:else}
+        <ThingFormWidget
+            {thingWidgetModel}
+            bind:graph
+        />
+    {/if}
 
     {#if showNotes}
         {#if note}

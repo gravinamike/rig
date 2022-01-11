@@ -6,7 +6,6 @@ import { Space } from "$lib/shared/graph/constructs/space"
 import { Thing, getNewThingInfo } from "$lib/shared/graph/constructs/thing"
 import { Relationship, getNewRelationshipInfo } from "$lib/shared/graph/constructs/relationship"
 
-
 /*
  * Functions to query Graph constructs.
  */
@@ -165,19 +164,22 @@ async function alterQuerystringForH2AndRun(
 }
 
 
-export async function createNewRelatedThing(thingIdToRelateFrom: number): Promise<void> {///////////// BACK IT UP!!!!!!
+export async function createNewRelatedThing(thingIdToRelateFrom: number, directionId: number, text: string): Promise<void> {
     const whenCreated = (new Date()).toISOString()
 
     const knex = Model.knex()
     await knex.transaction(async (transaction: Knex.Transaction) => {
 
-        const newThingInfo = getNewThingInfo("TEXT", whenCreated, 2)
+        const newThingInfo = getNewThingInfo(text, whenCreated, 2)
         const querystring1 = Thing.query().insert(newThingInfo).toKnexQuery().toString()
         const newRelatedThing = await alterQuerystringForH2AndRun(querystring1, transaction, whenCreated, "Thing") as Thing
         
-        const newARelationshipInfo = getNewRelationshipInfo(thingIdToRelateFrom, newRelatedThing.id, whenCreated, 5)
+        const direction = (await Direction.query().where("id", directionId))[0]
+        const oppositeDirectionId = direction.oppositeid as number
+
+        const newARelationshipInfo = getNewRelationshipInfo(thingIdToRelateFrom, newRelatedThing.id, whenCreated, directionId)
         const querystring2 = Relationship.query().insert(newARelationshipInfo).toKnexQuery().toString()
-        const newBRelationshipInfo = getNewRelationshipInfo(newRelatedThing.id, thingIdToRelateFrom, whenCreated, 6)
+        const newBRelationshipInfo = getNewRelationshipInfo(newRelatedThing.id, thingIdToRelateFrom, whenCreated, oppositeDirectionId)
         const querystring3 = Relationship.query().insert(newBRelationshipInfo).toKnexQuery().toString()
         const [newARelationship, newBRelationship] = await Promise.all([
             alterQuerystringForH2AndRun(querystring2, transaction, whenCreated, "Relationship"),

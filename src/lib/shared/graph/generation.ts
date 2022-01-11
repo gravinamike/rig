@@ -37,7 +37,7 @@ export class Generation {
 
     get membersById(): { [memberId: number]: GenerationMember } {
         const membersById: { [memberId: number]: GenerationMember } = {}
-        for (const member of this.members) membersById[member.thingId] = member
+        for (const member of this.members) if (member.thingId) membersById[member.thingId] = member
         return membersById
     }
 

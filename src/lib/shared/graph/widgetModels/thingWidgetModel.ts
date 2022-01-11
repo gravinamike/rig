@@ -24,15 +24,15 @@ type ThingAddress = {
 export class ThingWidgetModel {
     kind = "thingWidgetModel"
 
-    thingId: number
+    thingId: number | null
     thing: Thing | null
     parentCohort: Cohort | null = null
     childCohortsByHalfAxisId: { [directionId: number]: Cohort } = {}
     inheritSpace = true // For now.
 
-    constructor(thingId: number) {
+    constructor(thingId: number | null) {
         this.thingId = thingId
-        this.thing = retrieveGraphConstructs("Thing", thingId)
+        this.thing = typeof thingId === "number" ? retrieveGraphConstructs("Thing", thingId) : null
     }
 
     get thingWidgetId(): string | null {

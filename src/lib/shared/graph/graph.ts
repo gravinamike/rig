@@ -25,6 +25,7 @@ export class Graph {
     thingIdToScrollTo: number | null = null
     allowScrollToThingId = false
     allowZoomAndScrollToFit = false
+    formActive = false
 
     /**
      * Create a Graph.
@@ -166,6 +167,7 @@ export class Graph {
         this.generations = []
         this.planes = {}
         this.focalPlaneId = 0
+        this.formActive = false
 
         // Adjust (build) the Generations to the Graph's specified Depth.
         await this.adjustGenerationsToDepth()
@@ -235,7 +237,7 @@ export class Graph {
                     // Get list of the Things in that half axis' Cohort.
                     const childCohortThingIds = prevThingWidgetModel.relatedThingIdsByHalfAxisId(halfAxisId)
                     // Add the members from this Generation matching those IDs as a new Cohort on that half-axis.
-                    const membersForCohort = membersForGeneration.filter((member) => {if (childCohortThingIds.includes(member.thingId)) return true})
+                    const membersForCohort = membersForGeneration.filter((member) => {if (member.thingId && childCohortThingIds.includes(member.thingId)) return true})
                     const childCohort = new Cohort(addressForCohort, membersForCohort)
                     // Populate the Cohort for the previous Generation's Thing in that Direction from that list.
                     prevThingWidgetModel.childCohort(halfAxisId, childCohort)
@@ -317,5 +319,32 @@ export class Graph {
             // Mark the Generation as stripped.
             generationToStrip.lifecycleStatus = "stripped"
         }     
+    }
+
+    async createNewRelatedThing(thingIdToRelateFrom: number, directionId: number, text: string): Promise<boolean> {
+        //const res = await fetch(`api/createNewRelatedThingFromThingId-${thingId}`)
+        const res = await fetch(
+            `api/createNewRelatedThing`,
+            {
+                method: "POST",
+                body: JSON.stringify({
+                    thingIdToRelateFrom: thingIdToRelateFrom,
+                    directionId: directionId,
+                    text: text
+                })
+            }
+        )
+
+        // If the response is ok,
+        if (res.ok) {
+            await storeGraphConstructs<Thing>("Thing", thingIdToRelateFrom, true)
+            await this.build()
+            return true
+
+        // Handle errors if needed.
+        } else {
+            res.text().then(text => {throw Error(text)})
+            return false
+        }
     }
 }

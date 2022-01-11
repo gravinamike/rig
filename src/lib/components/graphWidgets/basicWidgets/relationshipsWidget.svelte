@@ -9,6 +9,8 @@
 
     import { rotationByHalfAxisId, offsetsByHalfAxisId, zoomBase } from "$lib/shared/constants"
     import { retrieveGraphConstructs } from "$lib/shared/stores/graphStores"
+    import { ThingWidgetModel } from "$lib/shared/graph/widgetModels/thingWidgetModel"
+    import { sleep } from "$lib/shared/utility"
 </script>
 
 <script lang="ts">
@@ -26,10 +28,15 @@
 
     $: edgeToEdgeDimension = offsetLength - thingSize
 
-    const cohortMembersWithIndices: { index: number, member: GenerationMember }[] = []
-    cohort.members.forEach(function (member, index) {
-        cohortMembersWithIndices.push({ index: index, member: member })
-    })
+    let cohortMembersWithIndices: { index: number, member: GenerationMember }[] = []
+    function updateCohortMembersWithIndices(members: GenerationMember[]) {
+        cohortMembersWithIndices = []
+        members.forEach(
+            (member, index) => cohortMembersWithIndices.push({ index: index, member: member })
+        )
+    }
+    $: updateCohortMembersWithIndices(cohort.members)
+    
     $: childrenDimension = cohort.members.length * thingSize + (cohort.members.length - 1) * betweenThingGap
 
     // Calculate x and y offsets and z-index relative to parent Thing Widget.
@@ -56,6 +63,19 @@
     // Retrieve Direction information.
     const directionId = space.directionIdByHalfAxisId[halfAxisId] as number
     const direction = retrieveGraphConstructs("Direction", directionId) as Direction
+
+
+    async function addThingForm() {
+        const newThingWidgetModel = new ThingWidgetModel(null)
+        if (!graph.formActive) {
+            cohort.addMember(newThingWidgetModel)
+            graph.formActive = true
+        }
+        graph = graph
+        await sleep(50)// Allow the Thing Form Widget to render.
+        const thingFormTextField = document.getElementById("thing-form-text-field")//// Instead find the ThingForm, and access the field as a property.
+        thingFormTextField?.focus()
+    }
 </script>
 
 
@@ -64,7 +84,10 @@
         {direction.text}
     </div>
     <svg class="relationship-image" style="width: {imageWidth}px; height: {imageHeight}px; transform: rotate({rotation}deg);">
-        <g class="relationship-stem">
+        <g
+            class="relationship-stem"
+            on:click={addThingForm}
+        >
             <line
                 x1="{childrenDimension * 0.5}" y1="{edgeToEdgeDimension}"
                 x2="{childrenDimension * 0.5}" y2="{edgeToEdgeDimension * 2 / 3 + 6 / $tweenedScale}"

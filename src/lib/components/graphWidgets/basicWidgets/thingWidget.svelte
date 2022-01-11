@@ -19,7 +19,7 @@
     let contextMenu: ContextMenuFrame
 
     // IDs of the Thing's model and widget.
-    $: thingId = thingWidgetModel.thingId
+    $: thingId = thingWidgetModel.thingId as number
     $: thingWidgetId = thingWidgetModel.thingWidgetId as string
 
     $: text = thingWidgetModel.text
@@ -58,22 +58,8 @@
 
 
     async function createNewRelatedThing() {
-
-        let res: Response
-
-        res = await fetch(`api/createNewRelatedThingFromThingId-${thingId}`)
-
-        // If the response is ok,
-        if (res.ok) {
-            await storeGraphConstructs<Thing>("Thing", thingId, true)
-            await graph.build()
-            graph = graph
-
-        // Handle errors if needed.
-        } else {
-            res.text().then(text => {throw Error(text)})
-        }
-
+        await graph.createNewThingRelatedToThingId(thingId)
+        graph = graph
     }
 
 </script>
