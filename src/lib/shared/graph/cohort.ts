@@ -63,6 +63,14 @@ export class Cohort {
         }
     }
 
+    removeMember(member: GenerationMember): void {
+        const index = this.members.indexOf(member);
+        if (index > -1) {
+            member.parentCohort = null
+            this.members.splice(index, 1)
+        }
+    }
+
     removeFromGroups(): void {
         const generation = this.address.graph.generationById(this.address.generationId)
         if (generation) {

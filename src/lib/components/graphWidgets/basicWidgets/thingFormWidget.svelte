@@ -1,10 +1,12 @@
 <script lang="ts">
     // Type imports.
     import type { Graph } from "$lib/shared/graph/graph"
+    import type { Cohort } from "$lib/shared/graph/cohort"
     import type { ThingWidgetModel } from "$lib/shared/graph/widgetModels/thingWidgetModel"
 
     // Graph widget imports.
     import { planePadding } from "$lib/shared/constants"
+    import XButton from "$lib/components/layoutElements/xButton.svelte"
 
     export let thingWidgetModel: ThingWidgetModel
     export let graph: Graph
@@ -38,6 +40,12 @@
         await graph.createNewRelatedThing(parentThingId, directionId, text)////////////// Add text and Direction to this.
         graph = graph // Needed for reactivity.
     }
+
+    async function cancel() {
+        (thingWidgetModel.parentCohort as Cohort).removeMember(thingWidgetModel)
+        graph.formActive = false
+        graph = graph // Needed for reactivity.
+    }    
 </script>
 
 
@@ -46,13 +54,17 @@
     class="box thing-form-widget"
     style="border-radius: {8 + 4 * encapsulatingDepth}px; width: {thingWidth}px; height: {thingHeight}px; pointer-events: {distanceFromFocalPlane === 0 ? "auto" : "none"};"
     on:keypress={(event) => {if (event.key === "Enter") submit()}}
->
+>    
+    <XButton
+        buttonFunction={cancel}
+    />
+
     <!-- Thing text -->
     <textarea
         id="thing-form-text-field"
         bind:this={textField}
         class="text-input"
-        rows=1
+        rows=3
         placeholder="Enter text"
         on:mousemove|stopPropagation
     />
@@ -73,6 +85,7 @@
     .thing-form-widget {
         display: flex;
         flex-direction: column;
+        justify-content: center;
         align-items: center;
         padding: 1rem;
         gap: 1rem;

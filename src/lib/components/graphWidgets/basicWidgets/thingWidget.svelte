@@ -1,12 +1,10 @@
 <script lang="ts">
     // Type imports.
     import type { Graph } from "$lib/shared/graph/graph"
-    import type { Thing } from "$lib/shared/graph/constructs/thing"
     import type { ThingWidgetModel } from "$lib/shared/graph/widgetModels/thingWidgetModel"
 
     // Graph widget imports.
     import { hoveredThingIdStore, addPin } from "$lib/shared/stores/appStores"
-    import { storeGraphConstructs } from "$lib/shared/stores/graphStores"
     import ThingDetailsWidget from "$lib/components/graphWidgets/detailsWidgets/thingDetailsWidget.svelte"
     import { planePadding } from "$lib/shared/constants"
     import { ContextMenuFrame, ContextMenuOption } from "$lib/components/layoutElements/contextMenu"
@@ -54,14 +52,6 @@
 
     let showDetails = false
     let lockDetails = false
-
-
-
-    async function createNewRelatedThing() {
-        await graph.createNewThingRelatedToThingId(thingId)
-        graph = graph
-    }
-
 </script>
 
 
@@ -114,11 +104,6 @@
         <ContextMenuOption
             text="Add Thing to Pins"
             on:click={() => {addPin(thingId)}}
-        />
-
-        <ContextMenuOption
-            text="Create new related Thing"
-            on:click={createNewRelatedThing}
         />
     </ContextMenuFrame>
 </div>
