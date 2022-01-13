@@ -1,7 +1,7 @@
 import type { GraphWidgetStyle } from "$lib/shared/constants"
 import type { Thing } from "$lib/shared/graph/constructs/thing"
 
-import { defaultGraphWidgetStyle } from "$lib/shared/constants"
+import { defaultGraphWidgetStyle, cartesianHalfAxisIds } from "$lib/shared/constants"
 import { storeGraphConstructs, graphConstructInStore } from "$lib/shared/stores/graphStores"
 import { Generation } from "$lib/shared/graph/generation"
 import { Cohort } from "$lib/shared/graph/cohort"
@@ -226,7 +226,8 @@ export class Graph {
             for (const prevThingWidgetModel of newGeneration.parentGeneration?.thingWidgetModels() || []) {
                 
                 // For the ID of each half-axis from that Thing,
-                for (const halfAxisId of prevThingWidgetModel.relatedThingHalfAxisIds) {
+                //for (const halfAxisId of prevThingWidgetModel.relatedThingHalfAxisIds) {//////// Change to all Half-Axis IDs
+                for (const halfAxisId of cartesianHalfAxisIds) {
                     // Get the address for that half axis' Cohort.
                     const addressForCohort = {
                         graph: this,
@@ -234,11 +235,15 @@ export class Graph {
                         parentThingWidgetModel: prevThingWidgetModel,
                         halfAxisId: halfAxisId
                     }
+
                     // Get list of the Things in that half axis' Cohort.
                     const childCohortThingIds = prevThingWidgetModel.relatedThingIdsByHalfAxisId(halfAxisId)
                     // Add the members from this Generation matching those IDs as a new Cohort on that half-axis.
-                    const membersForCohort = membersForGeneration.filter((member) => {if (member.thingId && childCohortThingIds.includes(member.thingId)) return true})
+                    const membersForCohort = childCohortThingIds.length ?
+                        membersForGeneration.filter((member) => {if (member.thingId && childCohortThingIds.includes(member.thingId)) return true}) :
+                        []
                     const childCohort = new Cohort(addressForCohort, membersForCohort)
+
                     // Populate the Cohort for the previous Generation's Thing in that Direction from that list.
                     prevThingWidgetModel.childCohort(halfAxisId, childCohort)
                 }

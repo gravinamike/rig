@@ -139,7 +139,9 @@ export class ThingWidgetModel {
 
     relatedThingIdsByHalfAxisId(halfAxisId: HalfAxisId): number[] {
         const directionId = this.space.directionIdByHalfAxisId[halfAxisId]
-        const relatedThingIds = directionId ? this.relatedThingIdsByDirectionId[directionId] : [] as number[]
+        const relatedThingIds = directionId && directionId in this.relatedThingIdsByDirectionId ?
+            this.relatedThingIdsByDirectionId[directionId] :
+            [] as number[]
         return relatedThingIds
     }
 

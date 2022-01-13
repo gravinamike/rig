@@ -37,7 +37,7 @@
     }
     $: updateCohortMembersWithIndices(cohort.members)
     
-    $: childrenDimension = cohort.members.length * thingSize + (cohort.members.length - 1) * betweenThingGap
+    $: childrenDimension = Math.max(cohort.members.length, 1) * thingSize + (cohort.members.length - 1) * betweenThingGap
 
     // Calculate x and y offsets and z-index relative to parent Thing Widget.
     const generationId = cohort.address?.generationId || 0
@@ -80,10 +80,16 @@
 
 
 <main class="relationships-widget" style="left: calc({offsets[0]}px + 50%); top: calc({offsets[1]}px + 50%); z-index: {zIndex}; width: {widgetWidth}px; height: {widgetHeight}px; opacity: {opacity};">
-    <div class="direction-text" style="font-size: {graph.graphWidgetStyle.relationshipTextSize}px">
+    <div
+        class="direction-text {!cohort.members.length ? "empty" : ""}"
+        style="font-size: {graph.graphWidgetStyle.relationshipTextSize}px"
+    >
         {direction.text}
     </div>
-    <svg class="relationship-image" style="width: {imageWidth}px; height: {imageHeight}px; transform: rotate({rotation}deg);">
+    <svg
+        class="relationship-image {!cohort.members.length ? "empty" : ""}"
+        style="width: {imageWidth}px; height: {imageHeight}px; transform: rotate({rotation}deg);"
+    >
         <g
             class="relationship-stem"
             on:click={addThingForm}
@@ -131,6 +137,18 @@
         position: absolute;
         stroke: lightgrey;
         fill: lightgrey;
+    }
+
+    .relationships-widget:active {
+        pointer-events: none;
+    }
+
+    main:not(:hover) .empty {
+        visibility: hidden;
+    }
+
+    .direction-text, svg {
+        pointer-events: auto;
     }
 
     .relationship-stem {        

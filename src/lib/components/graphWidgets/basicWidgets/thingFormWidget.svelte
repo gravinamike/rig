@@ -73,7 +73,8 @@
 
 <style>
     .box {
-        box-shadow: 5px 5px 10px 2px lightgray;
+        outline: dotted 2px lightgrey;
+        outline-offset: -1px;
 
         box-sizing: border-box;
         height: max-content;
@@ -92,11 +93,18 @@
     }
 
     textarea {
+        outline: none;
+        border: solid 1px lightgrey;
+
         width: 100% !important;
 
         font-family: Arial;
         font-size: 10px;   
 
         resize: none;
+    }
+
+    textarea:focus {
+        border: solid 1px grey;
     }
 </style>
