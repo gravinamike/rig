@@ -1,5 +1,5 @@
 import type { Handle } from "@sveltejs/kit"
-import { getDatabaseConnection } from "$lib/shared/db"
+import { getDatabaseConnection } from "$lib/db/connection"
 
 
 export const handle: Handle = async ({ request, resolve }) => {

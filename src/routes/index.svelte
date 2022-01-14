@@ -1,16 +1,16 @@
 <script lang="ts">
     import { onMount } from "svelte"
-    import Collapser from "$lib/components/layoutElements/collapser.svelte"
-    import { TabBlock, TabFlap, TabFlaps, TabBody } from "$lib/components/layoutElements/tabs"
+    import Collapser from "$lib/widgets/layoutWidgets/collapser.svelte"
+    import { TabBlock, TabFlap, TabFlaps, TabBody } from "$lib/widgets/layoutWidgets/tabs"
 
     import { startingPThingIds, startingGraphDepth, navHeight } from "$lib/shared/constants"
     import { storeConfig } from "$lib/shared/config"
-    import { storeGraphConstructs } from "$lib/shared/stores/graphStores"
+    import { storeGraphConstructs } from "$lib/stores/graphStores"
 
-    import DirectionsStoreView from "$lib/components/viewers/storeViewers/directionsStoreView.svelte"
-    import SpacesStoreView from "$lib/components/viewers/storeViewers/spacesStoreView.svelte"
-    import ThingsStoreView from "$lib/components/viewers/storeViewers/thingsStoreView.svelte"
-    import GraphPortal from "$lib/components/viewers/graphViewers/graphPortal.svelte"
+    import DirectionsStoreView from "$lib/viewers/storeViewers/directionsStoreView.svelte"
+    import SpacesStoreView from "$lib/viewers/storeViewers/spacesStoreView.svelte"
+    import ThingsStoreView from "$lib/viewers/storeViewers/thingsStoreView.svelte"
+    import GraphPortal from "$lib/viewers/graphViewers/graphViewer.svelte"
     
     let graphConstructsStored = false
 

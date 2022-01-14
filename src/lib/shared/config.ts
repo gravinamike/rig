@@ -1,5 +1,5 @@
 import type { Config } from "$lib/shared/constants"
-import { pinIdsStore } from "$lib/shared/stores/appStores"
+import { pinIdsStore } from "$lib/stores/appStores"
 let pinIdsStoreValue: number[]
 pinIdsStore.subscribe(value => {pinIdsStoreValue = value})
 

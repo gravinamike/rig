@@ -1,7 +1,7 @@
-import type { Direction } from "$lib/shared/graph/constructs/direction"
-import type { Space } from "$lib/shared/graph/constructs/space"
-import type { Thing } from "$lib/shared/graph/constructs/thing"
-import type { Relationship } from "$lib/shared/graph/constructs/relationship"
+import type { Direction } from "$lib/models/dbModels/direction"
+import type { Space } from "$lib/models/dbModels/space"
+import type { Thing } from "$lib/models/dbModels/thing"
+import type { Relationship } from "$lib/models/dbModels/relationship"
 
 
 /*
@@ -29,7 +29,7 @@ export interface GraphWidgetStyle {
     zoomPadding: number,
     offsetLength: number,
     thingSize: number,
-    betweenThingGap: number,
+    thingSpacingPercent: number,
     relationshipTextSize: number,
     thingTextSize: number,
 }
@@ -59,7 +59,7 @@ export const defaultGraphWidgetStyle: GraphWidgetStyle = {
     zoomPadding: 50,
     offsetLength: 250,
     thingSize: 100,
-    betweenThingGap: 0,
+    thingSpacingPercent: 10,
     relationshipTextSize: 18,
     thingTextSize: 12
 }
