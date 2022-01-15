@@ -2,8 +2,7 @@ import type { GraphConstruct } from "$lib/shared/constants"
 
 import { Model, RelationMappings, RelationMappingsThunk } from "objection"
 import { v4 as uuidv4 } from "uuid"
-import { Relationship } from "$lib/models/dbModels/relationship"
-import { Note } from "$lib/models/dbModels/note"
+import { Relationship, Note } from "$lib/models/dbModels"
 
 
 /*

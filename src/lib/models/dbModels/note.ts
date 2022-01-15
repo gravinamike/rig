@@ -1,5 +1,5 @@
 import { Model, RelationMappings, RelationMappingsThunk } from "objection"
-import { Thing } from "$lib/models/dbModels/thing"
+import { Thing } from "$lib/models/dbModels"
 
 
 /*

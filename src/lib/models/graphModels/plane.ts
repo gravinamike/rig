@@ -1,5 +1,4 @@
-import type { Graph } from "$lib/models/graphModels/graph"
-import type { Cohort } from "$lib/models/graphModels/cohort"
+import type { Graph, Cohort } from "$lib/models/graphModels"
 
 
 export class Plane {

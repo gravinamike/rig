@@ -1,7 +1,5 @@
-import type { Graph } from "$lib/models/graphModels/graph"
-import type { Cohort } from "$lib/models/graphModels/cohort"
-import type { ThingWidgetModel } from "$lib/models/widgetModels/thingWidgetModel"
-import type { ThingPlaceholderWidgetModel } from "$lib/models/widgetModels/thingPlaceholderWidgetModel"
+import type { Graph, Cohort } from "$lib/models/graphModels"
+import type { ThingWidgetModel, ThingPlaceholderWidgetModel } from "$lib/models/widgetModels"
 
 
 export type GenerationMember = ThingWidgetModel | ThingPlaceholderWidgetModel

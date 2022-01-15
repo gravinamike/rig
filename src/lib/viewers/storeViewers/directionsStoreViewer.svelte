@@ -1,26 +1,26 @@
 <script lang="ts">
-    import { thingsStoreAsArray, thingIdsNotFoundStore } from "$lib/stores/graphStores"
-    import ThingDetailsWidget from "$lib/widgets/graphWidgets/detailsWidgets/thingDetailsWidget.svelte"
+    import { directionsStoreAsArray, directionIdsNotFoundStore } from "$lib/stores"
+    import { DirectionDetailsWidget } from "$lib/widgets/detailsWidgets"
 </script>
 
 
 <main>
-    <!-- List of Things found. -->
-    {#if $thingsStoreAsArray.length}
-        <h4>{$thingsStoreAsArray.length} Things found:</h4>
+    <!-- List of Directions found. -->
+    {#if $directionsStoreAsArray.length}
+        <h4>{$directionsStoreAsArray.length} Directions found:</h4>
 
-        {#each $thingsStoreAsArray as thing}
-            <ThingDetailsWidget
-                {thing}
+        {#each $directionsStoreAsArray as direction}
+            <DirectionDetailsWidget
+                {direction}
             />
         {/each}
     {/if}
 
-    <!-- List of Things not found. -->
-    {#if $thingIdsNotFoundStore.length}
-        <h4>{$thingsStoreAsArray.length} Things not found:</h4>
+    <!-- List of Directions not found. -->
+    {#if $directionIdsNotFoundStore.length}
+        <h4>{$directionIdsNotFoundStore.length} Directions not found:</h4>
 
-        {#each $thingIdsNotFoundStore as id}
+        {#each $directionIdsNotFoundStore as id}
             <div class="box">
                 <h3>{id}</h3>
             </div>

@@ -1,6 +1,6 @@
 <script lang="ts">
-    import { hoveredThingIdStore, removePin } from "$lib/stores/appStores"
-    import { ContextMenuFrame, ContextMenuOption } from "$lib/widgets/layoutWidgets/contextMenu"
+    import { hoveredThingIdStore, removePin } from "$lib/stores"
+    import { ContextMenuFrame, ContextMenuOption } from "$lib/widgets/layoutWidgets"
 
     export let thingId: number
     export let thingText: string | null

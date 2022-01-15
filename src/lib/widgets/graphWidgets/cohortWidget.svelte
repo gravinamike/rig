@@ -1,13 +1,11 @@
 <script context="module" lang="ts">
-    import type { Graph } from "$lib/models/graphModels/graph"
-    import type { Cohort } from "$lib/models/graphModels/cohort"
+    import type { Graph, Cohort } from "$lib/models/graphModels"
 
     import { offsetsByHalfAxisId } from "$lib/shared/constants"
 </script>
 
 <script lang="ts">
-    import CladeWidget from "$lib/widgets/graphWidgets/basicWidgets/cladeWidget.svelte"
-    import ThingPlaceholderWidget from "$lib/widgets/graphWidgets/basicWidgets/thingPlaceholderWidget.svelte"
+    import { CladeWidget, ThingPlaceholderWidget } from "$lib/widgets/graphWidgets"
 
     export let cohort: Cohort
     export let graph: Graph

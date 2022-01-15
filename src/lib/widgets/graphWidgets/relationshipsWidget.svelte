@@ -1,15 +1,12 @@
 <script context="module" lang="ts">
     import { tweened } from "svelte/motion"
 	import { cubicOut } from "svelte/easing"
-    import type { Graph } from "$lib/models/graphModels/graph"
-    import type { Direction } from "$lib/models/dbModels/direction"
-    import type { Space } from "$lib/models/dbModels/space"
-    import type { GenerationMember } from "$lib/models/graphModels/generation"
-    import type { Cohort } from "$lib/models/graphModels/cohort"
+    import type { Graph, Cohort, GenerationMember } from "$lib/models/graphModels"
+    import type { Direction, Space } from "$lib/models/dbModels"
 
     import { rotationByHalfAxisId, offsetsByHalfAxisId, zoomBase } from "$lib/shared/constants"
     import { retrieveGraphConstructs } from "$lib/stores/graphStores"
-    import { ThingWidgetModel } from "$lib/models/widgetModels/thingWidgetModel"
+    import { ThingWidgetModel } from "$lib/models/widgetModels"
     import { sleep } from "$lib/shared/utility"
 </script>
 

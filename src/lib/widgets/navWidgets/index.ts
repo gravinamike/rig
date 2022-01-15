@@ -1,0 +1,1 @@
+export { default as PinWidget } from "./pinWidget.svelte"

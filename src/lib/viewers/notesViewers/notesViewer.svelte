@@ -1,9 +1,9 @@
 <script lang="ts">
-    import type { Graph } from "$lib/models/graphModels/graph"
-    import type { Thing } from "$lib/models/dbModels/thing"
+    import type { Graph } from "$lib/models/graphModels"
+    import type { Thing } from "$lib/models/dbModels"
     import { thingsStore, retrieveGraphConstructs, graphConstructInStore } from "$lib/stores/graphStores"
-    import Toggle from "$lib/widgets/layoutWidgets/toggle.svelte"
-    import NotesEditor from "$lib/viewers/notesViewers/notesEditor.svelte"
+    import { Toggle } from "$lib/widgets/layoutWidgets"
+    import NotesEditor from "./notesEditor.svelte"
 
     export let graph: Graph
 

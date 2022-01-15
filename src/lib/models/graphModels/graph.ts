@@ -1,13 +1,10 @@
 import type { GraphWidgetStyle } from "$lib/shared/constants"
-import type { Thing } from "$lib/models/dbModels/thing"
+import type { Thing } from "$lib/models/dbModels"
 
 import { defaultGraphWidgetStyle, cartesianHalfAxisIds } from "$lib/shared/constants"
-import { storeGraphConstructs, graphConstructInStore } from "$lib/stores/graphStores"
-import { Generation } from "$lib/models/graphModels/generation"
-import { Cohort } from "$lib/models/graphModels/cohort"
-import { Plane } from "$lib/models/graphModels/plane"
-import { ThingWidgetModel } from "$lib/models/widgetModels/thingWidgetModel"
-import { ThingPlaceholderWidgetModel } from "$lib/models/widgetModels/thingPlaceholderWidgetModel"
+import { storeGraphConstructs, graphConstructInStore } from "$lib/stores"
+import { Generation, Cohort, Plane } from "$lib/models/graphModels"
+import { ThingWidgetModel, ThingPlaceholderWidgetModel } from "$lib/models/widgetModels"
 
 
 /** Class representing a Graph. */

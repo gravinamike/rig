@@ -1,7 +1,4 @@
-import type { Direction } from "$lib/models/dbModels/direction"
-import type { Space } from "$lib/models/dbModels/space"
-import type { Thing } from "$lib/models/dbModels/thing"
-import type { Relationship } from "$lib/models/dbModels/relationship"
+import type { Direction, Space, Thing, Relationship } from "$lib/models/dbModels"
 
 
 /*

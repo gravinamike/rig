@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { Graph } from "$lib/models/graphModels/graph"
+    import type { Graph } from "$lib/models/graphModels"
 
     export let graph: Graph
 

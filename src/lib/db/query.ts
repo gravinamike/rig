@@ -1,10 +1,7 @@
 import type { Knex } from "knex"
 
 import { Model } from "objection"
-import { Direction } from "$lib/models/dbModels/direction"
-import { Space } from "$lib/models/dbModels/space"
-import { Thing, getNewThingInfo } from "$lib/models/dbModels/thing"
-import { Relationship, getNewRelationshipInfo } from "$lib/models/dbModels/relationship"
+import { Direction, Space, Thing, getNewThingInfo, Relationship, getNewRelationshipInfo } from "$lib/models/dbModels"
 
 /*
  * Functions to query Graph constructs.

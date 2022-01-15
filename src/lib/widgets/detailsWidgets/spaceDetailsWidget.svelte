@@ -1,6 +1,6 @@
 <script lang="ts">
-    import type { Space } from "$lib/models/dbModels/space"
-    import Collapser from "$lib/widgets/layoutWidgets/collapser.svelte"
+    import type { Space } from "$lib/models/dbModels"
+    import { Collapser } from "$lib/widgets/layoutWidgets"
 
     export let space: Space
 </script>

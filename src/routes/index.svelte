@@ -1,16 +1,13 @@
 <script lang="ts">
     import { onMount } from "svelte"
-    import Collapser from "$lib/widgets/layoutWidgets/collapser.svelte"
-    import { TabBlock, TabFlap, TabFlaps, TabBody } from "$lib/widgets/layoutWidgets/tabs"
+    import { Collapser, TabBlock, TabFlap, TabFlaps, TabBody } from "$lib/widgets/layoutWidgets"
 
     import { startingPThingIds, startingGraphDepth, navHeight } from "$lib/shared/constants"
     import { storeConfig } from "$lib/shared/config"
-    import { storeGraphConstructs } from "$lib/stores/graphStores"
+    import { storeGraphConstructs } from "$lib/stores"
 
-    import DirectionsStoreView from "$lib/viewers/storeViewers/directionsStoreView.svelte"
-    import SpacesStoreView from "$lib/viewers/storeViewers/spacesStoreView.svelte"
-    import ThingsStoreView from "$lib/viewers/storeViewers/thingsStoreView.svelte"
-    import GraphPortal from "$lib/viewers/graphViewers/graphViewer.svelte"
+    import { DirectionsStoreViewer, SpacesStoreViewer, ThingsStoreViewer } from "$lib/viewers/storeViewers"
+    import { GraphViewer } from "$lib/viewers/graphViewers"
     
     let graphConstructsStored = false
 
@@ -41,17 +38,17 @@
             
                 <!-- Directions Store view --> 
                 <TabBody>
-                    <DirectionsStoreView />
+                    <DirectionsStoreViewer />
                 </TabBody>
             
                 <!-- Spaces Store view --> 
                 <TabBody>
-                    <SpacesStoreView />
+                    <SpacesStoreViewer />
                 </TabBody>
             
                 <!-- Things Store view --> 
                 <TabBody>
-                    <ThingsStoreView />
+                    <ThingsStoreViewer />
                 </TabBody>
             </TabBlock>
             
@@ -60,7 +57,7 @@
 
     <!-- Graph Portal. -->
     {#if graphConstructsStored}
-        <GraphPortal
+        <GraphViewer
             pThingIds={startingPThingIds}
             depth={startingGraphDepth}
         />

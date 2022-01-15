@@ -1,5 +1,5 @@
 import type { GraphConstruct } from "$lib/shared/constants"
-import type { Space } from "$lib/models/dbModels/space"
+import type { Space } from "$lib/models/dbModels"
 
 import { Model } from "objection"
 

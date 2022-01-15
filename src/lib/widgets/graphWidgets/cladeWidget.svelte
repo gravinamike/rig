@@ -1,13 +1,10 @@
 <script lang="ts">
     // Graph construct imports.
-    import type { Graph } from "$lib/models/graphModels/graph"
-    import type { ThingWidgetModel } from "$lib/models/widgetModels/thingWidgetModel"
+    import type { Graph } from "$lib/models/graphModels"
+    import type { ThingWidgetModel } from "$lib/models/widgetModels"
 
     // Graph widget imports.
-    import ThingWidget from "$lib/widgets/graphWidgets/basicWidgets/thingWidget.svelte"
-    import ThingFormWidget from "$lib/widgets/graphWidgets/basicWidgets/thingFormWidget.svelte"
-    import RelationshipsWidget from "$lib/widgets/graphWidgets/basicWidgets/relationshipsWidget.svelte"
-    import CohortWidget from "$lib/widgets/graphWidgets/basicWidgets/cohortWidget.svelte"
+    import { ThingWidget, ThingFormWidget, RelationshipsWidget, CohortWidget } from "$lib/widgets/graphWidgets"
 
     export let thingWidgetModel: ThingWidgetModel
     export let graph: Graph

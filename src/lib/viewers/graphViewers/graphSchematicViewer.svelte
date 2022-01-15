@@ -1,9 +1,8 @@
 <script lang="ts">
-    import type { Graph } from "$lib/models/graphModels/graph"
-    import type { Generation } from "$lib/models/graphModels/generation"
+    import type { Graph, Generation } from "$lib/models/graphModels"
     
-    import Collapser from "$lib/widgets/layoutWidgets/collapser.svelte"
-    import ThingDetailsWidget from "$lib/widgets/graphWidgets/detailsWidgets/thingDetailsWidget.svelte"
+    import { Collapser } from "$lib/widgets/layoutWidgets"
+    import { ThingDetailsWidget } from "$lib/widgets/detailsWidgets"
 
     export let graph: Graph
 

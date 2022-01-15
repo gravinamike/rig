@@ -4,24 +4,22 @@
     import { tweened } from "svelte/motion"
 	import { cubicOut } from "svelte/easing"
     import { Rectangle, descendantElements, elementGroupEdges, sleep } from "$lib/shared/utility"
-    import Collapser from "$lib/widgets/layoutWidgets/collapser.svelte"
-    import { TabBlock, TabFlap, TabFlaps, TabBody } from "$lib/widgets/layoutWidgets/tabs"
+    import { Collapser, TabBlock, TabFlap, TabFlaps, TabBody } from "$lib/widgets/layoutWidgets"
 
     // Graph model imports.
-    import { Graph } from "$lib/models/graphModels/graph"
+    import { Graph } from "$lib/models/graphModels"
 
     // Side-interface imports.
-    import GraphSettingsView from "$lib/viewers/settingsViewers/graphSettingsView.svelte"
-    import GraphSchematicView from "$lib/viewers/graphViewers/graphSchematicView.svelte"
-    import GraphHistoryView from "$lib/viewers/navViewers/historyViewer.svelte"
-    import GraphPinsView from "$lib/viewers/navViewers/pinsViewer.svelte"
-    import NotesViewer from "$lib/viewers/notesViewers/notesViewer.svelte"
+    import { GraphSettingsViewer } from "$lib/viewers/settingsViewers"
+    import { GraphSchematicViewer } from "$lib/viewers/graphViewers"
+    import { HistoryViewer, PinsViewer } from "$lib/viewers/navViewers"
+    import { NotesViewer } from "$lib/viewers/notesViewers"
 
     // Portal-related imports.
     import { zoomBase } from "$lib/shared/constants"
-    import PlaneControls from "$lib/widgets/controlWidgets/planeControls.svelte"
-    import CohortWidget from "$lib/widgets/graphWidgets/basicWidgets/cohortWidget.svelte"
-    import { hoveredThingIdStore } from "$lib/stores/appStores"
+    import { PlaneControls } from "$lib/widgets/controlWidgets"
+    import { CohortWidget } from "$lib/widgets/graphWidgets"
+    import { hoveredThingIdStore } from "$lib/stores"
     
     export let pThingIds: number[]
     export let depth: number
@@ -196,14 +194,14 @@
             
                 <!-- Graph Settings viewer -->
                 <TabBody>
-                    <GraphSettingsView
+                    <GraphSettingsViewer
                         bind:graph
                     />
                 </TabBody>
 
                 <!-- Graph Schematic viewer -->
                 <TabBody>
-                    <GraphSchematicView
+                    <GraphSchematicViewer
                         {graph}
                     />
                 </TabBody>
@@ -220,7 +218,7 @@
         <div class="navigation-view">
             <!-- Graph pins viewer -->
             <div class="pins-container">
-                <GraphPinsView
+                <PinsViewer
                     bind:graph
                     {rePerspectToThingId}
                 />
@@ -228,7 +226,7 @@
 
             <!-- Graph history viewer -->
             <div class="history-container">
-                <GraphHistoryView
+                <HistoryViewer
                     bind:graph
                     {rePerspectToThingId}
                 />

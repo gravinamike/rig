@@ -3,7 +3,7 @@
     import { Editor } from "@tiptap/core"
     import StarterKit from "@tiptap/starter-kit"
     import Underline from "@tiptap/extension-underline"
-    import NotesToolbar from "$lib/viewers/notesViewers/notesToolbar.svelte"
+    import NotesToolbar from "./notesToolbar.svelte"
 
     export let notesText: string
 

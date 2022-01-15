@@ -1,12 +1,11 @@
 <script lang="ts">
     // Type imports.
-    import type { Graph } from "$lib/models/graphModels/graph"
-    import type { Cohort } from "$lib/models/graphModels/cohort"
-    import type { ThingWidgetModel } from "$lib/models/widgetModels/thingWidgetModel"
+    import type { Graph, Cohort } from "$lib/models/graphModels"
+    import type { ThingWidgetModel } from "$lib/models/widgetModels"
 
     // Graph widget imports.
     import { planePadding } from "$lib/shared/constants"
-    import XButton from "$lib/widgets/layoutWidgets/xButton.svelte"
+    import { XButton } from "$lib/widgets/layoutWidgets"
 
     export let thingWidgetModel: ThingWidgetModel
     export let graph: Graph

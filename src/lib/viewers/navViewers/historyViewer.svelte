@@ -1,9 +1,8 @@
 <script lang="ts">
-    import type { Graph } from "$lib/models/graphModels/graph"
-    import type { Thing } from "$lib/models/dbModels/thing"
-    import { hoveredThingIdStore } from "$lib/stores/appStores";
-    import { retrieveGraphConstructs, graphConstructInStore } from "$lib/stores/graphStores"
-    import Toggle from "$lib/widgets/layoutWidgets/toggle.svelte"
+    import type { Graph } from "$lib/models/graphModels"
+    import type { Thing } from "$lib/models/dbModels"
+    import { hoveredThingIdStore, retrieveGraphConstructs, graphConstructInStore } from "$lib/stores"
+    import { Toggle } from "$lib/widgets/layoutWidgets"
 
     export let graph: Graph
     export let rePerspectToThingId: (thingId: number) => Promise<void>

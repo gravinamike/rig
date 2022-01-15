@@ -1,12 +1,9 @@
 import type { HalfAxisId } from "$lib/shared/constants"
-import type { Space } from "$lib/models/dbModels/space"
-import type { Thing } from "$lib/models/dbModels/thing"
-import type { Note } from "$lib/models/dbModels/note"
-import type { Graph } from "$lib/models/graphModels/graph"
-import type { Cohort } from "$lib/models/graphModels/cohort"
+import type { Space, Thing, Note } from "$lib/models/dbModels"
+import type { Graph, Cohort } from "$lib/models/graphModels"
 
 import { oddHalfAxisIds } from "$lib/shared/constants"
-import { graphConstructInStore, retrieveGraphConstructs } from "$lib/stores/graphStores"
+import { graphConstructInStore, retrieveGraphConstructs } from "$lib/stores"
 
 
 /*

@@ -1,6 +1,6 @@
 <script lang="ts">
     import { spacesStoreAsArray, spaceIdsNotFoundStore } from "$lib/stores/graphStores"
-    import SpaceDetailsWidget from "$lib/widgets/graphWidgets/detailsWidgets/spaceDetailsWidget.svelte"
+    import { SpaceDetailsWidget } from "$lib/widgets/detailsWidgets"
 </script>
 
 

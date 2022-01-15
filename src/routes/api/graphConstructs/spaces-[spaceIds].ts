@@ -1,4 +1,4 @@
-import type { Space } from "$lib/models/dbModels/space"
+import type { Space } from "$lib/models/dbModels"
 import { querySpaces } from "$lib/db/query"
 
 

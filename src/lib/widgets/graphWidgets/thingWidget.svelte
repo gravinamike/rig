@@ -1,13 +1,13 @@
 <script lang="ts">
     // Type imports.
-    import type { Graph } from "$lib/models/graphModels/graph"
-    import type { ThingWidgetModel } from "$lib/models/widgetModels/thingWidgetModel"
+    import type { Graph } from "$lib/models/graphModels"
+    import type { ThingWidgetModel } from "$lib/models/widgetModels"
 
     // Graph widget imports.
-    import { hoveredThingIdStore, addPin } from "$lib/stores/appStores"
-    import ThingDetailsWidget from "$lib/widgets/graphWidgets/detailsWidgets/thingDetailsWidget.svelte"
+    import { hoveredThingIdStore, addPin } from "$lib/stores"
+    import { ThingDetailsWidget } from "$lib/widgets/detailsWidgets"
     import { planePadding } from "$lib/shared/constants"
-    import { ContextMenuFrame, ContextMenuOption } from "$lib/widgets/layoutWidgets/contextMenu"
+    import { ContextMenuFrame, ContextMenuOption } from "$lib/widgets/layoutWidgets"
 
     export let thingWidgetModel: ThingWidgetModel
     export let graph: Graph

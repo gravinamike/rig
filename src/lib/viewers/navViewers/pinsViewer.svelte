@@ -1,9 +1,8 @@
 <script lang="ts">
     import type { Graph } from "$lib/models/graphModels/graph"
-    import type { Thing } from "$lib/models/dbModels/thing"
-    import { pinIdsStore } from "$lib/stores/appStores"
-    import { storeGraphConstructs, graphConstructInStore, retrieveGraphConstructs } from "$lib/stores/graphStores"
-    import PinsViewerWidget from "$lib/widgets/graphWidgets/navWidgets/pinWidget.svelte"
+    import type { Thing } from "$lib/models/dbModels"
+    import { pinIdsStore, storeGraphConstructs, graphConstructInStore, retrieveGraphConstructs } from "$lib/stores"
+    import { PinWidget } from "$lib/widgets/navWidgets"
 
     export let graph: Graph
     export let rePerspectToThingId: (thingId: number) => Promise<void>
@@ -30,7 +29,7 @@
 
     {#each pins as pin (pin.thingId)}
         {#if pin.thing}
-            <PinsViewerWidget
+            <PinWidget
                 thingId={pin.thingId}
                 thingText={pin.thing.text}
                 {rePerspectToThingId}

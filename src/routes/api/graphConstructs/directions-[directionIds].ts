@@ -1,4 +1,4 @@
-import type { Direction } from "$lib/models/dbModels/direction"
+import type { Direction } from "$lib/models/dbModels"
 import { queryDirections } from "$lib/db/query"
 
 

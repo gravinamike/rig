@@ -2,7 +2,7 @@ import type { GraphConstruct, HalfAxisId } from "$lib/shared/constants"
 
 import { oddHalfAxisIds } from "$lib/shared/constants"
 import { Model, RelationMappings, RelationMappingsThunk } from "objection"
-import { Direction } from "$lib/models/dbModels/direction"
+import { Direction } from "$lib/models/dbModels"
 
 
 

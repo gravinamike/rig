@@ -1,6 +1,6 @@
 <script lang="ts">
-    import type { Graph } from "$lib/models/graphModels/graph"
-    import SettingWidget from "$lib/widgets/layoutWidgets/settingWidget.svelte"
+    import type { Graph } from "$lib/models/graphModels"
+    import { SettingWidget } from "$lib/widgets/layoutWidgets"
 
     export let graph: Graph
 

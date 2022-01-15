@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { ThingPlaceholderWidgetModel } from "$lib/models/widgetModels/thingPlaceholderWidgetModel"
+    import type { ThingPlaceholderWidgetModel } from "$lib/models/widgetModels"
 
     export let thingPlaceholderWidgetModel: ThingPlaceholderWidgetModel
 </script>

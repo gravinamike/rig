@@ -1,7 +1,7 @@
 <script lang="ts">
-    import type { Thing } from "$lib/models/dbModels/thing"
+    import type { Thing } from "$lib/models/dbModels"
     import { hoveredThingIdStore } from "$lib/stores/appStores"
-    import Collapser from "$lib/widgets/layoutWidgets/collapser.svelte"
+    import { Collapser } from "$lib/widgets/layoutWidgets"
 
     export let thing: Thing
 

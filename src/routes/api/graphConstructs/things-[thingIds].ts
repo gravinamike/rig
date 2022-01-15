@@ -1,4 +1,4 @@
-import type { Thing } from "$lib/models/dbModels/thing"
+import type { Thing } from "$lib/models/dbModels"
 import { queryThings } from "$lib/db/query"
 
 
