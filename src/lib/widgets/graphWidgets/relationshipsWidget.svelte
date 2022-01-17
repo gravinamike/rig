@@ -94,10 +94,10 @@
             <line
                 x1="{childrenDimension * 0.5}" y1="{edgeToEdgeDimension}"
                 x2="{childrenDimension * 0.5}" y2="{edgeToEdgeDimension * 2 / 3 + 6 / $tweenedScale}"
-                style="stroke-width: {6 / $tweenedScale};"
+                style="stroke-width: {10 / $tweenedScale};"
             />
             <polygon
-                points="{childrenDimension * 0.5 - 3 / $tweenedScale},{edgeToEdgeDimension * 2 / 3 + 6 / $tweenedScale} {childrenDimension * 0.5 + 3 / $tweenedScale},{edgeToEdgeDimension * 2 / 3 + 6 / $tweenedScale} {childrenDimension * 0.5},{edgeToEdgeDimension * 2 / 3}"
+                points="{childrenDimension * 0.5 - 5 / $tweenedScale},{edgeToEdgeDimension * 2 / 3 + 8 / $tweenedScale} {childrenDimension * 0.5 + 5 / $tweenedScale},{edgeToEdgeDimension * 2 / 3 + 8 / $tweenedScale} {childrenDimension * 0.5},{edgeToEdgeDimension * 2 / 3}"
                 style="stroke-width: {3 / $tweenedScale};"
             />
         </g>

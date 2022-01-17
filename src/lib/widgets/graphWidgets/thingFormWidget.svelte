@@ -54,9 +54,11 @@
     style="border-radius: {8 + 4 * encapsulatingDepth}px; width: {thingWidth}px; height: {thingHeight}px; pointer-events: {distanceFromFocalPlane === 0 ? "auto" : "none"};"
     on:keypress={(event) => {if (event.key === "Enter") submit()}}
 >    
-    <XButton
-        buttonFunction={cancel}
-    />
+    <div class="cancel-button-container">
+        <XButton
+            buttonFunction={cancel}
+        />
+    </div>
 
     <!-- Thing text -->
     <textarea
@@ -89,6 +91,12 @@
         align-items: center;
         padding: 1rem;
         gap: 1rem;
+    }
+
+    .cancel-button-container {
+        position: absolute;
+        top: 2px;
+        right: 2px;
     }
 
     textarea {

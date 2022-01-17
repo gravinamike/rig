@@ -52,10 +52,15 @@
     $: isHoveredThing = thingId === hoveredThingIdStoreValue
     let isHoveredWidget = false
 
+    let confirmDeleteBoxOpen = false
     let showDetails = false
     let lockDetails = false
 
-    async function deleteThing() {
+    async function startDelete() {
+        confirmDeleteBoxOpen = true
+    }
+
+    async function confirmDelete() {
         await graph.deleteThing(thingId)
         graph = graph // Needed for reactivity.
     }
@@ -67,15 +72,17 @@
     id="{thingWidgetId}"
     class="box thing-widget { isHoveredThing ? "hovered-thing" : "" }"
     on:mouseenter={()=>{hoveredThingIdStore.set(thingId); isHoveredWidget = true}}
-    on:mouseleave={()=>{hoveredThingIdStore.set(null); isHoveredWidget = false}}
+    on:mouseleave={()=>{hoveredThingIdStore.set(null); isHoveredWidget = false; confirmDeleteBoxOpen = false}}
     on:click={ () => { rePerspectToThingId(thingId) } }
     on:contextmenu|preventDefault={contextMenu.openContextMenu}
     style="border-radius: {8 + 4 * encapsulatingDepth}px; width: {thingWidth}px; height: {thingHeight}px; opacity: {opacity}; pointer-events: {distanceFromFocalPlane === 0 ? "auto" : "none"};"
 >
-    {#if isHoveredWidget}
-        <XButton
-            buttonFunction={deleteThing}
-        />
+    {#if isHoveredWidget && !confirmDeleteBoxOpen}
+        <div class="delete-button-container">
+            <XButton
+                buttonFunction={startDelete}
+            />
+        </div>
     {/if}
 
     <!-- Thing text -->
@@ -97,21 +104,49 @@
     >
         {text}
     </div>
+
+    {#if confirmDeleteBoxOpen}
+        <div
+            class="confirm-delete-container"
+            style="border-radius: {8 + 4 * encapsulatingDepth}px;"
+        >
+            <div class="confirm-delete-blur" />
+            <div
+                class="confirm-delete-box"
+                style="width: {thingWidth}px; height: {thingHeight * 0.3}px; font-size: {thingHeight * 0.15}px;"
+            >
+                <div>
+                    DELETE?
+                </div>
+                <div>
+                    <XButton
+                        buttonFunction={confirmDelete}
+                        size={20}
+                        square={true}
+                        caution={true}
+                    />
+                </div>
+            </div>
+        </div>
+    {/if}
     
     {#if ( showDetails || lockDetails ) && thingWidgetModel.thing}
-        <div class="thing-details-container" style="top: {thingHeight - 18}px; left: {thingWidth - 18}px;">
+        <div class="thing-details-container" style="top: {thingHeight - 20}px; left: {thingWidth - 20}px;">
             <ThingDetailsWidget
                 thing={thingWidgetModel.thing}
             />
         </div>
     {/if}
-    <div
-        class="toggle-button {showDetails || lockDetails ? "pressed" : ""}"
-        on:click|stopPropagation={()=>{lockDetails = !lockDetails}}
-        on:mouseenter={()=>{showDetails = true}}
-        on:mouseleave={()=>{showDetails = false}}
-        >
-    </div>
+
+    {#if !confirmDeleteBoxOpen}
+        <div
+            class="toggle-button {showDetails || lockDetails ? "pressed" : ""}"
+            on:click|stopPropagation={()=>{lockDetails = !lockDetails}}
+            on:mouseenter={()=>{showDetails = true}}
+            on:mouseleave={()=>{showDetails = false}}
+            >
+        </div>
+    {/if}
 
     <ContextMenuFrame bind:this={contextMenu}>
         <ContextMenuOption
@@ -147,8 +182,40 @@
         outline: solid 2px black;
     }
 
-    .thing-details-container {
+    .delete-button-container {
         position: absolute;
+        top: 2px;
+        right: 2px;
+    }
+
+    .confirm-delete-container {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+
+        overflow: hidden;
+    }
+
+    .confirm-delete-blur {
+        width: 100%;
+        height: 100%;
+        background-color: gainsboro;
+        opacity: 0.75;
+    }
+
+    .confirm-delete-box {
+        border-top: solid 2px black;
+
+        position: absolute;
+        bottom: 0;
+        background-color: white;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 5px;
+
+        font-weight: 600;
     }
 
     .toggle-button {
@@ -157,8 +224,8 @@
         outline-offset: -1px;
         
         position: absolute;
-        bottom: 1px;
-        right: 1px;
+        bottom: 2px;
+        right: 2px;
         height: 16px;
         width: 16px;
 
@@ -171,5 +238,9 @@
 
     .toggle-button.pressed {
         background-color: gainsboro;
+    }
+
+    .thing-details-container {
+        position: absolute;
     }
 </style>

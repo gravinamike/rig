@@ -1,16 +1,22 @@
 <script lang="ts">
     export let buttonFunction: () => void
+    export let size = 16
+    export let square = false
+    export let caution = false
 </script>
 
 
 <div
-    class="x-button"
+    class="x-button {caution ? "caution" : ""}"
+    style="border-radius: {square ? size/5 : size/2}px; width: {size}px; height: {size}px;"
     on:click|stopPropagation={buttonFunction}
 >
 
-    <svg>
-        <line x1=5 y1=5 x2=11 y2=11 />
-        <line x1=11 y1=5 x2=5 y2=11 />
+    <svg
+        style="width: {size}px; height: {size}px; stroke-width: {size * 0.1};"
+    >
+        <line x1={size * 0.3} y1={size * 0.3} x2={size * 0.7} y2={size * 0.7} />
+        <line x1={size * 0.7} y1={size * 0.3} x2={size * 0.3} y2={size * 0.7} />
     </svg>
 
 </div>
@@ -18,33 +24,33 @@
 
 <style>
     .x-button {
-        border-radius: 8px;
-        outline: solid 1px lightgrey;
+        outline: solid 1px grey;
         outline-offset: -1px;
-        
-        position: absolute;
-        top: 1px;
-        right: 1px;
-        height: 16px;
-        width: 16px;
         
         cursor: pointer;
     }
 
     .x-button:hover {
-        background-color: whitesmoke;
-    }
-
-    .x-button:active {
         background-color: gainsboro;
     }
 
-    svg {
-        height: 16px;
-        width: 16px;
+    .x-button:active {
+        background-color: lightgrey;
+    }
 
-        stroke-width: 1; 
-        stroke: lightgrey;
-        fill: lightgrey;
+    .x-button.caution {
+        background-color: orange;
+    }
+
+    .x-button.caution:hover {
+        background-color: orangered;
+    }
+
+    .x-button.caution:active {
+        background-color: crimson;
+    }
+
+    svg {
+        stroke: grey;
     }
 </style>
