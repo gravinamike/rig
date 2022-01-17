@@ -7,6 +7,7 @@
     import { hoveredThingIdStore, addPin } from "$lib/stores"
     import { ThingDetailsWidget } from "$lib/widgets/detailsWidgets"
     import { planePadding } from "$lib/shared/constants"
+    import { XButton } from "$lib/widgets/layoutWidgets"
     import { ContextMenuFrame, ContextMenuOption } from "$lib/widgets/layoutWidgets"
 
     export let thingWidgetModel: ThingWidgetModel
@@ -49,9 +50,15 @@
     let hoveredThingIdStoreValue: number | null
     hoveredThingIdStore.subscribe(value => {hoveredThingIdStoreValue = value})
     $: isHoveredThing = thingId === hoveredThingIdStoreValue
+    let isHoveredWidget = false
 
     let showDetails = false
     let lockDetails = false
+
+    async function deleteThing() {
+        await graph.deleteThing(thingId)
+        graph = graph // Needed for reactivity.
+    }
 </script>
 
 
@@ -59,12 +66,18 @@
 <div
     id="{thingWidgetId}"
     class="box thing-widget { isHoveredThing ? "hovered-thing" : "" }"
-    on:mouseenter={()=>{hoveredThingIdStore.set(thingId)}}
-    on:mouseleave={()=>{hoveredThingIdStore.set(null)}}
+    on:mouseenter={()=>{hoveredThingIdStore.set(thingId); isHoveredWidget = true}}
+    on:mouseleave={()=>{hoveredThingIdStore.set(null); isHoveredWidget = false}}
     on:click={ () => { rePerspectToThingId(thingId) } }
     on:contextmenu|preventDefault={contextMenu.openContextMenu}
     style="border-radius: {8 + 4 * encapsulatingDepth}px; width: {thingWidth}px; height: {thingHeight}px; opacity: {opacity}; pointer-events: {distanceFromFocalPlane === 0 ? "auto" : "none"};"
 >
+    {#if isHoveredWidget}
+        <XButton
+            buttonFunction={deleteThing}
+        />
+    {/if}
+
     <!-- Thing text -->
     <div class="thing-text"
         style="

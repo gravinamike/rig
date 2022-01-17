@@ -162,6 +162,31 @@ export async function storeGraphConstructs<Type extends GraphConstruct>(
 }
 
 /* 
+ * Function to remove Graph constructs from the Stores.
+ */
+export async function unstoreGraphConstructs<Type extends GraphConstruct>(
+    constructName: "Direction" | "Space" | "Thing",
+    ids: number | number[]
+): Promise<void> {
+    // Determine which store to update based on construct name.
+    const store: Writable<{[id: number]: GraphConstruct}> = {
+        "Direction": directionsStore,
+        "Space": spacesStore,
+        "Thing": thingsStore
+    }[constructName]
+
+    // Convert single IDs into arrays for processing (if needed).
+    if ( typeof ids === "number" ) ids = [ids]
+
+    // Update the store with each supplied id.
+    ids.forEach((id) => {
+        store.update( (current) => { delete current[id]; return current } )
+    })
+
+    return
+}
+
+/* 
  * Function to retrieve Graph constructs from the stores.
  */
 export function retrieveGraphConstructs<Type extends GraphConstruct>(

@@ -2,7 +2,7 @@ import type { GraphWidgetStyle } from "$lib/shared/constants"
 import type { Thing } from "$lib/models/dbModels"
 
 import { defaultGraphWidgetStyle, cartesianHalfAxisIds } from "$lib/shared/constants"
-import { storeGraphConstructs, graphConstructInStore } from "$lib/stores"
+import { storeGraphConstructs, unstoreGraphConstructs, graphConstructInStore, retrieveGraphConstructs } from "$lib/stores"
 import { Generation, Cohort, Plane } from "$lib/models/graphModels"
 import { ThingWidgetModel, ThingPlaceholderWidgetModel } from "$lib/models/widgetModels"
 
@@ -324,7 +324,6 @@ export class Graph {
     }
 
     async createNewRelatedThing(thingIdToRelateFrom: number, directionId: number, text: string): Promise<boolean> {
-        //const res = await fetch(`api/createNewRelatedThingFromThingId-${thingId}`)
         const res = await fetch(
             `api/graphManipulation/createNewRelatedThing`,
             {
@@ -340,6 +339,44 @@ export class Graph {
         // If the response is ok,
         if (res.ok) {
             await storeGraphConstructs<Thing>("Thing", thingIdToRelateFrom, true)
+            await this.build()
+            return true
+
+        // Handle errors if needed.
+        } else {
+            res.text().then(text => {throw Error(text)})
+            return false
+        }
+    }
+
+    async deleteThing(thingIdToDelete: number): Promise<boolean> {
+        // Get the to-be-deleted Thing from the Store.
+        const deletedThing = retrieveGraphConstructs<Thing>("Thing", thingIdToDelete)
+        if (!deletedThing) return false
+
+        const res = await fetch(
+            `api/graphManipulation/deleteThing`,
+            {
+                method: "POST",
+                body: JSON.stringify({
+                    thingIdToDelete: thingIdToDelete
+                })
+            }
+        )
+
+        // If the response is ok,
+        if (res.ok) {
+            // Get IDs of Stored Things related to the deleted Thing, and re-store them.
+            const relatedThingIds = deletedThing.relatedThingIds.filter(id => !(id === null)) as number[]
+
+            // Re-store any Things that were related to the deleted Thing (updating
+            // their relations in the process).
+            await storeGraphConstructs<Thing>("Thing", relatedThingIds, true)
+
+            // Remove the deleted Thing itself from the Store.
+            await unstoreGraphConstructs<Thing>("Thing", relatedThingIds)
+
+            // Rebuild the Graph.
             await this.build()
             return true
 

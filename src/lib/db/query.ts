@@ -195,3 +195,29 @@ export async function createNewRelatedThing(thingIdToRelateFrom: number, directi
 
     return
 }
+
+
+
+export async function deleteThing(thingId: number): Promise<void> {/////////// BACK IT UP AND TEST IT OUT!!!!!!!!!!!!!!!
+    const knex = Model.knex()
+    await knex.transaction(async (transaction: Knex.Transaction) => {
+
+        // Delete associated Relationships.
+        await Thing.relatedQuery('a_relationships').for([thingId]).delete().transacting(transaction)
+        await Thing.relatedQuery('b_relationships').for([thingId]).delete().transacting(transaction)
+
+        // Delete the Thing itself.
+        await Thing.query().delete().where("id", thingId).transacting(transaction)
+
+        return
+        
+    })
+    .then(function() {
+        console.log('Transaction complete.')
+    })
+    .catch(function(err: Error) {
+        console.error(err)
+    })
+
+    return
+}
