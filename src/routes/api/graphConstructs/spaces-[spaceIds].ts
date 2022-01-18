@@ -1,5 +1,5 @@
 import type { Space } from "$lib/models/dbModels"
-import { querySpaces } from "$lib/db/query"
+import { querySpaces } from "$lib/db/serverSide"
 
 
 let spaceIds: string | number[]

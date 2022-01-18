@@ -1,5 +1,5 @@
 import type { EndpointOutput } from "@sveltejs/kit"
-import { createNewRelatedThing } from "$lib/db/query"
+import { createNewRelatedThing } from "$lib/db/serverSide"
 
 
 export async function post(

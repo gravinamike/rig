@@ -125,3 +125,23 @@ the user to perform operations on a single Relationship at a time.
 the surrounding Graph. Generally a Clade is shown as a Portal when it adopts a
 different Space from the Clade's Parent Thing, in order to clearly indicate that
 Relationships within that Clade are on different axes.
+
+
+## Layers of the application
+
+* **Atomic models**: These represent basic constructs in the Unigraph. They
+inherit the Objection.js `Model` class, and are based on queries of the
+database.
+
+* **Graph models**: These represent larger-scale or composite constructs built
+up from atomic constructs. 
+
+* **Widget models**: These contain the information necessary to set up
+widgets. Each is based on an atomic or graph model (by which it represents an
+atomic or graph construct).
+
+* **Widgets**: These are the visual representation of atomic and graph
+constructs. They are based on widget model.
+
+* **Viewers**: Viewers are areas of the UI set up to visualize Graphs and
+other information. They usually contain widgets.

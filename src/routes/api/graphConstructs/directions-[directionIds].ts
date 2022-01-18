@@ -1,5 +1,5 @@
 import type { Direction } from "$lib/models/dbModels"
-import { queryDirections } from "$lib/db/query"
+import { queryDirections } from "$lib/db/serverSide"
 
 
 let directionIds: string | number[]

@@ -1,11 +1,15 @@
 <script lang="ts">
     // Type imports.
+    import type { Thing } from "$lib/models/dbModels"
     import type { Graph, Cohort } from "$lib/models/graphModels"
     import type { ThingWidgetModel } from "$lib/models/widgetModels"
 
     // Graph widget imports.
     import { planePadding } from "$lib/shared/constants"
     import { XButton } from "$lib/widgets/layoutWidgets"
+
+    import { createNewRelatedThing } from "$lib/db/clientSide"
+    import { storeGraphConstructs } from "$lib/stores"
 
     export let thingWidgetModel: ThingWidgetModel
     export let graph: Graph
@@ -36,8 +40,12 @@
         const directionId = space.directionIdByHalfAxisId[halfAxisId] as number
         const text = textField.value
 
-        await graph.createNewRelatedThing(parentThingId, directionId, text)////////////// Add text and Direction to this.
-        graph = graph // Needed for reactivity.
+        const newRelatedThingCreated = false//await createNewRelatedThing(parentThingId, directionId, text)
+        if (newRelatedThingCreated) {
+            await storeGraphConstructs<Thing>("Thing", parentThingId, true)
+            await graph.build()
+            graph = graph // Needed for reactivity.
+        }
     }
 
     async function cancel() {

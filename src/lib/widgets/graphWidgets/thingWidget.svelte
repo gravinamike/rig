@@ -1,5 +1,6 @@
 <script lang="ts">
     // Type imports.
+    import type { Thing } from "$lib/models/dbModels"
     import type { Graph } from "$lib/models/graphModels"
     import type { ThingWidgetModel } from "$lib/models/widgetModels"
 
@@ -9,6 +10,9 @@
     import { planePadding } from "$lib/shared/constants"
     import { XButton } from "$lib/widgets/layoutWidgets"
     import { ContextMenuFrame, ContextMenuOption } from "$lib/widgets/layoutWidgets"
+
+    import { storeGraphConstructs, unstoreGraphConstructs, retrieveGraphConstructs } from "$lib/stores"
+    import { deleteThing } from "$lib/db/clientSide/makeChanges"
 
     export let thingWidgetModel: ThingWidgetModel
     export let graph: Graph
@@ -61,8 +65,27 @@
     }
 
     async function confirmDelete() {
-        await graph.deleteThing(thingId)
-        graph = graph // Needed for reactivity.
+        // Get the to-be-deleted Thing from the Store.
+        const deletedThing = retrieveGraphConstructs<Thing>("Thing", thingId)
+        if (deletedThing) {
+
+            const thingDeleted = await deleteThing(thingId)
+            if (thingDeleted) {
+                // Get IDs of Stored Things related to the deleted Thing, and re-store them.
+                const relatedThingIds = deletedThing.relatedThingIds.filter(id => !(id === null)) as number[]
+
+                // Re-store any Things that were related to the deleted Thing (updating
+                // their relations in the process).
+                await storeGraphConstructs<Thing>("Thing", relatedThingIds, true)
+
+                // Remove the deleted Thing itself from the Store.
+                await unstoreGraphConstructs("Thing", relatedThingIds)
+
+                await graph.build()
+                graph = graph // Needed for reactivity.
+            }
+
+        }
     }
 </script>
 

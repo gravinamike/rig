@@ -164,7 +164,7 @@ export async function storeGraphConstructs<Type extends GraphConstruct>(
 /* 
  * Function to remove Graph constructs from the Stores.
  */
-export async function unstoreGraphConstructs<Type extends GraphConstruct>(
+export async function unstoreGraphConstructs(
     constructName: "Direction" | "Space" | "Thing",
     ids: number | number[]
 ): Promise<void> {

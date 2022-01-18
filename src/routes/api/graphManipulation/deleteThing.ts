@@ -1,5 +1,5 @@
 import type { EndpointOutput } from "@sveltejs/kit"
-import { deleteThing } from "$lib/db/query"
+import { deleteThing } from "$lib/db/serverSide"
 
 
 export async function post(

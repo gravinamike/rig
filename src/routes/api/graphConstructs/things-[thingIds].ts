@@ -1,5 +1,5 @@
 import type { Thing } from "$lib/models/dbModels"
-import { queryThings } from "$lib/db/query"
+import { queryThings } from "$lib/db/serverSide"
 
 
 export async function get(
