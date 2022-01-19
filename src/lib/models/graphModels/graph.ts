@@ -222,9 +222,12 @@ export class Graph {
             // For each Thing (not Placeholder) in the previous Generation,
             for (const prevThingWidgetModel of newGeneration.parentGeneration?.thingWidgetModels() || []) {
                 
-                // For the ID of each half-axis from that Thing,
-                //for (const halfAxisId of prevThingWidgetModel.relatedThingHalfAxisIds) {//////// Change to all Half-Axis IDs
-                for (const halfAxisId of cartesianHalfAxisIds) {
+                // For the ID of each half-axis from that Thing (plus any empty "Cartesian" half-axes - 1, 2, 3, 4),
+                const halfAxisIdsForCohorts = [...new Set([
+                    ...prevThingWidgetModel.relatedThingHalfAxisIds,
+                    ...cartesianHalfAxisIds])
+                ]
+                for (const halfAxisId of halfAxisIdsForCohorts) {
                     // Get the address for that half axis' Cohort.
                     const addressForCohort = {
                         graph: this,
