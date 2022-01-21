@@ -42,10 +42,26 @@
     $: encapsulatingPadding = encapsulatingDepth >= 0 ? 40 : 20
 
     // Variables dealing with Thing sizing.
+    $: elongation = thingWidgetModel.parentCohort?.axialElongation || 1
+    $: elongationCategory = (
+        [1, 2, 3, 4].includes(halfAxisId) ?
+        ( [1, 2].includes(halfAxisId) ? "vertical" : "horizontal" ) :
+        "neutral"
+    ) as ("vertical" | "horizontal" | "neutral")
+    let XYElongation: {x: number, y: number}
+    $: switch (elongationCategory) {
+        case "vertical": 
+            XYElongation = {x: 1, y: elongation}; break
+        case "horizontal":
+            XYElongation = {x: elongation, y: 1}; break
+        case "neutral":
+            XYElongation = {x: elongation, y: elongation}; break
+    }
+
     $: cohortSize = thingWidgetModel.parentCohort?.members.length || 1
     $: thingSize = graph.graphWidgetStyle.thingSize + planePadding * planeId + encapsulatingPadding * encapsulatingDepth
-    $: thingWidth = thingSize
-    $: thingHeight = encapsulatingDepth >= 0 ? thingSize : thingSize / cohortSize - 2
+    $: thingWidth = thingSize * XYElongation.x
+    $: thingHeight = encapsulatingDepth >= 0 ? thingSize * XYElongation.y : thingSize * XYElongation.y / cohortSize - 2
     
     // Variables dealing with visual formatting (color, opacity, outline, etc.).
     $: opacity = [7, 8].includes(halfAxisId) ?
@@ -87,6 +103,8 @@
 
         }
     }
+
+    const showContent = true
 </script>
 
 
@@ -109,24 +127,43 @@
     {/if}
 
     <!-- Thing text -->
-    <div class="thing-text"
-        style="
-            {
-                isEncapsulating ?
-                "position: absolute; transform: translate(0%, -50%); white-space: nowrap;" :
-                "position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); overflow-wrap: break-word;"
-            }
-            
-            font-size: {
-                encapsulatingDepth >= 0 ?
-                graph.graphWidgetStyle.thingTextSize :
-                graph.graphWidgetStyle.thingTextSize / Math.log2(cohortSize)
-            }px;
-            font-weight: 600;
-        "
-    >
-        {text}
+    <div style="width: {Math.min(thingWidth, thingHeight)}px; height: {Math.min(thingWidth, thingHeight)}px; left: 0; text-align: center; {showContent && elongationCategory === "horizontal" ? "transform: rotate(-90deg);" : ""}">
+        <div
+            class="thing-text"
+            style="
+                {
+                    isEncapsulating ?
+                    "position: absolute; transform: translate(0%, -50%); white-space: nowrap;" :
+                    (
+                        showContent ?
+                        `text-align: center;` :
+                        "position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); overflow-wrap: break-word;"
+                    )
+                }
+                
+                font-size: {
+                    encapsulatingDepth >= 0 ?
+                    graph.graphWidgetStyle.thingTextSize :
+                    graph.graphWidgetStyle.thingTextSize / Math.log2(cohortSize)
+                }px;
+                font-weight: 600;
+            "
+        >
+            {text}
+        </div>
     </div>
+
+    {#if showContent}
+        <div
+            class="content-box"
+            style={
+                elongationCategory === "horizontal" ? 
+                "border-radius: 0 4px 4px 0; width: calc(100% - 50px); height: calc(100% - 10px); top: 5px; right: 5px;" :
+                "border-radius: 0 0 4px 4px; width: calc(100% - 10px); height: calc(100% - 50px); bottom: 5px; left: 5px;"
+            }
+        >
+        </div>
+    {/if}
 
     {#if confirmDeleteBoxOpen}
         <div
@@ -203,12 +240,26 @@
 
     .hovered-thing {
         outline: solid 2px black;
+        outline-offset: -2px;
     }
+
+
+
+    .content-box {
+        outline: inset 1px lightgrey;
+        outline-offset: -1px;
+
+        position: absolute;
+        background-color: white;
+    }
+
+
 
     .delete-button-container {
         position: absolute;
         top: 2px;
         right: 2px;
+        z-index: 1;
     }
 
     .confirm-delete-container {

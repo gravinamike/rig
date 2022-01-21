@@ -23,7 +23,7 @@
     $: thingSize = graph.graphWidgetStyle.thingSize
     $: betweenThingGap = 0.01 * graph.graphWidgetStyle.thingSpacingPercent * graph.graphWidgetStyle.thingSize
 
-    $: edgeToEdgeDimension = offsetLength - thingSize
+    $: edgeToEdgeDimension = offsetLength - thingSize * cohort.axialElongation
 
     let cohortMembersWithIndices: { index: number, member: GenerationMember }[] = []
     function updateCohortMembersWithIndices(members: GenerationMember[]) {
@@ -79,7 +79,7 @@
 <main class="relationships-widget" style="left: calc({offsets[0]}px + 50%); top: calc({offsets[1]}px + 50%); z-index: {zIndex}; width: {widgetWidth}px; height: {widgetHeight}px; opacity: {opacity};">
     <div
         class="direction-text {!cohort.members.length ? "empty" : ""}"
-        style="font-size: {graph.graphWidgetStyle.relationshipTextSize}px"
+        style="{[3, 4].includes(halfAxisId)  ? "transform: rotate(-90deg);" : ""} font-size: {graph.graphWidgetStyle.relationshipTextSize}px"
     >
         {direction.text}
     </div>

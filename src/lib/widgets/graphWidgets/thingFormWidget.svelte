@@ -40,7 +40,7 @@
         const directionId = space.directionIdByHalfAxisId[halfAxisId] as number
         const text = textField.value
 
-        const newRelatedThingCreated = false//await createNewRelatedThing(parentThingId, directionId, text)
+        const newRelatedThingCreated = await createNewRelatedThing(parentThingId, directionId, text)
         if (newRelatedThingCreated) {
             await storeGraphConstructs<Thing>("Thing", parentThingId, true)
             await graph.build()

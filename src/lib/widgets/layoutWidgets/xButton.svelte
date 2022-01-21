@@ -27,6 +27,8 @@
         outline: solid 1px grey;
         outline-offset: -1px;
         
+        background-color: white;
+        
         cursor: pointer;
     }
 

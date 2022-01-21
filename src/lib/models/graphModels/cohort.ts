@@ -19,6 +19,7 @@ export class Cohort {
     members: GenerationMember[]
     encapsulatingDepth: number
     plane: Plane | null = null
+    axialElongation = 2
 
     constructor(address: CohortAddress, members: GenerationMember[]) {
         this.address = address
