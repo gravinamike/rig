@@ -18,25 +18,43 @@
     let textField: HTMLTextAreaElement
 
     // Variables situating the Thing in its spatial context (Half-Axis, Plane)
-    $: halfAxisId = thingWidgetModel.parentCohort?.address?.halfAxisId || 0
+    $: halfAxisId = thingWidgetModel.parentCohort.address.halfAxisId || 0
     $: planeId = [7, 8].includes(halfAxisId) ?
-        thingWidgetModel.parentCohort?.address?.parentThingWidgetModel?.parentCohort?.plane?.id || 0 :
-        thingWidgetModel.parentCohort?.plane?.id || 0
+        thingWidgetModel.parentCohort.address.parentThingWidgetModel?.parentCohort.plane?.id || 0 :
+        thingWidgetModel.parentCohort.plane?.id || 0
     $: distanceFromFocalPlane = planeId - graph.focalPlaneId
     
     // Variables dealing with encapsulation (Things containing other Things).
-    $: encapsulatingDepth = thingWidgetModel.parentCohort?.encapsulatingDepth || 0
+    $: encapsulatingDepth = thingWidgetModel.parentCohort.encapsulatingDepth || 0
     $: encapsulatingPadding = encapsulatingDepth >= 0 ? 40 : 20
 
+    /* Variables dealing with Thing sizing. */
+    $: elongation = thingWidgetModel.parentCohort.axialElongation
+    $: elongationCategory = (
+        [1, 2, 3, 4].includes(halfAxisId) ?
+        ( [1, 2].includes(halfAxisId) ? "vertical" : "horizontal" ) :
+        "neutral"
+    ) as ("vertical" | "horizontal" | "neutral")
+    let XYElongation: {x: number, y: number}
+    $: switch (elongationCategory) {
+        case "vertical": 
+            XYElongation = {x: 1, y: elongation}; break
+        case "horizontal":
+            XYElongation = {x: elongation, y: 1}; break
+        case "neutral":
+            XYElongation = {x: elongation, y: elongation}; break
+    }
+
     // Variables dealing with Thing sizing.
-    $: cohortSize = thingWidgetModel.parentCohort?.members.length || 1
+    $: cohortSize = thingWidgetModel.parentCohort.members.length || 1
     $: thingSize = graph.graphWidgetStyle.thingSize + planePadding * planeId + encapsulatingPadding * encapsulatingDepth
-    $: thingWidth = thingSize
-    $: thingHeight = encapsulatingDepth >= 0 ? thingSize : thingSize / cohortSize - 2
+    $: thingWidth = thingSize * XYElongation.x
+    $: thingHeight = encapsulatingDepth >= 0 ? thingSize * XYElongation.y : thingSize * XYElongation.y / cohortSize - 2
+    
 
     async function submit() {
         const parentThingId = ((thingWidgetModel.parentThingWidgetModel as ThingWidgetModel).thingId as number)
-        const space = (thingWidgetModel.parentCohort?.address?.parentThingWidgetModel as ThingWidgetModel).space
+        const space = (thingWidgetModel.parentCohort.address.parentThingWidgetModel as ThingWidgetModel).space
         const directionId = space.directionIdByHalfAxisId[halfAxisId] as number
         const text = textField.value
 
@@ -59,7 +77,11 @@
 <!-- Thing Widget. -->
 <div
     class="box thing-form-widget"
-    style="border-radius: {8 + 4 * encapsulatingDepth}px; width: {thingWidth}px; height: {thingHeight}px; pointer-events: {distanceFromFocalPlane === 0 ? "auto" : "none"};"
+    style="
+        border-radius: {10 + 4 * encapsulatingDepth}px;
+        width: {thingWidth}px; height: {thingHeight}px;
+        pointer-events: {distanceFromFocalPlane === 0 ? "auto" : "none"};
+    "
     on:keypress={(event) => {if (event.key === "Enter") submit()}}
 >    
     <div class="cancel-button-container">

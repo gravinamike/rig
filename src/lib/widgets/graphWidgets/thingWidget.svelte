@@ -1,16 +1,16 @@
 <script lang="ts">
-    // Type imports.
+    /* Type imports. */
     import type { Thing } from "$lib/models/dbModels"
     import type { Graph } from "$lib/models/graphModels"
     import type { ThingWidgetModel } from "$lib/models/widgetModels"
 
-    // Graph widget imports.
+    /* Widget imports. */
     import { hoveredThingIdStore, addPin } from "$lib/stores"
     import { ThingDetailsWidget } from "$lib/widgets/detailsWidgets"
     import { planePadding } from "$lib/shared/constants"
-    import { XButton } from "$lib/widgets/layoutWidgets"
-    import { ContextMenuFrame, ContextMenuOption } from "$lib/widgets/layoutWidgets"
+    import { ContextMenuFrame, ContextMenuOption, XButton, ConfirmDeleteBox } from "$lib/widgets/layoutWidgets"
 
+    /* Manipulation imports. */
     import { storeGraphConstructs, unstoreGraphConstructs, retrieveGraphConstructs } from "$lib/stores"
     import { deleteThing } from "$lib/db/clientSide/makeChanges"
 
@@ -20,29 +20,31 @@
 
     
     let contextMenu: ContextMenuFrame
+    const showContent = true
+    let confirmDeleteBoxOpen = false
 
-    // IDs of the Thing's model and widget.
+    /* Basic Thing IDs and models. */
     $: thingId = thingWidgetModel.thingId as number
-    $: thingWidgetId = thingWidgetModel.thingWidgetId as string
+    $: thingWidgetId = thingWidgetModel.thingWidgetId
+    $: thing = thingWidgetModel.thing as Thing
 
-    $: text = thingWidgetModel.text
-
-    // Variables situating the Thing in its spatial context (Half-Axis, Plane)
-    $: halfAxisId = thingWidgetModel.parentCohort?.address?.halfAxisId || 0
-    $: planeId = [7, 8].includes(halfAxisId) ?
-        thingWidgetModel.parentCohort?.address?.parentThingWidgetModel?.parentCohort?.plane?.id || 0 :
-        thingWidgetModel.parentCohort?.plane?.id || 0
+    /* Variables situating the Thing in its spatial context (Half-Axis, Plane). */
+    $: halfAxisId = thingWidgetModel.halfAxisId
+    $: planeId = [7, 8].includes(halfAxisId) && thingWidgetModel.parentThingWidgetModel ?
+        // If the Thing is on the encapsulating axis, inherit the Plane from the Thing's parent Thing.
+        thingWidgetModel.parentThingWidgetModel.planeId :
+        // Otherwise use the Thing's own Plane.
+        thingWidgetModel.planeId
     $: distanceFromFocalPlane = planeId - graph.focalPlaneId
     
-    // Variables dealing with encapsulation (Things containing other Things).
-    $: isEncapsulating = halfAxisId === 8 || 7 in thingWidgetModel.childCohortsByHalfAxisId ?
-        true :
-        false
-    $: encapsulatingDepth = thingWidgetModel.parentCohort?.encapsulatingDepth || 0
+    /* Variables dealing with encapsulation (Things containing other Things). */
+    // If the Half-Axis is "Outwards, or the Thing has "Inwards" children, it is encapsulating.
+    $: isEncapsulating = thingWidgetModel.isEncapsulating
+    $: encapsulatingDepth = thingWidgetModel.parentCohort.encapsulatingDepth
     $: encapsulatingPadding = encapsulatingDepth >= 0 ? 40 : 20
 
-    // Variables dealing with Thing sizing.
-    $: elongation = thingWidgetModel.parentCohort?.axialElongation || 1
+    /* Variables dealing with Thing sizing. */
+    $: elongation = thingWidgetModel.parentCohort.axialElongation
     $: elongationCategory = (
         [1, 2, 3, 4].includes(halfAxisId) ?
         ( [1, 2].includes(halfAxisId) ? "vertical" : "horizontal" ) :
@@ -58,7 +60,7 @@
             XYElongation = {x: elongation, y: elongation}; break
     }
 
-    $: cohortSize = thingWidgetModel.parentCohort?.members.length || 1
+    $: cohortSize = thingWidgetModel.parentCohort.members.length || 1
     $: thingSize = graph.graphWidgetStyle.thingSize + planePadding * planeId + encapsulatingPadding * encapsulatingDepth
     $: thingWidth = thingSize * XYElongation.x
     $: thingHeight = encapsulatingDepth >= 0 ? thingSize * XYElongation.y : thingSize * XYElongation.y / cohortSize - 2
@@ -72,10 +74,12 @@
     $: isHoveredThing = thingId === hoveredThingIdStoreValue
     let isHoveredWidget = false
 
-    let confirmDeleteBoxOpen = false
-    let showDetails = false
-    let lockDetails = false
+    // Variables dealing with text formatting.
+    let textFontSize = encapsulatingDepth >= 0 ?
+        graph.graphWidgetStyle.thingTextSize :
+        graph.graphWidgetStyle.thingTextSize / Math.log2(cohortSize)
 
+    
     async function startDelete() {
         confirmDeleteBoxOpen = true
     }
@@ -90,8 +94,8 @@
                 // Get IDs of Stored Things related to the deleted Thing, and re-store them.
                 const relatedThingIds = deletedThing.relatedThingIds.filter(id => !(id === null)) as number[]
 
-                // Re-store any Things that were related to the deleted Thing (updating
-                // their relations in the process).
+                // Re-store any Things that were related to the deleted Thing (in order to
+                // update their relations to reflect the deleted Thing's absence).
                 await storeGraphConstructs<Thing>("Thing", relatedThingIds, true)
 
                 // Remove the deleted Thing itself from the Store.
@@ -103,8 +107,6 @@
 
         }
     }
-
-    const showContent = true
 </script>
 
 
@@ -112,12 +114,42 @@
 <div
     id="{thingWidgetId}"
     class="box thing-widget { isHoveredThing ? "hovered-thing" : "" }"
+    style="
+        border-radius: {10 + 4 * encapsulatingDepth}px;
+        width: {thingWidth}px; height: {thingHeight}px; opacity: {opacity};
+        pointer-events: {distanceFromFocalPlane === 0 ? "auto" : "none"};
+    "
     on:mouseenter={()=>{hoveredThingIdStore.set(thingId); isHoveredWidget = true}}
     on:mouseleave={()=>{hoveredThingIdStore.set(null); isHoveredWidget = false; confirmDeleteBoxOpen = false}}
     on:click={ () => { rePerspectToThingId(thingId) } }
     on:contextmenu|preventDefault={contextMenu.openContextMenu}
-    style="border-radius: {8 + 4 * encapsulatingDepth}px; width: {thingWidth}px; height: {thingHeight}px; opacity: {opacity}; pointer-events: {distanceFromFocalPlane === 0 ? "auto" : "none"};"
 >
+    <!-- Thing text. -->
+    <div
+        class="text-container { showContent && elongationCategory === "horizontal" ? "sideways" : "" }"
+        style="width: { Math.min(thingWidth, thingHeight) }px; height: { Math.min(thingWidth, thingHeight) }px;"
+    >
+        <div
+            class="thing-text { isEncapsulating ? "encapsulating" : "" } { showContent ? "show-content" : "hide-content" }"
+            style="font-size: {textFontSize}px;"
+        >
+            {thingWidgetModel.text}
+        </div>
+    </div>
+
+    <!-- Content box. -->
+    {#if showContent}
+        <div 
+            class="content-box { elongationCategory === "horizontal" ? "horizontal" : "vertical" }"
+        >
+            <ThingDetailsWidget
+                {thing}
+                freestanding={false}
+            />
+        </div>
+    {/if}
+
+    <!-- Delete button and confirm delete dialog. -->
     {#if isHoveredWidget && !confirmDeleteBoxOpen}
         <div class="delete-button-container">
             <XButton
@@ -125,93 +157,21 @@
             />
         </div>
     {/if}
-
-    <!-- Thing text -->
-    <div style="width: {Math.min(thingWidth, thingHeight)}px; height: {Math.min(thingWidth, thingHeight)}px; left: 0; text-align: center; {showContent && elongationCategory === "horizontal" ? "transform: rotate(-90deg);" : ""}">
-        <div
-            class="thing-text"
-            style="
-                {
-                    isEncapsulating ?
-                    "position: absolute; transform: translate(0%, -50%); white-space: nowrap;" :
-                    (
-                        showContent ?
-                        `text-align: center;` :
-                        "position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); overflow-wrap: break-word;"
-                    )
-                }
-                
-                font-size: {
-                    encapsulatingDepth >= 0 ?
-                    graph.graphWidgetStyle.thingTextSize :
-                    graph.graphWidgetStyle.thingTextSize / Math.log2(cohortSize)
-                }px;
-                font-weight: 600;
-            "
-        >
-            {text}
-        </div>
-    </div>
-
-    {#if showContent}
-        <div
-            class="content-box"
-            style={
-                elongationCategory === "horizontal" ? 
-                "border-radius: 0 4px 4px 0; width: calc(100% - 50px); height: calc(100% - 10px); top: 5px; right: 5px;" :
-                "border-radius: 0 0 4px 4px; width: calc(100% - 10px); height: calc(100% - 50px); bottom: 5px; left: 5px;"
-            }
-        >
-        </div>
-    {/if}
-
     {#if confirmDeleteBoxOpen}
-        <div
-            class="confirm-delete-container"
-            style="border-radius: {8 + 4 * encapsulatingDepth}px;"
-        >
-            <div class="confirm-delete-blur" />
-            <div
-                class="confirm-delete-box"
-                style="width: {thingWidth}px; height: {thingHeight * 0.3}px; font-size: {thingHeight * 0.15}px;"
-            >
-                <div>
-                    DELETE?
-                </div>
-                <div>
-                    <XButton
-                        buttonFunction={confirmDelete}
-                        size={20}
-                        square={true}
-                        caution={true}
-                    />
-                </div>
-            </div>
-        </div>
-    {/if}
-    
-    {#if ( showDetails || lockDetails ) && thingWidgetModel.thing}
-        <div class="thing-details-container" style="top: {thingHeight - 20}px; left: {thingWidth - 20}px;">
-            <ThingDetailsWidget
-                thing={thingWidgetModel.thing}
-            />
-        </div>
+        <ConfirmDeleteBox
+            {thingWidth}
+            {thingHeight}
+            {encapsulatingDepth}
+            {elongationCategory}
+            confirmDeleteFunction={confirmDelete}
+        />
     {/if}
 
-    {#if !confirmDeleteBoxOpen}
-        <div
-            class="toggle-button {showDetails || lockDetails ? "pressed" : ""}"
-            on:click|stopPropagation={()=>{lockDetails = !lockDetails}}
-            on:mouseenter={()=>{showDetails = true}}
-            on:mouseleave={()=>{showDetails = false}}
-            >
-        </div>
-    {/if}
-
+    <!-- Context menu. -->
     <ContextMenuFrame bind:this={contextMenu}>
         <ContextMenuOption
             text="Add Thing to Pins"
-            on:click={() => {addPin(thingId)}}
+            on:click={ () => {addPin(thingId)} }
         />
     </ContextMenuFrame>
 </div>
@@ -243,7 +203,46 @@
         outline-offset: -2px;
     }
 
+    .text-container {
+        left: 0;
+        
+        text-align: center;
+    }
 
+    .text-container.sideways {
+        transform: rotate(-90deg);
+    }
+
+    .thing-text {
+        font-weight: 600;
+    }
+
+    .thing-text.encapsulating {
+        position: absolute;
+        transform: translate(0%, -50%);
+
+        white-space: nowrap;
+    }
+
+    .thing-text.show-content {
+        text-align: center;
+    }
+
+    .thing-text.hide-content {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        
+        overflow-wrap: break-word;
+    }
+
+    .delete-button-container {
+        position: absolute;
+        top: 3px;
+        right: 3px;
+        z-index: 1;
+    }
 
     .content-box {
         outline: inset 1px lightgrey;
@@ -251,70 +250,27 @@
 
         position: absolute;
         background-color: white;
+
+        overflow-x: hidden;
+        overflow-y: auto;
+        scrollbar-width: thin;
     }
 
-
-
-    .delete-button-container {
-        position: absolute;
-        top: 2px;
-        right: 2px;
-        z-index: 1;
-    }
-
-    .confirm-delete-container {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-
-        overflow: hidden;
-    }
-
-    .confirm-delete-blur {
-        width: 100%;
-        height: 100%;
-        background-color: gainsboro;
-        opacity: 0.75;
-    }
-
-    .confirm-delete-box {
-        border-top: solid 2px black;
-
-        position: absolute;
-        bottom: 0;
-        background-color: white;
-
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 5px;
-
-        font-weight: 600;
-    }
-
-    .toggle-button {
-        border-radius: 8px;
-        outline: solid 1px lightgrey;
-        outline-offset: -1px;
+    .content-box.horizontal {
+        border-radius: 0 6px 6px 0;
         
-        position: absolute;
-        bottom: 2px;
-        right: 2px;
-        height: 16px;
-        width: 16px;
-
-        text-align: center;
-        font-size: 0.5rem;
-        color: lightgrey;
-        
-        cursor: pointer;
+        width: calc(100% - 50px);
+        height: calc(100% - 10px);
+        top: 5px;
+        right: 5px;
     }
 
-    .toggle-button.pressed {
-        background-color: gainsboro;
-    }
+    .content-box.vertical {
+        border-radius: 0 0 6px 6px;
 
-    .thing-details-container {
-        position: absolute;
+        width: calc(100% - 10px);
+        height: calc(100% - 50px);
+        bottom: 5px;
+        left: 5px;
     }
 </style>

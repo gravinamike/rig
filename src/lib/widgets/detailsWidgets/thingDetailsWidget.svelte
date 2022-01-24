@@ -4,6 +4,7 @@
     import { Collapser } from "$lib/widgets/layoutWidgets"
 
     export let thing: Thing
+    export let freestanding = true
 
     let hoveredThingIdStoreValue: number | null
     hoveredThingIdStore.subscribe(value => {hoveredThingIdStoreValue = value})
@@ -13,7 +14,7 @@
 
 <main>
     <div
-        class="box { isHoveredThing ? "hovered-thing" : "" }"
+        class="box {freestanding ? "freestanding" : ""} { isHoveredThing ? "hovered-thing" : "" }"
         on:mouseenter={()=>{hoveredThingIdStore.set(thing.id)}}
         on:mouseleave={()=>{hoveredThingIdStore.set(null)}}
     >
@@ -45,24 +46,28 @@
 
 
 <style>
-    .box {
+    .freestanding {
         border-radius: 10px;
         box-shadow: 5px 5px 10px 2px lightgray;
 
+        padding: 1rem;
+    }
+
+    .freestanding.hovered-thing {
+        outline: solid 2px black;
+    }
+
+    .box {
         height: max-content;
         background-color: white;
         
         display: flex;
         flex-direction: column;
-        padding: 1rem;
+        padding: 0.25rem;
         gap: 10px;
         
         font-size: 0.75rem;
         text-align: left;
-    }
-
-    .hovered-thing {
-        outline: solid 2px black;
     }
 
     h4 {

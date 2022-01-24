@@ -21,9 +21,9 @@ type ThingAddress = {
 export class ThingWidgetModel {
     kind = "thingWidgetModel"
 
-    thingId: number | null
+    thingId: number | null////////////////////////////////////// Just number!!!!!
     thing: Thing | null
-    parentCohort: Cohort | null = null
+    _parentCohort: Cohort | null = null
     childCohortsByHalfAxisId: { [directionId: number]: Cohort } = {}
     inheritSpace = true // For now.
 
@@ -32,12 +32,16 @@ export class ThingWidgetModel {
         this.thing = typeof thingId === "number" ? retrieveGraphConstructs("Thing", thingId) : null
     }
 
-    get thingWidgetId(): string | null {
-        if (!this.address) {
-            return null
-        } else {
-            return `portal#${ this.address.graph.id }-thing#${ this.thingId }`
-        }
+    get parentCohort(): Cohort {
+        return this._parentCohort as Cohort
+    }
+
+    set parentCohort(cohort: Cohort) {
+        this._parentCohort = cohort
+    }
+
+    get thingWidgetId(): string {
+        return `portal#${ this.address.graph.id }-thing#${ this.thingId }`
     }
 
     // The following getter functions pass along the corresponding attributes from the encapsulated Thing.
@@ -79,15 +83,19 @@ export class ThingWidgetModel {
         return parentThingWidgetModel
     }
 
+    get halfAxisId(): number {
+        return this.parentCohort.address.halfAxisId || 0
+    }
+
     // The following getter functions are derived from the pass-along getter functions above.
-    get address(): ThingAddress | null {
-        const address = this.parentCohort ? {
+    get address(): ThingAddress {
+        const address = {
             graph: this.parentCohort.address.graph,
             generationId: this.parentCohort.address.generationId,
             parentThingWidgetModel: this.parentCohort.address.parentThingWidgetModel,
             halfAxisId: this.parentCohort.address.halfAxisId,
             indexInCohort: this.parentCohort.indexOfMember(this) as number
-        } : null
+        }
         return address
     }
 
@@ -127,6 +135,14 @@ export class ThingWidgetModel {
             directionIdByHalfAxisId[oddHalfAxisId + 1] = direction.oppositeid;
         }
         return directionIdByHalfAxisId
+    }
+
+    get isEncapsulating(): boolean {
+        return (this.halfAxisId === 8) || (7 in this.childCohortsByHalfAxisId) ? true : false
+    }
+
+    get planeId(): number {
+        return this.parentCohort.plane?.id || 0
     }
 
     get childCohorts(): Cohort[] {
