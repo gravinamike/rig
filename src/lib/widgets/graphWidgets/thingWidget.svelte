@@ -10,10 +10,6 @@
     import { planePadding } from "$lib/shared/constants"
     import { ContextMenuFrame, ContextMenuOption, XButton, ConfirmDeleteBox } from "$lib/widgets/layoutWidgets"
 
-    /* Manipulation imports. */
-    import { storeGraphConstructs, unstoreGraphConstructs, retrieveGraphConstructs } from "$lib/stores"
-    import { deleteThing } from "$lib/db/clientSide/makeChanges"
-
     export let thingWidgetModel: ThingWidgetModel
     export let graph: Graph
     export let rePerspectToThingId: (id: number) => Promise<void>
@@ -30,40 +26,23 @@
 
     /* Variables situating the Thing in its spatial context (Half-Axis, Plane). */
     $: halfAxisId = thingWidgetModel.halfAxisId
-    $: planeId = [7, 8].includes(halfAxisId) && thingWidgetModel.parentThingWidgetModel ?
-        // If the Thing is on the encapsulating axis, inherit the Plane from the Thing's parent Thing.
-        thingWidgetModel.parentThingWidgetModel.planeId :
-        // Otherwise use the Thing's own Plane.
-        thingWidgetModel.planeId
+    $: planeId = thingWidgetModel.planeId
     $: distanceFromFocalPlane = planeId - graph.focalPlaneId
     
     /* Variables dealing with encapsulation (Things containing other Things). */
     // If the Half-Axis is "Outwards, or the Thing has "Inwards" children, it is encapsulating.
     $: isEncapsulating = thingWidgetModel.isEncapsulating
-    $: encapsulatingDepth = thingWidgetModel.parentCohort.encapsulatingDepth
+    $: encapsulatingDepth = thingWidgetModel.encapsulatingDepth
     $: encapsulatingPadding = encapsulatingDepth >= 0 ? 40 : 20
 
     /* Variables dealing with Thing sizing. */
-    $: elongation = thingWidgetModel.parentCohort.axialElongation
-    $: elongationCategory = (
-        [1, 2, 3, 4].includes(halfAxisId) ?
-        ( [1, 2].includes(halfAxisId) ? "vertical" : "horizontal" ) :
-        "neutral"
-    ) as ("vertical" | "horizontal" | "neutral")
-    let XYElongation: {x: number, y: number}
-    $: switch (elongationCategory) {
-        case "vertical": 
-            XYElongation = {x: 1, y: elongation}; break
-        case "horizontal":
-            XYElongation = {x: elongation, y: 1}; break
-        case "neutral":
-            XYElongation = {x: elongation, y: elongation}; break
-    }
+    $: elongationCategory = thingWidgetModel.elongationCategory
+    $: xYElongation = thingWidgetModel.xYElongation
 
-    $: cohortSize = thingWidgetModel.parentCohort.members.length || 1
+    $: cohortSize = thingWidgetModel.cohortSize
     $: thingSize = graph.graphWidgetStyle.thingSize + planePadding * planeId + encapsulatingPadding * encapsulatingDepth
-    $: thingWidth = thingSize * XYElongation.x
-    $: thingHeight = encapsulatingDepth >= 0 ? thingSize * XYElongation.y : thingSize * XYElongation.y / cohortSize - 2
+    $: thingWidth = thingSize * xYElongation.x
+    $: thingHeight = encapsulatingDepth >= 0 ? thingSize * xYElongation.y : thingSize * xYElongation.y / cohortSize - 2
     
     // Variables dealing with visual formatting (color, opacity, outline, etc.).
     $: opacity = [7, 8].includes(halfAxisId) ?
@@ -85,27 +64,8 @@
     }
 
     async function confirmDelete() {
-        // Get the to-be-deleted Thing from the Store.
-        const deletedThing = retrieveGraphConstructs<Thing>("Thing", thingId)
-        if (deletedThing) {
-
-            const thingDeleted = await deleteThing(thingId)
-            if (thingDeleted) {
-                // Get IDs of Stored Things related to the deleted Thing, and re-store them.
-                const relatedThingIds = deletedThing.relatedThingIds.filter(id => !(id === null)) as number[]
-
-                // Re-store any Things that were related to the deleted Thing (in order to
-                // update their relations to reflect the deleted Thing's absence).
-                await storeGraphConstructs<Thing>("Thing", relatedThingIds, true)
-
-                // Remove the deleted Thing itself from the Store.
-                await unstoreGraphConstructs("Thing", relatedThingIds)
-
-                await graph.build()
-                graph = graph // Needed for reactivity.
-            }
-
-        }
+        await graph.deleteThingById(thingId)
+        graph = graph // Needed for reactivity.
     }
 </script>
 

@@ -1,2 +1,1 @@
-export * from "./thingPlaceholderWidgetModel"
-export * from "./thingWidgetModel"
+export * from "./thingWidgetModels"

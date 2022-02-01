@@ -44,6 +44,7 @@
         {:else}
             <ThingPlaceholderWidget
                 thingPlaceholderWidgetModel={cohortMember}
+                {graph}
             />
         {/if}
     {/each}

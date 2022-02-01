@@ -65,7 +65,6 @@ export class Cohort {
     removeMember(member: GenerationMember): void {
         const index = this.members.indexOf(member);
         if (index > -1) {
-            member.parentCohort = null
             this.members.splice(index, 1)
         }
     }

@@ -2,9 +2,10 @@ import type { GraphWidgetStyle } from "$lib/shared/constants"
 import type { Thing } from "$lib/models/dbModels"
 
 import { defaultGraphWidgetStyle, cartesianHalfAxisIds } from "$lib/shared/constants"
-import { storeGraphConstructs, graphConstructInStore } from "$lib/stores"
+import { storeGraphConstructs, graphConstructInStore, retrieveGraphConstructs, unstoreGraphConstructs } from "$lib/stores"
 import { Generation, Cohort, Plane } from "$lib/models/graphModels"
 import { ThingWidgetModel, ThingPlaceholderWidgetModel } from "$lib/models/widgetModels"
+import { deleteThing } from "$lib/db/clientSide/makeChanges"
 
 
 /** Class representing a Graph. */
@@ -324,5 +325,28 @@ export class Graph {
             // Mark the Generation as stripped.
             generationToStrip.lifecycleStatus = "stripped"
         }     
+    }
+
+    async deleteThingById(thingId: number): Promise<void> {
+        // Get the to-be-deleted Thing from the Store.
+        const deletedThing = retrieveGraphConstructs<Thing>("Thing", thingId)
+        if (deletedThing) {
+
+            const thingDeleted = await deleteThing(thingId)
+            if (thingDeleted) {
+                // Get IDs of Stored Things related to the deleted Thing, and re-store them.
+                const relatedThingIds = deletedThing.relatedThingIds.filter(id => !(id === null)) as number[]
+
+                // Re-store any Things that were related to the deleted Thing (in order to
+                // update their relations to reflect the deleted Thing's absence).
+                await storeGraphConstructs<Thing>("Thing", relatedThingIds, true)
+
+                // Remove the deleted Thing itself from the Store.
+                await unstoreGraphConstructs("Thing", relatedThingIds)
+
+                await this.build()
+            }
+
+        }
     }
 }

@@ -1,27 +1,16 @@
 import type { HalfAxisId } from "$lib/shared/constants"
-import type { Space, Thing, Note } from "$lib/models/dbModels"
-import type { Graph, Cohort } from "$lib/models/graphModels"
+import type { Space, Thing } from "$lib/models/dbModels"
+import type { Cohort } from "$lib/models/graphModels"
+import type { ThingAddress, ThingWidgetModel } from "./"
 
 import { oddHalfAxisIds } from "$lib/shared/constants"
 import { graphConstructInStore, retrieveGraphConstructs } from "$lib/stores"
 
 
-/*
- * Thing Widget Model.
- * Specifies info to build the widget representing a Thing within a specific Graph Portal.
- */
-type ThingAddress = {
-    graph: Graph;
-    generationId: number,
-    parentThingWidgetModel: ThingWidgetModel | null,
-    halfAxisId: number | null,
-    indexInCohort: number
-}
+export class ThingBaseWidgetModel {
+    kind = "thingBaseWidgetModel"
 
-export class ThingWidgetModel {
-    kind = "thingWidgetModel"
-
-    thingId: number | null////////////////////////////////////// Just number!!!!!
+    thingId: number | null
     thing: Thing | null
     _parentCohort: Cohort | null = null
     childCohortsByHalfAxisId: { [directionId: number]: Cohort } = {}
@@ -40,21 +29,7 @@ export class ThingWidgetModel {
         this._parentCohort = cohort
     }
 
-    get thingWidgetId(): string {
-        return `portal#${ this.address.graph.id }-thing#${ this.thingId }`
-    }
-
     // The following getter functions pass along the corresponding attributes from the encapsulated Thing.
-    get text(): string {
-        const text = this.thing ? this.thing.text : ""
-        return text
-    }
-
-    get note(): Note | null {
-        const note = this.thing ? this.thing.note : null
-        return note
-    }
-    
     get defaultSpaceId(): number | null {
         const defaultSpaceId = this.thing ? this.thing.defaultplane : null
         return defaultSpaceId
@@ -85,6 +60,10 @@ export class ThingWidgetModel {
 
     get halfAxisId(): number {
         return this.parentCohort.address.halfAxisId || 0
+    }
+
+    get encapsulatingDepth(): number {
+        return this.parentCohort.encapsulatingDepth
     }
 
     // The following getter functions are derived from the pass-along getter functions above.
@@ -142,30 +121,40 @@ export class ThingWidgetModel {
     }
 
     get planeId(): number {
-        return this.parentCohort.plane?.id || 0
+        const planeId = [7, 8].includes(this.halfAxisId) && this.parentThingWidgetModel ?
+            // If the Thing is on the encapsulating axis, inherit the Plane from the Thing's parent Thing.
+            this.parentThingWidgetModel.parentCohort.plane?.id || 0 :
+            // Otherwise use the Thing's own Plane.
+            this.parentCohort.plane?.id || 0
+        return planeId
     }
 
-    get childCohorts(): Cohort[] {
-        const childCohorts = Object.values(this.childCohortsByHalfAxisId)
-        return childCohorts
+    get elongation(): number {
+        return this.parentCohort.axialElongation
     }
 
-    relatedThingIdsByHalfAxisId(halfAxisId: HalfAxisId): number[] {
-        const directionId = this.space.directionIdByHalfAxisId[halfAxisId]
-        const relatedThingIds = directionId && directionId in this.relatedThingIdsByDirectionId ?
-            this.relatedThingIdsByDirectionId[directionId] :
-            [] as number[]
-        return relatedThingIds
+    get elongationCategory(): "vertical" | "horizontal" | "neutral" {
+        const elongationCategory = [1, 2, 3, 4].includes(this.halfAxisId) ?
+            ( [1, 2].includes(this.halfAxisId) ? "vertical" : "horizontal" ) :
+            "neutral"
+        return elongationCategory
     }
 
-    childCohort( halfAxisId: number ): Cohort | null
-    childCohort( halfAxisId: number, cohort: Cohort ): void
-    childCohort( halfAxisId: number, cohort?: Cohort ): Cohort | null | void {
-        if ( cohort === undefined ) {
-            return halfAxisId in this.childCohortsByHalfAxisId ? this.childCohortsByHalfAxisId[halfAxisId] : null
-        } else {
-            // Set child Cohort for this Direction.
-            this.childCohortsByHalfAxisId[halfAxisId] = cohort
+    get xYElongation(): {x: number, y: number} {
+        const elongation = this.elongation
+        let xYElongation: {x: number, y: number}
+        switch (this.elongationCategory) {
+            case "vertical": 
+                xYElongation = {x: 1, y: elongation}; break
+            case "horizontal":
+                xYElongation = {x: elongation, y: 1}; break
+            case "neutral":
+                xYElongation = {x: elongation, y: elongation}; break
         }
+        return xYElongation
+    }
+
+    get cohortSize(): number {
+        return this.parentCohort.members.length || 1
     }
 }
