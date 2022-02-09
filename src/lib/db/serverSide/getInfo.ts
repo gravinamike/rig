@@ -122,8 +122,8 @@ export async function queryThings(thingIds: number | number[]): Promise<null | T
             .where(
                 (builder) => builder.whereIn('id', thingIds)
             )
-            .allowGraph('[a_relationships, b_relationships, note]')
-            .withGraphFetched('[a_relationships, b_relationships, note]')
+            .allowGraph('[a_relationships, b_relationships, note, folder]')
+            .withGraphFetched('[a_relationships, b_relationships, note, folder]')
             .orderBy('id')
         return queriedThings
     }

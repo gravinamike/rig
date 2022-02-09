@@ -4,6 +4,7 @@ import type { Direction, Space, Thing, Relationship } from "$lib/models/dbModels
 /*
  * "Constants" that will eventually be moved into a mutable config file.
  */
+export const unigraphFolder = "C:/Users/mtgra/Desktop/LifeSeahorse_test/LifeGrid_graph"
 export const startingPThingIds = [6080]
 export const startingGraphDepth = 1
 export const zoomBase = 1.45

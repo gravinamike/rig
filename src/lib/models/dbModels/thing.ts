@@ -2,7 +2,7 @@ import type { GraphConstruct } from "$lib/shared/constants"
 
 import { Model, RelationMappings, RelationMappingsThunk } from "objection"
 import { v4 as uuidv4 } from "uuid"
-import { Relationship, Note } from "$lib/models/dbModels"
+import { Relationship, Note, Folder } from "$lib/models/dbModels"
 
 
 /*
@@ -39,6 +39,7 @@ export class Thing extends Model {
     perspectiveviewers!: string// Default is "{}"
 
     note!: Note | null
+    folder!: Folder | null
     a_relationships!: Relationship[]
     b_relationships!: Relationship[]
 
@@ -71,6 +72,18 @@ export class Thing extends Model {
                         to: 'notetothing.noteid'
                     },
                     to: 'notes.id'
+                }
+            },
+            folder: {
+                relation: Model.HasOneThroughRelation,
+                modelClass: Folder,
+                join: {
+                    from: 'things.id',
+                    through: {
+                        from: 'foldertothing.thingid',
+                        to: 'foldertothing.folderid'
+                    },
+                    to: 'folders.id'
                 }
             }
         };

@@ -14,6 +14,7 @@
     import { GraphSchematicViewer } from "$lib/viewers/graphViewers"
     import { HistoryViewer, PinsViewer } from "$lib/viewers/navViewers"
     import { NotesViewer } from "$lib/viewers/notesViewers"
+    import { FolderViewer } from "$lib/viewers/folderViewers"
 
     // Portal-related imports.
     import { zoomBase } from "$lib/shared/constants"
@@ -281,12 +282,30 @@
     </div>
 
     <!-- Notes viewer -->
-    <Collapser headerText={"Notes"} contentDirection={"right"}>
-        <NotesViewer
-            {graph}
-        />
-    </Collapser>
+    <Collapser headerText={"Content"} contentDirection={"right"} expanded={true}>
+        <div class="tabs-container wide">
+            <TabBlock>
+                <TabFlaps>
+                    <TabFlap>Notes</TabFlap>
+                    <TabFlap>Attachments</TabFlap>
+                </TabFlaps>
+            
+                <!-- Notes viewer -->
+                <TabBody>
+                    <NotesViewer
+                        {graph}
+                    />
+                </TabBody>
 
+                <!-- Attachments viewer -->
+                <TabBody>
+                    <FolderViewer
+                        {graph}
+                    />
+                </TabBody>
+            </TabBlock>
+        </div>
+    </Collapser>
 </main>
 
 
@@ -306,6 +325,10 @@
         height: 100%;
         
         overflow: hidden;
+    }
+
+    .tabs-container.wide {
+        width: auto;
     }
 
     .navigation-view {

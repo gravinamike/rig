@@ -1,6 +1,7 @@
 import Knex from "knex"
 import pkg from "objection"
 const { Model, knexSnakeCaseMappers } = pkg
+import { unigraphFolder } from "$lib/shared/constants"
 
 
 const knexConfig = {
@@ -9,9 +10,9 @@ const knexConfig = {
     connection: {
         user: 'sa',
         host: 'localhost',//'192.168.0.100',
-        //database: 'C:/Users/mtgra/Desktop/LifeSeahorse_test/LifeGrid_graph/graph',
-        database: 'C:/Users/mtgra/Desktop/LifeSeahorse_test/LifeGrid_graph/graph;MODE=PostgreSQL;',// PostgreSQL compatibility mode, for original database file.
-        //database: 'C:/Users/mtgra/Desktop/LifeSeahorse_test/LifeGrid_graph/graph;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH',// PostgreSQL compatibility mode. Use this version for subsequent new database files.
+        //database: `${unigraphFolder}/graph`,
+        database: `${unigraphFolder}/graph;MODE=PostgreSQL;`,// PostgreSQL compatibility mode, for original database file.
+        //database: `${unigraphPath}/graph;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH`,// PostgreSQL compatibility mode. Use this version for subsequent new database files.
         password: 'goodguess',
         port: 5435,
     },
