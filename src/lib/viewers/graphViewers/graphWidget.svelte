@@ -1,14 +1,17 @@
 <script lang="ts">
+    // Import types.
     import type { Graph } from "$lib/models/graphModels"
 
-    // Basic UI imports.
+    // Import basic framework functions.
     import { onMount } from "svelte"
     import { tweened } from "svelte/motion"
 	import { cubicOut } from "svelte/easing"
     import { Rectangle, descendantElements, elementGroupEdges, sleep } from "$lib/shared/utility"
 
-    // Portal-related imports.
+    // Import constants.
     import { zoomBase } from "$lib/shared/constants"
+
+    // Import widgets.
     import { PlaneControls } from "$lib/widgets/controlWidgets"
     import { CohortWidget } from "$lib/widgets/graphWidgets"
     
@@ -16,7 +19,7 @@
     export let rePerspectToThingId: (thingId: number) => Promise<void>
 
 
-    let portal: Element
+    let graphWidget: Element
     let centralAnchor: Element
     let zoomBoundsDiv: Element
     const graphBounds = new Rectangle() // The "Graph bounds" describe the Graph as it's currently drawn in real screen-space (taking scale into account).
@@ -48,30 +51,32 @@
     /** Manual zoom and scroll functions. */
 
     /**
-     * Drag the Portal when left-mouse is clicked and moving.
+     * Drag the Graph Widget when left-mouse is clicked and moving.
      */
      function handleMouseMove(event: MouseEvent) {
         if (trackingMouse && prevtrackingMouseLocation.x && prevtrackingMouseLocation.y) {
             let deltaX = event.clientX - prevtrackingMouseLocation.x
             let deltaY = event.clientY - prevtrackingMouseLocation.y
-            portal.scrollLeft = (portal.scrollLeft - deltaX)
-            portal.scrollTop = (portal.scrollTop - deltaY)
+            graphWidget.scrollLeft = (graphWidget.scrollLeft - deltaX)
+            graphWidget.scrollTop = (graphWidget.scrollTop - deltaY)
         }
         prevtrackingMouseLocation.x = event.clientX
         prevtrackingMouseLocation.y = event.clientY
     }
 
     /**
-     * Zoom the Portal (within allowed bounds) when the mousewheel is moved.
+     * Zoom the Graph Widget (within allowed bounds) when the mousewheel is moved.
      */
     function handleWheelScroll(event: WheelEvent) {
         const newZoom = graph.graphWidgetStyle.zoom + event.deltaY * -0.005
         if (-5 <= newZoom && newZoom <= 5) graph.graphWidgetStyle.zoom = newZoom
     }
 
-    /** Auto-zoom and auto-scroll functions. */
+    /**
+     * Auto-zoom and auto-scroll functions.
+     */
     async function scrollToThingId(thingId: number): Promise<void> {
-        const thingWidgetId = `portal#${graph.id}-thing#${thingId}`
+        const thingWidgetId = `graph#${graph.id}-thing#${thingId}`
         const thingWidget = document.getElementById(thingWidgetId)
         if (thingWidget) {
             thingWidget.scrollIntoView({behavior: "smooth", block: "center", inline: "center"})
@@ -80,15 +85,15 @@
     }
 
     /**
-     * Update the Graph bounds for the current configuration of the Graph.
+     * Update the Graph Widget bounds for the current configuration of the Graph.
      */
     function updateGraphBounds() {
-        // Get all elements in the Portal, except the zoom bounds element.
+        // Get all elements in the Graph, except the zoom bounds element.
         const descendants = descendantElements(centralAnchor)
         const index = descendants.indexOf(zoomBoundsDiv)
         if (index > -1) descendants.splice(index, 1)
 
-        // Set the Graph bounds (as the outer bounds of the above collection of elements).
+        // Set the Graph Widget bounds (as the outer bounds of the above collection of elements).
         const descendantsEdges = elementGroupEdges(descendants)
         Object.assign(graphBounds, descendantsEdges)
         graphBounds.width = graphBounds.right - graphBounds.left
@@ -98,7 +103,7 @@
     }
 
     /**
-     * Zoom the Portal to fit the Graph.
+     * Zoom the Graph Widget to fit the Graph.
      */
     async function zoomToFit(): Promise<void> {
         // Update the Graph bounds.
@@ -110,9 +115,9 @@
         zoomBounds.width = graphBounds.width / scale + 2 * zoomPadding
         zoomBounds.height = graphBounds.height / scale + 2 * zoomPadding
 
-        // Determine the scale change based on the ratio between the portal frame and the padded Graph.
-        const scaleChangeX = portal.getBoundingClientRect().width / (zoomBounds.width * scale)
-        const scaleChangeY = portal.getBoundingClientRect().height / (zoomBounds.height * scale)
+        // Determine the scale change based on the ratio between the Graph Widget frame and the padded Graph.
+        const scaleChangeX = graphWidget.getBoundingClientRect().width / (zoomBounds.width * scale)
+        const scaleChangeY = graphWidget.getBoundingClientRect().height / (zoomBounds.height * scale)
         const scaleChange = Math.min(scaleChangeX, scaleChangeY)
 
         // Determine the new scale, and set the Graph's zoom accordingly.
@@ -122,14 +127,14 @@
     }
 
     /**
-     * Scroll the Portal to the true center position (the location of the central anchor).
+     * Scroll the Graph Widget to the true center position (the location of the central anchor).
      */
      async function scrollToCentralAnchor(smooth: boolean = true): Promise<void> {
         centralAnchor.scrollIntoView({behavior: smooth ? "smooth" : "auto", block: "center", inline: "center"})
     }
 
     /**
-     * Scroll the Portal so that the Graph is centered.
+     * Scroll the Graph Widget so that the Graph is centered.
      */
     async function scrollToZoomBoundsCenter(smooth: boolean = true): Promise<void> {
         updateGraphBounds()
@@ -137,7 +142,7 @@
     }
 
     /**
-     * Zoom, then scroll, the Portal to fit and center the Graph.
+     * Zoom, then scroll, the Graph Widget to fit and center the Graph.
      */
     async function zoomAndScroll() {
         await sleep(10) // Allow time for Graph re-draw before zooming.
@@ -150,7 +155,7 @@
 
 <div
     class="graph-widget"
-    bind:this={portal}
+    bind:this={graphWidget}
     on:mousedown={() => trackingMouse = true}
     on:mouseup={() => trackingMouse = false}
     on:mousemove={handleMouseMove}

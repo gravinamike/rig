@@ -1,21 +1,23 @@
 <script lang="ts">
-    // Basic UI imports.
+    // Import basic framework functions.
     import { onMount } from "svelte"
     import { sleep } from "$lib/shared/utility"
-    import { Collapser, TabBlock, TabFlap, TabFlaps, TabBody } from "$lib/widgets/layoutWidgets"
 
-    // Graph model imports.
+    // Import stores.
+    import { hoveredThingIdStore } from "$lib/stores"
+
+    // Import models.
     import { Graph } from "$lib/models/graphModels"
 
-    // Side-interface imports.
+    // Import layout elements.
+    import { Collapser, TabBlock, TabFlap, TabFlaps, TabBody } from "$lib/widgets/layoutWidgets"
+
+    // Import viewers.
     import { GraphSettingsViewer } from "$lib/viewers/settingsViewers"
     import { GraphSchematicViewer, GraphWidget } from "$lib/viewers/graphViewers"
     import { HistoryViewer, PinsViewer } from "$lib/viewers/navViewers"
     import { NotesViewer } from "$lib/viewers/notesViewers"
     import { FolderViewer } from "$lib/viewers/folderViewers"
-
-    // Portal-related imports.
-    import { hoveredThingIdStore } from "$lib/stores"
     
     export let pThingIds: number[]
     export let depth: number
@@ -27,26 +29,32 @@
     onMount(async () => {
         // Build the Graph.
         await graph.build()
-        //graph.allowZoomAndScrollToFit = true
         graph = graph // Needed for reactivity.
 	})
 
+    /**
+     * Re-Perspect the Graph to a given Thing ID.
+     */
     async function rePerspectToThingId(thingId: number) {
+        // If the new Perspective Thing is already in the Graph, scroll to center it.
         graph.allowScrollToThingId = true
         graph.thingIdToScrollTo = thingId
         graph = graph // Needed for reactivity.
         await sleep(500) // Allow for scroll time (since there's no actual feedback from the Portal to `await`).
 
+        // Re-Perspect the Graph
         await graph.setPThingIds([thingId]) // Re-Perspect to this Thing.
-        graph.addEntriesToHistory([thingId]) // Add this Thing to the History.
         hoveredThingIdStore.set(null) // Clear the hovered-Thing highlighting.
         graph.allowZoomAndScrollToFit = true
         graph = graph // Needed for reactivity.
+
+        // Add the new Perspective Thing to the History.
+        graph.addEntriesToHistory([thingId])
     }
 </script>
 
 
-<main>
+<div class="graph-viewer">
     <!-- Graph-related viewers (Schematic and Settings) -->
     <Collapser
         headerText={"Graph"}
@@ -135,11 +143,11 @@
             </TabBlock>
         </div>
     </Collapser>
-</main>
+</div>
 
 
 <style>
-    main {
+    .graph-viewer {
         flex: 1 1 auto;
         min-width: 0;
 

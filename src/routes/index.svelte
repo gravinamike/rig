@@ -1,14 +1,22 @@
 <script lang="ts">
+    // Import basic framework functions.
     import { onMount } from "svelte"
-    import { Collapser, TabBlock, TabFlap, TabFlaps, TabBody } from "$lib/widgets/layoutWidgets"
 
+    // Import constants and configs.
     import { startingPThingIds, startingGraphDepth, navHeight } from "$lib/shared/constants"
     import { storeConfig } from "$lib/shared/config"
+
+    // Import database/stores-related functions.
     import { storeGraphConstructs } from "$lib/stores"
 
+    // Import layout elements.
+    import { Collapser, TabBlock, TabFlap, TabFlaps, TabBody } from "$lib/widgets/layoutWidgets"
+
+    // Import viewers.
     import { DirectionsStoreViewer, SpacesStoreViewer, ThingsStoreViewer } from "$lib/viewers/storeViewers"
     import { GraphViewer } from "$lib/viewers/graphViewers"
     
+
     let graphConstructsStored = false
 
     // At app initialization,
@@ -26,6 +34,7 @@
 
 <main style="height: calc( 100% - {navHeight} )">
 
+    <!-- Stores viewers. -->
     <Collapser headerText={"Stores"} contentDirection={"left"}>
         <div class="tabs-container">
 

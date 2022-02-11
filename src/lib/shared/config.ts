@@ -14,14 +14,12 @@ export async function storeConfig(): Promise<void> {
 
 // Save configuration-related values to the JSON config file.
 export async function saveConfig(): Promise<void> {
-    const stringifiedConfig = JSON.stringify(
-        {
-            pinIds: pinIdsStoreValue
-        },
-    null, 4)
+    const config = {
+        pinIds: pinIdsStoreValue
+    }
 
     await fetch("/api/config", {
         method: "POST",
-        body: stringifiedConfig
+        body: JSON.stringify(config, null, 4)
     })
 }
