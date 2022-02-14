@@ -1,4 +1,5 @@
 import { Model, RelationMappings, RelationMappingsThunk } from "objection"
+import { v4 as uuidv4 } from "uuid"
 import { Thing } from "$lib/models/dbModels"
 
 
@@ -6,7 +7,6 @@ import { Thing } from "$lib/models/dbModels"
  * Folder model.
  */
 export class Folder extends Model {
-    kind = "folder" as const
     static tableName = "folders" as const
 
     id!: number
@@ -29,4 +29,29 @@ export class Folder extends Model {
             }
         };
     }
+}
+
+interface NewFolderInfo {
+    whencreated: string,
+    path: string
+}
+
+export function getNewNoteInfo(whenCreated: string): NewFolderInfo {
+    const newFolderInfo = {
+        whencreated: whenCreated,
+        path: uuidv4()
+    }
+
+    return newFolderInfo
+}
+
+/*
+ * NoteToThing model.
+ */
+export class FolderToThing extends Model {
+    static tableName = "foldertothing" as const
+
+    id!: number
+    folderid!: number
+    thingid!: number
 }

@@ -46,22 +46,6 @@ export class Thing extends Model {
 
     static get relationMappings(): RelationMappings | RelationMappingsThunk {
         return {
-            a_relationships: {
-                relation: Model.HasManyRelation,
-                modelClass: Relationship,
-                join: {
-                    from: 'things.id',
-                    to: 'relationships.thingbid'
-                }
-            },
-            b_relationships: {
-                relation: Model.HasManyRelation,
-                modelClass: Relationship,
-                join: {
-                    from: 'things.id',
-                    to: 'relationships.thingaid'
-                }
-            },
             note: {
                 relation: Model.HasOneThroughRelation,
                 modelClass: Note,
@@ -84,6 +68,22 @@ export class Thing extends Model {
                         to: 'foldertothing.folderid'
                     },
                     to: 'folders.id'
+                }
+            },
+            a_relationships: {
+                relation: Model.HasManyRelation,
+                modelClass: Relationship,
+                join: {
+                    from: 'things.id',
+                    to: 'relationships.thingbid'
+                }
+            },
+            b_relationships: {
+                relation: Model.HasManyRelation,
+                modelClass: Relationship,
+                join: {
+                    from: 'things.id',
+                    to: 'relationships.thingaid'
                 }
             }
         };

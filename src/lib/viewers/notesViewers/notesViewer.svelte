@@ -1,9 +1,10 @@
 <script lang="ts">
     import type { Graph } from "$lib/models/graphModels"
     import type { Thing } from "$lib/models/dbModels"
-    import { thingsStore, retrieveGraphConstructs, graphConstructInStore } from "$lib/stores/graphStores"
+    import { thingsStore, storeGraphConstructs, retrieveGraphConstructs, graphConstructInStore } from "$lib/stores/graphStores"
     import { Toggle } from "$lib/widgets/layoutWidgets"
     import NotesEditor from "./notesEditor.svelte"
+    import { addNoteToThing } from "$lib/db/clientSide"
 
     export let graph: Graph
 
@@ -19,6 +20,14 @@
 
     $: title = pThing ? pThing.text : "THING NOT FOUND IN STORE"
     $: notesText = pThing && pThing.note ? pThing.note.text : "NO NOTES YET"
+
+    async function addNote() {///////////// This should only be called prior to saving newly entered Notes for a Thing that doesn't yet have Notes.
+        if (pThing && !pThing.note) {
+            const newNoteAdded = await addNoteToThing(pThing.id)
+            // Re-store the Thing (in order to update its linker to the new Note).
+            await storeGraphConstructs<Thing>("Thing", pThing.id, true)
+        }
+    }
 </script>
 
 
