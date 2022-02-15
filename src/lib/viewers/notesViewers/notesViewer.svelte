@@ -23,7 +23,7 @@
 
     async function addNote() {///////////// This should only be called prior to saving newly entered Notes for a Thing that doesn't yet have Notes.
         if (pThing && !pThing.note) {
-            const newNoteAdded = await addNoteToThing(pThing.id)
+            await addNoteToThing(pThing.id)
             // Re-store the Thing (in order to update its linker to the new Note).
             await storeGraphConstructs<Thing>("Thing", pThing.id, true)
         }
@@ -33,6 +33,12 @@
 
 <main>
     <h4>{title}</h4>
+
+    <div
+        on:click={addNote}
+    >
+        ADD FOLDER
+    </div>
 
     <div class="editable-toggle {editable ? "toggled": ""}">
         Editable

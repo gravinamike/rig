@@ -1,8 +1,10 @@
 import type { Knex } from "knex"
 
+import { v4 as uuidv4 } from "uuid"
 import { Model } from "objection"
-import { Direction, Thing, getNewThingInfo, Relationship, getNewRelationshipInfo, Note, getNewNoteInfo, NoteToThing} from "$lib/models/dbModels"
+import { Direction, Thing, getNewThingInfo, Relationship, getNewRelationshipInfo, Note, getNewNoteInfo, NoteToThing, Folder, getNewFolderInfo, FolderToThing} from "$lib/models/dbModels"
 import { alterQuerystringForH2AndRun } from "./utility"
+import { createFolder } from "$lib/shared/fileSystem"
 
 
 export async function createNewRelatedThing(thingIdToRelateFrom: number, directionId: number, text: string): Promise<void> {
@@ -51,18 +53,50 @@ export async function addNoteToThing(thingId: number): Promise<void> {
 
         const newNoteInfo = getNewNoteInfo(whenCreated)
         const querystring1 = Note.query().insert(newNoteInfo).toKnexQuery().toString()
-        console.log(querystring1)
         const newAddedNote = await alterQuerystringForH2AndRun(querystring1, transaction, whenCreated, "Note") as Note
         const thingToAddNoteTo = await Thing.query().findById(thingId)
         const querystring2 = thingToAddNoteTo.$relatedQuery('note').relate(newAddedNote.id).toKnexQuery().toString()
         await alterQuerystringForH2AndRun(querystring2, transaction, whenCreated, "NoteToThing") as NoteToThing
-        console.log(querystring2)
 
         return
         
     })
     .then(function() {
         console.log('Transaction complete.')
+    })
+    .catch(function(err: Error) {
+        console.error(err)
+    })
+
+    return
+}
+
+
+export async function addFolderToThing(thingId: number): Promise<void> {
+    const whenCreated = (new Date()).toISOString()
+    const folderGuid = uuidv4()
+
+    const knex = Model.knex()
+    await knex.transaction(async (transaction: Knex.Transaction) => {
+
+        const newFolderInfo = getNewFolderInfo(whenCreated, folderGuid)
+        const querystring1 = Folder.query().insert(newFolderInfo).toKnexQuery().toString()
+        const newAddedFolder = await alterQuerystringForH2AndRun(querystring1, transaction, whenCreated, "Folder") as Folder
+        const thingToAddFolderTo = await Thing.query().findById(thingId)
+        const querystring2 = thingToAddFolderTo.$relatedQuery('folder').relate(newAddedFolder.id).toKnexQuery().toString()
+        await alterQuerystringForH2AndRun(querystring2, transaction, whenCreated, "FolderToThing") as FolderToThing
+        
+        return
+        
+    })
+    .then(function() {
+        console.log('Transaction complete.')
+
+        try {
+            createFolder(folderGuid)
+        } catch(err) {
+            console.error(err)
+        }
     })
     .catch(function(err: Error) {
         console.error(err)

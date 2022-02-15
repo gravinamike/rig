@@ -1,5 +1,4 @@
 import { Model, RelationMappings, RelationMappingsThunk } from "objection"
-import { v4 as uuidv4 } from "uuid"
 import { Thing } from "$lib/models/dbModels"
 
 
@@ -36,10 +35,10 @@ interface NewFolderInfo {
     path: string
 }
 
-export function getNewNoteInfo(whenCreated: string): NewFolderInfo {
+export function getNewFolderInfo(whenCreated: string, guid: string): NewFolderInfo {
     const newFolderInfo = {
         whencreated: whenCreated,
-        path: uuidv4()
+        path: guid
     }
 
     return newFolderInfo

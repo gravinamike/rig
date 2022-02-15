@@ -44,6 +44,28 @@ export async function addNoteToThing(thingId: number): Promise<boolean> {
     }
 }
 
+export async function addFolderToThing(thingId: number): Promise<boolean> {
+    const res = await fetch(
+        `api/graphManipulation/addFolderToThing`,
+        {
+            method: "POST",
+            body: JSON.stringify({
+                thingId: thingId
+            })
+        }
+    )
+
+    // If the response is ok,
+    if (res.ok) {
+        return true
+
+    // Handle errors if needed.
+    } else {
+        res.text().then(text => {throw Error(text)})
+        return false
+    }
+}
+
 export async function deleteThing(thingIdToDelete: number): Promise<boolean> {
     const res = await fetch(
         `api/graphManipulation/deleteThing`,
