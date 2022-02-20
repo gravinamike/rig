@@ -2,7 +2,7 @@ import type { GraphConstruct } from "$lib/shared/constants"
 
 import { Model, RelationMappings, RelationMappingsThunk } from "objection"
 import { v4 as uuidv4 } from "uuid"
-import { Relationship, Note, Folder } from "$lib/models/dbModels"
+import { Relationship, Note, NoteToThing, Folder, FolderToThing } from "$lib/models/dbModels"
 
 
 /*
@@ -42,6 +42,8 @@ export class Thing extends Model {
     folder!: Folder | null
     a_relationships!: Relationship[]
     b_relationships!: Relationship[]
+    noteToThing!: NoteToThing | null
+    folderToThing!: FolderToThing | null
 
 
     static get relationMappings(): RelationMappings | RelationMappingsThunk {
@@ -58,6 +60,14 @@ export class Thing extends Model {
                     to: 'notes.id'
                 }
             },
+            noteToThing: {
+                relation: Model.HasOneRelation,
+                modelClass: NoteToThing,
+                join: {
+                    from: 'things.id',
+                    to: 'notetothing.thingid'
+                }
+            },
             folder: {
                 relation: Model.HasOneThroughRelation,
                 modelClass: Folder,
@@ -68,6 +78,14 @@ export class Thing extends Model {
                         to: 'foldertothing.folderid'
                     },
                     to: 'folders.id'
+                }
+            },
+            folderToThing: {
+                relation: Model.HasOneRelation,
+                modelClass: FolderToThing,
+                join: {
+                    from: 'things.id',
+                    to: 'foldertothing.thingid'
                 }
             },
             a_relationships: {

@@ -110,13 +110,21 @@ export async function deleteThing(thingId: number): Promise<void> {
     const knex = Model.knex()
     await knex.transaction(async (transaction: Knex.Transaction) => {
 
+        // Get associated Notes (before linkers are gone).
+        const notesToDelete = await Thing.relatedQuery('note').for([thingId])
+        const noteIdsToDelete = notesToDelete.map(note => note.id)
+        // Delete associated Note linkers.
+        await Thing.relatedQuery('noteToThing').for([thingId]).delete().transacting(transaction)
         // Delete associated Notes.
-        await Thing.relatedQuery('note').for([thingId]).delete().transacting(transaction)
-        ///////////////////////////////////////////////////////////////////////// VERIFY THAT CONNECTORS ARE ALSO DELETED
+        await Note.query().delete().whereIn("id", noteIdsToDelete).transacting(transaction)
 
-        // Delete associated Attachments.
-        await Thing.relatedQuery('folder').for([thingId]).delete().transacting(transaction)
-        ///////////////////////////////////////////////////////////////////////// VERIFY THAT CONNECTORS ARE ALSO DELETED
+        // Get associated Folders (before linkers are gone).
+        const foldersToDelete = await Thing.relatedQuery('note').for([thingId])
+        const folderIdsToDelete = foldersToDelete.map(note => note.id)
+        // Delete associated Folder linkers.
+        await Thing.relatedQuery('folderToThing').for([thingId]).delete().transacting(transaction)
+        // Delete associated Folders.
+        await Folder.query().delete().whereIn("id", folderIdsToDelete).transacting(transaction)
 
         // Delete associated Relationships.
         await Thing.relatedQuery('a_relationships').for([thingId]).delete().transacting(transaction)

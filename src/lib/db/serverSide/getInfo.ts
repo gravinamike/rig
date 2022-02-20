@@ -1,4 +1,4 @@
-import { Direction, Space, Thing } from "$lib/models/dbModels"
+import { Direction, Space, Thing, Relationship, Note, NoteToThing, Folder, FolderToThing } from "$lib/models/dbModels"
 
 /*
  * Functions to query Graph constructs.
@@ -127,4 +127,39 @@ export async function queryThings(thingIds: number | number[]): Promise<null | T
             .orderBy('id')
         return queriedThings
     }
+}
+
+export interface LatestConstructInfos {
+    things: {id: number, text: string}[],
+    relationships: {id: number, thingaid: number | null, thingbid: number | null}[],
+    notes: {id: number}[],
+    noteToThings: {id: number, noteid: number, thingid: number}[],
+    folders: {id: number}[],
+    folderToThings: {id: number, folderid: number, thingid: number}[]
+}
+
+export async function getLatestConstructs(): Promise<LatestConstructInfos> {
+    // Get latest Things.
+    const queriedThings = await Thing.query().orderBy("id", "desc").limit(10)
+    // Get latest Relationships.
+    const queriedRelationships = await Relationship.query().orderBy("id", "desc").limit(10)
+    // Get latest Notes.
+    const queriedNotes = await Note.query().orderBy("id", "desc").limit(10)
+    // Get latest NoteToThings.
+    const queriedNoteToThings = await NoteToThing.query().orderBy("id", "desc").limit(10)
+    // Get latest Folders.
+    const queriedFolders = await Folder.query().orderBy("id", "desc").limit(10)
+    // Get latest FolderToThings.
+    const queriedFolderToThings = await FolderToThing.query().orderBy("id", "desc").limit(10)
+
+    const latestConstructInfos = {
+        things: queriedThings.map(x => {return {id: x.id, text: x.text}}),
+        relationships: queriedRelationships.map(x => {return {id: x.id, thingaid: x.thingaid, thingbid: x.thingbid}}),
+        notes: queriedNotes.map(x => {return {id: x.id}}),
+        noteToThings: queriedNoteToThings.map(x => {return {id: x.id, noteid: x.noteid, thingid: x.thingid}}),
+        folders: queriedFolders.map(x => {return {id: x.id}}),
+        folderToThings: queriedFolderToThings.map(x => {return {id: x.id, folderid: x.folderid, thingid: x.thingid}})
+    }
+
+    return latestConstructInfos
 }

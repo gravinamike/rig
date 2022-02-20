@@ -14,6 +14,7 @@
 
     // Import viewers.
     import { DirectionsStoreViewer, SpacesStoreViewer, ThingsStoreViewer } from "$lib/viewers/storeViewers"
+    import { DbLatestViewer } from "$lib/viewers/dbViewers"
     import { GraphViewer } from "$lib/viewers/graphViewers"
     
 
@@ -35,29 +36,44 @@
 <main style="height: calc( 100% - {navHeight} )">
 
     <!-- Stores viewers. -->
-    <Collapser headerText={"Stores"} contentDirection={"left"}>
+    <Collapser headerText={"Stores / Database"} contentDirection={"left"}>
         <div class="tabs-container">
 
             <TabBlock>
                 <TabFlaps>
-                    <TabFlap>Directions</TabFlap>
-                    <TabFlap>Spaces</TabFlap>
-                    <TabFlap>Things</TabFlap>
+                    <TabFlap>Stores</TabFlap>
+                    <TabFlap>Database</TabFlap>
                 </TabFlaps>
             
-                <!-- Directions Store view --> 
+                <!-- Stores tab --> 
                 <TabBody>
-                    <DirectionsStoreViewer />
+                    <TabBlock>
+                        <TabFlaps>
+                            <TabFlap>Directions</TabFlap>
+                            <TabFlap>Spaces</TabFlap>
+                            <TabFlap>Things</TabFlap>
+                        </TabFlaps>
+                    
+                        <!-- Directions Store view --> 
+                        <TabBody>
+                            <DirectionsStoreViewer />
+                        </TabBody>
+                    
+                        <!-- Spaces Store view --> 
+                        <TabBody>
+                            <SpacesStoreViewer />
+                        </TabBody>
+                    
+                        <!-- Things Store view --> 
+                        <TabBody>
+                            <ThingsStoreViewer />
+                        </TabBody>
+                    </TabBlock>
                 </TabBody>
             
-                <!-- Spaces Store view --> 
+                <!-- Database tab --> 
                 <TabBody>
-                    <SpacesStoreViewer />
-                </TabBody>
-            
-                <!-- Things Store view --> 
-                <TabBody>
-                    <ThingsStoreViewer />
+                    <DbLatestViewer />
                 </TabBody>
             </TabBlock>
             

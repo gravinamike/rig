@@ -37,7 +37,7 @@
     <div
         on:click={addNote}
     >
-        ADD FOLDER
+        ADD NOTES
     </div>
 
     <div class="editable-toggle {editable ? "toggled": ""}">
