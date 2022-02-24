@@ -1,16 +1,19 @@
 <script lang="ts">
-    import { hoveredThingIdStore, removePin } from "$lib/stores"
-    import { ContextMenuFrame, ContextMenuOption } from "$lib/widgets/layoutWidgets"
+    import { hoveredThingIdStore, openContextCommandPalette, removePin } from "$lib/stores"
 
     export let thingId: number
     export let thingText: string | null
     export let rePerspectToThingId: (thingId: number) => Promise<void>
 
     
-    let contextMenu: ContextMenuFrame
-
     let hoveredThingIdStoreValue: number | null
     hoveredThingIdStore.subscribe(value => {hoveredThingIdStoreValue = value})
+
+    function openCommandPalette(event: MouseEvent) {
+        const position = [event.clientX, event.clientY] as [number, number]
+        const buttonInfos = [{ text: "Remove Thing from Pins", iconName: "no-pin", onClick: () => {removePin(thingId)} }]
+        openContextCommandPalette(position, buttonInfos)
+    }
 </script>
 
 
@@ -19,16 +22,9 @@
     on:mouseenter={()=>{hoveredThingIdStore.set(thingId)}}
     on:mouseleave={()=>{hoveredThingIdStore.set(null)}}
     on:click={ () => { rePerspectToThingId(thingId) } }
-    on:contextmenu|preventDefault={contextMenu.openContextMenu}
+    on:contextmenu|preventDefault={openCommandPalette}
 >
     {thingText}
-    
-    <ContextMenuFrame bind:this={contextMenu}>
-        <ContextMenuOption
-            text="Remove Thing from Pins"
-            on:click={() => removePin(thingId)}
-        />
-    </ContextMenuFrame>
 </div>
 
 

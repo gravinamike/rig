@@ -1,3 +1,4 @@
+export * from "./commandPalette"
 export *  from "./contextMenu"
 export *  from "./tabs"
 export { default as Collapser } from "./collapser.svelte"

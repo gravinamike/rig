@@ -10,7 +10,7 @@
     import { storeGraphConstructs } from "$lib/stores"
 
     // Import layout elements.
-    import { Collapser, TabBlock, TabFlap, TabFlaps, TabBody } from "$lib/widgets/layoutWidgets"
+    import { ContextCommandPalette, Collapser, TabBlock, TabFlap, TabFlaps, TabBody } from "$lib/widgets/layoutWidgets"
 
     // Import viewers.
     import { DirectionsStoreViewer, SpacesStoreViewer, ThingsStoreViewer } from "$lib/viewers/storeViewers"
@@ -35,6 +35,9 @@
 
 <main style="height: calc( 100% - {navHeight} )">
 
+    <!-- Front pane for context menus and command palettes. -->
+    <ContextCommandPalette />
+    
     <!-- Stores viewers. -->
     <Collapser headerText={"Stores / Database"} contentDirection={"left"}>
         <div class="tabs-container">

@@ -5,17 +5,17 @@
     import type { ThingWidgetModel } from "$lib/models/widgetModels"
 
     /* Widget imports. */
-    import { hoveredThingIdStore, addPin } from "$lib/stores"
+    import { pinIdsStore, hoveredThingIdStore, openContextCommandPalette, addPin, removePin } from "$lib/stores"
     import { ThingDetailsWidget } from "$lib/widgets/detailsWidgets"
     import { planePadding } from "$lib/shared/constants"
-    import { ContextMenuFrame, ContextMenuOption, XButton, ConfirmDeleteBox } from "$lib/widgets/layoutWidgets"
+    import { XButton, ConfirmDeleteBox } from "$lib/widgets/layoutWidgets"
+
 
     export let thingWidgetModel: ThingWidgetModel
     export let graph: Graph
     export let rePerspectToThingId: (id: number) => Promise<void>
 
     
-    let contextMenu: ContextMenuFrame
     const showContent = true
     let confirmDeleteBoxOpen = false
 
@@ -67,6 +67,14 @@
         await graph.deleteThingById(thingId)
         graph = graph // Needed for reactivity.
     }
+
+    function openCommandPalette(event: MouseEvent) {
+        const position = [event.clientX, event.clientY] as [number, number]
+        const buttonInfos = $pinIdsStore.includes(thingId) ?
+            [{ text: "Remove Thing from Pins", iconName: "no-pin", onClick: () => {removePin(thingId)} }] :
+            [{ text: "Add Thing to Pins", iconName: "pin", onClick: () => {addPin(thingId)} }]
+        openContextCommandPalette(position, buttonInfos)
+    }
 </script>
 
 
@@ -82,7 +90,7 @@
     on:mouseenter={()=>{hoveredThingIdStore.set(thingId); isHoveredWidget = true}}
     on:mouseleave={()=>{hoveredThingIdStore.set(null); isHoveredWidget = false; confirmDeleteBoxOpen = false}}
     on:click={ () => { rePerspectToThingId(thingId) } }
-    on:contextmenu|preventDefault={contextMenu.openContextMenu}
+    on:contextmenu|preventDefault={openCommandPalette}
 >
     <!-- Thing text. -->
     <div
@@ -126,14 +134,6 @@
             confirmDeleteFunction={confirmDelete}
         />
     {/if}
-
-    <!-- Context menu. -->
-    <ContextMenuFrame bind:this={contextMenu}>
-        <ContextMenuOption
-            text="Add Thing to Pins"
-            on:click={ () => {addPin(thingId)} }
-        />
-    </ContextMenuFrame>
 </div>
 
 
