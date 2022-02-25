@@ -20,7 +20,10 @@
     onMount(() => {
         editor = new Editor({
             element: textField,
-            extensions: [ StarterKit, Underline ],
+            extensions: [
+                StarterKit,
+                Underline
+            ],
             content: '<p>Starting text...</p>',
             onTransaction: () => {
                 editor = editor // Force re-render so `editor.isActive` works correctly.
