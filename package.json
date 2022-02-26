@@ -24,6 +24,8 @@
   "type": "module",
   "dependencies": {
     "@tiptap/core": "^2.0.0-beta.140",
+    "@tiptap/extension-font-family": "^2.0.0-beta.21",
+    "@tiptap/extension-text-style": "^2.0.0-beta.23",
     "@tiptap/extension-underline": "^2.0.0-beta.21",
     "@tiptap/starter-kit": "^2.0.0-beta.142",
     "@types/knex": "^0.16.1",
