@@ -1,12 +1,59 @@
 <script lang="ts">
-    import type { Editor } from '@tiptap/core'
+    import type { Editor } from "@tiptap/core"
+    import { fontNames, fontSizes } from "$lib/shared/constants"
 
     export let editor: Editor
+
+
+    function selectedFontFamily(): string | null {
+        return editor.getAttributes("textStyle").fontFamily || null
+    }
+    let currentSelectionFontFamily: string | null
+    $: if (editor) currentSelectionFontFamily = selectedFontFamily()
+    
+    function selectedFontSize(): number | null {
+        let selectedFontSize = editor.getAttributes("textStyle").fontSize || null
+        if (typeof selectedFontSize === "string") {
+            selectedFontSize = Number(selectedFontSize.replace("pt", ""))
+        }
+        return selectedFontSize
+    }
+    let currentSelectionFontSize: number | null
+    $: if (editor) currentSelectionFontSize = selectedFontSize()
 </script>
 
 
 {#if editor}
     <div class="notes-toolbar">
+        <!-- Font family and size. -->
+        <div class="button-group">
+            <select
+                value={currentSelectionFontFamily ? currentSelectionFontFamily : "Arial"}
+            >
+                {#each fontNames as fontName}
+                    <option
+                        value={fontName}
+                        on:click={() => editor.chain().focus().setFontFamily(fontName).run()}
+                    >
+                        {fontName}
+                    </option>
+                {/each}
+            </select>
+
+            <select
+                value={currentSelectionFontSize ? currentSelectionFontSize : 12}
+            >
+                {#each fontSizes as fontSize}
+                    <option
+                        value={fontSize}
+                        on:click={() => editor.chain().focus().setFontSize(fontSize).run()}
+                    >
+                        {fontSize}
+                    </option>
+                {/each}
+            </select>
+        </div>
+
         <!-- Basic formatting. -->
         <div class="button-group">
             <div class="button"

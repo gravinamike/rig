@@ -3,6 +3,9 @@
     import { Editor } from "@tiptap/core"
     import StarterKit from "@tiptap/starter-kit"
     import Underline from "@tiptap/extension-underline"
+    import TextStyle from '@tiptap/extension-text-style'
+    import { FontSize } from "./extension-font-size"
+    import FontFamily from "@tiptap/extension-font-family"
     import NotesToolbar from "./notesToolbar.svelte"
 
     export let notesText: string
@@ -22,7 +25,10 @@
             element: textField,
             extensions: [
                 StarterKit,
-                Underline
+                Underline,
+                TextStyle,
+                FontSize,
+                FontFamily
             ],
             content: '<p>Starting text...</p>',
             onTransaction: () => {

@@ -32,6 +32,24 @@ export interface GraphWidgetStyle {
     thingTextSize: number,
 }
 
+/*
+ * Text parameters.
+ */
+export const fontNames = [/////////////////////////// This should be moved to the per-Graph settings file, or to a user-settings file, since folks will want to enable their own system fonts.
+    "Arial", "Calibri", "Cambria", "Century", "Chiller", "Comic Sans MS", "Cooper Black",
+    "Courier New", "Forte", "Freestyle Script", "Gabriola", "Garamond", "Georgia",
+    "Goudy Old Style", "Goudy Stout", "Harlow Solid Italic", "Harrington", "Impact",
+    "Ink Free", "Jokerman", "MS Gothic", "MS Reference Sans Serif", "MV Boli", "Magneto",
+    "Mistral", "Modern No. 20", "Monospaced", "Monotype Corsiva", "MS Shell Dlg 2", "OCR A Extended",
+    "Old English Text MT", "Onyx", "Palatino Linotype", "Papyrus", "Playbill",
+    "Poor Richard", "Rage Italic", "Ravie", "Rockwell", "Rockwell Condensed",
+    "Rockwell Extra Bold", "SansSerif", "Script MT Bold", "Segoe Print", "Segoe Script",
+    "Segoe UI", "Segoe UI Black", "Serif", "Showcard Gothic", "Snap ITC", "Stencil",
+    "Tahoma", "Tempus Sans ITC", "Times New Roman", "Trebuchet MS", "Verdana", "Open Sans"
+]
+
+export const fontSizes = [8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48, 72]
+    
 
 /*
  * Layout parameters.
