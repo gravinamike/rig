@@ -45,11 +45,11 @@ function updateConstructStore<Type extends GraphConstruct>( constructs: Type | T
     
     // Determine which store to update based on construct type.
     let store: Writable<{ [id: number]: GraphConstruct }>
-    if ( isDirection(constructs[0]) ) {
+    if ( constructs.length && isDirection(constructs[0]) ) {
         store = directionsStore
-    } else if ( isSpace(constructs[0]) ) {
+    } else if ( constructs.length && isSpace(constructs[0]) ) {
         store = spacesStore
-    } else if ( isThing(constructs[0]) ) {
+    } else if ( constructs.length && isThing(constructs[0]) ) {
         store = thingsStore
     } else {
         return
