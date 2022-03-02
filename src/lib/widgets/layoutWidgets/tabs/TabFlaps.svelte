@@ -1,5 +1,5 @@
 <div class="tab-flaps">
-	<slot></slot>
+	<slot />
 </div>
 
 <style>

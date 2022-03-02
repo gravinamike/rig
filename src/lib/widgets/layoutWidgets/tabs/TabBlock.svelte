@@ -60,7 +60,7 @@
 
 
 <div class="tab-block">
-	<slot></slot>
+	<slot />
 </div>
 
 

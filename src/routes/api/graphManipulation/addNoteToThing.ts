@@ -1,10 +1,9 @@
-import type { EndpointOutput } from "@sveltejs/kit"
 import { addNoteToThing } from "$lib/db/serverSide"
 
 
 export async function post(
     { body }: { body: string }
-): Promise<EndpointOutput> {
+): Promise<{status: number, body: string | {error: string}}> {
     try {
         const parsedBody = JSON.parse(body)
         await addNoteToThing(parsedBody.thingId)
