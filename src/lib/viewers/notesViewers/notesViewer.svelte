@@ -2,15 +2,16 @@
     import type { Graph } from "$lib/models/graphModels"
     import type { Thing } from "$lib/models/dbModels"
     import { thingsStore, storeGraphConstructs, retrieveGraphConstructs, graphConstructInStore } from "$lib/stores/graphStores"
-    import { Toggle } from "$lib/widgets/layoutWidgets"
     import NotesEditor from "./notesEditor.svelte"
     import { addNoteToThing } from "$lib/db/clientSide"
 
     export let graph: Graph
 
     
-    let editable: false
+    let notesContainer: Element
+    let editable = false
 
+    // Get Perspective Thing.
     let pThingIds: number[] | null = null
     $: pThingIds = graph.pThingIds
     $: pThingId = pThingIds && pThingIds.length ? pThingIds[0] : null
@@ -18,8 +19,9 @@
         retrieveGraphConstructs<Thing>("Thing", pThingId) :
         null
 
+    // Get Note title and text.
     $: title = pThing ? pThing.text : "THING NOT FOUND IN STORE"
-    $: notesText = pThing && pThing.note ? pThing.note.text : "NO NOTES YET"
+    $: noteText = pThing && pThing.note ? pThing.note.text : "NO NOTES YET"
 
     async function addNote() {///////////// This should only be called prior to saving newly entered Notes for a Thing that doesn't yet have Notes.
         if (pThing && !pThing.note) {
@@ -28,10 +30,26 @@
             await storeGraphConstructs<Thing>("Thing", pThing.id, true)
         }
     }
+
+    // Handling outside clicks and escape key to stop editing.
+	function handlePossibleOutsideClick(event: MouseEvent) {
+		if (event.target !== notesContainer && !notesContainer.contains(event.target as Node)) {
+			editable = false
+		}
+	}
+    function handleEscape(event: KeyboardEvent) {
+        if (event.key === "Escape") editable = false
+    }
 </script>
 
 
-<main>
+<svelte:body
+    on:click={handlePossibleOutsideClick}
+    on:keyup={handleEscape}
+/>
+
+
+<div class="notes-viewer">
     <h4>{title}</h4>
 
     <div
@@ -40,28 +58,30 @@
         ADD NOTES
     </div>
 
-    <div class="editable-toggle {editable ? "toggled": ""}">
-        Editable
-        <Toggle
-            bind:toggled={editable}
-        />
+    <!-- Container to hold either Note display or Note editor. -->
+    <div
+        class="notes-container"
+        bind:this={notesContainer}
+        on:dblclick={() => {editable = true}}
+    >
+        <!-- Note editor. -->
+        {#if editable}
+            <NotesEditor
+                {noteText}
+            />
+        <!-- Note display. -->
+        {:else}
+            <div class="notes-display">
+                {@html noteText}
+            </div>
+        {/if}
     </div>
-
-    {#if editable}
-        <NotesEditor
-            {notesText}
-        />
-    {:else}
-        <div class="notes-display">
-            {@html notesText}
-        </div>
-    {/if}
     
-</main>
+</div>
 
 
 <style>
-    main {
+    .notes-viewer {
         outline: solid 1px lightgrey;
         outline-offset: -1px;
 
@@ -84,20 +104,11 @@
         margin: 0;
     }
 
-    .editable-toggle {
-        flex: 0 0;
+    .notes-container {
+        flex: 1 1;
 
         display: flex;
-        flex-direction: row;
-        justify-content: flex-end;
-        gap: 5px;
-
-        font-size: 0.75rem;
-        color: lightgrey;
-    }
-
-    .editable-toggle.toggled {
-        color: darkgrey;
+        flex-direction: column;
     }
 
     .notes-display {
