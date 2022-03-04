@@ -17,7 +17,7 @@
             graph // Needed for reactivity.
             return {
                 thingId: pinId,
-                thing: graphConstructInStore("Thing", pinId) ? retrieveGraphConstructs("Thing", pinId) : null
+                thing: graphConstructInStore("Thing", pinId) ? retrieveGraphConstructs("Thing", pinId) as Thing : null
             }
         }
     )
@@ -28,17 +28,11 @@
     <h4>Pins</h4>
 
     {#each pins as pin (pin.thingId)}
-        {#if pin.thing}
-            <PinWidget
-                thingId={pin.thingId}
-                thingText={pin.thing.text}
-                {rePerspectToThingId}
-            />
-        {:else}
-            <div>
-                THING {pin.thingId} NOT FOUND IN STORE
-            </div>
-        {/if}
+        <PinWidget
+            thingId={pin.thingId}
+            thing={pin.thing}
+            {rePerspectToThingId}
+        />
     {/each}
 </main>
 

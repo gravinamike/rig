@@ -1,11 +1,14 @@
 <script lang="ts">
+    import type { Thing } from "$lib/models/dbModels"
     import { hoveredThingIdStore, openContextCommandPalette, removePin } from "$lib/stores"
 
     export let thingId: number
-    export let thingText: string | null
+    export let thing: Thing | null
     export let rePerspectToThingId: (thingId: number) => Promise<void>
 
     
+    $: thingText = thing?.text || `(THING ${thingId} NOT FOUND IN STORE)`
+
     let hoveredThingIdStoreValue: number | null
     hoveredThingIdStore.subscribe(value => {hoveredThingIdStoreValue = value})
 
@@ -18,10 +21,10 @@
 
 
 <div
-    class="box { thingId === hoveredThingIdStoreValue ? "hovered-thing" : "" }"
+    class="box { thingId === hoveredThingIdStoreValue ? "hovered-thing" : "" } { thing ? "" : "id-not-found" }"
     on:mouseenter={()=>{hoveredThingIdStore.set(thingId)}}
     on:mouseleave={()=>{hoveredThingIdStore.set(null)}}
-    on:click={ () => { rePerspectToThingId(thingId) } }
+    on:click={ () => { if (thing) rePerspectToThingId(thingId) } }
     on:contextmenu|preventDefault={openCommandPalette}
 >
     {thingText}
@@ -54,5 +57,9 @@
 
     .hovered-thing {
         outline: solid 2px black;
+    }
+
+    .id-not-found {
+        outline: dashed 1px black;
     }
   </style>

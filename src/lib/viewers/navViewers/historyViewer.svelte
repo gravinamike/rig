@@ -85,20 +85,17 @@
 
     {#each reverseHistoryWithDateDividers as entryOrDivider}
         {#if "thingId" in entryOrDivider}
-            {#if entryOrDivider.thing}
-                <div
-                    class="box { entryOrDivider.thingId === hoveredThingIdStoreValue ? "hovered-thing" : "" }"
-                    on:mouseenter={()=>{ if (entryOrDivider) hoveredThingIdStore.set(entryOrDivider.thingId) }}
-                    on:mouseleave={()=>{hoveredThingIdStore.set(null)}}
-                    on:click={ () => { if (entryOrDivider) rePerspectToThingId(entryOrDivider.thingId)}
-                }>
-                    {entryOrDivider.thing.text}
-                </div>
-            {:else}
-                <div>
-                    THING {entryOrDivider.thingId} NOT FOUND IN STORE
-                </div>
-            {/if}
+            <div
+                class="box
+                    { entryOrDivider.thingId === hoveredThingIdStoreValue ? "hovered-thing" : "" }
+                    { entryOrDivider.thing ? "" : "id-not-found" }
+                "
+                on:mouseenter={()=>{ if (entryOrDivider) hoveredThingIdStore.set(entryOrDivider.thingId) }}
+                on:mouseleave={()=>{hoveredThingIdStore.set(null)}}
+                on:click={ () => { if (entryOrDivider && entryOrDivider.thing) rePerspectToThingId(entryOrDivider.thingId)}
+            }>
+                { entryOrDivider.thing?.text || `(THING ${entryOrDivider.thingId} NOT FOUND IN STORE)` }
+            </div>
         {:else}
             <div class="date-divider">
                 {entryOrDivider.timestamp.toLocaleDateString("en-US", dateDividerOptions)}
@@ -163,6 +160,8 @@
 
         font-size: 0.65rem;
         text-align: left;
+
+        cursor: default;
     }
 
     .box:hover {
@@ -171,6 +170,10 @@
 
     .hovered-thing {
         outline: solid 2px black;
+    }
+
+    .id-not-found {
+        outline: dashed 1px black;
     }
 
     .date-divider {
