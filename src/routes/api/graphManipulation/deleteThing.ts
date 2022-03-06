@@ -2,11 +2,11 @@ import { deleteThing } from "$lib/db/serverSide"
 
 
 export async function post(
-    { body }: { body: string }
+    {request}: {request: Request}
 ): Promise<{status: number, body: string | {error: string}}> {
     try {
-        const parsedBody = JSON.parse(body)
-        await deleteThing(parsedBody.thingIdToDelete)
+        const body = await request.json()
+        await deleteThing(body.thingIdToDelete)
         
         return {
             status: 200,

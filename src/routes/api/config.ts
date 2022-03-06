@@ -30,13 +30,14 @@ export async function get(): Promise<{
 
 
 export async function post(
-    request: any
+    {request}: {request: Request}
 ): Promise<{
     status: number;
     body: { message: string } | { error: string }
 }> {
     try {
-        fs.writeFile(configPath, request.body, function (err) {
+        const body = await request.json()
+        fs.writeFile(configPath, JSON.stringify(body), function (err) {
             if (err) {
                 console.log(`Error saving configuration: ${err.message}`)
                 return

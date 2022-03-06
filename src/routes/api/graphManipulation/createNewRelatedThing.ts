@@ -2,11 +2,11 @@ import { createNewRelatedThing } from "$lib/db/serverSide"
 
 
 export async function post(
-    { body }: { body: string }
+    {request}: {request: Request}
 ): Promise<{status: number, body: string | {error: string}}> {
     try {
-        const parsedBody = JSON.parse(body)
-        await createNewRelatedThing(parsedBody.thingIdToRelateFrom, parsedBody.directionId, parsedBody.text)
+        const body = await request.json()
+        await createNewRelatedThing(body.thingIdToRelateFrom, body.directionId, body.text)
         
         return {
             status: 200,

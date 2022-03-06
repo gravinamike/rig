@@ -2,11 +2,11 @@ import { addFolderToThing } from "$lib/db/serverSide"
 
 
 export async function post(
-    { body }: { body: string }
+    {request}: {request: Request}
 ): Promise<{status: number, body: string | {error: string}}> {
     try {
-        const parsedBody = JSON.parse(body)
-        await addFolderToThing(parsedBody.thingId)
+        const body = await request.json()
+        await addFolderToThing(body.thingId)
         
         return {
             status: 200,
