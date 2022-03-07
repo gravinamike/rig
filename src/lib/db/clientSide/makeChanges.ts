@@ -1,8 +1,15 @@
-export async function createNewRelatedThing(thingIdToRelateFrom: number, directionId: number, text: string): Promise<boolean> {
+/*
+ * From a starting Thing, create a related Thing.
+ */
+export async function createNewRelatedThing(
+    thingIdToRelateFrom: number, directionId: number, text: string
+): Promise<boolean> {
+    // Post to the create-new-related-Thing API.
     const res = await fetch(
         `api/graphManipulation/createNewRelatedThing`,
         {
             method: "POST",
+
             body: JSON.stringify({
                 thingIdToRelateFrom: thingIdToRelateFrom,
                 directionId: directionId,
@@ -11,7 +18,7 @@ export async function createNewRelatedThing(thingIdToRelateFrom: number, directi
         }
     )
 
-    // If the response is ok,
+    // If the response is ok, return true.
     if (res.ok) {
         return true
 
@@ -22,7 +29,11 @@ export async function createNewRelatedThing(thingIdToRelateFrom: number, directi
     }
 }
 
-export async function addNoteToThing(thingId: number): Promise<boolean> {
+/*
+ * Add a Note to a Thing.
+ */
+export async function addNoteToThing( thingId: number ): Promise<boolean> {
+    // Post to the add-Note-to-Thing API.
     const res = await fetch(
         `api/graphManipulation/addNoteToThing`,
         {
@@ -33,7 +44,7 @@ export async function addNoteToThing(thingId: number): Promise<boolean> {
         }
     )
 
-    // If the response is ok,
+    // If the response is ok, return true.
     if (res.ok) {
         return true
 
@@ -44,7 +55,11 @@ export async function addNoteToThing(thingId: number): Promise<boolean> {
     }
 }
 
-export async function addFolderToThing(thingId: number): Promise<boolean> {
+/*
+ * Add a Folder to a Thing.
+ */
+export async function addFolderToThing( thingId: number ): Promise<boolean> {
+    // Post to the add-folder-to-Thing API.
     const res = await fetch(
         `api/graphManipulation/addFolderToThing`,
         {
@@ -55,7 +70,7 @@ export async function addFolderToThing(thingId: number): Promise<boolean> {
         }
     )
 
-    // If the response is ok,
+    // If the response is ok, return true.
     if (res.ok) {
         return true
 
@@ -66,7 +81,11 @@ export async function addFolderToThing(thingId: number): Promise<boolean> {
     }
 }
 
-export async function deleteThing(thingIdToDelete: number): Promise<boolean> {
+/*
+ * Delete a Thing.
+ */
+export async function deleteThing( thingIdToDelete: number ): Promise<boolean> {
+    // Post to the delete-Thing API.
     const res = await fetch(
         `api/graphManipulation/deleteThing`,
         {
@@ -77,7 +96,7 @@ export async function deleteThing(thingIdToDelete: number): Promise<boolean> {
         }
     )
 
-    // If the response is ok,
+    // If the response is ok, return true.
     if (res.ok) {
         return true
 

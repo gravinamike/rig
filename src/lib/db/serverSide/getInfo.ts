@@ -1,12 +1,17 @@
-import { Direction, Space, Thing, Relationship, Note, NoteToThing, Folder, FolderToThing } from "$lib/models/dbModels"
+import {
+    Direction, Space,
+    Thing, Relationship,
+    Note, NoteToThing, Folder, FolderToThing
+} from "$lib/models/dbModels"
+
 
 /*
- * Functions to query Graph constructs.
+ * Query Directions from the database.
  */
-export async function queryDirections(directionIds: number): Promise<null | Direction>;
-export async function queryDirections(directionIds: number[]): Promise<Direction[]>;
-export async function queryDirections(directionIds: null, idsToExclude?: number[]): Promise<Direction[]>;
-export async function queryDirections(directionIds: number | number[] | null, idsToExclude?: number[]): Promise<null | Direction | Direction[]> {
+export async function queryDirections( directionIds: number ): Promise<null | Direction>;
+export async function queryDirections( directionIds: number[] ): Promise<Direction[]>;
+export async function queryDirections( directionIds: null, idsToExclude?: number[] ): Promise<Direction[]>;
+export async function queryDirections( directionIds: number | number[] | null, idsToExclude?: number[] ): Promise<null | Direction | Direction[]> {
     
     // If a null ID is supplied,
     if (directionIds === null) {
@@ -49,12 +54,12 @@ export async function queryDirections(directionIds: number | number[] | null, id
 
 
 /*
- * Functions to query Graph constructs from the database.
+ * Query Spaces from the database.
  */
-export async function querySpaces(spaceIds: number): Promise<null | Space>;
-export async function querySpaces(spaceIds: number[]): Promise<Space[]>;
-export async function querySpaces(spaceIds: null, idsToExclude?: number[]): Promise<Space[]>;
-export async function querySpaces(spaceIds: number | number[] | null, idsToExclude?: number[]): Promise<null | Space | Space[]> {
+export async function querySpaces( spaceIds: number ): Promise<null | Space>;
+export async function querySpaces( spaceIds: number[] ): Promise<Space[]>;
+export async function querySpaces( spaceIds: null, idsToExclude?: number[] ): Promise<Space[]>;
+export async function querySpaces( spaceIds: number | number[] | null, idsToExclude?: number[] ): Promise<null | Space | Space[]> {
     
     // If a null ID is supplied,
     if (spaceIds === null) {
@@ -103,6 +108,9 @@ export async function querySpaces(spaceIds: number | number[] | null, idsToExclu
     }
 }
 
+/*
+ * Query Things from the database.
+ */
 export async function queryThings(thingIds: number): Promise<null | Thing>;
 export async function queryThings(thingIds: number[]): Promise<Thing[]>;
 export async function queryThings(thingIds: number | number[]): Promise<null | Thing | Thing[]> {
@@ -129,6 +137,9 @@ export async function queryThings(thingIds: number | number[]): Promise<null | T
     }
 }
 
+/*
+ * Get the latest Graph constructs that were added to the database.
+ */
 export interface LatestConstructInfos {
     things: {id: number, text: string}[],
     relationships: {id: number, thingaid: number | null, thingbid: number | null}[],
@@ -137,7 +148,6 @@ export interface LatestConstructInfos {
     folders: {id: number}[],
     folderToThings: {id: number, folderid: number, thingid: number}[]
 }
-
 export async function getLatestConstructs(): Promise<LatestConstructInfos> {
     // Get latest Things.
     const queriedThings = await Thing.query().orderBy("id", "desc").limit(10)
@@ -152,7 +162,8 @@ export async function getLatestConstructs(): Promise<LatestConstructInfos> {
     // Get latest FolderToThings.
     const queriedFolderToThings = await FolderToThing.query().orderBy("id", "desc").limit(10)
 
-    const latestConstructInfos = {
+    // Return an object containing all the above.
+    return {
         things: queriedThings.map(x => {return {id: x.id, text: x.text}}),
         relationships: queriedRelationships.map(x => {return {id: x.id, thingaid: x.thingaid, thingbid: x.thingbid}}),
         notes: queriedNotes.map(x => {return {id: x.id}}),
@@ -160,6 +171,4 @@ export async function getLatestConstructs(): Promise<LatestConstructInfos> {
         folders: queriedFolders.map(x => {return {id: x.id}}),
         folderToThings: queriedFolderToThings.map(x => {return {id: x.id, folderid: x.folderid, thingid: x.thingid}})
     }
-
-    return latestConstructInfos
 }
