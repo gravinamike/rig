@@ -17,7 +17,7 @@ export class ThingWidgetModel extends ThingBaseWidgetModel {
     }
 
     get thingWidgetId(): string {
-        return `portal#${ this.address.graph.id }-thing#${ this.thingId }`
+        return `graph#${ this.address.graph.id }-thing#${ this.thingId }`
     }
 
     // The following getter functions pass along the corresponding attributes from the encapsulated Thing.
