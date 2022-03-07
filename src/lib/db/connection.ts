@@ -4,6 +4,19 @@ const { Model, knexSnakeCaseMappers } = pkg
 import { unigraphFolder } from "$lib/shared/constants"
 
 
+// We use a global to keep a cached connection across hot reloads
+// in dev mode, preventing costly multiplication of connections.
+/* eslint-disable-next-line no-var */
+declare var global: {
+    h2: {
+        connection: typeof Model | null,
+        promise: Promise<typeof Model> | null
+    }
+}
+if (!('h2' in global && global.h2)) global.h2 = { connection: null, promise: null }
+const cached = global.h2
+
+// Configuration for Knex instance.
 const knexConfig = {
     client: 'pg',
     version: '1.4',
@@ -20,20 +33,8 @@ const knexConfig = {
 }
 
 /**
- * We use a global to keep a cached connection across hot reloads
- * in dev mode, preventing costly multiplication of connections.
+ * Get a connection to the database.
  */
-/* eslint-disable-next-line no-var */
-declare var global: {
-    h2: {
-        connection: typeof Model | null,
-        promise: Promise<typeof Model> | null
-    }
-}
-if (!('h2' in global && global.h2)) global.h2 = { connection: null, promise: null }
-const cached = global.h2
-
-
 export async function getDatabaseConnection(): Promise<typeof Model> {
     // If there is no cached connection, create one and cache it.
     if (!cached.connection) {

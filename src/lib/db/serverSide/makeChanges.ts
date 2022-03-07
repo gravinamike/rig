@@ -1,15 +1,31 @@
+// Type imports.
 import type { Knex } from "knex"
 
-import { v4 as uuidv4 } from "uuid"
+// Database-related imports.
 import { Model } from "objection"
-import { Direction, Thing, getNewThingInfo, Relationship, getNewRelationshipInfo, Note, getNewNoteInfo, NoteToThing, Folder, getNewFolderInfo, FolderToThing} from "$lib/models/dbModels"
+import { v4 as uuidv4 } from "uuid"
 import { alterQuerystringForH2AndRun } from "./utility"
+
+// Graph-construct-related imports.
+import {
+    Direction, Thing, getNewThingInfo,
+    Relationship, getNewRelationshipInfo,
+    Note, getNewNoteInfo, NoteToThing,
+    Folder, getNewFolderInfo, FolderToThing
+} from "$lib/models/dbModels"
+
+// Filesystem-related imports.
 import { createFolder } from "$lib/shared/fileSystem"
 
 
+/*
+ * From a starting Thing, create a related Thing.
+ */
 export async function createNewRelatedThing(thingIdToRelateFrom: number, directionId: number, text: string): Promise<void> {
+    // Get parameters for SQL query.
     const whenCreated = (new Date()).toISOString()
 
+    // Construct and run SQL query.
     const knex = Model.knex()
     await knex.transaction(async (transaction: Knex.Transaction) => {
         // Create new Thing.
@@ -31,64 +47,75 @@ export async function createNewRelatedThing(thingIdToRelateFrom: number, directi
             alterQuerystringForH2AndRun(querystring3, transaction, whenCreated, "Relationship")
         ])
 
-        return [newRelatedThing, newARelationship, newBRelationship] 
-
+        return [newRelatedThing, newARelationship, newBRelationship]
     })
+
+    // Report on the response.
     .then(function() {
         console.log('Transaction complete.')
     })
     .catch(function(err: Error) {
         console.error(err)
     })
-
-    return
 }
 
-
+/*
+ * Add a Note to a Thing.
+ */
 export async function addNoteToThing(thingId: number): Promise<void> {
+    // Get parameters for SQL query.
     const whenCreated = (new Date()).toISOString()
 
+    // Construct and run SQL query.
     const knex = Model.knex()
     await knex.transaction(async (transaction: Knex.Transaction) => {
-
+        // Create the Note.
         const newNoteInfo = getNewNoteInfo(whenCreated)
         const querystring1 = Note.query().insert(newNoteInfo).toKnexQuery().toString()
         const newAddedNote = await alterQuerystringForH2AndRun(querystring1, transaction, whenCreated, "Note") as Note
+
+        // Create the linker between the Note and its Thing.
         const thingToAddNoteTo = await Thing.query().findById(thingId)
         const querystring2 = thingToAddNoteTo.$relatedQuery('note').relate(newAddedNote.id).toKnexQuery().toString()
         await alterQuerystringForH2AndRun(querystring2, transaction, whenCreated, "NoteToThing") as NoteToThing
 
         return
-        
     })
+
+    // Report on the response.
     .then(function() {
         console.log('Transaction complete.')
     })
     .catch(function(err: Error) {
         console.error(err)
     })
-
-    return
 }
 
-
+/*
+ * Add a Folder to a Thing.
+ */
 export async function addFolderToThing(thingId: number): Promise<void> {
+    // Get parameters for SQL query.
     const whenCreated = (new Date()).toISOString()
     const folderGuid = uuidv4()
 
+    // Construct and run SQL query.
     const knex = Model.knex()
     await knex.transaction(async (transaction: Knex.Transaction) => {
-
+        // Create the Folder.
         const newFolderInfo = getNewFolderInfo(whenCreated, folderGuid)
         const querystring1 = Folder.query().insert(newFolderInfo).toKnexQuery().toString()
         const newAddedFolder = await alterQuerystringForH2AndRun(querystring1, transaction, whenCreated, "Folder") as Folder
+
+        // Create the linker between the Folder and its Thing.
         const thingToAddFolderTo = await Thing.query().findById(thingId)
         const querystring2 = thingToAddFolderTo.$relatedQuery('folder').relate(newAddedFolder.id).toKnexQuery().toString()
         await alterQuerystringForH2AndRun(querystring2, transaction, whenCreated, "FolderToThing") as FolderToThing
         
         return
-        
     })
+
+    // Report on the response and create a folder in the filesystem.
     .then(function() {
         console.log('Transaction complete.')
 
@@ -101,15 +128,14 @@ export async function addFolderToThing(thingId: number): Promise<void> {
     .catch(function(err: Error) {
         console.error(err)
     })
-
-    return
 }
 
-
+/*
+ * Delete a Thing.
+ */
 export async function deleteThing(thingId: number): Promise<void> {
     const knex = Model.knex()
     await knex.transaction(async (transaction: Knex.Transaction) => {
-
         // Get associated Notes (before linkers are gone).
         const notesToDelete = await Thing.relatedQuery('note').for([thingId])
         const noteIdsToDelete = notesToDelete.map(note => note.id)
@@ -134,14 +160,13 @@ export async function deleteThing(thingId: number): Promise<void> {
         await Thing.query().delete().where("id", thingId).transacting(transaction)
 
         return
-        
     })
+
+    // Report on the response.
     .then(function() {
         console.log('Transaction complete.')
     })
     .catch(function(err: Error) {
         console.error(err)
     })
-
-    return
 }

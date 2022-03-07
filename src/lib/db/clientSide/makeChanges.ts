@@ -18,11 +18,9 @@ export async function createNewRelatedThing(
         }
     )
 
-    // If the response is ok, return true.
+    // Report on the response.
     if (res.ok) {
         return true
-
-    // Handle errors if needed.
     } else {
         res.text().then(text => {throw Error(text)})
         return false
@@ -44,11 +42,9 @@ export async function addNoteToThing( thingId: number ): Promise<boolean> {
         }
     )
 
-    // If the response is ok, return true.
+    // Report on the response.
     if (res.ok) {
         return true
-
-    // Handle errors if needed.
     } else {
         res.text().then(text => {throw Error(text)})
         return false
@@ -70,11 +66,9 @@ export async function addFolderToThing( thingId: number ): Promise<boolean> {
         }
     )
 
-    // If the response is ok, return true.
+    // Report on the response.
     if (res.ok) {
         return true
-
-    // Handle errors if needed.
     } else {
         res.text().then(text => {throw Error(text)})
         return false
@@ -96,11 +90,9 @@ export async function deleteThing( thingIdToDelete: number ): Promise<boolean> {
         }
     )
 
-    // If the response is ok, return true.
+    // Report on the response.
     if (res.ok) {
         return true
-
-    // Handle errors if needed.
     } else {
         res.text().then(text => {throw Error(text)})
         return false

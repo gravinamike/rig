@@ -1,5 +1,4 @@
 import type { Knex } from "knex"
-
 import { Model } from "objection"
 import { Thing, Relationship, Note, NoteToThing, Folder, FolderToThing } from "$lib/models/dbModels"
 
@@ -13,11 +12,15 @@ export async function alterQuerystringForH2AndRun(
     whenCreated: string,
     constructName: "Thing" | "Relationship" | "Note" | "NoteToThing" | "Folder" | "FolderToThing"
 ): Promise< Thing | Relationship | Note | NoteToThing | Folder | FolderToThing > {
+    // Remove the "returning" clause in the query string.
     querystring = querystring.replace(/ returning "\w+"/, "")
 
+    // Run the modified query string.
     const knex = Model.knex()
     await knex.raw(querystring).transacting(transaction)
     
+    // Return the last-created construct of the specified type (which should
+    // be the construct created by this transaction).
     let latestConstructResults: Thing[] | Relationship[] | Note[] | NoteToThing[] | Folder[] | FolderToThing[]
     switch (constructName) {
         case "Thing":
@@ -39,7 +42,5 @@ export async function alterQuerystringForH2AndRun(
             latestConstructResults = await FolderToThing.query().select("id").transacting(transaction)
             break
     }
-    const latestConstruct = latestConstructResults[0]
-
-    return latestConstruct
+    return latestConstructResults[0]
 }
