@@ -58,7 +58,7 @@ export class ThingBaseWidgetModel {
         return parentThingWidgetModel
     }
 
-    get halfAxisId(): number {
+    get halfAxisId(): HalfAxisId | 0 {
         return this.parentCohort.address.halfAxisId || 0
     }
 

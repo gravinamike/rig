@@ -1,8 +1,8 @@
 import type { Graph, Cohort } from "$lib/models/graphModels"
-import type { ThingBaseWidgetModel, ThingWidgetModel, ThingPlaceholderWidgetModel } from "$lib/models/widgetModels"
+import type { ThingBaseWidgetModel, ThingWidgetModel } from "$lib/models/widgetModels"
 
 
-export type GenerationMember = ThingBaseWidgetModel | ThingWidgetModel | ThingPlaceholderWidgetModel
+export type GenerationMember = ThingBaseWidgetModel | ThingWidgetModel
 
 export class Generation {
     kind = "generation"

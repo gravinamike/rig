@@ -7,8 +7,10 @@
     /* Widget imports. */
     import { pinIdsStore, hoveredThingIdStore, openContextCommandPalette, addPin, removePin } from "$lib/stores"
     import { ThingDetailsWidget } from "$lib/widgets/detailsWidgets"
-    import { planePadding } from "$lib/shared/constants"
+    import { planePadding, relationshipColorByHalfAxisId } from "$lib/shared/constants"
     import { XButton, ConfirmDeleteBox } from "$lib/widgets/layoutWidgets"
+
+    import { hexToRgba } from "$lib/shared/utility"
 
 
     export let thingWidgetModel: ThingWidgetModel
@@ -52,6 +54,7 @@
     hoveredThingIdStore.subscribe(value => {hoveredThingIdStoreValue = value})
     $: isHoveredThing = thingId === hoveredThingIdStoreValue
     let isHoveredWidget = false
+    $: shadowColor = relationshipColorByHalfAxisId[halfAxisId]
 
     // Variables dealing with text formatting.
     let textFontSize = encapsulatingDepth >= 0 ?
@@ -84,6 +87,10 @@
     class="box thing-widget { isHoveredThing ? "hovered-thing" : "" }"
     style="
         border-radius: {10 + 4 * encapsulatingDepth}px;
+        {isHoveredThing ? 
+            `box-shadow: 5px 5px 10px 10px ${hexToRgba(shadowColor, 0.10)};` :
+            `box-shadow: 5px 5px 10px 2px ${hexToRgba(shadowColor, 0.10)};`
+        }
         width: {thingWidth}px; height: {thingHeight}px; opacity: {opacity};
         pointer-events: {distanceFromFocalPlane === 0 ? "auto" : "none"};
     "
@@ -139,7 +146,7 @@
 
 <style>
     .box {
-        box-shadow: 5px 5px 10px 2px lightgray;
+        outline: solid 0.25px lightgrey;
 
         box-sizing: border-box;
         height: max-content;
@@ -150,11 +157,11 @@
 
     .thing-widget {
         position: relative;
+
+        pointer-events: auto;
     }
 
     .thing-widget:hover {
-        box-shadow: 5px 5px 10px 10px lightgray;
-
         z-index: 1;
     }
 

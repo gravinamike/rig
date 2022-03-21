@@ -4,7 +4,7 @@
     import type { Graph, Cohort, GenerationMember } from "$lib/models/graphModels"
     import type { Direction, Space } from "$lib/models/dbModels"
 
-    import { rotationByHalfAxisId, offsetsByHalfAxisId, zoomBase } from "$lib/shared/constants"
+    import { rotationByHalfAxisId, mirroringByHalfAxisId, relationshipColorByHalfAxisId, offsetsByHalfAxisId, zoomBase } from "$lib/shared/constants"
     import { retrieveGraphConstructs } from "$lib/stores/graphStores"
     import { ThingWidgetModel } from "$lib/models/widgetModels"
     import { sleep } from "$lib/shared/utility"
@@ -49,8 +49,89 @@
     $: imageHeight = edgeToEdgeDimension
     $: imageWidth = childrenDimension
 
-    // Calculate rotation of Relationship image.
+
+
+
+
+    $: rowOrColumn = [3, 4, 5, 6, 7, 8].includes(halfAxisId) ? "column" : "row"
+
+    $: grandparentThingId = cohort.parentCohort()?.address.parentThingWidgetModel?.thingId || null
+    $: indexOfGrandparentThing = grandparentThingId !== null ? 
+        cohort.members.findIndex( member => member.thingId === grandparentThingId )
+        : null
+    $: offsetToGrandparentThing = indexOfGrandparentThing !== null && indexOfGrandparentThing !== -1 ?
+        ((cohort.members.length - 1)/2 - indexOfGrandparentThing) * (thingSize + betweenThingGap) :
+        0
+    $: offsetToGrandparentThingX = rowOrColumn === "row" ? offsetToGrandparentThing : 0
+    $: offsetToGrandparentThingY = rowOrColumn === "column" ? offsetToGrandparentThing : 0
+
+    
+
+
+
+
+    function rectOfThingWidgetByThingId(thingId: number): DOMRect | null {//////////// Move to graph?
+        const thingWidget = document.getElementById(`graph#${graph.id}-thing#${thingId}`)
+        return thingWidget ? thingWidget.getBoundingClientRect() : null
+    }
+
+    
+    $: parentThingId = cohort.address.parentThingWidgetModel?.thingId || null
+    let parentDomRect: DOMRect | null
+    $: {
+        $tweenedScale
+        parentDomRect = parentThingId ?
+            rectOfThingWidgetByThingId(parentThingId) :
+            null
+    }
+    $: cohortDomRects = cohortMembersWithIndices.map(
+        memberWithIndex => memberWithIndex.member.thingId ?
+            rectOfThingWidgetByThingId(memberWithIndex.member.thingId) :
+            null
+    )
+
+    function leafOffsetByIndex(index: number): number {
+        const parentRectX = parentDomRect ? parentDomRect.x : 0
+        const relatedRect = cohortDomRects[index]
+        const relatedRectX = relatedRect ? relatedRect.x : 0
+        const offsetLength = (relatedRectX - parentRectX) / $tweenedScale
+        const offsetSignForHalfAxis = [3, 4].includes(halfAxisId) ? -offsetSigns[0] : -offsetSigns[1]
+        return offsetLength * offsetSignForHalfAxis
+    }
+    ///////////////////////////////////////// HAVE TO USE Y COORD, AND HAVE TO ADD/SUBTRACT BASED ON ROTATION.
+    ///////////////////////////////////////// THEN COLOR THE AXES TO DISTINGUISH THEM.
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // Calculate Relationship image dimensions.
+    $: midline = childrenDimension * 0.5 - offsetToGrandparentThing
+    $: leavesMidlines = cohortMembersWithIndices.map(
+        memberWithIndex => memberWithIndex.member.kind === "thingBaseWidgetModel" ? 
+        //(memberWithIndex) => true ? /////////////////////////////// Use this conditional to distinguish the Relationships to Things that already exist in the Graph.
+            thingSize * 0.5 + leafOffsetByIndex(memberWithIndex.index) :
+            thingSize * 0.5 + (thingSize + betweenThingGap) * memberWithIndex.index
+    )
+    $: stemBottom = edgeToEdgeDimension
+    $: stemTop = edgeToEdgeDimension * 2/3
+    $: leavesBottom = edgeToEdgeDimension * 1/3
+    $: leavesTop = 0
+
+    // Calculate rotation and mirroring of Relationship image.
     const rotation = rotationByHalfAxisId[halfAxisId]
+    const mirroring = mirroringByHalfAxisId[halfAxisId]
+
+    // Calculate color of Relationship image.
+    const relationshipColor = relationshipColorByHalfAxisId[halfAxisId]
 
     // Calculate opacity.
     $: planeId = cohort?.plane?.id || 0
@@ -76,47 +157,96 @@
 </script>
 
 
-<main class="relationships-widget" style="left: calc({offsets[0]}px + 50%); top: calc({offsets[1]}px + 50%); z-index: {zIndex}; width: {widgetWidth}px; height: {widgetHeight}px; opacity: {opacity};">
+<!-- Outer Relationships Widget (doesn't rotate, but takes up appropriate dimensions). -->
+<div
+    class="relationships-widget"
+    style="
+        left: calc({offsets[0]}px + 50% + {offsetToGrandparentThingX}px);
+        top: calc({offsets[1]}px + 50% + {offsetToGrandparentThingY}px);
+        z-index: {zIndex};
+        width: {widgetWidth}px;
+        height: {widgetHeight}px;
+        opacity: {opacity};
+    "
+>
+    <!-- Inner "rotator" which is rotated according to the Half-Axis. -->
     <div
-        class="direction-text {!cohort.members.length ? "empty" : ""}"
-        style="{[3, 4].includes(halfAxisId)  ? "transform: rotate(-90deg);" : ""} font-size: {graph.graphWidgetStyle.relationshipTextSize}px"
+        class="rotator"
+        style="transform: scaleY({mirroring}) rotate({rotation * mirroring}deg); "
     >
-        {direction.text}
-    </div>
-    <svg
-        class="relationship-image {!cohort.members.length ? "empty" : ""}"
-        style="width: {imageWidth}px; height: {imageHeight}px; transform: rotate({rotation}deg);"
-    >
-        <g
-            class="relationship-stem"
-            on:click={addThingForm}
+
+        <!-- Direction text. -->
+        {#if !(indexOfGrandparentThing !== null && indexOfGrandparentThing !== -1)}
+            <div
+                class="direction-text {!cohort.members.length ? "empty" : ""}"
+                style="
+                    transform: scaleY({mirroring}) rotate({-rotation * mirroring + (halfAxisId === 3 ? -90 : (halfAxisId === 4 ? 90 : 0))}deg);
+                    font-size: {graph.graphWidgetStyle.relationshipTextSize}px; color: {relationshipColor}
+                "
+            >
+                {direction.text}
+            </div>
+        {/if}
+
+        <!-- Relationship image. -->
+        <svg
+            class="relationship-image {!cohort.members.length ? "empty" : ""}"
+            style="width: {imageWidth}px; height: {imageHeight}px; stroke: {relationshipColor}; fill: {relationshipColor};"
         >
-            <line
-                x1="{childrenDimension * 0.5}" y1="{edgeToEdgeDimension}"
-                x2="{childrenDimension * 0.5}" y2="{edgeToEdgeDimension * 2 / 3 + 6 / $tweenedScale}"
-                style="stroke-width: {10 / $tweenedScale};"
-            />
-            <polygon
-                points="{childrenDimension * 0.5 - 5 / $tweenedScale},{edgeToEdgeDimension * 2 / 3 + 8 / $tweenedScale} {childrenDimension * 0.5 + 5 / $tweenedScale},{edgeToEdgeDimension * 2 / 3 + 8 / $tweenedScale} {childrenDimension * 0.5},{edgeToEdgeDimension * 2 / 3}"
-                style="stroke-width: {3 / $tweenedScale};"
-            />
-        </g>
-        {#each cohortMembersWithIndices as memberWithIndex}
-            <line style="stroke-width: {2 / $tweenedScale}; stroke-dasharray: {1 / $tweenedScale} {5 / $tweenedScale};"
-                x1="{childrenDimension * 0.5}" y1="{edgeToEdgeDimension * 2 / 3}"
-                x2="{thingSize * 0.5 + (thingSize + betweenThingGap) * memberWithIndex.index}" y2="{edgeToEdgeDimension * 1 / 3}"
-            />
-            <line style="stroke-width: {2 / $tweenedScale};"
-                x1="{thingSize * 0.5 + (thingSize + betweenThingGap) * memberWithIndex.index}" y1="{edgeToEdgeDimension * 1 / 3}"
-                x2="{thingSize * 0.5 + (thingSize + betweenThingGap) * memberWithIndex.index}" y2="0"
-            />
-        {/each}
-    </svg>
-</main>
+            <!-- Relationship stem. -->
+            {#if !(indexOfGrandparentThing !== null && indexOfGrandparentThing !== -1)}
+                <g
+                    class="relationship-stem"
+                    on:click={addThingForm}
+                >
+                    <line
+                        x1="{midline}" y1="{stemBottom}"
+                        x2="{midline}" y2="{stemTop + 6 / $tweenedScale}"
+                        style="stroke-width: {10 / $tweenedScale};"
+                    />
+                    <polygon
+                        points="
+                            {midline - 5 / $tweenedScale}, {stemTop + 8 / $tweenedScale}
+                            {midline + 5 / $tweenedScale}, {stemTop + 8 / $tweenedScale}
+                            {midline}, {stemTop}
+                        "
+                        style="stroke-width: {3 / $tweenedScale};"
+                    />
+                </g>
+            {/if}
+
+            {#if !(cohort.members.length === 1 && indexOfGrandparentThing !== null && indexOfGrandparentThing !== -1)}<!-- Unless the ONLY descendent in a Half-Axis is a doubled-back parent Thing, -->
+                {#each cohortMembersWithIndices as memberWithIndex}
+                    {#if indexOfGrandparentThing !== memberWithIndex.index}<!-- Don't re-draw the existing Relationship to a parent Thing. -->
+                        <!-- Relationship fan. -->
+                        <line 
+                            class="relationship-fan"
+                            style="
+                                stroke-width: {2 / $tweenedScale};
+                                stroke-dasharray: {1 / $tweenedScale} {5 / $tweenedScale};
+                            "
+                            x1="{midline}" y1="{stemTop}"
+                            x2="{leavesMidlines[memberWithIndex.index]}" y2="{leavesBottom}"
+                        />
+
+                        <!-- Relationship leaves. -->
+                        <line
+                            class="relationship-leaves"
+                            style="stroke-width: {2 / $tweenedScale};"
+                            x1="{leavesMidlines[memberWithIndex.index]}" y1="{leavesBottom}"
+                            x2="{leavesMidlines[memberWithIndex.index]}" y2="{leavesTop}"
+                        />
+                    {/if}
+                {/each}
+            {/if}
+        </svg>
+
+    </div>
+</div>
 
 
 <style>
-    main {
+    .relationships-widget {
         position: absolute;
         transform: translate(-50%, -50%);
 
@@ -125,40 +255,62 @@
         align-items: center;
     }
 
-    main:hover {
+    .relationships-widget:hover {
         border-radius: 5px;
         outline: dashed 1px lightgrey;
-    }
-
-    .relationship-image {
-        position: absolute;
-        stroke: lightgrey;
-        fill: lightgrey;
     }
 
     .relationships-widget:active {
         pointer-events: none;
     }
 
-    main:not(:hover) .empty {
+    .relationships-widget:not(:hover) .empty {
         visibility: hidden;
     }
 
-    .direction-text, svg {
+    .rotator {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .direction-text {
+        border-radius: 8px;
+
+        background-color: white;
+
+        padding: 0.25rem;
+
         pointer-events: auto;
     }
 
-    .relationship-stem {        
+    .relationship-image {
+        position: absolute;
+
+        overflow: visible;
+
+        pointer-events: auto;
+    }
+
+    .relationship-stem {
+        opacity: 0.25;
+
         cursor: pointer;
     }
 
     .relationship-stem:hover {
-        stroke: silver;
-        fill: silver;
+        opacity: 0.5;
     }
 
     .relationship-stem:active {
-        stroke: dimgrey;
-        fill: dimgrey;
+        opacity: 1.0;
+    }
+
+    .relationship-fan {
+        opacity: 0.15;
+    }
+
+    .relationship-leaves {
+        opacity: 0.25;
     }
 </style>

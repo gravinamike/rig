@@ -119,7 +119,7 @@
     </div>
 
     <!-- Notes viewer -->
-    <Collapser headerText={"Content"} contentDirection={"right"} expanded={true}>
+    <Collapser headerText={"Content"} contentDirection={"right"} expanded={false}>
         <div class="tabs-container wide">
             <TabBlock>
                 <TabFlaps>

@@ -1,4 +1,5 @@
 export * from "./thingAddress"
 export * from "./thingBaseWidgetModel"
 export * from "./thingPlaceholderWidgetModel"
+export * from "./thingSpacerWidgetModel"
 export * from "./thingWidgetModel"

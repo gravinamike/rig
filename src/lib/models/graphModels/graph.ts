@@ -4,8 +4,9 @@ import type { Thing } from "$lib/models/dbModels"
 import { defaultGraphWidgetStyle, cartesianHalfAxisIds } from "$lib/shared/constants"
 import { storeGraphConstructs, graphConstructInStore, retrieveGraphConstructs, unstoreGraphConstructs } from "$lib/stores"
 import { Generation, Cohort, Plane } from "$lib/models/graphModels"
-import { ThingWidgetModel, ThingPlaceholderWidgetModel } from "$lib/models/widgetModels"
+import { ThingBaseWidgetModel, ThingWidgetModel, ThingPlaceholderWidgetModel } from "$lib/models/widgetModels"
 import { deleteThing } from "$lib/db/clientSide/makeChanges"
+import { unique } from "$lib/shared/utility"
 
 
 /** Class representing a Graph. */
@@ -148,7 +149,7 @@ export class Graph {
         // For generations >1, start from the IDs of the last generation's Relation Things.
         const thingIdsAndNullsForGenerationId = generationId === 0 ?
             this._pThingIds :
-            this.seedThingWidgetModels.map(thingWidgetModel => thingWidgetModel.relatedThingIds).flat()
+            unique(this.seedThingWidgetModels.map(thingWidgetModel => thingWidgetModel.relatedThingIds).flat())
         const thingIdsForGenerationId = thingIdsAndNullsForGenerationId.filter(id => !!id) as number[]
         return thingIdsForGenerationId
     }
@@ -196,8 +197,23 @@ export class Graph {
         // Store Things for new Generation.
         await this.storeNextGenerationThings()
 
+        const thingIdsAlreadyInGraph = this.thingWidgetModels.map(model => model.thingId)
+            .filter(thingId => thingId) as number[]
+
+        // Create a Thing Widget (or placeholder) Model for each Thing ID in the new Generation.
         const membersForGeneration = this.thingIdsForGenerationId(this.generationIdToBuild).map(
-            id => { return graphConstructInStore("Thing", id) ? new ThingWidgetModel(id) : new ThingPlaceholderWidgetModel(id) }
+            id => {
+                // If the Thing is already modeled in the Graph, return a spacer model.                
+                return thingIdsAlreadyInGraph.includes(id) ?
+                new ThingBaseWidgetModel(id) :
+
+                // Else, if the Thing is in the Thing store, create a new model for that Thing ID.
+                graphConstructInStore("Thing", id) ?
+                new ThingWidgetModel(id) :
+
+                // Otherwise, create a placeholder.
+                new ThingPlaceholderWidgetModel(id)
+            }
         )
 
         // Add the new, empty Generation.
@@ -239,7 +255,7 @@ export class Graph {
 
                     // Get list of the Things in that half axis' Cohort.
                     const childCohortThingIds = prevThingWidgetModel.relatedThingIdsByHalfAxisId(halfAxisId)
-                    // Add the members from this Generation matching those IDs as a new Cohort on that half-axis.
+                    // Add the members from this Generation matching those IDs as a new Cohort on that Half-Axis.
                     const membersForCohort = childCohortThingIds.length ?
                         membersForGeneration.filter((member) => {if (member.thingId && childCohortThingIds.includes(member.thingId)) return true}) :
                         []

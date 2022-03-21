@@ -10,7 +10,7 @@ import { ThingBaseWidgetModel } from "./"
  * Specifies info to build the widget representing a Thing within a specific Graph Portal.
  */
 export class ThingWidgetModel extends ThingBaseWidgetModel {
-    kind = "thingWidgetModel"
+    kind = "thingWidgetModel" as const
 
     constructor(thingId: number | null) {
         super(thingId)
