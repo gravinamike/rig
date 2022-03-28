@@ -1,7 +1,9 @@
 <script lang="ts">
+    import { hoveredThingIdStore } from "$lib/stores"
     import type { ThingBaseWidgetModel } from "$lib/models/widgetModels"
     import type { Graph } from "$lib/models/graphModels"
-    import { planePadding } from "$lib/shared/constants"
+    import { planePadding, relationshipColorByHalfAxisId } from "$lib/shared/constants"
+    
 
     export let thingBaseWidgetModel: ThingBaseWidgetModel
     export let graph: Graph
@@ -22,33 +24,52 @@
     $: thingSize = graph.graphWidgetStyle.thingSize + planePadding * planeId + encapsulatingPadding * encapsulatingDepth
     $: thingWidth = thingSize * xYElongation.x
     $: thingHeight = encapsulatingDepth >= 0 ? thingSize * xYElongation.y : thingSize * xYElongation.y / cohortSize - 2
+
+
+    let hoveredThingIdStoreValue: number | null = null
+    hoveredThingIdStore.subscribe(value => {hoveredThingIdStoreValue = value})
+
+    // Calculate color of Relationship image.
+    const halfAxisId = thingBaseWidgetModel.halfAxisId
+    const relationshipColor = relationshipColorByHalfAxisId[halfAxisId]
 </script>
 
 
-<main class="thing-spacer-widget">
+<div
+    class="thing-spacer-widget"
+>
     <div
         class="box"
-        style="width: {thingWidth}px; height: {thingHeight}px;"
+        style="
+            {
+                thingBaseWidgetModel.thingId === hoveredThingIdStoreValue ?
+                    `border: solid 1px ${relationshipColor}; border-style: dashed; ` :
+                    ""
+            }
+            border-radius: {10 + 4 * encapsulatingDepth}px;
+            width: {thingWidth}px; height: {thingHeight}px;
+        "
+        on:mouseenter={()=>{hoveredThingIdStore.set(thingBaseWidgetModel.thingId)}}
+        on:mouseleave={()=>{hoveredThingIdStore.set(null)}}
     >
         <!--SPACER FOR THING {thingBaseWidgetModel.thingId}-->
     </div>
-</main>
+</div>
 
 
 <style>
-    .thing-spacer-widget {
-        pointer-events: none;
-    }
-
     .box {
-        border: solid 1px green;
         outline-offset: -1px;
 
         box-sizing: border-box;
         width: 50px;
         height: 50px;
+        opacity: 0.75;
+
         padding: 1rem;
         font-size: 0.35rem;
         font-weight: 400;
+
+        pointer-events: auto;
     }
 </style>

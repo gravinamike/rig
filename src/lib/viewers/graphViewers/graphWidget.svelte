@@ -18,6 +18,11 @@
     export let graph: Graph
     export let rePerspectToThingId: (thingId: number) => Promise<void>
 
+    
+    // Set up reactively derived attributes of Graph.
+    $: graphWidgetStyle = graph.graphWidgetStyle
+    $: graphWidgetStyle.betweenThingSpacing = 0.01 * graphWidgetStyle.thingSpacingPercent * graphWidgetStyle.thingSize
+    $: graphWidgetStyle.betweenThingGap = Math.max(0, graphWidgetStyle.betweenThingSpacing)
 
     let graphWidget: Element
     let centralAnchor: Element
@@ -202,7 +207,7 @@
     .graph-widget {
         width: 100%;
         height: 100%;
-        background-color: whitesmoke;
+        background-color: #eef8ff;
 
         overflow: hidden;
         

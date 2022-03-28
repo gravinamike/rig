@@ -11,7 +11,8 @@
     export let graph: Graph
     export let rePerspectToThingId: (thingId: number) => Promise<void>
 
-    $: betweenThingGap = Math.max(0, 0.01 * graph.graphWidgetStyle.thingSpacingPercent * graph.graphWidgetStyle.thingSize)
+    //
+    $: betweenThingGap = graph.graphWidgetStyle.betweenThingGap
     
 
     // Calculate x and y offsets and z-index relative to parent Thing Widget.
@@ -23,8 +24,8 @@
     $: offsets = [7, 8].includes(halfAxisId) ?
         [0, 0] :
         [
-            graph.graphWidgetStyle.offsetLength * offsetSigns[0] + graph.planeOffsets[0] * planeId,
-            graph.graphWidgetStyle.offsetLength * offsetSigns[1] + graph.planeOffsets[1] * planeId
+            graph.graphWidgetStyle.relationDistance * offsetSigns[0] + graph.planeOffsets[0] * planeId,
+            graph.graphWidgetStyle.relationDistance * offsetSigns[1] + graph.planeOffsets[1] * planeId
         ]
     $: zIndex = (generationId * 2) * offsetSigns[2]
 

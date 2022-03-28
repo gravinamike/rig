@@ -49,10 +49,32 @@ export class Cohort {
         return this.address.parentThingWidgetModel?.parentCohort || null
     }
 
+    get parentThingId(): number | null {
+        return this.address.parentThingWidgetModel?.thingId || null
+    }
+
     indexOfMember(member: GenerationMember): number | null {
         const index = this.members.indexOf(member)
         const output = index !== -1 ? index : null
         return output
+    }
+
+    get indexOfGrandparentThing(): number | null {
+        const grandparentThingId = this.parentCohort()?.address.parentThingWidgetModel?.thingId || null
+    
+        let indexOfGrandparentThing = grandparentThingId !== null ? 
+            this.members.findIndex( member => member.thingId === grandparentThingId )
+            : null
+
+        if (indexOfGrandparentThing === -1) indexOfGrandparentThing = null
+
+        return indexOfGrandparentThing
+    }
+
+    rowOrColumn(): "row" | "column" {
+        return this.address.halfAxisId !== null && [3, 4, 5, 6, 7, 8].includes(this.address.halfAxisId) ?
+            "column" :
+            "row"
     }
 
     addMember(member: GenerationMember): void {

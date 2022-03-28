@@ -2,6 +2,7 @@
     // Graph construct imports.
     import type { Graph } from "$lib/models/graphModels"
     import type { ThingWidgetModel } from "$lib/models/widgetModels"
+import { defaultGraphWidgetStyle } from "$lib/shared/constants";
 
     // Graph widget imports.
     import { ThingWidget, ThingFormWidget, RelationshipsWidget, CohortWidget } from "$lib/widgets/graphWidgets"
@@ -14,8 +15,8 @@
     // Cohort-related variables.
     $: space = thingWidgetModel.space
     $: cohorts = thingWidgetModel.childCohorts
-    $: betweenThingGap = 0.01 * graph.graphWidgetStyle.thingSpacingPercent * graph.graphWidgetStyle.thingSize
-    $: overlap = -Math.min(0, betweenThingGap / 2)
+    $: betweenThingSpacing = graph.graphWidgetStyle.betweenThingSpacing
+    $: overlap = -Math.min(0, betweenThingSpacing / 2)
 
     // Note-related variables.
     $: note = thingWidgetModel.note

@@ -25,9 +25,11 @@ export type GraphConstruct = Direction | Space | Thing | Relationship
 export interface GraphWidgetStyle {
     zoom: number,
     zoomPadding: number,
-    offsetLength: number,
+    relationDistance: number,
     thingSize: number,
     thingSpacingPercent: number,
+    betweenThingSpacing: number,
+    betweenThingGap: number,
     relationshipTextSize: number,
     thingTextSize: number,
 }
@@ -73,9 +75,11 @@ export const cartesianHalfAxisIds = [1, 2, 3, 4] as const
 export const defaultGraphWidgetStyle: GraphWidgetStyle = {
     zoom: 0,
     zoomPadding: 50,
-    offsetLength: 250,
+    relationDistance: 250,
     thingSize: 100,
     thingSpacingPercent: 10,
+    betweenThingSpacing: 0, // Reactively calculated.
+    betweenThingGap: 0, // Reactively calculated.
     relationshipTextSize: 16,
     thingTextSize: 12
 }

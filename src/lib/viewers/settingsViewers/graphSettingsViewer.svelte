@@ -38,7 +38,7 @@
 
     <SettingWidget
         labelText={"Relation offset length"}
-        bind:boundValue={graph.graphWidgetStyle.offsetLength}
+        bind:boundValue={graph.graphWidgetStyle.relationDistance}
         maxValue={1000}
         onChangeFunction={updateGraphFormat}
     />

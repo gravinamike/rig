@@ -88,8 +88,8 @@
     style="
         border-radius: {10 + 4 * encapsulatingDepth}px;
         {isHoveredThing ? 
-            `box-shadow: 5px 5px 10px 10px ${hexToRgba(shadowColor, 0.10)};` :
-            `box-shadow: 5px 5px 10px 2px ${hexToRgba(shadowColor, 0.10)};`
+            `box-shadow: 5px 5px 10px 10px ${hexToRgba(shadowColor, 0.15)};` :
+            `box-shadow: 5px 5px 10px 2px ${hexToRgba(shadowColor, 0.15)};`
         }
         width: {thingWidth}px; height: {thingHeight}px; opacity: {opacity};
         pointer-events: {distanceFromFocalPlane === 0 ? "auto" : "none"};
@@ -147,6 +147,7 @@
 <style>
     .box {
         outline: solid 0.25px lightgrey;
+        outline-offset: -0.25px;
 
         box-sizing: border-box;
         height: max-content;

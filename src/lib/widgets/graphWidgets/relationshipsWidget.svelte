@@ -1,13 +1,29 @@
 <script context="module" lang="ts">
+    // Type imports.
+    import type { Direction, Space } from "$lib/models/dbModels"
+    import type { Graph, GenerationMember, Cohort } from "$lib/models/graphModels"
+
+    // Stores imports.
+    import { hoveredThingIdStore } from "$lib/stores"
+
+    // Basic UI imports.
     import { tweened } from "svelte/motion"
 	import { cubicOut } from "svelte/easing"
-    import type { Graph, Cohort, GenerationMember } from "$lib/models/graphModels"
-    import type { Direction, Space } from "$lib/models/dbModels"
 
-    import { rotationByHalfAxisId, mirroringByHalfAxisId, relationshipColorByHalfAxisId, offsetsByHalfAxisId, zoomBase } from "$lib/shared/constants"
-    import { retrieveGraphConstructs } from "$lib/stores/graphStores"
-    import { ThingWidgetModel } from "$lib/models/widgetModels"
+    // Constant and utility imports.
+    import {
+        rotationByHalfAxisId, mirroringByHalfAxisId, offsetsByHalfAxisId,
+        relationshipColorByHalfAxisId,
+        zoomBase
+    } from "$lib/shared/constants"
     import { sleep } from "$lib/shared/utility"
+    import { getCohortMembersWithIndices, rectOfThingWidgetByThingId } from "./utility"
+
+    // Stores imports.
+    import { retrieveGraphConstructs } from "$lib/stores/graphStores"
+
+    // Model imports.
+    import { ThingWidgetModel } from "$lib/models/widgetModels"
 </script>
 
 <script lang="ts">
@@ -15,120 +31,226 @@
     export let space: Space
     export let graph: Graph
 
+
+
+    let hoveredThingIdStoreValue: number | null = null
+    hoveredThingIdStore.subscribe(value => {hoveredThingIdStoreValue = value})
+    let relationshipHovered = false
+    let thingIdOfHoveredRelationship: number | null = null
+
+    /* Basic Widget information. */
+    
+    // Information related to the Relationships Widget's place in the Graph.
+    const parentThingWidgetModel = cohort.address.parentThingWidgetModel as ThingWidgetModel
+    const generationId = cohort.address?.generationId || 0
+    const halfAxisId = cohort.address && cohort.address.halfAxisId ? cohort.address.halfAxisId : 0
+    
+
+    // Graph-scale-related variables.
     $: scale = zoomBase ** graph.graphWidgetStyle.zoom
     let tweenedScale = tweened(1, {duration: 100, easing: cubicOut})
     $: tweenedScale.set(scale)
 
-    $: offsetLength = graph.graphWidgetStyle.offsetLength
+    // Information related to Direction.
+    const directionId = space.directionIdByHalfAxisId[halfAxisId] as number
+    const direction = retrieveGraphConstructs("Direction", directionId) as Direction
+    $: showDirection = parentThingWidgetModel.address.generationId === 0 || relationshipHovered ?
+        true :
+        false
+
+
+
+    /* Variables related to whole-Widget geometry. */
+
+    // Variables related to the geometry of Graph construct widgets.
+    $: relationDistance = graph.graphWidgetStyle.relationDistance // The center-to-center distance between two related Things.
     $: thingSize = graph.graphWidgetStyle.thingSize
-    $: betweenThingGap = 0.01 * graph.graphWidgetStyle.thingSpacingPercent * graph.graphWidgetStyle.thingSize
 
-    $: edgeToEdgeDimension = offsetLength - thingSize * cohort.axialElongation
 
-    let cohortMembersWithIndices: { index: number, member: GenerationMember }[] = []
-    function updateCohortMembersWithIndices(members: GenerationMember[]) {
-        cohortMembersWithIndices = []
-        members.forEach(
-            (member, index) => cohortMembersWithIndices.push({ index: index, member: member })
-        )
-    }
-    $: updateCohortMembersWithIndices(cohort.members)
+
     
-    $: childrenDimension = Math.max(cohort.members.length, 1) * thingSize + (cohort.members.length - 1) * betweenThingGap
+    $: cohortSize = parentThingWidgetModel.cohortSize
+    $: xYElongation = parentThingWidgetModel.xYElongation
+    $: encapsulatingDepth = parentThingWidgetModel.encapsulatingDepth
+    $: thingWidth = thingSize * xYElongation.x
+    $: thingHeight = encapsulatingDepth >= 0 ? thingSize * xYElongation.y : thingSize * xYElongation.y / cohortSize - 2
 
-    // Calculate x and y offsets and z-index relative to parent Thing Widget.
-    const generationId = cohort.address?.generationId || 0
-    const halfAxisId = cohort.address && cohort.address.halfAxisId ? cohort.address.halfAxisId : 0
+
+
+
+    $: betweenThingSpacing = graph.graphWidgetStyle.betweenThingSpacing
+
+    // Variables related to the x, y, and z position of this Relationships Widget (relative to parent Thing Widget).
     const offsetSigns = offsetsByHalfAxisId[halfAxisId]
-    $: offsets = [ 0.5 * offsetLength * offsetSigns[0], 0.5 * offsetLength * offsetSigns[1] ]
-    $: zIndex = (generationId * 2 - 1) * offsetSigns[2]
-
-    // Calculate width and height.
-    $: widgetHeight = [1, 2].includes(halfAxisId) ? edgeToEdgeDimension : childrenDimension
-    $: widgetWidth = [3, 4].includes(halfAxisId) ? edgeToEdgeDimension : childrenDimension
-    $: imageHeight = edgeToEdgeDimension
-    $: imageWidth = childrenDimension
-
-
-
-
-
-    $: rowOrColumn = [3, 4, 5, 6, 7, 8].includes(halfAxisId) ? "column" : "row"
-
-    $: grandparentThingId = cohort.parentCohort()?.address.parentThingWidgetModel?.thingId || null
-    $: indexOfGrandparentThing = grandparentThingId !== null ? 
-        cohort.members.findIndex( member => member.thingId === grandparentThingId )
-        : null
-    $: offsetToGrandparentThing = indexOfGrandparentThing !== null && indexOfGrandparentThing !== -1 ?
-        ((cohort.members.length - 1)/2 - indexOfGrandparentThing) * (thingSize + betweenThingGap) :
-        0
-    $: offsetToGrandparentThingX = rowOrColumn === "row" ? offsetToGrandparentThing : 0
-    $: offsetToGrandparentThingY = rowOrColumn === "column" ? offsetToGrandparentThing : 0
-
+    $: xOffset = 0.5 * relationDistance * offsetSigns[0]
+    $: yOffset = 0.5 * relationDistance * offsetSigns[1]
+    const zIndex = (generationId * 2 - 1) * offsetSigns[2]
     
+    // Variables related to the widths and heights of this Relationships Widget.
+    $: relationshipsWidth = Math.max(cohort.members.length, 1) * ([1, 2].includes(halfAxisId) ? thingWidth : thingHeight) + (cohort.members.length - 1) * betweenThingSpacing // The width across all the Relationships in the widget.
+    $: relationshipsLength = relationDistance - ([1, 2].includes(halfAxisId) ? thingHeight : thingWidth) * cohort.axialElongation // The edge-to-edge distance between two related Things.
+    $: widgetWidth = [1, 2].includes(halfAxisId) ? relationshipsWidth : relationshipsLength
+    $: widgetHeight = [1, 2].includes(halfAxisId) ? relationshipsLength : relationshipsWidth
 
-
-
-
-    function rectOfThingWidgetByThingId(thingId: number): DOMRect | null {//////////// Move to graph?
-        const thingWidget = document.getElementById(`graph#${graph.id}-thing#${thingId}`)
-        return thingWidget ? thingWidget.getBoundingClientRect() : null
-    }
-
-    
-    $: parentThingId = cohort.address.parentThingWidgetModel?.thingId || null
-    let parentDomRect: DOMRect | null
-    $: {
-        $tweenedScale
-        parentDomRect = parentThingId ?
-            rectOfThingWidgetByThingId(parentThingId) :
-            null
-    }
-    $: cohortDomRects = cohortMembersWithIndices.map(
-        memberWithIndex => memberWithIndex.member.thingId ?
-            rectOfThingWidgetByThingId(memberWithIndex.member.thingId) :
-            null
-    )
-
-    function leafOffsetByIndex(index: number): number {
-        const parentRectX = parentDomRect ? parentDomRect.x : 0
-        const relatedRect = cohortDomRects[index]
-        const relatedRectX = relatedRect ? relatedRect.x : 0
-        const offsetLength = (relatedRectX - parentRectX) / $tweenedScale
-        const offsetSignForHalfAxis = [3, 4].includes(halfAxisId) ? -offsetSigns[0] : -offsetSigns[1]
-        return offsetLength * offsetSignForHalfAxis
-    }
-    ///////////////////////////////////////// HAVE TO USE Y COORD, AND HAVE TO ADD/SUBTRACT BASED ON ROTATION.
-    ///////////////////////////////////////// THEN COLOR THE AXES TO DISTINGUISH THEM.
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // Calculate Relationship image dimensions.
-    $: midline = childrenDimension * 0.5 - offsetToGrandparentThing
-    $: leavesMidlines = cohortMembersWithIndices.map(
-        memberWithIndex => memberWithIndex.member.kind === "thingBaseWidgetModel" ? 
-        //(memberWithIndex) => true ? /////////////////////////////// Use this conditional to distinguish the Relationships to Things that already exist in the Graph.
-            thingSize * 0.5 + leafOffsetByIndex(memberWithIndex.index) :
-            thingSize * 0.5 + (thingSize + betweenThingGap) * memberWithIndex.index
-    )
-    $: stemBottom = edgeToEdgeDimension
-    $: stemTop = edgeToEdgeDimension * 2/3
-    $: leavesBottom = edgeToEdgeDimension * 1/3
-    $: leavesTop = 0
-
-    // Calculate rotation and mirroring of Relationship image.
+    // Variables related to rotation and mirroring of Relationship image.
     const rotation = rotationByHalfAxisId[halfAxisId]
     const mirroring = mirroringByHalfAxisId[halfAxisId]
+
+
+    /* Variables related to the geometries of the Widget's parts. */
+
+    // X and Y offsets to grandparent Thing.
+    // This means the distance from left and top edge of the Relationships Widget to the midline of the
+    // Thing Widget that would duplicate, or "double back", the grandparent Thing.
+    // If the grandparent Thing is not in the related Cohort, the offsets are 0.
+    $: offsetToGrandparentThing = cohort.indexOfGrandparentThing !== null ?
+        ((cohort.members.length - 1)/2 - cohort.indexOfGrandparentThing) * (([1, 2].includes(halfAxisId) ? thingWidth : thingHeight) + betweenThingSpacing) :
+        0
+    $: xOffsetToGrandparentThing = cohort.rowOrColumn() === "row" ? offsetToGrandparentThing : 0
+    $: yOffsetToGrandparentThing = cohort.rowOrColumn() === "column" ? offsetToGrandparentThing : 0
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // Construct a list of the related Things along with their indices.
+    $: cohortMembersWithIndices = getCohortMembersWithIndices(cohort.members)
+
+
+    function leafOffsetsByIndex(member: GenerationMember): {x: number, y: number} {
+        // Get location of parent Thing Widget.
+        const parentDomRect = rectOfThingWidgetByThingId(graph.id, cohort.parentThingId as number)
+        const parentRectX = parentDomRect === null ? 0 : parentDomRect.x
+        const parentRectY = parentDomRect === null ? 0 : parentDomRect.y
+
+        // Get posisition of related Thing Widget.
+        const relatedRect = rectOfThingWidgetByThingId(graph.id, member.thingId as number)
+        const relatedRectX = relatedRect === null ? 0 : relatedRect.x
+        const relatedRectY = relatedRect === null ? 0 : relatedRect.y
+
+        // Get the offset (the difference between the two).
+        const offsetLengthX = (relatedRectX - parentRectX) / $tweenedScale
+        const offsetLengthY = (relatedRectY - parentRectY) / $tweenedScale
+        
+        return {x: offsetLengthX, y: offsetLengthY}
+    }
+
+
+
+    $: midline = relationshipsWidth * 0.5 - offsetToGrandparentThing
+    $: stemBottom = relationshipsLength
+    $: stemTop = relationshipsLength * 2/3
+
+
+    let leavesBottoms: number[]
+    $: {
+        $tweenedScale
+        leavesBottoms = cohortMembersWithIndices.map(
+            memberWithIndex => memberWithIndex.member.kind === "thingBaseWidgetModel" ?
+
+                relationshipsLength + (([1, 2].includes(halfAxisId) ? thingHeight : thingWidth) * 0.5) + (
+                    [1, 2].includes(halfAxisId) ?
+                        leafOffsetsByIndex(memberWithIndex.member).y :
+                        leafOffsetsByIndex(memberWithIndex.member).x
+                ) * 0.5 * (
+                    [1, 2].includes(halfAxisId) ?
+                        mirroring :
+                        -mirroring
+                ) :
+
+                relationshipsLength * 1/3
+        )
+    }
+
+
+    let leavesTops: number[]
+    $: {
+        $tweenedScale
+        leavesTops = cohortMembersWithIndices.map(
+            memberWithIndex => memberWithIndex.member.kind === "thingBaseWidgetModel" ?
+                relationshipsLength + (([1, 2].includes(halfAxisId) ? thingHeight : thingWidth) * 0.5) + (
+                    [1, 2].includes(halfAxisId) ?
+                        leafOffsetsByIndex(memberWithIndex.member).y :
+                        leafOffsetsByIndex(memberWithIndex.member).x
+                ) * 0.5 * (
+                    [1, 2].includes(halfAxisId) ?
+                        mirroring :
+                        -mirroring
+                ) :
+                0
+        )
+    }
+
+                
+
+
+
+
+
+
+    let leavesBottomMidlines: number[]
+    $: {
+        $tweenedScale
+        leavesBottomMidlines = cohortMembersWithIndices.map(
+            memberWithIndex => memberWithIndex.member.kind === "thingBaseWidgetModel" ?
+
+                midline + 0.5 * (
+                    [1, 2].includes(halfAxisId) ?   
+                                leafOffsetsByIndex(memberWithIndex.member).x :
+                                leafOffsetsByIndex(memberWithIndex.member).y
+                ) :
+
+                ([1, 2].includes(halfAxisId) ? thingWidth : thingHeight) * 0.5 + (([1, 2].includes(halfAxisId) ? thingWidth : thingHeight) + betweenThingSpacing) * memberWithIndex.index
+        )
+    }
+    
+    let leavesTopMidlines: number[]
+    $: {
+        $tweenedScale
+        leavesTopMidlines = cohortMembersWithIndices.map(
+            memberWithIndex => memberWithIndex.member.kind === "thingBaseWidgetModel" ?
+
+                midline + 0.5 * (
+                    [1, 2].includes(halfAxisId) ?   
+                                leafOffsetsByIndex(memberWithIndex.member).x :
+                                leafOffsetsByIndex(memberWithIndex.member).y
+                ) :
+
+                ([1, 2].includes(halfAxisId) ? thingWidth : thingHeight) * 0.5 + (([1, 2].includes(halfAxisId) ? thingWidth : thingHeight) + betweenThingSpacing) * memberWithIndex.index
+        )
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /* Formatting-related information. */
 
     // Calculate color of Relationship image.
     const relationshipColor = relationshipColorByHalfAxisId[halfAxisId]
@@ -138,11 +260,10 @@
     $: distanceFromFocalPlane = planeId - graph.focalPlaneId
     $: opacity = 1 / (1 + (distanceFromFocalPlane < 0 ? 1 : (distanceFromFocalPlane > 0 ? 2 : 0)) * Math.abs(distanceFromFocalPlane))
 
-    // Retrieve Direction information.
-    const directionId = space.directionIdByHalfAxisId[halfAxisId] as number
-    const direction = retrieveGraphConstructs("Direction", directionId) as Direction
 
-
+    /*
+     * Add a blank Thing Form to the related Cohort.
+     */
     async function addThingForm() {
         const newThingWidgetModel = new ThingWidgetModel(null)
         if (!graph.formActive) {
@@ -154,6 +275,16 @@
         const thingFormTextField = document.getElementById("thing-form-text-field")//// Instead find the ThingForm, and access the field as a property.
         thingFormTextField?.focus()
     }
+
+
+
+
+
+
+
+
+
+
 </script>
 
 
@@ -161,8 +292,8 @@
 <div
     class="relationships-widget"
     style="
-        left: calc({offsets[0]}px + 50% + {offsetToGrandparentThingX}px);
-        top: calc({offsets[1]}px + 50% + {offsetToGrandparentThingY}px);
+        left: calc({xOffset}px + 50% + {xOffsetToGrandparentThing}px);
+        top: calc({yOffset}px + 50% + {yOffsetToGrandparentThing}px);
         z-index: {zIndex};
         width: {widgetWidth}px;
         height: {widgetHeight}px;
@@ -176,7 +307,7 @@
     >
 
         <!-- Direction text. -->
-        {#if !(indexOfGrandparentThing !== null && indexOfGrandparentThing !== -1)}
+        {#if showDirection}
             <div
                 class="direction-text {!cohort.members.length ? "empty" : ""}"
                 style="
@@ -191,12 +322,24 @@
         <!-- Relationship image. -->
         <svg
             class="relationship-image {!cohort.members.length ? "empty" : ""}"
-            style="width: {imageWidth}px; height: {imageHeight}px; stroke: {relationshipColor}; fill: {relationshipColor};"
+            style="
+                width: {relationshipsWidth}px; height: {relationshipsLength}px;
+                stroke: {relationshipColor}; fill: {relationshipColor};
+            "
         >
             <!-- Relationship stem. -->
-            {#if !(indexOfGrandparentThing !== null && indexOfGrandparentThing !== -1)}
+            {#if cohort.indexOfGrandparentThing === null}
                 <g
                     class="relationship-stem"
+                    style="
+                        {
+                            cohort.members.map(member => member.thingId).includes(hoveredThingIdStoreValue) || relationshipHovered ?
+                                "opacity: 0.5;" :
+                                ""
+                        }
+                    "
+                    on:mouseenter={()=>{relationshipHovered = true}}
+                    on:mouseleave={()=>{relationshipHovered = false}}
                     on:click={addThingForm}
                 >
                     <line
@@ -215,27 +358,54 @@
                 </g>
             {/if}
 
-            {#if !(cohort.members.length === 1 && indexOfGrandparentThing !== null && indexOfGrandparentThing !== -1)}<!-- Unless the ONLY descendent in a Half-Axis is a doubled-back parent Thing, -->
+            {#if !(cohort.members.length === 1 && cohort.indexOfGrandparentThing !== null)}<!-- Unless the ONLY descendent in a Half-Axis is a doubled-back parent Thing, -->
                 {#each cohortMembersWithIndices as memberWithIndex}
-                    {#if indexOfGrandparentThing !== memberWithIndex.index}<!-- Don't re-draw the existing Relationship to a parent Thing. -->
-                        <!-- Relationship fan. -->
-                        <line 
-                            class="relationship-fan"
-                            style="
-                                stroke-width: {2 / $tweenedScale};
-                                stroke-dasharray: {1 / $tweenedScale} {5 / $tweenedScale};
-                            "
-                            x1="{midline}" y1="{stemTop}"
-                            x2="{leavesMidlines[memberWithIndex.index]}" y2="{leavesBottom}"
-                        />
+                    {#if cohort.indexOfGrandparentThing !== memberWithIndex.index}<!-- Don't re-draw the existing Relationship to a parent Thing. -->
+                        
+                    
+                        <g
+                            on:mouseenter={()=>{relationshipHovered = true; thingIdOfHoveredRelationship = memberWithIndex.member.thingId}}
+                            on:mouseleave={()=>{relationshipHovered = false; thingIdOfHoveredRelationship = null}}
+                        >    
+                            <!-- Relationship fan segments. -->
+                            <line 
+                                class="relationship-fan-segment"
+                                style="
+                                    stroke-width: {3 / $tweenedScale};
+                                    {
+                                        memberWithIndex.member.thingId === hoveredThingIdStoreValue || memberWithIndex.member.thingId ===  thingIdOfHoveredRelationship ?
+                                            "opacity: 0.1;" :
+                                            ""
+                                    }
+                                "
+                                x1="{midline}" y1="{stemTop}"
+                                x2="{leavesBottomMidlines[memberWithIndex.index]}" y2="{leavesBottoms[memberWithIndex.index]}"
+                            />
 
-                        <!-- Relationship leaves. -->
-                        <line
-                            class="relationship-leaves"
-                            style="stroke-width: {2 / $tweenedScale};"
-                            x1="{leavesMidlines[memberWithIndex.index]}" y1="{leavesBottom}"
-                            x2="{leavesMidlines[memberWithIndex.index]}" y2="{leavesTop}"
-                        />
+                            {#if !(memberWithIndex.member.kind === "thingBaseWidgetModel")}
+                                <!-- Relationship leaves. -->
+                                <line
+                                    class="relationship-leaves"
+                                    style="
+                                        stroke-width: {3 / $tweenedScale};
+                                        {
+                                            memberWithIndex.member.kind === "thingBaseWidgetModel" ?
+                                                `stroke-dasharray: ${1 / $tweenedScale} ${5 / $tweenedScale};` :
+                                                ""
+                                        }
+                                        {
+                                           memberWithIndex.member.thingId === hoveredThingIdStoreValue || memberWithIndex.member.thingId ===  thingIdOfHoveredRelationship ?
+                                                "opacity: 0.5;" :
+                                                ""
+                                        }
+                                    "
+                                    x1="{leavesBottomMidlines[memberWithIndex.index]}" y1="{leavesBottoms[memberWithIndex.index]}"
+                                    x2="{leavesTopMidlines[memberWithIndex.index]}" y2="{leavesTops[memberWithIndex.index]}"
+                                />
+                            {/if}
+                        </g>
+
+
                     {/if}
                 {/each}
             {/if}
@@ -253,15 +423,13 @@
         display: flex;
         justify-content: center;
         align-items: center;
+
+        pointer-events: none;
     }
 
     .relationships-widget:hover {
         border-radius: 5px;
         outline: dashed 1px lightgrey;
-    }
-
-    .relationships-widget:active {
-        pointer-events: none;
     }
 
     .relationships-widget:not(:hover) .empty {
@@ -288,14 +456,14 @@
         position: absolute;
 
         overflow: visible;
-
-        pointer-events: auto;
     }
 
     .relationship-stem {
         opacity: 0.25;
 
         cursor: pointer;
+
+        pointer-events: auto;
     }
 
     .relationship-stem:hover {
@@ -306,11 +474,15 @@
         opacity: 1.0;
     }
 
-    .relationship-fan {
-        opacity: 0.15;
+    .relationship-fan-segment {
+        opacity: 0.02;
+
+        pointer-events: auto;
     }
 
     .relationship-leaves {
         opacity: 0.25;
+
+        pointer-events: auto;
     }
 </style>
