@@ -1,7 +1,7 @@
 <script context="module" lang="ts">
     // Type imports.
-    import type { Direction, Space } from "$lib/models/dbModels"
-    import type { Graph, GenerationMember, Cohort } from "$lib/models/graphModels"
+    import type { Space } from "$lib/models/dbModels"
+    import type { Graph, Cohort } from "$lib/models/graphModels"
 
     // Stores imports.
     import { hoveredThingIdStore } from "$lib/stores"
@@ -11,19 +11,11 @@
 	import { cubicOut } from "svelte/easing"
 
     // Constant and utility imports.
-    import {
-        rotationByHalfAxisId, mirroringByHalfAxisId, offsetsByHalfAxisId,
-        relationshipColorByHalfAxisId,
-        zoomBase
-    } from "$lib/shared/constants"
+    import { mirroringByHalfAxisId, relationshipColorByHalfAxisId, zoomBase } from "$lib/shared/constants"
     import { sleep } from "$lib/shared/utility"
-    import { getCohortMembersWithIndices, rectOfThingWidgetByThingId } from "./utility"
-
-    // Stores imports.
-    import { retrieveGraphConstructs } from "$lib/stores/graphStores"
 
     // Model imports.
-    import { ThingWidgetModel } from "$lib/models/widgetModels"
+    import { ThingWidgetModel, RelationshipsWidgetModel } from "$lib/models/widgetModels"
 </script>
 
 <script lang="ts">
@@ -32,7 +24,10 @@
     export let graph: Graph
 
 
+    const relationshipsWidgetModel = new RelationshipsWidgetModel(cohort, space, graph)
 
+
+    /* Information related to hovered Thing. */
     let hoveredThingIdStoreValue: number | null = null
     hoveredThingIdStore.subscribe(value => {hoveredThingIdStoreValue = value})
     let relationshipHovered = false
@@ -41,9 +36,7 @@
     /* Basic Widget information. */
     
     // Information related to the Relationships Widget's place in the Graph.
-    const parentThingWidgetModel = cohort.address.parentThingWidgetModel as ThingWidgetModel
-    const generationId = cohort.address?.generationId || 0
-    const halfAxisId = cohort.address && cohort.address.halfAxisId ? cohort.address.halfAxisId : 0
+    const halfAxisId = relationshipsWidgetModel.halfAxisId
     
 
     // Graph-scale-related variables.
@@ -52,11 +45,16 @@
     $: tweenedScale.set(scale)
 
     // Information related to Direction.
-    const directionId = space.directionIdByHalfAxisId[halfAxisId] as number
-    const direction = retrieveGraphConstructs("Direction", directionId) as Direction
-    $: showDirection = parentThingWidgetModel.address.generationId === 0 || relationshipHovered ?
+    const directionId = relationshipsWidgetModel.directionId
+    const direction = relationshipsWidgetModel.direction
+    $: showDirection = relationshipsWidgetModel.parentThingWidgetModel.address.generationId === 0 || relationshipHovered ?
         true :
         false
+
+
+    // Calculate color and opacity of Relationship image.
+    const relationshipColor = relationshipColorByHalfAxisId[halfAxisId]
+    $: opacity = relationshipsWidgetModel.opacity
 
 
 
@@ -64,208 +62,91 @@
 
     // Variables related to the geometry of Graph construct widgets.
     $: relationDistance = graph.graphWidgetStyle.relationDistance // The center-to-center distance between two related Things.
-    $: thingSize = graph.graphWidgetStyle.thingSize
-
-
-
-    
-    $: cohortSize = parentThingWidgetModel.cohortSize
-    $: xYElongation = parentThingWidgetModel.xYElongation
-    $: encapsulatingDepth = parentThingWidgetModel.encapsulatingDepth
-    $: thingWidth = thingSize * xYElongation.x
-    $: thingHeight = encapsulatingDepth >= 0 ? thingSize * xYElongation.y : thingSize * xYElongation.y / cohortSize - 2
-
-
-
-
+    $: thingWidth = relationshipsWidgetModel.parentThingWidgetModel.thingWidth
+    $: thingHeight = relationshipsWidgetModel.parentThingWidgetModel.thingHeight
     $: betweenThingSpacing = graph.graphWidgetStyle.betweenThingSpacing
 
     // Variables related to the x, y, and z position of this Relationships Widget (relative to parent Thing Widget).
-    const offsetSigns = offsetsByHalfAxisId[halfAxisId]
-    $: xOffset = 0.5 * relationDistance * offsetSigns[0]
-    $: yOffset = 0.5 * relationDistance * offsetSigns[1]
-    const zIndex = (generationId * 2 - 1) * offsetSigns[2]
-    
-    // Variables related to the widths and heights of this Relationships Widget.
-    $: relationshipsWidth = Math.max(cohort.members.length, 1) * ([1, 2].includes(halfAxisId) ? thingWidth : thingHeight) + (cohort.members.length - 1) * betweenThingSpacing // The width across all the Relationships in the widget.
-    $: relationshipsLength = relationDistance - ([1, 2].includes(halfAxisId) ? thingHeight : thingWidth) * cohort.axialElongation // The edge-to-edge distance between two related Things.
-    $: widgetWidth = [1, 2].includes(halfAxisId) ? relationshipsWidth : relationshipsLength
-    $: widgetHeight = [1, 2].includes(halfAxisId) ? relationshipsLength : relationshipsWidth
+    let xOffset: number
+    let yOffset: number
+    $: {
+        relationDistance
+        xOffset = relationshipsWidgetModel.xOffset
+        yOffset = relationshipsWidgetModel.yOffset
+    }
+    const zIndex = relationshipsWidgetModel.zIndex
 
     // Variables related to rotation and mirroring of Relationship image.
-    const rotation = rotationByHalfAxisId[halfAxisId]
+    const rotation = relationshipsWidgetModel.rotation
     const mirroring = mirroringByHalfAxisId[halfAxisId]
-
-
-    /* Variables related to the geometries of the Widget's parts. */
-
-    // X and Y offsets to grandparent Thing.
-    // This means the distance from left and top edge of the Relationships Widget to the midline of the
-    // Thing Widget that would duplicate, or "double back", the grandparent Thing.
-    // If the grandparent Thing is not in the related Cohort, the offsets are 0.
-    $: offsetToGrandparentThing = cohort.indexOfGrandparentThing !== null ?
-        ((cohort.members.length - 1)/2 - cohort.indexOfGrandparentThing) * (([1, 2].includes(halfAxisId) ? thingWidth : thingHeight) + betweenThingSpacing) :
-        0
-    $: xOffsetToGrandparentThing = cohort.rowOrColumn() === "row" ? offsetToGrandparentThing : 0
-    $: yOffsetToGrandparentThing = cohort.rowOrColumn() === "column" ? offsetToGrandparentThing : 0
-
     
 
+    // Variables related to the widths and heights of this Relationships Widget.
+    let relationshipsWidth: number
+    let relationshipsLength: number
+    let widgetWidth: number
+    let widgetHeight: number
+    /* Variables related to the geometries of the Widget's parts. */
+    let xOffsetToGrandparentThing: number
+    let yOffsetToGrandparentThing: number
+    let midline: number
+    let stemBottom: number
+    let stemTop: number
+    let leavesGeometries: { bottom: number, top: number, bottomMidline: number, topMidline: number }[]
+    $: {
+        relationDistance
+        thingWidth
+        thingHeight
+        betweenThingSpacing
+        $tweenedScale
 
-
-
-
-
-
-
-
-
-
-
-
+        relationshipsWidth = relationshipsWidgetModel.relationshipsWidth
+        relationshipsLength = relationshipsWidgetModel.relationshipsLength
+        widgetWidth = relationshipsWidgetModel.widgetWidth
+        widgetHeight = relationshipsWidgetModel.widgetHeight
+        xOffsetToGrandparentThing = relationshipsWidgetModel.xOffsetToGrandparentThing
+        yOffsetToGrandparentThing = relationshipsWidgetModel.yOffsetToGrandparentThing
+        midline = relationshipsWidgetModel.midline
+        stemBottom = relationshipsWidgetModel.stemBottom
+        stemTop = relationshipsWidgetModel.stemTop
+        leavesGeometries = relationshipsWidgetModel.leavesGeometries($tweenedScale)
+    }
 
 
     // Construct a list of the related Things along with their indices.
-    $: cohortMembersWithIndices = getCohortMembersWithIndices(cohort.members)
-
-
-    function leafOffsetsByIndex(member: GenerationMember): {x: number, y: number} {
-        // Get location of parent Thing Widget.
-        const parentDomRect = rectOfThingWidgetByThingId(graph.id, cohort.parentThingId as number)
-        const parentRectX = parentDomRect === null ? 0 : parentDomRect.x
-        const parentRectY = parentDomRect === null ? 0 : parentDomRect.y
-
-        // Get posisition of related Thing Widget.
-        const relatedRect = rectOfThingWidgetByThingId(graph.id, member.thingId as number)
-        const relatedRectX = relatedRect === null ? 0 : relatedRect.x
-        const relatedRectY = relatedRect === null ? 0 : relatedRect.y
-
-        // Get the offset (the difference between the two).
-        const offsetLengthX = (relatedRectX - parentRectX) / $tweenedScale
-        const offsetLengthY = (relatedRectY - parentRectY) / $tweenedScale
-        
-        return {x: offsetLengthX, y: offsetLengthY}
-    }
-
-
-
-    $: midline = relationshipsWidth * 0.5 - offsetToGrandparentThing
-    $: stemBottom = relationshipsLength
-    $: stemTop = relationshipsLength * 2/3
-
-
-    let leavesBottoms: number[]
-    $: {
-        $tweenedScale
-        leavesBottoms = cohortMembersWithIndices.map(
-            memberWithIndex => memberWithIndex.member.kind === "thingBaseWidgetModel" ?
-
-                relationshipsLength + (([1, 2].includes(halfAxisId) ? thingHeight : thingWidth) * 0.5) + (
-                    [1, 2].includes(halfAxisId) ?
-                        leafOffsetsByIndex(memberWithIndex.member).y :
-                        leafOffsetsByIndex(memberWithIndex.member).x
-                ) * 0.5 * (
-                    [1, 2].includes(halfAxisId) ?
-                        mirroring :
-                        -mirroring
-                ) :
-
-                relationshipsLength * 1/3
-        )
-    }
-
-
-    let leavesTops: number[]
-    $: {
-        $tweenedScale
-        leavesTops = cohortMembersWithIndices.map(
-            memberWithIndex => memberWithIndex.member.kind === "thingBaseWidgetModel" ?
-                relationshipsLength + (([1, 2].includes(halfAxisId) ? thingHeight : thingWidth) * 0.5) + (
-                    [1, 2].includes(halfAxisId) ?
-                        leafOffsetsByIndex(memberWithIndex.member).y :
-                        leafOffsetsByIndex(memberWithIndex.member).x
-                ) * 0.5 * (
-                    [1, 2].includes(halfAxisId) ?
-                        mirroring :
-                        -mirroring
-                ) :
-                0
-        )
-    }
-
-                
+    $: cohortMembersWithIndices = relationshipsWidgetModel.cohortMembersWithIndices
 
 
 
 
 
 
-    let leavesBottomMidlines: number[]
-    $: {
-        $tweenedScale
-        leavesBottomMidlines = cohortMembersWithIndices.map(
-            memberWithIndex => memberWithIndex.member.kind === "thingBaseWidgetModel" ?
 
-                midline + 0.5 * (
-                    [1, 2].includes(halfAxisId) ?   
-                                leafOffsetsByIndex(memberWithIndex.member).x :
-                                leafOffsetsByIndex(memberWithIndex.member).y
-                ) :
 
-                ([1, 2].includes(halfAxisId) ? thingWidth : thingHeight) * 0.5 + (([1, 2].includes(halfAxisId) ? thingWidth : thingHeight) + betweenThingSpacing) * memberWithIndex.index
-        )
-    }
+
+
+
+
+
+
+
+
+
+
+
+
+
     
-    let leavesTopMidlines: number[]
-    $: {
-        $tweenedScale
-        leavesTopMidlines = cohortMembersWithIndices.map(
-            memberWithIndex => memberWithIndex.member.kind === "thingBaseWidgetModel" ?
-
-                midline + 0.5 * (
-                    [1, 2].includes(halfAxisId) ?   
-                                leafOffsetsByIndex(memberWithIndex.member).x :
-                                leafOffsetsByIndex(memberWithIndex.member).y
-                ) :
-
-                ([1, 2].includes(halfAxisId) ? thingWidth : thingHeight) * 0.5 + (([1, 2].includes(halfAxisId) ? thingWidth : thingHeight) + betweenThingSpacing) * memberWithIndex.index
-        )
-    }
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    /* Formatting-related information. */
-
-    // Calculate color of Relationship image.
-    const relationshipColor = relationshipColorByHalfAxisId[halfAxisId]
-
-    // Calculate opacity.
-    $: planeId = cohort?.plane?.id || 0
-    $: distanceFromFocalPlane = planeId - graph.focalPlaneId
-    $: opacity = 1 / (1 + (distanceFromFocalPlane < 0 ? 1 : (distanceFromFocalPlane > 0 ? 2 : 0)) * Math.abs(distanceFromFocalPlane))
 
 
     /*
      * Add a blank Thing Form to the related Cohort.
      */
     async function addThingForm() {
-        const newThingWidgetModel = new ThingWidgetModel(null)
+        const newThingWidgetModel = new ThingWidgetModel(null, graph)
         if (!graph.formActive) {
             cohort.addMember(newThingWidgetModel)
             graph.formActive = true
@@ -275,16 +156,6 @@
         const thingFormTextField = document.getElementById("thing-form-text-field")//// Instead find the ThingForm, and access the field as a property.
         thingFormTextField?.focus()
     }
-
-
-
-
-
-
-
-
-
-
 </script>
 
 
@@ -362,7 +233,6 @@
                 {#each cohortMembersWithIndices as memberWithIndex}
                     {#if cohort.indexOfGrandparentThing !== memberWithIndex.index}<!-- Don't re-draw the existing Relationship to a parent Thing. -->
                         
-                    
                         <g
                             on:mouseenter={()=>{relationshipHovered = true; thingIdOfHoveredRelationship = memberWithIndex.member.thingId}}
                             on:mouseleave={()=>{relationshipHovered = false; thingIdOfHoveredRelationship = null}}
@@ -379,7 +249,7 @@
                                     }
                                 "
                                 x1="{midline}" y1="{stemTop}"
-                                x2="{leavesBottomMidlines[memberWithIndex.index]}" y2="{leavesBottoms[memberWithIndex.index]}"
+                                x2="{leavesGeometries[memberWithIndex.index].bottomMidline}" y2="{leavesGeometries[memberWithIndex.index].bottom}"
                             />
 
                             {#if !(memberWithIndex.member.kind === "thingBaseWidgetModel")}
@@ -399,8 +269,8 @@
                                                 ""
                                         }
                                     "
-                                    x1="{leavesBottomMidlines[memberWithIndex.index]}" y1="{leavesBottoms[memberWithIndex.index]}"
-                                    x2="{leavesTopMidlines[memberWithIndex.index]}" y2="{leavesTops[memberWithIndex.index]}"
+                                    x1="{leavesGeometries[memberWithIndex.index].bottomMidline}" y1="{leavesGeometries[memberWithIndex.index].bottom}"
+                                    x2="{leavesGeometries[memberWithIndex.index].topMidline}" y2="{leavesGeometries[memberWithIndex.index].top}"
                                 />
                             {/if}
                         </g>
@@ -475,7 +345,7 @@
     }
 
     .relationship-fan-segment {
-        opacity: 0.02;
+        opacity: 0.05;
 
         pointer-events: auto;
     }

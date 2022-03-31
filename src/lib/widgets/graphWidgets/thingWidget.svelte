@@ -37,15 +37,38 @@
     $: encapsulatingDepth = thingWidgetModel.encapsulatingDepth
     $: encapsulatingPadding = encapsulatingDepth >= 0 ? 40 : 20
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     /* Variables dealing with Thing sizing. */
     $: elongationCategory = thingWidgetModel.elongationCategory
-    $: xYElongation = thingWidgetModel.xYElongation
-
     $: cohortSize = thingWidgetModel.cohortSize
-    $: thingSize = graph.graphWidgetStyle.thingSize + planePadding * planeId + encapsulatingPadding * encapsulatingDepth
-    $: thingWidth = thingSize * xYElongation.x
-    $: thingHeight = encapsulatingDepth >= 0 ? thingSize * xYElongation.y : thingSize * xYElongation.y / cohortSize - 2
+    $: thingWidth = thingWidgetModel.thingWidth
+    $: thingHeight = thingWidgetModel.thingHeight
     
+
+
+
+
+
+
+
+
+
+
+
+
     // Variables dealing with visual formatting (color, opacity, outline, etc.).
     $: opacity = [7, 8].includes(halfAxisId) ?
         1 :

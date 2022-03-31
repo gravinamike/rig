@@ -47,3 +47,8 @@ export function hexToRgba(hex: string, alpha=1.0): string {
     const blue = parseInt(hex.slice(5, 7), 16)
     return `rgba(${red}, ${green}, ${blue}, ${alpha})`
 }
+
+export function rectOfThingWidgetByThingId(graphId: number, thingId: number): DOMRect | null {
+    const thingWidget = document.getElementById(`graph#${graphId}-thing#${thingId}`)
+    return thingWidget ? thingWidget.getBoundingClientRect() : null
+}

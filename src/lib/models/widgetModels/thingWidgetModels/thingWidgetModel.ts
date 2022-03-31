@@ -1,6 +1,6 @@
 import type { HalfAxisId } from "$lib/shared/constants"
 import type { Note } from "$lib/models/dbModels"
-import type { Cohort } from "$lib/models/graphModels"
+import type { Graph, Cohort } from "$lib/models/graphModels"
 
 import { ThingBaseWidgetModel } from "./"
 
@@ -12,8 +12,8 @@ import { ThingBaseWidgetModel } from "./"
 export class ThingWidgetModel extends ThingBaseWidgetModel {
     kind = "thingWidgetModel" as const
 
-    constructor(thingId: number | null) {
-        super(thingId)
+    constructor(thingId: number | null, graph: Graph) {
+        super(thingId, graph)
     }
 
     get thingWidgetId(): string {
