@@ -25,9 +25,11 @@ export type GraphConstruct = Direction | Space | Thing | Relationship
 export interface GraphWidgetStyle {
     zoom: number,
     zoomPadding: number,
-    offsetLength: number,
+    relationDistance: number,
     thingSize: number,
     thingSpacingPercent: number,
+    betweenThingSpacing: number,
+    betweenThingGap: number,
     relationshipTextSize: number,
     thingTextSize: number,
 }
@@ -63,6 +65,7 @@ export const planePadding = 20
  */
 export type HalfAxisId = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
 export const halfAxisIds = [1, 2, 3, 4, 5, 6, 7, 8] as const
+export const halfAxisOppositeIds = {1: 2, 2: 1, 3: 4, 4: 3, 5: 6, 6: 5, 7: 8, 8: 7} as const
 export const oddHalfAxisIds = [1, 3, 5, 7] as const
 export const cartesianHalfAxisIds = [1, 2, 3, 4] as const
 
@@ -73,10 +76,12 @@ export const cartesianHalfAxisIds = [1, 2, 3, 4] as const
 export const defaultGraphWidgetStyle: GraphWidgetStyle = {
     zoom: 0,
     zoomPadding: 50,
-    offsetLength: 250,
+    relationDistance: 250,
     thingSize: 100,
     thingSpacingPercent: 10,
-    relationshipTextSize: 18,
+    betweenThingSpacing: 0, // Reactively calculated.
+    betweenThingGap: 0, // Reactively calculated.
+    relationshipTextSize: 16,
     thingTextSize: 12
 }
 
@@ -86,15 +91,47 @@ export const defaultGraphWidgetStyle: GraphWidgetStyle = {
  * should be rotated based on its Half Axis.
  */
 export const rotationByHalfAxisId = {
-    0: 0,  //Center
-    1: 180,// Down
+    0: 0,  // Center
+    1: 0,  // Down
     2: 0,  // Up
     3: 90, // Right
-    4: 270,// Left
+    4: 90, // Left
     5: 0,  // Away
     6: 0,  // Towards
     7: 0,  // Inwards
     8: 0,  // Outwards
+} as const
+
+/*
+ * Mirrorings specify how a Relationships Widget should (or
+ * should not) be mirrored based on its Half Axis.
+ */
+export const mirroringByHalfAxisId = {
+    0: 1,  // Center
+    1: -1, // Down
+    2: 1,  // Up
+    3: 1,  // Right
+    4: -1, // Left
+    5: 1,  // Away
+    6: 1,  // Towards
+    7: 1,  // Inwards
+    8: 1,  // Outwards
+} as const
+
+/*
+ * Relationship colors specify how Relationship Images should
+ * be colored based on their Half Axes.
+ */
+export const relationshipColorByHalfAxisId = {
+    0: "#000000", //Center
+    1: "#ff3f3f", // Down
+    2: "#bf0000", // Up
+    3: "#40bf00", // Right
+    4: "#407f00", // Left
+    5: "#000000", // Away
+    6: "#000000", // Towards
+    7: "#000000", // Inwards
+    8: "#000000", // Outwards
 } as const
 
 
@@ -102,7 +139,7 @@ export const rotationByHalfAxisId = {
  * Offset signs specify how a Cohort Widget is rendered
  * relative to its parent:
  * The first number describes the x-axis (with right being positive).
- * The second number describes the x-axis (with down being positive).
+ * The second number describes the y-axis (with down being positive).
  * The third number describes the z-index (with front being positive).
  * The fourth number describes the change in "encapsulation" level
  * (with the "outwards" direction being a positive increment).

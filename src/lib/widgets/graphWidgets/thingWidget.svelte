@@ -7,8 +7,10 @@
     /* Widget imports. */
     import { pinIdsStore, hoveredThingIdStore, openContextCommandPalette, addPin, removePin } from "$lib/stores"
     import { ThingDetailsWidget } from "$lib/widgets/detailsWidgets"
-    import { planePadding } from "$lib/shared/constants"
+    import { relationshipColorByHalfAxisId } from "$lib/shared/constants"
     import { XButton, ConfirmDeleteBox } from "$lib/widgets/layoutWidgets"
+
+    import { hexToRgba } from "$lib/shared/utility"
 
 
     export let thingWidgetModel: ThingWidgetModel
@@ -16,7 +18,7 @@
     export let rePerspectToThingId: (id: number) => Promise<void>
 
     
-    const showContent = true
+    const showContent = false
     let confirmDeleteBoxOpen = false
 
     /* Basic Thing IDs and models. */
@@ -33,17 +35,39 @@
     // If the Half-Axis is "Outwards, or the Thing has "Inwards" children, it is encapsulating.
     $: isEncapsulating = thingWidgetModel.isEncapsulating
     $: encapsulatingDepth = thingWidgetModel.encapsulatingDepth
-    $: encapsulatingPadding = encapsulatingDepth >= 0 ? 40 : 20
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     /* Variables dealing with Thing sizing. */
     $: elongationCategory = thingWidgetModel.elongationCategory
-    $: xYElongation = thingWidgetModel.xYElongation
-
     $: cohortSize = thingWidgetModel.cohortSize
-    $: thingSize = graph.graphWidgetStyle.thingSize + planePadding * planeId + encapsulatingPadding * encapsulatingDepth
-    $: thingWidth = thingSize * xYElongation.x
-    $: thingHeight = encapsulatingDepth >= 0 ? thingSize * xYElongation.y : thingSize * xYElongation.y / cohortSize - 2
+    $: thingWidth = thingWidgetModel.thingWidth
+    $: thingHeight = thingWidgetModel.thingHeight
     
+
+
+
+
+
+
+
+
+
+
+
+
     // Variables dealing with visual formatting (color, opacity, outline, etc.).
     $: opacity = [7, 8].includes(halfAxisId) ?
         1 :
@@ -52,6 +76,7 @@
     hoveredThingIdStore.subscribe(value => {hoveredThingIdStoreValue = value})
     $: isHoveredThing = thingId === hoveredThingIdStoreValue
     let isHoveredWidget = false
+    $: shadowColor = relationshipColorByHalfAxisId[halfAxisId]
 
     // Variables dealing with text formatting.
     let textFontSize = encapsulatingDepth >= 0 ?
@@ -84,6 +109,10 @@
     class="box thing-widget { isHoveredThing ? "hovered-thing" : "" }"
     style="
         border-radius: {10 + 4 * encapsulatingDepth}px;
+        {isHoveredThing ? 
+            `box-shadow: 5px 5px 10px 10px ${hexToRgba(shadowColor, 0.15)};` :
+            `box-shadow: 5px 5px 10px 2px ${hexToRgba(shadowColor, 0.15)};`
+        }
         width: {thingWidth}px; height: {thingHeight}px; opacity: {opacity};
         pointer-events: {distanceFromFocalPlane === 0 ? "auto" : "none"};
     "
@@ -139,7 +168,8 @@
 
 <style>
     .box {
-        box-shadow: 5px 5px 10px 2px lightgray;
+        outline: solid 0.25px lightgrey;
+        outline-offset: -0.25px;
 
         box-sizing: border-box;
         height: max-content;
@@ -150,12 +180,8 @@
 
     .thing-widget {
         position: relative;
-    }
 
-    .thing-widget:hover {
-        box-shadow: 5px 5px 10px 10px lightgray;
-
-        z-index: 1;
+        pointer-events: auto;
     }
 
     .hovered-thing {

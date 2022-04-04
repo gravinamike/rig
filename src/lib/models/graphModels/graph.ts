@@ -1,11 +1,12 @@
 import type { GraphWidgetStyle } from "$lib/shared/constants"
 import type { Thing } from "$lib/models/dbModels"
 
-import { defaultGraphWidgetStyle, cartesianHalfAxisIds } from "$lib/shared/constants"
+import { defaultGraphWidgetStyle } from "$lib/shared/constants"
 import { storeGraphConstructs, graphConstructInStore, retrieveGraphConstructs, unstoreGraphConstructs } from "$lib/stores"
 import { Generation, Cohort, Plane } from "$lib/models/graphModels"
-import { ThingWidgetModel, ThingPlaceholderWidgetModel } from "$lib/models/widgetModels"
+import { ThingBaseWidgetModel, ThingWidgetModel, ThingPlaceholderWidgetModel } from "$lib/models/widgetModels"
 import { deleteThing } from "$lib/db/clientSide/makeChanges"
+import { unique } from "$lib/shared/utility"
 
 
 /** Class representing a Graph. */
@@ -15,6 +16,7 @@ export class Graph {
     _depth: number
     rootCohort: Cohort | null = null
     generations: Generation[] = []
+    relationshipsOnlyGeneration: Generation | null = null
     planes: { [planeId: number]: Plane } = {}
     planeOffsets = [0, 0]
     focalPlaneId = 0
@@ -126,6 +128,11 @@ export class Graph {
         // seedThingWidgetModels list based on depth deltas.
     }
 
+    get thingIdsAlreadyInGraph(): number[] {
+        return this.thingWidgetModels.map(model => model.thingId)
+            .filter(thingId => thingId) as number[]
+    }
+
     /**
      * Get the ID of the next Generation to be stripped.
      * @return {number} - The ID of the next Generation to be stripped.
@@ -148,7 +155,7 @@ export class Graph {
         // For generations >1, start from the IDs of the last generation's Relation Things.
         const thingIdsAndNullsForGenerationId = generationId === 0 ?
             this._pThingIds :
-            this.seedThingWidgetModels.map(thingWidgetModel => thingWidgetModel.relatedThingIds).flat()
+            unique(this.seedThingWidgetModels.map(thingWidgetModel => thingWidgetModel.relatedThingIds).flat())
         const thingIdsForGenerationId = thingIdsAndNullsForGenerationId.filter(id => !!id) as number[]
         return thingIdsForGenerationId
     }
@@ -163,6 +170,7 @@ export class Graph {
         // Set (or reset) build attributes to their starting values.
         this.rootCohort = null
         this.generations = []
+        this.relationshipsOnlyGeneration = null
         this.planes = {}
         this.focalPlaneId = 0
         this.formActive = false
@@ -187,73 +195,63 @@ export class Graph {
             }
             difference = this.generations.length - (this._depth + 1)
         }
+        this.buildRelationshipsOnlyGeneration()
     }
 
     /**
      * Build a new Generation onto the Graph.
      */
-     async buildGeneration(): Promise<void> {
+    async buildGeneration(): Promise<void> {
         // Store Things for new Generation.
         await this.storeNextGenerationThings()
 
+        // Create a Thing Widget (or placeholder) Model for each Thing ID in the new Generation.
         const membersForGeneration = this.thingIdsForGenerationId(this.generationIdToBuild).map(
-            id => { return graphConstructInStore("Thing", id) ? new ThingWidgetModel(id) : new ThingPlaceholderWidgetModel(id) }
+            id => {return (
+                this.thingIdsAlreadyInGraph.includes(id) ? new ThingBaseWidgetModel(id, this) : // If the Thing is already modeled in the Graph, return a spacer model.
+                graphConstructInStore("Thing", id) ? new ThingWidgetModel(id, this) :      // Else, if the Thing is in the Thing store, create a new model for that Thing ID.
+                new ThingPlaceholderWidgetModel(id)                                        // Otherwise, create a placeholder.
+            )}
         )
 
         // Add the new, empty Generation.
-        const newGeneration = new Generation(this)
+        const newGeneration = new Generation(this, this.generationIdToBuild)
         this.generations.push(newGeneration)
 
-        // For Generation 0, add the Things to a pre-Graph "root" Cohort that will
-        // serve as the starting point of the Graph.
-        if (this.generationIdToBuild === 0) {
-            const addressForCohort = {
-                graph: this,
-                generationId: this.generationIdToBuild,
-                parentThingWidgetModel: null,
-                halfAxisId: null
-            }
-            this.rootCohort = new Cohort(addressForCohort, membersForGeneration)
-            this.addCohortToPlane(this.rootCohort, 0)
-
-        // For all Generations after 0, hook up that Generation's members, packaged in
-        // Cohorts, to the parent Thing Widget Models of the previous Generation.
-        } else {
-
-            // For each Thing (not Placeholder) in the previous Generation,
-            for (const prevThingWidgetModel of newGeneration.parentGeneration?.thingWidgetModels() || []) {
-                
-                // For the ID of each half-axis from that Thing (plus any empty "Cartesian" half-axes - 1, 2, 3, 4),
-                const halfAxisIdsForCohorts = [...new Set([
-                    ...prevThingWidgetModel.relatedThingHalfAxisIds,
-                    ...cartesianHalfAxisIds])
-                ]
-                for (const halfAxisId of halfAxisIdsForCohorts) {
-                    // Get the address for that half axis' Cohort.
-                    const addressForCohort = {
-                        graph: this,
-                        generationId: this.generationIdToBuild,
-                        parentThingWidgetModel: prevThingWidgetModel,
-                        halfAxisId: halfAxisId
-                    }
-
-                    // Get list of the Things in that half axis' Cohort.
-                    const childCohortThingIds = prevThingWidgetModel.relatedThingIdsByHalfAxisId(halfAxisId)
-                    // Add the members from this Generation matching those IDs as a new Cohort on that half-axis.
-                    const membersForCohort = childCohortThingIds.length ?
-                        membersForGeneration.filter((member) => {if (member.thingId && childCohortThingIds.includes(member.thingId)) return true}) :
-                        []
-                    const childCohort = new Cohort(addressForCohort, membersForCohort)
-
-                    // Populate the Cohort for the previous Generation's Thing in that Direction from that list.
-                    prevThingWidgetModel.childCohort(halfAxisId, childCohort)
-                }
-            }
-        }
-
-        // Mark the Generation as built.
-        newGeneration.lifecycleStatus = "built"
+        // Build the Generation.
+        newGeneration.build(membersForGeneration)
     }
+
+
+
+
+
+    
+     async buildRelationshipsOnlyGeneration(): Promise<void> {
+        const generationIdToBuild = this.generations.length
+
+        const membersForGeneration = this.thingIdsForGenerationId(generationIdToBuild)
+            .filter(id => this.thingIdsAlreadyInGraph.includes(id))
+            .map(id => new ThingBaseWidgetModel(id, this))
+
+        // Add the new, empty Generation as the Relationships-only Generation.
+        const newGeneration = new Generation(this, generationIdToBuild)
+        this.relationshipsOnlyGeneration = newGeneration
+
+        // Build the Generation.
+        newGeneration.build(membersForGeneration)
+    }
+
+
+
+
+
+
+
+
+
+
+
 
     /**
      * Add the Things required for the next Generation to the application's Thing Store.

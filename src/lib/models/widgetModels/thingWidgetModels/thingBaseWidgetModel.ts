@@ -1,9 +1,10 @@
 import type { HalfAxisId } from "$lib/shared/constants"
 import type { Space, Thing } from "$lib/models/dbModels"
-import type { Cohort } from "$lib/models/graphModels"
+import type { Graph, Cohort } from "$lib/models/graphModels"
 import type { ThingAddress, ThingWidgetModel } from "./"
+import type { RelationshipsWidgetModel } from "$lib/models/widgetModels/relationshipsWidgetModel"
 
-import { oddHalfAxisIds } from "$lib/shared/constants"
+import { oddHalfAxisIds, planePadding } from "$lib/shared/constants"
 import { graphConstructInStore, retrieveGraphConstructs } from "$lib/stores"
 
 
@@ -12,13 +13,16 @@ export class ThingBaseWidgetModel {
 
     thingId: number | null
     thing: Thing | null
+    graph: Graph
     _parentCohort: Cohort | null = null
     childCohortsByHalfAxisId: { [directionId: number]: Cohort } = {}
+    relationshipsWidgetModelsByHalfAxisId: { [directionId: number]: RelationshipsWidgetModel } = {}
     inheritSpace = true // For now.
 
-    constructor(thingId: number | null) {
+    constructor(thingId: number | null, graph: Graph) {
         this.thingId = thingId
         this.thing = typeof thingId === "number" ? retrieveGraphConstructs("Thing", thingId) : null
+        this.graph = graph
     }
 
     get parentCohort(): Cohort {
@@ -58,7 +62,7 @@ export class ThingBaseWidgetModel {
         return parentThingWidgetModel
     }
 
-    get halfAxisId(): number {
+    get halfAxisId(): HalfAxisId | 0 {
         return this.parentCohort.address.halfAxisId || 0
     }
 
@@ -157,4 +161,52 @@ export class ThingBaseWidgetModel {
     get cohortSize(): number {
         return this.parentCohort.members.length || 1
     }
+
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+    get encapsulatingPadding(): number {
+        return this.encapsulatingDepth >= 0 ? 40 : 20
+    }
+
+
+    get thingSize(): number {
+        return (
+            this.graph.graphWidgetStyle.thingSize
+            + planePadding * this.planeId
+            + this.encapsulatingPadding * this.encapsulatingDepth
+        )
+    } 
+
+    get thingWidth(): number {
+        return this.thingSize * this.xYElongation.x
+    }
+
+    get thingHeight(): number {
+        return this.encapsulatingDepth >= 0 ?
+            this.thingSize * this.xYElongation.y :
+            this.thingSize * this.xYElongation.y / this.cohortSize - 2
+    }
+
+
+
+
+
+
+
+
+
+
+
 }

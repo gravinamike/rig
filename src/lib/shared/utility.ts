@@ -36,3 +36,19 @@ export function elementGroupEdges(elementGroup: Element[]): {top: number, right:
 export function sleep(time: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, time))
 }
+
+export function unique<Type>(array: Type[]): Type[] {
+    return [...new Set(array)]
+}
+
+export function hexToRgba(hex: string, alpha=1.0): string {
+    const red = parseInt(hex.slice(1, 3), 16)
+    const green = parseInt(hex.slice(3, 5), 16)
+    const blue = parseInt(hex.slice(5, 7), 16)
+    return `rgba(${red}, ${green}, ${blue}, ${alpha})`
+}
+
+export function rectOfThingWidgetByThingId(graphId: number, thingId: number): DOMRect | null {
+    const thingWidget = document.getElementById(`graph#${graphId}-thing#${thingId}`)
+    return thingWidget ? thingWidget.getBoundingClientRect() : null
+}

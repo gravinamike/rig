@@ -1,8 +1,12 @@
-import type { Graph, Cohort } from "$lib/models/graphModels"
-import type { ThingBaseWidgetModel, ThingWidgetModel, ThingPlaceholderWidgetModel } from "$lib/models/widgetModels"
+import type { Graph } from "$lib/models/graphModels"
+import type { ThingBaseWidgetModel, ThingWidgetModel } from "$lib/models/widgetModels"
+
+import { cartesianHalfAxisIds } from "$lib/shared/constants"
+import { Cohort } from "$lib/models/graphModels"
+import { RelationshipsWidgetModel } from "../widgetModels/relationshipsWidgetModel"
 
 
-export type GenerationMember = ThingBaseWidgetModel | ThingWidgetModel | ThingPlaceholderWidgetModel
+export type GenerationMember = ThingBaseWidgetModel | ThingWidgetModel
 
 export class Generation {
     kind = "generation"
@@ -12,9 +16,9 @@ export class Generation {
     cohorts: Cohort[] = []
     lifecycleStatus: "new" | "building" | "built" | "stripping" | "stripped" = "new"
 
-    constructor(graph: Graph) {
+    constructor(graph: Graph, generationIdToBuild: number) {
         this.graph = graph
-        this.id = graph.generationIdToBuild
+        this.id = generationIdToBuild
     }
 
     get parentGeneration(): Generation | null {
@@ -43,4 +47,75 @@ export class Generation {
         const thingWidgetModels = this.members.filter(member => member.kind === "thingWidgetModel") as ThingWidgetModel[]
         return thingWidgetModels
     }
+
+    
+
+
+
+    async build(membersForGeneration: GenerationMember[]): Promise<void> {
+
+        // For Generation 0, add the Things to a pre-Graph "root" Cohort that will
+        // serve as the starting point of the Graph.
+        if (this.id === 0) {
+            const addressForCohort = {
+                graph: this.graph,
+                generationId: this.id,
+                parentThingWidgetModel: null,
+                halfAxisId: null
+            }
+            this.graph.rootCohort = new Cohort(addressForCohort, membersForGeneration)
+            this.graph.addCohortToPlane(this.graph.rootCohort, 0)
+
+        // For all Generations after 0, hook up that Generation's members, packaged in
+        // Cohorts, to the parent Thing Widget Models of the previous Generation.
+        } else {
+
+            // For each Thing (not Placeholder) in the previous Generation,
+            for (const prevThingWidgetModel of this.parentGeneration?.thingWidgetModels() || []) {
+                
+                // For the ID of each half-axis from that Thing (plus any empty "Cartesian" half-axes - 1, 2, 3, 4),
+                const halfAxisIdsForCohorts = [...new Set([
+                    ...prevThingWidgetModel.relatedThingHalfAxisIds,
+                    ...cartesianHalfAxisIds])
+                ]
+                for (const halfAxisId of halfAxisIdsForCohorts) {
+                    // Get the address for that half axis' Cohort.
+                    const addressForCohort = {
+                        graph: this.graph,
+                        generationId: this.id,
+                        parentThingWidgetModel: prevThingWidgetModel,
+                        halfAxisId: halfAxisId
+                    }
+
+                    // Get list of the Things in that half axis' Cohort.
+                    const childCohortThingIds = prevThingWidgetModel.relatedThingIdsByHalfAxisId(halfAxisId)
+                    // Add the members from this Generation matching those IDs as a new Cohort on that Half-Axis.
+                    const membersForCohort = childCohortThingIds.length ?
+                        membersForGeneration.filter((member) => {if (member.thingId && childCohortThingIds.includes(member.thingId)) return true}) :
+                        []
+                    const childCohort = new Cohort(addressForCohort, membersForCohort)
+
+                    // Populate the Cohort for the previous Generation's Thing in that Direction from that list.
+                    prevThingWidgetModel.childCohort(halfAxisId, childCohort)
+
+
+
+
+
+                    // Create a new Relationships Widget Model.
+                    const relationshipsWidgetModel = new RelationshipsWidgetModel(childCohort, prevThingWidgetModel.space, this.graph)
+
+                    // Set that as the Relationships Widget Model for the previous Generation's Thing in that Direction.
+                    prevThingWidgetModel.relationshipsWidgetModel(halfAxisId, relationshipsWidgetModel)
+
+
+                }
+            }
+        }
+
+        // Mark the Generation as built.
+        this.lifecycleStatus = "built"
+
+    }
+    
 }
