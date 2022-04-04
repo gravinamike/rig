@@ -7,7 +7,7 @@
     /* Widget imports. */
     import { pinIdsStore, hoveredThingIdStore, openContextCommandPalette, addPin, removePin } from "$lib/stores"
     import { ThingDetailsWidget } from "$lib/widgets/detailsWidgets"
-    import { planePadding, relationshipColorByHalfAxisId } from "$lib/shared/constants"
+    import { relationshipColorByHalfAxisId } from "$lib/shared/constants"
     import { XButton, ConfirmDeleteBox } from "$lib/widgets/layoutWidgets"
 
     import { hexToRgba } from "$lib/shared/utility"
@@ -18,7 +18,7 @@
     export let rePerspectToThingId: (id: number) => Promise<void>
 
     
-    const showContent = true
+    const showContent = false
     let confirmDeleteBoxOpen = false
 
     /* Basic Thing IDs and models. */
@@ -35,7 +35,6 @@
     // If the Half-Axis is "Outwards, or the Thing has "Inwards" children, it is encapsulating.
     $: isEncapsulating = thingWidgetModel.isEncapsulating
     $: encapsulatingDepth = thingWidgetModel.encapsulatingDepth
-    $: encapsulatingPadding = encapsulatingDepth >= 0 ? 40 : 20
 
 
 
@@ -183,10 +182,6 @@
         position: relative;
 
         pointer-events: auto;
-    }
-
-    .thing-widget:hover {
-        z-index: 1;
     }
 
     .hovered-thing {

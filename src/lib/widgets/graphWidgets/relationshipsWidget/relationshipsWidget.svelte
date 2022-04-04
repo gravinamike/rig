@@ -2,6 +2,7 @@
     // Type imports.
     import type { Space } from "$lib/models/dbModels"
     import type { Graph, Cohort } from "$lib/models/graphModels"
+    import type { RelationshipsWidgetModel } from "$lib/models/widgetModels"
 
     // Stores imports.
     import { hoveredThingIdStore } from "$lib/stores"
@@ -12,26 +13,25 @@
 
     // Constant and utility imports.
     import { mirroringByHalfAxisId, relationshipColorByHalfAxisId, zoomBase } from "$lib/shared/constants"
-    import { sleep } from "$lib/shared/utility"
 
-    // Model imports.
-    import { ThingWidgetModel, RelationshipsWidgetModel } from "$lib/models/widgetModels"
+    // Widget imports.
+    import RelationshipStemWidget from "./relationshipStemWidget.svelte"
+    import RelationshipFanSegmentWidget from "./relationshipFanSegmentWidget.svelte"
+    import RelationshipLeafWidget from "./relationshipLeafWidget.svelte"
 </script>
 
 <script lang="ts">
-    export let cohort: Cohort
-    export let space: Space
-    export let graph: Graph
+    export let relationshipsWidgetModel: RelationshipsWidgetModel
 
 
-    const relationshipsWidgetModel = new RelationshipsWidgetModel(cohort, space, graph)
+    $: cohort = relationshipsWidgetModel.cohort
+    $: graph = relationshipsWidgetModel.graph
 
-
-    /* Information related to hovered Thing. */
+    /* Information related to hovering. */
     let hoveredThingIdStoreValue: number | null = null
     hoveredThingIdStore.subscribe(value => {hoveredThingIdStoreValue = value})
-    let relationshipHovered = false
     let thingIdOfHoveredRelationship: number | null = null
+    let stemHovered = false
 
     /* Basic Widget information. */
     
@@ -45,9 +45,8 @@
     $: tweenedScale.set(scale)
 
     // Information related to Direction.
-    const directionId = relationshipsWidgetModel.directionId
     const direction = relationshipsWidgetModel.direction
-    $: showDirection = relationshipsWidgetModel.parentThingWidgetModel.address.generationId === 0 || relationshipHovered ?
+    $: showDirection = relationshipsWidgetModel.parentThingWidgetModel.address.generationId === 0 || stemHovered ?
         true :
         false
 
@@ -115,47 +114,6 @@
 
     // Construct a list of the related Things along with their indices.
     $: cohortMembersWithIndices = relationshipsWidgetModel.cohortMembersWithIndices
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
-
-    /*
-     * Add a blank Thing Form to the related Cohort.
-     */
-    async function addThingForm() {
-        const newThingWidgetModel = new ThingWidgetModel(null, graph)
-        if (!graph.formActive) {
-            cohort.addMember(newThingWidgetModel)
-            graph.formActive = true
-        }
-        graph = graph
-        await sleep(50)// Allow the Thing Form Widget to render.
-        const thingFormTextField = document.getElementById("thing-form-text-field")//// Instead find the ThingForm, and access the field as a property.
-        thingFormTextField?.focus()
-    }
 </script>
 
 
@@ -192,7 +150,7 @@
 
         <!-- Relationship image. -->
         <svg
-            class="relationship-image {!cohort.members.length ? "empty" : ""}"
+            class="relationship-image"
             style="
                 width: {relationshipsWidth}px; height: {relationshipsLength}px;
                 stroke: {relationshipColor}; fill: {relationshipColor};
@@ -200,80 +158,42 @@
         >
             <!-- Relationship stem. -->
             {#if cohort.indexOfGrandparentThing === null}
-                <g
-                    class="relationship-stem"
-                    style="
-                        {
-                            cohort.members.map(member => member.thingId).includes(hoveredThingIdStoreValue) || relationshipHovered ?
-                                "opacity: 0.5;" :
-                                ""
-                        }
-                    "
-                    on:mouseenter={()=>{relationshipHovered = true}}
-                    on:mouseleave={()=>{relationshipHovered = false}}
-                    on:click={addThingForm}
-                >
-                    <line
-                        x1="{midline}" y1="{stemBottom}"
-                        x2="{midline}" y2="{stemTop + 6 / $tweenedScale}"
-                        style="stroke-width: {10 / $tweenedScale};"
-                    />
-                    <polygon
-                        points="
-                            {midline - 5 / $tweenedScale}, {stemTop + 8 / $tweenedScale}
-                            {midline + 5 / $tweenedScale}, {stemTop + 8 / $tweenedScale}
-                            {midline}, {stemTop}
-                        "
-                        style="stroke-width: {3 / $tweenedScale};"
-                    />
-                </g>
+                <RelationshipStemWidget
+                    {relationshipsWidgetModel}
+                    {hoveredThingIdStoreValue}
+                    {thingIdOfHoveredRelationship}
+                    bind:stemHovered
+                    tweenedScale={$tweenedScale}
+                    {midline}
+                    {stemBottom}
+                    {stemTop}
+                />
             {/if}
 
             {#if !(cohort.members.length === 1 && cohort.indexOfGrandparentThing !== null)}<!-- Unless the ONLY descendent in a Half-Axis is a doubled-back parent Thing, -->
                 {#each cohortMembersWithIndices as memberWithIndex}
                     {#if cohort.indexOfGrandparentThing !== memberWithIndex.index}<!-- Don't re-draw the existing Relationship to a parent Thing. -->
                         
-                        <g
-                            on:mouseenter={()=>{relationshipHovered = true; thingIdOfHoveredRelationship = memberWithIndex.member.thingId}}
-                            on:mouseleave={()=>{relationshipHovered = false; thingIdOfHoveredRelationship = null}}
-                        >    
-                            <!-- Relationship fan segments. -->
-                            <line 
-                                class="relationship-fan-segment"
-                                style="
-                                    stroke-width: {3 / $tweenedScale};
-                                    {
-                                        memberWithIndex.member.thingId === hoveredThingIdStoreValue || memberWithIndex.member.thingId ===  thingIdOfHoveredRelationship ?
-                                            "opacity: 0.1;" :
-                                            ""
-                                    }
-                                "
-                                x1="{midline}" y1="{stemTop}"
-                                x2="{leavesGeometries[memberWithIndex.index].bottomMidline}" y2="{leavesGeometries[memberWithIndex.index].bottom}"
-                            />
+                        <RelationshipFanSegmentWidget
+                            {hoveredThingIdStoreValue}
+                            bind:thingIdOfHoveredRelationship
+                            tweenedScale={$tweenedScale}
+                            {midline}
+                            {stemTop}
+                            {leavesGeometries}
+                            cohortMemberWithIndex={memberWithIndex}
+                        />
 
-                            {#if !(memberWithIndex.member.kind === "thingBaseWidgetModel")}
-                                <!-- Relationship leaves. -->
-                                <line
-                                    class="relationship-leaves"
-                                    style="
-                                        stroke-width: {3 / $tweenedScale};
-                                        {
-                                            memberWithIndex.member.kind === "thingBaseWidgetModel" ?
-                                                `stroke-dasharray: ${1 / $tweenedScale} ${5 / $tweenedScale};` :
-                                                ""
-                                        }
-                                        {
-                                           memberWithIndex.member.thingId === hoveredThingIdStoreValue || memberWithIndex.member.thingId ===  thingIdOfHoveredRelationship ?
-                                                "opacity: 0.5;" :
-                                                ""
-                                        }
-                                    "
-                                    x1="{leavesGeometries[memberWithIndex.index].bottomMidline}" y1="{leavesGeometries[memberWithIndex.index].bottom}"
-                                    x2="{leavesGeometries[memberWithIndex.index].topMidline}" y2="{leavesGeometries[memberWithIndex.index].top}"
-                                />
-                            {/if}
-                        </g>
+                         
+                        {#if !(memberWithIndex.member.kind === "thingBaseWidgetModel")}
+                            <RelationshipLeafWidget
+                                {hoveredThingIdStoreValue}
+                                bind:thingIdOfHoveredRelationship
+                                tweenedScale={$tweenedScale}
+                                {leavesGeometries}
+                                cohortMemberWithIndex={memberWithIndex}
+                            />
+                        {/if}
 
 
                     {/if}
@@ -289,21 +209,11 @@
     .relationships-widget {
         position: absolute;
         transform: translate(-50%, -50%);
+        z-index: -1;
 
         display: flex;
         justify-content: center;
         align-items: center;
-
-        pointer-events: none;
-    }
-
-    .relationships-widget:hover {
-        border-radius: 5px;
-        outline: dashed 1px lightgrey;
-    }
-
-    .relationships-widget:not(:hover) .empty {
-        visibility: hidden;
     }
 
     .rotator {
@@ -326,33 +236,5 @@
         position: absolute;
 
         overflow: visible;
-    }
-
-    .relationship-stem {
-        opacity: 0.25;
-
-        cursor: pointer;
-
-        pointer-events: auto;
-    }
-
-    .relationship-stem:hover {
-        opacity: 0.5;
-    }
-
-    .relationship-stem:active {
-        opacity: 1.0;
-    }
-
-    .relationship-fan-segment {
-        opacity: 0.05;
-
-        pointer-events: auto;
-    }
-
-    .relationship-leaves {
-        opacity: 0.25;
-
-        pointer-events: auto;
     }
 </style>

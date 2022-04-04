@@ -2,10 +2,12 @@
     import { hoveredThingIdStore } from "$lib/stores"
     import type { ThingBaseWidgetModel } from "$lib/models/widgetModels"
     import type { Graph } from "$lib/models/graphModels"
+    import type { HalfAxisId } from "$lib/shared/constants"
     import { planePadding, relationshipColorByHalfAxisId } from "$lib/shared/constants"
     
 
     export let thingBaseWidgetModel: ThingBaseWidgetModel
+    export let cohortHalfAxisId: HalfAxisId | 0
     export let graph: Graph
 
 
@@ -32,6 +34,29 @@
     // Calculate color of Relationship image.
     const halfAxisId = thingBaseWidgetModel.halfAxisId
     const relationshipColor = relationshipColorByHalfAxisId[halfAxisId]
+
+
+
+    $: betweenThingSpacing = graph.graphWidgetStyle.betweenThingSpacing
+    $: overlap = -Math.min(0, betweenThingSpacing / 2)
+
+    let overlapMarginStyleText: string
+    const rowOrColumn = [1, 2].includes(cohortHalfAxisId) ? "row" : "column"
+    $: if (thingBaseWidgetModel.parentCohort.members.length === 1) {
+        overlapMarginStyleText = ""
+    } else if (thingBaseWidgetModel.address.indexInCohort === 0) {
+        overlapMarginStyleText = rowOrColumn === "row" ?
+            `margin-right: ${-overlap}px;` :
+            `margin-bottom: ${-overlap}px;`
+    } else if (thingBaseWidgetModel.address.indexInCohort === thingBaseWidgetModel.parentCohort.members.length - 1) {
+        overlapMarginStyleText = rowOrColumn === "row" ?
+            `margin-left: ${-overlap}px;` :
+            `margin-top: ${-overlap}px;`
+    } else {
+        overlapMarginStyleText = rowOrColumn === "row" ?
+            `margin-left: ${-overlap}px; margin-right: ${-overlap}px;` :
+            `margin-top: ${-overlap}px; margin-bottom: ${-overlap}px;`
+    }
 </script>
 
 
@@ -41,6 +66,7 @@
     <div
         class="box"
         style="
+            {overlapMarginStyleText}
             {
                 thingBaseWidgetModel.thingId === hoveredThingIdStoreValue ?
                     `border: solid 1px ${relationshipColor}; border-style: dashed; ` :

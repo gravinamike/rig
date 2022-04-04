@@ -1,7 +1,7 @@
 import type { GraphWidgetStyle } from "$lib/shared/constants"
 import type { Thing } from "$lib/models/dbModels"
 
-import { defaultGraphWidgetStyle, cartesianHalfAxisIds } from "$lib/shared/constants"
+import { defaultGraphWidgetStyle } from "$lib/shared/constants"
 import { storeGraphConstructs, graphConstructInStore, retrieveGraphConstructs, unstoreGraphConstructs } from "$lib/stores"
 import { Generation, Cohort, Plane } from "$lib/models/graphModels"
 import { ThingBaseWidgetModel, ThingWidgetModel, ThingPlaceholderWidgetModel } from "$lib/models/widgetModels"
@@ -220,7 +220,6 @@ export class Graph {
 
         // Build the Generation.
         newGeneration.build(membersForGeneration)
-        console.log("NEW GENERATION", newGeneration)
     }
 
 

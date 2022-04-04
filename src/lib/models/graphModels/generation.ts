@@ -3,6 +3,7 @@ import type { ThingBaseWidgetModel, ThingWidgetModel } from "$lib/models/widgetM
 
 import { cartesianHalfAxisIds } from "$lib/shared/constants"
 import { Cohort } from "$lib/models/graphModels"
+import { RelationshipsWidgetModel } from "../widgetModels/relationshipsWidgetModel"
 
 
 export type GenerationMember = ThingBaseWidgetModel | ThingWidgetModel
@@ -96,6 +97,18 @@ export class Generation {
 
                     // Populate the Cohort for the previous Generation's Thing in that Direction from that list.
                     prevThingWidgetModel.childCohort(halfAxisId, childCohort)
+
+
+
+
+
+                    // Create a new Relationships Widget Model.
+                    const relationshipsWidgetModel = new RelationshipsWidgetModel(childCohort, prevThingWidgetModel.space, this.graph)
+
+                    // Set that as the Relationships Widget Model for the previous Generation's Thing in that Direction.
+                    prevThingWidgetModel.relationshipsWidgetModel(halfAxisId, relationshipsWidgetModel)
+
+
                 }
             }
         }

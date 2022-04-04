@@ -2,6 +2,7 @@ import type { HalfAxisId } from "$lib/shared/constants"
 import type { Space, Thing } from "$lib/models/dbModels"
 import type { Graph, Cohort } from "$lib/models/graphModels"
 import type { ThingAddress, ThingWidgetModel } from "./"
+import type { RelationshipsWidgetModel } from "$lib/models/widgetModels/relationshipsWidgetModel"
 
 import { oddHalfAxisIds, planePadding } from "$lib/shared/constants"
 import { graphConstructInStore, retrieveGraphConstructs } from "$lib/stores"
@@ -15,6 +16,7 @@ export class ThingBaseWidgetModel {
     graph: Graph
     _parentCohort: Cohort | null = null
     childCohortsByHalfAxisId: { [directionId: number]: Cohort } = {}
+    relationshipsWidgetModelsByHalfAxisId: { [directionId: number]: RelationshipsWidgetModel } = {}
     inheritSpace = true // For now.
 
     constructor(thingId: number | null, graph: Graph) {

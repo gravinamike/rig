@@ -4,6 +4,7 @@ import type { Graph, GenerationMember, Cohort } from "$lib/models/graphModels"
 import type { ThingWidgetModel } from "./index"
 
 import {
+    halfAxisOppositeIds,
     rotationByHalfAxisId, mirroringByHalfAxisId,
     offsetsByHalfAxisId, relationshipColorByHalfAxisId
 } from "$lib/shared/constants"
@@ -62,9 +63,11 @@ export class RelationshipsWidgetModel {
 
     // The width across all the Relationships in the widget.
     get relationshipsWidth(): number {
-        return Math.max(this.cohort.members.length, 1) * ([1, 2].includes(this.halfAxisId) ?
-            this.parentThingWidgetModel.thingWidth :
-            this.parentThingWidgetModel.thingHeight) + (this.cohort.members.length - 1) * this.graph.graphWidgetStyle.betweenThingSpacing
+        return Math.max(this.cohort.members.length, 1) * (
+            [1, 2].includes(this.halfAxisId) ?
+                this.parentThingWidgetModel.thingWidth :
+                this.parentThingWidgetModel.thingHeight
+        ) + (Math.max(this.cohort.members.length, 1) - 1) * this.graph.graphWidgetStyle.betweenThingSpacing
     }
 
     // The edge-to-edge distance between two related Things.
@@ -82,7 +85,19 @@ export class RelationshipsWidgetModel {
     get widgetHeight(): number {
         return [1, 2].includes(this.halfAxisId) ? this.relationshipsLength : this.relationshipsWidth
     }
-    
+
+
+    get parentRelationshipsWidgetModel(): RelationshipsWidgetModel | null {
+        if (this.parentThingWidgetModel.parentThingWidgetModel !== null) {
+            const grandParentThingWidgetModel = this.parentThingWidgetModel.parentThingWidgetModel
+            const parentThingHalfAxisId = this.parentThingWidgetModel.address.halfAxisId as number
+            const parentRelationshipsWidgetModel = grandParentThingWidgetModel.relationshipsWidgetModel(parentThingHalfAxisId)
+            return parentRelationshipsWidgetModel
+        } else {
+            return null
+        }
+    }
+
 
     /* Variables related to the geometries of the Widget's parts. */
 
@@ -94,11 +109,20 @@ export class RelationshipsWidgetModel {
         return this.cohort.indexOfGrandparentThing !== null ?
             (
                 (this.cohort.members.length - 1)/2 
-                - this.cohort.indexOfGrandparentThing) * (
-                    ([1, 2].includes(this.halfAxisId) ?
+                - this.cohort.indexOfGrandparentThing
+            ) * (
+                (
+                    [1, 2].includes(this.halfAxisId) ?
                         this.parentThingWidgetModel.thingWidth :
                         this.parentThingWidgetModel.thingHeight
-                    ) + this.graph.graphWidgetStyle.betweenThingSpacing
+                )
+                + this.graph.graphWidgetStyle.betweenThingSpacing
+            ) + (
+                this.parentRelationshipsWidgetModel !== null
+                && this.halfAxisId !== 0
+                && this.parentRelationshipsWidgetModel.halfAxisId === halfAxisOppositeIds[this.halfAxisId] ?
+                    this.parentRelationshipsWidgetModel.defaultLeafMidline(this.parentThingWidgetModel.address.indexInCohort) + this.graph.graphWidgetStyle.betweenThingGap/2 :
+                    0
             ) :
             0
     }
@@ -188,6 +212,23 @@ export class RelationshipsWidgetModel {
     }
 
 
+    get sizeOfThingsAlongWidth(): number {
+        return (
+            [1, 2].includes(this.halfAxisId) ?
+                this.parentThingWidgetModel.thingWidth :
+                this.parentThingWidgetModel.thingHeight
+        )
+    }
+
+
+    defaultLeafMidline(index: number): number {
+        return (
+            0.5 * this.sizeOfThingsAlongWidth
+            + (this.sizeOfThingsAlongWidth + this.graph.graphWidgetStyle.betweenThingSpacing) * index
+        )
+    }
+
+
     leavesGeometries(scale: number): { bottom: number, top: number, bottomMidline: number, topMidline: number }[] {
         const leavesGeometries = this.cohortMembersWithIndices.map(
             memberWithIndex => {
@@ -225,23 +266,11 @@ export class RelationshipsWidgetModel {
 
                 } else {
 
-                    const sizeOfThingsAlongWidth = (
-                        [1, 2].includes(this.halfAxisId) ?
-                            this.parentThingWidgetModel.thingWidth :
-                            this.parentThingWidgetModel.thingHeight
-                    )
-
                     return {
                         bottom: this.relationshipsLength * 1/3,
                         top: 0,
-                        bottomMidline: (
-                            0.5 * sizeOfThingsAlongWidth
-                            + (sizeOfThingsAlongWidth + this.graph.graphWidgetStyle.betweenThingSpacing) * memberWithIndex.index
-                        ),
-                        topMidline: (
-                            0.5 * sizeOfThingsAlongWidth
-                            + (sizeOfThingsAlongWidth + this.graph.graphWidgetStyle.betweenThingSpacing) * memberWithIndex.index
-                        )
+                        bottomMidline: this.defaultLeafMidline(memberWithIndex.index),
+                        topMidline: this.defaultLeafMidline(memberWithIndex.index)
                     }
 
                 }

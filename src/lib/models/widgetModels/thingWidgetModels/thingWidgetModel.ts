@@ -1,6 +1,7 @@
 import type { HalfAxisId } from "$lib/shared/constants"
 import type { Note } from "$lib/models/dbModels"
 import type { Graph, Cohort } from "$lib/models/graphModels"
+import type { RelationshipsWidgetModel } from "$lib/models/widgetModels/relationshipsWidgetModel"
 
 import { ThingBaseWidgetModel } from "./"
 
@@ -52,6 +53,17 @@ export class ThingWidgetModel extends ThingBaseWidgetModel {
         } else {
             // Set child Cohort for this Direction.
             this.childCohortsByHalfAxisId[halfAxisId] = cohort
+        }
+    }
+
+    relationshipsWidgetModel( halfAxisId: number ): RelationshipsWidgetModel | null
+    relationshipsWidgetModel( halfAxisId: number, relationshipsWidgetModel: RelationshipsWidgetModel ): void
+    relationshipsWidgetModel( halfAxisId: number, relationshipsWidgetModel?: RelationshipsWidgetModel ): RelationshipsWidgetModel | null | void {
+        if ( relationshipsWidgetModel === undefined ) {
+            return halfAxisId in this.relationshipsWidgetModelsByHalfAxisId ? this.relationshipsWidgetModelsByHalfAxisId[halfAxisId] : null
+        } else {
+            // Set child Cohort for this Direction.
+            this.relationshipsWidgetModelsByHalfAxisId[halfAxisId] = relationshipsWidgetModel
         }
     }
 }

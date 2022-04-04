@@ -2,7 +2,6 @@
     // Graph construct imports.
     import type { Graph } from "$lib/models/graphModels"
     import type { ThingWidgetModel } from "$lib/models/widgetModels"
-import { defaultGraphWidgetStyle } from "$lib/shared/constants";
 
     // Graph widget imports.
     import { ThingWidget, ThingFormWidget, RelationshipsWidget, CohortWidget } from "$lib/widgets/graphWidgets"
@@ -13,10 +12,28 @@ import { defaultGraphWidgetStyle } from "$lib/shared/constants";
     
 
     // Cohort-related variables.
-    $: space = thingWidgetModel.space
     $: cohorts = thingWidgetModel.childCohorts
+    $: relationshipWidgetModelsByHalfAxisId = thingWidgetModel.relationshipsWidgetModelsByHalfAxisId
     $: betweenThingSpacing = graph.graphWidgetStyle.betweenThingSpacing
     $: overlap = -Math.min(0, betweenThingSpacing / 2)
+
+    let overlapMarginStyleText: string
+    $: if (thingWidgetModel.parentCohort.members.length === 1) {
+        overlapMarginStyleText = ""
+    } else if (thingWidgetModel.address.indexInCohort === 0) {
+        overlapMarginStyleText = thingWidgetModel.parentCohort.rowOrColumn() === "row" ?
+            `margin-right: ${-overlap}px;` :
+            `margin-bottom: ${-overlap}px;`
+    } else if (thingWidgetModel.address.indexInCohort === thingWidgetModel.parentCohort.members.length - 1) {
+        overlapMarginStyleText = thingWidgetModel.parentCohort.rowOrColumn() === "row" ?
+            `margin-left: ${-overlap}px;` :
+            `margin-top: ${-overlap}px;`
+    } else {
+        overlapMarginStyleText = thingWidgetModel.parentCohort.rowOrColumn() === "row" ?
+            `margin-left: ${-overlap}px; margin-right: ${-overlap}px;` :
+            `margin-top: ${-overlap}px; margin-bottom: ${-overlap}px;`
+    }
+
 
     // Note-related variables.
     $: note = thingWidgetModel.note
@@ -27,7 +44,7 @@ import { defaultGraphWidgetStyle } from "$lib/shared/constants";
 <!-- Clade widget.-->
 <main
     class="clade-widget"
-    style="margin: {-overlap}px;"
+    style="{overlapMarginStyleText}"
 >
     {#if thingWidgetModel.thing}
         <ThingWidget
@@ -54,9 +71,7 @@ import { defaultGraphWidgetStyle } from "$lib/shared/constants";
     {#each cohorts as cohort (cohort.address)}
         {#if cohort.address.halfAxisId && [1, 2, 3, 4].includes(cohort.address.halfAxisId)}
             <RelationshipsWidget
-                {cohort}
-                {space}
-                bind:graph
+                relationshipsWidgetModel={relationshipWidgetModelsByHalfAxisId[cohort.address.halfAxisId]}
             />
         {/if}
         
@@ -68,3 +83,14 @@ import { defaultGraphWidgetStyle } from "$lib/shared/constants";
     {/each}
 
 </main>
+
+
+<style>
+    .clade-widget {
+        position: relative;
+    }
+
+    .clade-widget:hover {
+        z-index: 1;
+    }
+</style>

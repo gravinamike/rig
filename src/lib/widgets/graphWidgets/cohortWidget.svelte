@@ -1,7 +1,7 @@
 <script context="module" lang="ts">
     import type { Graph, Cohort } from "$lib/models/graphModels"
 
-    import { offsetsByHalfAxisId } from "$lib/shared/constants"
+    import { halfAxisOppositeIds, offsetsByHalfAxisId } from "$lib/shared/constants"
 </script>
 
 <script lang="ts">
@@ -41,15 +41,23 @@
     $: indexOfGrandparentThing = grandparentThingId !== null ? 
         cohort.members.findIndex( member => member.thingId === grandparentThingId )
         : null
-    $: offsetToGrandparentThing = indexOfGrandparentThing !== null && indexOfGrandparentThing !== -1 ?
-        ((cohort.members.length - 1)/2 - indexOfGrandparentThing) * (thingSize + betweenThingGap) :
-        0
+    $: offsetToGrandparentThing = (
+        indexOfGrandparentThing !== null && indexOfGrandparentThing !== -1 ?
+            ((cohort.members.length - 1)/2 - indexOfGrandparentThing) * (thingSize + betweenThingGap) :
+            0
+    ) + (
+        (
+            cohort.matchedRelationshipsWidgetModel
+            && cohort.address.halfAxisId
+            && cohort.address.parentThingWidgetModel
+            && cohort.matchedRelationshipsWidgetModel.parentRelationshipsWidgetModel
+            && cohort.matchedRelationshipsWidgetModel.parentRelationshipsWidgetModel.halfAxisId === halfAxisOppositeIds[cohort.address.halfAxisId]
+        ) ?
+            cohort.matchedRelationshipsWidgetModel.defaultLeafMidline(cohort.address.parentThingWidgetModel.address.indexInCohort) + betweenThingGap/2 :
+            0
+    )
     $: offsetToGrandparentThingX = rowOrColumn === "row" ? offsetToGrandparentThing : 0
     $: offsetToGrandparentThingY = rowOrColumn === "column" ? offsetToGrandparentThing : 0
-
-
-    
-    // if (cohort.members.length === 1 && indexOfGrandparentThing)
 </script>
 
 
@@ -74,6 +82,7 @@
             {:else}
                 <ThingSpacerWidget
                     thingBaseWidgetModel={cohortMember}
+                    cohortHalfAxisId={halfAxisId}
                     {graph}
                 />
             {/if}

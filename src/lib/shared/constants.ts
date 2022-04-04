@@ -65,6 +65,7 @@ export const planePadding = 20
  */
 export type HalfAxisId = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
 export const halfAxisIds = [1, 2, 3, 4, 5, 6, 7, 8] as const
+export const halfAxisOppositeIds = {1: 2, 2: 1, 3: 4, 4: 3, 5: 6, 6: 5, 7: 8, 8: 7} as const
 export const oddHalfAxisIds = [1, 3, 5, 7] as const
 export const cartesianHalfAxisIds = [1, 2, 3, 4] as const
 
