@@ -4,7 +4,7 @@ import type { Thing } from "$lib/models/dbModels"
 import { defaultGraphWidgetStyle } from "$lib/shared/constants"
 import { storeGraphConstructs, graphConstructInStore, retrieveGraphConstructs, unstoreGraphConstructs } from "$lib/stores"
 import { Generation, Cohort, Plane } from "$lib/models/graphModels"
-import { ThingBaseWidgetModel, ThingWidgetModel, ThingPlaceholderWidgetModel } from "$lib/models/widgetModels"
+import { ThingBaseWidgetModel, ThingWidgetModel, ThingPlaceholderWidgetModel, CohortWidgetModel } from "$lib/models/widgetModels"
 import { deleteThing } from "$lib/db/clientSide/makeChanges"
 import { unique } from "$lib/shared/utility"
 
@@ -15,6 +15,7 @@ export class Graph {
     _pThingIds: number[]
     _depth: number
     rootCohort: Cohort | null = null
+    rootCohortWidgetModel: CohortWidgetModel | null = null
     generations: Generation[] = []
     relationshipsOnlyGeneration: Generation | null = null
     planes: { [planeId: number]: Plane } = {}
@@ -210,7 +211,7 @@ export class Graph {
             id => {return (
                 this.thingIdsAlreadyInGraph.includes(id) ? new ThingBaseWidgetModel(id, this) : // If the Thing is already modeled in the Graph, return a spacer model.
                 graphConstructInStore("Thing", id) ? new ThingWidgetModel(id, this) :      // Else, if the Thing is in the Thing store, create a new model for that Thing ID.
-                new ThingPlaceholderWidgetModel(id)                                        // Otherwise, create a placeholder.
+                new ThingPlaceholderWidgetModel(id, this)                                        // Otherwise, create a placeholder.
             )}
         )
 

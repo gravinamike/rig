@@ -1,78 +1,46 @@
 <script context="module" lang="ts">
-    import type { Graph, Cohort } from "$lib/models/graphModels"
+    /* Type imports. */
+    import type { Graph } from "$lib/models/graphModels"
+    import type { CohortWidgetModel } from "$lib/models/widgetModels";
 
-    import { halfAxisOppositeIds, offsetsByHalfAxisId } from "$lib/shared/constants"
+    /* Widget imports */
+    import { CladeWidget, ThingSpacerWidget } from "$lib/widgets/graphWidgets"
 </script>
 
 <script lang="ts">
-    import { CladeWidget, ThingSpacerWidget } from "$lib/widgets/graphWidgets"
-
-    export let cohort: Cohort
+    /**
+     * @param  {CohortWidgetModel} cohortWidgetModel - The Cohort Widget Model used to set up this Widget.
+     * @param  {Graph} graph - The Graph that the Cohort is in.
+     * @param  {(thingId: number) => Promise<void>} rePerspectToThingId - A function that re-perspects the Graph to a given Thing ID.
+     */
+    export let cohortWidgetModel: CohortWidgetModel
     export let graph: Graph
     export let rePerspectToThingId: (thingId: number) => Promise<void>
 
-    //
-    $: betweenThingGap = graph.graphWidgetStyle.betweenThingGap
-    
 
-    // Calculate x and y offsets and z-index relative to parent Thing Widget.
-    const generationId = cohort.address?.generationId || 0
-    const halfAxisId = cohort.address?.halfAxisId || 0
-    const offsetSigns = offsetsByHalfAxisId[halfAxisId]
+    $: xYOffsets = cohortWidgetModel.xYOffsets
+    $: zIndex = cohortWidgetModel.zIndex
 
-    $: planeId = cohort.plane?.id || 0
-    $: offsets = [7, 8].includes(halfAxisId) ?
-        [0, 0] :
-        [
-            graph.graphWidgetStyle.relationDistance * offsetSigns[0] + graph.planeOffsets[0] * planeId,
-            graph.graphWidgetStyle.relationDistance * offsetSigns[1] + graph.planeOffsets[1] * planeId
-        ]
-    $: zIndex = (generationId * 2) * offsetSigns[2]
+    $: rowOrColumn = cohortWidgetModel.rowOrColumn
 
-
-
-
-    
-    
-    $: rowOrColumn = [3, 4, 5, 6, 7, 8].includes(halfAxisId) ? "column" : "row"
-
-    $: thingSize = graph.graphWidgetStyle.thingSize
-    $: grandparentThingId = cohort.parentCohort()?.address.parentThingWidgetModel?.thingId || null
-    $: indexOfGrandparentThing = grandparentThingId !== null ? 
-        cohort.members.findIndex( member => member.thingId === grandparentThingId )
-        : null
-    $: offsetToGrandparentThing = (
-        indexOfGrandparentThing !== null && indexOfGrandparentThing !== -1 ?
-            ((cohort.members.length - 1)/2 - indexOfGrandparentThing) * (thingSize + betweenThingGap) :
-            0
-    ) + (
-        (
-            cohort.matchedRelationshipsWidgetModel
-            && cohort.address.halfAxisId
-            && cohort.address.parentThingWidgetModel
-            && cohort.matchedRelationshipsWidgetModel.parentRelationshipsWidgetModel
-            && cohort.matchedRelationshipsWidgetModel.parentRelationshipsWidgetModel.halfAxisId === halfAxisOppositeIds[cohort.address.halfAxisId]
-        ) ?
-            cohort.matchedRelationshipsWidgetModel.defaultLeafMidline(cohort.address.parentThingWidgetModel.address.indexInCohort) + betweenThingGap/2 :
-            0
-    )
-    $: offsetToGrandparentThingX = rowOrColumn === "row" ? offsetToGrandparentThing : 0
-    $: offsetToGrandparentThingY = rowOrColumn === "column" ? offsetToGrandparentThing : 0
+    $: indexOfGrandparentThing = cohortWidgetModel.indexOfGrandparentThing
+    $: offsetToGrandparentThingX = cohortWidgetModel.offsetToGrandparentThingX
+    $: offsetToGrandparentThingY = cohortWidgetModel.offsetToGrandparentThingY
 </script>
 
 
 <main
     class="cohort-widget"
     style="
-        left: calc({offsets[0]}px + 50% + {offsetToGrandparentThingX}px);
-        top: calc({offsets[1]}px + 50% + {offsetToGrandparentThingY}px);
+        left: calc({xYOffsets.x}px + 50% + {offsetToGrandparentThingX}px);
+        top: calc({xYOffsets.y}px + 50% + {offsetToGrandparentThingY}px);
         z-index: {zIndex};
         flex-direction: {rowOrColumn};
-        gap: {[5, 6, 7, 8].includes(halfAxisId) ? 4 : betweenThingGap}px;
+        gap: {[5, 6, 7, 8].includes(cohortWidgetModel.cohort.address.halfAxisId) ? 4 : graph.graphWidgetStyle.betweenThingGap}px;
     "
 >
-    {#if !(cohort.members.length === 1 && indexOfGrandparentThing !== null && indexOfGrandparentThing !== -1)}<!-- Unless the ONLY descendent in a Half-Axis is a doubled-back parent Thing, -->
-        {#each cohort.members as cohortMember}
+    {#if !(cohortWidgetModel.cohort.members.length === 1 && indexOfGrandparentThing !== null && indexOfGrandparentThing !== -1)}<!-- Unless the ONLY descendent in a Half-Axis is a doubled-back parent Thing, -->
+        {#each cohortWidgetModel.cohort.members as cohortMember}
             {#if "text" in cohortMember}
                 <CladeWidget
                     thingWidgetModel={cohortMember}
@@ -82,7 +50,7 @@
             {:else}
                 <ThingSpacerWidget
                     thingBaseWidgetModel={cohortMember}
-                    cohortHalfAxisId={halfAxisId}
+                    cohortHalfAxisId={cohortWidgetModel.cohort.address.halfAxisId}
                     {graph}
                 />
             {/if}

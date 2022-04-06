@@ -181,10 +181,10 @@
                 style="left: {zoomBounds.x}px; top: {zoomBounds.y}px; width: {zoomBounds.width}px; height: {zoomBounds.height}px;"
             />
             
-            <!-- Root Cohort (from which the rest of the Graph automatically "grows"). -->
-            {#if graph.rootCohort}
+            <!-- Root Cohort Widget (from which the rest of the Graph automatically "grows"). -->
+            {#if graph.rootCohortWidgetModel}
                 <CohortWidget
-                    cohort={graph.rootCohort}
+                    cohortWidgetModel={graph.rootCohortWidgetModel}
                     bind:graph
                     {rePerspectToThingId}
                 />

@@ -1,9 +1,10 @@
-import type { Graph } from "$lib/models/graphModels"
+import type { Graph, CohortAddress } from "$lib/models/graphModels"
 import type { ThingBaseWidgetModel, ThingWidgetModel } from "$lib/models/widgetModels"
 
 import { cartesianHalfAxisIds } from "$lib/shared/constants"
 import { Cohort } from "$lib/models/graphModels"
-import { RelationshipsWidgetModel } from "../widgetModels/relationshipsWidgetModel"
+import { CohortWidgetModel } from "$lib/models/widgetModels/cohortWidgetModel"
+import { RelationshipsWidgetModel } from "$lib/models/widgetModels/relationshipsWidgetModel"
 
 
 export type GenerationMember = ThingBaseWidgetModel | ThingWidgetModel
@@ -57,14 +58,16 @@ export class Generation {
         // For Generation 0, add the Things to a pre-Graph "root" Cohort that will
         // serve as the starting point of the Graph.
         if (this.id === 0) {
-            const addressForCohort = {
+            const addressForCohort: CohortAddress = {
                 graph: this.graph,
                 generationId: this.id,
                 parentThingWidgetModel: null,
-                halfAxisId: null
+                halfAxisId: 0
             }
             this.graph.rootCohort = new Cohort(addressForCohort, membersForGeneration)
+            this.graph.rootCohortWidgetModel = new CohortWidgetModel(this.graph.rootCohort, this.graph)
             this.graph.addCohortToPlane(this.graph.rootCohort, 0)
+
 
         // For all Generations after 0, hook up that Generation's members, packaged in
         // Cohorts, to the parent Thing Widget Models of the previous Generation.
@@ -96,8 +99,10 @@ export class Generation {
                     const childCohort = new Cohort(addressForCohort, membersForCohort)
 
                     // Populate the Cohort for the previous Generation's Thing in that Direction from that list.
-                    prevThingWidgetModel.childCohort(halfAxisId, childCohort)
+                    prevThingWidgetModel.childCohort(halfAxisId, childCohort)////////////////////////// NOW REMOVE THIS!!!!
 
+                    const childCohortWidgetModel = new CohortWidgetModel(childCohort, this.graph)
+                    prevThingWidgetModel.childCohortWidgetModel(halfAxisId, childCohortWidgetModel)
 
 
 

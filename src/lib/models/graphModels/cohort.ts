@@ -5,11 +5,11 @@ import type { ThingWidgetModel, RelationshipsWidgetModel } from "$lib/models/wid
 import { offsetsByHalfAxisId } from "$lib/shared/constants"
 
 
-type CohortAddress = {
+export type CohortAddress = {
     graph: Graph,
     generationId: number,
     parentThingWidgetModel: ThingWidgetModel | null,
-    halfAxisId: HalfAxisId | null
+    halfAxisId: HalfAxisId
 }
 
 export class Cohort {

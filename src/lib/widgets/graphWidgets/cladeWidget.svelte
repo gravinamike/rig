@@ -12,7 +12,7 @@
     
 
     // Cohort-related variables.
-    $: cohorts = thingWidgetModel.childCohorts
+    $: cohortWidgetModels = thingWidgetModel.childCohortWidgetModels
     $: relationshipWidgetModelsByHalfAxisId = thingWidgetModel.relationshipsWidgetModelsByHalfAxisId
     $: betweenThingSpacing = graph.graphWidgetStyle.betweenThingSpacing
     $: overlap = -Math.min(0, betweenThingSpacing / 2)
@@ -68,15 +68,15 @@
     {/if}
 
     <!-- The Thing's Relationships and child Cohorts. -->
-    {#each cohorts as cohort (cohort.address)}
-        {#if cohort.address.halfAxisId && [1, 2, 3, 4].includes(cohort.address.halfAxisId)}
+    {#each cohortWidgetModels as cohortWidgetModel (cohortWidgetModel.cohort.address)}
+        {#if cohortWidgetModel.cohort.address.halfAxisId && [1, 2, 3, 4].includes(cohortWidgetModel.cohort.address.halfAxisId)}
             <RelationshipsWidget
-                relationshipsWidgetModel={relationshipWidgetModelsByHalfAxisId[cohort.address.halfAxisId]}
+                relationshipsWidgetModel={relationshipWidgetModelsByHalfAxisId[cohortWidgetModel.cohort.address.halfAxisId]}
             />
         {/if}
         
         <CohortWidget
-            {cohort}
+            {cohortWidgetModel}
             bind:graph
             {rePerspectToThingId}
         />

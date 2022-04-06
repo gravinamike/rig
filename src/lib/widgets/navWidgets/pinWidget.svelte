@@ -7,7 +7,7 @@
 
 
     /**
-     * @param  {number} thingId - The ID Thing this Widget represents.
+     * @param  {number} thingId - The ID of the Thing this Widget represents.
      * @param  {Thing | null} thing - The Thing this Widget represents.
      * @param  {(thingId: number) => Promise<void>} rePerspectToThingId - A function that re-perspects the Graph to a given Thing ID.
      */

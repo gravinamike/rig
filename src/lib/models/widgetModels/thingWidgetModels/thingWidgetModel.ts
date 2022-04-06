@@ -1,6 +1,7 @@
 import type { HalfAxisId } from "$lib/shared/constants"
 import type { Note } from "$lib/models/dbModels"
 import type { Graph, Cohort } from "$lib/models/graphModels"
+import type { CohortWidgetModel } from "$lib/models/widgetModels/cohortWidgetModel"
 import type { RelationshipsWidgetModel } from "$lib/models/widgetModels/relationshipsWidgetModel"
 
 import { ThingBaseWidgetModel } from "./"
@@ -37,6 +38,11 @@ export class ThingWidgetModel extends ThingBaseWidgetModel {
         return childCohorts
     }
 
+    get childCohortWidgetModels(): CohortWidgetModel[] {
+        const childCohortWidgetModels = Object.values(this.childCohortWidgetModelsByHalfAxisId)
+        return childCohortWidgetModels
+    }
+
     relatedThingIdsByHalfAxisId(halfAxisId: HalfAxisId): number[] {
         const directionId = this.space.directionIdByHalfAxisId[halfAxisId]
         const relatedThingIds = directionId && directionId in this.relatedThingIdsByDirectionId ?
@@ -53,6 +59,17 @@ export class ThingWidgetModel extends ThingBaseWidgetModel {
         } else {
             // Set child Cohort for this Direction.
             this.childCohortsByHalfAxisId[halfAxisId] = cohort
+        }
+    }
+
+    childCohortWidgetModel( halfAxisId: number ): CohortWidgetModel | null
+    childCohortWidgetModel( halfAxisId: number, cohortWigetModel: CohortWidgetModel ): void
+    childCohortWidgetModel( halfAxisId: number, cohortWidgetModel?: CohortWidgetModel ): CohortWidgetModel | null | void {
+        if ( cohortWidgetModel === undefined ) {
+            return halfAxisId in this.childCohortWidgetModelsByHalfAxisId ? this.childCohortWidgetModelsByHalfAxisId[halfAxisId] : null
+        } else {
+            // Set child Cohort for this Direction.
+            this.childCohortWidgetModelsByHalfAxisId[halfAxisId] = cohortWidgetModel
         }
     }
 

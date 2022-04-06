@@ -1,7 +1,5 @@
 <script context="module" lang="ts">
     // Type imports.
-    import type { Space } from "$lib/models/dbModels"
-    import type { Graph, Cohort } from "$lib/models/graphModels"
     import type { RelationshipsWidgetModel } from "$lib/models/widgetModels"
 
     // Stores imports.
