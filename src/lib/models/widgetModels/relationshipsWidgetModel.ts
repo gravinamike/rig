@@ -106,25 +106,42 @@ export class RelationshipsWidgetModel {
     // Thing Widget that would duplicate, or "double back", the grandparent Thing.
     // If the grandparent Thing is not in the related Cohort, the offsets are 0.
     get offsetToGrandparentThing(): number {
-        return this.cohort.indexOfGrandparentThing !== null ?
-            (
-                (this.cohort.members.length - 1)/2 
+
+        if (this.cohort.indexOfGrandparentThing === null || this.cohort.isInRelationshipsOnlyGeneration) {
+
+            return 0
+
+        } else {
+
+            // The difference between the index of the grandparent Thing and the halfway index of the Cohort.
+            const part1 = (
+                (this.cohort.members.length - 1) / 2
                 - this.cohort.indexOfGrandparentThing
-            ) * (
+            )
+            // The sum of the dimension of one Thing plus the spacing between Things.
+            * (
                 (
                     [1, 2].includes(this.halfAxisId) ?
                         this.parentThingWidgetModel.thingWidth :
                         this.parentThingWidgetModel.thingHeight
                 )
                 + this.graph.graphWidgetStyle.betweenThingSpacing
-            ) + (
+            )
+
+            const part2 = (
                 this.parentRelationshipsWidgetModel !== null
                 && this.halfAxisId !== 0
                 && this.parentRelationshipsWidgetModel.halfAxisId === halfAxisOppositeIds[this.halfAxisId] ?
                     this.parentRelationshipsWidgetModel.defaultLeafMidline(this.parentThingWidgetModel.address.indexInCohort) + this.graph.graphWidgetStyle.betweenThingGap/2 :
                     0
-            ) :
-            0
+            )
+
+            const offsetToGrandparentThing = part1
+
+            return offsetToGrandparentThing
+
+        }
+
     }
 
     get xOffsetToGrandparentThing(): number {
@@ -281,38 +298,3 @@ export class RelationshipsWidgetModel {
     }
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-    /*
-
-    // Graph-scale-related variables.
-    $: scale = zoomBase ** graph.graphWidgetStyle.zoom
-    let tweenedScale = tweened(1, {duration: 100, easing: cubicOut})
-    $: tweenedScale.set(scale)
-
-    // Information related to Direction.
-    
-    $: showDirection = parentThingWidgetModel.address.generationId === 0 || relationshipHovered ?
-        true :
-        false
-
-    */

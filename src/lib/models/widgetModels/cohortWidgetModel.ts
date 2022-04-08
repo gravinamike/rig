@@ -56,7 +56,13 @@ export class CohortWidgetModel {
     }
 
     get offsetToGrandparentThing(): number {
-        const parentThingOffset = (
+        if (this.cohort.isInRelationshipsOnlyGeneration) {
+
+            return 0
+
+        } else {
+
+            const parentThingOffset = (
                 this.cohort.matchedRelationshipsWidgetModel
                 && this.cohort.address.halfAxisId
                 && this.cohort.address.parentThingWidgetModel
@@ -69,16 +75,18 @@ export class CohortWidgetModel {
                 + this.graph.graphWidgetStyle.betweenThingGap / 2 :
                 0
 
-        const thisThingOffset = this.indexOfGrandparentThing !== null && this.indexOfGrandparentThing !== -1 ?
-            // The difference between the halfway index of the Cohort and the index of the grandparent Thing.
-            ((this.cohort.members.length - 1) / 2 - this.indexOfGrandparentThing)
-            // The combined width of 1 Thing and 1 gap between Things.
-            * (this.graph.graphWidgetStyle.thingSize + this.graph.graphWidgetStyle.betweenThingGap) :
-            0
+            const thisThingOffset = this.indexOfGrandparentThing !== null && this.indexOfGrandparentThing !== -1 ?
+                // The difference between the halfway index of the Cohort and the index of the grandparent Thing.
+                ((this.cohort.members.length - 1) / 2 - this.indexOfGrandparentThing)
+                // The combined width of 1 Thing and 1 gap between Things.
+                * (this.graph.graphWidgetStyle.thingSize + this.graph.graphWidgetStyle.betweenThingGap) :
+                0
 
-        const offsetToGrandparentThing = parentThingOffset + thisThingOffset
+            const offsetToGrandparentThing = parentThingOffset + thisThingOffset
 
-        return offsetToGrandparentThing
+            return offsetToGrandparentThing
+            
+        }
     } ////////////////////////////// REFACTOR THIS METHOD.
     
 

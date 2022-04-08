@@ -115,4 +115,15 @@ export class Cohort {
             return null
         }
     }
+
+    get isInRelationshipsOnlyGeneration(): boolean {
+        if (
+            this.address.graph.relationshipsOnlyGeneration !== null
+            && this.address.generationId === this.address.graph.relationshipsOnlyGeneration.id
+        ) {
+            return true
+        } else {
+            return false
+        }
+    }
 }

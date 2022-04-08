@@ -119,8 +119,8 @@
 <div
     class="relationships-widget"
     style="
-        left: calc({xOffset}px + 50% + {xOffsetToGrandparentThing}px);
-        top: calc({yOffset}px + 50% + {yOffsetToGrandparentThing}px);
+        left: calc(50% + {xOffset}px + {xOffsetToGrandparentThing}px);
+        top: calc(50% + {yOffset}px + {yOffsetToGrandparentThing}px);
         z-index: {zIndex};
         width: {widgetWidth}px;
         height: {widgetHeight}px;
