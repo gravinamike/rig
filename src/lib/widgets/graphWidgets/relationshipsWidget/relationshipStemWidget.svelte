@@ -1,4 +1,5 @@
 <script context="module" lang="ts">
+    import type { Graph } from "$lib/models/graphModels"
     import { sleep } from "$lib/shared/utility"
     import { ThingWidgetModel, RelationshipsWidgetModel } from "$lib/models/widgetModels"
 </script>
@@ -14,8 +15,9 @@
     export let stemBottom: number
     export let stemTop: number
 
+    export let graph: Graph
+
     const cohort = relationshipsWidgetModel.cohort
-    let graph = relationshipsWidgetModel.graph
 
     const ofPerspectiveThing = relationshipsWidgetModel.parentThingWidgetModel.address.generationId === 0 ? true : false
     $: relationshipsExist = cohort.members.length ? true : false

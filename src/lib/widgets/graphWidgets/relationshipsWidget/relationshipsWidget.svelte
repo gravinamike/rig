@@ -1,5 +1,6 @@
 <script context="module" lang="ts">
     // Type imports.
+    import type { Graph } from "$lib/models/graphModels"
     import type { RelationshipsWidgetModel } from "$lib/models/widgetModels"
 
     // Stores imports.
@@ -20,10 +21,10 @@
 
 <script lang="ts">
     export let relationshipsWidgetModel: RelationshipsWidgetModel
+    export let graph: Graph
 
 
     $: cohort = relationshipsWidgetModel.cohort
-    $: graph = relationshipsWidgetModel.graph
 
     /* Information related to hovering. */
     let hoveredThingIdStoreValue: number | null = null
@@ -165,6 +166,7 @@
                     {midline}
                     {stemBottom}
                     {stemTop}
+                    bind:graph
                 />
             {/if}
 
