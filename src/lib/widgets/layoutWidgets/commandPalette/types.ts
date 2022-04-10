@@ -1,6 +1,8 @@
 export interface CommandButtonInfo {
     text: string,
-    iconName: string,
+    iconName: string | null,
+    iconHtml: string | null,
+    isActive: boolean,
     onClick: () => void
 }
 

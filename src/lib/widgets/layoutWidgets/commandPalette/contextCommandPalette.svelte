@@ -37,6 +37,8 @@
     >
         <CommandPalette
             {commandButtonInfos}
+            square={true}
+            maxRowLength={4}
         />
     </div>
 {/if}

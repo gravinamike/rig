@@ -32,7 +32,10 @@
         const buttonInfos = [
             {
                 text: "Remove Thing from Pins",
-                iconName: "no-pin", onClick: () => {removePin(thingId)}
+                iconName: "no-pin",
+                iconHtml: null,
+                isActive: false,
+                onClick: () => {removePin(thingId)}
             }
         ]
         openContextCommandPalette(position, buttonInfos)

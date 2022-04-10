@@ -96,8 +96,8 @@
     function openCommandPalette(event: MouseEvent) {
         const position = [event.clientX, event.clientY] as [number, number]
         const buttonInfos = $pinIdsStore.includes(thingId) ?
-            [{ text: "Remove Thing from Pins", iconName: "no-pin", onClick: () => {removePin(thingId)} }] :
-            [{ text: "Add Thing to Pins", iconName: "pin", onClick: () => {addPin(thingId)} }]
+            [{ text: "Remove Thing from Pins", iconName: "no-pin", iconHtml: null, isActive: false, onClick: () => {removePin(thingId)} }] :
+            [{ text: "Add Thing to Pins", iconName: "pin", iconHtml: null, isActive: false, onClick: () => {addPin(thingId)} }]
         openContextCommandPalette(position, buttonInfos)
     }
 </script>

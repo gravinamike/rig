@@ -1,6 +1,7 @@
 <script lang="ts">
     import type { Editor } from "@tiptap/core"
-    import { fontNames, fontSizes } from "$lib/shared/constants"
+    import { fontNames, fontSizes, headerLevels } from "$lib/shared/constants"
+    import CommandPalette from "$lib/widgets/layoutWidgets/commandPalette/commandPalette.svelte"
 
     export let editor: Editor
 
@@ -20,12 +21,178 @@
     }
     let currentSelectionFontSize: number | null
     $: if (editor) currentSelectionFontSize = selectedFontSize()
+
+    function selectedHeaderLevel(): 1 | 2 | 3 | 4 | 5 | 6 | null {
+        let selectedHeaderLevel = editor.getAttributes("heading").level || null
+        return selectedHeaderLevel
+    }
+    let currentSelectionHeaderLevel: 1 | 2 | 3 | 4 | 5 | 6 | null
+    $: if (editor) currentSelectionHeaderLevel = selectedHeaderLevel()
+
+    $: commandButtonInfos = [
+        // Basic formatting.
+        {
+            text: "Bold text",
+            iconName: null,
+            iconHtml: `<span style="font-weight: bold;">B</span>`,
+            isActive: editor.isActive('bold'),
+            onClick: () => editor.chain().focus().toggleBold().run()
+        },
+        {
+            text: "Italic text",
+            iconName: null,
+            iconHtml: `<span style="font-style: italic;">I</span>`,
+            isActive: editor.isActive('italic'),
+            onClick: () => editor.chain().focus().toggleItalic().run()
+        },
+        {
+            text: "Underline text",
+            iconName: null,
+            iconHtml: `<span style="text-decoration: underline;">U</span>`,
+            isActive: editor.isActive('underline'),
+            onClick: () => editor.chain().focus().toggleUnderline().run()
+        },
+        {
+            text: "Strikethrough text",
+            iconName: null,
+            iconHtml: `<span style="text-decoration: line-through;">S</span>`,
+            isActive: editor.isActive('strike'),
+            onClick: () => editor.chain().focus().toggleStrike().run()
+        },
+
+        // Lists.
+        {
+            text: "Bullet list",
+            iconName: null,
+            iconHtml: `
+                <ul style="font-size: 6px; line-height: 5px; font-weight: 1000; padding-left: 4px; padding-top: 0px;">
+                    <li>----
+                    <li>----
+                    <li>----
+                </ul>
+            `,
+            isActive: editor.isActive('bulletList'),
+            onClick: () => editor.chain().focus().toggleBulletList().run()
+        },
+        {
+            text: "Ordered list",
+            iconName: null,
+            iconHtml: `
+                <ol style="font-size: 6px; line-height: 5.5px; font-weight: 1000; padding-left: 7px; padding-top: 0px;">
+                    <li>----
+                    <li>----
+                    <li>----
+                </ol>
+            `,
+            isActive: editor.isActive('orderedList'),
+            onClick: () => editor.chain().focus().toggleOrderedList().run()
+        },
+        {
+            text: "Blockquote",
+            iconName: null,
+            iconHtml: `
+                <div style="line-height: 5.5px; font-weight: 700; padding-left: 0px; padding-top: 5px;">
+                    “<span style="font-size: 5px;">&nbsp;</span>”
+                </div>
+            `,
+            isActive: editor.isActive('blockquote'),
+            onClick: () => editor.chain().focus().toggleBlockquote().run()
+        },
+
+        // Block formatting.
+        {
+            text: "Code",
+            iconName: null,
+            iconHtml: `
+                <div style="font-size: 11px; line-height: 4px; font-weight: 700; padding-left: 0px; padding-top: 3px;">
+                    &#60;<span style="font-size: 5px;">&nbsp;</span>&#62;
+                </div>
+            `,
+            isActive: editor.isActive('code'),
+            onClick: () => editor.chain().focus().toggleCode().run()
+        },
+        {
+            text: "Code block",
+            iconName: null,
+            iconHtml: `
+                <div style="font-size: 5px; line-height: 5px; font-weight: 1000; padding-left: 0px; padding-top: 0px;">
+                    -------<br>
+                    <span style="font-size: 6.5px; font-weight: 3000;">&nbsp;&#60;&#62;</span><br>
+                    -------
+                </div>
+            `,
+            isActive: editor.isActive('codeBlock'),
+            onClick: () => editor.chain().focus().toggleCodeBlock().run()
+        },
+
+        // Other formatting.
+        {
+            text: "Paragraph",
+            iconName: null,
+            iconHtml: "¶",
+            isActive: editor.isActive('paragraph'),
+            onClick: () => editor.chain().focus().setParagraph().run()
+        },
+        {
+            text: "Horizontal rule",
+            iconName: null,
+            iconHtml: `
+                <div style="font-size: 5px; line-height: 5px; font-weight: 1000;">
+                    ----------
+                </div>
+            `,
+            isActive: false,
+            onClick: () => editor.chain().focus().setHorizontalRule().run()
+        },
+        {
+            text: "Hard break",
+            iconName: null,
+            iconHtml: `
+                <div style="font-size: 5px; line-height: 3px; font-weight: 1000; padding-left: 0px; padding-top: 0px;">
+                    -------<br>
+                    -------<br>
+                    <br>
+                    -------<br>
+                    -------
+                </div>
+            `,
+            isActive: false,
+            onClick: () => editor.chain().focus().setHardBreak().run()
+        },
+
+        // Undo/redo and clear formatting.
+        {
+            text: "Undo",
+            iconName: "undo",
+            iconHtml: null,
+            isActive: false,
+            onClick: () => editor.chain().focus().undo().run()
+        },
+        {
+            text: "Redo",
+            iconName: "redo",
+            iconHtml: null,
+            isActive: false,
+            onClick: () => editor.chain().focus().redo().run()
+        },
+        {
+            text: "Clear formatting",
+            iconName: "clean",
+            iconHtml: null,
+            isActive: false,
+            onClick: () => {
+                editor.chain().focus().unsetAllMarks().run()
+                editor.chain().focus().clearNodes().run()
+            }
+        }
+    ]
 </script>
 
 
 {#if editor}
     <div class="notes-toolbar">
-        <!-- Font family and size. -->
+
+        <!-- Font family, size, and header level. -->
         <div class="button-group">
             <select
                 value={currentSelectionFontFamily ? currentSelectionFontFamily : "Arial"}
@@ -52,176 +219,32 @@
                     </option>
                 {/each}
             </select>
+
+            <select
+                value={currentSelectionHeaderLevel === null ? "Body" : `H${currentSelectionHeaderLevel}`}
+            >
+                {#each headerLevels as headerLevel}
+                    <option
+                        value={headerLevel === null ? "Body" : `H${headerLevel}`}
+                        on:click={() => {
+                            if (headerLevel === null) {
+                                editor.chain().focus().setHeading({ level: 1 }).run()
+                                editor.chain().focus().toggleHeading({ level: 1 }).run()
+                            } else {
+                                editor.chain().focus().toggleHeading({ level: headerLevel }).run()
+                            }
+                        }}
+                    >
+                        {headerLevel === null ? "Body" : `H${headerLevel}`}
+                    </option>
+                {/each}
+            </select>
         </div>
 
-        <!-- Basic formatting. -->
-        <div class="button-group">
-            <div class="button"
-                on:click={() => editor.chain().focus().toggleBold().run()}
-                class:active={editor.isActive('bold')}
-                style="font-weight: bold;"
-            >
-                Bold
-            </div>
-
-            <div class="button"
-                on:click={() => editor.chain().focus().toggleItalic().run()}
-                class:active={editor.isActive('italic')}
-                style="font-style: italic;"
-            >
-                Italic
-            </div>
-
-            <div class="button"
-                on:click={() => editor.chain().focus().toggleUnderline().run()}
-                class:active={editor.isActive('underline')}
-                style="text-decoration: underline;"
-            >
-                Underline
-            </div>
-
-            <div class="button"
-                on:click={() => editor.chain().focus().toggleStrike().run()}
-                class:active={editor.isActive('strike')}
-                style="text-decoration: line-through;"
-            >
-                Strikethrough
-            </div>
-        </div>
-
-        <!-- Headers -->
-        <div class="button-group">
-            <div class="button"
-                on:click={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-                class:active={editor.isActive('heading', { level: 1 })}
-            >
-                h1
-            </div>
-
-            <div class="button"
-                on:click={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-                class:active={editor.isActive('heading', { level: 2 })}
-            >
-                h2
-            </div>
-
-            <div class="button"
-                on:click={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-                class:active={editor.isActive('heading', { level: 3 })}
-            >
-                h3
-            </div>
-
-            <div class="button" on:click={() => editor.chain().focus().toggleHeading({ level: 4 }).run()}
-                class:active={editor.isActive('heading', { level: 4 })}
-            >
-                h4
-            </div>
-
-            <div class="button"
-                on:click={() => editor.chain().focus().toggleHeading({ level: 5 }).run()}
-                class:active={editor.isActive('heading', { level: 5 })}
-            >
-                h5
-            </div>
-
-            <div class="button"
-                on:click={() => editor.chain().focus().toggleHeading({ level: 6 }).run()}
-                class:active={editor.isActive('heading', { level: 6 })}
-            >
-                h6
-            </div>
-        </div>
-
-        <!-- Lists. -->
-        <div class="button-group">
-            <div class="button"
-                on:click={() => editor.chain().focus().toggleBulletList().run()}
-                class:active={editor.isActive('bulletList')}
-            >
-                Bullet list
-            </div>
-
-            <div class="button"
-                on:click={() => editor.chain().focus().toggleOrderedList().run()}
-                class:active={editor.isActive('orderedList')}
-            >
-                Ordered list
-            </div>
-        </div>
-
-        <!-- Block formatting. -->
-        <div class="button-group">
-            <div class="button"
-                on:click={() => editor.chain().focus().toggleBlockquote().run()}
-                class:active={editor.isActive('blockquote')}
-            >
-                Blockquote
-            </div>
-
-            <div class="button"
-                on:click={() => editor.chain().focus().toggleCode().run()}
-                class:active={editor.isActive('code')}
-            >
-                Code
-            </div>     
-
-            <div class="button"
-                on:click={() => editor.chain().focus().toggleCodeBlock().run()}
-                class:active={editor.isActive('codeBlock')}
-            >
-                Code block
-            </div>
-        </div>
-
-        <!-- Other formatting. -->
-        <div class="button-group">
-            <div class="button"
-                on:click={() => editor.chain().focus().setParagraph().run()}
-                class:active={editor.isActive('paragraph')}
-            >
-                Paragraph
-            </div>
-
-            <div class="button"
-                on:click={() => editor.chain().focus().setHorizontalRule().run}
-            >
-                Horizontal rule
-            </div>
-
-            <div class="button"
-                on:click={() => editor.chain().focus().setHardBreak().run()}
-            >
-                Hard break
-            </div>
-        </div>
-
-        <!-- Clear and undo/redo. -->
-        <div class="button-group">
-            <div class="button"
-                on:click={() => editor.chain().focus().unsetAllMarks().run()}
-            >
-                Clear marks
-            </div>
-
-            <div class="button"
-                on:click={() => editor.chain().focus().clearNodes().run()}
-            >
-                Clear nodes
-            </div>
-
-            <div class="button"
-                on:click={() => editor.chain().focus().undo().run()}
-            >
-                Undo
-            </div>
-
-            <div class="button"
-                on:click={() => editor.chain().focus().redo().run()}
-            >
-                Redo
-            </div>
-        </div>
+        <CommandPalette
+            {commandButtonInfos}
+            buttonSize={20}
+        />
     </div>
 {/if}
 
@@ -239,24 +262,5 @@
         flex-direction: row;
         padding: 0.25rem;
         gap: 0.5rem;
-    }
-
-    .button {
-        border-radius: 3px;
-        outline: solid 1px lightgrey;
-
-        padding: 0.1rem;
-
-        font-size: 0.75rem;
-
-        cursor: default
-    }
-
-    .button:hover {
-        outline: solid 2px lightgrey; 
-    }
-
-    .button.active {
-        background-color: grey;
     }
 </style>

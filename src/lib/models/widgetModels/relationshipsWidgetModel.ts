@@ -136,7 +136,7 @@ export class RelationshipsWidgetModel {
                     0
             )
 
-            const offsetToGrandparentThing = part1
+            const offsetToGrandparentThing = part1 + part2
 
             return offsetToGrandparentThing
 

@@ -3,9 +3,22 @@
 	import CommandButton from "./commandButton.svelte"
 	
 	export let commandButtonInfos: CommandButtonInfo[]
+	export let buttonSize = 30
+	export let square = false
+	export let maxRowLength: number | null = null
 
 
-	const rowLength = Math.max(Math.ceil(Math.sqrt(commandButtonInfos.length)), 4)
+	const rowLength = square ?
+		(
+			maxRowLength !== null ? 
+				Math.max(Math.ceil(Math.sqrt(commandButtonInfos.length)), maxRowLength) :
+				Math.ceil(Math.sqrt(commandButtonInfos.length))
+		) :
+		(
+			maxRowLength !== null ? 
+				Math.max(commandButtonInfos.length, maxRowLength) :
+				commandButtonInfos.length
+		)	
 	const rowsTall = Math.ceil(commandButtonInfos.length / rowLength)
 
 	let hoveredCommandText = ""
@@ -15,13 +28,16 @@
 
 <div
 	class="command-palette"
-	style="width: {(30 + 5) * rowLength}px; height: {(30 + 5) * rowsTall + 20}px;"
+	style="{square ? `width: ${(buttonSize + 5) * rowLength}px;` : ""} height: {(buttonSize + 5) * rowsTall + 20}px;"
 >
 	{#each commandButtonInfos as info}
 		<CommandButton
 			text={info.text}
 			iconName={info.iconName}
+			iconHtml={info.iconHtml}
+			{buttonSize}
 			hoverMethod={setHoveredCommandText}
+			isActive={info.isActive}
 			clickedMethod={info.onClick}
 		/>
 	{/each}
@@ -34,6 +50,8 @@
 
 <style>
 	.command-palette {
+		position: relative;
+
 		border: solid 1px lightgrey;
 		box-shadow: 4px 4px 4px -2px lightgray;
 
@@ -45,6 +63,7 @@
 		padding-top: 5px;
 		padding-left: 5px;
 		gap: 5px;
+		align-content: flex-start;
 	}
 
 	.hovered-command-text {
