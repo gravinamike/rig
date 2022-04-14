@@ -1,9 +1,12 @@
 import type { Writable } from "svelte/store"
 import type { GraphConstruct } from "$lib/shared/constants"
 import type { Direction, Space, Thing } from "$lib/models/dbModels"
+import type { RelationshipBeingCreatedInfo } from "$lib/widgets/graphWidgets/relationshipBeingCreatedWidget"
 
 import { writable, derived } from "svelte/store"
 import { isDirection, isSpace, isThing } from "$lib/models/dbModels"
+import { nullRelationshipBeingCreatedInfo } from "$lib/widgets/graphWidgets/relationshipBeingCreatedWidget"
+import type { ThingWidgetModel, RelationshipsWidgetModel } from "$lib/models/widgetModels"
 
 
 // Create Direction-related stores (and subscriptions where applicable).
@@ -224,3 +227,55 @@ export function retrieveGraphConstructs<Type extends GraphConstruct>(
         return output
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const relationshipBeingCreatedInfoStore = writable(
+    {
+        sourceWidgetModel: null,
+        startPosition: [0, 0],
+        endPosition: [0, 0]
+    } as RelationshipBeingCreatedInfo
+)
+
+/**
+ * Enable the Relationship-being-created Widget.
+ */
+ export function enableRelationshipBeingCreated(sourceWidgetModel: ThingWidgetModel | RelationshipsWidgetModel, position: [number, number]): void {
+    relationshipBeingCreatedInfoStore.set(
+        {
+            sourceWidgetModel: sourceWidgetModel,
+            startPosition: position,
+            endPosition: position
+        }
+    )
+}
+
+/**
+ * Open a context command palette.
+ */
+ export function updateRelationshipBeingCreatedEndpoint(position: [number, number]): void {
+    relationshipBeingCreatedInfoStore.update( current => {current.endPosition = position; return current} )
+}
+
+/**
+ * Disable the Relationship-being-created Widget.
+ */
+export function disableRelationshipBeingCreated(): void {
+    relationshipBeingCreatedInfoStore.update( () => nullRelationshipBeingCreatedInfo )
+}
+
+
+export const hoveredRelationshipTarget = writable(
+    null as (ThingWidgetModel | RelationshipsWidgetModel | null)
+)

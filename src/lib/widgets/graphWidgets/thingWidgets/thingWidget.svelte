@@ -4,6 +4,8 @@
     import type { Graph } from "$lib/models/graphModels"
     import type { ThingWidgetModel } from "$lib/models/widgetModels"
 
+    import { hoveredRelationshipTarget } from "$lib/stores"
+
     /* Widget imports. */
     import { pinIdsStore, hoveredThingIdStore, openContextCommandPalette, addPin, removePin } from "$lib/stores"
     import { ThingDetailsWidget } from "$lib/widgets/detailsWidgets"
@@ -116,8 +118,8 @@
         width: {thingWidth}px; height: {thingHeight}px; opacity: {opacity};
         pointer-events: {distanceFromFocalPlane === 0 ? "auto" : "none"};
     "
-    on:mouseenter={()=>{hoveredThingIdStore.set(thingId); isHoveredWidget = true}}
-    on:mouseleave={()=>{hoveredThingIdStore.set(null); isHoveredWidget = false; confirmDeleteBoxOpen = false}}
+    on:mouseenter={()=>{hoveredThingIdStore.set(thingId); isHoveredWidget = true, hoveredRelationshipTarget.set(thingWidgetModel)}}
+    on:mouseleave={()=>{hoveredThingIdStore.set(null); isHoveredWidget = false; confirmDeleteBoxOpen = false, hoveredRelationshipTarget.set(null)}}
     on:click={ () => { rePerspectToThingId(thingId) } }
     on:contextmenu|preventDefault={openCommandPalette}
 >

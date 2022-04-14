@@ -1,6 +1,7 @@
 <script context="module" lang="ts">
     import type { Graph } from "$lib/models/graphModels"
     import { sleep } from "$lib/shared/utility"
+    import { relationshipBeingCreatedInfoStore, enableRelationshipBeingCreated, hoveredRelationshipTarget } from "$lib/stores"
     import { ThingWidgetModel, RelationshipsWidgetModel } from "$lib/models/widgetModels"
 </script>
 
@@ -53,9 +54,12 @@
         x1="{midline}" y1="{stemBottom}"
         x2="{midline}" y2="{stemTop}"
         style="stroke-width: {15 / tweenedScale};"
-        on:mouseenter={()=>{stemHovered = true;}}
-        on:mouseleave={()=>{stemHovered = false;}}
-        on:mousedown={()=>{stemClicked = true}}
+        on:mouseenter={()=>{stemHovered = true; hoveredRelationshipTarget.set(relationshipsWidgetModel)}}
+        on:mouseleave={()=>{stemHovered = false; stemClicked = false; hoveredRelationshipTarget.set(null)}}
+        on:mousedown={event=>{stemClicked = true; enableRelationshipBeingCreated(
+            relationshipsWidgetModel,
+            [event.clientX, event.clientY]
+        )}}
         on:mouseup={()=>{stemClicked = false}}
     />
 
@@ -65,7 +69,7 @@
             stem-image
             {relationshipsExist || ofPerspectiveThing || stemHovered ? "" : "hidden"}
             {stemHovered || relationshipHovered || thingHovered ? "hovered" : ""}
-            {stemClicked ? "clicked" : ""}
+            {stemClicked || $relationshipBeingCreatedInfoStore.sourceWidgetModel === relationshipsWidgetModel ? "clicked" : ""}
         "
     >
         <line
