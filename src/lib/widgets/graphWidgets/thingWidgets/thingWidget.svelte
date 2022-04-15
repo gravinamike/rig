@@ -4,7 +4,7 @@
     import type { Graph } from "$lib/models/graphModels"
     import type { ThingWidgetModel } from "$lib/models/widgetModels"
 
-    import { hoveredRelationshipTarget } from "$lib/stores"
+    import { relationshipBeingCreatedInfoStore, enableRelationshipBeingCreated, hoveredRelationshipTarget } from "$lib/stores"
 
     /* Widget imports. */
     import { pinIdsStore, hoveredThingIdStore, openContextCommandPalette, addPin, removePin } from "$lib/stores"
@@ -120,7 +120,11 @@
     "
     on:mouseenter={()=>{hoveredThingIdStore.set(thingId); isHoveredWidget = true, hoveredRelationshipTarget.set(thingWidgetModel)}}
     on:mouseleave={()=>{hoveredThingIdStore.set(null); isHoveredWidget = false; confirmDeleteBoxOpen = false, hoveredRelationshipTarget.set(null)}}
-    on:click={ () => { rePerspectToThingId(thingId) } }
+    on:mousedown={event=>{if (event.button === 0) enableRelationshipBeingCreated(
+        thingWidgetModel,
+        [event.clientX, event.clientY]
+    )}}
+    on:click={ () => {if (!$relationshipBeingCreatedInfoStore.sourceWidgetModel) rePerspectToThingId(thingId) } }
     on:contextmenu|preventDefault={openCommandPalette}
 >
     <!-- Thing text. -->

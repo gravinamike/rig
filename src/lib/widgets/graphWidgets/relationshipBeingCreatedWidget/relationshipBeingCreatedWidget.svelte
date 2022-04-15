@@ -4,7 +4,6 @@
     import { relationshipColorByHalfAxisId } from "$lib/shared/constants"
     
 
-    let show: boolean
     let sourceWidgetModel: ThingWidgetModel | RelationshipsWidgetModel | null
     let startPositionX: number
     let startPositionY: number
@@ -19,11 +18,11 @@
     let lineEndPositionX: number
     let lineEndPositionY: number
 
+    let show: boolean
     let color: string
 
 
     $: if ($relationshipBeingCreatedInfoStore) {
-        show = $relationshipBeingCreatedInfoStore.sourceWidgetModel ? true : false;
         sourceWidgetModel = $relationshipBeingCreatedInfoStore.sourceWidgetModel;
         [startPositionX, startPositionY] = $relationshipBeingCreatedInfoStore.startPosition;
         [endPositionX, endPositionY] = $relationshipBeingCreatedInfoStore.endPosition;
@@ -36,16 +35,18 @@
         lineEndPositionX = endPositionX - 8 * Math.cos(angleInRadians)
         lineEndPositionY = endPositionY - 8 * Math.sin(angleInRadians)
 
+        show = (
+            $relationshipBeingCreatedInfoStore.sourceWidgetModel
+            && Math.hypot(endPositionX - startPositionX, endPositionY - startPositionY) > 5
+        ) ? true : false;
         color = sourceWidgetModel && sourceWidgetModel.kind === "relationshipsWidgetModel" ? 
             relationshipColorByHalfAxisId[sourceWidgetModel.halfAxisId] :
-            "black"
+            "grey"
     }
 
     // Handling outside mouse releases.
 	function handleMouseUp() {
-		if (show) {
-			disableRelationshipBeingCreated()
-		}
+		disableRelationshipBeingCreated()
 	}
 </script>
 
