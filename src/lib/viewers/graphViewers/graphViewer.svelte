@@ -4,7 +4,7 @@
     import { sleep } from "$lib/shared/utility"
 
     // Import stores.
-    import { hoveredThingIdStore } from "$lib/stores"
+    import { hoveredThingIdStore, graphIdsNeedingViewerRefresh, removeGraphIdsNeedingViewerRefresh } from "$lib/stores"
 
     // Import models.
     import { Graph } from "$lib/models/graphModels"
@@ -24,7 +24,13 @@
 
 
     // Initialize the Graph.
-    let graph = new Graph(pThingIds, depth)
+    let graph = new Graph(1, pThingIds, depth)
+
+    // Set up Graph refreshing.
+    $: if ( $graphIdsNeedingViewerRefresh.includes(graph.id) ) {
+        removeGraphIdsNeedingViewerRefresh(graph.id)
+        graph = graph // Needed for reactivity.
+    }
 
     onMount(async () => {
         // Build the Graph.

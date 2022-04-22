@@ -1,7 +1,7 @@
 <script context="module" lang="ts">
     import type { Graph } from "$lib/models/graphModels"
     import { sleep } from "$lib/shared/utility"
-    import { relationshipBeingCreatedInfoStore, enableRelationshipBeingCreated, hoveredRelationshipTarget } from "$lib/stores"
+    import { relationshipBeingCreatedInfoStore, enableRelationshipBeingCreated, setRelationshipBeingCreatedDestWidgetModel, hoveredRelationshipTarget } from "$lib/stores"
     import { ThingWidgetModel, RelationshipsWidgetModel } from "$lib/models/widgetModels"
 </script>
 
@@ -60,7 +60,10 @@
             relationshipsWidgetModel,
             [event.clientX, event.clientY]
         )}}
-        on:mouseup={()=>{stemClicked = false}}
+        on:mouseup={ () => {
+            stemClicked = false;
+            setRelationshipBeingCreatedDestWidgetModel(relationshipsWidgetModel)
+        } }
     />
 
     <!-- Visual image of stem. -->

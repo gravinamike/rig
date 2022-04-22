@@ -20,6 +20,7 @@
 </script>
 
 <script lang="ts">
+    import { DirectionWidget } from "$lib/widgets/graphWidgets"
     export let relationshipsWidgetModel: RelationshipsWidgetModel
     export let graph: Graph
 
@@ -137,13 +138,20 @@
         <!-- Direction text. -->
         {#if showDirection}
             <div
-                class="direction-text {!cohort.members.length ? "empty" : ""}"
+                class="direction-widget-anchor"
                 style="
-                    transform: scaleY({mirroring}) rotate({-rotation * mirroring + (halfAxisId === 3 ? -90 : (halfAxisId === 4 ? 90 : 0))}deg);
-                    font-size: {graph.graphWidgetStyle.relationshipTextSize}px; color: {relationshipColor}
+                    transform:
+                        scaleY({mirroring})
+                        rotate({-rotation * mirroring + (halfAxisId === 3 ? -90 : (halfAxisId === 4 ? 90 : 0))}deg);
+                    z-index: 1;
                 "
             >
-                {direction.text}
+                <DirectionWidget
+                    {direction}
+                    {halfAxisId}
+                    {graph}
+                    optionClickedFunction={(direction, _, option) => {console.log(direction, option)}}
+                />
             </div>
         {/if}
 
@@ -220,16 +228,6 @@
         display: flex;
         justify-content: center;
         align-items: center;
-    }
-
-    .direction-text {
-        border-radius: 8px;
-
-        background-color: white;
-
-        padding: 0.25rem;
-
-        pointer-events: auto;
     }
 
     .relationship-image {

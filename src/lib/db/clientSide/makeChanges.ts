@@ -98,3 +98,31 @@ export async function deleteThing( thingIdToDelete: number ): Promise<boolean> {
         return false
     }
 }
+
+
+/*
+ * Create a Relationship between two targets (which may be Things or Relationship stems).
+ */
+export async function createNewRelationship(sourceThingId: number, destThingId: number, directionId: number): Promise<boolean> {
+    // Post to the create-new Relationship API.
+    const res = await fetch(
+        `api/graphManipulation/createNewRelationship`,
+        {
+            method: "POST",
+
+            body: JSON.stringify({
+                sourceThingId: sourceThingId,
+                destThingId: destThingId,
+                directionId: directionId
+            })
+        }
+    )
+
+    // Report on the response.
+    if (res.ok) {
+        return true
+    } else {
+        res.text().then(text => {throw Error(text)})
+        return false
+    }
+}

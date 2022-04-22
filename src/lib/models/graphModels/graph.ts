@@ -33,7 +33,7 @@ export class Graph {
      * @param {number[]} pThingIds - IDs for the Graph's starting Perspective Things.
      * @param {number}   depth     - How many Relationship "steps" to grow the Graph from the Perspective Things.
      */
-    constructor(pThingIds: number[], depth: number) {
+    constructor(id: number, pThingIds: number[], depth: number) {
         this.id = 1
         this._pThingIds = pThingIds
         this._depth = depth

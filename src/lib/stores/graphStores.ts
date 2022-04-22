@@ -1,10 +1,10 @@
 import type { Writable } from "svelte/store"
 import type { GraphConstruct } from "$lib/shared/constants"
-import type { Direction, Space, Thing } from "$lib/models/dbModels"
+import type { Space, Thing } from "$lib/models/dbModels"
 import type { RelationshipBeingCreatedInfo } from "$lib/widgets/graphWidgets/relationshipBeingCreatedWidget"
 
 import { writable, derived } from "svelte/store"
-import { isDirection, isSpace, isThing } from "$lib/models/dbModels"
+import { Direction, isDirection, isSpace, isThing } from "$lib/models/dbModels"
 import { nullRelationshipBeingCreatedInfo } from "$lib/widgets/graphWidgets/relationshipBeingCreatedWidget"
 import type { ThingWidgetModel, RelationshipsWidgetModel } from "$lib/models/widgetModels"
 
@@ -243,29 +243,52 @@ export function retrieveGraphConstructs<Type extends GraphConstruct>(
 export const relationshipBeingCreatedInfoStore = writable(
     {
         sourceWidgetModel: null,
+        destWidgetModel: null,
         startPosition: [0, 0],
-        endPosition: [0, 0]
+        endPosition: [0, 0],
+        trackingMouse: false,
+        selectedDirection: null
     } as RelationshipBeingCreatedInfo
 )
 
 /**
  * Enable the Relationship-being-created Widget.
  */
- export function enableRelationshipBeingCreated(sourceWidgetModel: ThingWidgetModel | RelationshipsWidgetModel, position: [number, number]): void {
+export function enableRelationshipBeingCreated(sourceWidgetModel: ThingWidgetModel | RelationshipsWidgetModel, position: [number, number]): void {
     relationshipBeingCreatedInfoStore.set(
         {
             sourceWidgetModel: sourceWidgetModel,
+            destWidgetModel: null,
             startPosition: position,
-            endPosition: position
+            endPosition: position,
+            trackingMouse: true,
+            selectedDirection: null
         }
     )
 }
 
 /**
- * Open a context command palette.
+ * 
  */
- export function updateRelationshipBeingCreatedEndpoint(position: [number, number]): void {
-    relationshipBeingCreatedInfoStore.update( current => {current.endPosition = position; return current} )
+export function updateRelationshipBeingCreatedEndpoint(position: [number, number]): void {
+    relationshipBeingCreatedInfoStore.update( current => {
+        current.endPosition = current.trackingMouse ? position : current.endPosition
+        return current
+    } )
+}
+
+export function setRelationshipBeingCreatedDestWidgetModel(destWidgetModel: ThingWidgetModel | RelationshipsWidgetModel | null): void {
+    relationshipBeingCreatedInfoStore.update( current => {
+        current.destWidgetModel = destWidgetModel
+        return current
+    } )
+}
+
+export function setRelationshipBeingCreatedTrackingMouse(trackingMouse: boolean): void {
+    relationshipBeingCreatedInfoStore.update( current => {
+        current.trackingMouse = trackingMouse
+        return current
+    } )
 }
 
 /**
@@ -279,3 +302,44 @@ export function disableRelationshipBeingCreated(): void {
 export const hoveredRelationshipTarget = writable(
     null as (ThingWidgetModel | RelationshipsWidgetModel | null)
 )
+
+
+
+
+
+
+
+
+
+
+// Create Graph-related stores (and subscriptions where applicable).
+export const graphIdsNeedingViewerRefresh = writable( [] as number[] )
+/*let directionsStoreValue: { [id: number]: Direction }
+directionsStore.subscribe(value => {directionsStoreValue = value})*/
+
+/**
+ * 
+ */
+export function addGraphIdsNeedingViewerRefresh(graphIds: number | number[]): void {
+    if (typeof graphIds === "number") graphIds = [graphIds]
+    for (const graphId of graphIds) {
+        graphIdsNeedingViewerRefresh.update( current => {
+            if (!current.includes(graphId)) current.push(graphId)
+            return current
+        } )
+    }
+}
+
+/**
+ * 
+ */
+ export function removeGraphIdsNeedingViewerRefresh(graphIds: number | number[]): void {
+    if (typeof graphIds === "number") graphIds = [graphIds]
+    for (const graphId of graphIds) {
+        graphIdsNeedingViewerRefresh.update( current => {
+            const index = current.indexOf(graphId)
+            if (index > -1) current.splice(index, 1)
+            return current
+        } )
+    }
+}

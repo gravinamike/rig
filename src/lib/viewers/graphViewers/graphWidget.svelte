@@ -75,8 +75,10 @@
      * Zoom the Graph Widget (within allowed bounds) when the mousewheel is moved.
      */
     function handleWheelScroll(event: WheelEvent) {
-        const newZoom = graph.graphWidgetStyle.zoom + event.deltaY * -0.005
-        if (-5 <= newZoom && newZoom <= 5) graph.graphWidgetStyle.zoom = newZoom
+        if (!$relationshipBeingCreatedInfoStore.sourceWidgetModel) {
+            const newZoom = graph.graphWidgetStyle.zoom + event.deltaY * -0.005
+            if (-5 <= newZoom && newZoom <= 5) graph.graphWidgetStyle.zoom = newZoom
+        }
     }
 
     /**
