@@ -1,7 +1,7 @@
 <script context="module" lang="ts">
     import type { Graph } from "$lib/models/graphModels"
     import { sleep } from "$lib/shared/utility"
-    import { relationshipBeingCreatedInfoStore, enableRelationshipBeingCreated, setRelationshipBeingCreatedDestWidgetModel, hoveredRelationshipTarget } from "$lib/stores"
+    import { relationshipBeingCreatedInfoStore, enableRelationshipBeingCreated, setRelationshipBeingCreatedDestWidgetModel, hoveredRelationshipTarget, inferredRelationshipBeingCreatedDirection } from "$lib/stores"
     import { ThingWidgetModel, RelationshipsWidgetModel } from "$lib/models/widgetModels"
 </script>
 
@@ -41,6 +41,16 @@
         const thingFormTextField = document.getElementById("thing-form-text-field")//// Instead find the ThingForm, and access the field as a property.
         thingFormTextField?.focus()
     }
+
+    $: relatableForCurrentDrag = (
+        $relationshipBeingCreatedInfoStore.sourceWidgetModel !== relationshipsWidgetModel.parentThingWidgetModel
+        && (
+            !$inferredRelationshipBeingCreatedDirection ||
+            $inferredRelationshipBeingCreatedDirection.id === relationshipsWidgetModel.direction.oppositeid
+        )
+    ) ?
+        true :
+        false
 </script>
 
 
@@ -62,7 +72,7 @@
         )}}
         on:mouseup={ () => {
             stemClicked = false;
-            setRelationshipBeingCreatedDestWidgetModel(relationshipsWidgetModel)
+            if (relatableForCurrentDrag) setRelationshipBeingCreatedDestWidgetModel(relationshipsWidgetModel)
         } }
     />
 
@@ -70,7 +80,7 @@
     <g
         class="
             stem-image
-            {relationshipsExist || ofPerspectiveThing || stemHovered ? "" : "hidden"}
+            {relationshipsExist || ofPerspectiveThing || (relatableForCurrentDrag && stemHovered) || $relationshipBeingCreatedInfoStore.sourceWidgetModel === relationshipsWidgetModel ? "" : "hidden"}
             {stemHovered || relationshipHovered || thingHovered ? "hovered" : ""}
             {stemClicked || $relationshipBeingCreatedInfoStore.sourceWidgetModel === relationshipsWidgetModel ? "clicked" : ""}
         "

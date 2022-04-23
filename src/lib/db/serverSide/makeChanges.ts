@@ -193,7 +193,11 @@ export async function createNewRelationship(sourceThingId: number, destThingId: 
 
     if (relationshipAlreadyExists) {
 
-        console.log('To-be-created Relationship would duplicate an existing Relationship. Aborting operation.')
+        console.log("To-be-created Relationship would duplicate an existing Relationship. Aborting operation.")
+    
+    } else if (sourceThingId === destThingId) {
+
+        console.log("To-be-created Relationship would relate a Thing to itself. Aborting operation.")
 
     } else {
 

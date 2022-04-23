@@ -303,7 +303,29 @@ export const hoveredRelationshipTarget = writable(
     null as (ThingWidgetModel | RelationshipsWidgetModel | null)
 )
 
+export const inferredRelationshipBeingCreatedDirection = derived(
+    relationshipBeingCreatedInfoStore,
+    $relationshipBeingCreatedInfoStore => {
+        const sourceWidgetModel = $relationshipBeingCreatedInfoStore.sourceWidgetModel
+        const destWidgetModel = $relationshipBeingCreatedInfoStore.destWidgetModel
+        const selectedDirection = $relationshipBeingCreatedInfoStore.selectedDirection
 
+        let direction: Direction | null
+        if (sourceWidgetModel && sourceWidgetModel.kind === "relationshipsWidgetModel") {
+            direction = sourceWidgetModel.direction
+        } else if (destWidgetModel && destWidgetModel.kind === "relationshipsWidgetModel") {
+            direction = (
+                destWidgetModel.direction.oppositeid ?
+                    retrieveGraphConstructs("Direction", destWidgetModel.direction.oppositeid) :
+                    null
+            )
+        } else {
+            direction = selectedDirection
+        }
+
+        return direction
+    }
+)
 
 
 
@@ -314,8 +336,6 @@ export const hoveredRelationshipTarget = writable(
 
 // Create Graph-related stores (and subscriptions where applicable).
 export const graphIdsNeedingViewerRefresh = writable( [] as number[] )
-/*let directionsStoreValue: { [id: number]: Direction }
-directionsStore.subscribe(value => {directionsStoreValue = value})*/
 
 /**
  * 

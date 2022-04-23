@@ -4,7 +4,7 @@
     import type { Graph } from "$lib/models/graphModels"
     import type { ThingWidgetModel } from "$lib/models/widgetModels"
 
-    import { relationshipBeingCreatedInfoStore, enableRelationshipBeingCreated, setRelationshipBeingCreatedDestWidgetModel, hoveredRelationshipTarget } from "$lib/stores"
+    import { relationshipBeingCreatedInfoStore, enableRelationshipBeingCreated, setRelationshipBeingCreatedDestWidgetModel, hoveredRelationshipTarget, inferredRelationshipBeingCreatedDirection } from "$lib/stores"
 
     /* Widget imports. */
     import { pinIdsStore, hoveredThingIdStore, openContextCommandPalette, addPin, removePin } from "$lib/stores"
@@ -102,16 +102,21 @@
             [{ text: "Add Thing to Pins", iconName: "pin", iconHtml: null, isActive: false, onClick: () => {addPin(thingId)} }]
         openContextCommandPalette(position, buttonInfos)
     }
+
+    $: relationshipBeingCreated = $relationshipBeingCreatedInfoStore.sourceWidgetModel ? true : false
+    $: relatableForCurrentDrag = $relationshipBeingCreatedInfoStore.sourceWidgetModel !== thingWidgetModel ?
+        true :
+        false
 </script>
 
 
 <!-- Thing Widget. -->
 <div
     id="{thingWidgetId}"
-    class="box thing-widget { isHoveredThing ? "hovered-thing" : "" }"
+    class="box thing-widget { isHoveredThing && !(relationshipBeingCreated && !relatableForCurrentDrag) ? "hovered-thing" : "" }"
     style="
         border-radius: {10 + 4 * encapsulatingDepth}px;
-        {isHoveredThing ? 
+        {isHoveredThing && !(relationshipBeingCreated && !relatableForCurrentDrag) ? 
             `box-shadow: 5px 5px 10px 10px ${hexToRgba(shadowColor, 0.15)};` :
             `box-shadow: 5px 5px 10px 2px ${hexToRgba(shadowColor, 0.15)};`
         }
@@ -127,7 +132,7 @@
     on:click={ () => {if (!$relationshipBeingCreatedInfoStore.sourceWidgetModel) rePerspectToThingId(thingId) } }
 
     on:mouseup={ () => {
-        setRelationshipBeingCreatedDestWidgetModel(thingWidgetModel)
+        if (relatableForCurrentDrag) setRelationshipBeingCreatedDestWidgetModel(thingWidgetModel)
     } }
 
     on:contextmenu|preventDefault={openCommandPalette}
