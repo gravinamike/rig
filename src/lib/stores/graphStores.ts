@@ -1,9 +1,12 @@
 import type { Writable } from "svelte/store"
 import type { GraphConstruct } from "$lib/shared/constants"
-import type { Direction, Space, Thing } from "$lib/models/dbModels"
+import type { Space, Thing } from "$lib/models/dbModels"
+import type { RelationshipBeingCreatedInfo } from "$lib/widgets/graphWidgets/relationshipBeingCreatedWidget"
 
 import { writable, derived } from "svelte/store"
-import { isDirection, isSpace, isThing } from "$lib/models/dbModels"
+import { Direction, isDirection, isSpace, isThing } from "$lib/models/dbModels"
+import { nullRelationshipBeingCreatedInfo } from "$lib/widgets/graphWidgets/relationshipBeingCreatedWidget"
+import type { ThingWidgetModel, RelationshipsWidgetModel } from "$lib/models/widgetModels"
 
 
 // Create Direction-related stores (and subscriptions where applicable).
@@ -222,5 +225,141 @@ export function retrieveGraphConstructs<Type extends GraphConstruct>(
             if (graphConstructInStore(constructName, id)) output.push(storeValue[id] as Type)
         }
         return output
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const relationshipBeingCreatedInfoStore = writable(
+    {
+        sourceWidgetModel: null,
+        destWidgetModel: null,
+        startPosition: [0, 0],
+        endPosition: [0, 0],
+        trackingMouse: false,
+        selectedDirection: null
+    } as RelationshipBeingCreatedInfo
+)
+
+/**
+ * Enable the Relationship-being-created Widget.
+ */
+export function enableRelationshipBeingCreated(sourceWidgetModel: ThingWidgetModel | RelationshipsWidgetModel, position: [number, number]): void {
+    relationshipBeingCreatedInfoStore.set(
+        {
+            sourceWidgetModel: sourceWidgetModel,
+            destWidgetModel: null,
+            startPosition: position,
+            endPosition: position,
+            trackingMouse: true,
+            selectedDirection: null
+        }
+    )
+}
+
+/**
+ * 
+ */
+export function updateRelationshipBeingCreatedEndpoint(position: [number, number]): void {
+    relationshipBeingCreatedInfoStore.update( current => {
+        current.endPosition = current.trackingMouse ? position : current.endPosition
+        return current
+    } )
+}
+
+export function setRelationshipBeingCreatedDestWidgetModel(destWidgetModel: ThingWidgetModel | RelationshipsWidgetModel | null): void {
+    relationshipBeingCreatedInfoStore.update( current => {
+        current.destWidgetModel = destWidgetModel
+        return current
+    } )
+}
+
+export function setRelationshipBeingCreatedTrackingMouse(trackingMouse: boolean): void {
+    relationshipBeingCreatedInfoStore.update( current => {
+        current.trackingMouse = trackingMouse
+        return current
+    } )
+}
+
+/**
+ * Disable the Relationship-being-created Widget.
+ */
+export function disableRelationshipBeingCreated(): void {
+    relationshipBeingCreatedInfoStore.update( () => nullRelationshipBeingCreatedInfo )
+}
+
+
+export const hoveredRelationshipTarget = writable(
+    null as (ThingWidgetModel | RelationshipsWidgetModel | null)
+)
+
+export const inferredRelationshipBeingCreatedDirection = derived(
+    relationshipBeingCreatedInfoStore,
+    $relationshipBeingCreatedInfoStore => {
+        const sourceWidgetModel = $relationshipBeingCreatedInfoStore.sourceWidgetModel
+        const destWidgetModel = $relationshipBeingCreatedInfoStore.destWidgetModel
+        const selectedDirection = $relationshipBeingCreatedInfoStore.selectedDirection
+
+        let direction: Direction | null
+        if (sourceWidgetModel && sourceWidgetModel.kind === "relationshipsWidgetModel") {
+            direction = sourceWidgetModel.direction
+        } else if (destWidgetModel && destWidgetModel.kind === "relationshipsWidgetModel") {
+            direction = (
+                destWidgetModel.direction.oppositeid ?
+                    retrieveGraphConstructs("Direction", destWidgetModel.direction.oppositeid) :
+                    null
+            )
+        } else {
+            direction = selectedDirection
+        }
+
+        return direction
+    }
+)
+
+
+
+
+
+
+
+
+// Create Graph-related stores (and subscriptions where applicable).
+export const graphIdsNeedingViewerRefresh = writable( [] as number[] )
+
+/**
+ * 
+ */
+export function addGraphIdsNeedingViewerRefresh(graphIds: number | number[]): void {
+    if (typeof graphIds === "number") graphIds = [graphIds]
+    for (const graphId of graphIds) {
+        graphIdsNeedingViewerRefresh.update( current => {
+            if (!current.includes(graphId)) current.push(graphId)
+            return current
+        } )
+    }
+}
+
+/**
+ * 
+ */
+ export function removeGraphIdsNeedingViewerRefresh(graphIds: number | number[]): void {
+    if (typeof graphIds === "number") graphIds = [graphIds]
+    for (const graphId of graphIds) {
+        graphIdsNeedingViewerRefresh.update( current => {
+            const index = current.indexOf(graphId)
+            if (index > -1) current.splice(index, 1)
+            return current
+        } )
     }
 }

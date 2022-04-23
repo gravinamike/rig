@@ -170,3 +170,72 @@ export async function deleteThing(thingId: number): Promise<void> {
         console.error(err)
     })
 }
+
+
+
+/*
+ * Create a new Relationship
+ */
+export async function createNewRelationship(sourceThingId: number, destThingId: number, directionId: number): Promise<void> {
+
+    //console.log(sourceThingId, destThingId, directionId)
+    
+    // Verify the Relationship does not yet exist.
+    const queriedARelationships = await Relationship.query()
+        .where("thingaid", destThingId)
+        .where("thingbid", sourceThingId)
+        .where("direction", directionId)
+    const queriedBRelationships = await Relationship.query()
+        .where("thingaid", sourceThingId)
+        .where("thingbid", destThingId)
+        .where("direction", directionId)
+    const relationshipAlreadyExists = queriedARelationships.length > 0 || queriedBRelationships.length > 0
+
+    if (relationshipAlreadyExists) {
+
+        console.log("To-be-created Relationship would duplicate an existing Relationship. Aborting operation.")
+    
+    } else if (sourceThingId === destThingId) {
+
+        console.log("To-be-created Relationship would relate a Thing to itself. Aborting operation.")
+
+    } else {
+
+        // Get parameters for SQL query.
+        const whenCreated = (new Date()).toISOString()
+        
+        // Construct and run SQL query.
+        const knex = Model.knex()
+        await knex.transaction(async (transaction: Knex.Transaction) => {
+
+            // Delete any existing Relationships between source and dest Things in *other* Directions.
+            await Relationship.query().delete().where("thingaid", destThingId).where("thingbid", sourceThingId).transacting(transaction)
+            await Relationship.query().delete().where("thingaid", sourceThingId).where("thingbid", destThingId).transacting(transaction)
+
+            // Get Direction info.
+            const direction = (await Direction.query().where("id", directionId))[0]
+            const oppositeDirectionId = direction.oppositeid as number
+
+            // Create new Relationship.
+            const newARelationshipInfo = getNewRelationshipInfo(sourceThingId, destThingId, whenCreated, directionId)
+            const querystring1 = Relationship.query().insert(newARelationshipInfo).toKnexQuery().toString()
+            const newBRelationshipInfo = getNewRelationshipInfo(destThingId, sourceThingId, whenCreated, oppositeDirectionId)
+            const querystring2 = Relationship.query().insert(newBRelationshipInfo).toKnexQuery().toString()
+            const [newARelationship, newBRelationship] = await Promise.all([
+                alterQuerystringForH2AndRun(querystring1, transaction, whenCreated, "Relationship"),
+                alterQuerystringForH2AndRun(querystring2, transaction, whenCreated, "Relationship")
+            ])
+
+            return [newARelationship, newBRelationship]
+        })
+
+        // Report on the response.
+        .then(function() {
+            console.log('Transaction complete.')
+        })
+        .catch(function(err: Error) {
+            console.error(err)
+        })
+
+    }
+}

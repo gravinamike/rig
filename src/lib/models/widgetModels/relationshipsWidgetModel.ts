@@ -13,7 +13,7 @@ import { rectOfThingWidgetByThingId } from "$lib/shared/utility"
 
 
 export class RelationshipsWidgetModel {
-    kind = "relationshipsWidgetModel"
+    kind = "relationshipsWidgetModel" as const
 
     cohort: Cohort
     space: Space

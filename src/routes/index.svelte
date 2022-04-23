@@ -7,7 +7,7 @@
     import { storeConfig } from "$lib/shared/config"
 
     // Import database/stores-related functions.
-    import { storeGraphConstructs } from "$lib/stores"
+    import { storeGraphConstructs, updateRelationshipBeingCreatedEndpoint } from "$lib/stores"
 
     // Import layout elements.
     import { ContextCommandPalette, Collapser, TabBlock, TabFlap, TabFlaps, TabBody } from "$lib/widgets/layoutWidgets"
@@ -16,6 +16,7 @@
     import { DirectionsStoreViewer, SpacesStoreViewer, ThingsStoreViewer } from "$lib/viewers/storeViewers"
     import { DbLatestViewer } from "$lib/viewers/dbViewers"
     import { GraphViewer } from "$lib/viewers/graphViewers"
+    import { RelationshipBeingCreatedWidget } from "$lib/widgets/graphWidgets"
     
 
     let graphConstructsStored = false
@@ -30,13 +31,23 @@
         await storeGraphConstructs("Space")
         graphConstructsStored = true
 	})
+
+    function handleMouseMove(event: MouseEvent): void {/////////////////// MOVE INTO THE WIDGET
+        updateRelationshipBeingCreatedEndpoint([event.clientX, event.clientY])
+    }
 </script>
 
 
-<main style="height: calc( 100% - {navHeight} )">
+<main
+    style="height: calc( 100% - {navHeight} )"
+    on:mousemove={handleMouseMove}
+>
 
     <!-- Front pane for context menus and command palettes. -->
     <ContextCommandPalette />
+
+    <!-- Front pane for Relationship-being-created Widget. -->
+    <RelationshipBeingCreatedWidget />
     
     <!-- Stores viewers. -->
     <Collapser headerText={"Stores / Database"} contentDirection={"left"}>

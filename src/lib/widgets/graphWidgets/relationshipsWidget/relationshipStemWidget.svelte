@@ -1,6 +1,7 @@
 <script context="module" lang="ts">
     import type { Graph } from "$lib/models/graphModels"
     import { sleep } from "$lib/shared/utility"
+    import { relationshipBeingCreatedInfoStore, enableRelationshipBeingCreated, setRelationshipBeingCreatedDestWidgetModel, hoveredRelationshipTarget, inferredRelationshipBeingCreatedDirection } from "$lib/stores"
     import { ThingWidgetModel, RelationshipsWidgetModel } from "$lib/models/widgetModels"
 </script>
 
@@ -40,6 +41,16 @@
         const thingFormTextField = document.getElementById("thing-form-text-field")//// Instead find the ThingForm, and access the field as a property.
         thingFormTextField?.focus()
     }
+
+    $: relatableForCurrentDrag = (
+        $relationshipBeingCreatedInfoStore.sourceWidgetModel !== relationshipsWidgetModel.parentThingWidgetModel
+        && (
+            !$inferredRelationshipBeingCreatedDirection ||
+            $inferredRelationshipBeingCreatedDirection.id === relationshipsWidgetModel.direction.oppositeid
+        )
+    ) ?
+        true :
+        false
 </script>
 
 
@@ -53,19 +64,25 @@
         x1="{midline}" y1="{stemBottom}"
         x2="{midline}" y2="{stemTop}"
         style="stroke-width: {15 / tweenedScale};"
-        on:mouseenter={()=>{stemHovered = true;}}
-        on:mouseleave={()=>{stemHovered = false;}}
-        on:mousedown={()=>{stemClicked = true}}
-        on:mouseup={()=>{stemClicked = false}}
+        on:mouseenter={()=>{stemHovered = true; hoveredRelationshipTarget.set(relationshipsWidgetModel)}}
+        on:mouseleave={()=>{stemHovered = false; stemClicked = false; hoveredRelationshipTarget.set(null)}}
+        on:mousedown={event=>{stemClicked = true; enableRelationshipBeingCreated(
+            relationshipsWidgetModel,
+            [event.clientX, event.clientY]
+        )}}
+        on:mouseup={ () => {
+            stemClicked = false;
+            if (relatableForCurrentDrag) setRelationshipBeingCreatedDestWidgetModel(relationshipsWidgetModel)
+        } }
     />
 
     <!-- Visual image of stem. -->
     <g
         class="
             stem-image
-            {relationshipsExist || ofPerspectiveThing || stemHovered ? "" : "hidden"}
+            {relationshipsExist || ofPerspectiveThing || (relatableForCurrentDrag && stemHovered) || $relationshipBeingCreatedInfoStore.sourceWidgetModel === relationshipsWidgetModel ? "" : "hidden"}
             {stemHovered || relationshipHovered || thingHovered ? "hovered" : ""}
-            {stemClicked ? "clicked" : ""}
+            {stemClicked || $relationshipBeingCreatedInfoStore.sourceWidgetModel === relationshipsWidgetModel ? "clicked" : ""}
         "
     >
         <line

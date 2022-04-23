@@ -11,6 +11,8 @@
     // Import constants.
     import { zoomBase } from "$lib/shared/constants"
 
+    import { relationshipBeingCreatedInfoStore } from "$lib/stores"
+
     // Import widgets.
     import { PlaneControls } from "$lib/widgets/controlWidgets"
     import { CohortWidget } from "$lib/widgets/graphWidgets"
@@ -73,8 +75,10 @@
      * Zoom the Graph Widget (within allowed bounds) when the mousewheel is moved.
      */
     function handleWheelScroll(event: WheelEvent) {
-        const newZoom = graph.graphWidgetStyle.zoom + event.deltaY * -0.005
-        if (-5 <= newZoom && newZoom <= 5) graph.graphWidgetStyle.zoom = newZoom
+        if (!$relationshipBeingCreatedInfoStore.sourceWidgetModel) {
+            const newZoom = graph.graphWidgetStyle.zoom + event.deltaY * -0.005
+            if (-5 <= newZoom && newZoom <= 5) graph.graphWidgetStyle.zoom = newZoom
+        }
     }
 
     /**
@@ -161,7 +165,7 @@
 <div
     class="graph-widget"
     bind:this={graphWidget}
-    on:mousedown={() => trackingMouse = true}
+    on:mousedown={() => {if (!$relationshipBeingCreatedInfoStore.sourceWidgetModel) trackingMouse = true}}
     on:mouseup={() => trackingMouse = false}
     on:mousemove={handleMouseMove}
     on:wheel|preventDefault={(event) => {handleWheelScroll(event)}}
