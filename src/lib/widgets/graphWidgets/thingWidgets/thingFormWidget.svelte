@@ -9,7 +9,7 @@
     import { XButton } from "$lib/widgets/layoutWidgets"
 
     import { createNewRelatedThing } from "$lib/db/clientSide"
-    import { storeGraphConstructs } from "$lib/stores"
+    import { storeGraphConstructs, addGraphIdsNeedingViewerRefresh } from "$lib/stores"
 
     export let thingWidgetModel: ThingWidgetModel
     export let graph: Graph
@@ -62,14 +62,14 @@
         if (newRelatedThingCreated) {
             await storeGraphConstructs<Thing>("Thing", parentThingId, true)
             await graph.build()
-            graph = graph // Needed for reactivity.
+            addGraphIdsNeedingViewerRefresh(graph.id)
         }
     }
 
     async function cancel() {
         (thingWidgetModel.parentCohort as Cohort).removeMember(thingWidgetModel)
         graph.formActive = false
-        graph = graph // Needed for reactivity.
+        addGraphIdsNeedingViewerRefresh(graph.id)
     }    
 </script>
 

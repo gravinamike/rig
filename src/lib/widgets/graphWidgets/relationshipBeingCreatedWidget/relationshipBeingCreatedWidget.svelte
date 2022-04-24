@@ -93,12 +93,9 @@
 
             const newRelationshipCreated = await createNewRelationship(sourceThingId, destThingId, direction.id)
             if (newRelationshipCreated) {
-                console.log('REFRESHING')
                 await storeGraphConstructs<Thing>("Thing", [sourceThingId, destThingId], true)
                 await (graph as Graph).build()
                 addGraphIdsNeedingViewerRefresh((graph as Graph).id)
-                //(graph as Graph) = (graph as Graph) // Needed for reactivity.
-                ///////////////// Have to get the graph widget in here...
             }
             disableRelationshipBeingCreated()
         }

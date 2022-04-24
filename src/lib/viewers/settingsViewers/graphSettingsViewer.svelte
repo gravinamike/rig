@@ -1,5 +1,6 @@
 <script lang="ts">
     import type { Graph } from "$lib/models/graphModels"
+    import { addGraphIdsNeedingViewerRefresh } from "$lib/stores"
     import { SettingWidget } from "$lib/widgets/layoutWidgets"
 
     export let graph: Graph
@@ -8,11 +9,11 @@
     async function setGraphDepth() {
         await graph.adjustGenerationsToDepth()
         graph.allowZoomAndScrollToFit = true
-        graph = graph // Needed for reactivity.
+        addGraphIdsNeedingViewerRefresh(graph.id)
     }
 
     function updateGraphFormat() {
-        graph = graph // Needed for reactivity.
+        addGraphIdsNeedingViewerRefresh(graph.id)
     }
 </script>
 

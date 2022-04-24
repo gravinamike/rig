@@ -4,7 +4,7 @@
     import type { Graph } from "$lib/models/graphModels"
     import type { ThingWidgetModel } from "$lib/models/widgetModels"
 
-    import { relationshipBeingCreatedInfoStore, enableRelationshipBeingCreated, setRelationshipBeingCreatedDestWidgetModel, hoveredRelationshipTarget, inferredRelationshipBeingCreatedDirection } from "$lib/stores"
+    import { relationshipBeingCreatedInfoStore, enableRelationshipBeingCreated, setRelationshipBeingCreatedDestWidgetModel, hoveredRelationshipTarget, addGraphIdsNeedingViewerRefresh, disableRelationshipBeingCreated } from "$lib/stores"
 
     /* Widget imports. */
     import { pinIdsStore, hoveredThingIdStore, openContextCommandPalette, addPin, removePin } from "$lib/stores"
@@ -92,7 +92,7 @@
 
     async function confirmDelete() {
         await graph.deleteThingById(thingId)
-        graph = graph // Needed for reactivity.
+        addGraphIdsNeedingViewerRefresh(graph.id)
     }
 
     function openCommandPalette(event: MouseEvent) {
@@ -104,7 +104,13 @@
     }
 
     $: relationshipBeingCreated = $relationshipBeingCreatedInfoStore.sourceWidgetModel ? true : false
-    $: relatableForCurrentDrag = $relationshipBeingCreatedInfoStore.sourceWidgetModel !== thingWidgetModel ?
+    $: relatableForCurrentDrag = (
+        $relationshipBeingCreatedInfoStore.sourceWidgetModel
+        && !(
+            $relationshipBeingCreatedInfoStore.sourceWidgetModel.kind === "thingWidgetModel"
+            && $relationshipBeingCreatedInfoStore.sourceWidgetModel.thingId === thingWidgetModel.thingId
+        )
+    ) ?
         true :
         false
 </script>
@@ -129,10 +135,14 @@
         thingWidgetModel,
         [event.clientX, event.clientY]
     )}}
-    on:click={ () => {if (!$relationshipBeingCreatedInfoStore.sourceWidgetModel) rePerspectToThingId(thingId) } }
+    on:click={ () => {if ($relationshipBeingCreatedInfoStore.sourceWidgetModel === null) rePerspectToThingId(thingId) } }
 
     on:mouseup={ () => {
-        if (relatableForCurrentDrag) setRelationshipBeingCreatedDestWidgetModel(thingWidgetModel)
+        if (relatableForCurrentDrag) {
+            setRelationshipBeingCreatedDestWidgetModel(thingWidgetModel)
+        } else {
+            disableRelationshipBeingCreated()
+        }
     } }
 
     on:contextmenu|preventDefault={openCommandPalette}

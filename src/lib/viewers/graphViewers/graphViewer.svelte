@@ -4,7 +4,7 @@
     import { sleep } from "$lib/shared/utility"
 
     // Import stores.
-    import { hoveredThingIdStore, graphIdsNeedingViewerRefresh, removeGraphIdsNeedingViewerRefresh } from "$lib/stores"
+    import { hoveredThingIdStore, graphIdsNeedingViewerRefresh, addGraphIdsNeedingViewerRefresh, removeGraphIdsNeedingViewerRefresh } from "$lib/stores"
 
     // Import models.
     import { Graph } from "$lib/models/graphModels"
@@ -35,7 +35,7 @@
     onMount(async () => {
         // Build the Graph.
         await graph.build()
-        graph = graph // Needed for reactivity.
+        addGraphIdsNeedingViewerRefresh(graph.id)
 	})
 
     /**
@@ -45,14 +45,14 @@
         // If the new Perspective Thing is already in the Graph, scroll to center it.
         graph.allowScrollToThingId = true
         graph.thingIdToScrollTo = thingId
-        graph = graph // Needed for reactivity.
+        addGraphIdsNeedingViewerRefresh(graph.id)
         await sleep(500) // Allow for scroll time (since there's no actual feedback from the Portal to `await`).
 
         // Re-Perspect the Graph
         await graph.setPThingIds([thingId]) // Re-Perspect to this Thing.
         hoveredThingIdStore.set(null) // Clear the hovered-Thing highlighting.
         graph.allowZoomAndScrollToFit = true
-        graph = graph // Needed for reactivity.
+        addGraphIdsNeedingViewerRefresh(graph.id)
 
         // Add the new Perspective Thing to the History.
         graph.addEntriesToHistory([thingId])

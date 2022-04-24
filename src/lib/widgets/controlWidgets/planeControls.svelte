@@ -1,5 +1,6 @@
 <script lang="ts">
     import type { Graph } from "$lib/models/graphModels"
+    import { addGraphIdsNeedingViewerRefresh } from "$lib/stores"
 
     export let graph: Graph
 
@@ -34,7 +35,7 @@
         }
         prevLocation.x = event.clientX
         prevLocation.y = event.clientY
-        graph = graph // Needed for reactivity.
+        addGraphIdsNeedingViewerRefresh(graph.id)
     }
 
     function resetOffsets() {
@@ -42,7 +43,7 @@
         offsets[1] = 0
         prevLocation.x = null
         prevLocation.y = null
-        graph = graph // Needed for reactivity.
+        addGraphIdsNeedingViewerRefresh(graph.id)
     }
 </script>
 

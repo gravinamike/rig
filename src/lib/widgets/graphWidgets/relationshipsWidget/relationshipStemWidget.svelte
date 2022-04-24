@@ -1,7 +1,7 @@
 <script context="module" lang="ts">
     import type { Graph } from "$lib/models/graphModels"
     import { sleep } from "$lib/shared/utility"
-    import { relationshipBeingCreatedInfoStore, enableRelationshipBeingCreated, setRelationshipBeingCreatedDestWidgetModel, hoveredRelationshipTarget, inferredRelationshipBeingCreatedDirection } from "$lib/stores"
+    import { relationshipBeingCreatedInfoStore, enableRelationshipBeingCreated, setRelationshipBeingCreatedDestWidgetModel, hoveredRelationshipTarget, inferredRelationshipBeingCreatedDirection, addGraphIdsNeedingViewerRefresh } from "$lib/stores"
     import { ThingWidgetModel, RelationshipsWidgetModel } from "$lib/models/widgetModels"
 </script>
 
@@ -36,7 +36,7 @@
             cohort.addMember(newThingWidgetModel)
             graph.formActive = true
         }
-        graph = graph
+        addGraphIdsNeedingViewerRefresh(graph.id)
         await sleep(50)// Allow the Thing Form Widget to render.
         const thingFormTextField = document.getElementById("thing-form-text-field")//// Instead find the ThingForm, and access the field as a property.
         thingFormTextField?.focus()
