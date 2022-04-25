@@ -13,7 +13,7 @@
     import { Collapser, TabBlock, TabFlap, TabFlaps, TabBody } from "$lib/widgets/layoutWidgets"
 
     // Import viewers.
-    import { GraphSettingsViewer } from "$lib/viewers/settingsViewers"
+    import { FileViewer, GraphSettingsViewer } from "$lib/viewers/settingsViewers"
     import { GraphSchematicViewer, GraphWidget } from "$lib/viewers/graphViewers"
     import { HistoryViewer, PinsViewer } from "$lib/viewers/navViewers"
     import { NotesViewer } from "$lib/viewers/notesViewers"
@@ -70,9 +70,15 @@
         <div class="tabs-container">
             <TabBlock>
                 <TabFlaps>
+                    <TabFlap>File</TabFlap>
                     <TabFlap>Settings</TabFlap>
                     <TabFlap>Schematic</TabFlap>
                 </TabFlaps>
+
+                <!-- File viewer -->
+                <TabBody>
+                    <FileViewer />
+                </TabBody>
             
                 <!-- Graph Settings viewer -->
                 <TabBody>

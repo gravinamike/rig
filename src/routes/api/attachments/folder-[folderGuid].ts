@@ -1,4 +1,4 @@
-import { listFolder } from "$lib/shared/fileSystem"
+import { listAttachmentsFolder } from "$lib/shared/fileSystem"
 
 
 let folderGuid: string
@@ -11,7 +11,7 @@ export async function get(
 }> {
     try {
         ({ folderGuid } = params)
-        const folderListing = await listFolder(folderGuid)
+        const folderListing = await listAttachmentsFolder(folderGuid)
         return {
             status: 200,
             body: folderListing
@@ -20,7 +20,7 @@ export async function get(
     } catch(err) {
         return {
             status: 500,
-            body: { error: `A server error occurred while attempting to get folder listing: ${err}` }
+            body: { error: `A server error occurred while attempting to get Attachments folder listing: ${err}` }
         }
     }
 }

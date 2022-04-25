@@ -24,7 +24,7 @@
     // At app initialization,
     onMount(async () => {
         // Store app configuration.
-        storeConfig()
+        await storeConfig()
 
         // Store Direction and Space constructs.
         await storeGraphConstructs("Direction")

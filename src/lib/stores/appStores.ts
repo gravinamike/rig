@@ -13,6 +13,10 @@ import { nullContextCommandPaletteInfo } from "$lib/widgets/layoutWidgets/comman
 
 /* Create stores */
 
+
+export const unigraphFolderStore = writable( null as string | null )
+
+
 // Create UI-related stores.
 export const commandPaletteInfoStore = writable(
     {
