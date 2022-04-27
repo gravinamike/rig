@@ -77,7 +77,9 @@
 
                 <!-- File viewer -->
                 <TabBody>
-                    <FileViewer />
+                    <FileViewer
+                        {graph}
+                    />
                 </TabBody>
             
                 <!-- Graph Settings viewer -->

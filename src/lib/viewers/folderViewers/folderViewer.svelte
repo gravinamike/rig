@@ -21,7 +21,7 @@
 
     let folderContents: string[] = []
     $: if (folderGuid) {
-        fetch(`api/attachments/folder-${folderGuid}`)
+        fetch(`api/file/attachmentsFolder-${folderGuid}`)
         .then(response => {return (response.json() as unknown) as string[]})
         .then(data => folderContents = data)
     }

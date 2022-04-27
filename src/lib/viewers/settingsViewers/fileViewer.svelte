@@ -1,18 +1,36 @@
 <script lang="ts">
+    import type { Graph } from "$lib/models/graphModels"
     import { addGraphIdsNeedingViewerRefresh } from "$lib/stores"
+    import { openUnigraph, closeUnigraph } from "$lib/shared/unigraph"
 
-
-    
-    //addGraphIdsNeedingViewerRefresh(1)
-
+    export let graph: Graph
 
 
     let graphFolders: string[] = []
 
-    fetch(`api/file/graphFolders`)
-        .then(response => {return (response.json() as unknown) as string[]})
-        .then(data => graphFolders = data)
-    
+    function refreshGraphFolders() {
+        fetch(`api/file/graphFolders`)
+            .then(response => {return (response.json() as unknown) as string[]})
+            .then(data => graphFolders = data)
+    }
+    refreshGraphFolders()
+
+
+    async function openUnigraphFolder(folderName: string) {
+        console.log(folderName)
+
+        await fetch("/api/file/unigraphFolder", {
+            method: "POST",
+            body: JSON.stringify(folderName)
+        })
+
+        await closeUnigraph()
+
+        await openUnigraph()
+
+        await graph.build()
+        addGraphIdsNeedingViewerRefresh(1)
+    }
 </script>
 
 
@@ -23,7 +41,10 @@
 
     <div class="graph-folders">
         {#each graphFolders as folder}
-            <div class="graph-folder">
+            <div
+                class="graph-folder"
+                on:click={() => {openUnigraphFolder(folder)}}
+            >
                 {folder}
             </div>
         {/each}

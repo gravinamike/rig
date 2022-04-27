@@ -5,7 +5,7 @@ import type { CommandButtonInfo, ContextCommandPaletteInfo } from "$lib/widgets/
 import { writable } from "svelte/store"
 
 /* Config-related imports. */
-import { saveConfig } from "$lib/shared/config"
+import { saveGraphConfig } from "$lib/shared/config"
 
 /* Widget-related imports. */
 import { nullContextCommandPaletteInfo } from "$lib/widgets/layoutWidgets/commandPalette"
@@ -61,7 +61,7 @@ export const pinIdsStore = writable( [] as number[] )
  */
  export async function addPin(thingId: number): Promise<void> {
     pinIdsStore.update( (current) => { if (!current.includes(thingId)) current.push(thingId); return current } )
-    await saveConfig()
+    await saveGraphConfig()
 }
 
 /**
@@ -73,5 +73,5 @@ export async function removePin(thingId: number): Promise<void> {
         if (index !== -1) current.splice(index, 1)
         return current
     } )
-    await saveConfig()
+    await saveGraphConfig()
 }

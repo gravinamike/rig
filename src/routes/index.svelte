@@ -4,10 +4,10 @@
 
     // Import constants and configs.
     import { startingPThingIds, startingGraphDepth, navHeight } from "$lib/shared/constants"
-    import { storeConfig } from "$lib/shared/config"
+    import { storeAppConfig } from "$lib/shared/config"
 
     // Import database/stores-related functions.
-    import { storeGraphConstructs, updateRelationshipBeingCreatedEndpoint } from "$lib/stores"
+    import { graphConstructsStoredStore, updateRelationshipBeingCreatedEndpoint } from "$lib/stores"
 
     // Import layout elements.
     import { ContextCommandPalette, Collapser, TabBlock, TabFlap, TabFlaps, TabBody } from "$lib/widgets/layoutWidgets"
@@ -17,19 +17,24 @@
     import { DbLatestViewer } from "$lib/viewers/dbViewers"
     import { GraphViewer } from "$lib/viewers/graphViewers"
     import { RelationshipBeingCreatedWidget } from "$lib/widgets/graphWidgets"
+
+    import { openUnigraph } from "$lib/shared/unigraph"
     
 
-    let graphConstructsStored = false
+    graphConstructsStoredStore.set(false)
+
+
+
+    
+
 
     // At app initialization,
     onMount(async () => {
-        // Store app configuration.
-        await storeConfig()
+        // Store configuration.
+        await storeAppConfig()
 
-        // Store Direction and Space constructs.
-        await storeGraphConstructs("Direction")
-        await storeGraphConstructs("Space")
-        graphConstructsStored = true
+        // Open the Unigraph currently specified in the store.
+        await openUnigraph()
 	})
 
     function handleMouseMove(event: MouseEvent): void {/////////////////// MOVE INTO THE WIDGET
@@ -95,7 +100,7 @@
     </Collapser>
 
     <!-- Graph Portal. -->
-    {#if graphConstructsStored}
+    {#if $graphConstructsStoredStore}
         <GraphViewer
             pThingIds={startingPThingIds}
             depth={startingGraphDepth}

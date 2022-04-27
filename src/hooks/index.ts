@@ -3,7 +3,7 @@ import { getDatabaseConnection } from "$lib/db/connection"
 
 
 export const handle: Handle = async ({ event, resolve }) => {
-	if ( event.request.method === "GET" && event.url.pathname.startsWith("/api/") ) await getDatabaseConnection()
+	if ( event.request.method === "GET" && event.url.pathname.startsWith("/api/db/") ) await getDatabaseConnection()
 
 	const response = await resolve(event)
 	

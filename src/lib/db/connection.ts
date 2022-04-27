@@ -1,9 +1,10 @@
+import path from "path"
+import { graphsBaseFolder } from "$lib/shared/constants"
 import Knex from "knex"
 import pkg from "objection"
 const { Model, knexSnakeCaseMappers } = pkg
-import { unigraphFolder } from "$lib/shared/constants"
 import { unigraphFolderStore } from "$lib/stores"
-import { get } from 'svelte/store'
+import { get } from "svelte/store"
 
 
 // We use a global to keep a cached connection across hot reloads
@@ -23,7 +24,11 @@ const cached = global.h2
  */
 export async function getDatabaseConnection(): Promise<typeof Model> {
     const unigraphFolderStoreValue = get(unigraphFolderStore)
-    console.log(unigraphFolderStoreValue)
+
+    const unigraphFolderPath = unigraphFolderStoreValue ?
+            path.join(graphsBaseFolder, unigraphFolderStoreValue) :
+            null
+    console.log(unigraphFolderPath)
 
     const knexConfig = {
         client: 'pg',
@@ -32,7 +37,7 @@ export async function getDatabaseConnection(): Promise<typeof Model> {
             user: 'sa',
             host: 'localhost',//'192.168.0.100',
             //database: `${unigraphFolder}/graph`,
-            database: `${unigraphFolder}/graph;MODE=PostgreSQL;`,// PostgreSQL compatibility mode, for original database file.
+            database: `${unigraphFolderPath}/graph;MODE=PostgreSQL;`,// PostgreSQL compatibility mode, for original database file.
             //database: `${unigraphPath}/graph;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH`,// PostgreSQL compatibility mode. Use this version for subsequent new database files.
             password: 'goodguess',
             port: 5435,
@@ -40,10 +45,21 @@ export async function getDatabaseConnection(): Promise<typeof Model> {
         ...knexSnakeCaseMappers({ upperCase: true })
     }
 
-    console.log(knexConfig)
+    //console.log(knexConfig)
+    //console.log(cached.connection?.knex().context.client.config.connection.database || null)
 
+    // If the database has changed, clear the cache.
+    if (
+        cached.connection
+        && cached.connection.knex().context.client.config.connection.database !== knexConfig.connection.database
+    ) {
+        cached.connection = null
+        cached.promise = null
+    }
+    
     // If there is no cached connection, create one and cache it.
     if (!cached.connection) {
+        console.log(`Cacheing new connection: ${knexConfig.connection.database}`)
         if (!cached.promise) {
             const modelPromise = (async function() {
                 const knex = Knex(knexConfig)
