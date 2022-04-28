@@ -1,5 +1,7 @@
 import fs from "fs"
 import type { AppConfig } from "$lib/shared/constants"
+import { get as getStore } from "svelte/store"
+import { unigraphFolderStore } from "$lib/stores/appStores"
 
 
 const configPath = "./static/config/config.json"
@@ -29,22 +31,25 @@ export async function get(): Promise<{
 }
 
 
-export async function post(
-    {request}: {request: Request}
-): Promise<{
+export async function post(): Promise<{
     status: number;
     body: { message: string } | { error: string }
 }> {
     try {
-        const body = await request.json()
-        fs.writeFile(configPath, JSON.stringify(body), function (err) {
+        const unigraphFolderStoreValue = getStore(unigraphFolderStore)
+
+        const appConfig = {
+            unigraphFolder: unigraphFolderStoreValue
+        }
+
+
+        fs.writeFile(configPath, JSON.stringify(appConfig), function (err) {
             if (err) {
                 console.log(`Error saving configuration: ${err.message}`)
                 return
             }
         })
 
-        console.log(`Configuration saved.`)
         return {
             status: 200,
             body: {

@@ -1,9 +1,5 @@
 <script lang="ts">
-    import type { Graph } from "$lib/models/graphModels"
-    import { addGraphIdsNeedingViewerRefresh } from "$lib/stores"
     import { openUnigraph, closeUnigraph } from "$lib/shared/unigraph"
-
-    export let graph: Graph
 
 
     let graphFolders: string[] = []
@@ -17,8 +13,6 @@
 
 
     async function openUnigraphFolder(folderName: string) {
-        console.log(folderName)
-
         await fetch("/api/file/unigraphFolder", {
             method: "POST",
             body: JSON.stringify(folderName)
@@ -27,9 +21,6 @@
         await closeUnigraph()
 
         await openUnigraph()
-
-        await graph.build()
-        addGraphIdsNeedingViewerRefresh(1)
     }
 </script>
 

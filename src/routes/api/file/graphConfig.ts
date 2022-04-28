@@ -20,7 +20,6 @@ export async function get(): Promise<{
         const graphConfigPath = unigraphFolderStoreValue ?
             path.join(graphsBaseFolder, unigraphFolderStoreValue, "config.json") :
             null
-        console.log(graphConfigPath)
 
         if (graphConfigPath) {
 
@@ -69,7 +68,6 @@ export async function post(
             }
         })
 
-        console.log(`Configuration saved.`)
         return {
             status: 200,
             body: {

@@ -28,7 +28,6 @@ export async function getDatabaseConnection(): Promise<typeof Model> {
     const unigraphFolderPath = unigraphFolderStoreValue ?
             path.join(graphsBaseFolder, unigraphFolderStoreValue) :
             null
-    console.log(unigraphFolderPath)
 
     const knexConfig = {
         client: 'pg',

@@ -7,12 +7,13 @@
     import { storeAppConfig } from "$lib/shared/config"
 
     // Import database/stores-related functions.
-    import { graphConstructsStoredStore, updateRelationshipBeingCreatedEndpoint } from "$lib/stores"
+    import { graphOpenedStore, updateRelationshipBeingCreatedEndpoint } from "$lib/stores"
 
     // Import layout elements.
     import { ContextCommandPalette, Collapser, TabBlock, TabFlap, TabFlaps, TabBody } from "$lib/widgets/layoutWidgets"
 
     // Import viewers.
+    import FileViewer from "$lib/viewers/settingsViewers/fileViewer.svelte"
     import { DirectionsStoreViewer, SpacesStoreViewer, ThingsStoreViewer } from "$lib/viewers/storeViewers"
     import { DbLatestViewer } from "$lib/viewers/dbViewers"
     import { GraphViewer } from "$lib/viewers/graphViewers"
@@ -21,7 +22,7 @@
     import { openUnigraph } from "$lib/shared/unigraph"
     
 
-    graphConstructsStoredStore.set(false)
+    graphOpenedStore.set(false)
 
 
 
@@ -54,15 +55,21 @@
     <!-- Front pane for Relationship-being-created Widget. -->
     <RelationshipBeingCreatedWidget />
     
-    <!-- Stores viewers. -->
-    <Collapser headerText={"Stores / Database"} contentDirection={"left"}>
+    <!-- Stores/database viewers. -->
+    <Collapser headerText={"System"} contentDirection={"left"}>
         <div class="tabs-container">
 
             <TabBlock>
                 <TabFlaps>
+                    <TabFlap>File</TabFlap>
                     <TabFlap>Stores</TabFlap>
                     <TabFlap>Database</TabFlap>
                 </TabFlaps>
+
+                <!-- File viewer -->
+                <TabBody>
+                    <FileViewer />
+                </TabBody>
             
                 <!-- Stores tab --> 
                 <TabBody>
@@ -100,11 +107,15 @@
     </Collapser>
 
     <!-- Graph Portal. -->
-    {#if $graphConstructsStoredStore}
+    {#if $graphOpenedStore}
         <GraphViewer
             pThingIds={startingPThingIds}
             depth={startingGraphDepth}
         />
+    {:else}
+        <div style="margin: auto;">
+            <span style="font-size: 1.5rem;">(No Graph loaded yet)</span>
+        </div>
     {/if}
 
 </main>

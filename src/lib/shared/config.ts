@@ -1,5 +1,4 @@
 import type { AppConfig, GraphConfig } from "$lib/shared/constants"
-import { unigraphFolderStore } from "$lib/stores/appStores"
 import { get } from "svelte/store"
 import { pinIdsStore } from "$lib/stores/appStores"
 
@@ -7,7 +6,7 @@ import { pinIdsStore } from "$lib/stores/appStores"
 // Load configuration-related values from the JSON config file.
 export async function storeAppConfig(): Promise<void> {
     const submit = await fetch("/api/file/appConfig")
-    const appConfig = await submit.json() as AppConfig////////////////////////// NEEDS TO CHANGE
+    const appConfig = await submit.json() as AppConfig
 
     // Set the back-end stores.
     if (appConfig.unigraphFolder) {
@@ -30,15 +29,8 @@ export async function storeGraphConfig(): Promise<void> {
 
 // Save configuration-related values to the JSON config file.
 export async function saveAppConfig(): Promise<void> {
-    const unigraphFolderStoreValue = get(unigraphFolderStore)
-
-    const appConfig = {
-        unigraphFolder: unigraphFolderStoreValue
-    }
-
-    await fetch("/api/file/graphConfig", {
-        method: "POST",
-        body: JSON.stringify(appConfig, null, 4)
+    await fetch("/api/file/appConfig", {
+        method: "POST"
     })
 }
 
