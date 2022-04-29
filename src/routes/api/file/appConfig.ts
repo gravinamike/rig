@@ -1,5 +1,7 @@
 import fs from "fs"
-import type { Config } from "$lib/shared/constants"
+import type { AppConfig } from "$lib/shared/constants"
+import { get as getStore } from "svelte/store"
+import { unigraphFolderStore } from "$lib/stores/appStores"
 
 
 const configPath = "./static/config/config.json"
@@ -7,11 +9,11 @@ const configPath = "./static/config/config.json"
 
 export async function get(): Promise<{
     status: number;
-    body: Config | { error: string }
+    body: AppConfig | { error: string }
 }> {
     try {
         const configAsString = fs.readFileSync(configPath, "utf8")
-        const config = JSON.parse(configAsString) as Config
+        const config = JSON.parse(configAsString) as AppConfig
 
         return {
             status: 200,
@@ -22,29 +24,32 @@ export async function get(): Promise<{
         return {
             status: 500,
             body: {
-                error: `A server error occurred while attempting to get Directions: ${err}`
+                error: `A server error occurred while attempting to get application config: ${err}`
             }
         }
     }
 }
 
 
-export async function post(
-    {request}: {request: Request}
-): Promise<{
+export async function post(): Promise<{
     status: number;
     body: { message: string } | { error: string }
 }> {
     try {
-        const body = await request.json()
-        fs.writeFile(configPath, JSON.stringify(body), function (err) {
+        const unigraphFolderStoreValue = getStore(unigraphFolderStore)
+
+        const appConfig = {
+            unigraphFolder: unigraphFolderStoreValue
+        }
+
+
+        fs.writeFile(configPath, JSON.stringify(appConfig), function (err) {
             if (err) {
                 console.log(`Error saving configuration: ${err.message}`)
                 return
             }
         })
 
-        console.log(`Configuration saved.`)
         return {
             status: 200,
             body: {

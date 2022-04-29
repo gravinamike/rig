@@ -6,7 +6,7 @@
     let latestConstructs: LatestConstructInfos | null = null
 
     async function getLatestConstructs() {
-        const res = await fetch(`api/graphConstructs/latestConstructs`)
+        const res = await fetch(`api/db/graphConstructs/latestConstructs`)
 
         // If the response is ok,
         if (res.ok) {

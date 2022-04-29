@@ -6,7 +6,7 @@ export async function createNewRelatedThing(
 ): Promise<boolean> {
     // Post to the create-new-related-Thing API.
     const res = await fetch(
-        `api/graphManipulation/createNewRelatedThing`,
+        `api/db/graphManipulation/createNewRelatedThing`,
         {
             method: "POST",
 
@@ -33,7 +33,7 @@ export async function createNewRelatedThing(
 export async function addNoteToThing( thingId: number ): Promise<boolean> {
     // Post to the add-Note-to-Thing API.
     const res = await fetch(
-        `api/graphManipulation/addNoteToThing`,
+        `api/db/graphManipulation/addNoteToThing`,
         {
             method: "POST",
             body: JSON.stringify({
@@ -57,7 +57,7 @@ export async function addNoteToThing( thingId: number ): Promise<boolean> {
 export async function addFolderToThing( thingId: number ): Promise<boolean> {
     // Post to the add-folder-to-Thing API.
     const res = await fetch(
-        `api/graphManipulation/addFolderToThing`,
+        `api/db/graphManipulation/addFolderToThing`,
         {
             method: "POST",
             body: JSON.stringify({
@@ -81,7 +81,7 @@ export async function addFolderToThing( thingId: number ): Promise<boolean> {
 export async function deleteThing( thingIdToDelete: number ): Promise<boolean> {
     // Post to the delete-Thing API.
     const res = await fetch(
-        `api/graphManipulation/deleteThing`,
+        `api/db/graphManipulation/deleteThing`,
         {
             method: "POST",
             body: JSON.stringify({
@@ -106,7 +106,7 @@ export async function deleteThing( thingIdToDelete: number ): Promise<boolean> {
 export async function createNewRelationship(sourceThingId: number, destThingId: number, directionId: number): Promise<boolean> {
     // Post to the create-new Relationship API.
     const res = await fetch(
-        `api/graphManipulation/createNewRelationship`,
+        `api/db/graphManipulation/createNewRelationship`,
         {
             method: "POST",
 

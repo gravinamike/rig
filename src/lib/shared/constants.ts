@@ -4,6 +4,7 @@ import type { Direction, Space, Thing, Relationship } from "$lib/models/dbModels
 /*
  * "Constants" that will eventually be moved into a mutable config file.
  */
+export const graphsBaseFolder = "C:/Rig/graphs"
 export const unigraphFolder = "C:/Users/mtgra/Desktop/LifeSeahorse_test/LifeGrid_graph"
 export const startingPThingIds = [6080]
 export const startingGraphDepth = 1
@@ -13,13 +14,17 @@ export const zoomBase = 1.45
 /*
  * App-level interfaces and types.
  */
-export interface Config {
-    pinIds: number[]
+export interface AppConfig {
+    unigraphFolder: string | null
 }
 
 /*
  * Graph-level interfaces and types.
  */
+export interface GraphConfig {
+    pinIds: number[]
+}
+
 export type GraphConstruct = Direction | Space | Thing | Relationship
 
 export interface GraphWidgetStyle {

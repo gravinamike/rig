@@ -4,7 +4,7 @@
     import { sleep } from "$lib/shared/utility"
 
     // Import stores.
-    import { hoveredThingIdStore, graphIdsNeedingViewerRefresh, addGraphIdsNeedingViewerRefresh, removeGraphIdsNeedingViewerRefresh } from "$lib/stores"
+    import { hoveredThingIdStore, graphOpenedStore, graphIdsNeedingViewerRefresh, addGraphIdsNeedingViewerRefresh, removeGraphIdsNeedingViewerRefresh } from "$lib/stores"
 
     // Import models.
     import { Graph } from "$lib/models/graphModels"
@@ -13,7 +13,7 @@
     import { Collapser, TabBlock, TabFlap, TabFlaps, TabBody } from "$lib/widgets/layoutWidgets"
 
     // Import viewers.
-    import { GraphSettingsViewer } from "$lib/viewers/settingsViewers"
+    import { FileViewer, GraphSettingsViewer } from "$lib/viewers/settingsViewers"
     import { GraphSchematicViewer, GraphWidget } from "$lib/viewers/graphViewers"
     import { HistoryViewer, PinsViewer } from "$lib/viewers/navViewers"
     import { NotesViewer } from "$lib/viewers/notesViewers"
@@ -32,11 +32,21 @@
         graph = graph // Needed for reactivity.
     }
 
-    onMount(async () => {
-        // Build the Graph.
+    async function buildAndRefresh() {
         await graph.build()
         addGraphIdsNeedingViewerRefresh(graph.id)
-	})
+    }
+    
+    /*onMount(async () => {
+        // Build the Graph.
+        
+	})*/
+
+    $: {
+        graphOpenedStore
+
+        buildAndRefresh()
+    }
 
     /**
      * Re-Perspect the Graph to a given Thing ID.

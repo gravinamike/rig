@@ -4,38 +4,52 @@
 
     // Import constants and configs.
     import { startingPThingIds, startingGraphDepth, navHeight } from "$lib/shared/constants"
-    import { storeConfig } from "$lib/shared/config"
+    import { storeAppConfig } from "$lib/shared/config"
 
     // Import database/stores-related functions.
-    import { storeGraphConstructs, updateRelationshipBeingCreatedEndpoint } from "$lib/stores"
+    import { graphOpenedStore, updateRelationshipBeingCreatedEndpoint } from "$lib/stores"
 
     // Import layout elements.
     import { ContextCommandPalette, Collapser, TabBlock, TabFlap, TabFlaps, TabBody } from "$lib/widgets/layoutWidgets"
 
     // Import viewers.
+    import FileViewer from "$lib/viewers/settingsViewers/fileViewer.svelte"
     import { DirectionsStoreViewer, SpacesStoreViewer, ThingsStoreViewer } from "$lib/viewers/storeViewers"
     import { DbLatestViewer } from "$lib/viewers/dbViewers"
     import { GraphViewer } from "$lib/viewers/graphViewers"
     import { RelationshipBeingCreatedWidget } from "$lib/widgets/graphWidgets"
+
+    import { openUnigraph } from "$lib/shared/unigraph"
     
 
-    let graphConstructsStored = false
+    graphOpenedStore.set(null)
+
+
+
+    
+
 
     // At app initialization,
     onMount(async () => {
-        // Store app configuration.
-        storeConfig()
+        // Store configuration.
+        const appConfig = await storeAppConfig()
 
-        // Store Direction and Space constructs.
-        await storeGraphConstructs("Direction")
-        await storeGraphConstructs("Space")
-        graphConstructsStored = true
+        if (appConfig.unigraphFolder) {
+            // Open the Unigraph currently specified in the store.
+            await openUnigraph()
+            graphOpenedStore.set(appConfig.unigraphFolder)
+        }
 	})
 
     function handleMouseMove(event: MouseEvent): void {/////////////////// MOVE INTO THE WIDGET
         updateRelationshipBeingCreatedEndpoint([event.clientX, event.clientY])
     }
 </script>
+
+
+<svelte:head>
+    <title>Rig{ $graphOpenedStore ? ` - ${$graphOpenedStore}` : "" }</title>
+</svelte:head>
 
 
 <main
@@ -48,9 +62,14 @@
 
     <!-- Front pane for Relationship-being-created Widget. -->
     <RelationshipBeingCreatedWidget />
+
+    <!-- File viewer. -->
+    <Collapser headerText={`File${ $graphOpenedStore ? `&nbsp;&nbsp;-&nbsp;&nbsp;${$graphOpenedStore}` : "" }`} contentDirection={"left"}>
+        <FileViewer />
+    </Collapser>
     
-    <!-- Stores viewers. -->
-    <Collapser headerText={"Stores / Database"} contentDirection={"left"}>
+    <!-- Stores/database viewers. -->
+    <Collapser headerText={"System"} contentDirection={"left"}>
         <div class="tabs-container">
 
             <TabBlock>
@@ -95,11 +114,15 @@
     </Collapser>
 
     <!-- Graph Portal. -->
-    {#if graphConstructsStored}
+    {#if $graphOpenedStore}
         <GraphViewer
             pThingIds={startingPThingIds}
             depth={startingGraphDepth}
         />
+    {:else}
+        <div style="margin: auto;">
+            <span style="font-size: 1.5rem;">(No Graph loaded yet)</span>
+        </div>
     {/if}
 
 </main>

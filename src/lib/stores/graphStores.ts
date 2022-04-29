@@ -122,7 +122,7 @@ export async function storeGraphConstructs<Type extends GraphConstruct>(
     
     // If no IDs were provided, fetch all instances of this construct.
     if (typeof ids === "undefined") {
-        res = await fetch(`api/graphConstructs/${ constructName.toLowerCase() }s-all`)
+        res = await fetch(`api/db/graphConstructs/${ constructName.toLowerCase() }s-all`)
 
     // Else, if IDs *were* provided,
     } else {
@@ -139,7 +139,7 @@ export async function storeGraphConstructs<Type extends GraphConstruct>(
         }
         // Fetch the instances from the API.
         if (!idsToQuery.length) return []
-        res = await fetch(`api/graphConstructs/${ constructName.toLowerCase() }s-${idsToQuery.join(",")}`);
+        res = await fetch(`api/db/graphConstructs/${ constructName.toLowerCase() }s-${idsToQuery.join(",")}`);
     }
 
     // If the response is ok,
@@ -190,6 +190,22 @@ export async function unstoreGraphConstructs(
 }
 
 /* 
+ * Function to clear a Graph construct Store.
+ */
+export async function clearGraphConstructs(constructName: "Direction" | "Space" | "Thing"): Promise<void> {
+    // Determine which store to clear based on construct name.
+    const store: Writable<{[id: number]: GraphConstruct}> = {
+        "Direction": directionsStore,
+        "Space": spacesStore,
+        "Thing": thingsStore
+    }[constructName]
+
+    store.set({})
+
+    return
+}
+
+/* 
  * Function to retrieve Graph constructs from the stores.
  */
 export function retrieveGraphConstructs<Type extends GraphConstruct>(
@@ -227,6 +243,10 @@ export function retrieveGraphConstructs<Type extends GraphConstruct>(
         return output
     }
 }
+
+export const graphOpenedStore = writable( null as string | null )
+
+
 
 
 

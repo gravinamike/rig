@@ -24,7 +24,7 @@
                 {/if}
             </div>
 
-            <div class="header-text">{headerText}</div>
+            <div class="header-text">{@html headerText}</div>
         </h3>
     </div>
     

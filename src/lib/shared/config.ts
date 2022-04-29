@@ -1,25 +1,51 @@
-import type { Config } from "$lib/shared/constants"
+import type { AppConfig, GraphConfig } from "$lib/shared/constants"
+import { get } from "svelte/store"
 import { pinIdsStore } from "$lib/stores/appStores"
-let pinIdsStoreValue: number[]
-pinIdsStore.subscribe(value => {pinIdsStoreValue = value})
 
 
 // Load configuration-related values from the JSON config file.
-export async function storeConfig(): Promise<void> {
-    const submit = await fetch("/api/config")
-    const config = await submit.json() as Config
-    
-    pinIdsStore.set(config.pinIds)
+export async function storeAppConfig(): Promise<AppConfig> {
+    const submit = await fetch("/api/file/appConfig")
+    const appConfig = await submit.json() as AppConfig
+
+    // Set the back-end stores.
+    if (appConfig.unigraphFolder) {
+        await fetch("/api/file/unigraphFolder", {
+            method: "POST",
+            body: JSON.stringify(appConfig.unigraphFolder)
+        })
+    }
+
+    return appConfig
+}
+
+// Load configuration-related values from the JSON config file.
+export async function storeGraphConfig(): Promise<void> {
+    const submit = await fetch("/api/file/graphConfig")
+    const graphConfig = await submit.json() as GraphConfig
+
+    // Set front-end stores.
+    pinIdsStore.set(graphConfig.pinIds)
+}
+
+
+// Save configuration-related values to the JSON config file.
+export async function saveAppConfig(): Promise<void> {
+    await fetch("/api/file/appConfig", {
+        method: "POST"
+    })
 }
 
 // Save configuration-related values to the JSON config file.
-export async function saveConfig(): Promise<void> {
-    const config = {
+export async function saveGraphConfig(): Promise<void> {
+    const pinIdsStoreValue = get(pinIdsStore)
+
+    const graphConfig = {
         pinIds: pinIdsStoreValue
     }
 
-    await fetch("/api/config", {
+    await fetch("/api/file/graphConfig", {
         method: "POST",
-        body: JSON.stringify(config, null, 4)
+        body: JSON.stringify(graphConfig, null, 4)
     })
 }
