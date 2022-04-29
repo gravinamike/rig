@@ -22,7 +22,7 @@
     import { openUnigraph } from "$lib/shared/unigraph"
     
 
-    graphOpenedStore.set(false)
+    graphOpenedStore.set(null)
 
 
 
@@ -32,16 +32,24 @@
     // At app initialization,
     onMount(async () => {
         // Store configuration.
-        await storeAppConfig()
+        const appConfig = await storeAppConfig()
 
-        // Open the Unigraph currently specified in the store.
-        await openUnigraph()
+        if (appConfig.unigraphFolder) {
+            // Open the Unigraph currently specified in the store.
+            await openUnigraph()
+            graphOpenedStore.set(appConfig.unigraphFolder)
+        }
 	})
 
     function handleMouseMove(event: MouseEvent): void {/////////////////// MOVE INTO THE WIDGET
         updateRelationshipBeingCreatedEndpoint([event.clientX, event.clientY])
     }
 </script>
+
+
+<svelte:head>
+    <title>Rig{ $graphOpenedStore ? ` - ${$graphOpenedStore}` : "" }</title>
+</svelte:head>
 
 
 <main
@@ -54,6 +62,11 @@
 
     <!-- Front pane for Relationship-being-created Widget. -->
     <RelationshipBeingCreatedWidget />
+
+    <!-- File viewer. -->
+    <Collapser headerText={`File${ $graphOpenedStore ? `&nbsp;&nbsp;-&nbsp;&nbsp;${$graphOpenedStore}` : "" }`} contentDirection={"left"}>
+        <FileViewer />
+    </Collapser>
     
     <!-- Stores/database viewers. -->
     <Collapser headerText={"System"} contentDirection={"left"}>
@@ -61,15 +74,9 @@
 
             <TabBlock>
                 <TabFlaps>
-                    <TabFlap>File</TabFlap>
                     <TabFlap>Stores</TabFlap>
                     <TabFlap>Database</TabFlap>
                 </TabFlaps>
-
-                <!-- File viewer -->
-                <TabBody>
-                    <FileViewer />
-                </TabBody>
             
                 <!-- Stores tab --> 
                 <TabBody>

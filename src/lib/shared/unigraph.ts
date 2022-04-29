@@ -1,7 +1,7 @@
 import { storeGraphConfig, saveAppConfig } from "$lib/shared/config"
-import { storeGraphConstructs, clearGraphConstructs, graphOpenedStore } from "$lib/stores"
+import { storeGraphConstructs, clearGraphConstructs } from "$lib/stores"
 
-export async function openUnigraph(): Promise<void> {
+export async function openUnigraph(): Promise<boolean> {
 
     
     let unigraphFolder: string | null = null
@@ -15,13 +15,16 @@ export async function openUnigraph(): Promise<void> {
 
         await storeGraphConstructs("Direction")
         await storeGraphConstructs("Space")
-        graphOpenedStore.set(true)
 
         await saveAppConfig()
+
+        return true
 
     } else {
 
         console.log(`Can't open Graph because folder has not been set.`)
+
+        return false
 
     }
 }
@@ -30,5 +33,4 @@ export async function closeUnigraph(): Promise<void> {
     await clearGraphConstructs("Direction")
     await clearGraphConstructs("Space")
     await clearGraphConstructs("Thing")
-    graphOpenedStore.set(false)
 }

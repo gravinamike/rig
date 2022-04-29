@@ -3,11 +3,6 @@
 </script>
 
 
-<svelte:head>
-    <title>Rig</title>
-</svelte:head>
-
-
 <main>
     <!-- Navbar -->
     <nav style="height: {navHeight};">

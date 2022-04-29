@@ -58,7 +58,6 @@ export async function getDatabaseConnection(): Promise<typeof Model> {
     
     // If there is no cached connection, create one and cache it.
     if (!cached.connection) {
-        console.log(`Cacheing new connection: ${knexConfig.connection.database}`)
         if (!cached.promise) {
             const modelPromise = (async function() {
                 const knex = Knex(knexConfig)

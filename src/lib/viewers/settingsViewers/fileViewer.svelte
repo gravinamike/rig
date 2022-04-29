@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { graphOpenedStore } from "$lib/stores"
     import { openUnigraph, closeUnigraph } from "$lib/shared/unigraph"
 
 
@@ -19,30 +20,27 @@
         })
 
         await closeUnigraph()
+        graphOpenedStore.set(null)
 
         await openUnigraph()
+        graphOpenedStore.set(folderName)
     }
 </script>
 
 
 <main>
-    <h4>File options</h4>
-
-    Open Graph:
+    <h4>Open file:</h4>
 
     <div class="graph-folders">
         {#each graphFolders as folder}
             <div
-                class="graph-folder"
+                class="graph-folder { folder === $graphOpenedStore ? "opened" : "" }"
                 on:click={() => {openUnigraphFolder(folder)}}
             >
                 {folder}
             </div>
         {/each}
     </div>
-
-
-
 </main>
 
 
@@ -70,15 +68,9 @@
         margin: 0;
     }
 
-
-
-
-
-
     .graph-folders {
         display: flex;
         flex-direction: column;
-        padding: 1rem;
         gap: 0.25rem;
 
         font-size: 0.85rem;
@@ -101,7 +93,12 @@
     }
 
     .graph-folder:active {
-        background-color: lightgrey;
+        background-color: silver;
     }
 
+    .graph-folder.opened {
+        background-color: lightgrey;
+
+        pointer-events: none;
+    }
   </style>

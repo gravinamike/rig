@@ -4,7 +4,7 @@ import { pinIdsStore } from "$lib/stores/appStores"
 
 
 // Load configuration-related values from the JSON config file.
-export async function storeAppConfig(): Promise<void> {
+export async function storeAppConfig(): Promise<AppConfig> {
     const submit = await fetch("/api/file/appConfig")
     const appConfig = await submit.json() as AppConfig
 
@@ -15,6 +15,8 @@ export async function storeAppConfig(): Promise<void> {
             body: JSON.stringify(appConfig.unigraphFolder)
         })
     }
+
+    return appConfig
 }
 
 // Load configuration-related values from the JSON config file.
