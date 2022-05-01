@@ -67,7 +67,7 @@
             class="direction-widget-options"
             on:wheel|stopPropagation={()=>{}}
         >
-            {#each Object.entries($directionsStore) as [optionId, option], i}
+            {#each Object.entries($directionsStore) as [optionId, option]}
                 <div
                     class="option"
                     on:click={() => {

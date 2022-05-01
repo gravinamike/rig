@@ -55,40 +55,62 @@ export class CohortWidgetModel {
             : null
     }
 
+
+
+
+
+
+    /**
+     * Get the offset to the grandparent Thing (the difference between the centerpoint of the Cohort along its
+     * long axis and the midpoint of the grandparent Thing when it is included in the Cohort). This is used to
+     * re-center the Cohort so that the Thing Spacer Widget representing the grandparent Thing lines up with
+     * the grandparent Thing Widget.
+     * @return {number} - The offset to the grandparent Thing.
+     */
     get offsetToGrandparentThing(): number {
+
+        // Cohorts in the last, Relationships-only Generation are always empty and don't need to be rendered,
+        // so just return 0.
         if (this.cohort.isInRelationshipsOnlyGeneration) {
 
             return 0
 
+        // For all Cohorts that *do* need to be rendered,
         } else {
 
-            const parentThingOffset = (
+            const parentThingOffsetToGrandparentThing = (
                 this.cohort.matchedRelationshipsWidgetModel
                 && this.cohort.address.halfAxisId
                 && this.cohort.address.parentThingWidgetModel
                 && this.cohort.matchedRelationshipsWidgetModel.parentRelationshipsWidgetModel
                 && this.cohort.matchedRelationshipsWidgetModel.parentRelationshipsWidgetModel.halfAxisId === halfAxisOppositeIds[this.cohort.address.halfAxisId]
             ) ?
-                // The midline of the parent Thing.
-                this.cohort.matchedRelationshipsWidgetModel.defaultLeafMidline(this.cohort.address.parentThingWidgetModel.address.indexInCohort)
-                // Half of the gap between Things.
-                + this.graph.graphWidgetStyle.betweenThingGap / 2 :
+                (
+                    (this.graph.graphWidgetStyle.thingSize + this.graph.graphWidgetStyle.betweenThingSpacing)
+                    * this.cohort.address.parentThingWidgetModel.address.indexInCohort
+                ) :
                 0
-
-            const thisThingOffset = this.indexOfGrandparentThing !== null && this.indexOfGrandparentThing !== -1 ?
+ 
+            const grandparentSpacerOffsetToParentThing = this.indexOfGrandparentThing !== null && this.indexOfGrandparentThing !== -1 ?
                 // The difference between the halfway index of the Cohort and the index of the grandparent Thing.
                 ((this.cohort.members.length - 1) / 2 - this.indexOfGrandparentThing)
                 // The combined width of 1 Thing and 1 gap between Things.
-                * (this.graph.graphWidgetStyle.thingSize + this.graph.graphWidgetStyle.betweenThingGap) :
+                * (this.graph.graphWidgetStyle.thingSize + this.graph.graphWidgetStyle.betweenThingSpacing) :
                 0
 
-            const offsetToGrandparentThing = parentThingOffset + thisThingOffset
+            const offsetToGrandparentThing = parentThingOffsetToGrandparentThing + grandparentSpacerOffsetToParentThing
 
             return offsetToGrandparentThing
             
         }
     } ////////////////////////////// REFACTOR THIS METHOD.
     
+
+
+
+
+
+
 
     get offsetToGrandparentThingX(): number {
         return this.rowOrColumn === "row" ?

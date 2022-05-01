@@ -113,7 +113,10 @@ export class RelationshipsWidgetModel {
 
         } else {
 
-            // The difference between the index of the grandparent Thing and the halfway index of the Cohort.
+            /* The offset between the Cohort's grandparent Thing if it is represented in the Cohort and the Cohort's parent Thing. */
+
+            // The difference between the index of the grandparent Thing (as represented in the Cohort) and
+            // the halfway index of the Cohort.
             const part1 = (
                 (this.cohort.members.length - 1) / 2
                 - this.cohort.indexOfGrandparentThing
@@ -128,11 +131,15 @@ export class RelationshipsWidgetModel {
                 + this.graph.graphWidgetStyle.betweenThingSpacing
             )
 
+            /* The offset between the Cohort's parent Thing and the Cohort's grandparent Thing. */
             const part2 = (
                 this.parentRelationshipsWidgetModel !== null
                 && this.halfAxisId !== 0
                 && this.parentRelationshipsWidgetModel.halfAxisId === halfAxisOppositeIds[this.halfAxisId] ?
-                    this.parentRelationshipsWidgetModel.defaultLeafMidline(this.parentThingWidgetModel.address.indexInCohort) + this.graph.graphWidgetStyle.betweenThingGap/2 :
+                    (
+                        (this.sizeOfThingsAlongWidth + this.graph.graphWidgetStyle.betweenThingSpacing)
+                        * this.parentThingWidgetModel.address.indexInCohort
+                    ) :
                     0
             )
 
@@ -243,6 +250,13 @@ export class RelationshipsWidgetModel {
             0.5 * this.sizeOfThingsAlongWidth
             + (this.sizeOfThingsAlongWidth + this.graph.graphWidgetStyle.betweenThingSpacing) * index
         )
+
+
+        //(this.graph.graphWidgetStyle.thingSize + this.graph.graphWidgetStyle.betweenThingSpacing)
+        //* this.cohort.address.parentThingWidgetModel.address.indexInCohort
+
+
+
     }
 
 

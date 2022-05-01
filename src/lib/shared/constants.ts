@@ -35,6 +35,7 @@ export interface GraphWidgetStyle {
     thingSpacingPercent: number,
     betweenThingSpacing: number,
     betweenThingGap: number,
+    betweenThingOverlap: number,
     relationshipTextSize: number,
     thingTextSize: number,
 }
@@ -88,6 +89,7 @@ export const defaultGraphWidgetStyle: GraphWidgetStyle = {
     thingSpacingPercent: 10,
     betweenThingSpacing: 0, // Reactively calculated.
     betweenThingGap: 0, // Reactively calculated.
+    betweenThingOverlap: 0, // Reactively calculated.
     relationshipTextSize: 16,
     thingTextSize: 12
 }

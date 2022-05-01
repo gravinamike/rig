@@ -64,6 +64,7 @@
     $: thingWidth = relationshipsWidgetModel.parentThingWidgetModel.thingWidth
     $: thingHeight = relationshipsWidgetModel.parentThingWidgetModel.thingHeight
     $: betweenThingSpacing = graph.graphWidgetStyle.betweenThingSpacing
+    $: betweenThingOverlap = graph.graphWidgetStyle.betweenThingOverlap
 
     // Variables related to the x, y, and z position of this Relationships Widget (relative to parent Thing Widget).
     let xOffset: number
@@ -97,6 +98,7 @@
         thingWidth
         thingHeight
         betweenThingSpacing
+        betweenThingOverlap
         $tweenedScale
 
         relationshipsWidth = relationshipsWidgetModel.relationshipsWidth

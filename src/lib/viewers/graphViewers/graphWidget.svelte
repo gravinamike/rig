@@ -25,6 +25,7 @@
     $: graphWidgetStyle = graph.graphWidgetStyle
     $: graphWidgetStyle.betweenThingSpacing = 0.01 * graphWidgetStyle.thingSpacingPercent * graphWidgetStyle.thingSize
     $: graphWidgetStyle.betweenThingGap = Math.max(0, graphWidgetStyle.betweenThingSpacing)
+    $: graphWidgetStyle.betweenThingOverlap = Math.min(0, graphWidgetStyle.betweenThingSpacing)
 
     let graphWidget: Element
     let centralAnchor: Element

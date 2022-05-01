@@ -1,6 +1,5 @@
 <script lang="ts">
     // Import basic framework functions.
-    import { onMount } from "svelte"
     import { sleep } from "$lib/shared/utility"
 
     // Import stores.
@@ -13,7 +12,7 @@
     import { Collapser, TabBlock, TabFlap, TabFlaps, TabBody } from "$lib/widgets/layoutWidgets"
 
     // Import viewers.
-    import { FileViewer, GraphSettingsViewer } from "$lib/viewers/settingsViewers"
+    import { GraphSettingsViewer } from "$lib/viewers/settingsViewers"
     import { GraphSchematicViewer, GraphWidget } from "$lib/viewers/graphViewers"
     import { HistoryViewer, PinsViewer } from "$lib/viewers/navViewers"
     import { NotesViewer } from "$lib/viewers/notesViewers"
@@ -135,7 +134,7 @@
     </div>
 
     <!-- Notes viewer -->
-    <Collapser headerText={"Content"} contentDirection={"right"} expanded={true}>
+    <Collapser headerText={"Content"} contentDirection={"right"} expanded={false}>
         <div class="tabs-container wide">
             <TabBlock>
                 <TabFlaps>

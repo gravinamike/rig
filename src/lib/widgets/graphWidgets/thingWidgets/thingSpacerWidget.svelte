@@ -36,9 +36,8 @@
     const relationshipColor = relationshipColorByHalfAxisId[halfAxisId]
 
 
-
-    $: betweenThingSpacing = graph.graphWidgetStyle.betweenThingSpacing
-    $: overlap = -Math.min(0, betweenThingSpacing / 2)
+    
+    $: betweenThingOverlap = graph.graphWidgetStyle.betweenThingOverlap
 
     let overlapMarginStyleText: string
     const rowOrColumn = [1, 2].includes(cohortHalfAxisId) ? "row" : "column"
@@ -46,16 +45,16 @@
         overlapMarginStyleText = ""
     } else if (thingBaseWidgetModel.address.indexInCohort === 0) {
         overlapMarginStyleText = rowOrColumn === "row" ?
-            `margin-right: ${-overlap}px;` :
-            `margin-bottom: ${-overlap}px;`
+            `margin-right: ${betweenThingOverlap / 2}px;` :
+            `margin-bottom: ${betweenThingOverlap / 2}px;`
     } else if (thingBaseWidgetModel.address.indexInCohort === thingBaseWidgetModel.parentCohort.members.length - 1) {
         overlapMarginStyleText = rowOrColumn === "row" ?
-            `margin-left: ${-overlap}px;` :
-            `margin-top: ${-overlap}px;`
+            `margin-left: ${betweenThingOverlap / 2}px;` :
+            `margin-top: ${betweenThingOverlap / 2}px;`
     } else {
         overlapMarginStyleText = rowOrColumn === "row" ?
-            `margin-left: ${-overlap}px; margin-right: ${-overlap}px;` :
-            `margin-top: ${-overlap}px; margin-bottom: ${-overlap}px;`
+            `margin-left: ${betweenThingOverlap / 2}px; margin-right: ${betweenThingOverlap / 2}px;` :
+            `margin-top: ${betweenThingOverlap / 2}px; margin-bottom: ${betweenThingOverlap / 2}px;`
     }
 </script>
 

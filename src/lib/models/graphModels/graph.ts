@@ -1,10 +1,10 @@
 import type { GraphWidgetStyle } from "$lib/shared/constants"
 import type { Thing } from "$lib/models/dbModels"
+import type { ThingWidgetModel, CohortWidgetModel } from "$lib/models/widgetModels"
 
 import { defaultGraphWidgetStyle } from "$lib/shared/constants"
-import { storeGraphConstructs, graphConstructInStore, retrieveGraphConstructs, unstoreGraphConstructs } from "$lib/stores"
+import { storeGraphConstructs, retrieveGraphConstructs, unstoreGraphConstructs } from "$lib/stores"
 import { Generation, Cohort, Plane } from "$lib/models/graphModels"
-import { ThingBaseWidgetModel, ThingWidgetModel, ThingPlaceholderWidgetModel, CohortWidgetModel } from "$lib/models/widgetModels"
 import { deleteThing } from "$lib/db/clientSide/makeChanges"
 import { unique } from "$lib/shared/utility"
 
@@ -34,7 +34,7 @@ export class Graph {
      * @param {number}   depth     - How many Relationship "steps" to grow the Graph from the Perspective Things.
      */
     constructor(id: number, pThingIds: number[], depth: number) {
-        this.id = 1
+        this.id = id
         this._pThingIds = pThingIds
         this._depth = depth
     }
@@ -207,20 +207,14 @@ export class Graph {
         await this.storeNextGenerationThings()
 
         // Create a Thing Widget (or placeholder) Model for each Thing ID in the new Generation.
-        const membersForGeneration = this.thingIdsForGenerationId(this.generationIdToBuild).map(
-            id => {return (
-                this.thingIdsAlreadyInGraph.includes(id) ? new ThingBaseWidgetModel(id, this) : // If the Thing is already modeled in the Graph, return a spacer model.
-                graphConstructInStore("Thing", id) ? new ThingWidgetModel(id, this) :      // Else, if the Thing is in the Thing store, create a new model for that Thing ID.
-                new ThingPlaceholderWidgetModel(id, this)                                        // Otherwise, create a placeholder.
-            )}
-        )
+        const memberIdsForGeneration = this.thingIdsForGenerationId(this.generationIdToBuild)
 
         // Add the new, empty Generation.
         const newGeneration = new Generation(this, this.generationIdToBuild)
         this.generations.push(newGeneration)
 
         // Build the Generation.
-        newGeneration.build(membersForGeneration)
+        newGeneration.build(memberIdsForGeneration)
     }
 
 
@@ -231,16 +225,15 @@ export class Graph {
      async buildRelationshipsOnlyGeneration(): Promise<void> {
         const generationIdToBuild = this.generations.length
 
-        const membersForGeneration = this.thingIdsForGenerationId(generationIdToBuild)
+        const memberIdsForGeneration = this.thingIdsForGenerationId(generationIdToBuild)
             .filter(id => this.thingIdsAlreadyInGraph.includes(id))
-            .map(id => new ThingBaseWidgetModel(id, this))
 
         // Add the new, empty Generation as the Relationships-only Generation.
         const newGeneration = new Generation(this, generationIdToBuild)
         this.relationshipsOnlyGeneration = newGeneration
 
         // Build the Generation.
-        newGeneration.build(membersForGeneration)
+        newGeneration.build(memberIdsForGeneration)
     }
 
 

@@ -14,24 +14,23 @@
     // Cohort-related variables.
     $: cohortWidgetModels = thingWidgetModel.childCohortWidgetModels
     $: relationshipWidgetModelsByHalfAxisId = thingWidgetModel.relationshipsWidgetModelsByHalfAxisId
-    $: betweenThingSpacing = graph.graphWidgetStyle.betweenThingSpacing
-    $: overlap = -Math.min(0, betweenThingSpacing / 2)
+    $: betweenThingOverlap = graph.graphWidgetStyle.betweenThingOverlap
 
     let overlapMarginStyleText: string
     $: if (thingWidgetModel.parentCohort.members.length === 1) {
         overlapMarginStyleText = ""
     } else if (thingWidgetModel.address.indexInCohort === 0) {
         overlapMarginStyleText = thingWidgetModel.parentCohort.rowOrColumn() === "row" ?
-            `margin-right: ${-overlap}px;` :
-            `margin-bottom: ${-overlap}px;`
+            `margin-right: ${betweenThingOverlap / 2}px;` :
+            `margin-bottom: ${betweenThingOverlap / 2}px;`
     } else if (thingWidgetModel.address.indexInCohort === thingWidgetModel.parentCohort.members.length - 1) {
         overlapMarginStyleText = thingWidgetModel.parentCohort.rowOrColumn() === "row" ?
-            `margin-left: ${-overlap}px;` :
-            `margin-top: ${-overlap}px;`
+            `margin-left: ${betweenThingOverlap / 2}px;` :
+            `margin-top: ${betweenThingOverlap / 2}px;`
     } else {
         overlapMarginStyleText = thingWidgetModel.parentCohort.rowOrColumn() === "row" ?
-            `margin-left: ${-overlap}px; margin-right: ${-overlap}px;` :
-            `margin-top: ${-overlap}px; margin-bottom: ${-overlap}px;`
+            `margin-left: ${betweenThingOverlap / 2}px; margin-right: ${betweenThingOverlap / 2}px;` :
+            `margin-top: ${betweenThingOverlap / 2}px; margin-bottom: ${betweenThingOverlap / 2}px;`
     }
 
 
