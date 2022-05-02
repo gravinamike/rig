@@ -8,6 +8,7 @@
 	import { cubicOut } from "svelte/easing"
     import { storeGraphConstructs, retrieveGraphConstructs, relationshipBeingCreatedInfoStore, setRelationshipBeingCreatedTrackingMouse, disableRelationshipBeingCreated, addGraphIdsNeedingViewerRefresh } from "$lib/stores"
     import { relationshipColorByHalfAxisId, zoomBase } from "$lib/shared/constants"
+    import { XButton } from "$lib/widgets/layoutWidgets"
     import DirectionWidget from "$lib/widgets/graphWidgets/directionWidget.svelte"
     import { createNewRelationship } from "$lib/db/clientSide/makeChanges"
     
@@ -76,14 +77,17 @@
         setRelationshipBeingCreatedTrackingMouse(false)
 	}
 
+    function handleEscape(event: KeyboardEvent) {
+        if (event.key === "Escape") disableRelationshipBeingCreated()
+    }
+
     async function handlePossibleNewRelationshipSpecified(
         sourceWidgetModel: ThingWidgetModel | RelationshipsWidgetModel | null,
         destWidgetModel: ThingWidgetModel | RelationshipsWidgetModel | null,
         direction: Direction | null,
         trackingMouse: boolean
     ) {
-        if (sourceWidgetModel && destWidgetModel && direction && !trackingMouse
-        ) {
+        if (sourceWidgetModel && destWidgetModel && direction && !trackingMouse) {
             const sourceThingId = sourceWidgetModel.kind === "thingWidgetModel" ?
                 sourceWidgetModel.thingId as number :
                 sourceWidgetModel.parentThingWidgetModel.thingId as number
@@ -112,6 +116,7 @@
 
 <svelte:body
     on:mouseup={handleMouseUp}
+    on:keyup={handleEscape}
 />
 
 
@@ -151,26 +156,48 @@
         </g>
     </svg>
 
-    {#if graph && (askingForDirection || (direction && halfAxisId))}
-        <div
-            style="
-                border-radius: 10px;
-                {askingForDirection ? "box-shadow: 0 0 20px 10px whitesmoke;" : ""}
-                position: absolute; left: {midpointPositionX}px; top: {midpointPositionY}px;
-                transform: translate(-50%, -50%) scale({$tweenedScale});
-                z-index: 1;
-                opacity: {opacity};
-            "
-        >
-            <DirectionWidget
-                {direction}
-                {halfAxisId}
-                {askingForDirection}
-                {graph}
-                optionClickedFunction={(_, __, option) => {direction = option; $relationshipBeingCreatedInfoStore.selectedDirection = option}}
-            />
-        </div>
-    {/if}
+    <div
+        class="midpoint-parts"
+        style="
+            position: absolute; left: {midpointPositionX}px; top: {midpointPositionY}px;
+            transform: translate(-50%, -50%) scale({$tweenedScale});
+            z-index: 1;
+            opacity: {opacity};
+            display: flex; flex-direction: row;
+        "
+    >
+        {#if graph && (askingForDirection || (direction && halfAxisId))}
+            <div
+                class="direction-widget-container"
+                style="
+                    border-radius: 10px;
+                    {askingForDirection ? "box-shadow: 0 0 20px 10px whitesmoke;" : ""}
+                "
+                on:wheel|preventDefault
+            >
+                <DirectionWidget
+                    {direction}
+                    {halfAxisId}
+                    {askingForDirection}
+                    {graph}
+                    optionClickedFunction={(_, __, option) => {direction = option; $relationshipBeingCreatedInfoStore.selectedDirection = option}}
+                />
+            </div>
+        {/if}
+
+        <!-- Delete button. -->
+        {#if askingForDirection}
+            <div
+                class="delete-button-container"
+                style="margin-left: -16px; margin-top: 1px; z-index: 1;"
+            >
+                <XButton
+                    size={15}
+                    buttonFunction={disableRelationshipBeingCreated}
+                />
+            </div>
+        {/if}
+    </div>
 {/if}
 
 
