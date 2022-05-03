@@ -1,11 +1,16 @@
 <script>
     const catPic = `
-                                                     /\\__/\\   Genie is Great!!!
-                                                    ( ^ .^ )  /
-                                                     |        |  _
-                                                    /         \\ ))
-                                                   (  | | | |  )/
-                                                     (..)(..)
+                                                                         Meow.
+                                                                         /
+                                                    *    *    *   *
+                                                     ||   ||   ||   ||
+                                              @%@%@%@%@
+                                              {===========}
+                                              {==  Genie is   ==}
+                                           @%@%@%@%@%@
+                                            {===  Great!!!!   ===}
+                                            {=============}
+                                           @%@%@%@%@%@
 `
     function displaySecret() {
         alert(`\n${catPic}\n\n`);

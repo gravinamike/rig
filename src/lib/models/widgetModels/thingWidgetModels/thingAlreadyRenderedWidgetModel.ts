@@ -2,8 +2,8 @@ import type { Graph } from "$lib/models/graphModels"
 import { ThingBaseWidgetModel } from "."
 
 
-export class ThingSpacerWidgetModel extends ThingBaseWidgetModel {
-    kind = "thingSpacerWidgetModel" as const
+export class ThingAlreadyRenderedWidgetModel extends ThingBaseWidgetModel {
+    kind = "thingAlreadyRenderedWidgetModel" as const
 
     constructor(thingId: number, graph: Graph) {
         super(thingId, graph)

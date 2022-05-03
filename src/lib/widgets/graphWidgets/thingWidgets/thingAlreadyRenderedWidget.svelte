@@ -60,7 +60,7 @@
 
 
 <div
-    class="thing-spacer-widget"
+    class="thing-already-rendered-widget"
 >
     <div
         class="box"

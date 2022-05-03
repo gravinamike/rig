@@ -4,7 +4,7 @@
     import type { CohortWidgetModel } from "$lib/models/widgetModels";
 
     /* Widget imports */
-    import { CladeWidget, ThingSpacerWidget } from "$lib/widgets/graphWidgets"
+    import { CladeWidget, ThingAlreadyRenderedWidget } from "$lib/widgets/graphWidgets"
 </script>
 
 <script lang="ts">
@@ -48,7 +48,7 @@
                     {rePerspectToThingId}
                 />
             {:else}
-                <ThingSpacerWidget
+                <ThingAlreadyRenderedWidget
                     thingBaseWidgetModel={cohortMember}
                     cohortHalfAxisId={cohortWidgetModel.cohort.address.halfAxisId}
                     {graph}

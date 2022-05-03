@@ -5,7 +5,7 @@ import { graphConstructInStore } from "$lib/stores"
 import { Cohort } from "$lib/models/graphModels"
 import { CohortWidgetModel } from "$lib/models/widgetModels/cohortWidgetModel"
 import { RelationshipsWidgetModel } from "$lib/models/widgetModels/relationshipsWidgetModel"
-import { ThingBaseWidgetModel, ThingWidgetModel, ThingPlaceholderWidgetModel } from "$lib/models/widgetModels"
+import { ThingBaseWidgetModel, ThingWidgetModel, ThingMissingFromStoreWidgetModel } from "$lib/models/widgetModels"
 
 
 export type GenerationMember = ThingBaseWidgetModel | ThingWidgetModel
@@ -71,7 +71,7 @@ export class Generation {
 
                 const member = this.graph.thingIdsAlreadyInGraph.includes(memberId) ? new ThingBaseWidgetModel(memberId, this.graph) : // If the Thing is already modeled in the Graph, return a spacer model.
                 graphConstructInStore("Thing", memberId) ? new ThingWidgetModel(memberId, this.graph) :      // Else, if the Thing is in the Thing store, create a new model for that Thing ID.
-                new ThingPlaceholderWidgetModel(memberId, this.graph)     
+                new ThingMissingFromStoreWidgetModel(memberId, this.graph)     
                  
                 this.graph.rootCohort.addMember(member)
             }
@@ -112,7 +112,7 @@ export class Generation {
 
                         const member = this.graph.thingIdsAlreadyInGraph.includes(memberId) ? new ThingBaseWidgetModel(memberId, this.graph) : // If the Thing is already modeled in the Graph, return a spacer model.
                         graphConstructInStore("Thing", memberId) ? new ThingWidgetModel(memberId, this.graph) :      // Else, if the Thing is in the Thing store, create a new model for that Thing ID.
-                        new ThingPlaceholderWidgetModel(memberId, this.graph)     
+                        new ThingMissingFromStoreWidgetModel(memberId, this.graph)     
                          
                         childCohort.addMember(member)
                     }

@@ -1,5 +1,5 @@
 export * from "./thingAddress"
 export * from "./thingBaseWidgetModel"
-export * from "./thingPlaceholderWidgetModel"
-export * from "./thingSpacerWidgetModel"
+export * from "./thingMissingFromStoreWidgetModel"
+export * from "./thingAlreadyRenderedWidgetModel"
 export * from "./thingWidgetModel"
