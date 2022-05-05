@@ -15,12 +15,21 @@ export class Generation {
 
     graph: Graph
     id: number
+    _isRelationshipsOnly = false
     cohorts: Cohort[] = []
     lifecycleStatus: "new" | "building" | "built" | "stripping" | "stripped" = "new"
 
     constructor(graph: Graph, generationIdToBuild: number) {
         this.graph = graph
         this.id = generationIdToBuild
+    }
+
+    get isRelationshipsOnly(): boolean {
+        return this._isRelationshipsOnly
+    }
+
+    set isRelationshipsOnly(isRelationshipsOnly: boolean) {
+        this._isRelationshipsOnly = isRelationshipsOnly
     }
 
     get parentGeneration(): Generation | null {

@@ -230,6 +230,7 @@ export class Graph {
 
         // Add the new, empty Generation as the Relationships-only Generation.
         const newGeneration = new Generation(this, generationIdToBuild)
+        newGeneration.isRelationshipsOnly = true
         this.relationshipsOnlyGeneration = newGeneration
 
         // Build the Generation.

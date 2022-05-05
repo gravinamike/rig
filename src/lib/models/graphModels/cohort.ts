@@ -39,7 +39,7 @@ export class Cohort {
             this.address.graph.relationshipsOnlyGeneration :
             this.address.graph.generations[this.address.generationId]
         generation?.cohorts.push(this)
-        this.address.graph.addCohortToPlane(this, planeId)
+        if (generation && !generation._isRelationshipsOnly) this.address.graph.addCohortToPlane(this, planeId)
 
         // Encapsulation depth.
         const parentEncapsulatingDepth = this.parentCohort()?.encapsulatingDepth || 0
