@@ -9,12 +9,13 @@
     import NotesToolbar from "./notesToolbar.svelte"
 
     export let noteText: string
+    export let noteChanged: boolean
+    export let editorContent: string
 
 
     let textField: Element
     let editor: Editor
 
-    $: setContent(noteText)
 
     function setContent(content: string) {
         editor?.destroy()
@@ -32,9 +33,15 @@
             onTransaction: () => {
                 editor = editor // Force re-render so `editor.isActive` works correctly.
             },
+            onUpdate: () => {
+                noteChanged = true
+                editorContent = editor.getHTML()
+            }
         })
         editor.commands.setContent(content)
+        editorContent = content
     }
+    $: setContent(noteText)
 
     onMount(() => {
         setContent(noteText)

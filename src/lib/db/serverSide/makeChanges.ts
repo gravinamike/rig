@@ -92,6 +92,31 @@ export async function addNoteToThing(thingId: number): Promise<void> {
 }
 
 /*
+ * Update the text of a Note.
+ */
+export async function updateNote(noteId: number, text: string): Promise<void> {
+    // Get parameters for SQL query.
+    const whenModded = (new Date()).toISOString()
+
+    // Construct and run SQL query.
+    const knex = Model.knex()
+    await knex.transaction(async (transaction: Knex.Transaction) => {
+        // Update the Note.
+        await Note.query().update({ text: text, whenmodded: whenModded }).where('id', noteId).transacting(transaction)
+        
+        return
+    })
+
+    // Report on the response.
+    .then(function() {
+        console.log('Transaction complete.')
+    })
+    .catch(function(err: Error) {
+        console.error(err)
+    })
+}
+
+/*
  * Add a Folder to a Thing.
  */
 export async function addFolderToThing(thingId: number): Promise<void> {

@@ -52,6 +52,31 @@ export async function addNoteToThing( thingId: number ): Promise<boolean> {
 }
 
 /*
+ * Update the text of a Note.
+ */
+export async function updateNote( noteId: number, text: string ): Promise<boolean> {
+    // Post to the update-Note API./////////////////
+    const res = await fetch(
+        `api/db/graphManipulation/updateNote`,
+        {
+            method: "POST",
+            body: JSON.stringify({
+                noteId: noteId,
+                text: text
+            })
+        }
+    )
+
+    // Report on the response.
+    if (res.ok) {
+        return true
+    } else {
+        res.text().then(text => {throw Error(text)})
+        return false
+    }
+}
+
+/*
  * Add a Folder to a Thing.
  */
 export async function addFolderToThing( thingId: number ): Promise<boolean> {

@@ -3,32 +3,35 @@
     import type { Thing } from "$lib/models/dbModels"
     import { thingsStore, storeGraphConstructs, retrieveGraphConstructs, graphConstructInStore } from "$lib/stores/graphStores"
     import NotesEditor from "./notesEditor.svelte"
-    import { addNoteToThing } from "$lib/db/clientSide"
+    import { addNoteToThing, updateNote } from "$lib/db/clientSide"
 
     export let graph: Graph
 
     
     let notesContainer: Element
     let editable = false
+    let noteChanged = false
+    let editorContent: string
 
     // Get Perspective Thing.
-    let pThingIds: number[] | null = null
-    $: pThingIds = graph.pThingIds
-    $: pThingId = pThingIds && pThingIds.length ? pThingIds[0] : null
-    $: pThing = pThingId && $thingsStore && graphConstructInStore("Thing", pThingId) ?
-        retrieveGraphConstructs<Thing>("Thing", pThingId) :
-        null
+    let pThing: Thing | null = null
+    $: {
+        const pThingIds = graph.pThingIds
+        const pThingId = pThingIds && pThingIds.length ? pThingIds[0] : null
+        pThing = pThingId && $thingsStore && graphConstructInStore("Thing", pThingId) ?
+            retrieveGraphConstructs<Thing>("Thing", pThingId) :
+            null
+    }
 
     // Get Note title and text.
     $: title = pThing ? pThing.text : "THING NOT FOUND IN STORE"
-    $: noteText = pThing && pThing.note ? pThing.note.text : "NO NOTES YET"
-
-    async function addNote() {///////////// This should only be called prior to saving newly entered Notes for a Thing that doesn't yet have Notes.
-        if (pThing && !pThing.note) {
-            await addNoteToThing(pThing.id)
-            // Re-store the Thing (in order to update its linker to the new Note).
-            await storeGraphConstructs<Thing>("Thing", pThing.id, true)
-        }
+    $: noteId = pThing?.note?.id || null
+    let noteText = ""
+    $: if (!editable) noteText = pThing?.note?.text || "" // Don't reset the text if the text editor is open.
+    // When Perspective changes, reset Note-changed flag.
+    $: {
+        noteText
+        noteChanged = false
     }
 
     // Handling outside clicks and escape key to stop editing.
@@ -40,6 +43,36 @@
     function handleEscape(event: KeyboardEvent) {
         if (event.key === "Escape") editable = false
     }
+
+
+    /* Set up triggers to either create and save, or just save, note as needed. */
+    async function handleNoteChanged() {
+        console.log("FOO")
+
+        if (!pThing) {
+
+            console.log("ABORT!")
+            return
+
+        } else if (noteId === null) {
+
+            await addNoteToThing(pThing.id)
+            // Re-store the Thing (in order to update its linker to the new Note).
+            await storeGraphConstructs<Thing>("Thing", pThing.id, true)
+            noteChanged = false
+
+        } else {
+
+            await updateNote(noteId, editorContent)
+            // Re-store the Thing (in order to update its linker to the updated Note).
+            await storeGraphConstructs<Thing>("Thing", pThing.id, true)
+            noteChanged = false
+
+        }
+    }
+    $: if (noteChanged) handleNoteChanged()
+    
+
 </script>
 
 
@@ -52,12 +85,6 @@
 <div class="notes-viewer">
     <h4>{title}</h4>
 
-    <div
-        on:click={addNote}
-    >
-        ADD NOTES
-    </div>
-
     <!-- Container to hold either Note display or Note editor. -->
     <div
         class="notes-container"
@@ -68,6 +95,8 @@
         {#if editable}
             <NotesEditor
                 {noteText}
+                bind:noteChanged
+                bind:editorContent
             />
         <!-- Note display. -->
         {:else}
