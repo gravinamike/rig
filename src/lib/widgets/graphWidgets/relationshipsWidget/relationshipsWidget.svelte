@@ -183,18 +183,7 @@
             {#if !(cohort.members.length === 1 && cohort.indexOfGrandparentThing !== null)}<!-- Unless the ONLY descendent in a Half-Axis is a doubled-back parent Thing, -->
                 {#each cohortMembersWithIndices as memberWithIndex}
                     {#if cohort.indexOfGrandparentThing !== memberWithIndex.index}<!-- Don't re-draw the existing Relationship to a parent Thing. -->
-                        
-                        <RelationshipFanSegmentWidget
-                            {hoveredThingIdStoreValue}
-                            bind:thingIdOfHoveredRelationship
-                            tweenedScale={$tweenedScale}
-                            {midline}
-                            {stemTop}
-                            {leavesGeometries}
-                            cohortMemberWithIndex={memberWithIndex}
-                        />
-
-                         
+                                                 
                         {#if !(memberWithIndex.member.kind === "thingBaseWidgetModel")}
                             <RelationshipLeafWidget
                                 {hoveredThingIdStoreValue}
@@ -205,6 +194,15 @@
                             />
                         {/if}
 
+                        <RelationshipFanSegmentWidget
+                            {hoveredThingIdStoreValue}
+                            bind:thingIdOfHoveredRelationship
+                            tweenedScale={$tweenedScale}
+                            {midline}
+                            {stemTop}
+                            {leavesGeometries}
+                            cohortMemberWithIndex={memberWithIndex}
+                        />
 
                     {/if}
                 {/each}

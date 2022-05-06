@@ -29,9 +29,9 @@
         class="leaf-hover-zone"
         x1="{leavesGeometries[cohortMemberWithIndex.index].bottomMidline}" y1="{leavesGeometries[cohortMemberWithIndex.index].bottom}"
         x2="{leavesGeometries[cohortMemberWithIndex.index].topMidline}" y2="{leavesGeometries[cohortMemberWithIndex.index].top}"
-        style="stroke-width: {5 / tweenedScale};"
-        on:mouseenter={()=>{leafHovered = true; thingIdOfHoveredRelationship = cohortMemberWithIndex.member.thingId}}
-        on:mouseleave={()=>{leafHovered = false; thingIdOfHoveredRelationship = null}}
+        style="stroke-width: {8 / tweenedScale};"
+        on:mouseenter={()=>{leafHovered = true}}
+        on:mouseleave={()=>{leafHovered = false}}
         on:mousedown={()=>{leafClicked = true}}
         on:mouseup={()=>{leafClicked = false}}
     />

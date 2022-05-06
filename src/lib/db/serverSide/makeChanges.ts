@@ -264,3 +264,26 @@ export async function createNewRelationship(sourceThingId: number, destThingId: 
 
     }
 }
+
+/*
+ * Delete a Relationship.
+ */
+export async function deleteRelationship(sourceThingId: number, destThingId: number): Promise<void> {
+    const knex = Model.knex()
+    await knex.transaction(async (transaction: Knex.Transaction) => {
+
+        // Delete Relationship (both forward and reverse).
+        await Relationship.query().delete().where("thingaid", sourceThingId).where("thingbid", destThingId).transacting(transaction)
+        await Relationship.query().delete().where("thingbid", sourceThingId).where("thingaid", destThingId).transacting(transaction)
+
+        return
+    })
+
+    // Report on the response.
+    .then(function() {
+        console.log('Transaction complete.')
+    })
+    .catch(function(err: Error) {
+        console.error(err)
+    })
+}

@@ -5,7 +5,7 @@ import type { ThingWidgetModel, CohortWidgetModel } from "$lib/models/widgetMode
 import { defaultGraphWidgetStyle } from "$lib/shared/constants"
 import { storeGraphConstructs, retrieveGraphConstructs, unstoreGraphConstructs } from "$lib/stores"
 import { Generation, Cohort, Plane } from "$lib/models/graphModels"
-import { deleteThing } from "$lib/db/clientSide/makeChanges"
+import { deleteThing, deleteRelationship } from "$lib/db/clientSide/makeChanges"
 import { unique } from "$lib/shared/utility"
 
 
@@ -341,5 +341,17 @@ export class Graph {
             }
 
         }
+    }
+
+    async deleteRelationshipByThingIds(sourceThingId: number, destThingId: number): Promise<void> {
+        const relationshipDeleted = await deleteRelationship(sourceThingId, destThingId)
+        if (relationshipDeleted) {
+            // Re-store the Things that were related by the Relationship (in order to
+            // update their relations to reflect the Relationship's absence).
+            await storeGraphConstructs<Thing>("Thing", [sourceThingId, destThingId], true)
+
+            await this.build()
+        }
+
     }
 }

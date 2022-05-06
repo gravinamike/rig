@@ -63,7 +63,7 @@
         class="stem-hover-zone"
         x1="{midline}" y1="{stemBottom}"
         x2="{midline}" y2="{stemTop}"
-        style="stroke-width: {15 / tweenedScale};"
+        style="stroke-width: {20 / tweenedScale};"
         on:mouseenter={()=>{stemHovered = true; hoveredRelationshipTarget.set(relationshipsWidgetModel)}}
         on:mouseleave={()=>{stemHovered = false; stemClicked = false; hoveredRelationshipTarget.set(null)}}
         on:mousedown={event=>{stemClicked = true; enableRelationshipBeingCreated(

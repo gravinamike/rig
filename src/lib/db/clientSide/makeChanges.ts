@@ -151,3 +151,28 @@ export async function createNewRelationship(sourceThingId: number, destThingId: 
         return false
     }
 }
+
+/*
+ * Delete a Thing.
+ */
+export async function deleteRelationship( sourceThingId: number, destThingId: number ): Promise<boolean> {
+    // Post to the delete-Thing API.
+    const res = await fetch(
+        `api/db/graphManipulation/deleteRelationship`,
+        {
+            method: "POST",
+            body: JSON.stringify({
+                sourceThingId: sourceThingId,
+                destThingId: destThingId
+            })
+        }
+    )
+
+    // Report on the response.
+    if (res.ok) {
+        return true
+    } else {
+        res.text().then(text => {throw Error(text)})
+        return false
+    }
+}

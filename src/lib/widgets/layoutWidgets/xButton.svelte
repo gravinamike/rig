@@ -1,58 +1,51 @@
 <script lang="ts">
     export let buttonFunction: () => void
     export let size = 16
-    export let square = false
+    //export let square = false
     export let caution = false
 </script>
 
 
-<div
+<svg
     class="x-button {caution ? "caution" : ""}"
-    style="border-radius: {square ? size/5 : size/2}px; width: {size}px; height: {size}px;"
     on:click|stopPropagation={buttonFunction}
+    style="width: {size}px; height: {size}px; stroke-width: {size * 0.1};"
 >
-
-    <svg
-        style="width: {size}px; height: {size}px; stroke-width: {size * 0.1};"
-    >
-        <line x1={size * 0.3} y1={size * 0.3} x2={size * 0.7} y2={size * 0.7} />
-        <line x1={size * 0.7} y1={size * 0.3} x2={size * 0.3} y2={size * 0.7} />
-    </svg>
-
-</div>
+    <circle cx={size * 0.5} cy={size * 0.5} r={size * 0.45} />
+    <line x1={size * 0.3} y1={size * 0.3} x2={size * 0.7} y2={size * 0.7} />
+    <line x1={size * 0.7} y1={size * 0.3} x2={size * 0.3} y2={size * 0.7} />
+</svg>
 
 
 <style>
-    .x-button {
-        outline: solid 1px grey;
-        outline-offset: -1px;
-        
-        background-color: white;
-        
+    svg {
+        stroke: grey;
+        fill: white;
+
         cursor: pointer;
     }
 
-    .x-button:hover {
-        background-color: gainsboro;
+    svg:hover {
+        fill: gainsboro;
     }
 
-    .x-button:active {
-        background-color: lightgrey;
+    svg:active {
+        fill: lightgrey;
     }
 
-    .x-button.caution {
-        background-color: orange;
+    svg.caution {
+        fill: orange;
     }
 
-    .x-button.caution:hover {
+    svg.caution:hover {
         background-color: orangered;
     }
 
-    .x-button.caution:active {
+    svg.caution:active {
         background-color: crimson;
     }
 
-    svg {
-        stroke: grey;
+    circle {
+        stroke-width: 1;
     }
 </style>

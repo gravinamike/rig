@@ -29,7 +29,6 @@
             <XButton
                 buttonFunction={confirmDeleteFunction}
                 size={20}
-                square={true}
                 caution={true}
             />
         </div>
