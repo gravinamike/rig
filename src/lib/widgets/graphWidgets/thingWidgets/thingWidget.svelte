@@ -4,24 +4,33 @@
     import type { Graph } from "$lib/models/graphModels"
     import type { ThingWidgetModel } from "$lib/models/widgetModels"
 
-    import { relationshipBeingCreatedInfoStore, enableRelationshipBeingCreated, setRelationshipBeingCreatedDestWidgetModel, hoveredRelationshipTarget, addGraphIdsNeedingViewerRefresh, disableRelationshipBeingCreated } from "$lib/stores"
+    /* Store imports. */
+    import {
+        hoveredThingIdStore, hoveredRelationshipTarget,
+        relationshipBeingCreatedInfoStore, enableRelationshipBeingCreated,
+        setRelationshipBeingCreatedDestWidgetModel, disableRelationshipBeingCreated,
+        pinIdsStore, openContextCommandPalette, addPin, removePin,
+        addGraphIdsNeedingViewerRefresh
+    } from "$lib/stores"
+
+    // Utility imports.
+    import { hexToRgba } from "$lib/shared/utility"
 
     /* Widget imports. */
-    import { pinIdsStore, hoveredThingIdStore, openContextCommandPalette, addPin, removePin } from "$lib/stores"
     import { ThingDetailsWidget } from "$lib/widgets/detailsWidgets"
     import { relationshipColorByHalfAxisId } from "$lib/shared/constants"
     import { XButton, ConfirmDeleteBox } from "$lib/widgets/layoutWidgets"
 
-    import { hexToRgba } from "$lib/shared/utility"
 
-
+    /**
+     * @param  {ThingWidgetModel} thingWidgetModel - The Thing Widget Model used to set up this Widget.
+     * @param  {Graph} graph - The Graph that the Thing is in.
+     * @param  {(thingId: number) => Promise<void>} rePerspectToThingId - A function that re-perspects the Graph to a given Thing ID.
+     */
     export let thingWidgetModel: ThingWidgetModel
     export let graph: Graph
     export let rePerspectToThingId: (id: number) => Promise<void>
 
-    
-    const showContent = false
-    let confirmDeleteBoxOpen = false
 
     /* Basic Thing IDs and models. */
     $: thingId = thingWidgetModel.thingId as number
@@ -33,68 +42,57 @@
     $: planeId = thingWidgetModel.planeId
     $: distanceFromFocalPlane = planeId - graph.focalPlaneId
     
-    /* Variables dealing with encapsulation (Things containing other Things). */
-    // If the Half-Axis is "Outwards, or the Thing has "Inwards" children, it is encapsulating.
-    $: isEncapsulating = thingWidgetModel.isEncapsulating
-    $: encapsulatingDepth = thingWidgetModel.encapsulatingDepth
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /* Variables dealing with Thing sizing. */
     $: elongationCategory = thingWidgetModel.elongationCategory
     $: cohortSize = thingWidgetModel.cohortSize
     $: thingWidth = thingWidgetModel.thingWidth
     $: thingHeight = thingWidgetModel.thingHeight
+
+    /* Variables dealing with encapsulation (Things containing other Things). */
+    $: isEncapsulating = thingWidgetModel.isEncapsulating
+    $: encapsulatingDepth = thingWidgetModel.encapsulatingDepth
     
-
-
-
-
-
-
-
-
-
-
-
-
-    // Variables dealing with visual formatting (color, opacity, outline, etc.).
+    /* Variables dealing with visual formatting of the Thing itself (color, opacity, outline, etc.). */
     $: opacity = [7, 8].includes(halfAxisId) ?
         1 :
         1 / (1 + (distanceFromFocalPlane < 0 ? 1 : (distanceFromFocalPlane > 0 ? 2 : 0)) * Math.abs(distanceFromFocalPlane))
-    let hoveredThingIdStoreValue: number | null
-    hoveredThingIdStore.subscribe(value => {hoveredThingIdStoreValue = value})
-    $: isHoveredThing = thingId === hoveredThingIdStoreValue
-    let isHoveredWidget = false
     $: shadowColor = relationshipColorByHalfAxisId[halfAxisId]
+    let isHoveredWidget = false
+    $: isHoveredThing = thingId === $hoveredThingIdStore
+    $: relationshipBeingCreated = $relationshipBeingCreatedInfoStore.sourceWidgetModel ? true : false
+    $: relatableForCurrentDrag = thingWidgetModel.relatableForCurrentDrag($relationshipBeingCreatedInfoStore)
+    $: highlighted = isHoveredThing && !(relationshipBeingCreated && !relatableForCurrentDrag) ? true : false
 
-    // Variables dealing with text formatting.
+    /* Variables dealing with visual formatting of the Thing's text. */
     let textFontSize = encapsulatingDepth >= 0 ?
         graph.graphWidgetStyle.thingTextSize :
         graph.graphWidgetStyle.thingTextSize / Math.log2(cohortSize)
 
+    /* Variables dealing with associated components. */
+    const showContent = false // Content is in development - so `showContent` will eventually be a variable.
+    let confirmDeleteBoxOpen = false
+
     
+    /**
+     * Initiate a delete operation (which needs to be confirmed to finish).
+     */
     async function startDelete() {
         confirmDeleteBoxOpen = true
     }
 
-    async function confirmDelete() {
+    /**
+     * Complete a delete operation after it has been confirmed.
+     */
+    async function completeDelete() {
         await graph.deleteThingById(thingId)
         addGraphIdsNeedingViewerRefresh(graph.id)
     }
 
+    /**
+     * Open a context command palette for this Thing.
+     * 
+     * @param  {MouseEvent} event - The right-click mouse event that triggered the context command palette.
+     */
     function openCommandPalette(event: MouseEvent) {
         const position = [event.clientX, event.clientY] as [number, number]
         const buttonInfos = $pinIdsStore.includes(thingId) ?
@@ -102,24 +100,13 @@
             [{ text: "Add Thing to Pins", iconName: "pin", iconHtml: null, isActive: false, onClick: () => {addPin(thingId)} }]
         openContextCommandPalette(position, buttonInfos)
     }
-
-    $: relationshipBeingCreated = $relationshipBeingCreatedInfoStore.sourceWidgetModel ? true : false
-    $: relatableForCurrentDrag = (
-        $relationshipBeingCreatedInfoStore.sourceWidgetModel
-        && !(
-            $relationshipBeingCreatedInfoStore.sourceWidgetModel.kind === "thingWidgetModel"
-            && $relationshipBeingCreatedInfoStore.sourceWidgetModel.thingId === thingWidgetModel.thingId
-        )
-    ) ?
-        true :
-        false
 </script>
 
 
 <!-- Thing Widget. -->
 <div
     id="{thingWidgetId}"
-    class="box thing-widget { isHoveredThing && !(relationshipBeingCreated && !relatableForCurrentDrag) ? "hovered-thing" : "" }"
+    class="box thing-widget" class:highlighted
     style="
         border-radius: {10 + 4 * encapsulatingDepth}px;
         {isHoveredThing && !(relationshipBeingCreated && !relatableForCurrentDrag) ? 
@@ -129,14 +116,23 @@
         width: {thingWidth}px; height: {thingHeight}px; opacity: {opacity};
         pointer-events: {distanceFromFocalPlane === 0 ? "auto" : "none"};
     "
-    on:mouseenter={()=>{hoveredThingIdStore.set(thingId); isHoveredWidget = true, hoveredRelationshipTarget.set(thingWidgetModel)}}
-    on:mouseleave={()=>{hoveredThingIdStore.set(null); isHoveredWidget = false; confirmDeleteBoxOpen = false, hoveredRelationshipTarget.set(null)}}
-    on:mousedown={event=>{if (event.button === 0) enableRelationshipBeingCreated(
-        thingWidgetModel,
-        [event.clientX, event.clientY]
-    )}}
-    on:click={ () => {if ($relationshipBeingCreatedInfoStore.sourceWidgetModel === null) rePerspectToThingId(thingId) } }
 
+    on:mouseenter={()=>{
+        hoveredThingIdStore.set(thingId)
+        isHoveredWidget = true, hoveredRelationshipTarget.set(thingWidgetModel)
+    }}
+    on:mouseleave={()=>{
+        hoveredThingIdStore.set(null)
+        isHoveredWidget = false
+        confirmDeleteBoxOpen = false, hoveredRelationshipTarget.set(null)
+    }}
+    on:mousedown={ event => {if (event.button === 0) {
+        enableRelationshipBeingCreated(
+            thingWidgetModel,
+            [event.clientX, event.clientY]
+        )
+    }}}
+    on:click={ () => {if ($relationshipBeingCreatedInfoStore.sourceWidgetModel === null) rePerspectToThingId(thingId) } }
     on:mouseup={ () => {
         if (relatableForCurrentDrag) {
             setRelationshipBeingCreatedDestWidgetModel(thingWidgetModel)
@@ -144,16 +140,20 @@
             disableRelationshipBeingCreated()
         }
     } }
-
     on:contextmenu|preventDefault={openCommandPalette}
 >
     <!-- Thing text. -->
     <div
-        class="text-container { showContent && elongationCategory === "horizontal" ? "sideways" : "" }"
+        class="text-container"
+        class:horizontal={showContent && elongationCategory === "horizontal"}
+        class:sideways={showContent && elongationCategory !== "horizontal"}
         style="width: { Math.min(thingWidth, thingHeight) }px; height: { Math.min(thingWidth, thingHeight) }px;"
     >
         <div
-            class="thing-text { isEncapsulating ? "encapsulating" : "" } { showContent ? "show-content" : "hide-content" }"
+            class="thing-text"
+            class:encapsulating={isEncapsulating}
+            class:show-content={showContent}
+            class:hide-content={!showContent}
             style="font-size: {textFontSize}px;"
         >
             {thingWidgetModel.text}
@@ -163,7 +163,9 @@
     <!-- Content box. -->
     {#if showContent}
         <div 
-            class="content-box { elongationCategory === "horizontal" ? "horizontal" : "vertical" }"
+            class="content-box"
+            class:horizontal={elongationCategory === "horizontal"}
+            class:vertical={!(elongationCategory === "horizontal")}
         >
             <ThingDetailsWidget
                 {thing}
@@ -186,7 +188,7 @@
             {thingHeight}
             {encapsulatingDepth}
             {elongationCategory}
-            confirmDeleteFunction={confirmDelete}
+            confirmDeleteFunction={completeDelete}
         />
     {/if}
 </div>
@@ -210,7 +212,7 @@
         pointer-events: auto;
     }
 
-    .hovered-thing {
+    .highlighted {
         outline: solid 2px black;
         outline-offset: -2px;
     }

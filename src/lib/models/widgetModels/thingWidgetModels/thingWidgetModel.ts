@@ -3,6 +3,7 @@ import type { Note } from "$lib/models/dbModels"
 import type { Graph, Cohort } from "$lib/models/graphModels"
 import type { CohortWidgetModel } from "$lib/models/widgetModels/cohortWidgetModel"
 import type { RelationshipsWidgetModel } from "$lib/models/widgetModels/relationshipsWidgetModel"
+import type { RelationshipBeingCreatedInfo } from "$lib/widgets/graphWidgets"
 
 import { ThingBaseWidgetModel } from "./"
 
@@ -82,5 +83,21 @@ export class ThingWidgetModel extends ThingBaseWidgetModel {
             // Set child Cohort for this Direction.
             this.relationshipsWidgetModelsByHalfAxisId[halfAxisId] = relationshipsWidgetModel
         }
+    }
+
+    relatableForCurrentDrag(relationshipBeingCreatedInfo: RelationshipBeingCreatedInfo): boolean {
+        const relatableForCurrentDrag =(
+            // There is a drag-relate in progress,
+            relationshipBeingCreatedInfo.sourceWidgetModel
+            // and the source of the drag is not *this* Thing.
+            && !(
+                relationshipBeingCreatedInfo.sourceWidgetModel.kind === "thingWidgetModel"
+                && relationshipBeingCreatedInfo.sourceWidgetModel.thingId === this.thingId
+            )
+        ) ?
+            true :
+            false
+
+        return relatableForCurrentDrag
     }
 }

@@ -122,6 +122,7 @@ export class ThingBaseWidgetModel {
         return directionIdByHalfAxisId
     }
 
+    // If the Half-Axis is "Outwards, or the Thing has "Inwards" children, it is encapsulating.
     get isEncapsulating(): boolean {
         return (this.halfAxisId === 8) || (7 in this.childCohortsByHalfAxisId) ? true : false
     }

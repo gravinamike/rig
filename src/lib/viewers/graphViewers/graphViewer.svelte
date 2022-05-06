@@ -13,10 +13,11 @@
 
     // Import viewers.
     import { GraphSettingsViewer } from "$lib/viewers/settingsViewers"
-    import { GraphSchematicViewer, GraphWidget } from "$lib/viewers/graphViewers"
+    import { GraphSchematicViewer } from "$lib/viewers/graphViewers"
     import { HistoryViewer, PinsViewer } from "$lib/viewers/navViewers"
     import { NotesViewer } from "$lib/viewers/notesViewers"
     import { FolderViewer } from "$lib/viewers/folderViewers"
+    import { GraphWidget } from "$lib/widgets/graphWidgets"
     
     export let pThingIds: number[]
     export let depth: number
