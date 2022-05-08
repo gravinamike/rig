@@ -2,9 +2,6 @@
     // Type imports.
     import type { Graph } from "$lib/models/graphModels"
     import type { RelationshipsWidgetModel } from "$lib/models/widgetModels"
-
-    // Constant and utility imports.
-    import { relationshipColorByHalfAxisId } from "$lib/shared/constants"
 </script>
 
 <script lang="ts">
@@ -20,16 +17,13 @@
 
     // Information related to Direction.
     const direction = relationshipsWidgetModel.direction
-
-    // Calculate color and opacity of Relationship image.
-    const relationshipColor = relationshipColorByHalfAxisId[halfAxisId]
 </script>
 
 
 <!-- Relationships Outline Widget. -->
 <div
     class="relationships-outline-widget"
-    style="background-color: {relationshipColor};"
+    
 />
 
 <!-- Direction text. -->

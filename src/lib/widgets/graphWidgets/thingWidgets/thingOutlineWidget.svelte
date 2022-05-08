@@ -13,12 +13,8 @@
         addGraphIdsNeedingViewerRefresh
     } from "$lib/stores"
 
-    // Utility imports.
-    import { hexToRgba } from "$lib/shared/utility"
-
     /* Widget imports. */
     import { ThingDetailsWidget } from "$lib/widgets/detailsWidgets"
-    import { relationshipColorByHalfAxisId } from "$lib/shared/constants"
     import { XButton, ConfirmDeleteBox } from "$lib/widgets/layoutWidgets"
 
 
@@ -36,9 +32,6 @@
     $: thingId = thingWidgetModel.thingId as number
     $: thingWidgetId = thingWidgetModel.thingWidgetId
     $: thing = thingWidgetModel.thing as Thing
-
-    /* Variables situating the Thing in its spatial context (Half-Axis, Plane). */
-    $: halfAxisId = thingWidgetModel.halfAxisId
     
     /* Variables dealing with Thing sizing. */
     $: elongationCategory = thingWidgetModel.elongationCategory
@@ -51,7 +44,6 @@
     $: encapsulatingDepth = thingWidgetModel.encapsulatingDepth
     
     /* Variables dealing with visual formatting of the Thing itself (color, opacity, outline, etc.). */
-    $: shadowColor = relationshipColorByHalfAxisId[halfAxisId]
     let isHoveredWidget = false
     $: isHoveredThing = thingId === $hoveredThingIdStore
     $: relationshipBeingCreated = $relationshipBeingCreatedInfoStore.sourceWidgetModel ? true : false
@@ -103,10 +95,7 @@
     id="{thingWidgetId}"
     class="box thing-outline-widget" class:highlighted
     style="
-        {isHoveredThing && !(relationshipBeingCreated && !relatableForCurrentDrag) ? 
-            `box-shadow: 5px 5px 10px 10px ${hexToRgba(shadowColor, 0.15)};` :
-            `box-shadow: 5px 5px 10px 2px ${hexToRgba(shadowColor, 0.15)};`
-        }
+        border-radius: { thingWidgetModel.childCohortWidgetModels.length ? "10px 10px 0 0" : "10px" };
     "
 
     on:mouseenter={()=>{
@@ -188,21 +177,16 @@
 
 <style>
     .box {
-        outline: solid 0.25px lightgrey;
-        outline-offset: -0.25px;
-
-        box-sizing: border-box;
         height: max-content;
         background-color: white;
 
         cursor: default;
     }
 
-    .thing-outline-widget {
-        border-radius: 10px;
-        
-        box-sizing: border-box; padding: 1rem;
+    .thing-outline-widget {        
         position: relative;
+
+        padding: 1rem;
 
         pointer-events: auto;
     }
