@@ -18,6 +18,7 @@
     import { NotesViewer } from "$lib/viewers/notesViewers"
     import { FolderViewer } from "$lib/viewers/folderViewers"
     import { GraphWidget } from "$lib/widgets/graphWidgets"
+    import { GraphOutlineWidget } from "$lib/widgets/graphWidgets"
     
     export let pThingIds: number[]
     export let depth: number
@@ -139,9 +140,18 @@
         <div class="tabs-container wide">
             <TabBlock>
                 <TabFlaps>
+                    <TabFlap>Outline</TabFlap>
                     <TabFlap>Notes</TabFlap>
                     <TabFlap>Attachments</TabFlap>
                 </TabFlaps>
+
+                <!-- Outline viewer -->
+                <TabBody>
+                    <GraphOutlineWidget
+                        bind:graph
+                        {rePerspectToThingId}
+                    />
+                </TabBody>
             
                 <!-- Notes viewer -->
                 <TabBody>
