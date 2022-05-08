@@ -1,5 +1,5 @@
 import type { HalfAxisId } from "$lib/shared/constants"
-import type { Graph, GenerationMember, Plane } from "$lib/models/graphModels"
+import type { Graph, Generation, GenerationMember, Plane } from "$lib/models/graphModels"
 import type { ThingWidgetModel, RelationshipsWidgetModel } from "$lib/models/widgetModels"
 
 import { offsetsByHalfAxisId } from "$lib/shared/constants"
@@ -16,6 +16,7 @@ export class Cohort {
     kind = "cohort"
 
     address: CohortAddress
+    generation: Generation | null
     members: GenerationMember[]
     encapsulatingDepth: number
     plane: Plane | null = null
@@ -35,11 +36,11 @@ export class Cohort {
             const changeInPlane = offsetsByHalfAxisId[this.address?.halfAxisId || 0][2]
             planeId = parentPlaneId + changeInPlane
         }
-        const generation = this.address.generationId === this.address.graph.generations.length ?
+        this.generation = this.address.generationId === this.address.graph.generations.length ?
             this.address.graph.relationshipsOnlyGeneration :
             this.address.graph.generations[this.address.generationId]
-        generation?.cohorts.push(this)
-        if (generation && !generation._isRelationshipsOnly) this.address.graph.addCohortToPlane(this, planeId)
+        this.generation?.cohorts.push(this)
+        if (this.generation && !this.generation._isRelationshipsOnly) this.address.graph.addCohortToPlane(this, planeId)
 
         // Encapsulation depth.
         const parentEncapsulatingDepth = this.parentCohort()?.encapsulatingDepth || 0
