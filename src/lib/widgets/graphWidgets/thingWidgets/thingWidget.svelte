@@ -6,11 +6,11 @@
 
     /* Store imports. */
     import {
+        graphConstructInStore, unstoreGraphConstructs,
         hoveredThingIdStore, hoveredRelationshipTarget,
         relationshipBeingCreatedInfoStore, enableRelationshipBeingCreated,
         setRelationshipBeingCreatedDestWidgetModel, disableRelationshipBeingCreated,
         pinIdsStore, openContextCommandPalette, addPin, removePin,
-        addGraphIdsNeedingViewerRefresh
     } from "$lib/stores"
 
     // Utility imports.
@@ -85,7 +85,15 @@
      */
     async function completeDelete() {
         await graph.deleteThingById(thingId)
-        addGraphIdsNeedingViewerRefresh(graph.id)
+        await unstoreGraphConstructs("Thing", thingId)
+
+        const reverseHistory = graph.perspectiveHistory.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+        for (const historyEntry of reverseHistory) {
+            if (historyEntry.thingId !== thingId && graphConstructInStore("Thing", historyEntry.thingId)) {
+                rePerspectToThingId(historyEntry.thingId)
+                break
+            }
+        }
     }
 
     /**
