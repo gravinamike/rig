@@ -1,7 +1,7 @@
 <script context="module" lang="ts">
     import type { Thing } from "$lib/models/dbModels"
     import type { GenerationMember } from "$lib/models/graphModels"
-    import { retrieveGraphConstructs, addGraphIdsNeedingViewerRefresh } from "$lib/stores"
+    import { retrieveGraphConstructs, addGraphIdsNeedingViewerRefresh, relationshipBeingCreatedInfoStore, hoveredRelationshipTarget } from "$lib/stores"
     import { XButton } from "$lib/widgets/layoutWidgets"
 </script>
 
@@ -49,6 +49,37 @@
             addGraphIdsNeedingViewerRefresh(graph.id)
         }
     }
+
+
+
+
+
+
+    $: sourceThingId = cohortMemberWithIndex.member.parentThingWidgetModel?.thingId || null
+    $: destThingId = cohortMemberWithIndex.member.thingId
+    $: dragSourceThingId = $relationshipBeingCreatedInfoStore.sourceWidgetModel ?
+        (
+            $relationshipBeingCreatedInfoStore.sourceWidgetModel.kind === "thingWidgetModel" ?
+                $relationshipBeingCreatedInfoStore.sourceWidgetModel.thingId as number :
+                $relationshipBeingCreatedInfoStore.sourceWidgetModel.parentThingWidgetModel.thingId as number
+        ) :
+        null
+    $: dragDestThingId = $hoveredRelationshipTarget ?
+        (
+            $hoveredRelationshipTarget.kind === "thingWidgetModel" ?
+                $hoveredRelationshipTarget.thingId as number :
+                $hoveredRelationshipTarget.parentThingWidgetModel.thingId as number
+        ) :
+        null
+    $: willBeDeleted = (
+        sourceThingId && destThingId && dragSourceThingId && dragDestThingId
+        && (
+            ( sourceThingId === dragSourceThingId && destThingId === dragDestThingId )
+            || ( sourceThingId === dragDestThingId && destThingId === dragSourceThingId )
+        )
+    ) ?
+        true :
+        false
 </script>
 
 
@@ -102,6 +133,18 @@
             />
         </svg>
     {/if}
+
+    <!-- Will-be-deleted indicator -->
+    {#if willBeDeleted}
+        <svg
+            class="will-be-deleted-indicator"
+            x={leavesGeometries[cohortMemberWithIndex.index].bottomMidline}
+            y={leavesGeometries[cohortMemberWithIndex.index].bottom}
+        >
+            <line x1=2 y1=2 x2=18 y2=18 />
+            <line x1=18 y1=2 x2=2 y2=18 />
+        </svg>
+    {/if}
 </g>
 
 
@@ -123,5 +166,11 @@
 
     .fan-segment-image.clicked {
         opacity: 0.25;
+    }
+
+    .will-be-deleted-indicator {
+        transform: translate(-10px, -10px);
+        stroke: red;
+        stroke-width: 3px;
     }
 </style>
