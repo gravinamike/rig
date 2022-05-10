@@ -1,4 +1,7 @@
 <script lang="ts">
+    // Type imports.
+    import type { WaitingIndicatorStates } from "$lib/shared/constants"
+
     // Import basic framework functions.
     import { onMount } from "svelte"
 
@@ -10,7 +13,7 @@
     import { graphOpenedStore, updateRelationshipBeingCreatedEndpoint } from "$lib/stores"
 
     // Import layout elements.
-    import { ContextCommandPalette, Collapser, TabBlock, TabFlap, TabFlaps, TabBody } from "$lib/widgets/layoutWidgets"
+    import { ContextCommandPalette, Collapser, TabBlock, TabFlap, TabFlaps, TabBody, WaitingIndicator } from "$lib/widgets/layoutWidgets"
 
     // Import viewers.
     import FileViewer from "$lib/viewers/settingsViewers/fileViewer.svelte"
@@ -23,21 +26,51 @@
     
 
     graphOpenedStore.set(null)
+    const graphIndicatorStates: WaitingIndicatorStates = {
+        start: {
+            text: "Configuration not loaded yet.",
+            imageName: null
+        },
+        configLoading: {
+            text: "Loading configuration...",
+            imageName: "waiting"
+        },
+        configLoaded: {
+            text: "No Graph loaded yet.",
+            imageName: null
+        },
+        graphLoading: {
+            text: "Loading Graph...",
+            imageName: "waiting"
+        },
+        graphLoaded: {
+            text: "Graph loaded!",
+            imageName: null
+        },
+        error: {
+            text: "Error loading Graph!",
+            imageName: null
+        }
+    }
+    let graphIndicatorCurrentStateName: "start" | "configLoading" | "configLoaded" | "graphLoading" | "graphLoaded" | "error" = "start"
 
 
 
-    
 
 
     // At app initialization,
     onMount(async () => {
         // Store configuration.
+        graphIndicatorCurrentStateName = "configLoading"
         const appConfig = await storeAppConfig()
+        graphIndicatorCurrentStateName = "configLoaded"
 
         if (appConfig.unigraphFolder) {
+            graphIndicatorCurrentStateName = "graphLoading"
             // Open the Unigraph currently specified in the store.
             await openUnigraph()
             graphOpenedStore.set(appConfig.unigraphFolder)
+            graphIndicatorCurrentStateName = "graphLoaded"
         }
 	})
 
@@ -120,9 +153,10 @@
             depth={startingGraphDepth}
         />
     {:else}
-        <div style="margin: auto;">
-            <span style="font-size: 1.5rem;">(No Graph loaded yet)</span>
-        </div>
+        <WaitingIndicator
+            states={graphIndicatorStates}
+            currentStateName={graphIndicatorCurrentStateName}
+        />
     {/if}
 
 </main>
