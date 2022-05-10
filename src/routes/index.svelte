@@ -10,7 +10,7 @@
     import { storeAppConfig } from "$lib/shared/config"
 
     // Import database/stores-related functions.
-    import { graphOpenedStore, updateRelationshipBeingCreatedEndpoint } from "$lib/stores"
+    import { loadingState, openGraphStore, updateRelationshipBeingCreatedEndpoint } from "$lib/stores"
 
     // Import layout elements.
     import { ContextCommandPalette, Collapser, TabBlock, TabFlap, TabFlaps, TabBody, WaitingIndicator } from "$lib/widgets/layoutWidgets"
@@ -25,7 +25,7 @@
     import { openUnigraph } from "$lib/shared/unigraph"
     
 
-    graphOpenedStore.set(null)
+    openGraphStore.set(null)
     const graphIndicatorStates: WaitingIndicatorStates = {
         start: {
             text: "Configuration not loaded yet.",
@@ -52,8 +52,6 @@
             imageName: null
         }
     }
-    let graphIndicatorCurrentStateName: "start" | "configLoading" | "configLoaded" | "graphLoading" | "graphLoaded" | "error" = "start"
-
 
 
 
@@ -61,16 +59,16 @@
     // At app initialization,
     onMount(async () => {
         // Store configuration.
-        graphIndicatorCurrentStateName = "configLoading"
+        $loadingState = "configLoading"
         const appConfig = await storeAppConfig()
-        graphIndicatorCurrentStateName = "configLoaded"
+        $loadingState = "configLoaded"
 
         if (appConfig.unigraphFolder) {
-            graphIndicatorCurrentStateName = "graphLoading"
+            $loadingState = "graphLoading"
             // Open the Unigraph currently specified in the store.
             await openUnigraph()
-            graphOpenedStore.set(appConfig.unigraphFolder)
-            graphIndicatorCurrentStateName = "graphLoaded"
+            openGraphStore.set(appConfig.unigraphFolder)
+            $loadingState = "graphLoaded"
         }
 	})
 
@@ -81,7 +79,7 @@
 
 
 <svelte:head>
-    <title>Rig{ $graphOpenedStore ? ` - ${$graphOpenedStore}` : "" }</title>
+    <title>Rig{ $openGraphStore ? ` - ${$openGraphStore}` : "" }</title>
 </svelte:head>
 
 
@@ -97,7 +95,7 @@
     <RelationshipBeingCreatedWidget />
 
     <!-- File viewer. -->
-    <Collapser headerText={`File${ $graphOpenedStore ? `&nbsp;&nbsp;-&nbsp;&nbsp;${$graphOpenedStore}` : "" }`} contentDirection={"left"}>
+    <Collapser headerText={`File${ $openGraphStore ? `&nbsp;&nbsp;-&nbsp;&nbsp;${$openGraphStore}` : "" }`} contentDirection={"left"}>
         <FileViewer />
     </Collapser>
     
@@ -147,7 +145,7 @@
     </Collapser>
 
     <!-- Graph Portal. -->
-    {#if $graphOpenedStore}
+    {#if $openGraphStore}
         <GraphViewer
             pThingIds={startingPThingIds}
             depth={startingGraphDepth}
@@ -155,7 +153,7 @@
     {:else}
         <WaitingIndicator
             states={graphIndicatorStates}
-            currentStateName={graphIndicatorCurrentStateName}
+            currentStateName={$loadingState}
         />
     {/if}
 
