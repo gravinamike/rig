@@ -75,3 +75,11 @@ export async function removePin(thingId: number): Promise<void> {
     } )
     await saveGraphConfig()
 }
+
+
+
+export const loadingState = writable(
+    "start" as (
+        "start" | "configLoading" | "configLoaded" | "graphLoading" | "graphLoaded" | "error"
+    )
+)

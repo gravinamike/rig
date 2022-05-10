@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { graphOpenedStore } from "$lib/stores"
+    import { loadingState, openGraphStore } from "$lib/stores"
     import { openUnigraph, closeUnigraph } from "$lib/shared/unigraph"
 
 
@@ -20,10 +20,12 @@
         })
 
         await closeUnigraph()
-        graphOpenedStore.set(null)
-
+        openGraphStore.set(null)
+        
+        $loadingState = "graphLoading"
         await openUnigraph()
-        graphOpenedStore.set(folderName)
+        openGraphStore.set(folderName)
+        $loadingState = "graphLoaded"
     }
 </script>
 
@@ -34,7 +36,7 @@
     <div class="graph-folders">
         {#each graphFolders as folder}
             <div
-                class="graph-folder { folder === $graphOpenedStore ? "opened" : "" }"
+                class="graph-folder { folder === $openGraphStore ? "opened" : "" }"
                 on:click={() => {openUnigraphFolder(folder)}}
             >
                 {folder}

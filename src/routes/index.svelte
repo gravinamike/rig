@@ -1,4 +1,7 @@
 <script lang="ts">
+    // Type imports.
+    import type { WaitingIndicatorStates } from "$lib/shared/constants"
+
     // Import basic framework functions.
     import { onMount } from "svelte"
 
@@ -7,10 +10,10 @@
     import { storeAppConfig } from "$lib/shared/config"
 
     // Import database/stores-related functions.
-    import { graphOpenedStore, updateRelationshipBeingCreatedEndpoint } from "$lib/stores"
+    import { loadingState, openGraphStore, updateRelationshipBeingCreatedEndpoint } from "$lib/stores"
 
     // Import layout elements.
-    import { ContextCommandPalette, Collapser, TabBlock, TabFlap, TabFlaps, TabBody } from "$lib/widgets/layoutWidgets"
+    import { ContextCommandPalette, Collapser, TabBlock, TabFlap, TabFlaps, TabBody, WaitingIndicator } from "$lib/widgets/layoutWidgets"
 
     // Import viewers.
     import FileViewer from "$lib/viewers/settingsViewers/fileViewer.svelte"
@@ -22,22 +25,50 @@
     import { openUnigraph } from "$lib/shared/unigraph"
     
 
-    graphOpenedStore.set(null)
+    openGraphStore.set(null)
+    const graphIndicatorStates: WaitingIndicatorStates = {
+        start: {
+            text: "Configuration not loaded yet.",
+            imageName: null
+        },
+        configLoading: {
+            text: "Loading configuration...",
+            imageName: "waiting"
+        },
+        configLoaded: {
+            text: "No Graph loaded yet.",
+            imageName: null
+        },
+        graphLoading: {
+            text: "Loading Graph...",
+            imageName: "waiting"
+        },
+        graphLoaded: {
+            text: "Graph loaded!",
+            imageName: null
+        },
+        error: {
+            text: "Error loading Graph!",
+            imageName: null
+        }
+    }
 
 
-
-    
 
 
     // At app initialization,
     onMount(async () => {
         // Store configuration.
+        $loadingState = "configLoading"
         const appConfig = await storeAppConfig()
+        $loadingState = "configLoaded"
 
         if (appConfig.unigraphFolder) {
+            $loadingState = "graphLoading"
             // Open the Unigraph currently specified in the store.
             await openUnigraph()
-            graphOpenedStore.set(appConfig.unigraphFolder)
+            openGraphStore.set(appConfig.unigraphFolder)
+            $loadingState = "graphLoaded"
         }
 	})
 
@@ -48,7 +79,7 @@
 
 
 <svelte:head>
-    <title>Rig{ $graphOpenedStore ? ` - ${$graphOpenedStore}` : "" }</title>
+    <title>Rig{ $openGraphStore ? ` - ${$openGraphStore}` : "" }</title>
 </svelte:head>
 
 
@@ -64,7 +95,7 @@
     <RelationshipBeingCreatedWidget />
 
     <!-- File viewer. -->
-    <Collapser headerText={`File${ $graphOpenedStore ? `&nbsp;&nbsp;-&nbsp;&nbsp;${$graphOpenedStore}` : "" }`} contentDirection={"left"}>
+    <Collapser headerText={`File${ $openGraphStore ? `&nbsp;&nbsp;-&nbsp;&nbsp;${$openGraphStore}` : "" }`} contentDirection={"left"}>
         <FileViewer />
     </Collapser>
     
@@ -114,15 +145,16 @@
     </Collapser>
 
     <!-- Graph Portal. -->
-    {#if $graphOpenedStore}
+    {#if $openGraphStore}
         <GraphViewer
             pThingIds={startingPThingIds}
             depth={startingGraphDepth}
         />
     {:else}
-        <div style="margin: auto;">
-            <span style="font-size: 1.5rem;">(No Graph loaded yet)</span>
-        </div>
+        <WaitingIndicator
+            states={graphIndicatorStates}
+            currentStateName={$loadingState}
+        />
     {/if}
 
 </main>

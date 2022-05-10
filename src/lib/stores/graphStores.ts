@@ -244,7 +244,7 @@ export function retrieveGraphConstructs<Type extends GraphConstruct>(
     }
 }
 
-export const graphOpenedStore = writable( null as string | null )
+export const openGraphStore = writable( null as string | null )
 
 
 

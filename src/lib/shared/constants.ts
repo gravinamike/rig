@@ -18,6 +18,13 @@ export interface AppConfig {
     unigraphFolder: string | null
 }
 
+export interface WaitingIndicatorStates {
+    [stateName: string]: {
+        text: string,
+        imageName: null | "waiting" | "error"
+    }
+}
+
 /*
  * Graph-level interfaces and types.
  */

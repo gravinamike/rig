@@ -3,7 +3,7 @@
     import { sleep } from "$lib/shared/utility"
 
     // Import stores.
-    import { hoveredThingIdStore, graphOpenedStore, graphIdsNeedingViewerRefresh, addGraphIdsNeedingViewerRefresh, removeGraphIdsNeedingViewerRefresh } from "$lib/stores"
+    import { hoveredThingIdStore, openGraphStore, graphIdsNeedingViewerRefresh, addGraphIdsNeedingViewerRefresh, removeGraphIdsNeedingViewerRefresh } from "$lib/stores"
 
     // Import models.
     import { Graph } from "$lib/models/graphModels"
@@ -44,7 +44,7 @@
 	})*/
 
     $: {
-        graphOpenedStore
+        openGraphStore
 
         buildAndRefresh()
     }
