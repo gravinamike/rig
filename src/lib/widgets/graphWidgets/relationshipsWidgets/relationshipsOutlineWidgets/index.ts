@@ -1,0 +1,1 @@
+export { default as RelationshipsOutlineWidget } from "./relationshipsOutlineWidget.svelte"

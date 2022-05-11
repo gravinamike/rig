@@ -8,10 +8,10 @@ import { alterQuerystringForH2AndRun } from "./utility"
 
 // Graph-construct-related imports.
 import {
-    Direction, Thing, getNewThingInfo,
-    Relationship, getNewRelationshipInfo,
-    Note, getNewNoteInfo, NoteToThing,
-    Folder, getNewFolderInfo, FolderToThing
+    DirectionDbModel, ThingDbModel, getNewThingInfo,
+    RelationshipDbModel, getNewRelationshipInfo,
+    NoteDbModel, getNewNoteInfo, NoteToThingDbModel,
+    FolderDbModel, getNewFolderInfo, FolderToThingDbModel
 } from "$lib/models/dbModels"
 
 // Filesystem-related imports.
@@ -30,18 +30,18 @@ export async function createNewRelatedThing(thingIdToRelateFrom: number, directi
     await knex.transaction(async (transaction: Knex.Transaction) => {
         // Create new Thing.
         const newThingInfo = getNewThingInfo(text, whenCreated, 2)
-        const querystring1 = Thing.query().insert(newThingInfo).toKnexQuery().toString()
-        const newRelatedThing = await alterQuerystringForH2AndRun(querystring1, transaction, whenCreated, "Thing") as Thing
+        const querystring1 = ThingDbModel.query().insert(newThingInfo).toKnexQuery().toString()
+        const newRelatedThing = await alterQuerystringForH2AndRun(querystring1, transaction, whenCreated, "Thing") as ThingDbModel
         
         // Get Direction info.
-        const direction = (await Direction.query().where("id", directionId))[0]
+        const direction = (await DirectionDbModel.query().where("id", directionId))[0]
         const oppositeDirectionId = direction.oppositeid as number
 
         // Create new Relationship.
         const newARelationshipInfo = getNewRelationshipInfo(thingIdToRelateFrom, newRelatedThing.id, whenCreated, directionId)
-        const querystring2 = Relationship.query().insert(newARelationshipInfo).toKnexQuery().toString()
+        const querystring2 = RelationshipDbModel.query().insert(newARelationshipInfo).toKnexQuery().toString()
         const newBRelationshipInfo = getNewRelationshipInfo(newRelatedThing.id, thingIdToRelateFrom, whenCreated, oppositeDirectionId)
-        const querystring3 = Relationship.query().insert(newBRelationshipInfo).toKnexQuery().toString()
+        const querystring3 = RelationshipDbModel.query().insert(newBRelationshipInfo).toKnexQuery().toString()
         const [newARelationship, newBRelationship] = await Promise.all([
             alterQuerystringForH2AndRun(querystring2, transaction, whenCreated, "Relationship"),
             alterQuerystringForH2AndRun(querystring3, transaction, whenCreated, "Relationship")
@@ -71,13 +71,13 @@ export async function addNoteToThing(thingId: number): Promise<void> {
     await knex.transaction(async (transaction: Knex.Transaction) => {
         // Create the Note.
         const newNoteInfo = getNewNoteInfo(whenCreated)
-        const querystring1 = Note.query().insert(newNoteInfo).toKnexQuery().toString()
-        const newAddedNote = await alterQuerystringForH2AndRun(querystring1, transaction, whenCreated, "Note") as Note
+        const querystring1 = NoteDbModel.query().insert(newNoteInfo).toKnexQuery().toString()
+        const newAddedNote = await alterQuerystringForH2AndRun(querystring1, transaction, whenCreated, "Note") as NoteDbModel
 
         // Create the linker between the Note and its Thing.
-        const thingToAddNoteTo = await Thing.query().findById(thingId)
+        const thingToAddNoteTo = await ThingDbModel.query().findById(thingId)
         const querystring2 = thingToAddNoteTo.$relatedQuery('note').relate(newAddedNote.id).toKnexQuery().toString()
-        await alterQuerystringForH2AndRun(querystring2, transaction, whenCreated, "NoteToThing") as NoteToThing
+        await alterQuerystringForH2AndRun(querystring2, transaction, whenCreated, "NoteToThing") as NoteToThingDbModel
 
         return
     })
@@ -102,7 +102,7 @@ export async function updateNote(noteId: number, text: string): Promise<void> {
     const knex = Model.knex()
     await knex.transaction(async (transaction: Knex.Transaction) => {
         // Update the Note.
-        await Note.query().update({ text: text, whenmodded: whenModded }).where('id', noteId).transacting(transaction)
+        await NoteDbModel.query().update({ text: text, whenmodded: whenModded }).where('id', noteId).transacting(transaction)
         
         return
     })
@@ -129,13 +129,13 @@ export async function addFolderToThing(thingId: number): Promise<void> {
     await knex.transaction(async (transaction: Knex.Transaction) => {
         // Create the Folder.
         const newFolderInfo = getNewFolderInfo(whenCreated, folderGuid)
-        const querystring1 = Folder.query().insert(newFolderInfo).toKnexQuery().toString()
-        const newAddedFolder = await alterQuerystringForH2AndRun(querystring1, transaction, whenCreated, "Folder") as Folder
+        const querystring1 = FolderDbModel.query().insert(newFolderInfo).toKnexQuery().toString()
+        const newAddedFolder = await alterQuerystringForH2AndRun(querystring1, transaction, whenCreated, "Folder") as FolderDbModel
 
         // Create the linker between the Folder and its Thing.
-        const thingToAddFolderTo = await Thing.query().findById(thingId)
+        const thingToAddFolderTo = await ThingDbModel.query().findById(thingId)
         const querystring2 = thingToAddFolderTo.$relatedQuery('folder').relate(newAddedFolder.id).toKnexQuery().toString()
-        await alterQuerystringForH2AndRun(querystring2, transaction, whenCreated, "FolderToThing") as FolderToThing
+        await alterQuerystringForH2AndRun(querystring2, transaction, whenCreated, "FolderToThing") as FolderToThingDbModel
         
         return
     })
@@ -162,27 +162,27 @@ export async function deleteThing(thingId: number): Promise<void> {
     const knex = Model.knex()
     await knex.transaction(async (transaction: Knex.Transaction) => {
         // Get associated Notes (before linkers are gone).
-        const notesToDelete = await Thing.relatedQuery('note').for([thingId])
+        const notesToDelete = await ThingDbModel.relatedQuery('note').for([thingId])
         const noteIdsToDelete = notesToDelete.map(note => note.id)
         // Delete associated Note linkers.
-        await Thing.relatedQuery('noteToThing').for([thingId]).delete().transacting(transaction)
+        await ThingDbModel.relatedQuery('noteToThing').for([thingId]).delete().transacting(transaction)
         // Delete associated Notes.
-        await Note.query().delete().whereIn("id", noteIdsToDelete).transacting(transaction)
+        await NoteDbModel.query().delete().whereIn("id", noteIdsToDelete).transacting(transaction)
 
         // Get associated Folders (before linkers are gone).
-        const foldersToDelete = await Thing.relatedQuery('note').for([thingId])
+        const foldersToDelete = await ThingDbModel.relatedQuery('note').for([thingId])
         const folderIdsToDelete = foldersToDelete.map(note => note.id)
         // Delete associated Folder linkers.
-        await Thing.relatedQuery('folderToThing').for([thingId]).delete().transacting(transaction)
+        await ThingDbModel.relatedQuery('folderToThing').for([thingId]).delete().transacting(transaction)
         // Delete associated Folders.
-        await Folder.query().delete().whereIn("id", folderIdsToDelete).transacting(transaction)
+        await FolderDbModel.query().delete().whereIn("id", folderIdsToDelete).transacting(transaction)
 
         // Delete associated Relationships.
-        await Thing.relatedQuery('a_relationships').for([thingId]).delete().transacting(transaction)
-        await Thing.relatedQuery('b_relationships').for([thingId]).delete().transacting(transaction)
+        await ThingDbModel.relatedQuery('a_relationships').for([thingId]).delete().transacting(transaction)
+        await ThingDbModel.relatedQuery('b_relationships').for([thingId]).delete().transacting(transaction)
 
         // Delete the Thing itself.
-        await Thing.query().delete().where("id", thingId).transacting(transaction)
+        await ThingDbModel.query().delete().where("id", thingId).transacting(transaction)
 
         return
     })
@@ -206,11 +206,11 @@ export async function createNewRelationship(sourceThingId: number, destThingId: 
     //console.log(sourceThingId, destThingId, directionId)
     
     // Verify the Relationship does not yet exist.
-    const queriedARelationships = await Relationship.query()
+    const queriedARelationships = await RelationshipDbModel.query()
         .where("thingaid", destThingId)
         .where("thingbid", sourceThingId)
         .where("direction", directionId)
-    const queriedBRelationships = await Relationship.query()
+    const queriedBRelationships = await RelationshipDbModel.query()
         .where("thingaid", sourceThingId)
         .where("thingbid", destThingId)
         .where("direction", directionId)
@@ -234,18 +234,18 @@ export async function createNewRelationship(sourceThingId: number, destThingId: 
         await knex.transaction(async (transaction: Knex.Transaction) => {
 
             // Delete any existing Relationships between source and dest Things in *other* Directions.
-            await Relationship.query().delete().where("thingaid", destThingId).where("thingbid", sourceThingId).transacting(transaction)
-            await Relationship.query().delete().where("thingaid", sourceThingId).where("thingbid", destThingId).transacting(transaction)
+            await RelationshipDbModel.query().delete().where("thingaid", destThingId).where("thingbid", sourceThingId).transacting(transaction)
+            await RelationshipDbModel.query().delete().where("thingaid", sourceThingId).where("thingbid", destThingId).transacting(transaction)
 
             // Get Direction info.
-            const direction = (await Direction.query().where("id", directionId))[0]
+            const direction = (await DirectionDbModel.query().where("id", directionId))[0]
             const oppositeDirectionId = direction.oppositeid as number
 
             // Create new Relationship.
             const newARelationshipInfo = getNewRelationshipInfo(sourceThingId, destThingId, whenCreated, directionId)
-            const querystring1 = Relationship.query().insert(newARelationshipInfo).toKnexQuery().toString()
+            const querystring1 = RelationshipDbModel.query().insert(newARelationshipInfo).toKnexQuery().toString()
             const newBRelationshipInfo = getNewRelationshipInfo(destThingId, sourceThingId, whenCreated, oppositeDirectionId)
-            const querystring2 = Relationship.query().insert(newBRelationshipInfo).toKnexQuery().toString()
+            const querystring2 = RelationshipDbModel.query().insert(newBRelationshipInfo).toKnexQuery().toString()
             const [newARelationship, newBRelationship] = await Promise.all([
                 alterQuerystringForH2AndRun(querystring1, transaction, whenCreated, "Relationship"),
                 alterQuerystringForH2AndRun(querystring2, transaction, whenCreated, "Relationship")
@@ -273,8 +273,8 @@ export async function deleteRelationship(sourceThingId: number, destThingId: num
     await knex.transaction(async (transaction: Knex.Transaction) => {
 
         // Delete Relationship (both forward and reverse).
-        await Relationship.query().delete().where("thingaid", sourceThingId).where("thingbid", destThingId).transacting(transaction)
-        await Relationship.query().delete().where("thingbid", sourceThingId).where("thingaid", destThingId).transacting(transaction)
+        await RelationshipDbModel.query().delete().where("thingaid", sourceThingId).where("thingbid", destThingId).transacting(transaction)
+        await RelationshipDbModel.query().delete().where("thingbid", sourceThingId).where("thingaid", destThingId).transacting(transaction)
 
         return
     })

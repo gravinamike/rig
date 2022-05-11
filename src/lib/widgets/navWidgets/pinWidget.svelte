@@ -1,6 +1,6 @@
 <script lang="ts">
     /* Type imports. */
-    import type { Thing } from "$lib/models/dbModels"
+    import type { ThingDbModel } from "$lib/models/dbModels"
 
     /* Store-related imports. */
     import { hoveredThingIdStore, openContextCommandPalette, removePin } from "$lib/stores"
@@ -12,7 +12,7 @@
      * @param  {(thingId: number) => Promise<void>} rePerspectToThingId - A function that re-perspects the Graph to a given Thing ID.
      */
     export let thingId: number
-    export let thing: Thing | null
+    export let thing: ThingDbModel | null
     export let rePerspectToThingId: (thingId: number) => Promise<void>
 
 

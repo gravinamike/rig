@@ -1,5 +1,5 @@
 import type { GraphWidgetStyle } from "$lib/shared/constants"
-import type { Thing } from "$lib/models/dbModels"
+import type { ThingDbModel } from "$lib/models/dbModels"
 import type { ThingWidgetModel, CohortWidgetModel } from "$lib/models/widgetModels"
 
 import { defaultGraphWidgetStyle } from "$lib/shared/constants"
@@ -257,8 +257,8 @@ export class Graph {
         const thingIdsToStore = this.thingIdsForGenerationId(this.generationIdToBuild).filter( id => !thingIdsOfGraph.includes(id) )
 
         // Store Things from the IDs.
-        const storedThings = await storeGraphConstructs<Thing>("Thing", thingIdsToStore)
-        const storedThingsById: { [thingId: number]: Thing } = {}
+        const storedThings = await storeGraphConstructs<ThingDbModel>("Thing", thingIdsToStore)
+        const storedThingsById: { [thingId: number]: ThingDbModel } = {}
         storedThings.forEach(
             storedThing => storedThingsById[storedThing.id] = storedThing
         )
@@ -322,7 +322,7 @@ export class Graph {
 
     async deleteThingById(thingId: number): Promise<void> {
         // Get the to-be-deleted Thing from the Store.
-        const deletedThing = retrieveGraphConstructs<Thing>("Thing", thingId)
+        const deletedThing = retrieveGraphConstructs<ThingDbModel>("Thing", thingId)
         if (deletedThing) {
 
             const thingDeleted = await deleteThing(thingId)
@@ -332,7 +332,7 @@ export class Graph {
 
                 // Re-store any Things that were related to the deleted Thing (in order to
                 // update their relations to reflect the deleted Thing's absence).
-                await storeGraphConstructs<Thing>("Thing", relatedThingIds, true)
+                await storeGraphConstructs<ThingDbModel>("Thing", relatedThingIds, true)
 
                 // Remove the deleted Thing itself from the Store.
                 await unstoreGraphConstructs("Thing", relatedThingIds)
@@ -348,7 +348,7 @@ export class Graph {
         if (relationshipDeleted) {
             // Re-store the Things that were related by the Relationship (in order to
             // update their relations to reflect the Relationship's absence).
-            await storeGraphConstructs<Thing>("Thing", [sourceThingId, destThingId], true)
+            await storeGraphConstructs<ThingDbModel>("Thing", [sourceThingId, destThingId], true)
 
             await this.build()
         }

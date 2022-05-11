@@ -1,4 +1,4 @@
-import type { Direction, Space, Thing, Relationship } from "$lib/models/dbModels"
+import type { DirectionDbModel, SpaceDbModel, ThingDbModel, RelationshipDbModel } from "$lib/models/dbModels"
 
 
 /*
@@ -32,7 +32,7 @@ export interface GraphConfig {
     pinIds: number[]
 }
 
-export type GraphConstruct = Direction | Space | Thing | Relationship
+export type GraphConstruct = DirectionDbModel | SpaceDbModel | ThingDbModel | RelationshipDbModel
 
 export interface GraphWidgetStyle {
     zoom: number,

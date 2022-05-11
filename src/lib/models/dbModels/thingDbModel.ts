@@ -2,13 +2,13 @@ import type { GraphConstruct } from "$lib/shared/constants"
 
 import { Model, RelationMappings, RelationMappingsThunk } from "objection"
 import { v4 as uuidv4 } from "uuid"
-import { Relationship, Note, NoteToThing, Folder, FolderToThing } from "$lib/models/dbModels"
+import { RelationshipDbModel, NoteDbModel, NoteToThingDbModel, FolderDbModel, FolderToThingDbModel } from "$lib/models/dbModels"
 
 
 /*
  * Thing model.
  */
-export class Thing extends Model {
+export class ThingDbModel extends Model {
     static tableName = "things" as const
 
     id!: number
@@ -38,19 +38,19 @@ export class Thing extends Model {
     sizemultiplier!: number// Default is 1.0
     perspectiveviewers!: string// Default is "{}"
 
-    note!: Note | null
-    folder!: Folder | null
-    a_relationships!: Relationship[]
-    b_relationships!: Relationship[]
-    noteToThing!: NoteToThing | null
-    folderToThing!: FolderToThing | null
+    note!: NoteDbModel | null
+    folder!: FolderDbModel | null
+    a_relationships!: RelationshipDbModel[]
+    b_relationships!: RelationshipDbModel[]
+    noteToThing!: NoteToThingDbModel | null
+    folderToThing!: FolderToThingDbModel | null
 
 
     static get relationMappings(): RelationMappings | RelationMappingsThunk {
         return {
             note: {
                 relation: Model.HasOneThroughRelation,
-                modelClass: Note,
+                modelClass: NoteDbModel,
                 join: {
                     from: 'things.id',
                     through: {
@@ -62,7 +62,7 @@ export class Thing extends Model {
             },
             noteToThing: {
                 relation: Model.HasOneRelation,
-                modelClass: NoteToThing,
+                modelClass: NoteToThingDbModel,
                 join: {
                     from: 'things.id',
                     to: 'notetothing.thingid'
@@ -70,7 +70,7 @@ export class Thing extends Model {
             },
             folder: {
                 relation: Model.HasOneThroughRelation,
-                modelClass: Folder,
+                modelClass: FolderDbModel,
                 join: {
                     from: 'things.id',
                     through: {
@@ -82,7 +82,7 @@ export class Thing extends Model {
             },
             folderToThing: {
                 relation: Model.HasOneRelation,
-                modelClass: FolderToThing,
+                modelClass: FolderToThingDbModel,
                 join: {
                     from: 'things.id',
                     to: 'foldertothing.thingid'
@@ -90,7 +90,7 @@ export class Thing extends Model {
             },
             a_relationships: {
                 relation: Model.HasManyRelation,
-                modelClass: Relationship,
+                modelClass: RelationshipDbModel,
                 join: {
                     from: 'things.id',
                     to: 'relationships.thingbid'
@@ -98,7 +98,7 @@ export class Thing extends Model {
             },
             b_relationships: {
                 relation: Model.HasManyRelation,
-                modelClass: Relationship,
+                modelClass: RelationshipDbModel,
                 join: {
                     from: 'things.id',
                     to: 'relationships.thingaid'
@@ -204,6 +204,6 @@ export function getNewThingInfo(text: string, whenCreated: string, defaultSpace:
 /*
  * Typeguard functions for Graph construct class.
  */
-export function isThing(construct: GraphConstruct): construct is Thing {
+export function isThing(construct: GraphConstruct): construct is ThingDbModel {
     return "note" in construct
 }

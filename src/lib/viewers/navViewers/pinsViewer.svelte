@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { Graph } from "$lib/models/graphModels/graph"
-    import type { Thing } from "$lib/models/dbModels"
+    import type { ThingDbModel } from "$lib/models/dbModels"
     import { pinIdsStore, storeGraphConstructs, graphConstructInStore, retrieveGraphConstructs } from "$lib/stores"
     import { PinWidget } from "$lib/widgets/navWidgets"
 
@@ -9,7 +9,7 @@
 
     $: $pinIdsStore.forEach(
         async (pinId) => {
-            if (!graphConstructInStore("Thing", pinId)) await storeGraphConstructs<Thing>("Thing", pinId)
+            if (!graphConstructInStore("Thing", pinId)) await storeGraphConstructs<ThingDbModel>("Thing", pinId)
         }
     )
     $: pins = $pinIdsStore.map(
@@ -17,7 +17,7 @@
             graph // Needed for reactivity.
             return {
                 thingId: pinId,
-                thing: graphConstructInStore("Thing", pinId) ? retrieveGraphConstructs("Thing", pinId) as Thing : null
+                thing: graphConstructInStore("Thing", pinId) ? retrieveGraphConstructs("Thing", pinId) as ThingDbModel : null
             }
         }
     )

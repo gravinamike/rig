@@ -1,12 +1,12 @@
 import { Model, RelationMappings, RelationMappingsThunk } from "objection"
 import { v4 as uuidv4 } from "uuid"
-import { Thing } from "$lib/models/dbModels"
+import { ThingDbModel } from "$lib/models/dbModels"
 
 
 /*
  * Note model.
  */
-export class Note extends Model {
+export class NoteDbModel extends Model {
     static tableName = "notes" as const
 
     id!: number
@@ -19,7 +19,7 @@ export class Note extends Model {
         return {
             things: {
                 relation: Model.HasOneThroughRelation,
-                modelClass: Thing,
+                modelClass: ThingDbModel,
                 join: {
                     from: 'notes.id',
                     through: {
@@ -54,7 +54,7 @@ export function getNewNoteInfo(whenCreated: string): NewNoteInfo {
 /*
  * NoteToThing model.
  */
-export class NoteToThing extends Model {
+export class NoteToThingDbModel extends Model {
     static tableName = "notetothing" as const
 
     id!: number

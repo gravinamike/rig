@@ -1,11 +1,11 @@
 import { Model, RelationMappings, RelationMappingsThunk } from "objection"
-import { Thing } from "$lib/models/dbModels"
+import { ThingDbModel } from "$lib/models/dbModels"
 
 
 /*
  * Folder model.
  */
-export class Folder extends Model {
+export class FolderDbModel extends Model {
     static tableName = "folders" as const
 
     id!: number
@@ -16,7 +16,7 @@ export class Folder extends Model {
         return {
             things: {
                 relation: Model.HasOneThroughRelation,
-                modelClass: Thing,
+                modelClass: ThingDbModel,
                 join: {
                     from: 'folders.id',
                     through: {
@@ -47,7 +47,7 @@ export function getNewFolderInfo(whenCreated: string, guid: string): NewFolderIn
 /*
  * NoteToThing model.
  */
-export class FolderToThing extends Model {
+export class FolderToThingDbModel extends Model {
     static tableName = "foldertothing" as const
 
     id!: number

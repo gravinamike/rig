@@ -1,4 +1,4 @@
-import type { Thing } from "$lib/models/dbModels"
+import type { ThingDbModel } from "$lib/models/dbModels"
 import { queryThings } from "$lib/db/serverSide"
 
 
@@ -6,7 +6,7 @@ export async function get(
     { params }: { params: { thingIds: string } }
 ): Promise<{
     status: number;
-    body: Thing[] | { error: string }
+    body: ThingDbModel[] | { error: string }
 }> {
     let thingIds: string | number[]
 

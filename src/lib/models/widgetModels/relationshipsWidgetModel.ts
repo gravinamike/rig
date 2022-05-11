@@ -1,5 +1,5 @@
 import type { HalfAxisId } from "$lib/shared/constants"
-import type { Direction, Space } from "$lib/models/dbModels"
+import type { DirectionDbModel, SpaceDbModel } from "$lib/models/dbModels"
 import type { Graph, GenerationMember, Cohort } from "$lib/models/graphModels"
 import type { ThingWidgetModel } from "./index"
 
@@ -16,19 +16,19 @@ export class RelationshipsWidgetModel {
     kind = "relationshipsWidgetModel" as const
 
     cohort: Cohort
-    space: Space
+    space: SpaceDbModel
     graph: Graph
 
     parentThingWidgetModel: ThingWidgetModel
     generationId: number
     halfAxisId: HalfAxisId | 0
     directionId: number
-    direction: Direction
+    direction: DirectionDbModel
     planeId: number
     rotation: number
     relationshipColor: string
 
-    constructor(cohort: Cohort, space: Space, graph: Graph) {
+    constructor(cohort: Cohort, space: SpaceDbModel, graph: Graph) {
         this.cohort = cohort
         this.space = space
         this.graph = graph
@@ -37,7 +37,7 @@ export class RelationshipsWidgetModel {
         this.generationId = cohort.address?.generationId || 0
         this.halfAxisId = cohort.address && cohort.address.halfAxisId ? cohort.address.halfAxisId : 0
         this.directionId = space.directionIdByHalfAxisId[this.halfAxisId] as number
-        this.direction = retrieveGraphConstructs("Direction", this.directionId) as Direction
+        this.direction = retrieveGraphConstructs("Direction", this.directionId) as DirectionDbModel
         this.planeId = this.cohort.plane?.id || 0
         this.rotation = rotationByHalfAxisId[this.halfAxisId]
         this.relationshipColor = relationshipColorByHalfAxisId[this.halfAxisId]

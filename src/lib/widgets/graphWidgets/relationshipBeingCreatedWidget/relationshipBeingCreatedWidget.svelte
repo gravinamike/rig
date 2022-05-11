@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { HalfAxisId } from "$lib/shared/constants"
-    import type { Direction, Thing } from "$lib/models/dbModels"
+    import type { DirectionDbModel, ThingDbModel } from "$lib/models/dbModels"
     import type { Graph } from "$lib/models/graphModels"
     import type { ThingWidgetModel, RelationshipsWidgetModel } from "$lib/models/widgetModels"
 
@@ -14,7 +14,7 @@
     
     
 
-    let direction: Direction | null
+    let direction: DirectionDbModel | null
     let halfAxisId: HalfAxisId | null
     let color: string
     let opacity: number
@@ -84,7 +84,7 @@
     async function handlePossibleNewRelationshipSpecified(
         sourceWidgetModel: ThingWidgetModel | RelationshipsWidgetModel | null,
         destWidgetModel: ThingWidgetModel | RelationshipsWidgetModel | null,
-        direction: Direction | null,
+        direction: DirectionDbModel | null,
         trackingMouse: boolean
     ) {
         if (sourceWidgetModel && destWidgetModel && direction && !trackingMouse) {
@@ -97,7 +97,7 @@
 
             const newRelationshipCreated = await createNewRelationship(sourceThingId, destThingId, direction.id)
             if (newRelationshipCreated) {
-                await storeGraphConstructs<Thing>("Thing", [sourceThingId, destThingId], true)
+                await storeGraphConstructs<ThingDbModel>("Thing", [sourceThingId, destThingId], true)
                 await (graph as Graph).build()
                 addGraphIdsNeedingViewerRefresh((graph as Graph).id)
             }

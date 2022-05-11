@@ -1,9 +1,9 @@
 <script lang="ts">
-    import type { Thing } from "$lib/models/dbModels"
+    import type { ThingDbModel } from "$lib/models/dbModels"
     import { hoveredThingIdStore } from "$lib/stores/appStores"
     import { Collapser } from "$lib/widgets/layoutWidgets"
 
-    export let thing: Thing
+    export let thing: ThingDbModel
     export let freestanding = true
 
     let hoveredThingIdStoreValue: number | null

@@ -1,6 +1,6 @@
 <script lang="ts">
     // Type imports.
-    import type { Thing } from "$lib/models/dbModels"
+    import type { ThingDbModel } from "$lib/models/dbModels"
     import type { Graph, Cohort } from "$lib/models/graphModels"
     import type { ThingWidgetModel } from "$lib/models/widgetModels"
 
@@ -60,7 +60,7 @@
 
         const newRelatedThingCreated = await createNewRelatedThing(parentThingId, directionId, text)
         if (newRelatedThingCreated) {
-            await storeGraphConstructs<Thing>("Thing", parentThingId, true)
+            await storeGraphConstructs<ThingDbModel>("Thing", parentThingId, true)
             await graph.build()
             addGraphIdsNeedingViewerRefresh(graph.id)
         }

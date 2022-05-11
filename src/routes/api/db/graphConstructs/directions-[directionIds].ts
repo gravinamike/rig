@@ -1,4 +1,4 @@
-import type { Direction } from "$lib/models/dbModels"
+import type { DirectionDbModel } from "$lib/models/dbModels"
 import { queryDirections } from "$lib/db/serverSide"
 
 
@@ -8,7 +8,7 @@ export async function get(
     { params }: { params: {directionIds: string} }
 ): Promise<{
     status: number;
-    body: Direction[] | { error: string }
+    body: DirectionDbModel[] | { error: string }
 }> {
     try {
         ({ directionIds } = params)

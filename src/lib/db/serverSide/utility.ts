@@ -1,6 +1,6 @@
 import type { Knex } from "knex"
 import { Model } from "objection"
-import { Thing, Relationship, Note, NoteToThing, Folder, FolderToThing } from "$lib/models/dbModels"
+import { ThingDbModel, RelationshipDbModel, NoteDbModel, NoteToThingDbModel, FolderDbModel, FolderToThingDbModel } from "$lib/models/dbModels"
 
 
 // H2 doesn't mesh with Objection's PostgreSQL syntax naturally. This function is a
@@ -11,7 +11,7 @@ export async function alterQuerystringForH2AndRun(
     transaction: Knex.Transaction,
     whenCreated: string,
     constructName: "Thing" | "Relationship" | "Note" | "NoteToThing" | "Folder" | "FolderToThing"
-): Promise< Thing | Relationship | Note | NoteToThing | Folder | FolderToThing > {
+): Promise< ThingDbModel | RelationshipDbModel | NoteDbModel | NoteToThingDbModel | FolderDbModel | FolderToThingDbModel > {
     // Remove the "returning" clause in the query string.
     querystring = querystring.replace(/ returning "\w+"/, "")
 
@@ -21,25 +21,25 @@ export async function alterQuerystringForH2AndRun(
     
     // Return the last-created construct of the specified type (which should
     // be the construct created by this transaction).
-    let latestConstructResults: Thing[] | Relationship[] | Note[] | NoteToThing[] | Folder[] | FolderToThing[]
+    let latestConstructResults: ThingDbModel[] | RelationshipDbModel[] | NoteDbModel[] | NoteToThingDbModel[] | FolderDbModel[] | FolderToThingDbModel[]
     switch (constructName) {
         case "Thing":
-            latestConstructResults = await Thing.query().select("id").where({whencreated: whenCreated}).transacting(transaction)
+            latestConstructResults = await ThingDbModel.query().select("id").where({whencreated: whenCreated}).transacting(transaction)
             break
         case "Relationship":
-            latestConstructResults = await Relationship.query().select("id").where({whencreated: whenCreated}).transacting(transaction)
+            latestConstructResults = await RelationshipDbModel.query().select("id").where({whencreated: whenCreated}).transacting(transaction)
             break
         case "Note":
-            latestConstructResults = await Note.query().select("id").where({whencreated: whenCreated}).transacting(transaction)
+            latestConstructResults = await NoteDbModel.query().select("id").where({whencreated: whenCreated}).transacting(transaction)
             break
         case "NoteToThing":
-            latestConstructResults = await NoteToThing.query().select("id").transacting(transaction)
+            latestConstructResults = await NoteToThingDbModel.query().select("id").transacting(transaction)
             break
         case "Folder":
-            latestConstructResults = await Folder.query().select("id").where({whencreated: whenCreated}).transacting(transaction)
+            latestConstructResults = await FolderDbModel.query().select("id").where({whencreated: whenCreated}).transacting(transaction)
             break
         case "FolderToThing":
-            latestConstructResults = await FolderToThing.query().select("id").transacting(transaction)
+            latestConstructResults = await FolderToThingDbModel.query().select("id").transacting(transaction)
             break
     }
     return latestConstructResults[0]

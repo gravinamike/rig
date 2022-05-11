@@ -1,5 +1,5 @@
 import type { HalfAxisId } from "$lib/shared/constants"
-import type { Space, Thing } from "$lib/models/dbModels"
+import type { SpaceDbModel, ThingDbModel } from "$lib/models/dbModels"
 import type { Graph, Cohort } from "$lib/models/graphModels"
 import type { ThingAddress, ThingWidgetModel } from "./"
 import type { CohortWidgetModel } from "$lib/models/widgetModels/cohortWidgetModel"
@@ -13,7 +13,7 @@ export class ThingBaseWidgetModel {
     kind = "thingBaseWidgetModel"
 
     thingId: number | null
-    thing: Thing | null
+    thing: ThingDbModel | null
     graph: Graph
     _parentCohort: Cohort | null = null
     childCohortsByHalfAxisId: { [directionId: number]: Cohort } = {}
@@ -84,23 +84,27 @@ export class ThingBaseWidgetModel {
         return address
     }
 
-    get space(): Space {
-        let space: Space
+    get space(): SpaceDbModel {
+        let space: SpaceDbModel
         // If not inheriting Space from parent, and the Thing Widget Model's own default Space
         // is available, use the Thing Widget Model's own default Space.
         if (
             !( this.parentThingWidgetModel && this.inheritSpace )
             && this.defaultSpaceId && graphConstructInStore("Space", this.defaultSpaceId)
         ) {
-            space = retrieveGraphConstructs("Space", this.defaultSpaceId) as Space
+            space = retrieveGraphConstructs("Space", this.defaultSpaceId) as SpaceDbModel
         // Else, if the Thing Widget model has a parent, use the parent's Space.
         } else if (this.parentThingWidgetModel) {
             space = this.parentThingWidgetModel.space
         // Else use the first Space in the list of Spaces.
         } else {
-            space = retrieveGraphConstructs("Space", 1) as Space//What if there is no spacesStoreValue[1]? Supply an empty Space.
+            space = retrieveGraphConstructs("Space", 1) as SpaceDbModel//What if there is no spacesStoreValue[1]? Supply an empty Space.
         }
         return space
+    }
+
+    get cohortSize(): number {
+        return this.parentCohort.members.length || 1
     }
 
     get relatedThingHalfAxisIds(): Set<HalfAxisId> {
@@ -136,6 +140,20 @@ export class ThingBaseWidgetModel {
         return planeId
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     get elongation(): number {
         return this.parentCohort.axialElongation
     }
@@ -159,10 +177,6 @@ export class ThingBaseWidgetModel {
                 xYElongation = {x: elongation, y: elongation}; break
         }
         return xYElongation
-    }
-
-    get cohortSize(): number {
-        return this.parentCohort.members.length || 1
     }
 
 

@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from "uuid"
 /*
  * Relationship model.
  */
-export class Relationship extends Model {
+export class RelationshipDbModel extends Model {
     static tableName = "relationships" as const
 
     id!: number

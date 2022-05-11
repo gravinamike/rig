@@ -1,17 +1,17 @@
 import type { Writable } from "svelte/store"
 import type { GraphConstruct } from "$lib/shared/constants"
-import type { Space, Thing } from "$lib/models/dbModels"
+import type { SpaceDbModel, ThingDbModel } from "$lib/models/dbModels"
 import type { RelationshipBeingCreatedInfo } from "$lib/widgets/graphWidgets/relationshipBeingCreatedWidget"
 
 import { writable, derived } from "svelte/store"
-import { Direction, isDirection, isSpace, isThing } from "$lib/models/dbModels"
+import { DirectionDbModel, isDirection, isSpace, isThing } from "$lib/models/dbModels"
 import { nullRelationshipBeingCreatedInfo } from "$lib/widgets/graphWidgets/relationshipBeingCreatedWidget"
 import type { ThingWidgetModel, RelationshipsWidgetModel } from "$lib/models/widgetModels"
 
 
 // Create Direction-related stores (and subscriptions where applicable).
-export const directionsStore = writable( {} as { [id: number]: Direction } )
-let directionsStoreValue: { [id: number]: Direction }
+export const directionsStore = writable( {} as { [id: number]: DirectionDbModel } )
+let directionsStoreValue: { [id: number]: DirectionDbModel }
 directionsStore.subscribe(value => {directionsStoreValue = value})
 
 export const directionsStoreAsArray = derived( directionsStore, $directionsStore => Object.values($directionsStore) )
@@ -20,8 +20,8 @@ export const directionIdsNotFoundStore = writable( [] as number[] );
 
 
 // Create Space-related stores (and subscriptions where applicable).
-export const spacesStore = writable( {} as { [id: number]: Space } )
-let spacesStoreValue: { [id: number]: Space }
+export const spacesStore = writable( {} as { [id: number]: SpaceDbModel } )
+let spacesStoreValue: { [id: number]: SpaceDbModel }
 spacesStore.subscribe(value => {spacesStoreValue = value})
 
 export const spacesStoreAsArray = derived( spacesStore, $spacesStore => Object.values($spacesStore) )
@@ -30,8 +30,8 @@ export const spaceIdsNotFoundStore = writable( [] as number[] );
 
 
 // Create Things-related stores (and subscriptions where applicable).
-export const thingsStore = writable( {} as { [id: number]: Thing } )
-let thingsStoreValue: { [id: number]: Thing }
+export const thingsStore = writable( {} as { [id: number]: ThingDbModel } )
+let thingsStoreValue: { [id: number]: ThingDbModel }
 thingsStore.subscribe(value => {thingsStoreValue = value})
 
 export const thingsStoreAsArray = derived( thingsStore, $thingsStore => Object.values($thingsStore) )
@@ -330,7 +330,7 @@ export const inferredRelationshipBeingCreatedDirection = derived(
         const destWidgetModel = $relationshipBeingCreatedInfoStore.destWidgetModel
         const selectedDirection = $relationshipBeingCreatedInfoStore.selectedDirection
 
-        let direction: Direction | null
+        let direction: DirectionDbModel | null
         if (sourceWidgetModel && sourceWidgetModel.kind === "relationshipsWidgetModel") {
             direction = sourceWidgetModel.direction
         } else if (destWidgetModel && destWidgetModel.kind === "relationshipsWidgetModel") {

@@ -1,6 +1,6 @@
 <script lang="ts">
     /* Type imports. */
-    import type { Thing } from "$lib/models/dbModels"
+    import type { ThingDbModel } from "$lib/models/dbModels"
     import type { Graph } from "$lib/models/graphModels"
     import type { ThingWidgetModel } from "$lib/models/widgetModels"
 
@@ -31,7 +31,7 @@
     /* Basic Thing IDs and models. */
     $: thingId = thingWidgetModel.thingId as number
     $: thingWidgetId = thingWidgetModel.thingWidgetId
-    $: thing = thingWidgetModel.thing as Thing
+    $: thing = thingWidgetModel.thing as ThingDbModel
     
     /* Variables dealing with Thing sizing. */
     $: elongationCategory = thingWidgetModel.elongationCategory

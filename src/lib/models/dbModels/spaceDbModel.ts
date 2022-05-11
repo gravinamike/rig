@@ -2,26 +2,26 @@ import type { GraphConstruct, HalfAxisId } from "$lib/shared/constants"
 
 import { oddHalfAxisIds } from "$lib/shared/constants"
 import { Model, RelationMappings, RelationMappingsThunk } from "objection"
-import { Direction } from "$lib/models/dbModels"
+import { DirectionDbModel } from "$lib/models/dbModels"
 
 
 
 /*
  * Space model.
  */
-export class Space extends Model {
+export class SpaceDbModel extends Model {
     static tableName = "spaces" as const
 
     id!: number
     text!: string | null
-    directions!: Direction[]
+    directions!: DirectionDbModel[]
 
 
     static get relationMappings(): RelationMappings | RelationMappingsThunk {
         return {
             directions: {
                 relation: Model.ManyToManyRelation,
-                modelClass: Direction,
+                modelClass: DirectionDbModel,
                 join: {
                     from: 'spaces.id',
                     through: {
@@ -65,6 +65,6 @@ export class Space extends Model {
 /*
  * Typeguard functions for Graph construct classes.
  */
-export function isSpace(construct: GraphConstruct): construct is Space {
+export function isSpace(construct: GraphConstruct): construct is SpaceDbModel {
     return "directions" in construct
 }

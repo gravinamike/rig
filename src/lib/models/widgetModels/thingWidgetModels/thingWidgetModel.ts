@@ -1,5 +1,5 @@
 import type { HalfAxisId } from "$lib/shared/constants"
-import type { Note } from "$lib/models/dbModels"
+import type { NoteDbModel } from "$lib/models/dbModels"
 import type { Graph, Cohort } from "$lib/models/graphModels"
 import type { CohortWidgetModel } from "$lib/models/widgetModels/cohortWidgetModel"
 import type { RelationshipsWidgetModel } from "$lib/models/widgetModels/relationshipsWidgetModel"
@@ -29,7 +29,7 @@ export class ThingWidgetModel extends ThingBaseWidgetModel {
         return text
     }
 
-    get note(): Note | null {
+    get note(): NoteDbModel | null {
         const note = this.thing ? this.thing.note : null
         return note
     }

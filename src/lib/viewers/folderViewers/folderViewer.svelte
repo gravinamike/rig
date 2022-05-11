@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { Graph } from "$lib/models/graphModels"
-    import type { Thing } from "$lib/models/dbModels"
+    import type { ThingDbModel } from "$lib/models/dbModels"
     import { thingsStore, storeGraphConstructs, retrieveGraphConstructs, graphConstructInStore } from "$lib/stores/graphStores"
     import { addFolderToThing } from "$lib/db/clientSide"
 
@@ -11,7 +11,7 @@
     $: pThingIds = graph.pThingIds
     $: pThingId = pThingIds && pThingIds.length ? pThingIds[0] : null
     $: pThing = pThingId && $thingsStore && graphConstructInStore("Thing", pThingId) ?
-        retrieveGraphConstructs<Thing>("Thing", pThingId) :
+        retrieveGraphConstructs<ThingDbModel>("Thing", pThingId) :
         null
 
     $: path = pThing && pThing.folder ? pThing.folder.path : null
@@ -30,7 +30,7 @@
         if (pThing && !pThing.folder) {
             await addFolderToThing(pThing.id)
             // Re-store the Thing (in order to update its linker to the new Folder).
-            await storeGraphConstructs<Thing>("Thing", pThing.id, true)
+            await storeGraphConstructs<ThingDbModel>("Thing", pThing.id, true)
         }
     }
 </script>
