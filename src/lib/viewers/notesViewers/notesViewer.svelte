@@ -47,11 +47,9 @@
 
     /* Set up triggers to either create and save, or just save, note as needed. */
     async function handleNoteChanged() {
-        console.log("FOO")
 
         if (!pThing) {
 
-            console.log("ABORT!")
             return
 
         } else if (noteId === null) {
@@ -62,7 +60,6 @@
             noteChanged = false
 
         } else {
-
             await updateNote(noteId, editorContent)
             // Re-store the Thing (in order to update its linker to the updated Note).
             await storeGraphConstructs<ThingDbModel>("Thing", pThing.id, true)
@@ -146,11 +143,22 @@
         outline: solid 1px lightgrey;
         outline-offset: -1px;
 
+        box-sizing: border-box;
+        background-color: white;
+
+        padding: 0.5rem;
+
         overflow-x: hidden;
         overflow-y: auto;
 
-        background-color: white;
-
         text-align: left;
+    }
+
+    :global(.notes-display li > p) {
+        margin-top: 0;
+        margin-bottom: 0;
+
+        word-wrap: break-word;
+        white-space: break-spaces;
     }
 </style>

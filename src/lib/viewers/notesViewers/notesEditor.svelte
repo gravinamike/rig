@@ -5,7 +5,9 @@
     import TextStyle from '@tiptap/extension-text-style'
     import FontFamily from "@tiptap/extension-font-family"
     import { FontSize } from "./extension-font-size"
+    import { Color } from "@tiptap/extension-color"
     import Underline from "@tiptap/extension-underline"
+    import Link from "@tiptap/extension-link"
     import NotesToolbar from "./notesToolbar.svelte"
 
     export let noteText: string
@@ -24,9 +26,15 @@
             extensions: [
                 StarterKit,
                 TextStyle,
-                FontSize,
                 FontFamily,
-                Underline
+                FontSize,
+                Color,
+                Underline,
+                Link.configure({
+                    autolink: false,
+                    openOnClick: false,
+                    linkOnPaste: false
+                })
             ],
             content: content,
             autofocus: true,
@@ -93,15 +101,21 @@
         outline: solid 1px black;
         outline-offset: -1px;
 
-        overflow-x: hidden;
-        overflow-y: auto;
-
+        box-sizing: border-box;
         background-color: white;
 
         padding: 0.5rem;
 
+        overflow-x: hidden;
+        overflow-y: auto;
+
         text-align: left;
         
+    }
+
+    :global(.ProseMirror li > p) {
+        margin-top: 0;
+        margin-bottom: 0;
     }
 
     :global(.ProseMirror:focus) {

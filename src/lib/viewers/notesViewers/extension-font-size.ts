@@ -46,7 +46,7 @@ export const FontSize = Extension.create<FontSizeOptions>({
               }
 
               return {
-                style: `font-size: ${attributes.fontSize}pt`,
+                style: `font-size: ${String(attributes.fontSize).replace(/(pt$)/, '')}pt`, // First remove any trailing "pt" to prevent duplication.
               }
             },
           },
