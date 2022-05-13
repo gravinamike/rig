@@ -70,7 +70,7 @@
     {#each cohortWidgetModels as cohortWidgetModel (cohortWidgetModel.cohort.address)}
         {#if cohortWidgetModel.cohort.address.halfAxisId && [1, 2, 3, 4].includes(cohortWidgetModel.cohort.address.halfAxisId)}
             <RelationshipsWidget
-                relationshipsWidgetModel={relationshipWidgetModelsByHalfAxisId[cohortWidgetModel.cohort.address.halfAxisId]}
+                model={relationshipWidgetModelsByHalfAxisId[cohortWidgetModel.cohort.address.halfAxisId]}
                 bind:graph
             />
         {/if}

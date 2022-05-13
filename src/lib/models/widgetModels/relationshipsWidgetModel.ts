@@ -163,6 +163,9 @@ export class RelationshipsWidgetModel {
             0
     }
 
+    get mirroring(): 1 | -1 {
+        return mirroringByHalfAxisId[this.halfAxisId]
+    }
 
 
     // Construct a list of the related Things along with their indices.

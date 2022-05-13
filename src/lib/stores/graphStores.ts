@@ -1,11 +1,11 @@
 import type { Writable } from "svelte/store"
 import type { GraphConstruct } from "$lib/shared/constants"
 import type { SpaceDbModel, ThingDbModel } from "$lib/models/dbModels"
-import type { RelationshipBeingCreatedInfo } from "$lib/widgets/graphWidgets/relationshipBeingCreatedWidget"
+import type { RelationshipBeingCreatedInfo } from "$lib/widgets/graphWidgets/relationshipsWidgets"
 
 import { writable, derived } from "svelte/store"
 import { DirectionDbModel, isDirection, isSpace, isThing } from "$lib/models/dbModels"
-import { nullRelationshipBeingCreatedInfo } from "$lib/widgets/graphWidgets/relationshipBeingCreatedWidget"
+import { nullRelationshipBeingCreatedInfo } from "$lib/widgets/graphWidgets/relationshipsWidgets"
 import type { ThingWidgetModel, RelationshipsWidgetModel } from "$lib/models/widgetModels"
 
 

@@ -1,12 +1,11 @@
 <script context="module" lang="ts">
     import type { ThingDbModel } from "$lib/models/dbModels"
     import type { GenerationMember } from "$lib/models/graphModels"
-    import { retrieveGraphConstructs, addGraphIdsNeedingViewerRefresh, relationshipBeingCreatedInfoStore, hoveredRelationshipTarget } from "$lib/stores"
+    import { retrieveGraphConstructs, addGraphIdsNeedingViewerRefresh, relationshipBeingCreatedInfoStore, hoveredThingIdStore, hoveredRelationshipTarget } from "$lib/stores"
     import { XButton } from "$lib/widgets/layoutWidgets"
 </script>
 
 <script lang="ts">
-    export let hoveredThingIdStoreValue: number | null
     export let thingIdOfHoveredRelationship: number | null
     export let tweenedScale: number
 
@@ -17,7 +16,7 @@
 
 
     let fanSegmentHovered = false
-    $: thingHovered = cohortMemberWithIndex.member.thingId === hoveredThingIdStoreValue
+    $: thingHovered = cohortMemberWithIndex.member.thingId === $hoveredThingIdStore
     $: relationshipHovered = cohortMemberWithIndex.member.thingId === thingIdOfHoveredRelationship
     let fanSegmentClicked = false
 

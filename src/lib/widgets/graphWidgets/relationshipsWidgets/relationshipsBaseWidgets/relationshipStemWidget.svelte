@@ -1,13 +1,12 @@
 <script context="module" lang="ts">
     import type { Graph } from "$lib/models/graphModels"
     import { sleep } from "$lib/shared/utility"
-    import { relationshipBeingCreatedInfoStore, enableRelationshipBeingCreated, setRelationshipBeingCreatedDestWidgetModel, hoveredRelationshipTarget, inferredRelationshipBeingCreatedDirection, addGraphIdsNeedingViewerRefresh } from "$lib/stores"
+    import { relationshipBeingCreatedInfoStore, enableRelationshipBeingCreated, setRelationshipBeingCreatedDestWidgetModel, hoveredThingIdStore, hoveredRelationshipTarget, inferredRelationshipBeingCreatedDirection, addGraphIdsNeedingViewerRefresh } from "$lib/stores"
     import { ThingWidgetModel, RelationshipsWidgetModel } from "$lib/models/widgetModels"
 </script>
 
 <script lang="ts">
     export let relationshipsWidgetModel: RelationshipsWidgetModel
-    export let hoveredThingIdStoreValue: number | null
     export let thingIdOfHoveredRelationship: number | null
     export let stemHovered: boolean
     export let tweenedScale: number
@@ -23,7 +22,7 @@
     const ofPerspectiveThing = relationshipsWidgetModel.parentThingWidgetModel.address.generationId === 0 ? true : false
     $: relationshipsExist = cohort.members.length ? true : false
 
-    $: thingHovered = cohort.members.map(member => member.thingId).includes(hoveredThingIdStoreValue)
+    $: thingHovered = cohort.members.map(member => member.thingId).includes($hoveredThingIdStore)
     $: relationshipHovered = cohort.members.map(member => member.thingId).includes(thingIdOfHoveredRelationship)
     let stemClicked = false
 

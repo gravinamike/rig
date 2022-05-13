@@ -1,9 +1,9 @@
 <script context="module" lang="ts">
     import type { GenerationMember } from "$lib/models/graphModels"
+    import { hoveredThingIdStore } from "$lib/stores"
 </script>
 
 <script lang="ts">
-    export let hoveredThingIdStoreValue: number | null
     export let thingIdOfHoveredRelationship: number | null
     export let tweenedScale: number
 
@@ -12,7 +12,7 @@
 
 
     let leafHovered = false
-    $: thingHovered = cohortMemberWithIndex.member.thingId === hoveredThingIdStoreValue
+    $: thingHovered = cohortMemberWithIndex.member.thingId === $hoveredThingIdStore
     $: relationshipHovered = cohortMemberWithIndex.member.thingId === thingIdOfHoveredRelationship
     let leafClicked = false
 </script>
