@@ -114,7 +114,14 @@
     />
 
     <!-- Delete button. -->
-    {#if relationshipHovered}
+    {#if (
+        // Show delete button if the Relationship is hovered, except those relating to Thing Forms.
+        relationshipHovered
+        && !(
+            cohortMemberWithIndex.member.kind === "thingWidgetModel"
+            && !cohortMemberWithIndex.member.thing
+        )
+    )}
         <svg
             class="delete-button-container"
             style="
