@@ -66,7 +66,7 @@
         addGraphIdsNeedingViewerRefresh(graph.id)
 
         // Add the new Perspective Thing to the History.
-        graph.addEntriesToHistory([thingId])
+        graph.history.addEntries([thingId])
     }
 </script>
 

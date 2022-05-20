@@ -198,7 +198,7 @@
     </div>
     
     <!-- Plane controls. -->
-    {#if Object.keys(graph.planes).length > 1}
+    {#if graph.planes._members.length > 1}
         <div class="plane-controls-container">
             <PlaneControls
                 bind:graph

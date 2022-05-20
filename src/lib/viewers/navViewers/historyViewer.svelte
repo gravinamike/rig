@@ -42,14 +42,14 @@
         timestamp: Date
     }
 
-    $: uniqueHistory = graph.perspectiveHistory.filter(
+    $: uniqueHistory = graph.history._entries.filter(
         (element, index, array) => {
             const historyThingIds = array.map(visitedThing => visitedThing.thingId)
             const firstIndexOfId = historyThingIds.indexOf(element.thingId)
             return firstIndexOfId === index
         }
     )
-    $: historyToUse = useUniqueHistory ? uniqueHistory : graph.perspectiveHistory
+    $: historyToUse = useUniqueHistory ? uniqueHistory : graph.history._entries
 
     $: historyWithThings = historyToUse.map(
         (entry) => {

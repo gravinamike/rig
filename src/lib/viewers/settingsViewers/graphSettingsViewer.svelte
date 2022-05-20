@@ -7,7 +7,7 @@
 
 
     async function setGraphDepth() {
-        await graph.adjustGenerationsToDepth()
+        await graph.generations.adjustToDepth(graph._depth)
         graph.allowZoomAndScrollToFit = true
         addGraphIdsNeedingViewerRefresh(graph.id)
     }
@@ -75,7 +75,7 @@
 
     <SettingWidget
         labelText={"Focal Plane"}
-        bind:boundValue={graph.focalPlaneId}
+        bind:boundValue={graph.planes.focalPlaneId}
         minValue={-10}
         maxValue={10}
         onChangeFunction={updateGraphFormat}

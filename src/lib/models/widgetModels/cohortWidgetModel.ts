@@ -25,9 +25,9 @@ export class CohortWidgetModel {
             { x: 0, y: 0 } :
             {
                 x: this.graph.graphWidgetStyle.relationDistance * offsetSigns[0]
-                    + this.graph.planeOffsets[0] * this.planeId,
+                    + this.graph.planes.offsets[0] * this.planeId,
                 y: this.graph.graphWidgetStyle.relationDistance * offsetSigns[1]
-                    + this.graph.planeOffsets[1] * this.planeId
+                    + this.graph.planes.offsets[1] * this.planeId
             }
     }
 

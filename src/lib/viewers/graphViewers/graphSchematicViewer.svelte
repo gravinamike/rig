@@ -7,7 +7,7 @@
     export let graph: Graph
 
     const generationsWithIds: { id: number, generation: Generation }[] = []
-    graph.generations.forEach(function (generation, id) {
+    graph.generations.asArray.forEach(function (generation, id) {
         generationsWithIds.push( {id, generation} )
     })
 </script>

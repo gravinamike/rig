@@ -26,6 +26,6 @@ export class Plane {
         const index = this.cohorts.indexOf(cohort)
         if (index > -1) this.cohorts.splice(index, 1)
 
-        if (!this.cohorts.length) delete this.graph.planes[this.id]
+        if (!this.cohorts.length) delete this.graph.planes._members[this.id]
     }
 }

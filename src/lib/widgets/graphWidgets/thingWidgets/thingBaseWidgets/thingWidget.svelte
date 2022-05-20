@@ -40,7 +40,7 @@
     /* Variables situating the Thing in its spatial context (Half-Axis, Plane). */
     $: halfAxisId = thingWidgetModel.halfAxisId
     $: planeId = thingWidgetModel.planeId
-    $: distanceFromFocalPlane = planeId - graph.focalPlaneId
+    $: distanceFromFocalPlane = planeId - graph.planes.focalPlaneId
     
     /* Variables dealing with Thing sizing. */
     $: elongationCategory = thingWidgetModel.elongationCategory
@@ -87,7 +87,7 @@
         await graph.deleteThingById(thingId)
         await unstoreGraphConstructs("Thing", thingId)
 
-        const reverseHistory = graph.perspectiveHistory.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+        const reverseHistory = graph.history._entries.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
         for (const historyEntry of reverseHistory) {
             if (historyEntry.thingId !== thingId && graphConstructInStore("Thing", historyEntry.thingId)) {
                 rePerspectToThingId(historyEntry.thingId)

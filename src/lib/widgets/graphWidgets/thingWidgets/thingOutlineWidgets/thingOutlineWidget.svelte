@@ -74,7 +74,7 @@
         await graph.deleteThingById(thingId)
         await unstoreGraphConstructs("Thing", thingId)
 
-        const reverseHistory = graph.perspectiveHistory.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+        const reverseHistory = graph.history._entries.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
         for (const historyEntry of reverseHistory) {
             if (historyEntry.thingId !== thingId && graphConstructInStore("Thing", historyEntry.thingId)) {
                 rePerspectToThingId(historyEntry.thingId)

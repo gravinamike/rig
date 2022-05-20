@@ -36,7 +36,7 @@ export class Generation {
         if (this.id === 0) {
             return null
         } else {
-            return this.graph.generationById(this.id - 1)
+            return this.graph.generations.byId(this.id - 1)
         }
     }
 
@@ -78,7 +78,7 @@ export class Generation {
             this.graph.rootCohort = new Cohort(addressForCohort, [])
             for (const memberId of memberIdsForGeneration) {
 
-                const member = this.graph.thingIdsAlreadyInGraph.includes(memberId) ? new ThingBaseWidgetModel(memberId, this.graph) : // If the Thing is already modeled in the Graph, return a spacer model.
+                const member = this.graph.generations.thingIdsAlreadyInGraph.includes(memberId) ? new ThingBaseWidgetModel(memberId, this.graph) : // If the Thing is already modeled in the Graph, return a spacer model.
                 graphConstructInStore("Thing", memberId) ? new ThingWidgetModel(memberId, this.graph) :      // Else, if the Thing is in the Thing store, create a new model for that Thing ID.
                 new ThingMissingFromStoreWidgetModel(memberId, this.graph)     
                  
@@ -86,7 +86,7 @@ export class Generation {
             }
 
             this.graph.rootCohortWidgetModel = new CohortWidgetModel(this.graph.rootCohort, this.graph)
-            this.graph.addCohortToPlane(this.graph.rootCohort, 0)
+            this.graph.planes.addCohortToPlane(this.graph.rootCohort, 0)
 
 
         // For all Generations after 0, hook up that Generation's members, packaged in
@@ -119,23 +119,19 @@ export class Generation {
                     const childCohort = new Cohort(addressForCohort, [])
                     for (const memberId of membersIdForCohort) {
 
-                        const member = this.graph.thingIdsAlreadyInGraph.includes(memberId) ? new ThingBaseWidgetModel(memberId, this.graph) : // If the Thing is already modeled in the Graph, return a spacer model.
+                        const member = this.graph.generations.thingIdsAlreadyInGraph.includes(memberId) ? new ThingBaseWidgetModel(memberId, this.graph) : // If the Thing is already modeled in the Graph, return a spacer model.
                         graphConstructInStore("Thing", memberId) ? new ThingWidgetModel(memberId, this.graph) :      // Else, if the Thing is in the Thing store, create a new model for that Thing ID.
                         new ThingMissingFromStoreWidgetModel(memberId, this.graph)     
                          
                         childCohort.addMember(member)
                     }
 
-                    // Populate the Cohort for the previous Generation's Thing in that Direction from that list.
-                    prevThingWidgetModel.childCohort(halfAxisId, childCohort)////////////////////////// NOW REMOVE THIS!!!!
-
+                    // Create a new Cohort Widget Model and and assign to the previous Generation's Thing in that Direction.
                     const childCohortWidgetModel = new CohortWidgetModel(childCohort, this.graph)
                     prevThingWidgetModel.childCohortWidgetModel(halfAxisId, childCohortWidgetModel)
 
-                    // Create a new Relationships Widget Model.
+                    // Create a new Relationships Widget Model and assign to the previous Generation's Thing in that Direction.
                     const relationshipsWidgetModel = new RelationshipsWidgetModel(childCohort, prevThingWidgetModel.space, this.graph)
-
-                    // Set that as the Relationships Widget Model for the previous Generation's Thing in that Direction.
                     prevThingWidgetModel.relationshipsWidgetModel(halfAxisId, relationshipsWidgetModel)
                 }
             }

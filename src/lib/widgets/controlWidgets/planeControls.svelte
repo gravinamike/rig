@@ -8,8 +8,8 @@
     
     $: planeIds = Object.keys(graph.planes).map((x) => Number(x))
     $: planeDepth = Math.max(...planeIds.map((id) => Math.abs(id)))
-    $: offsets = graph.planeOffsets
-    $: focalPlaneId = graph.focalPlaneId
+    $: offsets = graph.planes.offsets
+    $: focalPlaneId = graph.planes.focalPlaneId
 
     let tracking = false
     let prevLocation: { x: number | null, y: number | null } = { x: null, y: null }
@@ -21,7 +21,7 @@
             const newFocalPlaneId = focalPlaneId + change
             if (planeIds.includes(newFocalPlaneId)) focalPlaneId = newFocalPlaneId
         }
-        graph.focalPlaneId = focalPlaneId // Needed for reactivity.
+        graph.planes.focalPlaneId = focalPlaneId // Needed for reactivity.
     }
 
     function handleMouseMove(event: MouseEvent) {

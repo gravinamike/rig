@@ -22,7 +22,7 @@
     $: planeId = [7, 8].includes(halfAxisId) ?
         thingWidgetModel.parentCohort.address.parentThingWidgetModel?.parentCohort.plane?.id || 0 :
         thingWidgetModel.parentCohort.plane?.id || 0
-    $: distanceFromFocalPlane = planeId - graph.focalPlaneId
+    $: distanceFromFocalPlane = planeId - graph.planes.focalPlaneId
     
     // Variables dealing with encapsulation (Things containing other Things).
     $: encapsulatingDepth = thingWidgetModel.parentCohort.encapsulatingDepth || 0

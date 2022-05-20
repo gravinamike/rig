@@ -183,7 +183,7 @@ export class RelationshipsWidgetModel {
 
     // Formatting-related variables.
     get distanceFromFocalPlane(): number {
-        return this.planeId - this.graph.focalPlaneId
+        return this.planeId - this.graph.planes.focalPlaneId
     }
     
     get opacity(): number {

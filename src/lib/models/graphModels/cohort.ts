@@ -36,11 +36,11 @@ export class Cohort {
             const changeInPlane = offsetsByHalfAxisId[this.address?.halfAxisId || 0][2]
             planeId = parentPlaneId + changeInPlane
         }
-        this.generation = this.address.generationId === this.address.graph.generations.length ?
-            this.address.graph.relationshipsOnlyGeneration :
-            this.address.graph.generations[this.address.generationId]
+        this.generation = this.address.generationId === this.address.graph.generations.asArray.length ?
+            this.address.graph.generations.relationshipsOnlyGeneration :
+            this.address.graph.generations.byId(this.address.generationId)
         this.generation?.cohorts.push(this)
-        if (this.generation && !this.generation._isRelationshipsOnly) this.address.graph.addCohortToPlane(this, planeId)
+        if (this.generation && !this.generation._isRelationshipsOnly) this.address.graph.planes.addCohortToPlane(this, planeId)
 
         // Encapsulation depth.
         const parentEncapsulatingDepth = this.parentCohort()?.encapsulatingDepth || 0
@@ -95,7 +95,7 @@ export class Cohort {
     }
 
     removeFromGroups(): void {
-        const generation = this.address.graph.generationById(this.address.generationId)
+        const generation = this.address.graph.generations.byId(this.address.generationId)
         if (generation) {
             const index = generation.cohorts.indexOf(this)
             if (index > -1) generation.cohorts.splice(index, 1)
@@ -119,8 +119,8 @@ export class Cohort {
 
     get isInRelationshipsOnlyGeneration(): boolean {
         if (
-            this.address.graph.relationshipsOnlyGeneration !== null
-            && this.address.generationId === this.address.graph.relationshipsOnlyGeneration.id
+            this.address.graph.generations.relationshipsOnlyGeneration !== null
+            && this.address.generationId === this.address.graph.generations.relationshipsOnlyGeneration.id
         ) {
             return true
         } else {
