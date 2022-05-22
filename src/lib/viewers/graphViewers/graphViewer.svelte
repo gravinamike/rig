@@ -140,23 +140,23 @@
         <div class="tabs-container wide">
             <TabBlock>
                 <TabFlaps>
-                    <TabFlap>Notes</TabFlap>
                     <TabFlap>Outline</TabFlap>
+                    <TabFlap>Notes</TabFlap>
                     <TabFlap>Attachments</TabFlap>
                 </TabFlaps>
-            
-                <!-- Notes viewer -->
-                <TabBody>
-                    <NotesViewer
-                        {graph}
-                    />
-                </TabBody>
 
                 <!-- Outline viewer -->
                 <TabBody>
                     <GraphOutlineWidget
                         bind:graph
                         {rePerspectToThingId}
+                    />
+                </TabBody>
+            
+                <!-- Notes viewer -->
+                <TabBody>
+                    <NotesViewer
+                        {graph}
                     />
                 </TabBody>
 

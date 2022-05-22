@@ -20,8 +20,9 @@ export class CohortWidgetModel {
     }
 
     get xYOffsets(): { x: number, y: number } {
-        const offsetSigns = offsetsByHalfAxisId[this.cohort.address.halfAxisId]
-        return [7, 8].includes(this.cohort.address.halfAxisId) ?
+        if (!this.cohort.halfAxisId) return { x: 0, y: 0 }
+        const offsetSigns = offsetsByHalfAxisId[this.cohort.halfAxisId]
+        return [7, 8].includes(this.cohort.halfAxisId) ?
             { x: 0, y: 0 } :
             {
                 x: this.graph.graphWidgetStyle.relationDistance * offsetSigns[0]
@@ -32,13 +33,14 @@ export class CohortWidgetModel {
     }
 
     get zIndex(): number {
-        const offsetSigns = offsetsByHalfAxisId[this.cohort.address.halfAxisId]
+        if (!this.cohort.halfAxisId) return 0
+        const offsetSigns = offsetsByHalfAxisId[this.cohort.halfAxisId]
         return 2 * this.cohort.address.generationId * offsetSigns[2]
 
     }
 
     get rowOrColumn(): "row" | "column" {
-        return [3, 4, 5, 6, 7, 8].includes(this.cohort.address.halfAxisId) ?
+        return this.cohort.halfAxisId && [3, 4, 5, 6, 7, 8].includes(this.cohort.halfAxisId) ?
             "column" :
             "row"
     }
@@ -80,10 +82,10 @@ export class CohortWidgetModel {
 
             const parentThingOffsetToGrandparentThing = (
                 this.cohort.matchedRelationshipsWidgetModel
-                && this.cohort.address.halfAxisId
+                && this.cohort.halfAxisId
                 && this.cohort.address.parentThingWidgetModel
                 && this.cohort.matchedRelationshipsWidgetModel.parentRelationshipsWidgetModel
-                && this.cohort.matchedRelationshipsWidgetModel.parentRelationshipsWidgetModel.halfAxisId === halfAxisOppositeIds[this.cohort.address.halfAxisId]
+                && this.cohort.matchedRelationshipsWidgetModel.parentRelationshipsWidgetModel.halfAxisId === halfAxisOppositeIds[this.cohort.halfAxisId]
             ) ?
                 (
                     (this.graph.graphWidgetStyle.thingSize + this.graph.graphWidgetStyle.betweenThingSpacing)

@@ -51,8 +51,8 @@ export class SpaceDbModel extends Model {
         return directionIdsByHalfAxisIds
     }
 
-    get halfAxisIdByDirectionId(): { [directionId: number]: HalfAxisId | null } {
-        const halfAxisIdByDirectionId: { [directionId: number]: HalfAxisId | null } = {}
+    get halfAxisIdByDirectionId(): { [directionId: number]: HalfAxisId } {
+        const halfAxisIdByDirectionId: { [directionId: number]: HalfAxisId } = {}
         const halfAxisIds = Object.keys(this.directionIdByHalfAxisId).map(k => Number(k) as HalfAxisId)
         for (const halfAxisId of halfAxisIds) {
             const directionId = this.directionIdByHalfAxisId[halfAxisId]

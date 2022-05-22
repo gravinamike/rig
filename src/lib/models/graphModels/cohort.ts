@@ -9,7 +9,7 @@ export type CohortAddress = {
     graph: Graph,
     generationId: number,
     parentThingWidgetModel: ThingWidgetModel | null,
-    halfAxisId: HalfAxisId
+    directionId: number | null
 }
 
 export class Cohort {
@@ -17,6 +17,7 @@ export class Cohort {
 
     address: CohortAddress
     generation: Generation | null
+    halfAxisId: HalfAxisId | null
     members: GenerationMember[]
     encapsulatingDepth: number
     plane: Plane | null = null
@@ -24,6 +25,9 @@ export class Cohort {
 
     constructor(address: CohortAddress, members: GenerationMember[]) {
         this.address = address
+        this.halfAxisId = this.address.directionId && this.address.parentThingWidgetModel ?
+            this.address.parentThingWidgetModel.space.halfAxisIdByDirectionId[this.address.directionId] :
+            0
         this.members = members
         for (const member of members) member.parentCohort = this
 
@@ -33,7 +37,7 @@ export class Cohort {
             planeId = 0
         } else {
             const parentPlaneId = this.parentCohort()?.plane?.id || 0
-            const changeInPlane = offsetsByHalfAxisId[this.address?.halfAxisId || 0][2]
+            const changeInPlane = offsetsByHalfAxisId[this.halfAxisId || 0][2]
             planeId = parentPlaneId + changeInPlane
         }
         this.generation = this.address.generationId === this.address.graph.generations.asArray.length ?
@@ -44,7 +48,7 @@ export class Cohort {
 
         // Encapsulation depth.
         const parentEncapsulatingDepth = this.parentCohort()?.encapsulatingDepth || 0
-        const changeInEncapsulatingDepth = offsetsByHalfAxisId[this.address?.halfAxisId || 0][3]
+        const changeInEncapsulatingDepth = offsetsByHalfAxisId[this.halfAxisId || 0][3]
         this.encapsulatingDepth = parentEncapsulatingDepth + changeInEncapsulatingDepth
     }
 
@@ -75,7 +79,7 @@ export class Cohort {
     }
 
     rowOrColumn(): "row" | "column" {
-        return this.address.halfAxisId !== null && [3, 4, 5, 6, 7, 8].includes(this.address.halfAxisId) ?
+        return this.halfAxisId !== null && [3, 4, 5, 6, 7, 8].includes(this.halfAxisId) ?
             "column" :
             "row"
     }
@@ -110,8 +114,8 @@ export class Cohort {
 
 
     get matchedRelationshipsWidgetModel(): RelationshipsWidgetModel | null {
-        if (this.address.parentThingWidgetModel && this.address.halfAxisId) {
-            return this.address.parentThingWidgetModel.relationshipsWidgetModelsByHalfAxisId[this.address.halfAxisId]
+        if (this.address.parentThingWidgetModel && this.halfAxisId) {
+            return this.address.parentThingWidgetModel.relationshipsWidgetModelsByHalfAxisId[this.halfAxisId]
         } else {
             return null
         }

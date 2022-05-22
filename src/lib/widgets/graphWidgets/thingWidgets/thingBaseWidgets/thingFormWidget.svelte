@@ -18,7 +18,7 @@
     let textField: HTMLTextAreaElement
 
     // Variables situating the Thing in its spatial context (Half-Axis, Plane)
-    $: halfAxisId = thingWidgetModel.parentCohort.address.halfAxisId || 0
+    $: halfAxisId = thingWidgetModel.parentCohort.halfAxisId || 0
     $: planeId = [7, 8].includes(halfAxisId) ?
         thingWidgetModel.parentCohort.address.parentThingWidgetModel?.parentCohort.plane?.id || 0 :
         thingWidgetModel.parentCohort.plane?.id || 0

@@ -15,9 +15,24 @@ import { ThingBaseWidgetModel } from "./"
 export class ThingWidgetModel extends ThingBaseWidgetModel {
     kind = "thingWidgetModel" as const
 
+    childCohortsByHalfAxisId: { [directionId: number]: Cohort } = {}
+
+    childCohortWidgetModels: CohortWidgetModel[] = []
+    relationshipsWidgetModels: RelationshipsWidgetModel[] = []
+
     constructor(thingId: number | null, graph: Graph) {
         super(thingId, graph)
     }
+
+
+
+    
+
+
+
+
+
+
 
     get thingWidgetId(): string {
         return `graph#${ this.address.graph.id }-thing#${ this.thingId }`
@@ -39,12 +54,36 @@ export class ThingWidgetModel extends ThingBaseWidgetModel {
         return childCohorts
     }
 
-    get childCohortWidgetModels(): CohortWidgetModel[] {
-        const childCohortWidgetModels = Object.values(this.childCohortWidgetModelsByHalfAxisId)
-        return childCohortWidgetModels
+
+
+
+
+
+
+    get childCohortWidgetModelByDirectionId(): { [directionId: number]: CohortWidgetModel } {
+        const childCohortWidgetModelsByDirectionId: { [directionId: number]: CohortWidgetModel } = {}
+        for (const cohortWidgetModel of this.childCohortWidgetModels) {
+            const directionId = cohortWidgetModel.cohort.address.directionId
+            if (directionId) childCohortWidgetModelsByDirectionId[directionId] = cohortWidgetModel
+        }
+        return childCohortWidgetModelsByDirectionId
     }
 
-    relatedThingIdsByHalfAxisId(halfAxisId: HalfAxisId): number[] {
+    get childCohortWidgetModelByHalfAxisId(): { [halfAxisId: number]: CohortWidgetModel } {
+        const childCohortWidgetModelsByHalfAxisId: { [halfAxisId: number]: CohortWidgetModel } = {}
+        for (const cohortWidgetModel of this.childCohortWidgetModels) {
+            const directionId = cohortWidgetModel.cohort.address.directionId
+            if (directionId) {
+                const halfAxisId = this.space.halfAxisIdByDirectionId[directionId]
+                if (halfAxisId) childCohortWidgetModelsByHalfAxisId[halfAxisId] = cohortWidgetModel
+            }
+        }
+        return childCohortWidgetModelsByHalfAxisId
+    }
+
+
+
+    relatedThingIdsByHalfAxisId(halfAxisId: HalfAxisId): number[] {/////////////////////// REMOVE THIS
         const directionId = this.space.directionIdByHalfAxisId[halfAxisId]
         const relatedThingIds = directionId && directionId in this.relatedThingIdsByDirectionId ?
             this.relatedThingIdsByDirectionId[directionId] :
@@ -63,27 +102,58 @@ export class ThingWidgetModel extends ThingBaseWidgetModel {
         }
     }
 
-    childCohortWidgetModel( halfAxisId: number ): CohortWidgetModel | null
-    childCohortWidgetModel( halfAxisId: number, cohortWigetModel: CohortWidgetModel ): void
-    childCohortWidgetModel( halfAxisId: number, cohortWidgetModel?: CohortWidgetModel ): CohortWidgetModel | null | void {
-        if ( cohortWidgetModel === undefined ) {
-            return halfAxisId in this.childCohortWidgetModelsByHalfAxisId ? this.childCohortWidgetModelsByHalfAxisId[halfAxisId] : null
-        } else {
-            // Set child Cohort for this Direction.
-            this.childCohortWidgetModelsByHalfAxisId[halfAxisId] = cohortWidgetModel
-        }
+    childCohortWidgetModel( cohortWidgetModel: CohortWidgetModel ): void {
+        this.childCohortWidgetModels.push(cohortWidgetModel) 
     }
 
-    relationshipsWidgetModel( halfAxisId: number ): RelationshipsWidgetModel | null
-    relationshipsWidgetModel( halfAxisId: number, relationshipsWidgetModel: RelationshipsWidgetModel ): void
-    relationshipsWidgetModel( halfAxisId: number, relationshipsWidgetModel?: RelationshipsWidgetModel ): RelationshipsWidgetModel | null | void {
-        if ( relationshipsWidgetModel === undefined ) {
-            return halfAxisId in this.relationshipsWidgetModelsByHalfAxisId ? this.relationshipsWidgetModelsByHalfAxisId[halfAxisId] : null
-        } else {
-            // Set child Cohort for this Direction.
-            this.relationshipsWidgetModelsByHalfAxisId[halfAxisId] = relationshipsWidgetModel
-        }
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+    relationshipsWidgetModel( relationshipsWidgetModel: RelationshipsWidgetModel ): void {
+        this.relationshipsWidgetModels.push(relationshipsWidgetModel)
     }
+
+    get relationshipsWidgetModelsByDirectionId(): { [directionId: number]: RelationshipsWidgetModel } {
+        const relationshipsWidgetModelsByDirectionId: { [directionId: number]: RelationshipsWidgetModel } = {}
+        for (const relationshipsWidgetModel of this.relationshipsWidgetModels) {
+            const directionId = relationshipsWidgetModel.cohort.address.directionId
+            if (directionId) relationshipsWidgetModelsByDirectionId[directionId] = relationshipsWidgetModel
+        }
+        return relationshipsWidgetModelsByDirectionId
+    }
+
+    get relationshipsWidgetModelsByHalfAxisId(): { [directionId: number]: RelationshipsWidgetModel } {
+        const relationshipsWidgetModelsByHalfAxisId: { [directionId: number]: RelationshipsWidgetModel } = {}
+        for (const relationshipsWidgetModel of this.relationshipsWidgetModels) {
+            const directionId = relationshipsWidgetModel.cohort.address.directionId
+            if (directionId) {
+                const halfAxisId = this.space.halfAxisIdByDirectionId[directionId]
+                if (halfAxisId) relationshipsWidgetModelsByHalfAxisId[halfAxisId] = relationshipsWidgetModel
+            }
+        }
+        return relationshipsWidgetModelsByHalfAxisId
+    }
+
+
+
+
+
+
+
+
+
+
 
     relatableForCurrentDrag(relationshipBeingCreatedInfo: RelationshipBeingCreatedInfo): boolean {
         const relatableForCurrentDrag =(
@@ -99,5 +169,10 @@ export class ThingWidgetModel extends ThingBaseWidgetModel {
             false
 
         return relatableForCurrentDrag
+    }
+
+    // If the Half-Axis is "Outwards, or the Thing has "Inwards" children, it is encapsulating.
+    get isEncapsulating(): boolean {
+        return (this.halfAxisId === 8) || (7 in this.childCohortsByHalfAxisId) ? true : false
     }
 }

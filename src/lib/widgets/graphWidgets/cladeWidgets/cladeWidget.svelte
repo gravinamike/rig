@@ -68,9 +68,9 @@
 
     <!-- The Thing's Relationships and child Cohorts. -->
     {#each cohortWidgetModels as cohortWidgetModel (cohortWidgetModel.cohort.address)}
-        {#if cohortWidgetModel.cohort.address.halfAxisId && [1, 2, 3, 4].includes(cohortWidgetModel.cohort.address.halfAxisId)}
+        {#if cohortWidgetModel.cohort.halfAxisId && [1, 2, 3, 4].includes(cohortWidgetModel.cohort.halfAxisId)}
             <RelationshipsWidget
-                model={relationshipWidgetModelsByHalfAxisId[cohortWidgetModel.cohort.address.halfAxisId]}
+                model={relationshipWidgetModelsByHalfAxisId[cohortWidgetModel.cohort.halfAxisId]}
                 bind:graph
             />
         {/if}

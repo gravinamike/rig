@@ -73,7 +73,7 @@ export class Generation {
                 graph: this.graph,
                 generationId: this.id,
                 parentThingWidgetModel: null,
-                halfAxisId: 0
+                directionId: null
             }
             this.graph.rootCohort = new Cohort(addressForCohort, [])
             for (const memberId of memberIdsForGeneration) {
@@ -96,22 +96,28 @@ export class Generation {
             // For each Thing (not Placeholder) in the previous Generation,
             for (const prevThingWidgetModel of this.parentGeneration?.thingWidgetModels() || []) {
                 
+                const cartesianDirectionIds: number[] = []
+                for (const cartesianHalfAxisId of cartesianHalfAxisIds) {
+                    const cartesianDirectionId = prevThingWidgetModel.space.directionIdByHalfAxisId[cartesianHalfAxisId]
+                    if (cartesianDirectionId) cartesianDirectionIds.push(cartesianDirectionId)
+                }
+
                 // For the ID of each half-axis from that Thing (plus any empty "Cartesian" half-axes - 1, 2, 3, 4),
-                const halfAxisIdsForCohorts = [...new Set([
-                    ...prevThingWidgetModel.relatedThingHalfAxisIds,
-                    ...cartesianHalfAxisIds])
-                ]
-                for (const halfAxisId of halfAxisIdsForCohorts) {
+                const directionIdsForCohorts = [...new Set([
+                    ...prevThingWidgetModel.relatedThingDirectionIds,
+                    ...cartesianDirectionIds])
+                ]///////////////////////////////////////////////////// FIX THIS
+                for (const directionId of directionIdsForCohorts) {
                     // Get the address for that half axis' Cohort.
                     const addressForCohort = {
                         graph: this.graph,
                         generationId: this.id,
                         parentThingWidgetModel: prevThingWidgetModel,
-                        halfAxisId: halfAxisId
+                        directionId: directionId
                     }
 
                     // Get list of the Things in that half axis' Cohort.
-                    const childCohortThingIds = prevThingWidgetModel.relatedThingIdsByHalfAxisId(halfAxisId)
+                    const childCohortThingIds = prevThingWidgetModel.relatedThingIdsByDirectionId[directionId] || []
                     // Add the members from this Generation matching those IDs as a new Cohort on that Half-Axis.
                     const membersIdForCohort = childCohortThingIds.length ?
                         memberIdsForGeneration.filter((memberId) => {if (childCohortThingIds.includes(memberId)) return true}) :
@@ -128,11 +134,11 @@ export class Generation {
 
                     // Create a new Cohort Widget Model and and assign to the previous Generation's Thing in that Direction.
                     const childCohortWidgetModel = new CohortWidgetModel(childCohort, this.graph)
-                    prevThingWidgetModel.childCohortWidgetModel(halfAxisId, childCohortWidgetModel)
+                    prevThingWidgetModel.childCohortWidgetModel(childCohortWidgetModel)
 
                     // Create a new Relationships Widget Model and assign to the previous Generation's Thing in that Direction.
                     const relationshipsWidgetModel = new RelationshipsWidgetModel(childCohort, prevThingWidgetModel.space, this.graph)
-                    prevThingWidgetModel.relationshipsWidgetModel(halfAxisId, relationshipsWidgetModel)
+                    prevThingWidgetModel.relationshipsWidgetModel(relationshipsWidgetModel)
                 }
             }
         }

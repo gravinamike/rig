@@ -1,7 +1,7 @@
 <script lang="ts">
     // Graph construct imports.
     import type { Graph } from "$lib/models/graphModels"
-    import type { ThingWidgetModel } from "$lib/models/widgetModels"
+    import type { ThingWidgetModel, CohortWidgetModel } from "$lib/models/widgetModels"
     
     // Constant imports.
     import { relationshipColorByHalfAxisId } from "$lib/shared/constants"
@@ -19,6 +19,35 @@
 
     // Cohort-related variables.
     $: cohortWidgetModels = thingWidgetModel.childCohortWidgetModels
+
+
+    // Cohort Widget Models are ordered in a specific way:
+    // 1. First those on the "Cartesian" half-axes, from top to bottom and left to right,
+    // 2. Then those on the other half-axes,
+    // 3. Then all those not on a half-axis.
+    function getOrderedCohortWidgetModels(thingWidgetModel: ThingWidgetModel, excludeHalfAxes=false): CohortWidgetModel[] {
+        const halfAxisIdsWithCohorts = Object.keys(thingWidgetModel.childCohortWidgetModelByHalfAxisId)
+            .map(idString => Number(idString))
+        const sortedHalfAxisIdsWithCohorts = excludeHalfAxes ?
+            [] :
+            [2, 1, 4, 3, 5, 6, 8, 7].filter(id => halfAxisIdsWithCohorts.includes(id))
+
+        const cohortWidgetModelsOnHalfAxes: CohortWidgetModel[] = []
+        for (const halfAxisId of sortedHalfAxisIdsWithCohorts) {
+            cohortWidgetModelsOnHalfAxes.push(thingWidgetModel.childCohortWidgetModelByHalfAxisId[halfAxisId])
+            console.log(halfAxisId)
+        }
+
+        const cohortWidgetModelsNotOnHalfAxes = thingWidgetModel.childCohortWidgetModels
+            .filter(model => !cohortWidgetModelsOnHalfAxes.includes(model))
+
+        return cohortWidgetModelsOnHalfAxes.concat(cohortWidgetModelsNotOnHalfAxes)
+    }
+    $: orderedCohortWidgetModels = getOrderedCohortWidgetModels(thingWidgetModel)
+    
+
+
+
     $: relationshipWidgetModelsByHalfAxisId = thingWidgetModel.relationshipsWidgetModelsByHalfAxisId
 
     $: expanded = (
@@ -53,8 +82,8 @@
         />
     {/if}
 
-    <!-- The Thing's Relationships and child Cohorts. -->
-    {#each cohortWidgetModels as cohortWidgetModel (cohortWidgetModel.cohort.address)}  
+    <!-- The Thing's Relationships and child Cohorts (outer container). -->
+    {#each orderedCohortWidgetModels as cohortWidgetModel (cohortWidgetModel.cohort.address)}  
         <div
             class="relationships-and-child-cohorts-outer-container"
             style="
@@ -62,33 +91,37 @@
                 background-color: white;
             "
         >
+            <!-- Relationship color field. -->
             <div
                 style="
+                    border-top: dotted 1px grey;
+                    box-sizing: border-box;
                     position: absolute; width: 100%; height: 100%;
-                    background-color: {relationshipColorByHalfAxisId[cohortWidgetModel.cohort.address.halfAxisId]};
+                    background-color: {relationshipColorByHalfAxisId[cohortWidgetModel.cohort.halfAxisId ? cohortWidgetModel.cohort.halfAxisId : 0]};
                     opacity: 0.25;
                 "
             />
 
+            <!-- The Thing's Relationships and child Cohorts (inner container). -->
             <div
                 class="relationships-and-child-cohorts-inner-container"
-                style="
-
-                    display: flex;
-                    flex-direction: { expanded ? "row" : "column" };
-                "    
+                style="flex-direction: { expanded ? "row" : "column" };"    
             >
-                <div
-                    class="relationships-outline-widget-container"
-                    class:expanded
-                    class:has-children={cohortWidgetModel.cohort.members.length}
-                >
-                    <RelationshipsOutlineWidget
-                        relationshipsWidgetModel={relationshipWidgetModelsByHalfAxisId[cohortWidgetModel.cohort.address.halfAxisId]}
-                        bind:graph
-                    />
-                </div>
+                <!-- Relationships Widget. -->
+                {#if cohortWidgetModel.cohort.halfAxisId}
+                    <div
+                        class="relationships-outline-widget-container"
+                        class:expanded
+                        class:has-children={cohortWidgetModel.cohort.members.length}
+                    >
+                        <RelationshipsOutlineWidget
+                            relationshipsWidgetModel={relationshipWidgetModelsByHalfAxisId[cohortWidgetModel.cohort.halfAxisId]}
+                            bind:graph
+                        />
+                    </div>
+                {/if}
 
+                <!-- Cohort Widget. -->
                 {#if (
                     cohortWidgetModel.cohort.members.length
                     && cohortWidgetModel.cohort.generation
@@ -142,6 +175,7 @@
     }
 
     .relationships-and-child-cohorts-inner-container {
+        display: flex;
         flex: 1 1 auto;
     }
 

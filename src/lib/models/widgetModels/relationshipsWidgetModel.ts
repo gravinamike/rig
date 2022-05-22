@@ -21,7 +21,7 @@ export class RelationshipsWidgetModel {
 
     parentThingWidgetModel: ThingWidgetModel
     generationId: number
-    halfAxisId: HalfAxisId | 0
+    halfAxisId: HalfAxisId
     directionId: number
     direction: DirectionDbModel
     planeId: number
@@ -35,8 +35,10 @@ export class RelationshipsWidgetModel {
     
         this.parentThingWidgetModel = this.cohort.address.parentThingWidgetModel as ThingWidgetModel
         this.generationId = cohort.address?.generationId || 0
-        this.halfAxisId = cohort.address && cohort.address.halfAxisId ? cohort.address.halfAxisId : 0
-        this.directionId = space.directionIdByHalfAxisId[this.halfAxisId] as number
+        this.halfAxisId = cohort.halfAxisId ? cohort.halfAxisId : 0
+        this.directionId = cohort.address.directionId as number
+        console.log('CONSTRUCTOR', this.cohort.address, this.halfAxisId, space)
+        console.log(this.directionId)
         this.direction = retrieveGraphConstructs("Direction", this.directionId) as DirectionDbModel
         this.planeId = this.cohort.plane?.id || 0
         this.rotation = rotationByHalfAxisId[this.halfAxisId]
@@ -91,7 +93,7 @@ export class RelationshipsWidgetModel {
         if (this.parentThingWidgetModel.parentThingWidgetModel !== null) {
             const grandParentThingWidgetModel = this.parentThingWidgetModel.parentThingWidgetModel
             const parentThingHalfAxisId = this.parentThingWidgetModel.address.halfAxisId as number
-            const parentRelationshipsWidgetModel = grandParentThingWidgetModel.relationshipsWidgetModel(parentThingHalfAxisId)
+            const parentRelationshipsWidgetModel = grandParentThingWidgetModel.relationshipsWidgetModelsByHalfAxisId[parentThingHalfAxisId]
             return parentRelationshipsWidgetModel
         } else {
             return null

@@ -33,10 +33,10 @@
                     bind:graph
                     {rePerspectToThingId}
                 />
-            {:else}
+            {:else if cohortWidgetModel.cohort.halfAxisId}
                 <ThingOutlineAlreadyRenderedWidget
                     thingBaseWidgetModel={cohortMember}
-                    cohortHalfAxisId={cohortWidgetModel.cohort.address.halfAxisId}
+                    cohortHalfAxisId={cohortWidgetModel.cohort.halfAxisId}
                     {graph}
                 />
             {/if}

@@ -2,8 +2,6 @@ import type { HalfAxisId } from "$lib/shared/constants"
 import type { SpaceDbModel, ThingDbModel } from "$lib/models/dbModels"
 import type { Graph, Cohort } from "$lib/models/graphModels"
 import type { ThingAddress, ThingWidgetModel } from "./"
-import type { CohortWidgetModel } from "$lib/models/widgetModels/cohortWidgetModel"
-import type { RelationshipsWidgetModel } from "$lib/models/widgetModels/relationshipsWidgetModel"
 
 import { oddHalfAxisIds, planePadding } from "$lib/shared/constants"
 import { graphConstructInStore, retrieveGraphConstructs } from "$lib/stores"
@@ -16,9 +14,6 @@ export class ThingBaseWidgetModel {
     thing: ThingDbModel | null
     graph: Graph
     _parentCohort: Cohort | null = null
-    childCohortsByHalfAxisId: { [directionId: number]: Cohort } = {}
-    childCohortWidgetModelsByHalfAxisId: { [directionId: number]: CohortWidgetModel } = {}
-    relationshipsWidgetModelsByHalfAxisId: { [directionId: number]: RelationshipsWidgetModel } = {}
     inheritSpace = true // For now.
 
     constructor(thingId: number | null, graph: Graph) {
@@ -65,7 +60,7 @@ export class ThingBaseWidgetModel {
     }
 
     get halfAxisId(): HalfAxisId | 0 {
-        return this.parentCohort.address.halfAxisId || 0
+        return this.parentCohort.halfAxisId || 0
     }
 
     get encapsulatingDepth(): number {
@@ -78,7 +73,7 @@ export class ThingBaseWidgetModel {
             graph: this.parentCohort.address.graph,
             generationId: this.parentCohort.address.generationId,
             parentThingWidgetModel: this.parentCohort.address.parentThingWidgetModel,
-            halfAxisId: this.parentCohort.address.halfAxisId,
+            halfAxisId: this.parentCohort.halfAxisId,
             indexInCohort: this.parentCohort.indexOfMember(this) as number
         }
         return address
@@ -124,11 +119,6 @@ export class ThingBaseWidgetModel {
             directionIdByHalfAxisId[oddHalfAxisId + 1] = direction.oppositeid;
         }
         return directionIdByHalfAxisId
-    }
-
-    // If the Half-Axis is "Outwards, or the Thing has "Inwards" children, it is encapsulating.
-    get isEncapsulating(): boolean {
-        return (this.halfAxisId === 8) || (7 in this.childCohortsByHalfAxisId) ? true : false
     }
 
     get planeId(): number {
