@@ -1,7 +1,7 @@
 import type { GraphWidgetStyle } from "$lib/shared/constants"
 import type { ThingDbModel } from "$lib/models/dbModels"
 import type { Cohort } from "$lib/models/graphModels"
-import type { CohortWidgetModel } from "$lib/models/widgetModels"
+import type { ThingCohortWidgetModel } from "$lib/models/widgetModels"
 
 import { defaultGraphWidgetStyle } from "$lib/shared/constants"
 import { storeGraphConstructs, retrieveGraphConstructs, unstoreGraphConstructs } from "$lib/stores"
@@ -17,7 +17,7 @@ export class Graph {
     _pThingIds: number[]
     _depth: number
     rootCohort: Cohort | null = null
-    rootCohortWidgetModel: CohortWidgetModel | null = null
+    rootThingCohortWidgetModel: ThingCohortWidgetModel | null = null
     generations: Generations
     planes: Planes
     history: PerspectiveHistory

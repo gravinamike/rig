@@ -12,8 +12,8 @@ import { retrieveGraphConstructs } from "$lib/stores"
 import { rectOfThingWidgetByThingId } from "$lib/shared/utility"
 
 
-export class RelationshipsWidgetModel {
-    kind = "relationshipsWidgetModel" as const
+export class RelationshipCohortWidgetModel {
+    kind = "relationshipCohortWidgetModel" as const
 
     cohort: Cohort
     space: SpaceDbModel
@@ -89,7 +89,7 @@ export class RelationshipsWidgetModel {
     }
 
 
-    get parentRelationshipsWidgetModel(): RelationshipsWidgetModel | null {
+    get parentRelationshipsWidgetModel(): RelationshipCohortWidgetModel | null {
         if (this.parentThingWidgetModel.parentThingWidgetModel !== null) {
             const grandParentThingWidgetModel = this.parentThingWidgetModel.parentThingWidgetModel
             const parentThingHalfAxisId = this.parentThingWidgetModel.address.halfAxisId as number

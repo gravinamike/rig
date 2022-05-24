@@ -3,8 +3,8 @@ import type { Graph, CohortAddress } from "$lib/models/graphModels"
 import { cartesianHalfAxisIds } from "$lib/shared/constants"
 import { graphConstructInStore } from "$lib/stores"
 import { Cohort } from "$lib/models/graphModels"
-import { CohortWidgetModel } from "$lib/models/widgetModels/cohortWidgetModel"
-import { RelationshipsWidgetModel } from "$lib/models/widgetModels/relationshipsWidgetModel"
+import { ThingCohortWidgetModel } from "$lib/models/widgetModels/thingCohortWidgetModel"
+import { RelationshipCohortWidgetModel } from "$lib/models/widgetModels/relationshipCohortWidgetModel"
 import { ThingBaseWidgetModel, ThingWidgetModel, ThingMissingFromStoreWidgetModel } from "$lib/models/widgetModels"
 
 
@@ -85,7 +85,7 @@ export class Generation {
                 this.graph.rootCohort.addMember(member)
             }
 
-            this.graph.rootCohortWidgetModel = new CohortWidgetModel(this.graph.rootCohort, this.graph)
+            this.graph.rootThingCohortWidgetModel = new ThingCohortWidgetModel(this.graph.rootCohort, this.graph)
             this.graph.planes.addCohortToPlane(this.graph.rootCohort, 0)
 
 
@@ -133,11 +133,11 @@ export class Generation {
                     }
 
                     // Create a new Cohort Widget Model and and assign to the previous Generation's Thing in that Direction.
-                    const childCohortWidgetModel = new CohortWidgetModel(childCohort, this.graph)
-                    prevThingWidgetModel.childCohortWidgetModel(childCohortWidgetModel)
+                    const childThingCohortWidgetModel = new ThingCohortWidgetModel(childCohort, this.graph)
+                    prevThingWidgetModel.childThingCohortWidgetModel(childThingCohortWidgetModel)
 
                     // Create a new Relationships Widget Model and assign to the previous Generation's Thing in that Direction.
-                    const relationshipsWidgetModel = new RelationshipsWidgetModel(childCohort, prevThingWidgetModel.space, this.graph)
+                    const relationshipsWidgetModel = new RelationshipCohortWidgetModel(childCohort, prevThingWidgetModel.space, this.graph)
                     prevThingWidgetModel.relationshipsWidgetModel(relationshipsWidgetModel)
                 }
             }

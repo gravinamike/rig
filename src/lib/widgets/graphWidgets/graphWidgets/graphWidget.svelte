@@ -187,9 +187,9 @@
             />
             
             <!-- Root Cohort Widget (from which the rest of the Graph automatically "grows"). -->
-            {#if graph.rootCohortWidgetModel}
+            {#if graph.rootThingCohortWidgetModel}
                 <CohortWidget
-                    cohortWidgetModel={graph.rootCohortWidgetModel}
+                    thingCohortWidgetModel={graph.rootThingCohortWidgetModel}
                     bind:graph
                     {rePerspectToThingId}
                 />

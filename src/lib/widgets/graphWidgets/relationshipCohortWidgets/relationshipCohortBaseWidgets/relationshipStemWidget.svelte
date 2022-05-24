@@ -2,11 +2,11 @@
     import type { Graph } from "$lib/models/graphModels"
     import { sleep } from "$lib/shared/utility"
     import { relationshipBeingCreatedInfoStore, enableRelationshipBeingCreated, setRelationshipBeingCreatedDestWidgetModel, hoveredThingIdStore, hoveredRelationshipTarget, inferredRelationshipBeingCreatedDirection, addGraphIdsNeedingViewerRefresh } from "$lib/stores"
-    import { ThingWidgetModel, RelationshipsWidgetModel } from "$lib/models/widgetModels"
+    import { ThingWidgetModel, RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
 </script>
 
 <script lang="ts">
-    export let relationshipsWidgetModel: RelationshipsWidgetModel
+    export let relationshipsWidgetModel: RelationshipCohortWidgetModel
     export let thingIdOfHoveredRelationship: number | null
     export let stemHovered: boolean
     export let tweenedScale: number

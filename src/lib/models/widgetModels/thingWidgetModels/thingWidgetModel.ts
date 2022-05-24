@@ -1,8 +1,8 @@
 import type { HalfAxisId } from "$lib/shared/constants"
 import type { NoteDbModel } from "$lib/models/dbModels"
 import type { Graph, Cohort } from "$lib/models/graphModels"
-import type { CohortWidgetModel } from "$lib/models/widgetModels/cohortWidgetModel"
-import type { RelationshipsWidgetModel } from "$lib/models/widgetModels/relationshipsWidgetModel"
+import type { ThingCohortWidgetModel } from "$lib/models/widgetModels/thingCohortWidgetModel"
+import type { RelationshipCohortWidgetModel } from "$lib/models/widgetModels/relationshipCohortWidgetModel"
 import type { RelationshipBeingCreatedInfo } from "$lib/widgets/graphWidgets"
 
 import { ThingBaseWidgetModel } from "./"
@@ -17,8 +17,8 @@ export class ThingWidgetModel extends ThingBaseWidgetModel {
 
     childCohortsByHalfAxisId: { [directionId: number]: Cohort } = {}
 
-    childCohortWidgetModels: CohortWidgetModel[] = []
-    relationshipsWidgetModels: RelationshipsWidgetModel[] = []
+    childThingCohortWidgetModels: ThingCohortWidgetModel[] = []
+    relationshipsWidgetModels: RelationshipCohortWidgetModel[] = []
 
     constructor(thingId: number | null, graph: Graph) {
         super(thingId, graph)
@@ -60,25 +60,25 @@ export class ThingWidgetModel extends ThingBaseWidgetModel {
 
 
 
-    get childCohortWidgetModelByDirectionId(): { [directionId: number]: CohortWidgetModel } {
-        const childCohortWidgetModelsByDirectionId: { [directionId: number]: CohortWidgetModel } = {}
-        for (const cohortWidgetModel of this.childCohortWidgetModels) {
-            const directionId = cohortWidgetModel.cohort.address.directionId
-            if (directionId) childCohortWidgetModelsByDirectionId[directionId] = cohortWidgetModel
+    get childThingCohortWidgetModelByDirectionId(): { [directionId: number]: ThingCohortWidgetModel } {
+        const childThingCohortWidgetModelsByDirectionId: { [directionId: number]: ThingCohortWidgetModel } = {}
+        for (const thingCohortWidgetModel of this.childThingCohortWidgetModels) {
+            const directionId = thingCohortWidgetModel.cohort.address.directionId
+            if (directionId) childThingCohortWidgetModelsByDirectionId[directionId] = thingCohortWidgetModel
         }
-        return childCohortWidgetModelsByDirectionId
+        return childThingCohortWidgetModelsByDirectionId
     }
 
-    get childCohortWidgetModelByHalfAxisId(): { [halfAxisId: number]: CohortWidgetModel } {
-        const childCohortWidgetModelsByHalfAxisId: { [halfAxisId: number]: CohortWidgetModel } = {}
-        for (const cohortWidgetModel of this.childCohortWidgetModels) {
-            const directionId = cohortWidgetModel.cohort.address.directionId
+    get childThingCohortWidgetModelByHalfAxisId(): { [halfAxisId: number]: ThingCohortWidgetModel } {
+        const childThingCohortWidgetModelsByHalfAxisId: { [halfAxisId: number]: ThingCohortWidgetModel } = {}
+        for (const thingCohortWidgetModel of this.childThingCohortWidgetModels) {
+            const directionId = thingCohortWidgetModel.cohort.address.directionId
             if (directionId) {
                 const halfAxisId = this.space.halfAxisIdByDirectionId[directionId]
-                if (halfAxisId) childCohortWidgetModelsByHalfAxisId[halfAxisId] = cohortWidgetModel
+                if (halfAxisId) childThingCohortWidgetModelsByHalfAxisId[halfAxisId] = thingCohortWidgetModel
             }
         }
-        return childCohortWidgetModelsByHalfAxisId
+        return childThingCohortWidgetModelsByHalfAxisId
     }
 
 
@@ -102,8 +102,8 @@ export class ThingWidgetModel extends ThingBaseWidgetModel {
         }
     }
 
-    childCohortWidgetModel( cohortWidgetModel: CohortWidgetModel ): void {
-        this.childCohortWidgetModels.push(cohortWidgetModel) 
+    childThingCohortWidgetModel( thingCohortWidgetModel: ThingCohortWidgetModel ): void {
+        this.childThingCohortWidgetModels.push(thingCohortWidgetModel) 
     }
 
 
@@ -120,12 +120,12 @@ export class ThingWidgetModel extends ThingBaseWidgetModel {
 
 
 
-    relationshipsWidgetModel( relationshipsWidgetModel: RelationshipsWidgetModel ): void {
+    relationshipsWidgetModel( relationshipsWidgetModel: RelationshipCohortWidgetModel ): void {
         this.relationshipsWidgetModels.push(relationshipsWidgetModel)
     }
 
-    get relationshipsWidgetModelsByDirectionId(): { [directionId: number]: RelationshipsWidgetModel } {
-        const relationshipsWidgetModelsByDirectionId: { [directionId: number]: RelationshipsWidgetModel } = {}
+    get relationshipsWidgetModelsByDirectionId(): { [directionId: number]: RelationshipCohortWidgetModel } {
+        const relationshipsWidgetModelsByDirectionId: { [directionId: number]: RelationshipCohortWidgetModel } = {}
         for (const relationshipsWidgetModel of this.relationshipsWidgetModels) {
             const directionId = relationshipsWidgetModel.cohort.address.directionId
             if (directionId) relationshipsWidgetModelsByDirectionId[directionId] = relationshipsWidgetModel
@@ -133,8 +133,8 @@ export class ThingWidgetModel extends ThingBaseWidgetModel {
         return relationshipsWidgetModelsByDirectionId
     }
 
-    get relationshipsWidgetModelsByHalfAxisId(): { [directionId: number]: RelationshipsWidgetModel } {
-        const relationshipsWidgetModelsByHalfAxisId: { [directionId: number]: RelationshipsWidgetModel } = {}
+    get relationshipsWidgetModelsByHalfAxisId(): { [directionId: number]: RelationshipCohortWidgetModel } {
+        const relationshipsWidgetModelsByHalfAxisId: { [directionId: number]: RelationshipCohortWidgetModel } = {}
         for (const relationshipsWidgetModel of this.relationshipsWidgetModels) {
             const directionId = relationshipsWidgetModel.cohort.address.directionId
             if (directionId) {

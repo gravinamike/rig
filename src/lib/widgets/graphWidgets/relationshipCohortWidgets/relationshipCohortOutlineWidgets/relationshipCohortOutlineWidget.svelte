@@ -1,12 +1,12 @@
 <script context="module" lang="ts">
     // Type imports.
     import type { Graph } from "$lib/models/graphModels"
-    import type { RelationshipsWidgetModel } from "$lib/models/widgetModels"
+    import type { RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
 </script>
 
 <script lang="ts">
     import { DirectionWidget } from "$lib/widgets/graphWidgets"
-    export let relationshipsWidgetModel: RelationshipsWidgetModel
+    export let relationshipsWidgetModel: RelationshipCohortWidgetModel
     export let graph: Graph
 
 

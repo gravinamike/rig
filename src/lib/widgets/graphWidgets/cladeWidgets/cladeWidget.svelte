@@ -4,7 +4,7 @@
     import type { ThingWidgetModel } from "$lib/models/widgetModels"
 
     // Graph widget imports.
-    import { ThingWidget, ThingFormWidget, RelationshipsWidget, CohortWidget } from "$lib/widgets/graphWidgets"
+    import { ThingWidget, ThingFormWidget, RelationshipCohortWidget, CohortWidget } from "$lib/widgets/graphWidgets"
 
     export let thingWidgetModel: ThingWidgetModel
     export let graph: Graph
@@ -12,7 +12,7 @@
     
 
     // Cohort-related variables.
-    $: cohortWidgetModels = thingWidgetModel.childCohortWidgetModels
+    $: thingCohortWidgetModels = thingWidgetModel.childThingCohortWidgetModels
     $: relationshipWidgetModelsByHalfAxisId = thingWidgetModel.relationshipsWidgetModelsByHalfAxisId
     $: betweenThingOverlap = graph.graphWidgetStyle.betweenThingOverlap
 
@@ -67,16 +67,16 @@
     {/if}
 
     <!-- The Thing's Relationships and child Cohorts. -->
-    {#each cohortWidgetModels as cohortWidgetModel (cohortWidgetModel.cohort.address)}
-        {#if cohortWidgetModel.cohort.halfAxisId && [1, 2, 3, 4].includes(cohortWidgetModel.cohort.halfAxisId)}
-            <RelationshipsWidget
-                model={relationshipWidgetModelsByHalfAxisId[cohortWidgetModel.cohort.halfAxisId]}
+    {#each thingCohortWidgetModels as thingCohortWidgetModel (thingCohortWidgetModel.cohort.address)}
+        {#if thingCohortWidgetModel.cohort.halfAxisId && [1, 2, 3, 4].includes(thingCohortWidgetModel.cohort.halfAxisId)}
+            <RelationshipCohortWidget
+                model={relationshipWidgetModelsByHalfAxisId[thingCohortWidgetModel.cohort.halfAxisId]}
                 bind:graph
             />
         {/if}
         
         <CohortWidget
-            {cohortWidgetModel}
+            {thingCohortWidgetModel}
             bind:graph
             {rePerspectToThingId}
         />

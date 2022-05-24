@@ -1,6 +1,6 @@
 import type { HalfAxisId } from "$lib/shared/constants"
 import type { Graph, Generation, GenerationMember, Plane } from "$lib/models/graphModels"
-import type { ThingWidgetModel, RelationshipsWidgetModel } from "$lib/models/widgetModels"
+import type { ThingWidgetModel, RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
 
 import { offsetsByHalfAxisId } from "$lib/shared/constants"
 
@@ -113,7 +113,7 @@ export class Cohort {
 
 
 
-    get matchedRelationshipsWidgetModel(): RelationshipsWidgetModel | null {
+    get matchedRelationshipsWidgetModel(): RelationshipCohortWidgetModel | null {
         if (this.address.parentThingWidgetModel && this.halfAxisId) {
             return this.address.parentThingWidgetModel.relationshipsWidgetModelsByHalfAxisId[this.halfAxisId]
         } else {

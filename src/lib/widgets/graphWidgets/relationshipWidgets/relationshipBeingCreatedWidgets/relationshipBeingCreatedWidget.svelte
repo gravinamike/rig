@@ -2,7 +2,7 @@
     import type { HalfAxisId } from "$lib/shared/constants"
     import type { DirectionDbModel, ThingDbModel } from "$lib/models/dbModels"
     import type { Graph } from "$lib/models/graphModels"
-    import type { ThingWidgetModel, RelationshipsWidgetModel } from "$lib/models/widgetModels"
+    import type { ThingWidgetModel, RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
 
     import { tweened } from "svelte/motion"
 	import { cubicOut } from "svelte/easing"
@@ -39,13 +39,13 @@
     $: lineEndPositionY = endPositionY - 8 * Math.sin(angleInRadians)
 
 
-    $: if (sourceWidgetModel && sourceWidgetModel.kind === "relationshipsWidgetModel") {
+    $: if (sourceWidgetModel && sourceWidgetModel.kind === "relationshipCohortWidgetModel") {
         direction = sourceWidgetModel.direction
         halfAxisId = sourceWidgetModel.halfAxisId
         opacity = sourceWidgetModel.opacity
         color = relationshipColorByHalfAxisId[sourceWidgetModel.halfAxisId]
     } else {
-        if (destWidgetModel && destWidgetModel.kind === "relationshipsWidgetModel") {
+        if (destWidgetModel && destWidgetModel.kind === "relationshipCohortWidgetModel") {
             direction = destWidgetModel.direction.oppositeid ? retrieveGraphConstructs("Direction", destWidgetModel.direction.oppositeid) : null
         } else {
             direction = $relationshipBeingCreatedInfoStore.selectedDirection
@@ -82,8 +82,8 @@
     }
 
     async function handlePossibleNewRelationshipSpecified(
-        sourceWidgetModel: ThingWidgetModel | RelationshipsWidgetModel | null,
-        destWidgetModel: ThingWidgetModel | RelationshipsWidgetModel | null,
+        sourceWidgetModel: ThingWidgetModel | RelationshipCohortWidgetModel | null,
+        destWidgetModel: ThingWidgetModel | RelationshipCohortWidgetModel | null,
         direction: DirectionDbModel | null,
         trackingMouse: boolean
     ) {

@@ -1,10 +1,10 @@
 import type { DirectionDbModel } from "$lib/models/dbModels"
-import type { ThingWidgetModel, RelationshipsWidgetModel } from "$lib/models/widgetModels"
+import type { ThingWidgetModel, RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
 
 
 export interface RelationshipBeingCreatedInfo{
-    sourceWidgetModel: ThingWidgetModel | RelationshipsWidgetModel | null,
-    destWidgetModel: ThingWidgetModel | RelationshipsWidgetModel | null,
+    sourceWidgetModel: ThingWidgetModel | RelationshipCohortWidgetModel | null,
+    destWidgetModel: ThingWidgetModel | RelationshipCohortWidgetModel | null,
     startPosition: [number, number],
     endPosition: [number, number],
     trackingMouse: boolean,

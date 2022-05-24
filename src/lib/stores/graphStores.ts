@@ -1,12 +1,12 @@
 import type { Writable } from "svelte/store"
 import type { GraphConstruct } from "$lib/shared/constants"
 import type { SpaceDbModel, ThingDbModel } from "$lib/models/dbModels"
-import type { RelationshipBeingCreatedInfo } from "$lib/widgets/graphWidgets/relationshipsWidgets"
+import type { RelationshipBeingCreatedInfo } from "$lib/widgets/graphWidgets"
 
 import { writable, derived } from "svelte/store"
 import { DirectionDbModel, isDirection, isSpace, isThing } from "$lib/models/dbModels"
-import { nullRelationshipBeingCreatedInfo } from "$lib/widgets/graphWidgets/relationshipsWidgets"
-import type { ThingWidgetModel, RelationshipsWidgetModel } from "$lib/models/widgetModels"
+import { nullRelationshipBeingCreatedInfo } from "$lib/widgets/graphWidgets"
+import type { ThingWidgetModel, RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
 
 
 // Create Direction-related stores (and subscriptions where applicable).
@@ -278,7 +278,7 @@ export const relationshipBeingCreatedInfoStore = writable(
 /**
  * Enable the Relationship-being-created Widget.
  */
-export function enableRelationshipBeingCreated(sourceWidgetModel: ThingWidgetModel | RelationshipsWidgetModel, position: [number, number]): void {
+export function enableRelationshipBeingCreated(sourceWidgetModel: ThingWidgetModel | RelationshipCohortWidgetModel, position: [number, number]): void {
     relationshipBeingCreatedInfoStore.set(
         {
             sourceWidgetModel: sourceWidgetModel,
@@ -301,7 +301,7 @@ export function updateRelationshipBeingCreatedEndpoint(position: [number, number
     } )
 }
 
-export function setRelationshipBeingCreatedDestWidgetModel(destWidgetModel: ThingWidgetModel | RelationshipsWidgetModel | null): void {
+export function setRelationshipBeingCreatedDestWidgetModel(destWidgetModel: ThingWidgetModel | RelationshipCohortWidgetModel | null): void {
     relationshipBeingCreatedInfoStore.update( current => {
         current.destWidgetModel = destWidgetModel
         return current
@@ -324,7 +324,7 @@ export function disableRelationshipBeingCreated(): void {
 
 
 export const hoveredRelationshipTarget = writable(
-    null as (ThingWidgetModel | RelationshipsWidgetModel | null)
+    null as (ThingWidgetModel | RelationshipCohortWidgetModel | null)
 )
 
 export const inferredRelationshipBeingCreatedDirection = derived(
@@ -335,9 +335,9 @@ export const inferredRelationshipBeingCreatedDirection = derived(
         const selectedDirection = $relationshipBeingCreatedInfoStore.selectedDirection
 
         let direction: DirectionDbModel | null
-        if (sourceWidgetModel && sourceWidgetModel.kind === "relationshipsWidgetModel") {
+        if (sourceWidgetModel && sourceWidgetModel.kind === "relationshipCohortWidgetModel") {
             direction = sourceWidgetModel.direction
-        } else if (destWidgetModel && destWidgetModel.kind === "relationshipsWidgetModel") {
+        } else if (destWidgetModel && destWidgetModel.kind === "relationshipCohortWidgetModel") {
             direction = (
                 destWidgetModel.direction.oppositeid ?
                     retrieveGraphConstructs("Direction", destWidgetModel.direction.oppositeid) :

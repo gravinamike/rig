@@ -1,7 +1,7 @@
 <script context="module" lang="ts">
     /* Type imports. */
     import type { Graph } from "$lib/models/graphModels"
-    import type { CohortWidgetModel } from "$lib/models/widgetModels";
+    import type { ThingCohortWidgetModel } from "$lib/models/widgetModels";
 
     /* Widget imports */
     import { CladeWidget, ThingAlreadyRenderedWidget } from "$lib/widgets/graphWidgets"
@@ -9,23 +9,23 @@
 
 <script lang="ts">
     /**
-     * @param  {CohortWidgetModel} cohortWidgetModel - The Cohort Widget Model used to set up this Widget.
+     * @param  {ThingCohortWidgetModel} thingCohortWidgetModel - The Cohort Widget Model used to set up this Widget.
      * @param  {Graph} graph - The Graph that the Cohort is in.
      * @param  {(thingId: number) => Promise<void>} rePerspectToThingId - A function that re-perspects the Graph to a given Thing ID.
      */
-    export let cohortWidgetModel: CohortWidgetModel
+    export let thingCohortWidgetModel: ThingCohortWidgetModel
     export let graph: Graph
     export let rePerspectToThingId: (thingId: number) => Promise<void>
 
 
-    $: xYOffsets = cohortWidgetModel.xYOffsets
-    $: zIndex = cohortWidgetModel.zIndex
+    $: xYOffsets = thingCohortWidgetModel.xYOffsets
+    $: zIndex = thingCohortWidgetModel.zIndex
 
-    $: rowOrColumn = cohortWidgetModel.rowOrColumn
+    $: rowOrColumn = thingCohortWidgetModel.rowOrColumn
 
-    $: indexOfGrandparentThing = cohortWidgetModel.indexOfGrandparentThing
-    $: offsetToGrandparentThingX = cohortWidgetModel.offsetToGrandparentThingX
-    $: offsetToGrandparentThingY = cohortWidgetModel.offsetToGrandparentThingY
+    $: indexOfGrandparentThing = thingCohortWidgetModel.indexOfGrandparentThing
+    $: offsetToGrandparentThingX = thingCohortWidgetModel.offsetToGrandparentThingX
+    $: offsetToGrandparentThingY = thingCohortWidgetModel.offsetToGrandparentThingY
 </script>
 
 
@@ -36,21 +36,21 @@
         top: calc({xYOffsets.y}px + 50% + {offsetToGrandparentThingY}px);
         z-index: {zIndex};
         flex-direction: {rowOrColumn};
-        gap: {cohortWidgetModel.cohort.halfAxisId && [5, 6, 7, 8].includes(cohortWidgetModel.cohort.halfAxisId) ? 4 : graph.graphWidgetStyle.betweenThingGap}px;
+        gap: {thingCohortWidgetModel.cohort.halfAxisId && [5, 6, 7, 8].includes(thingCohortWidgetModel.cohort.halfAxisId) ? 4 : graph.graphWidgetStyle.betweenThingGap}px;
     "
 >
-    {#if !(cohortWidgetModel.cohort.members.length === 1 && indexOfGrandparentThing !== null && indexOfGrandparentThing !== -1)}<!-- Unless the ONLY descendent in a Half-Axis is a doubled-back parent Thing, -->
-        {#each cohortWidgetModel.cohort.members as cohortMember}
+    {#if !(thingCohortWidgetModel.cohort.members.length === 1 && indexOfGrandparentThing !== null && indexOfGrandparentThing !== -1)}<!-- Unless the ONLY descendent in a Half-Axis is a doubled-back parent Thing, -->
+        {#each thingCohortWidgetModel.cohort.members as cohortMember}
             {#if "text" in cohortMember}
                 <CladeWidget
                     thingWidgetModel={cohortMember}
                     bind:graph
                     {rePerspectToThingId}
                 />
-            {:else if cohortWidgetModel.cohort.halfAxisId}
+            {:else if thingCohortWidgetModel.cohort.halfAxisId}
                 <ThingAlreadyRenderedWidget
                     thingBaseWidgetModel={cohortMember}
-                    cohortHalfAxisId={cohortWidgetModel.cohort.halfAxisId}
+                    cohortHalfAxisId={thingCohortWidgetModel.cohort.halfAxisId}
                     {graph}
                 />
             {/if}

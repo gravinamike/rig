@@ -1,3 +1,3 @@
 export * from "./thingWidgetModels"
-export * from "./cohortWidgetModel"
-export * from "./relationshipsWidgetModel"
+export * from "./thingCohortWidgetModel"
+export * from "./relationshipCohortWidgetModel"

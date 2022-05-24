@@ -1,7 +1,7 @@
 <script context="module" lang="ts">
     // Type imports.
     import type { Graph } from "$lib/models/graphModels"
-    import type { RelationshipsWidgetModel } from "$lib/models/widgetModels"
+    import type { RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
 
     // Basic UI imports.
     import { tweened } from "svelte/motion"
@@ -22,7 +22,7 @@
      * @param  {RelationshipsWidgetModel} model - The Relationships Widget Model used to set up this Widget.
      * @param  {Graph} graph - The Graph that the Relationships are in.
      */
-    export let model: RelationshipsWidgetModel
+    export let model: RelationshipCohortWidgetModel
     export let graph: Graph
 
 

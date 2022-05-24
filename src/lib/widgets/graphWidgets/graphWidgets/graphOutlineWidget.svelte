@@ -14,9 +14,9 @@
     class="graph-outline-widget"
 >
     <!-- Root Cohort Widget (from which the rest of the Graph Outline automatically "grows"). -->
-    {#if graph.rootCohortWidgetModel}
+    {#if graph.rootThingCohortWidgetModel}
         <CohortOutlineWidget
-            cohortWidgetModel={graph.rootCohortWidgetModel}
+            thingCohortWidgetModel={graph.rootThingCohortWidgetModel}
             bind:graph
             {rePerspectToThingId}
         />

@@ -103,7 +103,7 @@
     id="{thingWidgetId}"
     class="box thing-outline-widget" class:highlighted
     style="
-        border-radius: { thingWidgetModel.childCohortWidgetModels.length ? "10px 10px 0 0" : "10px" };
+        border-radius: { thingWidgetModel.childThingCohortWidgetModels.length ? "10px 10px 0 0" : "10px" };
     "
 
     on:mouseenter={()=>{

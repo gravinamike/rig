@@ -2,8 +2,8 @@ import { halfAxisOppositeIds, offsetsByHalfAxisId } from "$lib/shared/constants"
 import type { Graph, Cohort } from "$lib/models/graphModels"
 
 
-export class CohortWidgetModel {
-    kind = "cohortWidgetModel"
+export class ThingCohortWidgetModel {
+    kind = "thingCohortWidgetModel"
 
     cohort: Cohort
     graph: Graph
