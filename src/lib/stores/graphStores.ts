@@ -220,10 +220,6 @@ export function retrieveGraphConstructs<Type extends GraphConstruct>(
     constructName: "Direction" | "Space" | "Thing",
     ids: number | number[]
 ): Type[] | Type | null {
-    if (constructName === "Direction") {
-        console.log("FOO")
-        console.log(ids)
-    }
     // Determine which store to get construct from based on construct name.
     let storeValue: { [id: number]: GraphConstruct }
     if (constructName === "Direction") {
