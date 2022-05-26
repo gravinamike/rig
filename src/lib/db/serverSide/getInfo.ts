@@ -1,7 +1,8 @@
 import {
     DirectionDbModel, SpaceDbModel,
     ThingDbModel, RelationshipDbModel,
-    NoteDbModel, NoteToThingDbModel, FolderDbModel, FolderToThingDbModel
+    NoteDbModel, NoteToThingDbModel, FolderDbModel, FolderToThingDbModel,
+    ThingSearchListItem
 } from "$lib/models/dbModels"
 
 
@@ -135,6 +136,14 @@ export async function queryThings(thingIds: number | number[]): Promise<null | T
             .orderBy('id')
         return queriedThings
     }
+}
+
+/*
+ * Query Thing search list from the database.
+ */
+export async function queryThingSearchList(): Promise<ThingSearchListItem[]> {
+    const queriedThingSearchList = await ThingSearchListItem.query().orderBy('id')
+    return queriedThingSearchList
 }
 
 /*
