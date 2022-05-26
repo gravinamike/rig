@@ -92,4 +92,4 @@
     .hovered-thing {
         outline: solid 2px black;
     }
-  </style>
+</style>

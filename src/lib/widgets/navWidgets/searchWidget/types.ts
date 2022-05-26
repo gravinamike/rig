@@ -1,0 +1,1 @@
+export interface SearchOption { text: string, highlightedText: string }
