@@ -25,7 +25,6 @@
     async function handleInput() {
         await filter()
         matchedItems = []
-        console.log("FILTERED", filtered)
         for (const filteredItem of filtered) {
             if (substringIndex(filteredItem.text)) matchedItems.push(filteredItem)
         }
@@ -36,7 +35,7 @@
         unfilteredArray.forEach(
             item => {
                 const index = item.name ? substringIndex(item.name) : null
-                if ( index ) {
+                if ( index !== null ) {
                     const matchedText = item.name.substring(index, index + inputText.length)
                     const highlightedItem = item.name.replace(matchedText, `<strong>${matchedText}</strong>`);
                     filtered.push( { id: item.id, text: item.name, highlightedText: highlightedItem } )
@@ -44,7 +43,6 @@
             }
         )
         showFiltered = filtered.length ? true : false
-        console.log(filtered)
     }
 
     function handleEnter() {
