@@ -1,1 +1,1 @@
-export interface SearchOption { text: string, highlightedText: string }
+export interface SearchOption { id: number, text: string, highlightedText: string }

@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { SearchOption } from "./types"
 
-    export let unfilteredArray: string[]
+    export let unfilteredArray: {id: number, name: string}[]
     export let placeholderText: string
     export let submitMethod: (selectedItem: SearchOption | null, matchedItems: SearchOption[]) => void
 
@@ -35,11 +35,11 @@
         filtered = []
         unfilteredArray.forEach(
             item => {
-                const index = substringIndex(item)
+                const index = item.name ? substringIndex(item.name) : null
                 if ( index ) {
-                    const matchedText = item.substring(index, index + inputText.length)
-                    const highlightedItem = item.replace(matchedText, `<strong>${matchedText}</strong>`);
-                    filtered.push( { text: item, highlightedText: highlightedItem } )
+                    const matchedText = item.name.substring(index, index + inputText.length)
+                    const highlightedItem = item.name.replace(matchedText, `<strong>${matchedText}</strong>`);
+                    filtered.push( { id: item.id, text: item.name, highlightedText: highlightedItem } )
                 }
             }
         )

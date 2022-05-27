@@ -1,8 +1,19 @@
 <script lang="ts">
+    import type { ThingSearchListItem } from "$lib/models/dbModels"
     import type { SearchOption } from "$lib/widgets/navWidgets/searchWidget"
+    import { thingSearchListStore } from "$lib/stores"
     import { SearchWidget } from "$lib/widgets/navWidgets"
 
-    let sourceThingsArray = ["Abigail", "Boromir", "Caleb", "Daphne", "Ephraim", "Felicia", "Gus", "Hermoine"]
+
+    let unfilteredArray: {id: number, name: string}[] = []
+    
+    async function buildUnfilteredArray(thingSearchList: ThingSearchListItem[]) {
+        unfilteredArray = []
+        for (const thingSearchListItem of thingSearchList) {
+            unfilteredArray.push({id: thingSearchListItem.id, name: thingSearchListItem.text})
+        }
+    }
+    $: buildUnfilteredArray($thingSearchListStore)
 
     function submitMethod(selectedItem: SearchOption | null, matchedItems: SearchOption[]) {
         if (selectedItem) console.log(selectedItem)
@@ -14,7 +25,7 @@
 <div class="thing-searchbox-viewer">
 
     <SearchWidget
-        unfilteredArray={sourceThingsArray}
+        {unfilteredArray}
         placeholderText={"Search Things..." }
         {submitMethod}
     />
@@ -32,6 +43,6 @@
 
         display: flex;
         flex-direction: column;
-        padding: 0.75rem;
+        padding: 0.5rem;
     }
 </style>
