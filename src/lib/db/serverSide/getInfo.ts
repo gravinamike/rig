@@ -121,7 +121,7 @@ export async function queryThings(thingIds: number | number[]): Promise<null | T
         const queriedThings = await ThingDbModel.query()
             .where("id", thingIds)
             .allowGraph('[a_relationships, b_relationships, note]')
-            .withGraphFetched('[a_relationships, b_relationships, note]')
+            .withGraphFetched('[a_relationships, b_relationships, note, folder]')
             .orderBy('id')
         return queriedThings.length ? queriedThings[0] : null
 
@@ -141,8 +141,14 @@ export async function queryThings(thingIds: number | number[]): Promise<null | T
 /*
  * Query Thing search list from the database.
  */
-export async function queryThingSearchList(): Promise<ThingSearchListItem[]> {
-    const queriedThingSearchList = await ThingSearchListItem.query().orderBy('id')
+export async function queryThingSearchList( thingIds: number[] | null ): Promise<ThingSearchListItem[]> {
+    const queriedThingSearchList = thingIds === null ?
+        await ThingSearchListItem.query().orderBy('id') :
+        await ThingSearchListItem.query()
+            .where(
+                (builder) => builder.whereIn('id', thingIds)
+            )
+            .orderBy('id')
     return queriedThingSearchList
 }
 

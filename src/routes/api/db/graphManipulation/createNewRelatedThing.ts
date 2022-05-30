@@ -1,16 +1,21 @@
+import type { ThingDbModel } from "$lib/models/dbModels"
 import { createNewRelatedThing } from "$lib/db/serverSide"
 
 
 export async function post(
     {request}: {request: Request}
-): Promise<{status: number, body: string | {error: string}}> {
+): Promise<{status: number, body: ThingDbModel | {error: string}}> {
     try {
         const body = await request.json()
-        await createNewRelatedThing(body.thingIdToRelateFrom, body.directionId, body.text)
+        const newRelatedThingDbModel = await createNewRelatedThing(
+            body.thingIdToRelateFrom,
+            body.directionId,
+            body.text
+        ) as ThingDbModel
         
         return {
             status: 200,
-            body: "New related Thing created successfully."
+            body: newRelatedThingDbModel
         }
 
     } catch(err) {

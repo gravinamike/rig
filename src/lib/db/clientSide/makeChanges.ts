@@ -1,9 +1,12 @@
+import type { ThingDbModel } from "$lib/models/dbModels"
+
+
 /*
  * From a starting Thing, create a related Thing.
  */
 export async function createNewRelatedThing(
     thingIdToRelateFrom: number, directionId: number, text: string
-): Promise<boolean> {
+): Promise<ThingDbModel | false> {
     // Post to the create-new-related-Thing API.
     const res = await fetch(
         `api/db/graphManipulation/createNewRelatedThing`,
@@ -20,7 +23,8 @@ export async function createNewRelatedThing(
 
     // Report on the response.
     if (res.ok) {
-        return true
+        const newRelatedThingDbModel = await res.json() as ThingDbModel
+        return newRelatedThingDbModel
     } else {
         res.text().then(text => {throw Error(text)})
         return false

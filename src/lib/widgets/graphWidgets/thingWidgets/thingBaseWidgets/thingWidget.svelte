@@ -11,6 +11,7 @@
         relationshipBeingCreatedInfoStore, enableRelationshipBeingCreated,
         setRelationshipBeingCreatedDestWidgetModel, disableRelationshipBeingCreated,
         pinIdsStore, openContextCommandPalette, addPin, removePin,
+        removeIdsFromThingSearchListStore
     } from "$lib/stores"
 
     // Utility imports.
@@ -94,6 +95,8 @@
                 break
             }
         }
+
+        await removeIdsFromThingSearchListStore(thingId)
     }
 
     /**

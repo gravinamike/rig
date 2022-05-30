@@ -396,7 +396,7 @@ export function addGraphIdsNeedingViewerRefresh(graphIds: number | number[]): vo
 
 export const thingSearchListStore = writable( [] as ThingSearchListItem[] )
 
-function updateThingSearchListStore( thingSearchListItems: ThingSearchListItem | ThingSearchListItem[] ): void {
+export async function updateThingSearchListStore( thingSearchListItems: ThingSearchListItem | ThingSearchListItem[] ): Promise<void> {
     // If necessary, pack a single supplied Thing search list item in an array for processing.
     if (!("length" in thingSearchListItems)) thingSearchListItems = [thingSearchListItems]
 
@@ -404,8 +404,26 @@ function updateThingSearchListStore( thingSearchListItems: ThingSearchListItem |
     thingSearchListStore.update( (current) => [...current, ...(thingSearchListItems as ThingSearchListItem[]) ] )
 }
 
+export async function removeIdsFromThingSearchListStore( thingIds: number | number[] ): Promise<void> {
+    // If necessary, pack a single supplied Thing ID in an array for processing.
+    if (typeof thingIds === "number") thingIds = [thingIds]
+
+    // Update the store with each supplied construct.
+    thingSearchListStore.update( (current) => {
+        for (const thingSearchListItem of current) {
+            if ((thingIds as number[]).includes(thingSearchListItem.id)) {
+                const index = current.indexOf(thingSearchListItem)
+                if (index > -1) {
+                    current.splice(index, 1)
+                }
+            }
+        }
+        return current
+    } )
+}
+
 export async function storeThingSearchList(): Promise<ThingSearchListItem[]> {  
-    const res = await fetch(`api/db/graphConstructs/thingSearchList`)
+    const res = await fetch(`api/db/graphConstructs/thingSearchListItems-all`)
 
     // If the response is ok,
     if (res.ok) {
