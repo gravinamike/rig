@@ -111,7 +111,9 @@
         <div class="navigation-view">
             <!-- Thing searchbox -->
             <div class="pins-container">
-                <ThingSearchboxViewer />
+                <ThingSearchboxViewer
+                    {rePerspectToThingId}
+                />
             </div>
 
             <!-- Graph pins viewer -->

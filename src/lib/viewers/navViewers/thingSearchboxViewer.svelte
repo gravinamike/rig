@@ -4,6 +4,8 @@
     import { thingSearchListStore } from "$lib/stores"
     import { SearchWidget } from "$lib/widgets/navWidgets"
 
+    export let rePerspectToThingId: (id: number) => Promise<void>
+
 
     let unfilteredArray: {id: number, name: string}[] = []
     
@@ -16,8 +18,11 @@
     $: buildUnfilteredArray($thingSearchListStore)
 
     function submitMethod(selectedItem: SearchOption | null, matchedItems: SearchOption[]) {
-        if (selectedItem) console.log(selectedItem)
-        else console.log(matchedItems)
+        if (selectedItem) {
+            rePerspectToThingId(selectedItem.id)
+        } else if (matchedItems.length) {
+            rePerspectToThingId(matchedItems[0].id)
+        }
     }
 </script>
 

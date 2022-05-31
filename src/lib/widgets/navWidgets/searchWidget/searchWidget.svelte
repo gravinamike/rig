@@ -17,16 +17,25 @@
 
     let showFiltered = false
 
-    function substringIndex(substring: string): number | null {
-        const substringIndex = substring.toLowerCase().indexOf(inputText.toLowerCase())
+    function substringIndex(substring: string, caseSensitive=false): number | null {
+        const substringIndex = caseSensitive ?
+            substring.indexOf(inputText) :
+            substring.toLowerCase().indexOf(inputText.toLowerCase())
         return substringIndex !== -1 ? substringIndex : null
+    }
+
+    function matched(string: string, caseSensitive=false) {
+        const matched = caseSensitive ?
+            string === inputText :
+            string.toLowerCase() === inputText.toLowerCase()
+        return matched
     }
 
     async function handleInput() {
         await filter()
         matchedItems = []
         for (const filteredItem of filtered) {
-            if (substringIndex(filteredItem.text)) matchedItems.push(filteredItem)
+            if (matched(filteredItem.text)) matchedItems.push(filteredItem)
         }
     }
 
@@ -47,10 +56,14 @@
 
     function handleEnter() {
         submitMethod(selectedItem, matchedItems)
+        inputText = ""
+		showFiltered = false
     }
 
     function submit() {
         submitMethod(selectedItem, matchedItems)
+        inputText = ""
+		showFiltered = false
     }
 
     function handlePossibleOutsideClick(event: MouseEvent) {
