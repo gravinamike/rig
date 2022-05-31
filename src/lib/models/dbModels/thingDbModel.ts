@@ -207,3 +207,15 @@ export function getNewThingInfo(text: string, whenCreated: string, defaultSpace:
 export function isThing(construct: GraphConstruct): construct is ThingDbModel {
     return "note" in construct
 }
+
+
+/*
+ * Thing search list item.
+ */
+export class ThingSearchListItem extends Model {
+    static tableName = "things" as const
+
+    id!: number
+    guid!: string
+    text!: string
+}

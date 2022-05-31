@@ -37,8 +37,6 @@ export class RelationshipCohortWidgetModel {
         this.generationId = cohort.address?.generationId || 0
         this.halfAxisId = cohort.halfAxisId ? cohort.halfAxisId : 0
         this.directionId = cohort.address.directionId as number
-        console.log('CONSTRUCTOR', this.cohort.address, this.halfAxisId, space)
-        console.log(this.directionId)
         this.direction = retrieveGraphConstructs("Direction", this.directionId) as DirectionDbModel
         this.planeId = this.cohort.plane?.id || 0
         this.rotation = rotationByHalfAxisId[this.halfAxisId]

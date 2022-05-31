@@ -1,6 +1,6 @@
 <script lang="ts">
     // Type imports.
-    import type { ThingDbModel } from "$lib/models/dbModels"
+    import type { ThingDbModel, ThingSearchListItem } from "$lib/models/dbModels"
     import type { Graph, Cohort } from "$lib/models/graphModels"
     import type { ThingWidgetModel } from "$lib/models/widgetModels"
 
@@ -9,7 +9,7 @@
     import { XButton } from "$lib/widgets/layoutWidgets"
 
     import { createNewRelatedThing } from "$lib/db/clientSide"
-    import { storeGraphConstructs, addGraphIdsNeedingViewerRefresh } from "$lib/stores"
+    import { storeGraphConstructs, addGraphIdsNeedingViewerRefresh, updateThingSearchListStore } from "$lib/stores"
 
     export let thingWidgetModel: ThingWidgetModel
     export let graph: Graph
@@ -58,11 +58,15 @@
         const directionId = space.directionIdByHalfAxisId[halfAxisId] as number
         const text = textField.value
 
-        const newRelatedThingCreated = await createNewRelatedThing(parentThingId, directionId, text)
-        if (newRelatedThingCreated) {
+        const newRelatedThing = await createNewRelatedThing(parentThingId, directionId, text)
+        if (newRelatedThing) {
             await storeGraphConstructs<ThingDbModel>("Thing", parentThingId, true)
             await graph.build()
             addGraphIdsNeedingViewerRefresh(graph.id)
+
+            const res = await fetch(`api/db/graphConstructs/thingSearchListItems-${[newRelatedThing.id]}`)
+            const queriedThingSearchListItems = await res.json() as ThingSearchListItem[]
+            updateThingSearchListStore(queriedThingSearchListItems)
         }
     }
 

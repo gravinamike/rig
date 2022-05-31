@@ -1,0 +1,1 @@
+export interface SearchOption { id: number, text: string, highlightedText: string }

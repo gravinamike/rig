@@ -14,7 +14,7 @@
     // Import viewers.
     import { GraphSettingsViewer } from "$lib/viewers/settingsViewers"
     import { GraphSchematicViewer } from "$lib/viewers/graphViewers"
-    import { HistoryViewer, PinsViewer } from "$lib/viewers/navViewers"
+    import { HistoryViewer, PinsViewer, ThingSearchboxViewer } from "$lib/viewers/navViewers"
     import { NotesViewer } from "$lib/viewers/notesViewers"
     import { FolderViewer } from "$lib/viewers/folderViewers"
     import { GraphWidget } from "$lib/widgets/graphWidgets"
@@ -109,6 +109,13 @@
         expanded={true}
     >
         <div class="navigation-view">
+            <!-- Thing searchbox -->
+            <div class="pins-container">
+                <ThingSearchboxViewer
+                    {rePerspectToThingId}
+                />
+            </div>
+
             <!-- Graph pins viewer -->
             <div class="pins-container">
                 <PinsViewer

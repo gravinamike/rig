@@ -1,6 +1,6 @@
 import type { Writable } from "svelte/store"
 import type { GraphConstruct } from "$lib/shared/constants"
-import type { SpaceDbModel, ThingDbModel } from "$lib/models/dbModels"
+import type { SpaceDbModel, ThingDbModel, ThingSearchListItem } from "$lib/models/dbModels"
 import type { RelationshipBeingCreatedInfo } from "$lib/widgets/graphWidgets"
 
 import { writable, derived } from "svelte/store"
@@ -220,10 +220,6 @@ export function retrieveGraphConstructs<Type extends GraphConstruct>(
     constructName: "Direction" | "Space" | "Thing",
     ids: number | number[]
 ): Type[] | Type | null {
-    if (constructName === "Direction") {
-        console.log("FOO")
-        console.log(ids)
-    }
     // Determine which store to get construct from based on construct name.
     let storeValue: { [id: number]: GraphConstruct }
     if (constructName === "Direction") {
@@ -386,4 +382,68 @@ export function addGraphIdsNeedingViewerRefresh(graphIds: number | number[]): vo
             return current
         } )
     }
+}
+
+
+
+
+
+
+
+
+
+
+
+export const thingSearchListStore = writable( [] as ThingSearchListItem[] )
+
+export async function updateThingSearchListStore( thingSearchListItems: ThingSearchListItem | ThingSearchListItem[] ): Promise<void> {
+    // If necessary, pack a single supplied Thing search list item in an array for processing.
+    if (!("length" in thingSearchListItems)) thingSearchListItems = [thingSearchListItems]
+
+    // Update the store with each supplied construct.
+    thingSearchListStore.update( (current) => [...current, ...(thingSearchListItems as ThingSearchListItem[]) ] )
+}
+
+export async function removeIdsFromThingSearchListStore( thingIds: number | number[] ): Promise<void> {
+    // If necessary, pack a single supplied Thing ID in an array for processing.
+    if (typeof thingIds === "number") thingIds = [thingIds]
+
+    // Update the store with each supplied construct.
+    thingSearchListStore.update( (current) => {
+        for (const thingSearchListItem of current) {
+            if ((thingIds as number[]).includes(thingSearchListItem.id)) {
+                const index = current.indexOf(thingSearchListItem)
+                if (index > -1) {
+                    current.splice(index, 1)
+                }
+            }
+        }
+        return current
+    } )
+}
+
+export async function storeThingSearchList(): Promise<ThingSearchListItem[]> {  
+    const res = await fetch(`api/db/graphConstructs/thingSearchListItems-all`)
+
+    // If the response is ok,
+    if (res.ok) {
+        // Unpack the response JSON as a Thing search list.
+        const queriedThingSearchListItems = await res.json() as ThingSearchListItem[]
+        // Update the store with this list.
+        updateThingSearchListStore(queriedThingSearchListItems)
+        // Return the Thing search List.
+        return queriedThingSearchListItems
+
+    // Handle errors if needed.
+    } else {
+        res.text().then(text => {throw Error(text)})
+        return []
+    }
+}
+
+/* 
+ * Function to clear a Graph construct Store.
+ */
+export async function clearThingSearchList(): Promise<void> {
+    thingSearchListStore.set([])
 }

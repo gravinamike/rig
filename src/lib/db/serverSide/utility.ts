@@ -21,26 +21,26 @@ export async function alterQuerystringForH2AndRun(
     
     // Return the last-created construct of the specified type (which should
     // be the construct created by this transaction).
-    let latestConstructResults: ThingDbModel[] | RelationshipDbModel[] | NoteDbModel[] | NoteToThingDbModel[] | FolderDbModel[] | FolderToThingDbModel[]
-    switch (constructName) {
-        case "Thing":
-            latestConstructResults = await ThingDbModel.query().select("id").where({whencreated: whenCreated}).transacting(transaction)
-            break
-        case "Relationship":
-            latestConstructResults = await RelationshipDbModel.query().select("id").where({whencreated: whenCreated}).transacting(transaction)
-            break
-        case "Note":
-            latestConstructResults = await NoteDbModel.query().select("id").where({whencreated: whenCreated}).transacting(transaction)
-            break
-        case "NoteToThing":
-            latestConstructResults = await NoteToThingDbModel.query().select("id").transacting(transaction)
-            break
-        case "Folder":
-            latestConstructResults = await FolderDbModel.query().select("id").where({whencreated: whenCreated}).transacting(transaction)
-            break
-        case "FolderToThing":
-            latestConstructResults = await FolderToThingDbModel.query().select("id").transacting(transaction)
-            break
+    if (constructName === "Thing") {
+        const latestConstructResults = await ThingDbModel.query().select("id").where({whencreated: whenCreated})
+            .allowGraph('[a_relationships, b_relationships, note, folder]')
+            .withGraphFetched('[a_relationships, b_relationships, note, folder]')
+            .transacting(transaction)
+        return latestConstructResults[0]
+    } else if (constructName === "Relationship") {
+        const latestConstructResults = await RelationshipDbModel.query().select("id").where({whencreated: whenCreated}).transacting(transaction)
+        return latestConstructResults[0]
+    } else if (constructName === "Note") {
+        const latestConstructResults = await NoteDbModel.query().select("id").where({whencreated: whenCreated}).transacting(transaction)
+        return latestConstructResults[0]
+    } else if (constructName === "NoteToThing") {
+        const latestConstructResults = await NoteToThingDbModel.query().select("id").transacting(transaction)
+        return latestConstructResults[0]
+    } else if (constructName === "Folder") {
+        const latestConstructResults = await FolderDbModel.query().select("id").where({whencreated: whenCreated}).transacting(transaction)
+        return latestConstructResults[0]
+    } else {
+        const latestConstructResults = await FolderToThingDbModel.query().select("id").transacting(transaction)
+        return latestConstructResults[0]
     }
-    return latestConstructResults[0]
 }
