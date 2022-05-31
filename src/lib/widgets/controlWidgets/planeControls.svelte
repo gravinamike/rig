@@ -6,7 +6,7 @@
 
     const graphOffsetMultiplier = 5
     
-    $: planeIds = Object.keys(graph.planes).map((x) => Number(x))
+    $: planeIds = Object.keys(graph.planes._members).map((x) => Number(x))
     $: planeDepth = Math.max(...planeIds.map((id) => Math.abs(id)))
     $: offsets = graph.planes.offsets
     $: focalPlaneId = graph.planes.focalPlaneId

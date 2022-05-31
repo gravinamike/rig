@@ -5,7 +5,7 @@ import { Graph, Cohort, Plane } from "$lib/models/graphModels"
 /** Class representing the set of Planes belonging to a Graph. */
 export class Planes {
     _graph: Graph
-    _members: Plane[] = []
+    _members: { [planeId: number]: Plane } = {}
 
     offsets = [0, 0]
     focalPlaneId = 0
@@ -22,7 +22,7 @@ export class Planes {
      * Reset the Planes to their initial, empty state.
      */
     reset(): void {
-        this._members = []
+        this._members = {}
         this.focalPlaneId = 0
     }
 
