@@ -29,6 +29,14 @@
     let currentSelectionHeaderLevel: 1 | 2 | 3 | 4 | 5 | 6 | null
     $: if (editor) currentSelectionHeaderLevel = selectedHeaderLevel()
 
+    let colorPicker: HTMLInputElement
+    function selectedColor(): string {
+        let selectedColor = editor.getAttributes("textStyle").color || null
+        return selectedColor
+    }
+    let currentSelectionColor: string
+    $: if (editor) currentSelectionColor = selectedColor()
+
     $: commandButtonInfos = [
         // Basic formatting.
         {
@@ -239,6 +247,14 @@
                     </option>
                 {/each}
             </select>
+
+            <input
+                type="color"
+                bind:this={colorPicker}
+                value={currentSelectionColor === null ? "#000000" : currentSelectionColor}
+
+                on:change={ () => editor.chain().focus().setColor(colorPicker.value).run() }
+            >
         </div>
 
         <CommandPalette
