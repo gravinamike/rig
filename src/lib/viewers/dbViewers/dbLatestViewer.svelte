@@ -1,26 +1,14 @@
 <script lang="ts">
     import type { LatestConstructInfos } from "$lib/db/serverSide/getInfo"
+
     import { onMount } from "svelte"
+    import { latestDbConstructs } from "$lib/db/clientSide/getInfo"
 
 
-    let latestConstructs: LatestConstructInfos | null = null
-
-    async function getLatestConstructs() {
-        const res = await fetch(`api/db/graphConstructs/latestConstructs`)
-
-        // If the response is ok,
-        if (res.ok) {
-            latestConstructs = await res.json() as LatestConstructInfos
-            console.log(latestConstructs)
-
-        // Handle errors if needed.
-        } else {
-            res.text().then(text => {throw Error(text)})
-        }
-    }
+    let latestConstructs: LatestConstructInfos | false = false
 
     onMount(async () => {
-        getLatestConstructs()
+        latestConstructs = await latestDbConstructs()
 	})
 </script>
 

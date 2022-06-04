@@ -1,15 +1,17 @@
 import { storeGraphConfig, saveAppConfig } from "$lib/shared/config"
 import { storeGraphConstructs, clearGraphConstructs, storeThingSearchList, clearThingSearchList } from "$lib/stores"
+import { getUnigraphFolder } from "$lib/db/clientSide"
 
 export async function openUnigraph(): Promise<boolean> {
+    const unigraphFolder = await getUnigraphFolder()
 
-    
-    let unigraphFolder: string | null = null
-    await fetch(`api/file/unigraphFolder`)
-        .then(res => res.text())
-        .then(text => unigraphFolder = text)
+    if (!unigraphFolder) {
 
-    if (unigraphFolder !== "null") {
+        console.log(`Error retrieving Graph folder.`)
+
+        return false
+
+    } else if (unigraphFolder !== "null") {
 
         await storeGraphConfig()
 

@@ -1,6 +1,6 @@
 <script lang="ts">
     // Type imports.
-    import type { ThingDbModel, ThingSearchListItem } from "$lib/models/dbModels"
+    import type { ThingDbModel } from "$lib/models/dbModels"
     import type { Graph, Cohort } from "$lib/models/graphModels"
     import type { ThingWidgetModel } from "$lib/models/widgetModels"
 
@@ -8,7 +8,7 @@
     import { planePadding } from "$lib/shared/constants"
     import { XButton } from "$lib/widgets/layoutWidgets"
 
-    import { createNewRelatedThing } from "$lib/db/clientSide"
+    import { thingSearchListItems, createNewRelatedThing } from "$lib/db/clientSide"
     import { storeGraphConstructs, addGraphIdsNeedingViewerRefresh, updateThingSearchListStore } from "$lib/stores"
 
     export let thingWidgetModel: ThingWidgetModel
@@ -64,9 +64,8 @@
             await graph.build()
             addGraphIdsNeedingViewerRefresh(graph.id)
 
-            const res = await fetch(`api/db/graphConstructs/thingSearchListItems-${[newRelatedThing.id]}`)
-            const queriedThingSearchListItems = await res.json() as ThingSearchListItem[]
-            updateThingSearchListStore(queriedThingSearchListItems)
+            const queriedThingSearchListItems = await thingSearchListItems([newRelatedThing.id])
+            if (queriedThingSearchListItems) updateThingSearchListStore(queriedThingSearchListItems)
         }
     }
 

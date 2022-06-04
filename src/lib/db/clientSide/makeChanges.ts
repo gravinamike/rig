@@ -1,4 +1,5 @@
 import type { ThingDbModel } from "$lib/models/dbModels"
+import type { GraphConfig } from "$lib/shared/constants"
 
 
 /*
@@ -179,4 +180,39 @@ export async function deleteRelationship( sourceThingId: number, destThingId: nu
         res.text().then(text => {throw Error(text)})
         return false
     }
+}
+
+
+/*
+ * Set the Unigraph folder.
+ */
+export async function setUnigraphFolder(folderName: string): Promise<void> {
+    await fetch("/api/file/unigraphFolder", {
+        method: "POST",
+        body: JSON.stringify(folderName)
+    })
+}
+
+
+
+/*
+ * Save the application configuration.
+ */
+export async function saveAppConfig(): Promise<void> {
+    await fetch("/api/file/appConfig", {
+        method: "POST"
+    })
+}
+
+
+
+
+/*
+ * Save the Graph configuration.
+ */
+export async function saveGraphConfig(graphConfig: GraphConfig): Promise<void> {
+    await fetch("/api/file/graphConfig", {
+        method: "POST",
+        body: JSON.stringify(graphConfig, null, 4)
+    })
 }

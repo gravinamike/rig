@@ -7,6 +7,7 @@ import { writable, derived } from "svelte/store"
 import { DirectionDbModel, isDirection, isSpace, isThing } from "$lib/models/dbModels"
 import { nullRelationshipBeingCreatedInfo } from "$lib/widgets/graphWidgets"
 import type { ThingWidgetModel, RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
+import { graphConstructs, thingSearchListItems } from "$lib/db/clientSide"
 
 
 // Create Direction-related stores (and subscriptions where applicable).
@@ -117,12 +118,12 @@ export async function storeGraphConstructs<Type extends GraphConstruct>(
         "Thing": thingsStoreValue
     }[constructName]
 
-    let res: Response
     let idsToQuery: number[] = []
+    let queriedInstances: Type[]
     
     // If no IDs were provided, fetch all instances of this construct.
     if (typeof ids === "undefined") {
-        res = await fetch(`api/db/graphConstructs/${ constructName.toLowerCase() }s-all`)
+        queriedInstances = await graphConstructs(constructName) as Type[]
 
     // Else, if IDs *were* provided,
     } else {
@@ -139,29 +140,19 @@ export async function storeGraphConstructs<Type extends GraphConstruct>(
         }
         // Fetch the instances from the API.
         if (!idsToQuery.length) return []
-        res = await fetch(`api/db/graphConstructs/${ constructName.toLowerCase() }s-${idsToQuery.join(",")}`);
+        queriedInstances = await graphConstructs(constructName, idsToQuery) as Type[]
     }
 
-    // If the response is ok,
-    if (res.ok) {
-        // Unpack the response JSON as an array of instances.
-        const queriedInstances = await res.json() as Type[]
-        // Update the store with these instances.
-        updateConstructStore(queriedInstances)
-        // Update the IDs Not Found store with any IDs that weren't fetched.
-        if (!(typeof ids === "undefined")) {
-            const idsFound = queriedInstances.map(x => x.id)
-            const idsNotFound = idsToQuery.filter( x => !idsFound.includes(x) )
-            updateIdStore(constructName, idsNotFound)
-        }
-        // Return the array of Directions.
-        return queriedInstances
-
-    // Handle errors if needed.
-    } else {
-        res.text().then(text => {throw Error(text)})
-        return []
+    // Update the store with these instances.
+    updateConstructStore(queriedInstances)
+    // Update the IDs Not Found store with any IDs that weren't fetched.
+    if (!(typeof ids === "undefined")) {
+        const idsFound = queriedInstances.map(x => x.id)
+        const idsNotFound = idsToQuery.filter( x => !idsFound.includes(x) )
+        updateIdStore(constructName, idsNotFound)
     }
+    // Return the array of Directions.
+    return queriedInstances
 }
 
 /* 
@@ -423,20 +414,13 @@ export async function removeIdsFromThingSearchListStore( thingIds: number | numb
 }
 
 export async function storeThingSearchList(): Promise<ThingSearchListItem[]> {  
-    const res = await fetch(`api/db/graphConstructs/thingSearchListItems-all`)
-
-    // If the response is ok,
-    if (res.ok) {
-        // Unpack the response JSON as a Thing search list.
-        const queriedThingSearchListItems = await res.json() as ThingSearchListItem[]
+    const queriedThingSearchListItems = await thingSearchListItems()
+    if (queriedThingSearchListItems) {
         // Update the store with this list.
         updateThingSearchListStore(queriedThingSearchListItems)
         // Return the Thing search List.
         return queriedThingSearchListItems
-
-    // Handle errors if needed.
     } else {
-        res.text().then(text => {throw Error(text)})
         return []
     }
 }

@@ -1,19 +1,17 @@
 import type { AppConfig, GraphConfig } from "$lib/shared/constants"
 import { get } from "svelte/store"
 import { pinIdsStore } from "$lib/stores/appStores"
+import { getAppConfig, getGraphConfig } from "$lib/db/clientSide/getInfo"
+import { setUnigraphFolder, saveAppConfig as apiSaveAppConfig, saveGraphConfig as apiSaveGraphConfig } from "$lib/db/clientSide/makeChanges"
 
 
 // Load configuration-related values from the JSON config file.
 export async function storeAppConfig(): Promise<AppConfig> {
-    const submit = await fetch("/api/file/appConfig")
-    const appConfig = await submit.json() as AppConfig
+    const appConfig = await getAppConfig() as AppConfig
 
     // Set the back-end stores.
     if (appConfig.unigraphFolder) {
-        await fetch("/api/file/unigraphFolder", {
-            method: "POST",
-            body: JSON.stringify(appConfig.unigraphFolder)
-        })
+        await setUnigraphFolder(appConfig.unigraphFolder)
     }
 
     return appConfig
@@ -21,8 +19,7 @@ export async function storeAppConfig(): Promise<AppConfig> {
 
 // Load configuration-related values from the JSON config file.
 export async function storeGraphConfig(): Promise<void> {
-    const submit = await fetch("/api/file/graphConfig")
-    const graphConfig = await submit.json() as GraphConfig
+    const graphConfig = await getGraphConfig() as GraphConfig
 
     // Set front-end stores.
     pinIdsStore.set(graphConfig.pinIds)
@@ -31,9 +28,7 @@ export async function storeGraphConfig(): Promise<void> {
 
 // Save configuration-related values to the JSON config file.
 export async function saveAppConfig(): Promise<void> {
-    await fetch("/api/file/appConfig", {
-        method: "POST"
-    })
+    await apiSaveAppConfig()
 }
 
 // Save configuration-related values to the JSON config file.
@@ -44,8 +39,5 @@ export async function saveGraphConfig(): Promise<void> {
         pinIds: pinIdsStoreValue
     }
 
-    await fetch("/api/file/graphConfig", {
-        method: "POST",
-        body: JSON.stringify(graphConfig, null, 4)
-    })
+    await apiSaveGraphConfig(graphConfig)
 }

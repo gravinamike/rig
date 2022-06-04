@@ -1,5 +1,6 @@
 <script lang="ts">
     import { loadingState, openGraphStore } from "$lib/stores"
+    import { setUnigraphFolder } from "$lib/db/clientSide"
     import { openUnigraph, closeUnigraph } from "$lib/shared/unigraph"
 
 
@@ -14,10 +15,7 @@
 
 
     async function openUnigraphFolder(folderName: string) {
-        await fetch("/api/file/unigraphFolder", {
-            method: "POST",
-            body: JSON.stringify(folderName)
-        })
+        await setUnigraphFolder(folderName)
 
         await closeUnigraph()
         openGraphStore.set(null)
