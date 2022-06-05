@@ -25,7 +25,10 @@
     // 1. First those on the "Cartesian" half-axes, from top to bottom and left to right,
     // 2. Then those on the other half-axes,
     // 3. Then all those not on a half-axis.
-    function getOrderedThingCohortWidgetModels(thingWidgetModel: ThingWidgetModel, excludeHalfAxes=false): ThingCohortWidgetModel[] {
+    function getOrderedThingCohortWidgetModels(
+        thingWidgetModel: ThingWidgetModel,
+        excludeHalfAxes=graph.graphWidgetStyle.excludeCartesianAxes
+    ): ThingCohortWidgetModel[] {
         const halfAxisIdsWithThingCohorts = Object.keys(thingWidgetModel.childThingCohortWidgetModelByHalfAxisId)
             .map(idString => Number(idString))
         const sortedHalfAxisIdsWithCohorts = excludeHalfAxes ?
@@ -35,12 +38,10 @@
         const thingCohortWidgetModelsOnHalfAxes: ThingCohortWidgetModel[] = []
         for (const halfAxisId of sortedHalfAxisIdsWithCohorts) {
             thingCohortWidgetModelsOnHalfAxes.push(thingWidgetModel.childThingCohortWidgetModelByHalfAxisId[halfAxisId])
-            console.log(halfAxisId)
         }
 
         const thingCohortWidgetModelsNotOnHalfAxes = thingWidgetModel.childThingCohortWidgetModels
             .filter(model => !thingCohortWidgetModelsOnHalfAxes.includes(model))
-
         return thingCohortWidgetModelsOnHalfAxes.concat(thingCohortWidgetModelsNotOnHalfAxes)
     }
     $: orderedThingCohortWidgetModels = getOrderedThingCohortWidgetModels(thingWidgetModel)
@@ -59,6 +60,14 @@
         false
 
     $: shadowColor = relationshipColorByHalfAxisId[thingWidgetModel.halfAxisId]
+
+
+    $: showCladeRootThing = (
+        thingWidgetModel.address.generationId === 0
+        && graph.graphWidgetStyle.excludePerspectiveThing
+    ) ?
+        false :
+        true
 </script>
 
 
@@ -69,17 +78,19 @@
     class:has-children={thingCohortWidgetModels.length}
     style="box-shadow: 5px 5px 10px 2px {hexToRgba(shadowColor, 0.333)};"
 >
-    {#if thingWidgetModel.thing}
-        <ThingOutlineWidget
-            {thingWidgetModel}
-            bind:graph
-            {rePerspectToThingId}
-        />
-    {:else}
-        <ThingOutlineFormWidget
-            {thingWidgetModel}
-            bind:graph
-        />
+    {#if showCladeRootThing}
+        {#if thingWidgetModel.thing}
+            <ThingOutlineWidget
+                {thingWidgetModel}
+                bind:graph
+                {rePerspectToThingId}
+            />
+        {:else}
+            <ThingOutlineFormWidget
+                {thingWidgetModel}
+                bind:graph
+            />
+        {/if}
     {/if}
 
     <!-- The Thing's Relationships and child Cohorts (outer container). -->

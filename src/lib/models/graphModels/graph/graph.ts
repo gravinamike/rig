@@ -23,7 +23,7 @@ export class Graph {
     history: PerspectiveHistory
 
     ////////////////////////////////////////////////// Put into widgetmodel
-    graphWidgetStyle: GraphWidgetStyle = defaultGraphWidgetStyle
+    graphWidgetStyle: GraphWidgetStyle = {...defaultGraphWidgetStyle}
     thingIdToScrollTo: number | null = null
     allowScrollToThingId = false
     allowZoomAndScrollToFit = false
@@ -34,13 +34,18 @@ export class Graph {
      * @param {number[]} pThingIds - IDs for the Graph's starting Perspective Things.
      * @param {number}   depth     - How many Relationship "steps" to grow the Graph from the Perspective Things.
      */
-    constructor(id: number, pThingIds: number[], depth: number) {
+    constructor(id: number, pThingIds: number[], depth: number, offAxis=false) {
         this.id = id
         this._pThingIds = pThingIds
         this._depth = depth
         this.generations = new Generations(this)
         this.planes = new Planes(this)
         this.history = new PerspectiveHistory(this)
+
+        if (offAxis) {
+            this.graphWidgetStyle.excludePerspectiveThing = true
+            this.graphWidgetStyle.excludeCartesianAxes = true
+        }
     }
 
 

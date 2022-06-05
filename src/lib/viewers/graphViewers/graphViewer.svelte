@@ -143,7 +143,7 @@
     </div>
 
     <!-- Notes viewer -->
-    <Collapser headerText={"Content"} contentDirection={"right"} expanded={true}>
+    <Collapser headerText={"Content"} contentDirection={"right"} expanded={false}>
         <div class="tabs-container wide">
             <TabBlock>
                 <TabFlaps>
@@ -161,10 +161,12 @@
 
                 <!-- Outline viewer -->
                 <TabBody>
-                    <GraphOutlineWidget
-                        bind:graph
-                        {rePerspectToThingId}
-                    />
+                    <div class="graph-outline-widget-container">
+                        <GraphOutlineWidget
+                            bind:graph
+                            {rePerspectToThingId}
+                        />
+                    </div>
                 </TabBody>
 
                 <!-- Attachments viewer -->
@@ -228,5 +230,11 @@
         outline-offset: -1px;
 
         position: relative;
+    }
+
+    .graph-outline-widget-container {
+        width: 750px;
+        height: 100%;
+        background-color: #fafafa;
     }
   </style>
