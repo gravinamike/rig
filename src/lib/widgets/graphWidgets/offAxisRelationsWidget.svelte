@@ -30,7 +30,7 @@
     const size = 25
     $: diagonal = Math.hypot(size, size)
     $: diagonalOverhang = (diagonal - size) / 2 + 8
-    let numberOfRelations = "n"
+    $: numberOfRelations = parentThingWidgetModel.offAxisRelatedThingIds(parentThingWidgetModel.space).length
     let expanded = false
 
     let graph: Graph | null = null
@@ -51,7 +51,7 @@
     class="off-axis-relations-toggle"
     class:expanded
     style="width: {size}px; height: {size}px;"
-    on:click={() => {expanded = !expanded}}
+    on:click={() => {if (numberOfRelations) expanded = !expanded}}
 >
     <svg
         class="relationship-image"
@@ -72,21 +72,25 @@
         />
     </svg>
 
-    <div>+{numberOfRelations}</div>
-</div>
-
-<div
-    class="box off-axis-relations-widget"
-    class:expanded
-    on:wheel|stopPropagation
->
-    {#if graph}
-        <GraphOutlineWidget
-            bind:graph
-            {rePerspectToThingId}
-        />
+    {#if numberOfRelations}
+        <div>+{numberOfRelations}</div>
     {/if}
 </div>
+
+{#if numberOfRelations}
+    <div
+        class="box off-axis-relations-widget"
+        class:expanded
+        on:wheel|stopPropagation
+    >
+        {#if graph}
+            <GraphOutlineWidget
+                bind:graph
+                {rePerspectToThingId}
+            />
+        {/if}
+    </div>
+{/if}
 
 
 <style>
