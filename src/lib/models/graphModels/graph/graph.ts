@@ -23,6 +23,7 @@ export class Graph {
     generations: Generations
     planes: Planes
     history: PerspectiveHistory
+    lifecycleStatus: "new" | "building" | "built" | "cleared" = "new"
 
     ////////////////////////////////////////////////// Put into widgetmodel
     graphWidgetStyle: GraphWidgetStyle = {...defaultGraphWidgetStyle}
@@ -105,12 +106,16 @@ export class Graph {
         this.generations.reset()
         this.planes.reset()
         this.formActive = false
+        this.lifecycleStatus = "cleared"
 
         // Adjust (build) the Generations to the Graph's specified Depth.
+        this.lifecycleStatus = "building"
         await this.generations.adjustToDepth(this._depth)
 
         // Add the starting Perspective Thing IDs to History.
         this.history.addEntries(this._pThingIds)
+        
+        this.lifecycleStatus = "built"
     }
 
 

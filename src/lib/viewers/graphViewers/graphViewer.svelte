@@ -77,7 +77,7 @@
 </script>
 
 
-{#if graph}
+{#if graph?.lifecycleStatus === "built"}
     <div class="graph-viewer">
         <!-- Graph-related viewers (Schematic and Settings) -->
         <Collapser

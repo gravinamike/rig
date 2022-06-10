@@ -51,7 +51,7 @@
     }
 
     // Set up Graph refreshing.
-    $: if ( graph && $graphIdsNeedingViewerRefresh.includes(graph.id) ) {
+    $: if ( graph?.lifecycleStatus === "built" && $graphIdsNeedingViewerRefresh.includes(graph.id) ) {
         removeGraphIdsNeedingViewerRefresh(graph.id)
         graph = graph // Needed for reactivity.
     }
