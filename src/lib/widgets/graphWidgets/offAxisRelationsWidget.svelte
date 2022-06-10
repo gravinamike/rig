@@ -1,5 +1,6 @@
 <script lang="ts">
     // Type imports.
+    import type { Graph } from "$lib/models/graphModels"
     import type { ThingWidgetModel } from "$lib/models/widgetModels"
 
     // Basic UI imports.
@@ -8,9 +9,7 @@
 
     // Constant and utility imports.
     import { zoomBase } from "$lib/shared/constants"
-
-    // Import models.
-    import { Graph } from "$lib/models/graphModels"
+    import { addGraph, removeGraph, graphIdsNeedingViewerRefresh, addGraphIdsNeedingViewerRefresh, removeGraphIdsNeedingViewerRefresh } from "$lib/stores"
 
     // Import widgets.
     import { GraphOutlineWidget } from "$lib/widgets/graphWidgets"
@@ -35,14 +34,26 @@
 
     let graph: Graph | null = null
     async function createGraph() {
-        graph = new Graph(2, [parentThingId], 1, true)//////////////////////// REPLACE WITH A METHOD THAT GENERATES AND MANAGES THE NEW GRAPH, RATHER THAN JUST THE CONSTRUCTOR.
+        // Close any existing Graph.
+        if (graph !== null) await removeGraph(graph)
+        // Open and build the new Graph.
+        graph = await addGraph([parentThingId], 1, parentGraph, true)
         await graph.build()
-        graph = graph// THIS NEEDS TO BE INTEGRATED INTO THE REFRESH LOGIC.
+        // Refresh the Graph viewers.
+        addGraphIdsNeedingViewerRefresh(graph.id)
     }
     $: if (expanded) {
         createGraph()
-    } else {
+    }
+    $: if (!expanded) {
+        if (graph !== null) removeGraph(graph)
         graph = null
+    }
+
+    // Set up Graph refreshing.
+    $: if ( graph && $graphIdsNeedingViewerRefresh.includes(graph.id) ) {
+        removeGraphIdsNeedingViewerRefresh(graph.id)
+        graph = graph // Needed for reactivity.
     }
 </script>
 

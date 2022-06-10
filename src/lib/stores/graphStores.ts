@@ -5,6 +5,7 @@ import type { RelationshipBeingCreatedInfo } from "$lib/widgets/graphWidgets"
 
 import { writable, derived } from "svelte/store"
 import { DirectionDbModel, isDirection, isSpace, isThing } from "$lib/models/dbModels"
+import { Graph } from "$lib/models/graphModels"
 import { nullRelationshipBeingCreatedInfo } from "$lib/widgets/graphWidgets"
 import type { ThingWidgetModel, RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
 import { graphConstructs, thingSearchListItems } from "$lib/db/clientSide"
@@ -17,7 +18,7 @@ directionsStore.subscribe(value => {directionsStoreValue = value})
 
 export const directionsStoreAsArray = derived( directionsStore, $directionsStore => Object.values($directionsStore) )
 
-export const directionIdsNotFoundStore = writable( [] as number[] );
+export const directionIdsNotFoundStore = writable( [] as number[] )
 
 
 // Create Space-related stores (and subscriptions where applicable).
@@ -345,7 +346,48 @@ export const inferredRelationshipBeingCreatedDirection = derived(
 
 
 
+
+
+
 // Create Graph-related stores (and subscriptions where applicable).
+export const graphsStore = writable( [] as Graph[] )
+let graphsStoreValue: Graph[]
+graphsStore.subscribe(value => {graphsStoreValue = value})
+
+export async function addGraph(pThingIds: number[], depth: number, parentGraph: (Graph | null)=null, offAxis=false): Promise<Graph> {
+    const allGraphIds = graphsStoreValue.map(graph => graph.id)
+    const newGraphId = allGraphIds.length ? Math.max(...allGraphIds) + 1 : 1
+
+    const graph = new Graph(newGraphId, pThingIds, depth, parentGraph, offAxis)
+
+    graphsStore.update( current => {
+        if (!current.includes(graph)) current.push(graph)
+        return current
+    } )
+
+    return graph
+}
+
+export async function removeGraph(graph: Graph): Promise<void> {
+    // First remove the Graph's children.
+    for (const childGraph of graph.childGraphs) {
+        removeGraph(childGraph)
+    }
+
+    // Then remove the Graph itself.
+    graphsStore.update( current => {
+        const index = current.indexOf(graph)
+        if (index > -1) current.splice(index, 1)
+        return current
+    } )
+}
+
+
+
+
+
+
+
 export const graphIdsNeedingViewerRefresh = writable( [] as number[] )
 
 /**
@@ -364,7 +406,7 @@ export function addGraphIdsNeedingViewerRefresh(graphIds: number | number[]): vo
 /**
  * 
  */
- export function removeGraphIdsNeedingViewerRefresh(graphIds: number | number[]): void {
+export function removeGraphIdsNeedingViewerRefresh(graphIds: number | number[]): void {
     if (typeof graphIds === "number") graphIds = [graphIds]
     for (const graphId of graphIds) {
         graphIdsNeedingViewerRefresh.update( current => {

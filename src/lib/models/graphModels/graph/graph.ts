@@ -4,7 +4,7 @@ import type { Cohort } from "$lib/models/graphModels"
 import type { ThingCohortWidgetModel } from "$lib/models/widgetModels"
 
 import { defaultGraphWidgetStyle } from "$lib/shared/constants"
-import { storeGraphConstructs, retrieveGraphConstructs, unstoreGraphConstructs } from "$lib/stores"
+import { storeGraphConstructs, retrieveGraphConstructs, unstoreGraphConstructs, addGraph } from "$lib/stores"
 import { Generations } from "./generations"
 import { Planes } from "./planes"
 import { PerspectiveHistory } from "./history"
@@ -16,6 +16,8 @@ export class Graph {
     id: number
     _pThingIds: number[]
     _depth: number
+    parentGraph: Graph | null
+    childGraphs: Graph[] = []
     rootCohort: Cohort | null = null
     rootThingCohortWidgetModel: ThingCohortWidgetModel | null = null
     generations: Generations
@@ -34,10 +36,12 @@ export class Graph {
      * @param {number[]} pThingIds - IDs for the Graph's starting Perspective Things.
      * @param {number}   depth     - How many Relationship "steps" to grow the Graph from the Perspective Things.
      */
-    constructor(id: number, pThingIds: number[], depth: number, offAxis=false) {
+    constructor(id: number, pThingIds: number[], depth: number, parentGraph: (Graph | null)=null, offAxis=false) {
         this.id = id
         this._pThingIds = pThingIds
         this._depth = depth
+        this.parentGraph = parentGraph
+        this.parentGraph?.childGraphs.push(this)
         this.generations = new Generations(this)
         this.planes = new Planes(this)
         this.history = new PerspectiveHistory(this)
