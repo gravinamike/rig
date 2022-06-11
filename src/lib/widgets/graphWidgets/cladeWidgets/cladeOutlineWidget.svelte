@@ -1,4 +1,6 @@
 <script lang="ts">
+import { mode } from "$app/env";
+
     // Graph construct imports.
     import type { Graph } from "$lib/models/graphModels"
     import type { ThingWidgetModel, ThingCohortWidgetModel } from "$lib/models/widgetModels"
@@ -29,20 +31,33 @@
         thingWidgetModel: ThingWidgetModel,
         excludeHalfAxes=graph.graphWidgetStyle.excludeCartesianAxes
     ): ThingCohortWidgetModel[] {
-        const halfAxisIdsWithThingCohorts = Object.keys(thingWidgetModel.childThingCohortWidgetModelByHalfAxisId)
-            .map(idString => Number(idString))
-        const sortedHalfAxisIdsWithCohorts = excludeHalfAxes ?
-            [] :
-            [2, 1, 4, 3, 5, 6, 8, 7].filter(id => halfAxisIdsWithThingCohorts.includes(id))
 
-        const thingCohortWidgetModelsOnHalfAxes: ThingCohortWidgetModel[] = []
-        for (const halfAxisId of sortedHalfAxisIdsWithCohorts) {
-            thingCohortWidgetModelsOnHalfAxes.push(thingWidgetModel.childThingCohortWidgetModelByHalfAxisId[halfAxisId])
+        const orderedHalfAxisIds = [2, 1, 4, 3, 5, 6, 8, 7]
+        const allCohortWidgetModelGroups: ThingCohortWidgetModel[][] = []
+
+        if (!excludeHalfAxes) {
+            // Get an array of the half-axis IDs that currently have Cohorts.
+            
+            const orderedHalfAxisIdsWithThingCohorts = orderedHalfAxisIds.filter(
+                id => id in thingWidgetModel.childThingCohortWidgetModelByHalfAxisId
+            )
+
+            const thingCohortWidgetModelsOnHalfAxes: ThingCohortWidgetModel[] = []
+            for (const halfAxisId of orderedHalfAxisIdsWithThingCohorts) {
+                thingCohortWidgetModelsOnHalfAxes.push(thingWidgetModel.childThingCohortWidgetModelByHalfAxisId[halfAxisId])
+            }
+
+            allCohortWidgetModelGroups.push(thingCohortWidgetModelsOnHalfAxes)
         }
-
+        
         const thingCohortWidgetModelsNotOnHalfAxes = thingWidgetModel.childThingCohortWidgetModels
-            .filter(model => !thingCohortWidgetModelsOnHalfAxes.includes(model))
-        return thingCohortWidgetModelsOnHalfAxes.concat(thingCohortWidgetModelsNotOnHalfAxes)
+            .filter(model => !(model.cohort.halfAxisId && orderedHalfAxisIds.includes(model.cohort.halfAxisId)))
+
+
+        allCohortWidgetModelGroups.push(thingCohortWidgetModelsNotOnHalfAxes)
+
+        const orderedThingCohortWidgetModels = allCohortWidgetModelGroups.flat()
+        return orderedThingCohortWidgetModels
     }
     $: orderedThingCohortWidgetModels = getOrderedThingCohortWidgetModels(thingWidgetModel)
     

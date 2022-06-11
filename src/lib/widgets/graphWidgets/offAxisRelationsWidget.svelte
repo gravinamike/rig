@@ -1,5 +1,6 @@
 <script lang="ts">
     // Type imports.
+    import type { SpaceDbModel } from "$lib/models/dbModels";
     import type { Graph } from "$lib/models/graphModels"
     import type { ThingWidgetModel } from "$lib/models/widgetModels"
 
@@ -33,11 +34,12 @@
     let expanded = false
 
     let graph: Graph | null = null
-    async function createGraph() {
+    async function createGraph() {/////////////////////////////////////// CHECK WHICH DIRECTION EACH GRAPH ACTUALLY IS
         // Close any existing Graph.
         if (graph !== null) await removeGraph(graph)
         // Open and build the new Graph.
-        graph = await addGraph([parentThingId], 1, parentGraph, true)
+        const parentGraphSpace = parentGraph.pThingBaseWidgetModel?.space as SpaceDbModel
+        graph = await addGraph([parentThingId], 1, parentGraph, true, parentGraphSpace)
         await graph.build()
         // Refresh the Graph viewers.
         addGraphIdsNeedingViewerRefresh(graph.id)

@@ -1,7 +1,7 @@
 import type { GraphWidgetStyle } from "$lib/shared/constants"
-import type { ThingDbModel } from "$lib/models/dbModels"
+import type { SpaceDbModel, ThingDbModel } from "$lib/models/dbModels"
 import type { Cohort } from "$lib/models/graphModels"
-import type { ThingCohortWidgetModel } from "$lib/models/widgetModels"
+import type { ThingCohortWidgetModel, ThingBaseWidgetModel } from "$lib/models/widgetModels"
 
 import { defaultGraphWidgetStyle } from "$lib/shared/constants"
 import { storeGraphConstructs, retrieveGraphConstructs, unstoreGraphConstructs, addGraph } from "$lib/stores"
@@ -24,6 +24,7 @@ export class Graph {
     planes: Planes
     history: PerspectiveHistory
     lifecycleStatus: "new" | "building" | "built" | "cleared" = "new"
+    startingSpace: SpaceDbModel | null
 
     ////////////////////////////////////////////////// Put into widgetmodel
     graphWidgetStyle: GraphWidgetStyle = {...defaultGraphWidgetStyle}
@@ -37,7 +38,7 @@ export class Graph {
      * @param {number[]} pThingIds - IDs for the Graph's starting Perspective Things.
      * @param {number}   depth     - How many Relationship "steps" to grow the Graph from the Perspective Things.
      */
-    constructor(id: number, pThingIds: number[], depth: number, parentGraph: (Graph | null)=null, offAxis=false) {
+    constructor(id: number, pThingIds: number[], depth: number, parentGraph: (Graph | null)=null, offAxis=false, startingSpace: (SpaceDbModel | null)=null) {
         this.id = id
         this._pThingIds = pThingIds
         this._depth = depth
@@ -46,6 +47,7 @@ export class Graph {
         this.generations = new Generations(this)
         this.planes = new Planes(this)
         this.history = new PerspectiveHistory(this)
+        this.startingSpace = startingSpace
 
         if (offAxis) {
             this.graphWidgetStyle.excludePerspectiveThing = true
@@ -152,5 +154,10 @@ export class Graph {
             await this.build()
         }
 
+    }
+
+    get pThingBaseWidgetModel(): ThingBaseWidgetModel | null {
+        const pThingBaseWidgetModel = this.rootCohort?.members[0] || null
+        return pThingBaseWidgetModel
     }
 }

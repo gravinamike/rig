@@ -354,11 +354,11 @@ export const graphsStore = writable( [] as Graph[] )
 let graphsStoreValue: Graph[]
 graphsStore.subscribe(value => {graphsStoreValue = value})
 
-export async function addGraph(pThingIds: number[], depth: number, parentGraph: (Graph | null)=null, offAxis=false): Promise<Graph> {
+export async function addGraph(pThingIds: number[], depth: number, parentGraph: (Graph | null)=null, offAxis=false, startingSpace: (SpaceDbModel | null)=null): Promise<Graph> {
     const allGraphIds = graphsStoreValue.map(graph => graph.id)
     const newGraphId = allGraphIds.length ? Math.max(...allGraphIds) + 1 : 1
 
-    const graph = new Graph(newGraphId, pThingIds, depth, parentGraph, offAxis)
+    const graph = new Graph(newGraphId, pThingIds, depth, parentGraph, offAxis, startingSpace)
 
     graphsStore.update( current => {
         if (!current.includes(graph)) current.push(graph)

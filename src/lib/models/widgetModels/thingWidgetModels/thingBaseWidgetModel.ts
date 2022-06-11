@@ -105,9 +105,13 @@ export class ThingBaseWidgetModel {
 
     get space(): SpaceDbModel {
         let space: SpaceDbModel
+        // If the Graph has a starting Space and this is the Perspective Thing,
+        // use the starting Space.
+        if (this.graph.startingSpace && !this.parentThingWidgetModel) {
+            space = this.graph.startingSpace
         // If not inheriting Space from parent, and the Thing Widget Model's own default Space
         // is available, use the Thing Widget Model's own default Space.
-        if (
+        } else if (
             !( this.parentThingWidgetModel && this.inheritSpace )
             && this.defaultSpaceId && graphConstructInStore("Space", this.defaultSpaceId)
         ) {
