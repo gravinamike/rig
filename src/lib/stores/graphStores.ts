@@ -2,11 +2,13 @@ import type { Writable } from "svelte/store"
 import type { GraphConstruct } from "$lib/shared/constants"
 import type { SpaceDbModel, ThingDbModel, ThingSearchListItem } from "$lib/models/dbModels"
 import type { RelationshipBeingCreatedInfo } from "$lib/widgets/graphWidgets"
+import type { RemoteRelatingInfo } from "$lib/widgets/layoutWidgets"
 
 import { writable, derived } from "svelte/store"
 import { DirectionDbModel, isDirection, isSpace, isThing } from "$lib/models/dbModels"
 import { Graph } from "$lib/models/graphModels"
 import { nullRelationshipBeingCreatedInfo } from "$lib/widgets/graphWidgets"
+import { nullRemoteRelatingInfo } from "$lib/widgets/layoutWidgets"
 import type { ThingWidgetModel, RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
 import { graphConstructs, thingSearchListItems } from "$lib/db/clientSide"
 
@@ -338,6 +340,29 @@ export const inferredRelationshipBeingCreatedDirection = derived(
         return direction
     }
 )
+
+
+
+
+
+
+export const remoteRelatingInfoStore = writable(
+    {
+        sourceWidgetModel: null
+    } as RemoteRelatingInfo
+)
+
+export function enableRemoteRelating(sourceWidgetModel: ThingWidgetModel | RelationshipCohortWidgetModel): void {
+    remoteRelatingInfoStore.set(
+        {
+            sourceWidgetModel: sourceWidgetModel
+        }
+    )
+}
+
+export function disableRemoteRelating(): void {
+    remoteRelatingInfoStore.update( () => nullRemoteRelatingInfo )
+}
 
 
 

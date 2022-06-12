@@ -13,7 +13,7 @@
     import { loadingState, openGraphStore, updateRelationshipBeingCreatedEndpoint } from "$lib/stores"
 
     // Import layout elements.
-    import { ContextCommandPalette, Collapser, TabBlock, TabFlap, TabFlaps, TabBody, WaitingIndicator } from "$lib/widgets/layoutWidgets"
+    import { ContextCommandPalette, Collapser, TabBlock, TabFlap, TabFlaps, TabBody, WaitingIndicator, RemoteRelatingWidget } from "$lib/widgets/layoutWidgets"
 
     // Import viewers.
     import FileViewer from "$lib/viewers/settingsViewers/fileViewer.svelte"
@@ -93,6 +93,9 @@
 
     <!-- Front pane for Relationship-being-created Widget. -->
     <RelationshipBeingCreatedWidget />
+
+    <!-- Front pane for Relationship-being-created Widget. -->
+    <RemoteRelatingWidget />
 
     <!-- File viewer. -->
     <Collapser headerText={`File${ $openGraphStore ? `&nbsp;&nbsp;-&nbsp;&nbsp;${$openGraphStore}` : "" }`} contentDirection={"left"}>

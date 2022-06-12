@@ -1,5 +1,6 @@
 export * from "./commandPalette"
 export *  from "./contextMenu"
+export * from "./remoteRelatingWidget"
 export *  from "./tabs"
 export { default as Collapser } from "./collapser.svelte"
 export { default as ConfirmDeleteBox }  from "./confirmDeleteBox.svelte"
