@@ -34,7 +34,7 @@
     let expanded = false
 
     let graph: Graph | null = null
-    async function createGraph() {/////////////////////////////////////// CHECK WHICH DIRECTION EACH GRAPH ACTUALLY IS
+    async function createGraph() {
         // Close any existing Graph.
         if (graph !== null) await removeGraph(graph)
         // Open and build the new Graph.
@@ -57,6 +57,8 @@
         removeGraphIdsNeedingViewerRefresh(graph.id)
         graph = graph // Needed for reactivity.
     }
+
+    let toggleHovered = false
 </script>
 
 
@@ -64,36 +66,39 @@
     class="off-axis-relations-toggle"
     class:expanded
     style="width: {size}px; height: {size}px;"
+    on:mouseenter={()=>{toggleHovered = true}}
+    on:mouseleave={()=>{toggleHovered = false}}
     on:click={() => {if (numberOfRelations) expanded = !expanded}}
 >
-    <svg
-        class="relationship-image"
-        style="width: {size}px; height: {size}px;"
-    >
-        <line
-            x1="{size / 2}" y1="{-diagonalOverhang}"
-            x2="{size / 2}" y2="{size + diagonalOverhang - 6 / $tweenedScale}"
-            style="stroke-width: {10 / $tweenedScale};"
-        />
-        <polygon
-            points="
-                {size / 2 - 5 / $tweenedScale}, {size + diagonalOverhang - 8 / $tweenedScale}
-                {size / 2 + 5 / $tweenedScale}, {size + diagonalOverhang - 8 / $tweenedScale}
-                {size / 2}, {size + diagonalOverhang}
-            "
-            style="stroke-width: {3 / $tweenedScale};"
-        />
-    </svg>
+    {#if (toggleHovered || expanded)}
+        <svg
+            class="relationship-image"
+            style="width: {size}px; height: {size}px;"
+        >
+            <line
+                x1="{size / 2}" y1="{-diagonalOverhang}"
+                x2="{size / 2}" y2="{size + diagonalOverhang - 6 / $tweenedScale}"
+                style="stroke-width: {10 / $tweenedScale};"
+            />
+            <polygon
+                points="
+                    {size / 2 - 5 / $tweenedScale}, {size + diagonalOverhang - 8 / $tweenedScale}
+                    {size / 2 + 5 / $tweenedScale}, {size + diagonalOverhang - 8 / $tweenedScale}
+                    {size / 2}, {size + diagonalOverhang}
+                "
+                style="stroke-width: {3 / $tweenedScale};"
+            />
+        </svg>
+    {/if}
 
     {#if numberOfRelations}
         <div>+{numberOfRelations}</div>
     {/if}
 </div>
 
-{#if numberOfRelations}
+{#if numberOfRelations && expanded}
     <div
         class="box off-axis-relations-widget"
-        class:expanded
         on:wheel|stopPropagation
     >
         {#if graph}
@@ -137,13 +142,6 @@
         opacity: 0.5;
 
         overflow: visible;
-
-        display: none;
-    }
-
-    .off-axis-relations-toggle:hover .relationship-image,
-    .off-axis-relations-toggle.expanded .relationship-image {
-        display: inline;
     }
 
     .off-axis-relations-widget {
@@ -158,11 +156,5 @@
         overflow-y: auto;
         
         pointer-events: auto;
-
-        display: none;
-    }
-
-    .off-axis-relations-widget.expanded {
-        display: inline;
     }
 </style>
