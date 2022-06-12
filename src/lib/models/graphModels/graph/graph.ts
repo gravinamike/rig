@@ -8,7 +8,7 @@ import { storeGraphConstructs, retrieveGraphConstructs, unstoreGraphConstructs, 
 import { Generations } from "./generations"
 import { Planes } from "./planes"
 import { PerspectiveHistory } from "./history"
-import { deleteThing, deleteRelationship } from "$lib/db/clientSide/makeChanges"
+import { deleteThing, deleteRelationship, markThingsVisited } from "$lib/db/clientSide/makeChanges"
 
 
 /** Class representing a Graph. */
@@ -118,6 +118,7 @@ export class Graph {
         this.history.addEntries(this._pThingIds)
         
         this.lifecycleStatus = "built"
+        await markThingsVisited(this.pThingIds)
     }
 
 

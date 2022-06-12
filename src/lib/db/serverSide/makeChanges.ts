@@ -287,3 +287,48 @@ export async function deleteRelationship(sourceThingId: number, destThingId: num
         console.error(err)
     })
 }
+
+
+
+/*
+ * Mark Things as visited.
+ */
+export async function markThingsVisited(thingIds: number[]): Promise<void> {
+    const knex = Model.knex()
+    await knex.transaction(async (transaction: Knex.Transaction) => {
+        const timestamp = new Date()
+        await ThingDbModel.query().whereIn("id", thingIds).patch({whenvisited: timestamp}).transacting(transaction)
+
+        return
+    })
+
+    // Report on the response.
+    .then(function() {
+        console.log('Transaction complete.')
+    })
+    .catch(function(err: Error) {
+        console.error(err)
+    })
+}
+
+
+/*
+ * Mark Notes as modified.
+ */
+export async function markNotesModified(noteIds: number[]): Promise<void> {
+    const knex = Model.knex()
+    await knex.transaction(async (transaction: Knex.Transaction) => {
+        const timestamp = new Date()
+        await NoteDbModel.query().whereIn("id", noteIds).patch({whenmodded: timestamp}).transacting(transaction)
+
+        return
+    })
+
+    // Report on the response.
+    .then(function() {
+        console.log('Transaction complete.')
+    })
+    .catch(function(err: Error) {
+        console.error(err)
+    })
+}

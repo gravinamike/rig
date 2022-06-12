@@ -216,3 +216,57 @@ export async function saveGraphConfig(graphConfig: GraphConfig): Promise<void> {
         body: JSON.stringify(graphConfig, null, 4)
     })
 }
+
+
+/*
+ * Mark a Thing as visited.
+ */
+export async function markThingsVisited( thingIds: number | number[] ): Promise<boolean> {
+    if (typeof thingIds === "number") thingIds = [thingIds]
+
+    // Post to the mark-Things-visited API.
+    const res = await fetch(
+        `api/db/graphManipulation/markThingsVisited`,
+        {
+            method: "POST",
+            body: JSON.stringify({
+                thingIdsToMarkVisited: thingIds
+            })
+        }
+    )
+
+    // Report on the response.
+    if (res.ok) {
+        return true
+    } else {
+        res.text().then(text => {throw Error(text)})
+        return false
+    }
+}
+
+
+/*
+ * Mark a Note as modified.
+ */
+export async function markNotesModified( noteIds: number | number[] ): Promise<boolean> {
+    if (typeof noteIds === "number") noteIds = [noteIds]
+
+    // Post to the mark-Notes-modified API.
+    const res = await fetch(
+        `api/db/graphManipulation/markNotesModified`,
+        {
+            method: "POST",
+            body: JSON.stringify({
+                noteIdsToMarkModified: noteIds
+            })
+        }
+    )
+
+    // Report on the response.
+    if (res.ok) {
+        return true
+    } else {
+        res.text().then(text => {throw Error(text)})
+        return false
+    }
+}

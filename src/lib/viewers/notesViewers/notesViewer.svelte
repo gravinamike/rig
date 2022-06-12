@@ -3,7 +3,7 @@
     import type { ThingDbModel } from "$lib/models/dbModels"
     import { thingsStore, storeGraphConstructs, retrieveGraphConstructs, graphConstructInStore } from "$lib/stores/graphStores"
     import NotesEditor from "./notesEditor.svelte"
-    import { addNoteToThing, updateNote } from "$lib/db/clientSide"
+    import { addNoteToThing, markNotesModified, updateNote } from "$lib/db/clientSide"
 
     export let graph: Graph
 
@@ -61,6 +61,7 @@
 
         } else {
             await updateNote(noteId, editorContent)
+            await markNotesModified(noteId)
             // Re-store the Thing (in order to update its linker to the updated Note).
             await storeGraphConstructs<ThingDbModel>("Thing", pThing.id, true)
             noteChanged = false
