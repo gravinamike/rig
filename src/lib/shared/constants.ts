@@ -35,6 +35,8 @@ export interface GraphConfig {
 export type GraphConstruct = DirectionDbModel | SpaceDbModel | ThingDbModel | RelationshipDbModel
 
 export interface GraphWidgetStyle {
+    excludePerspectiveThing: boolean,
+    excludeCartesianAxes: boolean,
     zoom: number,
     zoomPadding: number,
     relationDistance: number,
@@ -89,6 +91,8 @@ export const cartesianHalfAxisIds = [1, 2, 3, 4] as const
  * Default Graph Widget Style.
  */
 export const defaultGraphWidgetStyle: GraphWidgetStyle = {
+    excludePerspectiveThing: false,
+    excludeCartesianAxes: false,
     zoom: 0,
     zoomPadding: 50,
     relationDistance: 250,

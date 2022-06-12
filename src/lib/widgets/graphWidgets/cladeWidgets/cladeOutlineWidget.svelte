@@ -1,4 +1,6 @@
 <script lang="ts">
+import { mode } from "$app/env";
+
     // Graph construct imports.
     import type { Graph } from "$lib/models/graphModels"
     import type { ThingWidgetModel, ThingCohortWidgetModel } from "$lib/models/widgetModels"
@@ -25,23 +27,37 @@
     // 1. First those on the "Cartesian" half-axes, from top to bottom and left to right,
     // 2. Then those on the other half-axes,
     // 3. Then all those not on a half-axis.
-    function getOrderedThingCohortWidgetModels(thingWidgetModel: ThingWidgetModel, excludeHalfAxes=false): ThingCohortWidgetModel[] {
-        const halfAxisIdsWithThingCohorts = Object.keys(thingWidgetModel.childThingCohortWidgetModelByHalfAxisId)
-            .map(idString => Number(idString))
-        const sortedHalfAxisIdsWithCohorts = excludeHalfAxes ?
-            [] :
-            [2, 1, 4, 3, 5, 6, 8, 7].filter(id => halfAxisIdsWithThingCohorts.includes(id))
+    function getOrderedThingCohortWidgetModels(
+        thingWidgetModel: ThingWidgetModel,
+        excludeHalfAxes=graph.graphWidgetStyle.excludeCartesianAxes
+    ): ThingCohortWidgetModel[] {
 
-        const thingCohortWidgetModelsOnHalfAxes: ThingCohortWidgetModel[] = []
-        for (const halfAxisId of sortedHalfAxisIdsWithCohorts) {
-            thingCohortWidgetModelsOnHalfAxes.push(thingWidgetModel.childThingCohortWidgetModelByHalfAxisId[halfAxisId])
-            console.log(halfAxisId)
+        const orderedHalfAxisIds = [2, 1, 4, 3, 5, 6, 8, 7]
+        const allCohortWidgetModelGroups: ThingCohortWidgetModel[][] = []
+
+        if (!excludeHalfAxes) {
+            // Get an array of the half-axis IDs that currently have Cohorts.
+            
+            const orderedHalfAxisIdsWithThingCohorts = orderedHalfAxisIds.filter(
+                id => id in thingWidgetModel.childThingCohortWidgetModelByHalfAxisId
+            )
+
+            const thingCohortWidgetModelsOnHalfAxes: ThingCohortWidgetModel[] = []
+            for (const halfAxisId of orderedHalfAxisIdsWithThingCohorts) {
+                thingCohortWidgetModelsOnHalfAxes.push(thingWidgetModel.childThingCohortWidgetModelByHalfAxisId[halfAxisId])
+            }
+
+            allCohortWidgetModelGroups.push(thingCohortWidgetModelsOnHalfAxes)
         }
-
+        
         const thingCohortWidgetModelsNotOnHalfAxes = thingWidgetModel.childThingCohortWidgetModels
-            .filter(model => !thingCohortWidgetModelsOnHalfAxes.includes(model))
+            .filter(model => !(model.cohort.halfAxisId && orderedHalfAxisIds.includes(model.cohort.halfAxisId)))
 
-        return thingCohortWidgetModelsOnHalfAxes.concat(thingCohortWidgetModelsNotOnHalfAxes)
+
+        allCohortWidgetModelGroups.push(thingCohortWidgetModelsNotOnHalfAxes)
+
+        const orderedThingCohortWidgetModels = allCohortWidgetModelGroups.flat()
+        return orderedThingCohortWidgetModels
     }
     $: orderedThingCohortWidgetModels = getOrderedThingCohortWidgetModels(thingWidgetModel)
     
@@ -59,6 +75,14 @@
         false
 
     $: shadowColor = relationshipColorByHalfAxisId[thingWidgetModel.halfAxisId]
+
+
+    $: showCladeRootThing = (
+        thingWidgetModel.address.generationId === 0
+        && graph.graphWidgetStyle.excludePerspectiveThing
+    ) ?
+        false :
+        true
 </script>
 
 
@@ -69,17 +93,19 @@
     class:has-children={thingCohortWidgetModels.length}
     style="box-shadow: 5px 5px 10px 2px {hexToRgba(shadowColor, 0.333)};"
 >
-    {#if thingWidgetModel.thing}
-        <ThingOutlineWidget
-            {thingWidgetModel}
-            bind:graph
-            {rePerspectToThingId}
-        />
-    {:else}
-        <ThingOutlineFormWidget
-            {thingWidgetModel}
-            bind:graph
-        />
+    {#if showCladeRootThing}
+        {#if thingWidgetModel.thing}
+            <ThingOutlineWidget
+                {thingWidgetModel}
+                bind:graph
+                {rePerspectToThingId}
+            />
+        {:else}
+            <ThingOutlineFormWidget
+                {thingWidgetModel}
+                bind:graph
+            />
+        {/if}
     {/if}
 
     <!-- The Thing's Relationships and child Cohorts (outer container). -->

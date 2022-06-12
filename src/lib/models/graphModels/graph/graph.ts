@@ -1,10 +1,10 @@
 import type { GraphWidgetStyle } from "$lib/shared/constants"
-import type { ThingDbModel } from "$lib/models/dbModels"
+import type { SpaceDbModel, ThingDbModel } from "$lib/models/dbModels"
 import type { Cohort } from "$lib/models/graphModels"
-import type { ThingCohortWidgetModel } from "$lib/models/widgetModels"
+import type { ThingCohortWidgetModel, ThingBaseWidgetModel } from "$lib/models/widgetModels"
 
 import { defaultGraphWidgetStyle } from "$lib/shared/constants"
-import { storeGraphConstructs, retrieveGraphConstructs, unstoreGraphConstructs } from "$lib/stores"
+import { storeGraphConstructs, retrieveGraphConstructs, unstoreGraphConstructs, addGraph } from "$lib/stores"
 import { Generations } from "./generations"
 import { Planes } from "./planes"
 import { PerspectiveHistory } from "./history"
@@ -16,14 +16,18 @@ export class Graph {
     id: number
     _pThingIds: number[]
     _depth: number
+    parentGraph: Graph | null
+    childGraphs: Graph[] = []
     rootCohort: Cohort | null = null
     rootThingCohortWidgetModel: ThingCohortWidgetModel | null = null
     generations: Generations
     planes: Planes
     history: PerspectiveHistory
+    lifecycleStatus: "new" | "building" | "built" | "cleared" = "new"
+    startingSpace: SpaceDbModel | null
 
     ////////////////////////////////////////////////// Put into widgetmodel
-    graphWidgetStyle: GraphWidgetStyle = defaultGraphWidgetStyle
+    graphWidgetStyle: GraphWidgetStyle = {...defaultGraphWidgetStyle}
     thingIdToScrollTo: number | null = null
     allowScrollToThingId = false
     allowZoomAndScrollToFit = false
@@ -34,13 +38,21 @@ export class Graph {
      * @param {number[]} pThingIds - IDs for the Graph's starting Perspective Things.
      * @param {number}   depth     - How many Relationship "steps" to grow the Graph from the Perspective Things.
      */
-    constructor(id: number, pThingIds: number[], depth: number) {
+    constructor(id: number, pThingIds: number[], depth: number, parentGraph: (Graph | null)=null, offAxis=false, startingSpace: (SpaceDbModel | null)=null) {
         this.id = id
         this._pThingIds = pThingIds
         this._depth = depth
+        this.parentGraph = parentGraph
+        this.parentGraph?.childGraphs.push(this)
         this.generations = new Generations(this)
         this.planes = new Planes(this)
         this.history = new PerspectiveHistory(this)
+        this.startingSpace = startingSpace
+
+        if (offAxis) {
+            this.graphWidgetStyle.excludePerspectiveThing = true
+            this.graphWidgetStyle.excludeCartesianAxes = true
+        }
     }
 
 
@@ -96,12 +108,16 @@ export class Graph {
         this.generations.reset()
         this.planes.reset()
         this.formActive = false
+        this.lifecycleStatus = "cleared"
 
         // Adjust (build) the Generations to the Graph's specified Depth.
+        this.lifecycleStatus = "building"
         await this.generations.adjustToDepth(this._depth)
 
         // Add the starting Perspective Thing IDs to History.
         this.history.addEntries(this._pThingIds)
+        
+        this.lifecycleStatus = "built"
     }
 
 
@@ -138,5 +154,10 @@ export class Graph {
             await this.build()
         }
 
+    }
+
+    get pThingBaseWidgetModel(): ThingBaseWidgetModel | null {
+        const pThingBaseWidgetModel = this.rootCohort?.members[0] || null
+        return pThingBaseWidgetModel
     }
 }

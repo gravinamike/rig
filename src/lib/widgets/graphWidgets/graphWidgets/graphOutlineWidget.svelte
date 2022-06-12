@@ -30,13 +30,13 @@
         outline-offset: -1px;
 
         box-sizing: border-box;
-        width: 750px;
+        width: 100%;
         height: 100%;
-        background-color: #fafafa;
 
         padding: 0.25rem;
 
-        overflow: scroll;
+        overflow-x: hidden;
+        overflow-y: auto;
         
         user-select: none;
     }

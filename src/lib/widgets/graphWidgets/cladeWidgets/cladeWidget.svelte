@@ -4,7 +4,7 @@
     import type { ThingWidgetModel } from "$lib/models/widgetModels"
 
     // Graph widget imports.
-    import { ThingWidget, ThingFormWidget, RelationshipCohortWidget, CohortWidget } from "$lib/widgets/graphWidgets"
+    import { ThingWidget, ThingFormWidget, RelationshipCohortWidget, CohortWidget, OffAxisRelationsWidget } from "$lib/widgets/graphWidgets"
 
     export let thingWidgetModel: ThingWidgetModel
     export let graph: Graph
@@ -37,11 +37,15 @@
     // Note-related variables.
     $: note = thingWidgetModel.note
     const showNotes = false
+
+
+
+    $: numberOfRelations = thingWidgetModel.offAxisRelatedThingIds(thingWidgetModel.space).length
 </script>
 
 
 <!-- Clade widget.-->
-<main
+<div
     class="clade-widget"
     style="{overlapMarginStyleText}"
 >
@@ -82,7 +86,12 @@
         />
     {/each}
 
-</main>
+    <OffAxisRelationsWidget
+        parentThingWidgetModel={thingWidgetModel}
+        parentGraph={graph}
+        {rePerspectToThingId}
+    />
+</div>
 
 
 <style>
