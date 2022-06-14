@@ -107,6 +107,7 @@
                     rePerspectToThingId={async (thingId) => {}}
                 />
             {/if}
+            <div class="glass-screen" />
         </div>
         
     </div>
@@ -153,10 +154,17 @@
         outline: solid 1px lightgrey;
         outline-offset: -1px;
 
+        position: relative;
         min-width: 0;
 
         padding: 0.5rem;
+    }
 
-        pointer-events: none;
+    .glass-screen {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
     }
 </style>
