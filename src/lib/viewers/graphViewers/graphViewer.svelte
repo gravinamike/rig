@@ -32,6 +32,7 @@
     $: if ( graph && $graphIdsNeedingViewerRefresh.includes(graph.id) ) {
         removeGraphIdsNeedingViewerRefresh(graph.id)
         graph = graph // Needed for reactivity.
+        graph.allowZoomAndScrollToFit = true
     }
 
     async function buildAndRefresh() {
@@ -40,7 +41,6 @@
         // Open and build the new Graph.
         graph = await addGraph(pThingIds, depth)
         await graph.build()
-        graph.allowZoomAndScrollToFit = true
         // Refresh the Graph viewers.
         addGraphIdsNeedingViewerRefresh(graph.id)
     }

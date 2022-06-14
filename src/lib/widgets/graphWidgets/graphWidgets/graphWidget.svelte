@@ -44,7 +44,7 @@
     $: if (graph.allowScrollToThingId && graph.thingIdToScrollTo) { // Before graph is re-Perspected, scroll to new Perspective Thing.
         scrollToThingId(graph.thingIdToScrollTo)
     }
-    $: if (graph.allowZoomAndScrollToFit) { // When graph is re-built, scroll to central anchor, then zoom and scroll to fit.
+    $: if (centralAnchor && graph.allowZoomAndScrollToFit) { // When graph is re-built, scroll to central anchor, then zoom and scroll to fit.
         scrollToCentralAnchor(false)
         graph.allowZoomAndScrollToFit = false
         zoomAndScroll()
@@ -139,7 +139,7 @@
     /**
      * Scroll the Graph Widget to the true center position (the location of the central anchor).
      */
-     async function scrollToCentralAnchor(smooth: boolean = true): Promise<void> {
+    async function scrollToCentralAnchor(smooth: boolean = true): Promise<void> {
         centralAnchor.scrollIntoView({behavior: smooth ? "smooth" : "auto", block: "center", inline: "center"})
     }
 
