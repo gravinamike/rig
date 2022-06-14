@@ -40,6 +40,7 @@
         // Open and build the new Graph.
         graph = await addGraph(pThingIds, depth)
         await graph.build()
+        graph.allowZoomAndScrollToFit = true
         // Refresh the Graph viewers.
         addGraphIdsNeedingViewerRefresh(graph.id)
     }

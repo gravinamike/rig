@@ -4,6 +4,7 @@
     export let unfilteredArray: {id: number, name: string}[]
     export let placeholderText: string
     export let submitMethod: (selectedItem: SearchOption | null, matchedItems: SearchOption[]) => void
+    export let maxHeight: number | null = 100
 
 
     
@@ -98,6 +99,9 @@
     {#if showFiltered}
         <div
             class="filtered-items"
+            style="
+                { maxHeight ? `position: absolute; top: calc(100% - 5px); max-height: ${maxHeight}px;` : "flex: 1 1 0; position: relative; top: -1px;" }
+            "
             on:wheel|stopPropagation={()=>{}}
         >
             {#each filtered as filteredItem}
@@ -121,6 +125,10 @@
 <style>
     .search-widget {
         position: relative;
+        height: 100%;
+
+        display: flex;
+        flex-direction: column;
     }
 
     .input-field {
@@ -148,18 +156,14 @@
     }
 
     .filtered-items {
-        top: 100%;
         z-index: 1;
 
         outline: solid 1px black;
         outline-offset: -1px;
 
-        position: absolute;
         box-sizing: border-box;
-        top: calc(100% - 5px); 
         left: 0%;
-        min-width: 100%;
-        max-height: 100px;
+        width: 100%;
         background-color: white;
 
         overflow-x: hidden;
