@@ -49,6 +49,7 @@
         if (graph !== null) await removeGraph(graph)
         // Open and build the new Graph.
         graph = await addGraph([thingIdToShowGraphFor], 1)
+        graph.graphWidgetStyle.animateZoomAndScroll = false
         await graph.build()
         // Refresh the Graph viewers.
         addGraphIdsNeedingViewerRefresh(graph.id)
