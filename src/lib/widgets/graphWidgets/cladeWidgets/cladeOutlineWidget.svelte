@@ -1,6 +1,4 @@
 <script lang="ts">
-import { mode } from "$app/env";
-
     // Graph construct imports.
     import type { Graph } from "$lib/models/graphModels"
     import type { ThingWidgetModel, ThingCohortWidgetModel } from "$lib/models/widgetModels"

@@ -103,7 +103,10 @@
         const descendants = descendantElements(centralAnchor)
         const descendantThingElements = descendants.filter(
             element => {
-                if (typeof element.className === "string") return element.className.includes("thing-widget")
+                if (typeof element.className === "string") return (
+                    element.className.includes("thing-widget")
+                    || element.className.includes("direction-widget")
+                )
             }
         )
 
@@ -150,7 +153,7 @@
     /**
      * Scroll the Graph Widget so that the Graph is centered.
      */
-    async function scrollToZoomBoundsCenter(smooth: boolean = true): Promise<void> {
+    async function scrollToZoomBoundsCenter(): Promise<void> {
         updateGraphBounds()
         if (graphWidgetStyle.animateZoomAndScroll) {
             zoomBoundsDiv.scrollIntoView({behavior: "smooth", block: "center", inline: "center"})

@@ -4,7 +4,7 @@ import type { Cohort } from "$lib/models/graphModels"
 import type { ThingCohortWidgetModel, ThingBaseWidgetModel } from "$lib/models/widgetModels"
 
 import { defaultGraphWidgetStyle } from "$lib/shared/constants"
-import { storeGraphConstructs, retrieveGraphConstructs, unstoreGraphConstructs, addGraph } from "$lib/stores"
+import { storeGraphConstructs, retrieveGraphConstructs, unstoreGraphConstructs } from "$lib/stores"
 import { Generations } from "./generations"
 import { Planes } from "./planes"
 import { PerspectiveHistory } from "./history"

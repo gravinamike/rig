@@ -86,7 +86,7 @@
 {#if $remoteRelatingInfoStore.sourceWidgetModel }
     <div
         class="disabled-background"
-        style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; z-index: 1; background-color: grey; opacity: 0.5;"
+        style="position: absolute; left: 0px; top: 0px; width: 100%; height: 100%; z-index: 1; background-color: grey; opacity: 0.5;"
         on:click={cancel}
         on:wheel|preventDefault
     />
@@ -106,10 +106,10 @@
             {#if graph}
                 <GraphWidget
                     bind:graph
-                    rePerspectToThingId={async (thingId) => {}}
+                    rePerspectToThingId={async () => {}}
                 />
             {/if}
-            <div class="glass-screen" />
+            <div class="glass-pane" />
         </div>
         
     </div>
@@ -162,7 +162,7 @@
         padding: 0.5rem;
     }
 
-    .glass-screen {
+    .glass-pane {
         position: absolute;
         left: 0;
         right: 0;

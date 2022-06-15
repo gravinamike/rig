@@ -37,10 +37,6 @@
     // Note-related variables.
     $: note = thingWidgetModel.note
     const showNotes = false
-
-
-
-    $: numberOfRelations = thingWidgetModel.offAxisRelatedThingIds(thingWidgetModel.space).length
 </script>
 
 
