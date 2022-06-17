@@ -32,6 +32,7 @@
     $: if ( graph && $graphIdsNeedingViewerRefresh.includes(graph.id) ) {
         removeGraphIdsNeedingViewerRefresh(graph.id)
         graph = graph // Needed for reactivity.
+        graph.allowZoomAndScrollToFit = true
     }
 
     async function buildAndRefresh() {

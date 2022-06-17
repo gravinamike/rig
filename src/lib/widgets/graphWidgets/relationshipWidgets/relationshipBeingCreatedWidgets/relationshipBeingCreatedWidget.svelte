@@ -6,7 +6,7 @@
 
     import { tweened } from "svelte/motion"
 	import { cubicOut } from "svelte/easing"
-    import { storeGraphConstructs, retrieveGraphConstructs, relationshipBeingCreatedInfoStore, setRelationshipBeingCreatedTrackingMouse, disableRelationshipBeingCreated, addGraphIdsNeedingViewerRefresh } from "$lib/stores"
+    import { storeGraphConstructs, retrieveGraphConstructs, relationshipBeingCreatedInfoStore, setRelationshipBeingCreatedTrackingMouse, disableRelationshipBeingCreated, addGraphIdsNeedingViewerRefresh, enableRemoteRelating } from "$lib/stores"
     import { relationshipColorByHalfAxisId, zoomBase } from "$lib/shared/constants"
     import { XButton } from "$lib/widgets/layoutWidgets"
     import DirectionWidget from "$lib/widgets/graphWidgets/directionWidget.svelte"
@@ -75,6 +75,7 @@
     // Handling outside mouse releases.
 	function handleMouseUp() {
         setRelationshipBeingCreatedTrackingMouse(false)
+        if (sourceWidgetModel) enableRemoteRelating(sourceWidgetModel)
 	}
 
     function handleEscape(event: KeyboardEvent) {
@@ -128,7 +129,7 @@
     {#if askingForDirection}
         <div
             class="disabled-background"
-            style="position: absolute; width: 100%; height: 100%; z-index: 1; background-color: grey; opacity: 0.5;"
+            style="position: absolute; left: 0px; top: 0px; width: 100%; height: 100%; z-index: 1; background-color: grey; opacity: 0.5;"
             on:wheel|preventDefault
         />
     {/if}

@@ -38,13 +38,13 @@
 
     // Set up reactive zooming and scrolling.
     $: scale = zoomBase ** graph.graphWidgetStyle.zoom
-    let tweenedScale = tweened(1, {duration: 100, easing: cubicOut})
+    $: tweenedScale = tweened(1, { duration: 100, easing: cubicOut })
     $: tweenedScale.set(scale)
     $: zoomPadding = graph.graphWidgetStyle.zoomPadding
     $: if (graph.allowScrollToThingId && graph.thingIdToScrollTo) { // Before graph is re-Perspected, scroll to new Perspective Thing.
         scrollToThingId(graph.thingIdToScrollTo)
     }
-    $: if (graph.allowZoomAndScrollToFit) { // When graph is re-built, scroll to central anchor, then zoom and scroll to fit.
+    $: if (centralAnchor && graph.allowZoomAndScrollToFit) { // When graph is re-built, scroll to central anchor, then zoom and scroll to fit.
         scrollToCentralAnchor(false)
         graph.allowZoomAndScrollToFit = false
         zoomAndScroll()
@@ -82,6 +82,7 @@
         }
     }
 
+    
     /**
      * Auto-zoom and auto-scroll functions.
      */
@@ -89,7 +90,7 @@
         const thingWidgetId = `graph#${graph.id}-thing#${thingId}`
         const thingWidget = document.getElementById(thingWidgetId)
         if (thingWidget) {
-            thingWidget.scrollIntoView({behavior: "smooth", block: "center", inline: "center"})
+            thingWidget.scrollIntoView({behavior: graphWidgetStyle.animateZoomAndScroll ? "smooth" : "auto", block: "center", inline: "center"})
         }
         graph.allowScrollToThingId = false
     }
@@ -100,11 +101,17 @@
     function updateGraphBounds() {
         // Get all elements in the Graph, except the zoom bounds element.
         const descendants = descendantElements(centralAnchor)
-        const index = descendants.indexOf(zoomBoundsDiv)
-        if (index > -1) descendants.splice(index, 1)
+        const descendantThingElements = descendants.filter(
+            element => {
+                if (typeof element.className === "string") return (
+                    element.className.includes("thing-widget")
+                    || element.className.includes("direction-widget")
+                )
+            }
+        )
 
         // Set the Graph Widget bounds (as the outer bounds of the above collection of elements).
-        const descendantsEdges = elementGroupEdges(descendants)
+        const descendantsEdges = elementGroupEdges(descendantThingElements)
         Object.assign(graphBounds, descendantsEdges)
         graphBounds.width = graphBounds.right - graphBounds.left
         graphBounds.height = graphBounds.bottom - graphBounds.top
@@ -139,16 +146,20 @@
     /**
      * Scroll the Graph Widget to the true center position (the location of the central anchor).
      */
-     async function scrollToCentralAnchor(smooth: boolean = true): Promise<void> {
+    async function scrollToCentralAnchor(smooth: boolean = true): Promise<void> {
         centralAnchor.scrollIntoView({behavior: smooth ? "smooth" : "auto", block: "center", inline: "center"})
     }
 
     /**
      * Scroll the Graph Widget so that the Graph is centered.
      */
-    async function scrollToZoomBoundsCenter(smooth: boolean = true): Promise<void> {
+    async function scrollToZoomBoundsCenter(): Promise<void> {
         updateGraphBounds()
-        zoomBoundsDiv.scrollIntoView({behavior: smooth ? "smooth" : "auto", block: "center", inline: "center"})
+        if (graphWidgetStyle.animateZoomAndScroll) {
+            zoomBoundsDiv.scrollIntoView({behavior: "smooth", block: "center", inline: "center"})
+        } else {
+            zoomBoundsDiv.scrollIntoView({block: "center", inline: "center"})
+        }
     }
 
     /**
@@ -177,7 +188,7 @@
         <div
             class="central-anchor"
             bind:this={centralAnchor}
-            style="scale: {$tweenedScale};"
+            style="scale: {graphWidgetStyle.animateZoomAndScroll ? $tweenedScale : scale};"
         >
             <!-- Zoom bounds (closely surrounds the Graph). -->
             <div

@@ -1,16 +1,20 @@
 <script lang="ts">
     import type { SearchOption } from "./types"
+    import { onMount } from "svelte"
 
     export let unfilteredArray: {id: number, name: string}[]
     export let placeholderText: string
+    export let focusMethod: (focusedItem: SearchOption | null) => void
     export let submitMethod: (selectedItem: SearchOption | null, matchedItems: SearchOption[]) => void
+    export let maxHeight: number | null = 100
 
 
     
     
     let filtered: SearchOption[] = []
 
-    let thingSearchbox: Element
+    let thingSearchbox: HTMLElement
+    let inputField: HTMLElement
     let inputText = ""
     let matchedItems: SearchOption[] = []
     let selectedItem: SearchOption | null = null
@@ -51,6 +55,7 @@
                 }
             }
         )
+        focusedOptionIndex = null
         showFiltered = filtered.length ? true : false
     }
 
@@ -73,6 +78,47 @@
 			showFiltered = false
 		}
 	}
+
+
+
+
+
+
+
+
+    let focusedOptionIndex: number | null = null
+
+
+    function focusOnOptionElement(optionIndex: number) {
+        const optionElement = document.getElementById(`search-option-${optionIndex}`)
+        if (optionElement) {
+            optionElement.focus()
+            optionElement.scrollIntoView({block: "nearest"})
+        }
+    }
+
+    function incrementFocusedOption(increment: 1 | -1) {
+        const endIndex = filtered.length - 1
+
+        if (focusedOptionIndex === null) {
+            focusedOptionIndex = increment === 1 ? 0 : endIndex
+        } else {
+            const incrementedIndex = focusedOptionIndex + increment
+            if (incrementedIndex < 0) {
+                focusedOptionIndex = 0
+            } else if (incrementedIndex > endIndex) {
+                focusedOptionIndex = endIndex
+            } else {
+                focusedOptionIndex = incrementedIndex
+            }
+        }
+    }
+
+
+
+    onMount(async () => {
+        inputField.focus()
+	})
 </script>
 
 
@@ -85,24 +131,56 @@
 <div
     class="search-widget"
     bind:this={thingSearchbox}
+    on:keypress={ (event) => { if (event.key === "Enter") handleEnter() } }
 >
     <input
         class="input-field {showFiltered ? "filtered-open" : ""}" 
         type="text" 
         placeholder={placeholderText}
+        bind:this={inputField}
         bind:value={inputText}
         on:input={handleInput}
-        on:keypress={ (event) => { if (event.key === "Enter") handleEnter() } }
+        on:keydown={ (event) => {
+            if (showFiltered && event.key === "ArrowDown") {
+                event.preventDefault()
+                incrementFocusedOption(1)
+                if (focusedOptionIndex) {
+                    if (filtered[focusedOptionIndex]) selectedItem = filtered[focusedOptionIndex]
+                    focusOnOptionElement(focusedOptionIndex)
+                    focusMethod(filtered[focusedOptionIndex])
+                }
+            } else if (showFiltered && event.key === "ArrowUp") {
+                event.preventDefault()
+                incrementFocusedOption(-1)
+                if (focusedOptionIndex) focusOnOptionElement(focusedOptionIndex)
+                if (focusedOptionIndex) {
+                    if (filtered[focusedOptionIndex]) selectedItem = filtered[focusedOptionIndex]
+                    focusOnOptionElement(focusedOptionIndex)
+                    focusMethod(filtered[focusedOptionIndex])
+                }
+            }
+        } }
     />
 
     {#if showFiltered}
         <div
             class="filtered-items"
+            style="
+                { maxHeight ? `position: absolute; top: calc(100% - 5px); max-height: ${maxHeight}px;` : "flex: 1 1 0; position: relative; top: -1px;" }
+            "
             on:wheel|stopPropagation={()=>{}}
         >
-            {#each filtered as filteredItem}
+            {#each filtered as filteredItem, i}
                 <div
+                    id="search-option-{i}"
                     class="filtered-item"
+                    class:focusedOption={i === focusedOptionIndex}
+                    on:mouseenter={() => {
+                        if (filtered[i]) selectedItem = filtered[i]
+                        focusedOptionIndex = i
+                        focusOnOptionElement(i)
+                        focusMethod(filteredItem)
+                    }}
                     on:click={() => {
                         showFiltered = false
                         selectedItem = filteredItem
@@ -121,6 +199,10 @@
 <style>
     .search-widget {
         position: relative;
+        height: 100%;
+
+        display: flex;
+        flex-direction: column;
     }
 
     .input-field {
@@ -148,18 +230,14 @@
     }
 
     .filtered-items {
-        top: 100%;
         z-index: 1;
 
         outline: solid 1px black;
         outline-offset: -1px;
 
-        position: absolute;
         box-sizing: border-box;
-        top: calc(100% - 5px); 
         left: 0%;
-        min-width: 100%;
-        max-height: 100px;
+        width: 100%;
         background-color: white;
 
         overflow-x: hidden;
@@ -178,7 +256,7 @@
         cursor: default;
     }
 
-    .filtered-item:hover {
+    .filtered-item.focusedOption {
         background-color: whitesmoke;
     }
 
