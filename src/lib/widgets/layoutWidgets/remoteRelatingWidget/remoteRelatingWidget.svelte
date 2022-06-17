@@ -32,6 +32,10 @@
     }
     $: buildUnfilteredArray($thingSearchListStore)
 
+    function focusMethod(focusedItem: SearchOption | null) {
+        if (focusedItem) thingIdToShowGraphFor = focusedItem.id
+    }
+
     function submitMethod(selectedItem: SearchOption | null, matchedItems: SearchOption[]) {
         if (selectedItem) {
             thingIdToShowGraphFor = selectedItem.id
@@ -39,7 +43,6 @@
             thingIdToShowGraphFor = matchedItems[0].id
         }
     }
-
 
 
 
@@ -97,6 +100,7 @@
             <SearchWidget
                 {unfilteredArray}
                 placeholderText={"Search Things..." }
+                {focusMethod}
                 {submitMethod}
                 maxHeight={null}
             />
