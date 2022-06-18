@@ -65,7 +65,7 @@
             addGraphIdsNeedingViewerRefresh(graph.id)
             await sleep(500) // Allow for scroll time (since there's no actual feedback from the Portal to `await`).
 
-            // Re-Perspect the Graph
+            // Re-Perspect the Graph.
             await graph.setPThingIds([thingId]) // Re-Perspect to this Thing.
             hoveredThingIdStore.set(null) // Clear the hovered-Thing highlighting.
             graph.allowZoomAndScrollToFit = true

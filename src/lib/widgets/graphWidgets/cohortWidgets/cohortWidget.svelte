@@ -16,7 +16,7 @@
     export let thingCohortWidgetModel: ThingCohortWidgetModel
     export let graph: Graph
     export let rePerspectToThingId: (thingId: number) => Promise<void>
-
+        
 
     $: xYOffsets = thingCohortWidgetModel.xYOffsets
     $: zIndex = thingCohortWidgetModel.zIndex
