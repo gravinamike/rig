@@ -167,6 +167,20 @@
             isActive: false,
             onClick: () => editor.chain().focus().setHardBreak().run()
         },
+        {
+            text: "Link",
+            iconName: "link",
+            iconHtml: null,
+            isActive: editor.isActive('link'),
+            onClick: () => {
+                if (editor.isActive('link')) {
+                    editor.chain().focus().unsetLink().run()
+                } else {
+                    const linkText = "https://www.cracked.com"/////////////////////// GET FROM A DIALOG.
+                    editor.chain().focus().setLink({ href: linkText, target: '_blank' }).run()
+                }
+            }
+        },
 
         // Undo/redo and clear formatting.
         {
