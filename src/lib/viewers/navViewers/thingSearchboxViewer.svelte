@@ -17,9 +17,6 @@
     }
     $: buildUnfilteredArray($thingSearchListStore)
 
-    function focusMethod(hoveredItem: SearchOption | null) {
-    }
-
     function submitMethod(selectedItem: SearchOption | null, matchedItems: SearchOption[]) {
         if (selectedItem) {
             rePerspectToThingId(selectedItem.id)
@@ -35,7 +32,7 @@
     <SearchWidget
         {unfilteredArray}
         placeholderText={"Search Things..." }
-        {focusMethod}
+        focusMethod={() => {}}
         {submitMethod}
     />
 

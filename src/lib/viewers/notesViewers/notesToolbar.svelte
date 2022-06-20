@@ -1,9 +1,11 @@
 <script lang="ts">
     import type { Editor } from "@tiptap/core"
     import { fontNames, fontSizes, headerLevels } from "$lib/shared/constants"
+    import { enableTextHyperlinking } from "$lib/stores"
     import CommandPalette from "$lib/widgets/layoutWidgets/commandPalette/commandPalette.svelte"
 
     export let editor: Editor
+    export let focusEditorMethod: () => void
 
 
     function selectedFontFamily(): string | null {
@@ -176,8 +178,7 @@
                 if (editor.isActive('link')) {
                     editor.chain().focus().unsetLink().run()
                 } else {
-                    const linkText = "https://www.cracked.com"/////////////////////// GET FROM A DIALOG.
-                    editor.chain().focus().setLink({ href: linkText, target: '_blank' }).run()
+                    enableTextHyperlinking(editor, focusEditorMethod)
                 }
             }
         },

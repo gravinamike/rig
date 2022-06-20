@@ -36,7 +36,10 @@
 
     // Handling outside clicks and escape key to stop editing.
 	function handlePossibleOutsideClick(event: MouseEvent) {
-		if (event.target !== notesContainer && !notesContainer.contains(event.target as Node)) {
+		if (
+            event.target !== notesContainer
+            && !notesContainer.contains(event.target as Node)
+        ) {
 			editable = false
 		}
 	}
