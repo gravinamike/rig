@@ -1,14 +1,15 @@
 import type { Writable } from "svelte/store"
+import type { Editor } from "@tiptap/core"
 import type { GraphConstruct } from "$lib/shared/constants"
 import type { SpaceDbModel, ThingDbModel, ThingSearchListItem } from "$lib/models/dbModels"
 import type { RelationshipBeingCreatedInfo } from "$lib/widgets/graphWidgets"
-import type { RemoteRelatingInfo } from "$lib/widgets/layoutWidgets"
+import type { RemoteRelatingInfo, TextHyperlinkingInfo } from "$lib/widgets/layoutWidgets"
 
 import { writable, derived } from "svelte/store"
 import { DirectionDbModel, isDirection, isSpace, isThing } from "$lib/models/dbModels"
 import { Graph } from "$lib/models/graphModels"
 import { nullRelationshipBeingCreatedInfo } from "$lib/widgets/graphWidgets"
-import { nullRemoteRelatingInfo } from "$lib/widgets/layoutWidgets"
+import { nullRemoteRelatingInfo, nullTextHyperlinkingInfo } from "$lib/widgets/layoutWidgets"
 import type { ThingWidgetModel, RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
 import { graphConstructs, thingSearchListItems } from "$lib/db/clientSide"
 
@@ -363,6 +364,52 @@ export function enableRemoteRelating(sourceWidgetModel: ThingWidgetModel | Relat
 export function disableRemoteRelating(): void {
     remoteRelatingInfoStore.update( () => nullRemoteRelatingInfo )
 }
+
+
+
+
+
+
+
+
+
+
+export const textHyperlinkingStore = writable(
+    {
+        editor: null,
+        focusEditorMethod: null,
+        url: null
+    } as TextHyperlinkingInfo
+)
+
+/**
+ * Enable the text-hyperlinking Widget.
+ */
+export function enableTextHyperlinking(editor: Editor, focusEditorMethod: () => void ): void {
+    textHyperlinkingStore.set(
+        {
+            editor: editor,
+            focusEditorMethod: focusEditorMethod,
+            url: null
+        }
+    )
+}
+
+export function updateTextHyperlinkingUrl(url: string): void {
+    textHyperlinkingStore.update( current => {
+        current.url = url
+        return current
+    } )
+}
+
+export function disableTextHyperlinking(): void {
+    textHyperlinkingStore.update( () => nullTextHyperlinkingInfo )
+}
+
+
+
+
+
 
 
 

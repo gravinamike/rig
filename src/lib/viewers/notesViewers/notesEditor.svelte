@@ -78,6 +78,7 @@
     <!-- Editor toolbar. -->
     <NotesToolbar
         {editor}
+        focusEditorMethod={focusEditor}
     />
 </div>
 
