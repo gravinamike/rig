@@ -4,23 +4,26 @@
     import { pinIdsStore, storeGraphConstructs, graphConstructInStore, retrieveGraphConstructs } from "$lib/stores"
     import { PinWidget } from "$lib/widgets/navWidgets"
 
-    export let graph: Graph
+    export let graph: Graph//////////////////////////////////////////////////// Get rid of
     export let rePerspectToThingId: (thingId: number) => Promise<void>
 
-    $: $pinIdsStore.forEach(
-        async (pinId) => {
+
+    let pins: { thingId: number, thing: ThingDbModel | null }[] = []
+    async function storeAndGetPins(pinIds: number[]) {
+        for (const pinId of pinIds) {
             if (!graphConstructInStore("Thing", pinId)) await storeGraphConstructs<ThingDbModel>("Thing", pinId)
         }
-    )
-    $: pins = $pinIdsStore.map(
-        (pinId) => {
-            graph // Needed for reactivity.
-            return {
-                thingId: pinId,
-                thing: graphConstructInStore("Thing", pinId) ? retrieveGraphConstructs("Thing", pinId) as ThingDbModel : null
+
+        pins = pinIds.map(
+            (pinId) => {
+                return {
+                    thingId: pinId,
+                    thing: graphConstructInStore("Thing", pinId) ? retrieveGraphConstructs("Thing", pinId) as ThingDbModel : null
+                }
             }
-        }
-    )
+        )
+    }
+    $: storeAndGetPins($pinIdsStore)
 </script>
 
 

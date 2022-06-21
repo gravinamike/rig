@@ -61,7 +61,8 @@ export async function post(
 }> {
     try {
         const body = await request.json()
-        fs.writeFile(configPath, JSON.stringify(body), function (err) {
+        const graphConfigPath = `${graphsBaseFolder}/${getStore(unigraphFolderStore)}/config.json`
+        fs.writeFile(graphConfigPath, JSON.stringify(body), function (err) {
             if (err) {
                 console.log(`Error saving configuration: ${err.message}`)
                 return
