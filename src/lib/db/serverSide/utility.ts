@@ -1,4 +1,4 @@
-import type { Knex } from "knex"
+import type Knex from "knex"
 import { Model } from "objection"
 import { ThingDbModel, RelationshipDbModel, NoteDbModel, NoteToThingDbModel, FolderDbModel, FolderToThingDbModel } from "$lib/models/dbModels"
 
@@ -9,7 +9,7 @@ import { ThingDbModel, RelationshipDbModel, NoteDbModel, NoteToThingDbModel, Fol
 export async function alterQuerystringForH2AndRun(
     querystring: string,
     transaction: Knex.Transaction,
-    whenCreated: string,
+    whenCreated: Date,
     constructName: "Thing" | "Relationship" | "Note" | "NoteToThing" | "Folder" | "FolderToThing"
 ): Promise< ThingDbModel | RelationshipDbModel | NoteDbModel | NoteToThingDbModel | FolderDbModel | FolderToThingDbModel > {
     // Remove the "returning" clause in the query string.

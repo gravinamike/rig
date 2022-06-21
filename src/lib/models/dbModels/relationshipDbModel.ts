@@ -27,7 +27,7 @@ interface NewRelationshipInfo {
     guid: string,
     thingaid: number,
     thingbid: number,
-    whencreated: string,
+    whencreated: Date,
     whenmodded: null,
     whentrashed: null,
     text: null,
@@ -38,7 +38,7 @@ interface NewRelationshipInfo {
     ensystemed: null
 }
 
-export function getNewRelationshipInfo(thingAId: number, thingBId: number, whenCreated: string, direction: number): NewRelationshipInfo {
+export function getNewRelationshipInfo(thingAId: number, thingBId: number, whenCreated: Date, direction: number): NewRelationshipInfo {
     const newRelationshipInfo = {
         guid: uuidv4(),
         thingaid: thingAId,

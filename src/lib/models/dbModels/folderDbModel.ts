@@ -1,4 +1,6 @@
-import { Model, RelationMappings, RelationMappingsThunk } from "objection"
+import type { RelationMappings, RelationMappingsThunk } from "objection"
+
+import { Model } from "objection"
 import { ThingDbModel } from "$lib/models/dbModels"
 
 
@@ -31,11 +33,11 @@ export class FolderDbModel extends Model {
 }
 
 interface NewFolderInfo {
-    whencreated: string,
+    whencreated: Date,
     path: string
 }
 
-export function getNewFolderInfo(whenCreated: string, guid: string): NewFolderInfo {
+export function getNewFolderInfo(whenCreated: Date, guid: string): NewFolderInfo {
     const newFolderInfo = {
         whencreated: whenCreated,
         path: guid

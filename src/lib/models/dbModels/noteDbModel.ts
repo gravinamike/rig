@@ -1,4 +1,6 @@
-import { Model, RelationMappings, RelationMappingsThunk } from "objection"
+import type { RelationMappings, RelationMappingsThunk } from "objection"
+
+import { Model } from "objection"
 import { v4 as uuidv4 } from "uuid"
 import { ThingDbModel } from "$lib/models/dbModels"
 
@@ -36,11 +38,11 @@ export class NoteDbModel extends Model {
 interface NewNoteInfo {
     guid: string,
     text: string,
-    whencreated: string,
+    whencreated: Date,
     whenmodded: null
 }
 
-export function getNewNoteInfo(whenCreated: string): NewNoteInfo {
+export function getNewNoteInfo(whenCreated: Date): NewNoteInfo {
     const newThingInfo = {
         guid: uuidv4(),
         text: "",

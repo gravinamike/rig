@@ -81,7 +81,7 @@ export class Graph {
 
     /**
      * Set the Graph's Perspective Thing IDs.
-     * @param  {number[]} pThingIDs - An array of the new Perspective Thing IDs to be set.
+     * @param  {number[]} pThingIds - An array of the new Perspective Thing IDs to be set.
      */
     async setPThingIds(pThingIds: number[]): Promise<void> {
         this._pThingIds = pThingIds

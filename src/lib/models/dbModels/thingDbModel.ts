@@ -1,6 +1,7 @@
+import type { RelationMappings, RelationMappingsThunk } from "objection"
 import type { GraphConstruct } from "$lib/shared/constants"
 
-import { Model, RelationMappings, RelationMappingsThunk } from "objection"
+import { Model } from "objection"
 import { v4 as uuidv4 } from "uuid"
 import { RelationshipDbModel, NoteDbModel, NoteToThingDbModel, FolderDbModel, FolderToThingDbModel } from "$lib/models/dbModels"
 
@@ -144,7 +145,7 @@ export class ThingDbModel extends Model {
 interface NewThingInfo {
     guid: string,
     text: string,
-    whencreated: string,
+    whencreated: Date,
     whenmodded: null,
     whentrashed: null,
     whenvisited: null,
@@ -169,7 +170,7 @@ interface NewThingInfo {
     perspectiveviewers: "{}"
 }
 
-export function getNewThingInfo(text: string, whenCreated: string, defaultSpace: number): NewThingInfo {
+export function getNewThingInfo(text: string, whenCreated: Date, defaultSpace: number): NewThingInfo {
     const newThingInfo = {
         guid: uuidv4(),
         text: text,

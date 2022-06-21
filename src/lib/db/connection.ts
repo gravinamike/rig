@@ -50,7 +50,7 @@ export async function getDatabaseConnection(): Promise<typeof Model> {
     // If the database has changed, clear the cache.
     if (
         cached.connection
-        && cached.connection.knex().context.client.config.connection.database !== knexConfig.connection.database
+        && cached.connection.knex().client.config.connection.database !== knexConfig.connection.database
     ) {
         cached.connection = null
         cached.promise = null

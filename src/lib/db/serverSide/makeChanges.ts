@@ -1,5 +1,5 @@
 // Type imports.
-import type { Knex } from "knex"
+import type Knex from "knex"
 
 // Database-related imports.
 import { Model } from "objection"
@@ -24,7 +24,7 @@ import { createFolder } from "$lib/shared/fileSystem"
 export async function createNewRelatedThing(thingIdToRelateFrom: number, directionId: number, text: string): Promise<ThingDbModel | false> {
     try {    
         // Get parameters for SQL query.
-        const whenCreated = (new Date()).toISOString()
+        const whenCreated = new Date()
 
         // Construct and run SQL query.
         const knex = Model.knex()
@@ -64,7 +64,7 @@ export async function createNewRelatedThing(thingIdToRelateFrom: number, directi
  */
 export async function addNoteToThing(thingId: number): Promise<void> {
     // Get parameters for SQL query.
-    const whenCreated = (new Date()).toISOString()
+    const whenCreated = new Date()
 
     // Construct and run SQL query.
     const knex = Model.knex()
@@ -96,7 +96,7 @@ export async function addNoteToThing(thingId: number): Promise<void> {
  */
 export async function updateNote(noteId: number, text: string): Promise<void> {
     // Get parameters for SQL query.
-    const whenModded = (new Date()).toISOString()
+    const whenModded = new Date()
 
     // Construct and run SQL query.
     const knex = Model.knex()
@@ -121,7 +121,7 @@ export async function updateNote(noteId: number, text: string): Promise<void> {
  */
 export async function addFolderToThing(thingId: number): Promise<void> {
     // Get parameters for SQL query.
-    const whenCreated = (new Date()).toISOString()
+    const whenCreated = new Date()
     const folderGuid = uuidv4()
 
     // Construct and run SQL query.
@@ -227,7 +227,7 @@ export async function createNewRelationship(sourceThingId: number, destThingId: 
     } else {
 
         // Get parameters for SQL query.
-        const whenCreated = (new Date()).toISOString()
+        const whenCreated = new Date()
         
         // Construct and run SQL query.
         const knex = Model.knex()

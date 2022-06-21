@@ -1,7 +1,8 @@
+import type { RelationMappings, RelationMappingsThunk } from "objection"
 import type { GraphConstruct, HalfAxisId } from "$lib/shared/constants"
 
 import { oddHalfAxisIds } from "$lib/shared/constants"
-import { Model, RelationMappings, RelationMappingsThunk } from "objection"
+import { Model } from "objection"
 import { DirectionDbModel } from "$lib/models/dbModels"
 
 
