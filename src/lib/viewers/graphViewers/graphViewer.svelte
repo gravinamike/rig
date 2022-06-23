@@ -127,7 +127,6 @@
                 <!-- Graph pins viewer -->
                 <div class="pins-container">
                     <PinsViewer
-                        bind:graph
                         {rePerspectToThingId}
                     />
                 </div>
