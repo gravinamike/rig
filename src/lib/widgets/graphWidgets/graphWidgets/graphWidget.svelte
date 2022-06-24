@@ -36,6 +36,10 @@
     let trackingMouse = false
     let prevtrackingMouseLocation: { x: number | null, y: number | null } = { x: null, y: null }
 
+    $: currentSpace = graph.startingSpace ?
+        graph.startingSpace :
+        graph.pThingBaseWidgetModel?.space || null
+
 
     // Set up reactive zooming and scrolling.
     $: scale = zoomBase ** graph.graphWidgetStyle.zoom
@@ -219,7 +223,12 @@
     {/if}
 
     <!-- Space frame. -->
-    <SpaceFrameWidget />
+    {#if currentSpace}
+        <SpaceFrameWidget
+            {graph}
+            {currentSpace}
+        />
+    {/if}
 </div>
 
 

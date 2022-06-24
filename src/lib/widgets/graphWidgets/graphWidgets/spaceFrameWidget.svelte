@@ -1,4 +1,16 @@
 <script lang="ts">
+    import type { HalfAxisId } from "$lib/shared/constants"
+    import type { SpaceDbModel } from "$lib/models/dbModels"
+    import type { Graph } from "$lib/models/graphModels"
+
+    import { relationshipColorByHalfAxisId } from "$lib/shared/constants"
+    import { sleep } from "$lib/shared/utility"
+    import { DirectionWidget } from "$lib/widgets/graphWidgets"
+
+    export let graph: Graph
+    export let currentSpace: SpaceDbModel
+
+
     const shape: "rectangle" | "circle" = "rectangle"
     const borderThickness = 20
 
@@ -7,8 +19,51 @@
     $: borderCenterX = borderWidth / 2
     $: borderCenterY = borderHeight / 2
     $: borderRadius = Math.min(borderCenterX, borderCenterY)
+    $: widthToHeightRatio = borderWidth / borderHeight
+
+    let arrowInfos = [
+        {
+            rotation: 0,
+            color: relationshipColorByHalfAxisId[2],
+            directionSigns: [0, -1],
+            direction: currentSpace.directionByHalfAxisId[2],
+            halfAxisId: 2 as HalfAxisId
+        },
+        {
+            rotation: 90,
+            color: relationshipColorByHalfAxisId[3],
+            directionSigns: [1, 0],
+            direction: currentSpace.directionByHalfAxisId[3],
+            halfAxisId: 3 as HalfAxisId
+        },
+        {
+            rotation: 180,
+            color: relationshipColorByHalfAxisId[1],
+            directionSigns: [0, 1],
+            direction: currentSpace.directionByHalfAxisId[1],
+            halfAxisId: 1 as HalfAxisId
+        },
+        {
+            rotation: 270,
+            color: relationshipColorByHalfAxisId[4],
+            directionSigns: [-1, 0],
+            direction: currentSpace.directionByHalfAxisId[4],
+            halfAxisId: 4 as HalfAxisId
+        }
+    ]
 
     let borderHovered = false
+    let lastBorderHoveredChangeSignal = false
+    
+    async function delayedSetBorderHovered(hovered: boolean, delay: number) {
+        lastBorderHoveredChangeSignal = hovered
+        if (hovered) {
+            borderHovered = true
+        } else {
+            await sleep(delay)
+            if (!lastBorderHoveredChangeSignal) borderHovered = false
+        }
+    }
 </script>
 
 
@@ -19,28 +74,81 @@
     bind:clientWidth={borderWidth} bind:clientHeight={borderHeight}
 >
     <svg>
-        {#if shape === "rectangle"}
-            <rect
-                class="inner-border"
-                x={borderThickness / 2 - 50} y={borderThickness / 2 - 50} width={2 * (borderCenterX + 50) - borderThickness} height={2 * (borderCenterY + 50) - borderThickness} rx=75
-                style="stroke-width: {borderThickness + 100}px;"
-                on:mouseenter={() => {borderHovered = true}}
-                on:mouseleave={() => {borderHovered = false}}
-            />
-        {:else}
-            <circle
-                class="outer-border"
-                cx={borderCenterX} cy={borderCenterY} r={borderRadius + 1000}
-            />
-            <circle
-                class="inner-border"
-                cx={borderCenterX} cy={borderCenterY} r={borderRadius}
-                style="stroke-width: {borderThickness}px;"
-                on:mouseenter={() => {borderHovered = true}}
-                on:mouseleave={() => {borderHovered = false}}
-            />
-        {/if}
+        <g class="borders">
+            {#if shape === "rectangle"}
+                <rect
+                    class="inner-border"
+                    x={borderThickness / 2 - 50} y={borderThickness / 2 - 50} width={2 * (borderCenterX + 50) - borderThickness} height={2 * (borderCenterY + 50) - borderThickness} rx=75
+                    style="stroke-width: {borderThickness + 100}px;"
+                    on:mouseenter={() => {delayedSetBorderHovered(true, 0)}}
+                    on:mouseleave={() => {delayedSetBorderHovered(false, 1000)}}
+                />
+            {:else}
+                <circle
+                    class="outer-border"
+                    cx={borderCenterX} cy={borderCenterY} r={borderRadius + 1000}
+                />
+                <circle
+                    class="inner-border"
+                    cx={borderCenterX} cy={borderCenterY} r={borderRadius}
+                    style="stroke-width: {borderThickness}px;"
+                    on:mouseenter={() => {delayedSetBorderHovered(true, 0)}}
+                    on:mouseleave={() => {delayedSetBorderHovered(false, 1000)}}
+                />
+            {/if}
+        </g>
+        
+        <g
+            class="arrows"
+            style="
+                transform-origin: {borderCenterX}px {borderCenterY}px;
+                transform: scale({widthToHeightRatio}, 1);
+            "
+        >
+            {#each arrowInfos as arrowInfo}
+                <path
+                    class="arrow"
+                    d="
+                        M {borderCenterX - 5} {borderCenterY - 50}
+                        l 10 0
+                        l 25 {-(borderHeight * 0.25)}
+                        l 25 0
+                        l -55 -100
+                        l -55 100
+                        l 25 0
+                    "
+                    style="
+                        transform-origin: {borderCenterX}px {borderCenterY}px;
+                        transform: rotate({arrowInfo.rotation}deg);
+                        { borderHovered ? "pointer-events: all;" : "" }
+                        stroke: {arrowInfo.color};
+                        fill: {arrowInfo.color};
+                    "
+                    on:mouseenter={() => {delayedSetBorderHovered(true, 0)}}
+                    on:mouseleave={() => {delayedSetBorderHovered(false, 1000)}}
+                />
+            {/each}
+        </g>
     </svg>
+
+    {#each arrowInfos as arrowInfo}
+        <div
+            class="direction-widget-container"
+            style="
+                left: {borderCenterX + (borderHeight * 0.275) * widthToHeightRatio * arrowInfo.directionSigns[0]}px;
+                top: {borderCenterY + (borderHeight * 0.275) * arrowInfo.directionSigns[1]}px;
+            "
+            on:mouseenter={() => {delayedSetBorderHovered(true, 0)}}
+            on:mouseleave={() => {delayedSetBorderHovered(false, 750)}}
+        >
+            <DirectionWidget
+                direction={arrowInfo.direction}
+                halfAxisId={arrowInfo.halfAxisId}
+                {graph}
+                optionClickedFunction={(direction, _, option) => {console.log(direction, option)}}
+            />
+        </div>
+    {/each}
 </div>
 
 
@@ -59,7 +167,9 @@
     svg {
         width: 100%;
         height: 100%;
+    }
 
+    .borders {
         fill: transparent;
     }
 
@@ -73,5 +183,20 @@
 
         pointer-events: stroke;
         cursor: pointer;
+    }
+
+    .arrow {
+        opacity: 0.25;
+
+        cursor: pointer;
+    }
+
+    .arrow:hover {
+        opacity: 0.5;
+    }
+
+    .direction-widget-container {
+        position: absolute;
+        transform: translate(-50%, -50%);
     }
   </style>

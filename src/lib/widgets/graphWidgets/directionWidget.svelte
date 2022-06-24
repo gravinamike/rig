@@ -60,7 +60,7 @@
     >
         {direction ? direction.text : "Choose Direction..."}
     </div>
-
+    
     <!-- Drop-down menu to select Direction. -->
     {#if showOptions}
         <div

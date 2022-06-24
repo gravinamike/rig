@@ -36,20 +36,33 @@ export class SpaceDbModel extends Model {
     }
 
     static get virtualAttributes(): string[] {
-        return ['directionIdByHalfAxisId', 'halfAxisIdByDirectionId']
+        return ['directionIdByHalfAxisId', 'directionByHalfAxisId', 'halfAxisIdByDirectionId']
     }
 
     get directionIdByHalfAxisId(): { [halfAxisId: number]: number | null } {
-        const directionIdsByHalfAxisIds: { [halfAxisId: number]: number | null } = {}
+        const directionIdsByHalfAxisId: { [halfAxisId: number]: number | null } = {}
         for (const oddHalfAxisId of oddHalfAxisIds) {
             const directionIndex = (oddHalfAxisId - 1) / 2
             if (directionIndex < this.directions.length) {
                 const direction = this.directions[directionIndex]
-                directionIdsByHalfAxisIds[oddHalfAxisId] = direction.id
-                directionIdsByHalfAxisIds[oddHalfAxisId + 1] = direction.oppositeid
+                directionIdsByHalfAxisId[oddHalfAxisId] = direction.id
+                directionIdsByHalfAxisId[oddHalfAxisId + 1] = direction.oppositeid
             }
         }
-        return directionIdsByHalfAxisIds
+        return directionIdsByHalfAxisId
+    }
+
+    get directionByHalfAxisId(): { [halfAxisId: number]: DirectionDbModel | null } {
+        const directionByHalfAxisId: { [halfAxisId: number]: DirectionDbModel | null } = {}
+        for (const oddHalfAxisId of oddHalfAxisIds) {
+            const directionIndex = (oddHalfAxisId - 1) / 2
+            if (directionIndex < this.directions.length) {
+                const direction = this.directions[directionIndex]
+                directionByHalfAxisId[oddHalfAxisId] = direction
+                directionByHalfAxisId[oddHalfAxisId + 1] = direction
+            }
+        }
+        return directionByHalfAxisId
     }
 
     get halfAxisIdByDirectionId(): { [directionId: number]: HalfAxisId } {
