@@ -31,6 +31,7 @@
     style="{model.overlapMarginStyleText}"
 >
     {#if rootThing.thing}
+        <!--{rootThing.space.directions.map(x => x.text)}-->
         <ThingWidget
             thingWidgetModel={rootThing}
             bind:graph={graph}
@@ -59,7 +60,6 @@
                 bind:graph={graph}
             />
         {/if}
-        
         <CohortWidget
             {thingCohortWidgetModel}
             bind:graph={graph}

@@ -6,9 +6,6 @@ import { get as getStore } from "svelte/store"
 import { graphsBaseFolder } from "$lib/shared/constants"
 
 
-const configPath = "./static/config/config.json"
-
-
 export async function get(): Promise<{
     status: number;
     body: GraphConfig | { error: string }

@@ -1,53 +1,54 @@
 <script lang="ts">
     import type { HalfAxisId } from "$lib/shared/constants"
-    import type { SpaceDbModel } from "$lib/models/dbModels"
-    import type { Graph } from "$lib/models/graphModels"
+    import type { Graph, Space } from "$lib/models/graphModels"
 
     import { relationshipColorByHalfAxisId } from "$lib/shared/constants"
     import { sleep } from "$lib/shared/utility"
+    import { alteredSpace } from "$lib/models/graphModels"
     import { DirectionWidget } from "$lib/widgets/graphWidgets"
+    import { addGraphIdsNeedingViewerRefresh } from "$lib/stores"
 
     export let graph: Graph
-    export let currentSpace: SpaceDbModel
+    export let currentSpace: Space | null
 
 
     const shape: "rectangle" | "circle" = "rectangle"
     const borderThickness = 20
 
-    let borderWidth: number
-    let borderHeight: number
-    $: borderCenterX = borderWidth / 2
-    $: borderCenterY = borderHeight / 2
+    let borderWidth: number | undefined
+    let borderHeight: number | undefined
+    $: borderCenterX = borderWidth ? borderWidth / 2 : 0
+    $: borderCenterY = borderHeight ? borderHeight / 2 : 0
     $: borderRadius = Math.min(borderCenterX, borderCenterY)
-    $: widthToHeightRatio = borderWidth / borderHeight
+    $: widthToHeightRatio = borderWidth && borderHeight ? borderWidth / borderHeight : 0
 
     let arrowInfos = [
         {
             rotation: 0,
             color: relationshipColorByHalfAxisId[2],
             directionSigns: [0, -1],
-            direction: currentSpace.directionByHalfAxisId[2],
+            direction: currentSpace?.directionByHalfAxisId[2] || null,
             halfAxisId: 2 as HalfAxisId
         },
         {
             rotation: 90,
             color: relationshipColorByHalfAxisId[3],
             directionSigns: [1, 0],
-            direction: currentSpace.directionByHalfAxisId[3],
+            direction: currentSpace?.directionByHalfAxisId[3] || null,
             halfAxisId: 3 as HalfAxisId
         },
         {
             rotation: 180,
             color: relationshipColorByHalfAxisId[1],
             directionSigns: [0, 1],
-            direction: currentSpace.directionByHalfAxisId[1],
+            direction: currentSpace?.directionByHalfAxisId[1] || null,
             halfAxisId: 1 as HalfAxisId
         },
         {
             rotation: 270,
             color: relationshipColorByHalfAxisId[4],
             directionSigns: [-1, 0],
-            direction: currentSpace.directionByHalfAxisId[4],
+            direction: currentSpace?.directionByHalfAxisId[4] || null,
             halfAxisId: 4 as HalfAxisId
         }
     ]
@@ -111,7 +112,7 @@
                     d="
                         M {borderCenterX - 5} {borderCenterY - 50}
                         l 10 0
-                        l 25 {-(borderHeight * 0.25)}
+                        l 25 {-((borderHeight ? borderHeight : 0) * 0.25)}
                         l 25 0
                         l -55 -100
                         l -55 100
@@ -135,8 +136,8 @@
         <div
             class="direction-widget-container"
             style="
-                left: {borderCenterX + (borderHeight * 0.275) * widthToHeightRatio * arrowInfo.directionSigns[0]}px;
-                top: {borderCenterY + (borderHeight * 0.275) * arrowInfo.directionSigns[1]}px;
+                left: {borderCenterX + ((borderHeight ? borderHeight : 0) * 0.275) * widthToHeightRatio * arrowInfo.directionSigns[0]}px;
+                top: {borderCenterY + ((borderHeight ? borderHeight : 0) * 0.275) * arrowInfo.directionSigns[1]}px;
             "
             on:mouseenter={() => {delayedSetBorderHovered(true, 0)}}
             on:mouseleave={() => {delayedSetBorderHovered(false, 750)}}
@@ -146,6 +147,27 @@
                 halfAxisId={arrowInfo.halfAxisId}
                 {graph}
                 optionClickedFunction={(direction, _, option) => {console.log(direction, option)}}
+                optionHoveredFunction={async (_, option) => {
+                    if (currentSpace) {
+                        const newSpace = alteredSpace(currentSpace, option, arrowInfo.halfAxisId)
+                 
+                        graph.startingSpace = newSpace
+                        await graph.build()
+                        addGraphIdsNeedingViewerRefresh(graph.id)
+
+
+
+
+                        //////////// Need to capture starting space, and on exit hover (mouseleave),
+                        // return to starting space and re-render.
+
+
+                        // Hovering shouldn't trigger "visited" method, which it currently does as seen in "Transaction complete" messages.
+                        
+
+                        // Need to close the Direction menus when the SpaceFrame is inactive.
+                    }
+                }}
             />
         </div>
     {/each}

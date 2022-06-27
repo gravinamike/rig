@@ -1,8 +1,8 @@
 <script lang="ts">
-    import type { SpaceDbModel } from "$lib/models/dbModels"
+    import type { Space } from "$lib/models/graphModels"
     import { Collapser } from "$lib/widgets/layoutWidgets"
 
-    export let space: SpaceDbModel
+    export let space: Space
 </script>
 
 

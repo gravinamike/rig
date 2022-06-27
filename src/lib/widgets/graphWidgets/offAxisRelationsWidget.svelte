@@ -1,7 +1,6 @@
 <script lang="ts">
     // Type imports.
-    import type { SpaceDbModel } from "$lib/models/dbModels";
-    import type { Graph } from "$lib/models/graphModels"
+    import type { Graph, Space } from "$lib/models/graphModels"
     import type { ThingWidgetModel } from "$lib/models/widgetModels"
 
     // Basic UI imports.
@@ -38,7 +37,7 @@
         // Close any existing Graph.
         if (graph !== null) await removeGraph(graph)
         // Open and build the new Graph.
-        const parentGraphSpace = parentGraph.pThingBaseWidgetModel?.space as SpaceDbModel
+        const parentGraphSpace = parentGraph.pThingBaseWidgetModel?.space as Space
         graph = await addGraph([parentThingId], 1, parentGraph, true, parentGraphSpace)
         await graph.build()
         // Refresh the Graph viewers.

@@ -1,6 +1,6 @@
 import type { GraphWidgetStyle } from "$lib/shared/constants"
-import type { SpaceDbModel, ThingDbModel } from "$lib/models/dbModels"
-import type { Cohort } from "$lib/models/graphModels"
+import type { ThingDbModel } from "$lib/models/dbModels"
+import type { Cohort, Space } from "$lib/models/graphModels"
 import type { ThingCohortWidgetModel, ThingBaseWidgetModel } from "$lib/models/widgetModels"
 
 import { defaultGraphWidgetStyle } from "$lib/shared/constants"
@@ -24,7 +24,7 @@ export class Graph {
     planes: Planes
     history: PerspectiveHistory
     lifecycleStatus: "new" | "building" | "built" | "cleared" = "new"
-    startingSpace: SpaceDbModel | null
+    startingSpace: Space | null
 
     ////////////////////////////////////////////////// Put into widgetmodel
     graphWidgetStyle: GraphWidgetStyle = {...defaultGraphWidgetStyle}
@@ -38,7 +38,7 @@ export class Graph {
      * @param {number[]} pThingIds - IDs for the Graph's starting Perspective Things.
      * @param {number}   depth     - How many Relationship "steps" to grow the Graph from the Perspective Things.
      */
-    constructor(id: number, pThingIds: number[], depth: number, parentGraph: (Graph | null)=null, offAxis=false, startingSpace: (SpaceDbModel | null)=null) {
+    constructor(id: number, pThingIds: number[], depth: number, parentGraph: (Graph | null)=null, offAxis=false, startingSpace: (Space | null)=null) {
         this.id = id
         this._pThingIds = pThingIds
         this._depth = depth
@@ -105,6 +105,7 @@ export class Graph {
     async build(): Promise<void> {
         // Set (or reset) build attributes to their starting values.
         this.rootCohort = null
+        this.rootThingCohortWidgetModel = null
         this.generations.reset()
         this.planes.reset()
         this.formActive = false

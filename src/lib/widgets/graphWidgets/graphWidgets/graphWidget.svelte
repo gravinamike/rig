@@ -223,12 +223,10 @@
     {/if}
 
     <!-- Space frame. -->
-    {#if currentSpace}
-        <SpaceFrameWidget
-            {graph}
-            {currentSpace}
-        />
-    {/if}
+    <SpaceFrameWidget
+        {graph}
+        {currentSpace}
+    />
 </div>
 
 

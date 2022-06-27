@@ -20,6 +20,7 @@
     export let graph: Graph
     export let askingForDirection = false
     export let optionClickedFunction: (direction: DirectionDbModel | null, optionId: number, option: DirectionDbModel) => void = (_: DirectionDbModel | null, __: number, option: DirectionDbModel) => {console.log(option.text)}
+    export let optionHoveredFunction: (optionId: number, option: DirectionDbModel) => void = () => {}
 
 
     let directionWidget: Element
@@ -74,6 +75,9 @@
                         direction = option
                         showOptions = false
                         optionClickedFunction(direction, Number(optionId), option)
+                    }}
+                    on:mouseenter={() => {
+                        optionHoveredFunction(Number(optionId), option)
                     }}
                 >
                     {option.text}

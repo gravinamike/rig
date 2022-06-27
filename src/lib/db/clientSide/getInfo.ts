@@ -1,6 +1,8 @@
 import type { AppConfig, GraphConfig, GraphConstruct } from "$lib/shared/constants"
-import type { ThingSearchListItem } from "$lib/models/dbModels"
+import type { SpaceDbModel, ThingSearchListItem } from "$lib/models/dbModels"
 import type { LatestConstructInfos } from "$lib/db/serverSide/getInfo"
+
+import { Space } from "$lib/models/graphModels"
 
 
 
@@ -28,9 +30,28 @@ export async function graphConstructs<Type extends GraphConstruct>(
 
     // If the response is ok,
     if (res.ok) {
-        // Unpack the response JSON as an array of instances.
-        const queriedInstances = await res.json() as Type[]
-        return queriedInstances
+
+        // Special handling for Spaces (the DB model has to be packaged in the Space first).
+        if (constructName === "Space") {
+
+            // Unpack the response JSON as an array of instances.
+            const queriedInstances = await res.json() as SpaceDbModel[]
+            
+            const spaces: Type[] = []
+            for (const model of queriedInstances) {
+                const newSpace = new Space(model)
+                spaces.push(newSpace as Type)
+            }
+
+            return spaces
+
+        } else {
+
+            // Unpack the response JSON as an array of instances.
+            const queriedInstances = await res.json() as Type[]
+            return queriedInstances
+
+        }
 
     // Handle errors if needed.
     } else {

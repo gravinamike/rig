@@ -1,13 +1,13 @@
 import type { Writable } from "svelte/store"
 import type { Editor } from "@tiptap/core"
 import type { GraphConstruct } from "$lib/shared/constants"
-import type { SpaceDbModel, ThingDbModel, ThingSearchListItem } from "$lib/models/dbModels"
+import type { ThingDbModel, ThingSearchListItem } from "$lib/models/dbModels"
 import type { RelationshipBeingCreatedInfo } from "$lib/widgets/graphWidgets"
 import type { RemoteRelatingInfo, TextHyperlinkingInfo } from "$lib/widgets/layoutWidgets"
 
 import { writable, derived } from "svelte/store"
-import { DirectionDbModel, isDirection, isSpace, isThing } from "$lib/models/dbModels"
-import { Graph } from "$lib/models/graphModels"
+import { DirectionDbModel, isDirection, isThing } from "$lib/models/dbModels"
+import { Graph, Space, isSpace } from "$lib/models/graphModels"
 import { nullRelationshipBeingCreatedInfo } from "$lib/widgets/graphWidgets"
 import { nullRemoteRelatingInfo, nullTextHyperlinkingInfo } from "$lib/widgets/layoutWidgets"
 import type { ThingWidgetModel, RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
@@ -25,8 +25,8 @@ export const directionIdsNotFoundStore = writable( [] as number[] )
 
 
 // Create Space-related stores (and subscriptions where applicable).
-export const spacesStore = writable( {} as { [id: number]: SpaceDbModel } )
-let spacesStoreValue: { [id: number]: SpaceDbModel }
+export const spacesStore = writable( {} as { [id: number]: Space } )
+let spacesStoreValue: { [id: number]: Space }
 spacesStore.subscribe(value => {spacesStoreValue = value})
 
 export const spacesStoreAsArray = derived( spacesStore, $spacesStore => Object.values($spacesStore) )
@@ -65,7 +65,7 @@ function updateConstructStore<Type extends GraphConstruct>( constructs: Type | T
 
     // Update the store with each supplied construct.
     constructs.forEach((construct) => {
-        store.update( (current) => { current[construct.id] = construct; return current } )
+        store.update( (current) => { current[construct.id as number] = construct; return current } )
     })
 }
 
@@ -426,7 +426,7 @@ export const graphsStore = writable( [] as Graph[] )
 let graphsStoreValue: Graph[]
 graphsStore.subscribe(value => {graphsStoreValue = value})
 
-export async function addGraph(pThingIds: number[], depth: number, parentGraph: (Graph | null)=null, offAxis=false, startingSpace: (SpaceDbModel | null)=null): Promise<Graph> {
+export async function addGraph(pThingIds: number[], depth: number, parentGraph: (Graph | null)=null, offAxis=false, startingSpace: (Space | null)=null): Promise<Graph> {
     const allGraphIds = graphsStoreValue.map(graph => graph.id)
     const newGraphId = allGraphIds.length ? Math.max(...allGraphIds) + 1 : 1
 

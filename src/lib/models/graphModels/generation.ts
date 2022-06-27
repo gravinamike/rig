@@ -64,7 +64,6 @@ export class Generation {
 
 
     async build(memberIdsForGeneration: number[]): Promise<void> {
-
         // For Generation 0, add the Things to a pre-Graph "root" Cohort that will
         // serve as the starting point of the Graph.
         if (this.id === 0) {
@@ -92,7 +91,6 @@ export class Generation {
         // For all Generations after 0, hook up that Generation's members, packaged in
         // Cohorts, to the parent Thing Widget Models of the previous Generation.
         } else {
-
             // For each Thing (not Placeholder) in the previous Generation,
             for (const prevThingWidgetModel of this.parentGeneration?.thingWidgetModels() || []) {
                 
@@ -123,6 +121,7 @@ export class Generation {
                         memberIdsForGeneration.filter((memberId) => {if (childCohortThingIds.includes(memberId)) return true}) :
                         []
                     const childCohort = new Cohort(addressForCohort, [])
+
                     for (const memberId of membersIdForCohort) {
 
                         const member = this.graph.generations.thingIdsAlreadyInGraph.includes(memberId) ? new ThingBaseWidgetModel(memberId, this.graph) : // If the Thing is already modeled in the Graph, return a spacer model.

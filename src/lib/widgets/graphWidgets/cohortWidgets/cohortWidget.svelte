@@ -39,6 +39,17 @@
         gap: {thingCohortWidgetModel.cohort.halfAxisId && [5, 6, 7, 8].includes(thingCohortWidgetModel.cohort.halfAxisId) ? 4 : graph.graphWidgetStyle.betweenThingGap}px;
     "
 >
+    <!--{#if [0, 1].includes(thingCohortWidgetModel.cohort.address.generationId)}
+        DIRECTION {thingCohortWidgetModel.cohort.address.directionId}<br>
+        <div
+            style="pointer-events: auto;"
+            on:click={() => {console.log( "FOO", thingCohortWidgetModel.cohort.address.parentThingWidgetModel?.space )}}
+        >
+            PARENT SPACE {thingCohortWidgetModel.cohort.address.parentThingWidgetModel?.space.text}<br>
+            PARENT SPACE DIRS [{thingCohortWidgetModel.cohort.address.parentThingWidgetModel?.space.directions.map(x => {x.id}).join(",")}]<br>
+        </div>
+        HALF AXIS {thingCohortWidgetModel.cohort.halfAxisId}
+    {/if}-->
     {#if !(thingCohortWidgetModel.cohort.members.length === 1 && indexOfGrandparentThing !== null && indexOfGrandparentThing !== -1)}<!-- Unless the ONLY descendent in a Half-Axis is a doubled-back parent Thing, -->
         {#each thingCohortWidgetModel.cohort.members as cohortMember}
             {#if "text" in cohortMember}
