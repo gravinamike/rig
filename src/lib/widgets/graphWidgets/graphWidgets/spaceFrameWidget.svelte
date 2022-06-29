@@ -4,13 +4,19 @@
 
     import { relationshipColorByHalfAxisId } from "$lib/shared/constants"
     import { sleep } from "$lib/shared/utility"
-    import { alteredSpace } from "$lib/models/graphModels"
+    import { copiedSpace, alteredSpace } from "$lib/models/graphModels"
     import { DirectionWidget } from "$lib/widgets/graphWidgets"
     import { addGraphIdsNeedingViewerRefresh } from "$lib/stores"
 
     export let graph: Graph
     export let currentSpace: Space | null
 
+    let originalSpace: Space | null
+    let originalSpaceSet = false
+    $: if (currentSpace !== null && !originalSpaceSet) {
+        originalSpace = copiedSpace(currentSpace)
+        originalSpaceSet = true
+    }
 
     const shape: "rectangle" | "circle" = "rectangle"
     const borderThickness = 20
@@ -150,23 +156,15 @@
                 optionHoveredFunction={async (_, option) => {
                     if (currentSpace) {
                         const newSpace = alteredSpace(currentSpace, option, arrowInfo.halfAxisId)
-                 
                         graph.startingSpace = newSpace
                         await graph.build()
                         addGraphIdsNeedingViewerRefresh(graph.id)
-
-
-
-
-                        //////////// Need to capture starting space, and on exit hover (mouseleave),
-                        // return to starting space and re-render.
-
-
-                        // Hovering shouldn't trigger "visited" method, which it currently does as seen in "Transaction complete" messages.
-                        
-
-                        // Need to close the Direction menus when the SpaceFrame is inactive.
                     }
+                }}
+                exitOptionHoveredFunction={async () => {
+                    graph.startingSpace = originalSpace
+                    await graph.build()
+                    addGraphIdsNeedingViewerRefresh(graph.id)
                 }}
             />
         </div>

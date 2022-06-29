@@ -21,6 +21,7 @@
     export let askingForDirection = false
     export let optionClickedFunction: (direction: DirectionDbModel | null, optionId: number, option: DirectionDbModel) => void = (_: DirectionDbModel | null, __: number, option: DirectionDbModel) => {console.log(option.text)}
     export let optionHoveredFunction: (optionId: number, option: DirectionDbModel) => void = () => {}
+    export let exitOptionHoveredFunction: () => void = () => {}
 
 
     let directionWidget: Element
@@ -66,6 +67,9 @@
     {#if showOptions}
         <div
             class="direction-widget-options"
+            on:mouseleave={() => {
+                exitOptionHoveredFunction()
+            }}
             on:wheel|stopPropagation={()=>{}}
         >
             {#each Object.entries($directionsStore) as [optionId, option]}

@@ -10,7 +10,7 @@ import { retrieveGraphConstructs } from "$lib/stores"
  * Space model.
  */
 export class Space {
-    dbModel: SpaceDbModel
+    dbModel: SpaceDbModel | null
 
     id: number | null
     text: string | null
@@ -75,16 +75,21 @@ export function isSpace(construct: GraphConstruct): construct is Space {
 }
 
 
+export function copiedSpace(startingSpace: Space): Space {
+    const copiedSpace = Object.assign(Object.create(Object.getPrototypeOf(startingSpace)), startingSpace) as Space
+    copiedSpace.dbModel = null
+    copiedSpace.id = null
+    copiedSpace.text = null
+    copiedSpace.directions = []
+    for (const direction of startingSpace.directions) copiedSpace.directions.push(direction)
 
+    return copiedSpace
+}
 
 export function alteredSpace(
     startingSpace: Space, direction: DirectionDbModel, halfAxisId: HalfAxisId
 ): Space | null {
-    const alteredSpace = Object.assign(Object.create(Object.getPrototypeOf(startingSpace)), startingSpace) as Space
-    alteredSpace.id = null
-    alteredSpace.text = null
-    alteredSpace.directions = []
-    for (const direction of startingSpace.directions) alteredSpace.directions.push(direction)
+    const alteredSpace = copiedSpace(startingSpace)
     
     const indexInSpace = oddHalfAxisIds.indexOf(halfAxisId as OddHalfAxisId)
     const oppositeHalfAxisId = halfAxisOppositeIds[halfAxisId]
