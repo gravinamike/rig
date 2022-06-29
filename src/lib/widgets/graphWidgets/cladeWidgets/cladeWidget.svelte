@@ -31,7 +31,6 @@
     style="{model.overlapMarginStyleText}"
 >
     {#if rootThing.thing}
-        <!--{rootThing.space.directions.map(x => x.text)}-->
         <ThingWidget
             thingWidgetModel={rootThing}
             bind:graph={graph}
@@ -54,17 +53,21 @@
 
     <!-- The Thing's Relationships and child Cohorts. -->
     {#each childThingCohorts as thingCohortWidgetModel (thingCohortWidgetModel.cohort.address)}
-        {#if thingCohortWidgetModel.cohort.halfAxisId && [1, 2, 3, 4].includes(thingCohortWidgetModel.cohort.halfAxisId)}
-            <RelationshipCohortWidget
-                model={childRelationshipCohortsByHalfAxisId[thingCohortWidgetModel.cohort.halfAxisId]}
-                bind:graph={graph}
-            />
+        {#if thingCohortWidgetModel.cohort.halfAxisId}
+            {#if [1, 2, 3, 4].includes(thingCohortWidgetModel.cohort.halfAxisId)}
+                <RelationshipCohortWidget
+                    model={childRelationshipCohortsByHalfAxisId[thingCohortWidgetModel.cohort.halfAxisId]}
+                    bind:graph={graph}
+                />
+            {/if}
+            {#if [1, 2, 3, 4, 5, 6, 7, 8].includes(thingCohortWidgetModel.cohort.halfAxisId)}
+                <CohortWidget
+                    {thingCohortWidgetModel}
+                    bind:graph={graph}
+                    {rePerspectToThingId}
+                />
+            {/if}
         {/if}
-        <CohortWidget
-            {thingCohortWidgetModel}
-            bind:graph={graph}
-            {rePerspectToThingId}
-        />
     {/each}
 
     <OffAxisRelationsWidget

@@ -46,8 +46,11 @@ export class Space {
             const directionIndex = (oddHalfAxisId - 1) / 2
             if (directionIndex < this.directions.length) {
                 const direction = this.directions[directionIndex]
+                const oppositeDirection = direction.oppositeid ?
+                    retrieveGraphConstructs("Direction", direction.oppositeid) as DirectionDbModel | null :
+                    null
                 directionByHalfAxisId[oddHalfAxisId] = direction
-                directionByHalfAxisId[oddHalfAxisId + 1] = direction
+                directionByHalfAxisId[oddHalfAxisId + 1] = oppositeDirection
             }
         }
         return directionByHalfAxisId

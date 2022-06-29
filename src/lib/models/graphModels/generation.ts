@@ -131,7 +131,7 @@ export class Generation {
                         childCohort.addMember(member)
                     }
 
-                    // Create a new Cohort Widget Model and and assign to the previous Generation's Thing in that Direction.
+                    // Create a new Cohort Widget Model and assign to the previous Generation's Thing in that Direction.
                     const childThingCohortWidgetModel = new ThingCohortWidgetModel(childCohort, this.graph)
                     prevThingWidgetModel.childThingCohortWidgetModel(childThingCohortWidgetModel)
 
