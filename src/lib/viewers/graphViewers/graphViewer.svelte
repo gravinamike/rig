@@ -19,6 +19,9 @@
     import { FolderViewer } from "$lib/viewers/folderViewers"
     import { GraphWidget } from "$lib/widgets/graphWidgets"
     import { GraphOutlineWidget } from "$lib/widgets/graphWidgets"
+
+    // Import modification functions.
+    import { markThingsVisited } from "$lib/db/clientSide/makeChanges"
     
     export let pThingIds: number[]
     export let depth: number
@@ -41,6 +44,7 @@
         // Open and build the new Graph.
         graph = await addGraph(pThingIds, depth)
         await graph.build()
+        await markThingsVisited(pThingIds)
         // Refresh the Graph viewers.
         addGraphIdsNeedingViewerRefresh(graph.id)
     }
@@ -70,6 +74,7 @@
             hoveredThingIdStore.set(null) // Clear the hovered-Thing highlighting.
             graph.allowZoomAndScrollToFit = true
             addGraphIdsNeedingViewerRefresh(graph.id)
+            await markThingsVisited(pThingIds)
 
             // Add the new Perspective Thing to the History.
             graph.history.addEntries([thingId])
