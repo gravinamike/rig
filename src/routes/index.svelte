@@ -12,11 +12,11 @@
     // Import database/stores-related functions.
     import { loadingState, openGraphStore, updateRelationshipBeingCreatedEndpoint } from "$lib/stores"
 
-    // Import layout elements.
+    // Import widgets.
     import {
-        ContextCommandPalette, Collapser, TabBlock, TabFlap, TabFlaps, TabBody, WaitingIndicator,
-        RemoteRelatingWidget, TextHyperlinkingWidget
+        ContextCommandPalette, Collapser, TabBlock, TabFlap, TabFlaps, TabBody, WaitingIndicator
     } from "$lib/widgets/layoutWidgets"
+    import { RemoteRelatingWidget, TextHyperlinkingWidget } from "$lib/widgets/dialogWidgets"
 
     // Import viewers.
     import FileViewer from "$lib/viewers/settingsViewers/fileViewer.svelte"
