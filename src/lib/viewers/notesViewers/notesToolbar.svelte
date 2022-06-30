@@ -40,6 +40,30 @@
     $: if (editor) currentSelectionColor = selectedColor()
 
     $: commandButtonInfos = [
+        // Linking.
+        {
+            text: "Thing link",
+            iconName: "thing-link",
+            iconHtml: null,
+            isActive: editor.isActive('link'),//////////// Need to add a link-parsing function and call it here to determine format.
+            onClick: () => {
+                console.log("THING LINK")
+            }
+        },
+        {
+            text: "Hyperlink",
+            iconName: "link",
+            iconHtml: null,
+            isActive: editor.isActive('link'),
+            onClick: () => {
+                if (editor.isActive('link')) {
+                    editor.chain().focus().unsetLink().run()
+                } else {
+                    enableTextHyperlinking(editor, focusEditorMethod)
+                }
+            }
+        },
+
         // Basic formatting.
         {
             text: "Bold text",
@@ -168,19 +192,6 @@
             `,
             isActive: false,
             onClick: () => editor.chain().focus().setHardBreak().run()
-        },
-        {
-            text: "Link",
-            iconName: "link",
-            iconHtml: null,
-            isActive: editor.isActive('link'),
-            onClick: () => {
-                if (editor.isActive('link')) {
-                    editor.chain().focus().unsetLink().run()
-                } else {
-                    enableTextHyperlinking(editor, focusEditorMethod)
-                }
-            }
         },
 
         // Undo/redo and clear formatting.
