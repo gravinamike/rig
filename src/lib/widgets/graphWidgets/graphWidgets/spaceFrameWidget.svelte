@@ -148,25 +148,27 @@
             on:mouseenter={() => {delayedSetBorderHovered(true, 0)}}
             on:mouseleave={() => {delayedSetBorderHovered(false, 750)}}
         >
-            <DirectionWidget
-                direction={arrowInfo.direction}
-                halfAxisId={arrowInfo.halfAxisId}
-                {graph}
-                optionClickedFunction={(direction, _, option) => {console.log(direction, option)}}
-                optionHoveredFunction={async (_, option) => {
-                    if (currentSpace) {
-                        const newSpace = alteredSpace(currentSpace, option, arrowInfo.halfAxisId)
-                        graph.startingSpace = newSpace
+            {#if borderHovered}
+                <DirectionWidget
+                    direction={arrowInfo.direction}
+                    halfAxisId={arrowInfo.halfAxisId}
+                    {graph}
+                    optionClickedFunction={(direction, _, option) => {console.log(direction, option)}}
+                    optionHoveredFunction={async (_, option) => {
+                        if (currentSpace) {
+                            const newSpace = alteredSpace(currentSpace, option, arrowInfo.halfAxisId)
+                            graph.startingSpace = newSpace
+                            await graph.build()
+                            addGraphIdsNeedingViewerRefresh(graph.id)
+                        }
+                    }}
+                    exitOptionHoveredFunction={async () => {
+                        graph.startingSpace = originalSpace
                         await graph.build()
                         addGraphIdsNeedingViewerRefresh(graph.id)
-                    }
-                }}
-                exitOptionHoveredFunction={async () => {
-                    graph.startingSpace = originalSpace
-                    await graph.build()
-                    addGraphIdsNeedingViewerRefresh(graph.id)
-                }}
-            />
+                    }}
+                />
+            {/if}
         </div>
     {/each}
 </div>
