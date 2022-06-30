@@ -28,7 +28,7 @@
     $: borderRadius = Math.min(borderCenterX, borderCenterY)
     $: widthToHeightRatio = borderWidth && borderHeight ? borderWidth / borderHeight : 0
 
-    let arrowInfos = [
+    $: arrowInfos = [
         {
             rotation: 0,
             color: relationshipColorByHalfAxisId[2],
@@ -153,7 +153,10 @@
                     direction={arrowInfo.direction}
                     halfAxisId={arrowInfo.halfAxisId}
                     {graph}
-                    optionClickedFunction={(direction, _, option) => {console.log(direction, option)}}
+                    optionClickedFunction={(direction, _, option) => {
+                        console.log(direction, option)
+
+                    }}
                     optionHoveredFunction={async (_, option) => {
                         if (currentSpace) {
                             const newSpace = alteredSpace(currentSpace, option, arrowInfo.halfAxisId)

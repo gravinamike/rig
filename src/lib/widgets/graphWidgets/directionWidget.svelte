@@ -68,7 +68,7 @@
         <div
             class="direction-widget-options"
             on:mouseleave={() => {
-                exitOptionHoveredFunction()
+                if (showOptions) exitOptionHoveredFunction()
             }}
             on:wheel|stopPropagation={()=>{}}
         >
