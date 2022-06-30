@@ -1,6 +1,6 @@
 import type { HalfAxisId } from "$lib/shared/constants"
-import type { SpaceDbModel, ThingDbModel } from "$lib/models/dbModels"
-import type { Graph, Cohort } from "$lib/models/graphModels"
+import type { ThingDbModel } from "$lib/models/dbModels"
+import type { Graph, Space, Cohort } from "$lib/models/graphModels"
 import type { ThingAddress, ThingWidgetModel } from "./"
 
 import { oddHalfAxisIds, planePadding } from "$lib/shared/constants"
@@ -103,26 +103,41 @@ export class ThingBaseWidgetModel {
         return address
     }
 
-    get space(): SpaceDbModel {
-        let space: SpaceDbModel
+    get space(): Space {
+        let space: Space
+
         // If the Graph has a starting Space and this is the Perspective Thing,
         // use the starting Space.
         if (this.graph.startingSpace && !this.parentThingWidgetModel) {
             space = this.graph.startingSpace
-        // If not inheriting Space from parent, and the Thing Widget Model's own default Space
-        // is available, use the Thing Widget Model's own default Space.
+            
+        // Else, if...
         } else if (
-            !( this.parentThingWidgetModel && this.inheritSpace )
-            && this.defaultSpaceId && graphConstructInStore("Space", this.defaultSpaceId)
+            (
+                // ... the Thing Widget Model doesn't have a parent,
+                !this.parentThingWidgetModel
+                // ... or is set not to inherit Space from a parent,
+                || !this.inheritSpace
+            )
+            && (
+                // ... and the Thing Widget Model has a default Space set,
+                this.defaultSpaceId
+                // ... and that default Space is in the Store,
+                && graphConstructInStore("Space", this.defaultSpaceId)
+            )
         ) {
-            space = retrieveGraphConstructs("Space", this.defaultSpaceId) as SpaceDbModel
-        // Else, if the Thing Widget model has a parent, use the parent's Space.
+            // ...use the Thing Widget Model's own default Space.
+            space = retrieveGraphConstructs<Space>("Space", this.defaultSpaceId) as Space
+
+        // Else, if the Thing Widget model has a parent, inherit the parent's Space.
         } else if (this.parentThingWidgetModel) {
             space = this.parentThingWidgetModel.space
-        // Else use the first Space in the list of Spaces.
+
+        // If all else fails, just use the first Space in the list of Spaces.
         } else {
-            space = retrieveGraphConstructs("Space", 1) as SpaceDbModel//What if there is no spacesStoreValue[1]? Supply an empty Space.
+            space = retrieveGraphConstructs<Space>("Space", 1) as Space//What if there is no spacesStoreValue[1]? Supply an empty Space.
         }
+
         return space
     }
 

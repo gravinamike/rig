@@ -1,10 +1,8 @@
 <script lang="ts">
-    import type { Graph } from "$lib/models/graphModels/graph"
     import type { ThingDbModel } from "$lib/models/dbModels"
     import { pinIdsStore, storeGraphConstructs, graphConstructInStore, retrieveGraphConstructs } from "$lib/stores"
     import { PinWidget } from "$lib/widgets/navWidgets"
 
-    export let graph: Graph//////////////////////////////////////////////////// Get rid of
     export let rePerspectToThingId: (thingId: number) => Promise<void>
 
 

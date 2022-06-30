@@ -16,6 +16,7 @@
     // Import widgets.
     import { PlaneControls } from "$lib/widgets/controlWidgets"
     import { CohortWidget } from "$lib/widgets/graphWidgets"
+    import SpaceFrameWidget from "./spaceFrameWidget.svelte"
     
     export let graph: Graph
     export let rePerspectToThingId: (thingId: number) => Promise<void>
@@ -27,13 +28,17 @@
     $: graphWidgetStyle.betweenThingGap = Math.max(0, graphWidgetStyle.betweenThingSpacing)
     $: graphWidgetStyle.betweenThingOverlap = Math.min(0, graphWidgetStyle.betweenThingSpacing)
 
-    let graphWidget: Element
+    let graphWidget: HTMLElement
     let centralAnchor: Element
     let zoomBoundsDiv: Element
     const graphBounds = new Rectangle() // The "Graph bounds" describe the Graph as it's currently drawn in real screen-space (taking scale into account).
     const zoomBounds = new Rectangle() // The "zoom bounds" are in "scale-naive" space, calculated from the "Graph bounds".
     let trackingMouse = false
     let prevtrackingMouseLocation: { x: number | null, y: number | null } = { x: null, y: null }
+
+    $: currentSpace = graph.startingSpace ?
+        graph.startingSpace :
+        graph.pThingBaseWidgetModel?.space || null
 
 
     // Set up reactive zooming and scrolling.
@@ -216,6 +221,12 @@
             />
         </div>
     {/if}
+
+    <!-- Space frame. -->
+    <SpaceFrameWidget
+        {graph}
+        {currentSpace}
+    />
 </div>
 
 

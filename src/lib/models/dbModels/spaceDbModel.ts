@@ -1,7 +1,5 @@
 import type { RelationMappings, RelationMappingsThunk } from "objection"
-import type { GraphConstruct, HalfAxisId } from "$lib/shared/constants"
 
-import { oddHalfAxisIds } from "$lib/shared/constants"
 import { Model } from "objection"
 import { DirectionDbModel } from "$lib/models/dbModels"
 
@@ -13,7 +11,7 @@ import { DirectionDbModel } from "$lib/models/dbModels"
 export class SpaceDbModel extends Model {
     static tableName = "spaces" as const
 
-    id!: number
+    id!: number | null
     text!: string | null
     directions!: DirectionDbModel[]
 
@@ -34,38 +32,4 @@ export class SpaceDbModel extends Model {
             }
         };
     }
-
-    static get virtualAttributes(): string[] {
-        return ['directionIdByHalfAxisId', 'halfAxisIdByDirectionId']
-    }
-
-    get directionIdByHalfAxisId(): { [halfAxisId: number]: number | null } {
-        const directionIdsByHalfAxisIds: { [halfAxisId: number]: number | null } = {}
-        for (const oddHalfAxisId of oddHalfAxisIds) {
-            const directionIndex = (oddHalfAxisId - 1) / 2
-            if (directionIndex < this.directions.length) {
-                const direction = this.directions[directionIndex]
-                directionIdsByHalfAxisIds[oddHalfAxisId] = direction.id
-                directionIdsByHalfAxisIds[oddHalfAxisId + 1] = direction.oppositeid
-            }
-        }
-        return directionIdsByHalfAxisIds
-    }
-
-    get halfAxisIdByDirectionId(): { [directionId: number]: HalfAxisId } {
-        const halfAxisIdByDirectionId: { [directionId: number]: HalfAxisId } = {}
-        const halfAxisIds = Object.keys(this.directionIdByHalfAxisId).map(k => Number(k) as HalfAxisId)
-        for (const halfAxisId of halfAxisIds) {
-            const directionId = this.directionIdByHalfAxisId[halfAxisId]
-            if (directionId) halfAxisIdByDirectionId[directionId] = halfAxisId
-        }
-        return halfAxisIdByDirectionId
-    }
-}
-
-/*
- * Typeguard functions for Graph construct classes.
- */
-export function isSpace(construct: GraphConstruct): construct is SpaceDbModel {
-    return "directions" in construct
 }

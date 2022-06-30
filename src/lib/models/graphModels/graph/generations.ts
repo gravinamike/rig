@@ -183,7 +183,7 @@ export class Generations {
         this._members.push(newGeneration)
 
         // Build the new Generation.
-        newGeneration.build(memberIdsForGeneration)
+        await newGeneration.build(memberIdsForGeneration)
     }
 
     /**
@@ -231,7 +231,7 @@ export class Generations {
         this._relationshipsOnlyMember = newGeneration
 
         // Build the Generation.
-        newGeneration.build(memberIdsForGeneration)
+        await newGeneration.build(memberIdsForGeneration)
     }
 
     /**

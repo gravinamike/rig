@@ -1,4 +1,5 @@
-import type { DirectionDbModel, SpaceDbModel, ThingDbModel, RelationshipDbModel } from "$lib/models/dbModels"
+import type { DirectionDbModel, ThingDbModel, RelationshipDbModel } from "$lib/models/dbModels"
+import type { Space } from "$lib/models/graphModels"
 
 
 /*
@@ -32,7 +33,7 @@ export interface GraphConfig {
     pinIds: number[]
 }
 
-export type GraphConstruct = DirectionDbModel | SpaceDbModel | ThingDbModel | RelationshipDbModel
+export type GraphConstruct = DirectionDbModel | Space | ThingDbModel | RelationshipDbModel
 
 export interface GraphWidgetStyle {
     excludePerspectiveThing: boolean,
@@ -84,6 +85,7 @@ export const planePadding = 20
 export type HalfAxisId = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
 export const halfAxisIds = [0, 1, 2, 3, 4, 5, 6, 7, 8] as const
 export const halfAxisOppositeIds = {0: null, 1: 2, 2: 1, 3: 4, 4: 3, 5: 6, 6: 5, 7: 8, 8: 7} as const
+export type OddHalfAxisId = 1 | 3 | 5 | 7
 export const oddHalfAxisIds = [1, 3, 5, 7] as const
 export const cartesianHalfAxisIds = [1, 2, 3, 4] as const
 

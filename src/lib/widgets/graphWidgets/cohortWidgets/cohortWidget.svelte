@@ -38,7 +38,7 @@
         flex-direction: {rowOrColumn};
         gap: {thingCohortWidgetModel.cohort.halfAxisId && [5, 6, 7, 8].includes(thingCohortWidgetModel.cohort.halfAxisId) ? 4 : graph.graphWidgetStyle.betweenThingGap}px;
     "
->
+>        
     {#if !(thingCohortWidgetModel.cohort.members.length === 1 && indexOfGrandparentThing !== null && indexOfGrandparentThing !== -1)}<!-- Unless the ONLY descendent in a Half-Axis is a doubled-back parent Thing, -->
         {#each thingCohortWidgetModel.cohort.members as cohortMember}
             {#if "text" in cohortMember}

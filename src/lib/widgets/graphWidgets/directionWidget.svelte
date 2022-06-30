@@ -20,6 +20,8 @@
     export let graph: Graph
     export let askingForDirection = false
     export let optionClickedFunction: (direction: DirectionDbModel | null, optionId: number, option: DirectionDbModel) => void = (_: DirectionDbModel | null, __: number, option: DirectionDbModel) => {console.log(option.text)}
+    export let optionHoveredFunction: (optionId: number, option: DirectionDbModel) => void = () => {}
+    export let exitOptionHoveredFunction: () => void = () => {}
 
 
     let directionWidget: Element
@@ -60,11 +62,14 @@
     >
         {direction ? direction.text : "Choose Direction..."}
     </div>
-
+    
     <!-- Drop-down menu to select Direction. -->
     {#if showOptions}
         <div
             class="direction-widget-options"
+            on:mouseleave={() => {
+                if (showOptions) exitOptionHoveredFunction()
+            }}
             on:wheel|stopPropagation={()=>{}}
         >
             {#each Object.entries($directionsStore) as [optionId, option]}
@@ -74,6 +79,9 @@
                         direction = option
                         showOptions = false
                         optionClickedFunction(direction, Number(optionId), option)
+                    }}
+                    on:mouseenter={() => {
+                        optionHoveredFunction(Number(optionId), option)
                     }}
                 >
                     {option.text}

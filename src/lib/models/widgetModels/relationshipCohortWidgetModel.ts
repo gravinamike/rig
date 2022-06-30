@@ -1,6 +1,6 @@
 import type { HalfAxisId } from "$lib/shared/constants"
-import type { DirectionDbModel, SpaceDbModel } from "$lib/models/dbModels"
-import type { Graph, GenerationMember, Cohort } from "$lib/models/graphModels"
+import type { DirectionDbModel } from "$lib/models/dbModels"
+import type { Graph, Space, GenerationMember, Cohort } from "$lib/models/graphModels"
 import type { ThingWidgetModel } from "./index"
 
 import {
@@ -16,7 +16,7 @@ export class RelationshipCohortWidgetModel {
     kind = "relationshipCohortWidgetModel" as const
 
     cohort: Cohort
-    space: SpaceDbModel
+    space: Space
     graph: Graph
 
     parentThingWidgetModel: ThingWidgetModel
@@ -28,7 +28,7 @@ export class RelationshipCohortWidgetModel {
     rotation: number
     relationshipColor: string
 
-    constructor(cohort: Cohort, space: SpaceDbModel, graph: Graph) {
+    constructor(cohort: Cohort, space: Space, graph: Graph) {
         this.cohort = cohort
         this.space = space
         this.graph = graph
