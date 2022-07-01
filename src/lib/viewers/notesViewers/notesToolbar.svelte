@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { Editor } from "@tiptap/core"
     import { fontNames, fontSizes, headerLevels } from "$lib/shared/constants"
-    import { enableTextHyperlinking } from "$lib/stores"
+    import { enableThingLinking, enableTextHyperlinking } from "$lib/stores"
     import CommandPalette from "$lib/widgets/layoutWidgets/commandPalette/commandPalette.svelte"
 
     export let editor: Editor
@@ -47,7 +47,11 @@
             iconHtml: null,
             isActive: editor.isActive('link'),//////////// Need to add a link-parsing function and call it here to determine format.
             onClick: () => {
-                console.log("THING LINK")
+                if (editor.isActive('link')) {
+                    editor.chain().focus().unsetLink().run()
+                } else {
+                    enableThingLinking(editor, focusEditorMethod)
+                }
             }
         },
         {
