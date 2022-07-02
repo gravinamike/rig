@@ -60,11 +60,14 @@
     <div
         class="disabled-background"
         style="position: absolute; left: 0px; top: 0px; width: 100%; height: 100%; z-index: 1; background-color: grey; opacity: 0.5;"
-        on:click={cancel}
+        on:click|stopPropagation={cancel}
         on:wheel|preventDefault
     />
 
-    <div class="remote-relating-widget">
+    <div
+        class="remote-relating-widget"
+        on:click|stopPropagation
+    >
         <RemoteSelectingWidget
             bind:graph
             {submitMethod}
