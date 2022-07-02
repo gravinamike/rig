@@ -98,7 +98,6 @@
 
         display: flex;
         flex-direction: row;
-        padding: 20px;
     }
 
     .thing-searchbox-container {
