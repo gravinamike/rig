@@ -39,15 +39,25 @@
     let currentSelectionColor: string
     $: if (editor) currentSelectionColor = selectedColor()
 
+    function isThingLink(): boolean {
+        return (
+            editor.isActive('link')
+            && editor.getAttributes("link").href.startsWith("graph://")
+        )
+    }
+
     $: commandButtonInfos = [
         // Linking.
         {
             text: "Thing link",
             iconName: "thing-link",
             iconHtml: null,
-            isActive: editor.isActive('link'),//////////// Need to add a link-parsing function and call it here to determine format.
+            isActive: (
+                editor.isActive('link')
+                && isThingLink()
+            ),
             onClick: () => {
-                if (editor.isActive('link')) {
+                if (editor.isActive('link') && isThingLink()) {
                     editor.chain().focus().unsetLink().run()
                 } else {
                     enableThingLinking(editor, focusEditorMethod)
@@ -58,9 +68,12 @@
             text: "Hyperlink",
             iconName: "link",
             iconHtml: null,
-            isActive: editor.isActive('link'),
+            isActive: (
+                editor.isActive('link')
+                && !isThingLink()
+            ),
             onClick: () => {
-                if (editor.isActive('link')) {
+                if (editor.isActive('link') && !isThingLink()) {
                     editor.chain().focus().unsetLink().run()
                 } else {
                     enableTextHyperlinking(editor, focusEditorMethod)

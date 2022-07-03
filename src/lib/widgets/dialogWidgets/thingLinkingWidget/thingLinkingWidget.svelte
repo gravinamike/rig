@@ -2,10 +2,11 @@
     import type { Graph } from "$lib/models/graphModels"
     import type { SearchOption } from "$lib/widgets/navWidgets/searchWidget"
     import {
-        thingLinkingStore, updateThingLinkingUrl, disableThingLinking
+        thingLinkingStore, updateThingLinkingUrl, disableThingLinking, retrieveGraphConstructs
     } from "$lib/stores"
     import { RemoteSelectingWidget } from "$lib/widgets/dialogWidgets"
     import { sleep } from "$lib/shared/utility"
+import type { ThingDbModel } from "$lib/models/dbModels";
 
 
     let graph: Graph | null = null
@@ -28,17 +29,15 @@
         )
 
         if (destThingId) {
-            // Get the GUID from that Thing.
-            const url = "thing://GUID_GOES_HERE"
-
-            updateThingLinkingUrl(url)
-            console.log(url)
-            /*
-            $textHyperlinkingStore.editor?.chain().focus().setLink({ href: urlField.value, target: '_blank' }).run()
-            */
-
-            cancel()
+            const destThing = retrieveGraphConstructs("Thing", destThingId) as ThingDbModel
+            if (destThing) {
+                const url = `graph://${destThing.guid}`
+                updateThingLinkingUrl(url)
+                $thingLinkingStore.editor?.chain().focus().setLink({ href: url, target: '_blank' }).run()
+            }            
         }
+
+        cancel()
     }
 </script>
 
