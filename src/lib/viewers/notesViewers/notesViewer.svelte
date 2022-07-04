@@ -1,9 +1,10 @@
 <script lang="ts">
     import type { Graph } from "$lib/models/graphModels"
     import type { ThingDbModel } from "$lib/models/dbModels"
-    import { thingsStore, storeGraphConstructs, retrieveGraphConstructs, graphConstructInStore } from "$lib/stores/graphStores"
+    import { thingsStore, storeGraphConstructs, retrieveGraphConstructs, graphConstructInStore, retrieveGraph } from "$lib/stores/graphStores"
     import NotesEditor from "./notesEditor.svelte"
     import { addNoteToThing, markNotesModified, updateNote } from "$lib/db/clientSide"
+import { hyperlinkProtocols } from "$lib/shared/constants";
 
     export let graph: Graph
 
@@ -74,6 +75,44 @@
     $: if (noteChanged) handleNoteChanged()
     
 
+
+
+    // Set up custom hyperlink handling for Thing-links.
+    document.addEventListener("click", event => {
+        if (event.target) {
+            const originElement = event.target as Element
+            const hyperlink = originElement.closest("a")
+            if (hyperlink) {
+
+                let isRegularHyperlink = false
+                for (const protocol of hyperlinkProtocols) {
+                    if (hyperlink.href.startsWith(`${protocol}://`)) isRegularHyperlink = true
+                }
+
+                if (!isRegularHyperlink) {
+
+                    event.preventDefault()
+                    const notesViewer = hyperlink.closest(".notes-viewer")
+                    if (notesViewer) {
+                        const classes = (notesViewer as HTMLDivElement).classList
+                        const graphId = Number(classes[1][classes[1].length - 1])
+
+                        console.log(`You clicked ${hyperlink.href} for viewer ${graphId}`)
+
+                        const graph = retrieveGraph(graphId)
+
+                        const guid = hyperlink.href.split("//")[1]
+                        console.log(guid)
+
+                        // Now find the ID of the Thing with that GUID!
+                        // Now re-perspect it!
+
+                    }
+
+                }
+            }
+        }
+    })
 </script>
 
 
@@ -83,7 +122,7 @@
 />
 
 
-<div class="notes-viewer">
+<div class="notes-viewer graph-{graph.id}">
     <h4>{title}</h4>
 
     <!-- Container to hold either Note display or Note editor. -->

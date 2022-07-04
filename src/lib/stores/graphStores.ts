@@ -483,6 +483,14 @@ export async function addGraph(pThingIds: number[], depth: number, parentGraph: 
     return graph
 }
 
+export async function retrieveGraph(graphId: number): Promise<Graph | null> {
+    if (graphId <= 1 && !(graphId > graphsStoreValue.length)) {
+        return graphsStoreValue[graphId - 1]
+    } else {
+        return null
+    }
+}
+
 export async function removeGraph(graph: Graph): Promise<void> {
     // First remove the Graph's children.
     for (const childGraph of graph.childGraphs) {
