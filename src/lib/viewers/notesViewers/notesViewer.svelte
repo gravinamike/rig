@@ -3,10 +3,11 @@
     import type { ThingDbModel } from "$lib/models/dbModels"
     import { thingsStore, storeGraphConstructs, retrieveGraphConstructs, graphConstructInStore, retrieveGraph } from "$lib/stores/graphStores"
     import NotesEditor from "./notesEditor.svelte"
-    import { addNoteToThing, markNotesModified, updateNote } from "$lib/db/clientSide"
-import { hyperlinkProtocols } from "$lib/shared/constants";
+    import { addNoteToThing, markNotesModified, thingsByGuid, updateNote } from "$lib/db/clientSide"
+    import { hyperlinkProtocols } from "$lib/shared/constants"
 
     export let graph: Graph
+    export let rePerspectToThingId: (thingId: number) => Promise<void>
 
     
     let notesContainer: Element
@@ -78,7 +79,7 @@ import { hyperlinkProtocols } from "$lib/shared/constants";
 
 
     // Set up custom hyperlink handling for Thing-links.
-    document.addEventListener("click", event => {
+    document.addEventListener("click", async event => {
         if (event.target) {
             const originElement = event.target as Element
             const hyperlink = originElement.closest("a")
@@ -99,14 +100,14 @@ import { hyperlinkProtocols } from "$lib/shared/constants";
 
                         console.log(`You clicked ${hyperlink.href} for viewer ${graphId}`)
 
-                        const graph = retrieveGraph(graphId)
-
                         const guid = hyperlink.href.split("//")[1]
-                        console.log(guid)
 
-                        // Now find the ID of the Thing with that GUID!
-                        // Now re-perspect it!
+                        const thingsForGuid = await thingsByGuid([guid])
+                        const thingId = thingsForGuid.length ? thingsForGuid[0].id : null
 
+                        if (graph.id === graphId && thingId) {
+                            rePerspectToThingId(thingId)
+                        }
                     }
 
                 }

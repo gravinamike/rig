@@ -168,6 +168,7 @@
                     <TabBody>
                         <NotesViewer
                             {graph}
+                            {rePerspectToThingId}
                         />
                     </TabBody>
 
