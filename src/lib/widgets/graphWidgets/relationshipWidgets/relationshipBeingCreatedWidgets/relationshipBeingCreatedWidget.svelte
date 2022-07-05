@@ -6,7 +6,7 @@
 
     import { tweened } from "svelte/motion"
 	import { cubicOut } from "svelte/easing"
-    import { storeGraphConstructs, retrieveGraphConstructs, relationshipBeingCreatedInfoStore, setRelationshipBeingCreatedTrackingMouse, disableRelationshipBeingCreated, addGraphIdsNeedingViewerRefresh, enableRemoteRelating } from "$lib/stores"
+    import { storeGraphConstructs, retrieveGraphConstructs, relationshipBeingCreatedInfoStore, setRelationshipBeingCreatedTrackingMouse, disableRelationshipBeingCreated, addGraphIdsNeedingViewerRefresh, enableRemoteRelating, disableRemoteRelating } from "$lib/stores"
     import { relationshipColorByHalfAxisId, zoomBase } from "$lib/shared/constants"
     import { XButton } from "$lib/widgets/layoutWidgets"
     import DirectionWidget from "$lib/widgets/graphWidgets/directionWidget.svelte"
@@ -103,6 +103,7 @@
                 addGraphIdsNeedingViewerRefresh((graph as Graph).id)
             }
             disableRelationshipBeingCreated()
+            disableRemoteRelating()
         }
     }
 

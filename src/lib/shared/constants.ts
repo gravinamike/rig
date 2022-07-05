@@ -179,3 +179,14 @@ export const offsetsByHalfAxisId = {
     7: [0,  0,  1, -1],// Inwards////////// These two should probably get flipped at some point.
     8: [0,  0, -1,  1],// Outwards
 } as const
+
+
+export const hyperlinkProtocols = [
+    "http",
+    "https",
+    "mailto",
+    "file",
+    "ftp",
+    "news",
+    "telnet"
+]

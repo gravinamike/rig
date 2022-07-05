@@ -1,5 +1,5 @@
 import type { AppConfig, GraphConfig, GraphConstruct } from "$lib/shared/constants"
-import type { SpaceDbModel, ThingSearchListItem } from "$lib/models/dbModels"
+import type { SpaceDbModel, ThingDbModel, ThingSearchListItem } from "$lib/models/dbModels"
 import type { LatestConstructInfos } from "$lib/db/serverSide/getInfo"
 
 import { Space } from "$lib/models/graphModels"
@@ -60,7 +60,23 @@ export async function graphConstructs<Type extends GraphConstruct>(
     }
 }
 
+/*
+ * Retrieve Things from the database by GUID.
+ */
+export async function thingsByGuid( guids: string[] ): Promise<ThingDbModel[]> {
+    const res = await fetch(`api/db/graphConstructs/things-by-guid-${guids.join(",")}`)
 
+    // If the response is ok,
+    if (res.ok) {
+        // Unpack the response JSON as an array of instances.
+        const queriedInstances = await res.json() as ThingDbModel[]
+        return queriedInstances
+    // Handle errors if needed.
+    } else {
+        res.text().then(text => {throw Error(text)})
+        return []
+    }
+}
 
 
 

@@ -1,11 +1,12 @@
 <script lang="ts">
     import type { Graph } from "$lib/models/graphModels"
-    import type { ThingWidgetModel } from "$lib/models/widgetModels"
     import type { SearchOption } from "$lib/widgets/navWidgets/searchWidget"
     import {
-        setRelationshipBeingCreatedDestWidgetModel, disableRelationshipBeingCreated, remoteRelatingInfoStore, disableRemoteRelating, relationshipBeingCreatedInfoStore
+        thingLinkingStore, updateThingLinkingUrl, disableThingLinking, retrieveGraphConstructs
     } from "$lib/stores"
     import { RemoteSelectingWidget } from "$lib/widgets/dialogWidgets"
+    import { sleep } from "$lib/shared/utility"
+import type { ThingDbModel } from "$lib/models/dbModels";
 
 
     let graph: Graph | null = null
@@ -14,9 +15,10 @@
         if (event.key === "Escape") cancel()
     }
 
-    function cancel() {
-        disableRelationshipBeingCreated()
-        disableRemoteRelating()
+    async function cancel() {
+        await sleep(50) // Allow the click that triggered the cancellation to finish.
+        if ($thingLinkingStore.focusEditorMethod) $thingLinkingStore.focusEditorMethod()
+        disableThingLinking()
     }
 
     function submitMethod(selectedItem: SearchOption | null, matchedItems: SearchOption[]) {
@@ -26,47 +28,38 @@
             null
         )
 
-        const relatableForCurrentDrag = (
-            // There is a drag-relate in progress,
-            $remoteRelatingInfoStore.sourceWidgetModel
-            // and the source of the drag is not *this* Thing.
-            && !(
-                $remoteRelatingInfoStore.sourceWidgetModel.kind === "thingWidgetModel"
-                && $remoteRelatingInfoStore.sourceWidgetModel.thingId === destThingId
-            )
-        ) ?
-            true :
-            false
-
-        if (
-            destThingId
-            && relatableForCurrentDrag
-            && graph?.rootThingCohortWidgetModel?.cohort.members[0]
-        ) {
-            setRelationshipBeingCreatedDestWidgetModel(
-                graph?.rootThingCohortWidgetModel?.cohort.members[0] as ThingWidgetModel
-            )
+        if (destThingId) {
+            const destThing = retrieveGraphConstructs("Thing", destThingId) as ThingDbModel
+            if (destThing) {
+                const url = `graph://${destThing.guid}`
+                updateThingLinkingUrl(url)
+                $thingLinkingStore.editor?.chain().focus().setLink({ href: url, target: '_blank' }).run()
+            }            
         }
+
+        cancel()
     }
 </script>
 
 
 <svelte:body
-    on:keyup={handleEscape}
+    on:keyup|stopPropagation={handleEscape}
 />
 
 
-{#if $remoteRelatingInfoStore.sourceWidgetModel && !$relationshipBeingCreatedInfoStore.destWidgetModel }
+{#if $thingLinkingStore.editor && !$thingLinkingStore.url}
     <div
         class="disabled-background"
         style="position: absolute; left: 0px; top: 0px; width: 100%; height: 100%; z-index: 1; background-color: grey; opacity: 0.5;"
         on:click|stopPropagation={cancel}
         on:wheel|preventDefault
+        on:keyup|stopPropagation={handleEscape}
     />
 
     <div
-        class="remote-relating-widget"
+        class="thing-linking-widget"
         on:click|stopPropagation
+        on:keyup|stopPropagation={handleEscape}
     >
         <RemoteSelectingWidget
             bind:graph
@@ -77,7 +70,7 @@
 
 
 <style>
-    .remote-relating-widget {
+    .thing-linking-widget {
         border-radius: 20px;
         outline: solid 1px grey;
         outline-offset: -1px;

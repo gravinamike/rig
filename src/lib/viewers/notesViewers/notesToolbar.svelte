@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { Editor } from "@tiptap/core"
     import { fontNames, fontSizes, headerLevels } from "$lib/shared/constants"
-    import { enableTextHyperlinking } from "$lib/stores"
+    import { enableThingLinking, enableTextHyperlinking } from "$lib/stores"
     import CommandPalette from "$lib/widgets/layoutWidgets/commandPalette/commandPalette.svelte"
 
     export let editor: Editor
@@ -39,7 +39,48 @@
     let currentSelectionColor: string
     $: if (editor) currentSelectionColor = selectedColor()
 
+    function isThingLink(): boolean {
+        return (
+            editor.isActive('link')
+            && editor.getAttributes("link").href.startsWith("graph://")
+        )
+    }
+
     $: commandButtonInfos = [
+        // Linking.
+        {
+            text: "Thing link",
+            iconName: "thing-link",
+            iconHtml: null,
+            isActive: (
+                editor.isActive('link')
+                && isThingLink()
+            ),
+            onClick: () => {
+                if (editor.isActive('link') && isThingLink()) {
+                    editor.chain().focus().unsetLink().run()
+                } else {
+                    enableThingLinking(editor, focusEditorMethod)
+                }
+            }
+        },
+        {
+            text: "Hyperlink",
+            iconName: "link",
+            iconHtml: null,
+            isActive: (
+                editor.isActive('link')
+                && !isThingLink()
+            ),
+            onClick: () => {
+                if (editor.isActive('link') && !isThingLink()) {
+                    editor.chain().focus().unsetLink().run()
+                } else {
+                    enableTextHyperlinking(editor, focusEditorMethod)
+                }
+            }
+        },
+
         // Basic formatting.
         {
             text: "Bold text",
@@ -168,19 +209,6 @@
             `,
             isActive: false,
             onClick: () => editor.chain().focus().setHardBreak().run()
-        },
-        {
-            text: "Link",
-            iconName: "link",
-            iconHtml: null,
-            isActive: editor.isActive('link'),
-            onClick: () => {
-                if (editor.isActive('link')) {
-                    editor.chain().focus().unsetLink().run()
-                } else {
-                    enableTextHyperlinking(editor, focusEditorMethod)
-                }
-            }
         },
 
         // Undo/redo and clear formatting.

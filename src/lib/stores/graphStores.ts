@@ -3,13 +3,13 @@ import type { Editor } from "@tiptap/core"
 import type { GraphConstruct } from "$lib/shared/constants"
 import type { ThingDbModel, ThingSearchListItem } from "$lib/models/dbModels"
 import type { RelationshipBeingCreatedInfo } from "$lib/widgets/graphWidgets"
-import type { RemoteRelatingInfo, TextHyperlinkingInfo } from "$lib/widgets/dialogWidgets"
+import type { RemoteRelatingInfo, TextHyperlinkingInfo, ThingLinkingInfo } from "$lib/widgets/dialogWidgets"
 
 import { writable, derived } from "svelte/store"
 import { DirectionDbModel, isDirection, isThing } from "$lib/models/dbModels"
 import { Graph, Space, isSpace } from "$lib/models/graphModels"
 import { nullRelationshipBeingCreatedInfo } from "$lib/widgets/graphWidgets"
-import { nullRemoteRelatingInfo, nullTextHyperlinkingInfo } from "$lib/widgets/dialogWidgets"
+import { nullRemoteRelatingInfo, nullTextHyperlinkingInfo, nullThingLinkingInfo } from "$lib/widgets/dialogWidgets"
 import type { ThingWidgetModel, RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
 import { graphConstructs, thingSearchListItems } from "$lib/db/clientSide"
 
@@ -374,6 +374,49 @@ export function disableRemoteRelating(): void {
 
 
 
+
+
+
+
+export const thingLinkingStore = writable(
+    {
+        editor: null,
+        focusEditorMethod: null,
+        url: null
+    } as ThingLinkingInfo
+)
+
+/**
+ * Enable the Thing-linking Widget.
+ */
+export function enableThingLinking(editor: Editor, focusEditorMethod: () => void ): void {
+    thingLinkingStore.set(
+        {
+            editor: editor,
+            focusEditorMethod: focusEditorMethod,
+            url: null
+        }
+    )
+}
+
+export function updateThingLinkingUrl(url: string): void {
+    thingLinkingStore.update( current => {
+        current.url = url
+        return current
+    } )
+}
+
+export function disableThingLinking(): void {
+    thingLinkingStore.update( () => nullThingLinkingInfo )
+}
+
+
+
+
+
+
+
+
 export const textHyperlinkingStore = writable(
     {
         editor: null,
@@ -438,6 +481,14 @@ export async function addGraph(pThingIds: number[], depth: number, parentGraph: 
     } )
 
     return graph
+}
+
+export async function retrieveGraph(graphId: number): Promise<Graph | null> {
+    if (graphId <= 1 && !(graphId > graphsStoreValue.length)) {
+        return graphsStoreValue[graphId - 1]
+    } else {
+        return null
+    }
 }
 
 export async function removeGraph(graph: Graph): Promise<void> {

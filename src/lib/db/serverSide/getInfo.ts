@@ -139,6 +139,35 @@ export async function queryThings(thingIds: number | number[]): Promise<null | T
 }
 
 /*
+ * Query Things from the database based on GUID.
+ */
+export async function queryThingsByGuid(thingGuids: string): Promise<null | ThingDbModel>;
+export async function queryThingsByGuid(thingGuids: string[]): Promise<ThingDbModel[]>;
+export async function queryThingsByGuid(thingGuids: string | string[]): Promise<null | ThingDbModel | ThingDbModel[]> {
+
+    // If a single GUID is supplied, query based on match to that ID (or return null if nothing is found).
+    if (typeof thingGuids === "string") {
+        const queriedThings = await ThingDbModel.query()
+            .where("guid", thingGuids)
+            .allowGraph('[a_relationships, b_relationships, note]')
+            .withGraphFetched('[a_relationships, b_relationships, note, folder]')
+            .orderBy('id')
+        return queriedThings.length ? queriedThings[0] : null
+
+    // If multiple IDs are supplied, query based on match to those IDs.
+    } else {
+        const queriedThings = await ThingDbModel.query()
+            .where(
+                (builder) => builder.whereIn('guid', thingGuids)
+            )
+            .allowGraph('[a_relationships, b_relationships, note, folder]')
+            .withGraphFetched('[a_relationships, b_relationships, note, folder]')
+            .orderBy('id')
+        return queriedThings
+    }
+}
+
+/*
  * Query Thing search list from the database.
  */
 export async function queryThingSearchList( thingIds: number[] | null ): Promise<ThingSearchListItem[]> {
