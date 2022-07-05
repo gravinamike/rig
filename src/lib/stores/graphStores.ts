@@ -1,21 +1,21 @@
-import type { Writable } from "svelte/store"
-import type { Editor } from "@tiptap/core"
+//import type { Writable } from "svelte/store"
+//import type { Editor } from "@tiptap/core"
 import type { GraphConstruct } from "$lib/shared/constants"
-import type { ThingDbModel, ThingSearchListItem } from "$lib/models/dbModels"
-import type { RelationshipBeingCreatedInfo } from "$lib/widgets/graphWidgets"
-import type { RemoteRelatingInfo, TextHyperlinkingInfo, ThingLinkingInfo } from "$lib/widgets/dialogWidgets"
+//import type { ThingDbModel, /*ThingSearchListItem*/ } from "$lib/models/dbModels"
+//import type { RelationshipBeingCreatedInfo } from "$lib/widgets/graphWidgets"
+//import type { RemoteRelatingInfo, TextHyperlinkingInfo, ThingLinkingInfo } from "$lib/widgets/dialogWidgets"
 
-import { writable, derived } from "svelte/store"
-import { DirectionDbModel, isDirection, isThing } from "$lib/models/dbModels"
-import { Graph, Space, isSpace } from "$lib/models/graphModels"
-import { nullRelationshipBeingCreatedInfo } from "$lib/widgets/graphWidgets"
-import { nullRemoteRelatingInfo, nullTextHyperlinkingInfo, nullThingLinkingInfo } from "$lib/widgets/dialogWidgets"
-import type { ThingWidgetModel, RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
-import { graphConstructs, thingSearchListItems } from "$lib/db/clientSide"
+//import { writable, derived } from "svelte/store"
+import { DirectionDbModel, /*isDirection, isThing*/ } from "$lib/models/dbModels"
+//import type { /*Graph,*/ Space, /*isSpace*/ } from "$lib/models/graphModels"
+//import { nullRelationshipBeingCreatedInfo } from "$lib/widgets/graphWidgets"
+//import { nullRemoteRelatingInfo, nullTextHyperlinkingInfo, nullThingLinkingInfo } from "$lib/widgets/dialogWidgets"
+//import type { ThingWidgetModel, RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
+//import { graphConstructs, thingSearchListItems } from "$lib/db/clientSide"
 
 
 // Create Direction-related stores (and subscriptions where applicable).
-export const directionsStore = writable( {} as { [id: number]: DirectionDbModel } )
+/*export const directionsStore = writable( {} as { [id: number]: DirectionDbModel } )
 let directionsStoreValue: { [id: number]: DirectionDbModel }
 directionsStore.subscribe(value => {directionsStoreValue = value})
 
@@ -41,13 +41,13 @@ thingsStore.subscribe(value => {thingsStoreValue = value})
 
 export const thingsStoreAsArray = derived( thingsStore, $thingsStore => Object.values($thingsStore) )
 
-export const thingIdsNotFoundStore = writable( [] as number[] );
+export const thingIdsNotFoundStore = writable( [] as number[] );*/
 
 
 /* 
  * Function to add Graph constructs to stores.
  */
-function updateConstructStore<Type extends GraphConstruct>( constructs: Type | Type[] ): void {
+/*function updateConstructStore<Type extends GraphConstruct>( constructs: Type | Type[] ): void {
     // If necessary, pack a single supplied construct in an array for processing.
     if (!("length" in constructs)) constructs = [constructs]
     
@@ -67,12 +67,12 @@ function updateConstructStore<Type extends GraphConstruct>( constructs: Type | T
     constructs.forEach((construct) => {
         store.update( (current) => { current[construct.id as number] = construct; return current } )
     })
-}
+}*/
 
 /* 
  * Function to add Graph construct ids to stores.
  */
-function updateIdStore( constructName: "Direction" | "Space" | "Thing", ids: number | number[] ): void {
+/*function updateIdStore( constructName: "Direction" | "Space" | "Thing", ids: number | number[] ): void {
     // If necessary, pack a single supplied id in an array for processing.
     if (typeof ids === "number") ids = [ids]
 
@@ -90,12 +90,12 @@ function updateIdStore( constructName: "Direction" | "Space" | "Thing", ids: num
     ids.forEach((id) => {
         store.update( (current) => { if (!current.includes(id)) current.push(id); return current } )
     })
-}
+}*/
 
 /* 
  * Function to check whether a Graph construct is in the store (by ID).
  */
-export function graphConstructInStore( constructName: "Direction" | "Space" | "Thing", id: number ): boolean {
+/*export function graphConstructInStore( constructName: "Direction" | "Space" | "Thing", id: number ): boolean {
     // Determine which store to check based on construct name.
     const storeValue = {
         "Direction": directionsStoreValue,
@@ -105,12 +105,12 @@ export function graphConstructInStore( constructName: "Direction" | "Space" | "T
 
     // Determine if the construct id is in the store.
     return id in storeValue ? true : false
-}
+}*/
 
 /* 
  * Function to fetch Graph constructs from the API, then add them to the stores.
  */
-export async function storeGraphConstructs<Type extends GraphConstruct>(
+/*export async function storeGraphConstructs<Type extends GraphConstruct>(
     constructName: "Direction" | "Space" | "Thing",
     ids?: number | number[],
     allowUpdating = false
@@ -157,12 +157,12 @@ export async function storeGraphConstructs<Type extends GraphConstruct>(
     }
     // Return the array of Directions.
     return queriedInstances
-}
+}*/
 
 /* 
  * Function to remove Graph constructs from the Stores.
  */
-export async function unstoreGraphConstructs(
+/*export async function unstoreGraphConstructs(
     constructName: "Direction" | "Space" | "Thing",
     ids: number | number[]
 ): Promise<void> {
@@ -182,12 +182,12 @@ export async function unstoreGraphConstructs(
     })
 
     return
-}
+}*/
 
 /* 
  * Function to clear a Graph construct Store.
  */
-export async function clearGraphConstructs(constructName: "Direction" | "Space" | "Thing"): Promise<void> {
+/*export async function clearGraphConstructs(constructName: "Direction" | "Space" | "Thing"): Promise<void> {
     // Determine which store to clear based on construct name.
     const store: Writable<{[id: number]: GraphConstruct}> = {
         "Direction": directionsStore,
@@ -198,7 +198,7 @@ export async function clearGraphConstructs(constructName: "Direction" | "Space" 
     store.set({})
 
     return
-}
+}*/
 
 /* 
  * Function to retrieve Graph constructs from the stores.
@@ -216,7 +216,7 @@ export function retrieveGraphConstructs<Type extends GraphConstruct>(
     ids: number | number[]
 ): Type[] | Type | null {
     // Determine which store to get construct from based on construct name.
-    let storeValue: { [id: number]: GraphConstruct }
+    /*let storeValue: { [id: number]: GraphConstruct }
     if (constructName === "Direction") {
         storeValue = directionsStoreValue
     } else if (constructName === "Space") {
@@ -236,10 +236,11 @@ export function retrieveGraphConstructs<Type extends GraphConstruct>(
             if (graphConstructInStore(constructName, id)) output.push(storeValue[id] as Type)
         }
         return output
-    }
+    }*/
+    return null
 }
 
-export const openGraphStore = writable( null as string | null )
+//export const openGraphStore = writable( null as string | null )
 
 
 
@@ -255,7 +256,7 @@ export const openGraphStore = writable( null as string | null )
 
 
 
-export const relationshipBeingCreatedInfoStore = writable(
+/*export const relationshipBeingCreatedInfoStore = writable(
     {
         sourceWidgetModel: null,
         destWidgetModel: null,
@@ -266,9 +267,7 @@ export const relationshipBeingCreatedInfoStore = writable(
     } as RelationshipBeingCreatedInfo
 )
 
-/**
- * Enable the Relationship-being-created Widget.
- */
+
 export function enableRelationshipBeingCreated(sourceWidgetModel: ThingWidgetModel | RelationshipCohortWidgetModel, position: [number, number]): void {
     relationshipBeingCreatedInfoStore.set(
         {
@@ -282,9 +281,7 @@ export function enableRelationshipBeingCreated(sourceWidgetModel: ThingWidgetMod
     )
 }
 
-/**
- * 
- */
+
 export function updateRelationshipBeingCreatedEndpoint(position: [number, number]): void {
     relationshipBeingCreatedInfoStore.update( current => {
         current.endPosition = current.trackingMouse ? position : current.endPosition
@@ -306,9 +303,7 @@ export function setRelationshipBeingCreatedTrackingMouse(trackingMouse: boolean)
     } )
 }
 
-/**
- * Disable the Relationship-being-created Widget.
- */
+
 export function disableRelationshipBeingCreated(): void {
     relationshipBeingCreatedInfoStore.update( () => nullRelationshipBeingCreatedInfo )
 }
@@ -386,9 +381,7 @@ export const thingLinkingStore = writable(
     } as ThingLinkingInfo
 )
 
-/**
- * Enable the Thing-linking Widget.
- */
+
 export function enableThingLinking(editor: Editor, focusEditorMethod: () => void ): void {
     thingLinkingStore.set(
         {
@@ -425,9 +418,7 @@ export const textHyperlinkingStore = writable(
     } as TextHyperlinkingInfo
 )
 
-/**
- * Enable the text-hyperlinking Widget.
- */
+
 export function enableTextHyperlinking(editor: Editor, focusEditorMethod: () => void ): void {
     textHyperlinkingStore.set(
         {
@@ -447,7 +438,7 @@ export function updateTextHyperlinkingUrl(url: string): void {
 
 export function disableTextHyperlinking(): void {
     textHyperlinkingStore.update( () => nullTextHyperlinkingInfo )
-}
+}*/
 
 
 
@@ -465,7 +456,7 @@ export function disableTextHyperlinking(): void {
 
 
 // Create Graph-related stores (and subscriptions where applicable).
-export const graphsStore = writable( [] as Graph[] )
+/*export const graphsStore = writable( [] as Graph[] )
 let graphsStoreValue: Graph[]
 graphsStore.subscribe(value => {graphsStoreValue = value})
 
@@ -503,7 +494,7 @@ export async function removeGraph(graph: Graph): Promise<void> {
         if (index > -1) current.splice(index, 1)
         return current
     } )
-}
+}*/
 
 
 
@@ -511,11 +502,9 @@ export async function removeGraph(graph: Graph): Promise<void> {
 
 
 
-export const graphIdsNeedingViewerRefresh = writable( [] as number[] )
+/*export const graphIdsNeedingViewerRefresh = writable( [] as number[] )
 
-/**
- * 
- */
+
 export function addGraphIdsNeedingViewerRefresh(graphIds: number | number[]): void {
     if (typeof graphIds === "number") graphIds = [graphIds]
     for (const graphId of graphIds) {
@@ -526,9 +515,7 @@ export function addGraphIdsNeedingViewerRefresh(graphIds: number | number[]): vo
     }
 }
 
-/**
- * 
- */
+
 export function removeGraphIdsNeedingViewerRefresh(graphIds: number | number[]): void {
     if (typeof graphIds === "number") graphIds = [graphIds]
     for (const graphId of graphIds) {
@@ -590,9 +577,7 @@ export async function storeThingSearchList(): Promise<ThingSearchListItem[]> {
     }
 }
 
-/* 
- * Function to clear a Graph construct Store.
- */
+
 export async function clearThingSearchList(): Promise<void> {
     thingSearchListStore.set([])
-}
+}*/

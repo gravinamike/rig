@@ -1,6 +1,6 @@
 import type Knex from "knex"
 import { Model } from "objection"
-import { ThingDbModel, RelationshipDbModel, NoteDbModel, NoteToThingDbModel, FolderDbModel, FolderToThingDbModel } from "$lib/models/dbModels"
+//import { ThingDbModel, RelationshipDbModel, NoteDbModel, NoteToThingDbModel, FolderDbModel, FolderToThingDbModel } from "$lib/models/dbModels"
 
 
 // H2 doesn't mesh with Objection's PostgreSQL syntax naturally. This function is a

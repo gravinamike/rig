@@ -1,7 +1,7 @@
-import type { GraphConstruct, HalfAxisId, OddHalfAxisId } from "$lib/shared/constants"
-import type { SpaceDbModel, DirectionDbModel } from "$lib/models/dbModels"
+//import type { GraphConstruct, HalfAxisId, OddHalfAxisId } from "$lib/shared/constants"
+//import type { SpaceDbModel, DirectionDbModel } from "$lib/models/dbModels"
 
-import { oddHalfAxisIds, halfAxisOppositeIds } from "$lib/shared/constants"
+//import { oddHalfAxisIds, halfAxisOppositeIds } from "$lib/shared/constants"
 import { retrieveGraphConstructs } from "$lib/stores"
 
 
@@ -10,7 +10,7 @@ import { retrieveGraphConstructs } from "$lib/stores"
  * Space model.
  */
 export class Space {
-    dbModel: SpaceDbModel | null
+    /*dbModel: SpaceDbModel | null
 
     id: number | null
     text: string | null
@@ -22,10 +22,10 @@ export class Space {
         this.id = dbModel.id
         this.text = dbModel.text
         this.directions = dbModel.directions
-    }
+    }*/
 
 
-    get directionIdByHalfAxisId(): { [halfAxisId: number]: number | null } {
+    /*get directionIdByHalfAxisId(): { [halfAxisId: number]: number | null } {
         const directionIdsByHalfAxisId: { [halfAxisId: number]: number | null } = {}
         for (const oddHalfAxisId of oddHalfAxisIds) {
             const evenHalfAxisId = oddHalfAxisId + 1
@@ -38,9 +38,9 @@ export class Space {
             }
         }
         return directionIdsByHalfAxisId
-    }
+    }*/
 
-    get directionByHalfAxisId(): { [halfAxisId: number]: DirectionDbModel | null } {
+    /*get directionByHalfAxisId(): { [halfAxisId: number]: DirectionDbModel | null } {
         const directionByHalfAxisId: { [halfAxisId: number]: DirectionDbModel | null } = {}
         for (const oddHalfAxisId of oddHalfAxisIds) {
             const directionIndex = (oddHalfAxisId - 1) / 2
@@ -54,9 +54,9 @@ export class Space {
             }
         }
         return directionByHalfAxisId
-    }
+    }*/
 
-    get halfAxisIdByDirectionId(): { [directionId: number]: HalfAxisId } {
+    /*get halfAxisIdByDirectionId(): { [directionId: number]: HalfAxisId } {
         const halfAxisIdByDirectionId: { [directionId: number]: HalfAxisId } = {}
         const halfAxisIds = Object.keys(this.directionIdByHalfAxisId).map(k => Number(k) as HalfAxisId)
         for (const halfAxisId of halfAxisIds) {
@@ -64,13 +64,13 @@ export class Space {
             if (directionId) halfAxisIdByDirectionId[directionId] = halfAxisId
         }
         return halfAxisIdByDirectionId
-    }
+    }*/
 }
 
 /*
  * Typeguard functions for Graph construct classes.
  */
-export function isSpace(construct: GraphConstruct): construct is Space {
+/*export function isSpace(construct: GraphConstruct): construct is Space {
     return "directions" in construct
 }
 
@@ -116,4 +116,4 @@ export function alteredSpace(
     }
 
     return alteredSpace
-}
+}*/

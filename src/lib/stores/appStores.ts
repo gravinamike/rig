@@ -5,7 +5,7 @@ import type { CommandButtonInfo, ContextCommandPaletteInfo } from "$lib/widgets/
 import { writable } from "svelte/store"
 
 /* Config-related imports. */
-import { saveGraphConfig } from "$lib/shared/config"
+//import { saveGraphConfig } from "$lib/shared/config"
 
 /* Widget-related imports. */
 import { nullContextCommandPaletteInfo } from "$lib/widgets/layoutWidgets/commandPalette"

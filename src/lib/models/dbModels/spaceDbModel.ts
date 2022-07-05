@@ -1,15 +1,15 @@
-import type { RelationMappings, RelationMappingsThunk } from "objection"
+//import type { RelationMappings, RelationMappingsThunk } from "objection"
 
-import { Model } from "objection"
-import { DirectionDbModel } from "$lib/models/dbModels"
+//import { Model } from "objection"/////////////////////////////////////// THAT'S THE LINE.
+//import { DirectionDbModel } from "$lib/models/dbModels"
 
 
 
 /*
  * Space model.
  */
-export class SpaceDbModel extends Model {
-    static tableName = "spaces" as const
+export class SpaceDbModel /*extends Model*/ {
+    /*static tableName = "spaces" as const
 
     id!: number | null
     text!: string | null
@@ -31,5 +31,5 @@ export class SpaceDbModel extends Model {
                 }
             }
         };
-    }
+    }*/
 }

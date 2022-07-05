@@ -8,10 +8,10 @@ import { alterQuerystringForH2AndRun } from "./utility"
 
 // Graph-construct-related imports.
 import {
-    DirectionDbModel, ThingDbModel, getNewThingInfo,
+    DirectionDbModel, /*ThingDbModel, getNewThingInfo,
     RelationshipDbModel, getNewRelationshipInfo,
     NoteDbModel, getNewNoteInfo, NoteToThingDbModel,
-    FolderDbModel, getNewFolderInfo, FolderToThingDbModel
+    FolderDbModel, getNewFolderInfo, FolderToThingDbModel*/
 } from "$lib/models/dbModels"
 
 // Filesystem-related imports.

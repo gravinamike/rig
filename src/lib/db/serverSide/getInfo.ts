@@ -1,8 +1,8 @@
 import {
     DirectionDbModel, SpaceDbModel,
-    ThingDbModel, RelationshipDbModel,
+    /*ThingDbModel, RelationshipDbModel,
     NoteDbModel, NoteToThingDbModel, FolderDbModel, FolderToThingDbModel,
-    ThingSearchListItem
+    ThingSearchListItem*/
 } from "$lib/models/dbModels"
 
 

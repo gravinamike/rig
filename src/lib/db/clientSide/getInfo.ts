@@ -1,6 +1,6 @@
-import type { AppConfig, GraphConfig, GraphConstruct } from "$lib/shared/constants"
-import type { SpaceDbModel, ThingDbModel, ThingSearchListItem } from "$lib/models/dbModels"
-import type { LatestConstructInfos } from "$lib/db/serverSide/getInfo"
+import type { AppConfig, /*GraphConfig, GraphConstruct*/ } from "$lib/shared/constants"
+//import type { SpaceDbModel, ThingDbModel, ThingSearchListItem } from "$lib/models/dbModels"
+//import type { LatestConstructInfos } from "$lib/db/serverSide/getInfo"
 
 import { Space } from "$lib/models/graphModels"
 
@@ -13,7 +13,7 @@ import { Space } from "$lib/models/graphModels"
 /*
  * Retrieve Graph constructs from the database.
  */
-export async function graphConstructs<Type extends GraphConstruct>(
+/*export async function graphConstructs<Type extends GraphConstruct>(
     constructName: "Direction" | "Space" | "Thing",
     ids?: number[]
 ): Promise<Type[]> {
@@ -58,12 +58,12 @@ export async function graphConstructs<Type extends GraphConstruct>(
         res.text().then(text => {throw Error(text)})
         return []
     }
-}
+}*/
 
 /*
  * Retrieve Things from the database by GUID.
  */
-export async function thingsByGuid( guids: string[] ): Promise<ThingDbModel[]> {
+/*export async function thingsByGuid( guids: string[] ): Promise<ThingDbModel[]> {
     const res = await fetch(`api/db/graphConstructs/things-by-guid-${guids.join(",")}`)
 
     // If the response is ok,
@@ -76,7 +76,7 @@ export async function thingsByGuid( guids: string[] ): Promise<ThingDbModel[]> {
         res.text().then(text => {throw Error(text)})
         return []
     }
-}
+}*/
 
 
 
@@ -88,7 +88,7 @@ export async function thingsByGuid( guids: string[] ): Promise<ThingDbModel[]> {
 /*
  * Get a search list of Things.
  */
-export async function thingSearchListItems(thingIds?: number[]): Promise<ThingSearchListItem[] | false> {
+/*export async function thingSearchListItems(thingIds?: number[]): Promise<ThingSearchListItem[] | false> {
     const res = thingIds === undefined ?
         await fetch(`api/db/graphConstructs/thingSearchListItems-all`) :
         await fetch(`api/db/graphConstructs/thingSearchListItems-${thingIds}`)
@@ -100,12 +100,12 @@ export async function thingSearchListItems(thingIds?: number[]): Promise<ThingSe
         res.text().then(text => {throw Error(text)})
         return false
     }
-}
+}*/
 
 /*
  * Get a information about the latest constructs added to the database.
  */
-export async function latestDbConstructs(): Promise<LatestConstructInfos | false> {
+/*export async function latestDbConstructs(): Promise<LatestConstructInfos | false> {
     const res = await fetch(`api/db/graphConstructs/latestConstructs`)
 
     // If the response is ok,
@@ -118,7 +118,7 @@ export async function latestDbConstructs(): Promise<LatestConstructInfos | false
         res.text().then(text => {throw Error(text)})
         return false
     }
-}
+}*/
 
 
 
@@ -127,7 +127,7 @@ export async function latestDbConstructs(): Promise<LatestConstructInfos | false
 /*
  * Get the Unigraph folder.
  */
-export async function getUnigraphFolder(): Promise<string | false> {
+/*export async function getUnigraphFolder(): Promise<string | false> {
     const res = await fetch(`api/file/unigraphFolder`)
 
     // If the response is ok,
@@ -140,7 +140,7 @@ export async function getUnigraphFolder(): Promise<string | false> {
         res.text().then(text => {throw Error(text)})
         return false
     }
-}
+}*/
 
 
 
@@ -166,7 +166,7 @@ export async function getAppConfig(): Promise<AppConfig | false> {
 /*
  * Get the app configuration.
  */
-export async function getGraphConfig(): Promise<GraphConfig | false> {
+/*export async function getGraphConfig(): Promise<GraphConfig | false> {
     const res = await fetch("/api/file/graphConfig")
 
     // If the response is ok,
@@ -179,4 +179,4 @@ export async function getGraphConfig(): Promise<GraphConfig | false> {
         res.text().then(text => {throw Error(text)})
         return false
     }
-}
+}*/

@@ -1,17 +1,17 @@
 <script lang="ts">
     import type { HalfAxisId } from "$lib/shared/constants"
-    import type { Graph, Space } from "$lib/models/graphModels"
+    import type { /*Graph,*/ Space } from "$lib/models/graphModels"
 
     import { relationshipColorByHalfAxisId } from "$lib/shared/constants"
     import { sleep } from "$lib/shared/utility"
-    import { copiedSpace, alteredSpace } from "$lib/models/graphModels"
+    //import { copiedSpace, alteredSpace } from "$lib/models/graphModels"
     import { DirectionWidget } from "$lib/widgets/graphWidgets"
     import { addGraphIdsNeedingViewerRefresh } from "$lib/stores"
 
-    export let graph: Graph
-    export let currentSpace: Space | null
+    //export let graph: Graph
+    //export let currentSpace: Space | null
 
-    let originalSpace: Space | null
+    /*let originalSpace: Space | null
     let originalSpaceSet = false
     $: if (currentSpace !== null && !originalSpaceSet) {
         originalSpace = copiedSpace(currentSpace)
@@ -70,12 +70,12 @@
             await sleep(delay)
             if (!lastBorderHoveredChangeSignal) borderHovered = false
         }
-    }
+    }*/
 </script>
 
 
 <!-- Space frame. -->
-<div
+<!--<div
     class="space-frame"
     style={ borderHovered ? "" : "visibility: hidden;" }
     bind:clientWidth={borderWidth} bind:clientHeight={borderHeight}
@@ -224,4 +224,4 @@
         position: absolute;
         transform: translate(-50%, -50%);
     }
-  </style>
+  </style>-->

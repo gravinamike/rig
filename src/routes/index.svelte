@@ -1,16 +1,16 @@
 <script lang="ts">
     // Type imports.
-    import type { WaitingIndicatorStates } from "$lib/shared/constants"
+    /*import type { WaitingIndicatorStates } from "$lib/shared/constants"
 
     // Import basic framework functions.
     import { onMount } from "svelte"
 
     // Import constants and configs.
-    import { startingPThingIds, startingGraphDepth, navHeight } from "$lib/shared/constants"
+    import { startingPThingIds, startingGraphDepth, navHeight } from "$lib/shared/constants"*/
     import { storeAppConfig } from "$lib/shared/config"
 
     // Import database/stores-related functions.
-    import { loadingState, openGraphStore, updateRelationshipBeingCreatedEndpoint } from "$lib/stores"
+    /*import { loadingState, openGraphStore, updateRelationshipBeingCreatedEndpoint } from "$lib/stores"
 
     // Import widgets.
     import {
@@ -25,10 +25,10 @@
     import { GraphViewer } from "$lib/viewers/graphViewers"
     import { RelationshipBeingCreatedWidget } from "$lib/widgets/graphWidgets"
 
-    import { openUnigraph } from "$lib/shared/unigraph"
+    import { openUnigraph } from "$lib/shared/unigraph"*/
     
 
-    openGraphStore.set(null)
+    /*openGraphStore.set(null)
     const graphIndicatorStates: WaitingIndicatorStates = {
         start: {
             text: "Configuration not loaded yet.",
@@ -77,11 +77,11 @@
 
     function handleMouseMove(event: MouseEvent): void {/////////////////// MOVE INTO THE WIDGET
         updateRelationshipBeingCreatedEndpoint([event.clientX, event.clientY])
-    }
+    }*/
 </script>
 
 
-<svelte:head>
+<!--<svelte:head>
     <title>Rig{ $openGraphStore ? ` - ${$openGraphStore}` : "" }</title>
 </svelte:head>
 
@@ -91,25 +91,25 @@
     on:mousemove={handleMouseMove}
 >
 
-    <!-- Front pane for context menus and command palettes. -->
+    
     <ContextCommandPalette />
 
-    <!-- Front pane for Relationship-being-created Widget. -->
+    
     <RelationshipBeingCreatedWidget />
 
-    <!-- Front pane for Relationship-being-created Widget. -->
+    
     <RemoteRelatingWidget />
 
-    <!-- Front panes for Thing-linking and text-hyperlinking Widgets. -->
+    
     <ThingLinkingWidget />
     <TextHyperlinkingWidget />
 
-    <!-- File viewer. -->
+    
     <Collapser headerText={`File${ $openGraphStore ? `&nbsp;&nbsp;-&nbsp;&nbsp;${$openGraphStore}` : "" }`} contentDirection={"left"}>
         <FileViewer />
     </Collapser>
     
-    <!-- Stores/database viewers. -->
+    
     <Collapser headerText={"System"} contentDirection={"left"}>
         <div class="tabs-container">
 
@@ -119,7 +119,7 @@
                     <TabFlap>Database</TabFlap>
                 </TabFlaps>
             
-                <!-- Stores tab --> 
+                
                 <TabBody>
                     <TabBlock>
                         <TabFlaps>
@@ -128,24 +128,24 @@
                             <TabFlap>Things</TabFlap>
                         </TabFlaps>
                     
-                        <!-- Directions Store view --> 
+                        
                         <TabBody>
                             <DirectionsStoreViewer />
                         </TabBody>
                     
-                        <!-- Spaces Store view --> 
+                        
                         <TabBody>
                             <SpacesStoreViewer />
                         </TabBody>
                     
-                        <!-- Things Store view --> 
+                        
                         <TabBody>
                             <ThingsStoreViewer />
                         </TabBody>
                     </TabBlock>
                 </TabBody>
             
-                <!-- Database tab --> 
+                
                 <TabBody>
                     <DbLatestViewer />
                 </TabBody>
@@ -154,7 +154,7 @@
         </div>
     </Collapser>
 
-    <!-- Graph Portal. -->
+    
     {#if $openGraphStore}
         <GraphViewer
             pThingIds={startingPThingIds}
@@ -185,4 +185,4 @@
         overflow-x: hidden;
         overflow-y: hidden;
     }
-</style>
+</style>-->
