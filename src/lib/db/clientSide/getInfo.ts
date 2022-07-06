@@ -1,6 +1,7 @@
 import type { AppConfig, GraphConfig, GraphConstruct } from "$lib/shared/constants"
 import type { LatestConstructInfos } from "$lib/db/serverSide/getInfo"
-import type { Thing, ThingSearchListItem } from "$lib/models/graphModels"
+import type { DirectionDbModel, SpaceDbModel, ThingDbModel, ThingSearchListItemDbModel } from "$lib/models/dbModels"
+import { Direction, Space, Thing, ThingSearchListItem } from "$lib/models/graphModels"
 
 
 
@@ -24,9 +25,29 @@ export async function graphConstructs<Type extends GraphConstruct>(
 
     // If the response is ok,
     if (res.ok) {
-        // Unpack the response JSON as an array of instances.
-        const queriedInstances = await res.json() as Type[]
-        return queriedInstances
+        
+        if (constructName === "Direction") {
+            const queriedInstances = await res.json() as DirectionDbModel[]
+            const directions: Direction[] = []
+            for (const model of queriedInstances) {
+                directions.push( new Direction(model) )
+            }
+            return directions as Type[]
+        } else if (constructName === "Space") {
+            const queriedInstances = await res.json() as SpaceDbModel[]
+            const spaces: Space[] = []
+            for (const model of queriedInstances) {
+                spaces.push( new Space(model) )
+            }
+            return spaces as Type[]
+        } else {
+            const queriedInstances = await res.json() as ThingDbModel[]
+            const things: Thing[] = []
+            for (const model of queriedInstances) {
+                things.push( new Thing(model) )
+            }
+            return things as Type[]
+        }
     // Handle errors if needed.
     } else {
         res.text().then(text => {throw Error(text)})
@@ -43,8 +64,12 @@ export async function thingsByGuid( guids: string[] ): Promise<Thing[]> {
     // If the response is ok,
     if (res.ok) {
         // Unpack the response JSON as an array of instances.
-        const queriedInstances = await res.json() as Thing[]
-        return queriedInstances
+        const queriedInstances = await res.json() as ThingDbModel[]
+        const things: Thing[] = []
+        for (const model of queriedInstances) {
+            things.push( new Thing(model) )
+        }
+        return things
     // Handle errors if needed.
     } else {
         res.text().then(text => {throw Error(text)})
@@ -68,7 +93,11 @@ export async function thingSearchListItems(thingIds?: number[]): Promise<ThingSe
         await fetch(`api/db/graphConstructs/thingSearchListItems-${thingIds}`)
 
     if (res.ok) {
-        const thingSearchList = await res.json() as ThingSearchListItem[]
+        const models = await res.json() as ThingSearchListItemDbModel[]
+        const thingSearchList: ThingSearchListItem[] = []
+        for (const model of models) {
+            thingSearchList.push( new ThingSearchListItem(model) )
+        }
         return thingSearchList
     } else {
         res.text().then(text => {throw Error(text)})

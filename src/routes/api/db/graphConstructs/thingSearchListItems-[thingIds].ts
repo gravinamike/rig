@@ -1,11 +1,11 @@
-import type { ThingSearchListItem } from "$lib/models/graphModels"
+import type { ThingSearchListItemDbModel } from "$lib/models/dbModels"
 import { queryThingSearchList } from "$lib/db/serverSide"
 
 export async function get(
     { params }: { params: { thingIds: string } }
 ): Promise<{
     status: number;
-    body: ThingSearchListItem[] | { error: string }
+    body: ThingSearchListItemDbModel[] | { error: string }
 }> {
     let thingIds: string | number[]
 

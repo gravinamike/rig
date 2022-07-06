@@ -4,16 +4,15 @@ import {
     NoteDbModel, NoteToThingDbModel, FolderDbModel, FolderToThingDbModel,
     ThingSearchListItemDbModel
 } from "$lib/models/dbModels"
-import { Direction, Space, Thing, ThingSearchListItem } from "$lib/models/graphModels"
 
 
 /*
  * Query Directions from the database.
  */
-export async function queryDirections( directionIds: number ): Promise<null | Direction>;
-export async function queryDirections( directionIds: number[] ): Promise<Direction[]>;
-export async function queryDirections( directionIds: null, idsToExclude?: number[] ): Promise<Direction[]>;
-export async function queryDirections( directionIds: number | number[] | null, idsToExclude?: number[] ): Promise<null | Direction | Direction[]> {
+export async function queryDirections( directionIds: number ): Promise<null | DirectionDbModel>;
+export async function queryDirections( directionIds: number[] ): Promise<DirectionDbModel[]>;
+export async function queryDirections( directionIds: null, idsToExclude?: number[] ): Promise<DirectionDbModel[]>;
+export async function queryDirections( directionIds: number | number[] | null, idsToExclude?: number[] ): Promise<null | DirectionDbModel | DirectionDbModel[]> {
     
     // If a null ID is supplied,
     if (directionIds === null) {
@@ -21,13 +20,7 @@ export async function queryDirections( directionIds: number | number[] | null, i
         if (!idsToExclude) {
             const queriedDirectionDbModels = await DirectionDbModel.query()
                 .orderBy('id')
-
-            const queriedDirections: Direction[] = []
-            for (const model of queriedDirectionDbModels) {
-                queriedDirections.push( new Direction(model) )
-            }
-
-            return queriedDirections
+            return queriedDirectionDbModels
         // If IDs to exclude are supplied, query all Directions not matching those IDs.
         } else {
             const queriedDirectionDbModels = await DirectionDbModel.query()
@@ -35,13 +28,7 @@ export async function queryDirections( directionIds: number | number[] | null, i
                     (builder) => builder.whereNotIn('id', idsToExclude)
                 )
                 .orderBy('id')
-
-            const queriedDirections: Direction[] = []
-            for (const model of queriedDirectionDbModels) {
-                queriedDirections.push( new Direction(model) )
-            }
-
-            return queriedDirections
+            return queriedDirectionDbModels
         }
 
     // If a single ID is supplied, query based on match to that ID (or return null if nothing is found).
@@ -49,13 +36,7 @@ export async function queryDirections( directionIds: number | number[] | null, i
         const queriedDirectionDbModels = await DirectionDbModel.query()
             .where("id", directionIds)
             .orderBy('id')
-
-        const queriedDirections: Direction[] = []
-        for (const model of queriedDirectionDbModels) {
-            queriedDirections.push( new Direction(model) )
-        }
-
-        return queriedDirections.length ? queriedDirections[0] : null
+        return queriedDirectionDbModels.length ? queriedDirectionDbModels[0] : null
 
     // If multiple IDs are supplied, query based on match to those IDs.
     } else if (directionIds.length) {
@@ -64,13 +45,7 @@ export async function queryDirections( directionIds: number | number[] | null, i
                 (builder) => builder.whereIn('id', directionIds)
             )
             .orderBy('id')
-
-        const queriedDirections: Direction[] = []
-        for (const model of queriedDirectionDbModels) {
-            queriedDirections.push( new Direction(model) )
-        }
-
-        return queriedDirections
+        return queriedDirectionDbModels
 
     // If an empty array is supplied, return an empty array.
     } else {
@@ -82,10 +57,10 @@ export async function queryDirections( directionIds: number | number[] | null, i
 /*
  * Query Spaces from the database.
  */
-export async function querySpaces( spaceIds: number ): Promise<null | Space>;
-export async function querySpaces( spaceIds: number[] ): Promise<Space[]>;
-export async function querySpaces( spaceIds: null, idsToExclude?: number[] ): Promise<Space[]>;
-export async function querySpaces( spaceIds: number | number[] | null, idsToExclude?: number[] ): Promise<null | Space | Space[]> {
+export async function querySpaces( spaceIds: number ): Promise<null | SpaceDbModel>;
+export async function querySpaces( spaceIds: number[] ): Promise<SpaceDbModel[]>;
+export async function querySpaces( spaceIds: null, idsToExclude?: number[] ): Promise<SpaceDbModel[]>;
+export async function querySpaces( spaceIds: number | number[] | null, idsToExclude?: number[] ): Promise<null | SpaceDbModel | SpaceDbModel[]> {
     
     // If a null ID is supplied,
     if (spaceIds === null) {
@@ -95,13 +70,7 @@ export async function querySpaces( spaceIds: number | number[] | null, idsToExcl
                 .allowGraph('directions')
                 .withGraphFetched('directions')
                 .orderBy('id')
-
-            const queriedSpaces: Space[] = []
-            for (const model of queriedSpaceDbModels) {
-                queriedSpaces.push( new Space(model) )
-            }
-
-            return queriedSpaces
+            return queriedSpaceDbModels
         // If IDs to exclude are supplied, query all Spaces not matching those IDs.
         } else {
             const queriedSpaceDbModels = await SpaceDbModel.query()
@@ -111,13 +80,7 @@ export async function querySpaces( spaceIds: number | number[] | null, idsToExcl
                 .allowGraph('directions')
                 .withGraphFetched('directions')
                 .orderBy('id')
-
-            const queriedSpaces: Space[] = []
-            for (const model of queriedSpaceDbModels) {
-                queriedSpaces.push( new Space(model) )
-            }
-
-            return queriedSpaces
+            return queriedSpaceDbModels
         }
 
     // If a single ID is supplied, query based on match to that ID (or return null if nothing is found).
@@ -127,13 +90,7 @@ export async function querySpaces( spaceIds: number | number[] | null, idsToExcl
             .allowGraph('directions')
             .withGraphFetched('directions')
             .orderBy('id')
-
-        const queriedSpaces: Space[] = []
-        for (const model of queriedSpaceDbModels) {
-            queriedSpaces.push( new Space(model) )
-        }
-
-        return queriedSpaces.length ? queriedSpaces[0] : null
+        return queriedSpaceDbModels.length ? queriedSpaceDbModels[0] : null
 
     // If multiple IDs are supplied, query based on match to those IDs.
     } else if (spaceIds.length) {
@@ -144,13 +101,7 @@ export async function querySpaces( spaceIds: number | number[] | null, idsToExcl
             .allowGraph('directions')
             .withGraphFetched('directions')
             .orderBy('id')
-
-        const queriedSpaces: Space[] = []
-        for (const model of queriedSpaceDbModels) {
-            queriedSpaces.push( new Space(model) )
-        }
-
-        return queriedSpaces
+        return queriedSpaceDbModels
 
     // If an empty array is supplied, return an empty array.
     } else {
@@ -161,9 +112,9 @@ export async function querySpaces( spaceIds: number | number[] | null, idsToExcl
 /*
  * Query Things from the database.
  */
-export async function queryThings(thingIds: number): Promise<null | Thing>;
-export async function queryThings(thingIds: number[]): Promise<Thing[]>;
-export async function queryThings(thingIds: number | number[]): Promise<null | Thing | Thing[]> {
+export async function queryThings(thingIds: number): Promise<null | ThingDbModel>;
+export async function queryThings(thingIds: number[]): Promise<ThingDbModel[]>;
+export async function queryThings(thingIds: number | number[]): Promise<null | ThingDbModel | ThingDbModel[]> {
 
     // If a single ID is supplied, query based on match to that ID (or return null if nothing is found).
     if (typeof thingIds === "number") {
@@ -172,12 +123,9 @@ export async function queryThings(thingIds: number | number[]): Promise<null | T
             .allowGraph('[a_relationships, b_relationships, note]')
             .withGraphFetched('[a_relationships, b_relationships, note, folder]')
             .orderBy('id')
-
-        const queriedThing = queriedThingDbModels.length ?
-            new Thing(queriedThingDbModels[0]) :
+        return queriedThingDbModels.length ?
+            queriedThingDbModels[0] :
             null
-
-        return queriedThing
 
     // If multiple IDs are supplied, query based on match to those IDs.
     } else {
@@ -188,22 +136,16 @@ export async function queryThings(thingIds: number | number[]): Promise<null | T
             .allowGraph('[a_relationships, b_relationships, note, folder]')
             .withGraphFetched('[a_relationships, b_relationships, note, folder]')
             .orderBy('id')
-
-        const queriedThings: Thing[] = []
-        for (const model of queriedThingDbModels) {
-            queriedThings.push( new Thing(model) )
-        }
-
-        return queriedThings
+        return queriedThingDbModels
     }
 }
 
 /*
  * Query Things from the database based on GUID.
  */
-export async function queryThingsByGuid(thingGuids: string): Promise<null | Thing>;
-export async function queryThingsByGuid(thingGuids: string[]): Promise<Thing[]>;
-export async function queryThingsByGuid(thingGuids: string | string[]): Promise<null | Thing | Thing[]> {
+export async function queryThingsByGuid(thingGuids: string): Promise<null | ThingDbModel>;
+export async function queryThingsByGuid(thingGuids: string[]): Promise<ThingDbModel[]>;
+export async function queryThingsByGuid(thingGuids: string | string[]): Promise<null | ThingDbModel | ThingDbModel[]> {
 
     // If a single GUID is supplied, query based on match to that ID (or return null if nothing is found).
     if (typeof thingGuids === "string") {
@@ -212,12 +154,9 @@ export async function queryThingsByGuid(thingGuids: string | string[]): Promise<
             .allowGraph('[a_relationships, b_relationships, note]')
             .withGraphFetched('[a_relationships, b_relationships, note, folder]')
             .orderBy('id')
-
-        const queriedThing = queriedThingDbModels.length ?
-            new Thing(queriedThingDbModels[0]) :
+        return queriedThingDbModels.length ?
+            queriedThingDbModels[0] :
             null
-
-        return queriedThing
 
     // If multiple IDs are supplied, query based on match to those IDs.
     } else {
@@ -228,20 +167,14 @@ export async function queryThingsByGuid(thingGuids: string | string[]): Promise<
             .allowGraph('[a_relationships, b_relationships, note, folder]')
             .withGraphFetched('[a_relationships, b_relationships, note, folder]')
             .orderBy('id')
-
-        const queriedThings: Thing[] = []
-        for (const model of queriedThingDbModels) {
-            queriedThings.push( new Thing(model) )
-        }
-
-        return queriedThings.length ? queriedThings : null
+        return queriedThingDbModels
     }
 }
 
 /*
  * Query Thing search list from the database.
  */
-export async function queryThingSearchList( thingIds: number[] | null ): Promise<ThingSearchListItem[]> {
+export async function queryThingSearchList( thingIds: number[] | null ): Promise<ThingSearchListItemDbModel[]> {
     const queriedThingSearchListDbModels = thingIds === null ?
         await ThingSearchListItemDbModel.query().orderBy('id') :
         await ThingSearchListItemDbModel.query()
@@ -249,13 +182,7 @@ export async function queryThingSearchList( thingIds: number[] | null ): Promise
                 (builder) => builder.whereIn('id', thingIds)
             )
             .orderBy('id')
-    
-    const queriedThingSearchList: ThingSearchListItem[] = []
-    for (const dbModel of queriedThingSearchListDbModels) {
-        queriedThingSearchList.push( new ThingSearchListItem(dbModel) )
-    }
-
-    return queriedThingSearchList
+    return queriedThingSearchListDbModels
 }
 
 /*

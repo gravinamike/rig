@@ -1,4 +1,4 @@
-import type { Space } from "$lib/models/graphModels"
+import type { SpaceDbModel } from "$lib/models/dbModels"
 import { querySpaces } from "$lib/db/serverSide"
 
 
@@ -8,11 +8,13 @@ export async function get(
     { params }: { params: {spaceIds: string} }
 ): Promise<{
     status: number;
-    body: Space[] | { error: string }
+    body: SpaceDbModel[] | { error: string }
 }> {
     try {
         ({ spaceIds } = params)
-        const spaces = spaceIds === "all" ? await querySpaces(null) : await querySpaces(spaceIds.split(",").map(x => Number(x)))
+        const spaces = spaceIds === "all" ?
+            await querySpaces(null) :
+            await querySpaces(spaceIds.split(",").map(x => Number(x)))
 
         return {
             status: 200,

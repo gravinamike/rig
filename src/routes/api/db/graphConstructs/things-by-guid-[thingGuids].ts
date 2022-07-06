@@ -1,4 +1,4 @@
-import type { Thing } from "$lib/models/graphModels"
+import { Thing } from "$lib/models/graphModels"
 import { queryThingsByGuid } from "$lib/db/serverSide"
 
 
@@ -12,7 +12,12 @@ export async function get(
 
     try {
         ({ thingGuids } = params)
-        const things = await queryThingsByGuid(thingGuids.split(","))
+        const models = await queryThingsByGuid(thingGuids.split(","))
+
+        const things: Thing[] = []
+        for (const model of models) {
+            things.push( new Thing(model) )
+        }
         
         return {
             status: 200,
