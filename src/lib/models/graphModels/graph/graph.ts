@@ -1,6 +1,5 @@
 import type { GraphWidgetStyle } from "$lib/shared/constants"
-import type { ThingDbModel } from "$lib/models/dbModels"
-import type { Cohort, Space } from "$lib/models/graphModels"
+import type { Space, Thing, Cohort } from "$lib/models/graphModels"
 import type { ThingCohortWidgetModel, ThingBaseWidgetModel } from "$lib/models/widgetModels"
 
 import { defaultGraphWidgetStyle } from "$lib/shared/constants"
@@ -124,7 +123,7 @@ export class Graph {
 
     async deleteThingById(thingId: number): Promise<void> {
         // Get the to-be-deleted Thing from the Store.
-        const deletedThing = retrieveGraphConstructs<ThingDbModel>("Thing", thingId)
+        const deletedThing = retrieveGraphConstructs<Thing>("Thing", thingId)
         if (deletedThing) {
 
             const thingDeleted = await deleteThing(thingId)
@@ -134,7 +133,7 @@ export class Graph {
 
                 // Re-store any Things that were related to the deleted Thing (in order to
                 // update their relations to reflect the deleted Thing's absence).
-                await storeGraphConstructs<ThingDbModel>("Thing", relatedThingIds, true)
+                await storeGraphConstructs<Thing>("Thing", relatedThingIds, true)
 
                 // Remove the deleted Thing itself from the Store.
                 await unstoreGraphConstructs("Thing", relatedThingIds)
@@ -150,7 +149,7 @@ export class Graph {
         if (relationshipDeleted) {
             // Re-store the Things that were related by the Relationship (in order to
             // update their relations to reflect the Relationship's absence).
-            await storeGraphConstructs<ThingDbModel>("Thing", [sourceThingId, destThingId], true)
+            await storeGraphConstructs<Thing>("Thing", [sourceThingId, destThingId], true)
 
             await this.build()
         }

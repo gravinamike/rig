@@ -1,6 +1,5 @@
 import type { HalfAxisId } from "$lib/shared/constants"
-import type { NoteDbModel } from "$lib/models/dbModels"
-import type { Graph, Cohort } from "$lib/models/graphModels"
+import type { Cohort, Note, Graph } from "$lib/models/graphModels"
 import type { ThingCohortWidgetModel } from "$lib/models/widgetModels/thingCohortWidgetModel"
 import type { RelationshipCohortWidgetModel } from "$lib/models/widgetModels/relationshipCohortWidgetModel"
 import type { RelationshipBeingCreatedInfo } from "$lib/widgets/graphWidgets"
@@ -40,11 +39,11 @@ export class ThingWidgetModel extends ThingBaseWidgetModel {
 
     // The following getter functions pass along the corresponding attributes from the encapsulated Thing.
     get text(): string {
-        const text = this.thing ? this.thing.text : ""
+        const text = this.thing && this.thing.text ? this.thing.text : ""
         return text
     }
 
-    get note(): NoteDbModel | null {
+    get note(): Note | null {
         const note = this.thing ? this.thing.note : null
         return note
     }

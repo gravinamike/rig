@@ -1,4 +1,4 @@
-import type { FolderDbModel } from "$lib/models/dbModels"
+import type { FolderDbModel, FolderToThingDbModel } from "$lib/models/dbModels"
 
 
 /*
@@ -17,5 +17,25 @@ export class Folder {
         this.id = dbModel.id
         this.whencreated = dbModel.whencreated
         this.path = dbModel.path
+    }
+}
+
+
+/*
+ * Folder-to-Thing model.
+ */
+export class FolderToThing {
+    dbModel: FolderToThingDbModel | null
+
+    id: number | null
+    folderid: number | null
+    thingid: number | null
+
+    constructor(dbModel: FolderToThingDbModel) {
+        this.dbModel = dbModel
+
+        this.id = dbModel.id
+        this.folderid = dbModel.folderid
+        this.thingid = dbModel.thingid
     }
 }

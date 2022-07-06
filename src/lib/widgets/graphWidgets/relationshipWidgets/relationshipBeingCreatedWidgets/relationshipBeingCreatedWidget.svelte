@@ -1,7 +1,6 @@
 <script lang="ts">
     import type { HalfAxisId } from "$lib/shared/constants"
-    import type { ThingDbModel } from "$lib/models/dbModels"
-    import type { Direction, Graph } from "$lib/models/graphModels"
+    import type { Direction, Thing, Graph } from "$lib/models/graphModels"
     import type { ThingWidgetModel, RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
 
     import { tweened } from "svelte/motion"
@@ -98,7 +97,7 @@
 
             const newRelationshipCreated = await createNewRelationship(sourceThingId, destThingId, (direction.id) as number)
             if (newRelationshipCreated) {
-                await storeGraphConstructs<ThingDbModel>("Thing", [sourceThingId, destThingId], true)
+                await storeGraphConstructs<Thing>("Thing", [sourceThingId, destThingId], true)
                 await (graph as Graph).build()
                 addGraphIdsNeedingViewerRefresh((graph as Graph).id)
             }

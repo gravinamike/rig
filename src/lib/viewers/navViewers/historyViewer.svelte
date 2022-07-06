@@ -1,6 +1,5 @@
 <script lang="ts">
-    import type { Graph } from "$lib/models/graphModels"
-    import type { ThingDbModel } from "$lib/models/dbModels"
+    import type { Thing, Graph } from "$lib/models/graphModels"
     import { hoveredThingIdStore, retrieveGraphConstructs, graphConstructInStore } from "$lib/stores"
     import { Toggle } from "$lib/widgets/layoutWidgets"
 
@@ -35,7 +34,7 @@
     interface HistoryEntryWithThing {
         timestamp: Date,
         thingId: number,
-        thing: ThingDbModel | null
+        thing: Thing | null
     }
 
     interface DateDivider {

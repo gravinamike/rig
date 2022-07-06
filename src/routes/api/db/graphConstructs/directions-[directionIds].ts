@@ -1,4 +1,4 @@
-import type { DirectionDbModel } from "$lib/models/dbModels"
+import type { Direction } from "$lib/models/graphModels"
 import { queryDirections } from "$lib/db/serverSide"
 
 
@@ -8,11 +8,12 @@ export async function get(
     { params }: { params: {directionIds: string} }
 ): Promise<{
     status: number;
-    body: DirectionDbModel[] | { error: string }
+    body: Direction[] | { error: string }
 }> {
     try {
         ({ directionIds } = params)
         const directions = directionIds === "all" ? await queryDirections(null) : await queryDirections(directionIds.split(",").map(x => Number(x)))
+        
         return {
             status: 200,
             body: directions

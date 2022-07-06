@@ -1,13 +1,12 @@
 import type { Writable } from "svelte/store"
 import type { Editor } from "@tiptap/core"
 import type { GraphConstruct } from "$lib/shared/constants"
-import type { ThingDbModel, ThingSearchListItem } from "$lib/models/dbModels"
+import type { ThingSearchListItem } from "$lib/models/graphModels"
 import type { RelationshipBeingCreatedInfo } from "$lib/widgets/graphWidgets"
 import type { RemoteRelatingInfo, TextHyperlinkingInfo, ThingLinkingInfo } from "$lib/widgets/dialogWidgets"
 
 import { writable, derived } from "svelte/store"
-import { isThing } from "$lib/models/dbModels"
-import { Graph, Direction, Space, isDirection, isSpace } from "$lib/models/graphModels"
+import { Graph, Direction, Space, isDirection, isSpace, Thing, isThing } from "$lib/models/graphModels"
 import { nullRelationshipBeingCreatedInfo } from "$lib/widgets/graphWidgets"
 import { nullRemoteRelatingInfo, nullTextHyperlinkingInfo, nullThingLinkingInfo } from "$lib/widgets/dialogWidgets"
 import type { ThingWidgetModel, RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
@@ -35,8 +34,8 @@ export const spaceIdsNotFoundStore = writable( [] as number[] );
 
 
 // Create Things-related stores (and subscriptions where applicable).
-export const thingsStore = writable( {} as { [id: number]: ThingDbModel } )
-let thingsStoreValue: { [id: number]: ThingDbModel }
+export const thingsStore = writable( {} as { [id: number]: Thing } )
+let thingsStoreValue: { [id: number]: Thing }
 thingsStore.subscribe(value => {thingsStoreValue = value})
 
 export const thingsStoreAsArray = derived( thingsStore, $thingsStore => Object.values($thingsStore) )
@@ -567,7 +566,7 @@ export async function removeIdsFromThingSearchListStore( thingIds: number | numb
     // Update the store with each supplied construct.
     thingSearchListStore.update( (current) => {
         for (const thingSearchListItem of current) {
-            if ((thingIds as number[]).includes(thingSearchListItem.id)) {
+            if (thingSearchListItem.id && (thingIds as number[]).includes(thingSearchListItem.id)) {
                 const index = current.indexOf(thingSearchListItem)
                 if (index > -1) {
                     current.splice(index, 1)

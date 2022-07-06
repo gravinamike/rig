@@ -1,6 +1,5 @@
 <script lang="ts">
-    import type { Graph } from "$lib/models/graphModels"
-    import type { ThingDbModel } from "$lib/models/dbModels"
+    import type { Thing, Graph } from "$lib/models/graphModels"
     import { thingsStore, storeGraphConstructs, retrieveGraphConstructs, graphConstructInStore } from "$lib/stores/graphStores"
     import NotesEditor from "./notesEditor.svelte"
     import { addNoteToThing, markNotesModified, thingsByGuid, updateNote } from "$lib/db/clientSide"
@@ -16,12 +15,12 @@
     let editorContent: string
 
     // Get Perspective Thing.
-    let pThing: ThingDbModel | null = null
+    let pThing: Thing | null = null
     $: {
         const pThingIds = graph.pThingIds
         const pThingId = pThingIds && pThingIds.length ? pThingIds[0] : null
         pThing = pThingId && $thingsStore && graphConstructInStore("Thing", pThingId) ?
-            retrieveGraphConstructs<ThingDbModel>("Thing", pThingId) :
+            retrieveGraphConstructs<Thing>("Thing", pThingId) :
             null
     }
 
@@ -53,7 +52,7 @@
     /* Set up triggers to either create and save, or just save, note as needed. */
     async function handleNoteChanged() {
 
-        if (!pThing) {
+        if (!pThing || !pThing.id) {
 
             return
 
@@ -61,14 +60,14 @@
 
             await addNoteToThing(pThing.id)
             // Re-store the Thing (in order to update its linker to the new Note).
-            await storeGraphConstructs<ThingDbModel>("Thing", pThing.id, true)
+            await storeGraphConstructs<Thing>("Thing", pThing.id, true)
             noteChanged = false
 
         } else {
             await updateNote(noteId, editorContent)
             await markNotesModified(noteId)
             // Re-store the Thing (in order to update its linker to the updated Note).
-            await storeGraphConstructs<ThingDbModel>("Thing", pThing.id, true)
+            await storeGraphConstructs<Thing>("Thing", pThing.id, true)
             noteChanged = false
 
         }

@@ -1,12 +1,6 @@
 import type { AppConfig, GraphConfig, GraphConstruct } from "$lib/shared/constants"
-import type { DirectionDbModel, SpaceDbModel, ThingDbModel, ThingSearchListItem } from "$lib/models/dbModels"
 import type { LatestConstructInfos } from "$lib/db/serverSide/getInfo"
-
-import { Direction, Space } from "$lib/models/graphModels"
-
-
-
-
+import type { Thing, ThingSearchListItem } from "$lib/models/graphModels"
 
 
 
@@ -25,48 +19,14 @@ export async function graphConstructs<Type extends GraphConstruct>(
 
     // Else, if IDs *were* provided,
     } else {
-        res = await fetch(`api/db/graphConstructs/${ constructName.toLowerCase() }s-${ids.join(",")}`);
+        res = await fetch(`api/db/graphConstructs/${ constructName.toLowerCase() }s-${ids.join(",")}`)
     }
 
     // If the response is ok,
     if (res.ok) {
-
-        /* The DB model has to be packaged in the construct first. */
-
-        if (constructName === "Direction") {
-
-            // Unpack the response JSON as an array of instances.
-            const queriedInstances = await res.json() as DirectionDbModel[]
-            
-            const directions: Type[] = []
-            for (const model of queriedInstances) {
-                const newSpace = new Direction(model)
-                directions.push(newSpace as Type)
-            }
-
-            return directions
-        
-        } else if (constructName === "Space") {
-
-            // Unpack the response JSON as an array of instances.
-            const queriedInstances = await res.json() as SpaceDbModel[]
-            
-            const spaces: Type[] = []
-            for (const model of queriedInstances) {
-                const newSpace = new Space(model)
-                spaces.push(newSpace as Type)
-            }
-
-            return spaces
-
-        } else {
-
-            // Unpack the response JSON as an array of instances.
-            const queriedInstances = await res.json() as Type[]
-            return queriedInstances
-
-        }
-
+        // Unpack the response JSON as an array of instances.
+        const queriedInstances = await res.json() as Type[]
+        return queriedInstances
     // Handle errors if needed.
     } else {
         res.text().then(text => {throw Error(text)})
@@ -77,13 +37,13 @@ export async function graphConstructs<Type extends GraphConstruct>(
 /*
  * Retrieve Things from the database by GUID.
  */
-export async function thingsByGuid( guids: string[] ): Promise<ThingDbModel[]> {
+export async function thingsByGuid( guids: string[] ): Promise<Thing[]> {
     const res = await fetch(`api/db/graphConstructs/things-by-guid-${guids.join(",")}`)
 
     // If the response is ok,
     if (res.ok) {
         // Unpack the response JSON as an array of instances.
-        const queriedInstances = await res.json() as ThingDbModel[]
+        const queriedInstances = await res.json() as Thing[]
         return queriedInstances
     // Handle errors if needed.
     } else {

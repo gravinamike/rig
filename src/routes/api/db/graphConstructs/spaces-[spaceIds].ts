@@ -1,4 +1,4 @@
-import type { SpaceDbModel } from "$lib/models/dbModels"
+import type { Space } from "$lib/models/graphModels"
 import { querySpaces } from "$lib/db/serverSide"
 
 
@@ -8,7 +8,7 @@ export async function get(
     { params }: { params: {spaceIds: string} }
 ): Promise<{
     status: number;
-    body: SpaceDbModel[] | { error: string }
+    body: Space[] | { error: string }
 }> {
     try {
         ({ spaceIds } = params)
