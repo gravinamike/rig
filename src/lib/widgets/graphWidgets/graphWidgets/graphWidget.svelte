@@ -248,6 +248,8 @@
         display: flex;
         justify-content: center;
         align-items: center;
+
+        cursor: all-scroll;
     }
 
     .central-anchor {
