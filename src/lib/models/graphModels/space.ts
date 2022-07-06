@@ -1,5 +1,6 @@
 import type { GraphConstruct, HalfAxisId, OddHalfAxisId } from "$lib/shared/constants"
-import type { SpaceDbModel, DirectionDbModel } from "$lib/models/dbModels"
+import type { SpaceDbModel } from "$lib/models/dbModels"
+import { Direction } from "$lib/models/graphModels"
 
 import { oddHalfAxisIds, halfAxisOppositeIds } from "$lib/shared/constants"
 import { retrieveGraphConstructs } from "$lib/stores"
@@ -14,14 +15,17 @@ export class Space {
 
     id: number | null
     text: string | null
-    directions: DirectionDbModel[]
+    directions: Direction[] = []
 
     constructor(dbModel: SpaceDbModel) {
         this.dbModel = dbModel
 
         this.id = dbModel.id
         this.text = dbModel.text
-        this.directions = dbModel.directions
+
+        for (const directionDbModel of dbModel.directions) {
+            this.directions.push( new Direction(directionDbModel) )
+        }
     }
 
 
@@ -40,14 +44,14 @@ export class Space {
         return directionIdsByHalfAxisId
     }
 
-    get directionByHalfAxisId(): { [halfAxisId: number]: DirectionDbModel | null } {
-        const directionByHalfAxisId: { [halfAxisId: number]: DirectionDbModel | null } = {}
+    get directionByHalfAxisId(): { [halfAxisId: number]: Direction | null } {
+        const directionByHalfAxisId: { [halfAxisId: number]: Direction | null } = {}
         for (const oddHalfAxisId of oddHalfAxisIds) {
             const directionIndex = (oddHalfAxisId - 1) / 2
             if (directionIndex < this.directions.length) {
                 const direction = this.directions[directionIndex]
                 const oppositeDirection = direction.oppositeid ?
-                    retrieveGraphConstructs("Direction", direction.oppositeid) as DirectionDbModel | null :
+                    retrieveGraphConstructs("Direction", direction.oppositeid) as Direction | null :
                     null
                 directionByHalfAxisId[oddHalfAxisId] = direction
                 directionByHalfAxisId[oddHalfAxisId + 1] = oppositeDirection
@@ -87,7 +91,7 @@ export function copiedSpace(startingSpace: Space): Space {
 }
 
 export function alteredSpace(
-    startingSpace: Space, direction: DirectionDbModel, halfAxisId: HalfAxisId
+    startingSpace: Space, direction: Direction, halfAxisId: HalfAxisId
 ): Space | null {
     const alteredSpace = copiedSpace(startingSpace)
     
@@ -96,7 +100,7 @@ export function alteredSpace(
     const indexOfOppositeInSpace = oddHalfAxisIds.indexOf(oppositeHalfAxisId as OddHalfAxisId)
     
     const oppositeDirection = direction.oppositeid ?
-        retrieveGraphConstructs("Direction", direction.oppositeid) as DirectionDbModel | null :
+        retrieveGraphConstructs("Direction", direction.oppositeid) as Direction | null :
         null
 
     if (

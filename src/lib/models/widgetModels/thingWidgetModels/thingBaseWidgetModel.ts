@@ -54,7 +54,7 @@ export class ThingBaseWidgetModel {
         const onAxisDirectionIds: number[] = []
 
         for (const direction of space.directions) {
-            onAxisDirectionIds.push(direction.id)
+            if (direction.id) onAxisDirectionIds.push(direction.id)
             if (direction.oppositeid) onAxisDirectionIds.push(direction.oppositeid)
         }
 

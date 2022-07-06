@@ -1,4 +1,5 @@
 export * from "./cohort"
+export * from "./direction"
 export * from "./generation"
 export * from "./graph"
 export * from "./plane"

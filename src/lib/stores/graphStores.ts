@@ -6,8 +6,8 @@ import type { RelationshipBeingCreatedInfo } from "$lib/widgets/graphWidgets"
 import type { RemoteRelatingInfo, TextHyperlinkingInfo, ThingLinkingInfo } from "$lib/widgets/dialogWidgets"
 
 import { writable, derived } from "svelte/store"
-import { DirectionDbModel, isDirection, isThing } from "$lib/models/dbModels"
-import { Graph, Space, isSpace } from "$lib/models/graphModels"
+import { isThing } from "$lib/models/dbModels"
+import { Graph, Direction, Space, isDirection, isSpace } from "$lib/models/graphModels"
 import { nullRelationshipBeingCreatedInfo } from "$lib/widgets/graphWidgets"
 import { nullRemoteRelatingInfo, nullTextHyperlinkingInfo, nullThingLinkingInfo } from "$lib/widgets/dialogWidgets"
 import type { ThingWidgetModel, RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
@@ -15,8 +15,8 @@ import { graphConstructs, thingSearchListItems } from "$lib/db/clientSide"
 
 
 // Create Direction-related stores (and subscriptions where applicable).
-export const directionsStore = writable( {} as { [id: number]: DirectionDbModel } )
-let directionsStoreValue: { [id: number]: DirectionDbModel }
+export const directionsStore = writable( {} as { [id: number]: Direction } )
+let directionsStoreValue: { [id: number]: Direction }
 directionsStore.subscribe(value => {directionsStoreValue = value})
 
 export const directionsStoreAsArray = derived( directionsStore, $directionsStore => Object.values($directionsStore) )
@@ -325,7 +325,7 @@ export const inferredRelationshipBeingCreatedDirection = derived(
         const destWidgetModel = $relationshipBeingCreatedInfoStore.destWidgetModel
         const selectedDirection = $relationshipBeingCreatedInfoStore.selectedDirection
 
-        let direction: DirectionDbModel | null
+        let direction: Direction | null
         if (sourceWidgetModel && sourceWidgetModel.kind === "relationshipCohortWidgetModel") {
             direction = sourceWidgetModel.direction
         } else if (destWidgetModel && destWidgetModel.kind === "relationshipCohortWidgetModel") {

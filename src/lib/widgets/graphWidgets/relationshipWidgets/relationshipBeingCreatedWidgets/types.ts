@@ -1,4 +1,4 @@
-import type { DirectionDbModel } from "$lib/models/dbModels"
+import type { Direction } from "$lib/models/graphModels"
 import type { ThingWidgetModel, RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
 
 
@@ -8,7 +8,7 @@ export interface RelationshipBeingCreatedInfo{
     startPosition: [number, number],
     endPosition: [number, number],
     trackingMouse: boolean,
-    selectedDirection: DirectionDbModel | null
+    selectedDirection: Direction | null
 }
 
 export const nullRelationshipBeingCreatedInfo: RelationshipBeingCreatedInfo = {
