@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { Graph } from "$lib/models/graphModels"
-    import type { ThingSearchListItem } from "$lib/models/dbModels"
+    import type { ThingSearchListItem } from "$lib/models/graphModels"
     import type { SearchOption } from "$lib/widgets/navWidgets/searchWidget"
     import {
         thingSearchListStore, addGraph, removeGraph, graphIdsNeedingViewerRefresh, addGraphIdsNeedingViewerRefresh, removeGraphIdsNeedingViewerRefresh
@@ -20,7 +20,7 @@
     async function buildUnfilteredArray(thingSearchList: ThingSearchListItem[]) {
         unfilteredArray = []
         for (const thingSearchListItem of thingSearchList) {
-            unfilteredArray.push({id: thingSearchListItem.id, name: thingSearchListItem.text})
+            unfilteredArray.push({id: (thingSearchListItem.id as number), name: (thingSearchListItem.text as string)})
         }
     }
     $: buildUnfilteredArray($thingSearchListStore)

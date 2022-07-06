@@ -1,4 +1,4 @@
-import type { ThingDbModel } from "$lib/models/dbModels"
+import { Thing } from "$lib/models/graphModels"
 import { queryThingsByGuid } from "$lib/db/serverSide"
 
 
@@ -6,13 +6,19 @@ export async function get(
     { params }: { params: { thingGuids: string } }
 ): Promise<{
     status: number;
-    body: ThingDbModel[] | { error: string }
+    body: Thing[] | { error: string }
 }> {
     let thingGuids: string | string[]
 
     try {
         ({ thingGuids } = params)
-        const things = await queryThingsByGuid(thingGuids.split(","))
+        const models = await queryThingsByGuid(thingGuids.split(","))
+
+        const things: Thing[] = []
+        for (const model of models) {
+            things.push( new Thing(model) )
+        }
+        
         return {
             status: 200,
             body: things

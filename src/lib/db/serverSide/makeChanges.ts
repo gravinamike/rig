@@ -13,6 +13,7 @@ import {
     NoteDbModel, getNewNoteInfo, NoteToThingDbModel,
     FolderDbModel, getNewFolderInfo, FolderToThingDbModel
 } from "$lib/models/dbModels"
+import { Thing } from "$lib/models/graphModels"
 
 // Filesystem-related imports.
 import { createFolder } from "$lib/shared/fileSystem"
@@ -21,7 +22,7 @@ import { createFolder } from "$lib/shared/fileSystem"
 /*
  * From a starting Thing, create a related Thing.
  */
-export async function createNewRelatedThing(thingIdToRelateFrom: number, directionId: number, text: string): Promise<ThingDbModel | false> {
+export async function createNewRelatedThing(thingIdToRelateFrom: number, directionId: number, text: string): Promise<Thing | false> {
     try {    
         // Get parameters for SQL query.
         const whenCreated = new Date()
@@ -32,26 +33,28 @@ export async function createNewRelatedThing(thingIdToRelateFrom: number, directi
             // Create new Thing.
             const newThingInfo = getNewThingInfo(text, whenCreated, 2)
             const querystring1 = ThingDbModel.query().insert(newThingInfo).toKnexQuery().toString()
-            const newRelatedThing = await alterQuerystringForH2AndRun(querystring1, transaction, whenCreated, "Thing") as ThingDbModel
+            const newRelatedThingDbModel = await alterQuerystringForH2AndRun(querystring1, transaction, whenCreated, "Thing") as ThingDbModel
             
             // Get Direction info.
             const direction = (await DirectionDbModel.query().where("id", directionId))[0]
             const oppositeDirectionId = direction.oppositeid as number
 
             // Create new Relationship.
-            const newARelationshipInfo = getNewRelationshipInfo(thingIdToRelateFrom, newRelatedThing.id, whenCreated, directionId)
+            const newARelationshipInfo = getNewRelationshipInfo(thingIdToRelateFrom, newRelatedThingDbModel.id, whenCreated, directionId)
             const querystring2 = RelationshipDbModel.query().insert(newARelationshipInfo).toKnexQuery().toString()
-            const newBRelationshipInfo = getNewRelationshipInfo(newRelatedThing.id, thingIdToRelateFrom, whenCreated, oppositeDirectionId)
+            const newBRelationshipInfo = getNewRelationshipInfo(newRelatedThingDbModel.id, thingIdToRelateFrom, whenCreated, oppositeDirectionId)
             const querystring3 = RelationshipDbModel.query().insert(newBRelationshipInfo).toKnexQuery().toString()
             await Promise.all([
                 alterQuerystringForH2AndRun(querystring2, transaction, whenCreated, "Relationship"),
                 alterQuerystringForH2AndRun(querystring3, transaction, whenCreated, "Relationship")
             ])
 
+            const newRelatedThing = new Thing(newRelatedThingDbModel)
+
             return newRelatedThing
         })
 
-        return newRelatedThing as ThingDbModel
+        return newRelatedThing as Thing
 
     } catch(err) {
         console.error(err)

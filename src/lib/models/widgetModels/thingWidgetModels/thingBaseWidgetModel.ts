@@ -1,6 +1,5 @@
 import type { HalfAxisId } from "$lib/shared/constants"
-import type { ThingDbModel } from "$lib/models/dbModels"
-import type { Graph, Space, Cohort } from "$lib/models/graphModels"
+import type { Space, Thing, Cohort, Graph } from "$lib/models/graphModels"
 import type { ThingAddress, ThingWidgetModel } from "./"
 
 import { oddHalfAxisIds, planePadding } from "$lib/shared/constants"
@@ -11,7 +10,7 @@ export class ThingBaseWidgetModel {
     kind = "thingBaseWidgetModel"
 
     thingId: number | null
-    thing: ThingDbModel | null
+    thing: Thing | null
     graph: Graph
     _parentCohort: Cohort | null = null
     inheritSpace = true // For now.
@@ -54,7 +53,7 @@ export class ThingBaseWidgetModel {
         const onAxisDirectionIds: number[] = []
 
         for (const direction of space.directions) {
-            onAxisDirectionIds.push(direction.id)
+            if (direction.id) onAxisDirectionIds.push(direction.id)
             if (direction.oppositeid) onAxisDirectionIds.push(direction.oppositeid)
         }
 

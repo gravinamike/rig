@@ -47,7 +47,7 @@ export function getNewFolderInfo(whenCreated: Date, guid: string): NewFolderInfo
 }
 
 /*
- * NoteToThing model.
+ * FolderToThing model.
  */
 export class FolderToThingDbModel extends Model {
     static tableName = "foldertothing" as const

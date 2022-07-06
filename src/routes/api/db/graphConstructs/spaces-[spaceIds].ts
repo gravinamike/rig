@@ -12,7 +12,9 @@ export async function get(
 }> {
     try {
         ({ spaceIds } = params)
-        const spaces = spaceIds === "all" ? await querySpaces(null) : await querySpaces(spaceIds.split(",").map(x => Number(x)))
+        const spaces = spaceIds === "all" ?
+            await querySpaces(null) :
+            await querySpaces(spaceIds.split(",").map(x => Number(x)))
 
         return {
             status: 200,

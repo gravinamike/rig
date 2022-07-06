@@ -1,12 +1,11 @@
 <script lang="ts">
-    import type { Graph } from "$lib/models/graphModels"
+    import type { Thing, Graph } from "$lib/models/graphModels"
     import type { SearchOption } from "$lib/widgets/navWidgets/searchWidget"
     import {
         thingLinkingStore, updateThingLinkingUrl, disableThingLinking, retrieveGraphConstructs
     } from "$lib/stores"
     import { RemoteSelectingWidget } from "$lib/widgets/dialogWidgets"
     import { sleep } from "$lib/shared/utility"
-import type { ThingDbModel } from "$lib/models/dbModels";
 
 
     let graph: Graph | null = null
@@ -29,7 +28,7 @@ import type { ThingDbModel } from "$lib/models/dbModels";
         )
 
         if (destThingId) {
-            const destThing = retrieveGraphConstructs("Thing", destThingId) as ThingDbModel
+            const destThing = retrieveGraphConstructs("Thing", destThingId) as Thing
             if (destThing) {
                 const url = `graph://${destThing.guid}`
                 updateThingLinkingUrl(url)

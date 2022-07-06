@@ -1,5 +1,5 @@
 // Type imports.
-import type { ThingDbModel } from "$lib/models/dbModels"
+import type { Thing } from "$lib/models/graphModels"
 import type { ThingWidgetModel } from "$lib/models/widgetModels"
 
 // Store imports.
@@ -165,7 +165,7 @@ export class Generations {
         const thingIdsToStore = this.newGenerationThingIds().filter( id => !thingIdsOfGraph.includes(id) )
 
         // Store Things from the IDs.
-        await storeGraphConstructs<ThingDbModel>("Thing", thingIdsToStore)
+        await storeGraphConstructs<Thing>("Thing", thingIdsToStore)
     }
 
     /**

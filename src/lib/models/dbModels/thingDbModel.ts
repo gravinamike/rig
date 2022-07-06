@@ -1,5 +1,4 @@
 import type { RelationMappings, RelationMappingsThunk } from "objection"
-import type { GraphConstruct } from "$lib/shared/constants"
 
 import { Model } from "objection"
 import { v4 as uuidv4 } from "uuid"
@@ -107,39 +106,6 @@ export class ThingDbModel extends Model {
             }
         };
     }
-
-    static get virtualAttributes(): string[] {
-        return ['relationshipInfos', 'relatedThingIds', 'relatedThingIdsByDirectionId']
-    }
-
-    get relationshipInfos(): { relatedThingId: number | null, directionId: number, order: number | null }[] {
-        let relationshipInfos: { relatedThingId: number | null, directionId: number, order: number | null }[] = []
-        for (const relationship of this.b_relationships) relationshipInfos.push(
-            { relatedThingId: relationship.thingbid, directionId: relationship.direction, order: relationship.relationshiporder }
-        )
-        relationshipInfos = Array.from(new Set(relationshipInfos))
-        relationshipInfos.sort((a, b) => (a.order ? a.order : 0) - (b.order ? b.order : 0))
-        return relationshipInfos
-    }
-
-    get relatedThingIds(): (number | null)[] {
-        const relatedThingIds: (number | null)[] = []
-        for (const relationshipInfo of this.relationshipInfos) {
-            relatedThingIds.push(relationshipInfo.relatedThingId)
-        }
-        return relatedThingIds
-    }
-
-    get relatedThingIdsByDirectionId(): { [directionId: number]: number[] } {
-        const relatedThingIdsByDirectionId: { [directionId: number]: number[] } = {}
-        for (const relationshipInfo of this.relationshipInfos) {
-            const directionId = relationshipInfo.directionId
-            const relatedThingId = relationshipInfo.relatedThingId
-            if (!(directionId in relatedThingIdsByDirectionId)) relatedThingIdsByDirectionId[directionId] = []
-            if (!(relatedThingId === null || relatedThingId in relatedThingIdsByDirectionId[directionId])) relatedThingIdsByDirectionId[directionId].push(relatedThingId)
-        }
-        return relatedThingIdsByDirectionId
-    }
 }
 
 interface NewThingInfo {
@@ -202,18 +168,11 @@ export function getNewThingInfo(text: string, whenCreated: Date, defaultSpace: n
     return newThingInfo
 }
 
-/*
- * Typeguard functions for Graph construct class.
- */
-export function isThing(construct: GraphConstruct): construct is ThingDbModel {
-    return "note" in construct
-}
-
 
 /*
  * Thing search list item.
  */
-export class ThingSearchListItem extends Model {
+export class ThingSearchListItemDbModel extends Model {
     static tableName = "things" as const
 
     id!: number

@@ -13,6 +13,7 @@ export async function get(
     try {
         ({ thingIds } = params)
         const things = await queryThings(thingIds.split(",").map(x => Number(x)))
+
         return {
             status: 200,
             body: things

@@ -12,7 +12,10 @@ export async function get(
 }> {
     try {
         ({ directionIds } = params)
-        const directions = directionIds === "all" ? await queryDirections(null) : await queryDirections(directionIds.split(",").map(x => Number(x)))
+        const directions = directionIds === "all" ?
+            await queryDirections(null) :
+            await queryDirections(directionIds.split(",").map(x => Number(x)))
+
         return {
             status: 200,
             body: directions

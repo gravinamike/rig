@@ -1,6 +1,5 @@
 <script lang="ts">
-    import type { Graph } from "$lib/models/graphModels"
-    import type { ThingDbModel } from "$lib/models/dbModels"
+    import type { Thing, Graph } from "$lib/models/graphModels"
     import { thingsStore, storeGraphConstructs, retrieveGraphConstructs, graphConstructInStore } from "$lib/stores/graphStores"
     import { addFolderToThing } from "$lib/db/clientSide"
 
@@ -11,7 +10,7 @@
     $: pThingIds = graph.pThingIds
     $: pThingId = pThingIds && pThingIds.length ? pThingIds[0] : null
     $: pThing = pThingId && $thingsStore && graphConstructInStore("Thing", pThingId) ?
-        retrieveGraphConstructs<ThingDbModel>("Thing", pThingId) :
+        retrieveGraphConstructs<Thing>("Thing", pThingId) :
         null
 
     $: path = pThing && pThing.folder ? pThing.folder.path : null
@@ -27,10 +26,10 @@
     }
 
     async function addFolder() {///////////// This should only be called prior to opening or adding files to a Folder for a Thing that doesn't yet have a Folder.
-        if (pThing && !pThing.folder) {
+        if (pThing && pThing.id && !pThing.folder) {
             await addFolderToThing(pThing.id)
             // Re-store the Thing (in order to update its linker to the new Folder).
-            await storeGraphConstructs<ThingDbModel>("Thing", pThing.id, true)
+            await storeGraphConstructs<Thing>("Thing", pThing.id, true)
         }
     }
 </script>

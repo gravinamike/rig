@@ -1,4 +1,4 @@
-import type { ThingDbModel } from "$lib/models/dbModels"
+import type { Thing } from "$lib/models/graphModels"
 import type { GraphConfig } from "$lib/shared/constants"
 
 
@@ -7,7 +7,7 @@ import type { GraphConfig } from "$lib/shared/constants"
  */
 export async function createNewRelatedThing(
     thingIdToRelateFrom: number, directionId: number, text: string
-): Promise<ThingDbModel | false> {
+): Promise<Thing | false> {
     // Post to the create-new-related-Thing API.
     const res = await fetch(
         `api/db/graphManipulation/createNewRelatedThing`,
@@ -24,8 +24,8 @@ export async function createNewRelatedThing(
 
     // Report on the response.
     if (res.ok) {
-        const newRelatedThingDbModel = await res.json() as ThingDbModel
-        return newRelatedThingDbModel
+        const newRelatedThing = await res.json() as Thing
+        return newRelatedThing
     } else {
         res.text().then(text => {throw Error(text)})
         return false

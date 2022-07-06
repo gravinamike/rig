@@ -1,8 +1,7 @@
 <script lang="ts">
     // Type imports.
     import type { HalfAxisId } from "$lib/shared/constants"
-    import type { DirectionDbModel } from "$lib/models/dbModels"
-    import type { Graph } from "$lib/models/graphModels"
+    import type { Direction, Graph } from "$lib/models/graphModels"
 
     // Constants and stores imports.
     import { relationshipColorByHalfAxisId } from "$lib/shared/constants"
@@ -15,12 +14,12 @@
      * @param  {boolean} askingForDirection - Whether or not the widget requires the user to select a Direction.
      * @param  {(direction: Direction | null, optionId: number, option: Direction) => void} optionClickedFunction - The function to execute when a Direction option is clicked.
      */
-    export let direction: DirectionDbModel | null
+    export let direction: Direction | null
     export let halfAxisId: HalfAxisId | null
     export let graph: Graph
     export let askingForDirection = false
-    export let optionClickedFunction: (direction: DirectionDbModel | null, optionId: number, option: DirectionDbModel) => void = (_: DirectionDbModel | null, __: number, option: DirectionDbModel) => {console.log(option.text)}
-    export let optionHoveredFunction: (optionId: number, option: DirectionDbModel) => void = () => {}
+    export let optionClickedFunction: (direction: Direction | null, optionId: number, option: Direction) => void = (_: Direction | null, __: number, option: Direction) => {console.log(option.text)}
+    export let optionHoveredFunction: (optionId: number, option: Direction) => void = () => {}
     export let exitOptionHoveredFunction: () => void = () => {}
 
 

@@ -1,5 +1,4 @@
-import type { NoteDbModel } from "$lib/models/dbModels"
-import type { Graph } from "$lib/models/graphModels"
+import type { Note, Graph } from "$lib/models/graphModels"
 import type { ThingWidgetModel, ThingCohortWidgetModel, RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
 
 
@@ -43,7 +42,7 @@ export class CladeWidgetModel {
         return overlapMarginStyleText
     }
     
-    get note(): NoteDbModel | null {
+    get note(): Note | null {
         return this.submodels.rootThing.note
     }
 }

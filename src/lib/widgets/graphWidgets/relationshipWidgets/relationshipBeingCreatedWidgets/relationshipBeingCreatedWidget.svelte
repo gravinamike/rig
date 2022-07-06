@@ -1,7 +1,6 @@
 <script lang="ts">
     import type { HalfAxisId } from "$lib/shared/constants"
-    import type { DirectionDbModel, ThingDbModel } from "$lib/models/dbModels"
-    import type { Graph } from "$lib/models/graphModels"
+    import type { Direction, Thing, Graph } from "$lib/models/graphModels"
     import type { ThingWidgetModel, RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
 
     import { tweened } from "svelte/motion"
@@ -14,7 +13,7 @@
     
     
 
-    let direction: DirectionDbModel | null
+    let direction: Direction | null
     let halfAxisId: HalfAxisId | null
     let color: string
     let opacity: number
@@ -85,7 +84,7 @@
     async function handlePossibleNewRelationshipSpecified(
         sourceWidgetModel: ThingWidgetModel | RelationshipCohortWidgetModel | null,
         destWidgetModel: ThingWidgetModel | RelationshipCohortWidgetModel | null,
-        direction: DirectionDbModel | null,
+        direction: Direction | null,
         trackingMouse: boolean
     ) {
         if (sourceWidgetModel && destWidgetModel && direction && !trackingMouse) {
@@ -96,9 +95,9 @@
                 destWidgetModel.thingId as number:
                 destWidgetModel.parentThingWidgetModel.thingId as number
 
-            const newRelationshipCreated = await createNewRelationship(sourceThingId, destThingId, direction.id)
+            const newRelationshipCreated = await createNewRelationship(sourceThingId, destThingId, (direction.id) as number)
             if (newRelationshipCreated) {
-                await storeGraphConstructs<ThingDbModel>("Thing", [sourceThingId, destThingId], true)
+                await storeGraphConstructs<Thing>("Thing", [sourceThingId, destThingId], true)
                 await (graph as Graph).build()
                 addGraphIdsNeedingViewerRefresh((graph as Graph).id)
             }

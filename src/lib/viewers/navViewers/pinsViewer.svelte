@@ -1,22 +1,22 @@
 <script lang="ts">
-    import type { ThingDbModel } from "$lib/models/dbModels"
+    import type { Thing } from "$lib/models/graphModels"
     import { pinIdsStore, storeGraphConstructs, graphConstructInStore, retrieveGraphConstructs } from "$lib/stores"
     import { PinWidget } from "$lib/widgets/navWidgets"
 
     export let rePerspectToThingId: (thingId: number) => Promise<void>
 
 
-    let pins: { thingId: number, thing: ThingDbModel | null }[] = []
+    let pins: { thingId: number, thing: Thing | null }[] = []
     async function storeAndGetPins(pinIds: number[]) {
         for (const pinId of pinIds) {
-            if (!graphConstructInStore("Thing", pinId)) await storeGraphConstructs<ThingDbModel>("Thing", pinId)
+            if (!graphConstructInStore("Thing", pinId)) await storeGraphConstructs<Thing>("Thing", pinId)
         }
 
         pins = pinIds.map(
             (pinId) => {
                 return {
                     thingId: pinId,
-                    thing: graphConstructInStore("Thing", pinId) ? retrieveGraphConstructs("Thing", pinId) as ThingDbModel : null
+                    thing: graphConstructInStore("Thing", pinId) ? retrieveGraphConstructs("Thing", pinId) as Thing : null
                 }
             }
         )

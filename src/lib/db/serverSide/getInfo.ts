@@ -2,7 +2,7 @@ import {
     DirectionDbModel, SpaceDbModel,
     ThingDbModel, RelationshipDbModel,
     NoteDbModel, NoteToThingDbModel, FolderDbModel, FolderToThingDbModel,
-    ThingSearchListItem
+    ThingSearchListItemDbModel
 } from "$lib/models/dbModels"
 
 
@@ -18,34 +18,34 @@ export async function queryDirections( directionIds: number | number[] | null, i
     if (directionIds === null) {
         // If no IDs to exclude are supplied, query all Directions.
         if (!idsToExclude) {
-            const queriedDirections = await DirectionDbModel.query()
+            const queriedDirectionDbModels = await DirectionDbModel.query()
                 .orderBy('id')
-            return queriedDirections
+            return queriedDirectionDbModels
         // If IDs to exclude are supplied, query all Directions not matching those IDs.
         } else {
-            const queriedDirections = await DirectionDbModel.query()
+            const queriedDirectionDbModels = await DirectionDbModel.query()
                 .where(
                     (builder) => builder.whereNotIn('id', idsToExclude)
                 )
                 .orderBy('id')
-            return queriedDirections
+            return queriedDirectionDbModels
         }
 
     // If a single ID is supplied, query based on match to that ID (or return null if nothing is found).
     } else if (typeof directionIds === "number") {
-        const queriedDirections = await DirectionDbModel.query()
+        const queriedDirectionDbModels = await DirectionDbModel.query()
             .where("id", directionIds)
             .orderBy('id')
-        return queriedDirections.length ? queriedDirections[0] : null
+        return queriedDirectionDbModels.length ? queriedDirectionDbModels[0] : null
 
     // If multiple IDs are supplied, query based on match to those IDs.
     } else if (directionIds.length) {
-        const queriedDirections = await DirectionDbModel.query()
+        const queriedDirectionDbModels = await DirectionDbModel.query()
             .where(
                 (builder) => builder.whereIn('id', directionIds)
             )
             .orderBy('id')
-        return queriedDirections
+        return queriedDirectionDbModels
 
     // If an empty array is supplied, return an empty array.
     } else {
@@ -66,42 +66,42 @@ export async function querySpaces( spaceIds: number | number[] | null, idsToExcl
     if (spaceIds === null) {
         // If no IDs to exclude are supplied, query all Spaces.
         if (!idsToExclude) {
-            const queriedSpaces = await SpaceDbModel.query()
+            const queriedSpaceDbModels = await SpaceDbModel.query()
                 .allowGraph('directions')
                 .withGraphFetched('directions')
                 .orderBy('id')
-            return queriedSpaces
+            return queriedSpaceDbModels
         // If IDs to exclude are supplied, query all Spaces not matching those IDs.
         } else {
-            const queriedSpaces = await SpaceDbModel.query()
+            const queriedSpaceDbModels = await SpaceDbModel.query()
                 .where(
                     (builder) => builder.whereNotIn('id', idsToExclude)
                 )
                 .allowGraph('directions')
                 .withGraphFetched('directions')
                 .orderBy('id')
-            return queriedSpaces
+            return queriedSpaceDbModels
         }
 
     // If a single ID is supplied, query based on match to that ID (or return null if nothing is found).
     } else if (typeof spaceIds === "number") {
-        const queriedSpaces = await SpaceDbModel.query()
+        const queriedSpaceDbModels = await SpaceDbModel.query()
             .where("id", spaceIds)
             .allowGraph('directions')
             .withGraphFetched('directions')
             .orderBy('id')
-        return queriedSpaces.length ? queriedSpaces[0] : null
+        return queriedSpaceDbModels.length ? queriedSpaceDbModels[0] : null
 
     // If multiple IDs are supplied, query based on match to those IDs.
     } else if (spaceIds.length) {
-        const queriedSpaces = await SpaceDbModel.query()
+        const queriedSpaceDbModels = await SpaceDbModel.query()
             .where(
                 (builder) => builder.whereIn('id', spaceIds)
             )
             .allowGraph('directions')
             .withGraphFetched('directions')
             .orderBy('id')
-        return queriedSpaces
+        return queriedSpaceDbModels
 
     // If an empty array is supplied, return an empty array.
     } else {
@@ -118,23 +118,25 @@ export async function queryThings(thingIds: number | number[]): Promise<null | T
 
     // If a single ID is supplied, query based on match to that ID (or return null if nothing is found).
     if (typeof thingIds === "number") {
-        const queriedThings = await ThingDbModel.query()
+        const queriedThingDbModels = await ThingDbModel.query()
             .where("id", thingIds)
             .allowGraph('[a_relationships, b_relationships, note]')
             .withGraphFetched('[a_relationships, b_relationships, note, folder]')
             .orderBy('id')
-        return queriedThings.length ? queriedThings[0] : null
+        return queriedThingDbModels.length ?
+            queriedThingDbModels[0] :
+            null
 
     // If multiple IDs are supplied, query based on match to those IDs.
     } else {
-        const queriedThings = await ThingDbModel.query()
+        const queriedThingDbModels = await ThingDbModel.query()
             .where(
                 (builder) => builder.whereIn('id', thingIds)
             )
             .allowGraph('[a_relationships, b_relationships, note, folder]')
             .withGraphFetched('[a_relationships, b_relationships, note, folder]')
             .orderBy('id')
-        return queriedThings
+        return queriedThingDbModels
     }
 }
 
@@ -147,38 +149,40 @@ export async function queryThingsByGuid(thingGuids: string | string[]): Promise<
 
     // If a single GUID is supplied, query based on match to that ID (or return null if nothing is found).
     if (typeof thingGuids === "string") {
-        const queriedThings = await ThingDbModel.query()
+        const queriedThingDbModels = await ThingDbModel.query()
             .where("guid", thingGuids)
             .allowGraph('[a_relationships, b_relationships, note]')
             .withGraphFetched('[a_relationships, b_relationships, note, folder]')
             .orderBy('id')
-        return queriedThings.length ? queriedThings[0] : null
+        return queriedThingDbModels.length ?
+            queriedThingDbModels[0] :
+            null
 
     // If multiple IDs are supplied, query based on match to those IDs.
     } else {
-        const queriedThings = await ThingDbModel.query()
+        const queriedThingDbModels = await ThingDbModel.query()
             .where(
                 (builder) => builder.whereIn('guid', thingGuids)
             )
             .allowGraph('[a_relationships, b_relationships, note, folder]')
             .withGraphFetched('[a_relationships, b_relationships, note, folder]')
             .orderBy('id')
-        return queriedThings
+        return queriedThingDbModels
     }
 }
 
 /*
  * Query Thing search list from the database.
  */
-export async function queryThingSearchList( thingIds: number[] | null ): Promise<ThingSearchListItem[]> {
-    const queriedThingSearchList = thingIds === null ?
-        await ThingSearchListItem.query().orderBy('id') :
-        await ThingSearchListItem.query()
+export async function queryThingSearchList( thingIds: number[] | null ): Promise<ThingSearchListItemDbModel[]> {
+    const queriedThingSearchListDbModels = thingIds === null ?
+        await ThingSearchListItemDbModel.query().orderBy('id') :
+        await ThingSearchListItemDbModel.query()
             .where(
                 (builder) => builder.whereIn('id', thingIds)
             )
             .orderBy('id')
-    return queriedThingSearchList
+    return queriedThingSearchListDbModels
 }
 
 /*
