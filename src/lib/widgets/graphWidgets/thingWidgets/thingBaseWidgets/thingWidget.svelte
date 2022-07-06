@@ -124,7 +124,11 @@
             `box-shadow: 5px 5px 10px 2px ${hexToRgba(shadowColor, 0.15)};`
         }
         width: {thingWidth}px; height: {thingHeight}px; opacity: {opacity};
-        pointer-events: {distanceFromFocalPlane === 0 ? "auto" : "none"};
+        pointer-events: {
+            distanceFromFocalPlane === 0 && !(relationshipBeingCreated && !relatableForCurrentDrag) ?
+                "auto" :
+                "none"
+        };
     "
 
     on:mouseenter={()=>{
