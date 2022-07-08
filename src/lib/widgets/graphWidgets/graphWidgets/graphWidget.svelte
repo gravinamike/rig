@@ -67,7 +67,12 @@
      * Drag the Graph Widget when left-mouse is clicked and moving.
      */
     function handleMouseMove(event: MouseEvent) {
-        if (trackingMouse && prevtrackingMouseLocation.x && prevtrackingMouseLocation.y) {
+        if (
+            trackingMouse
+            && !$relationshipBeingCreatedInfoStore.trackingMouse
+            && prevtrackingMouseLocation.x
+            && prevtrackingMouseLocation.y
+        ) {
             let deltaX = event.clientX - prevtrackingMouseLocation.x
             let deltaY = event.clientY - prevtrackingMouseLocation.y
             graphWidget.scrollLeft = (graphWidget.scrollLeft - deltaX)
