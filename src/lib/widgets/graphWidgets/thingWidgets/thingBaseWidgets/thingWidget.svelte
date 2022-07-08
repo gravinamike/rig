@@ -125,8 +125,6 @@
     }
 
     function handleMouseDrag(event: MouseEvent) {
-        const position = [event.clientX, event.clientY] as [number, number]
-        //////////////////////////////////// SOMETHING TO DO WITH SET MOUSE TRACKING?
         if (
             dragStartPosition
             && Math.hypot(event.clientX - dragStartPosition[0], event.clientX - dragStartPosition[0]) > 5

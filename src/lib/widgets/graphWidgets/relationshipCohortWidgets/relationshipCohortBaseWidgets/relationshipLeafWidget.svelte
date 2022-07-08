@@ -2,6 +2,7 @@
     import type { GenerationMember } from "$lib/models/graphModels"
     import type { RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
     import { hoveredThingIdStore } from "$lib/stores"
+    import { DirectionWidget } from "$lib/widgets/graphWidgets"
 </script>
 
 <script lang="ts">
@@ -17,19 +18,24 @@
     $: thingHovered = cohortMemberWithIndex.member.thingId === $hoveredThingIdStore
     $: relationshipHovered = cohortMemberWithIndex.member.thingId === thingIdOfHoveredRelationship
     let leafClicked = false
+
+    $: showDirection = leafHovered || relationshipHovered ? true : false
 </script>
 
 
 <!-- Relationship leaf. -->
-<svg
+<div
     class="relationship-leaf"
-    style="
-        stroke: {relationshipsWidgetModel.relationshipColor};
-        fill: {relationshipsWidgetModel.relationshipColor};
-    "
     on:mouseenter={()=>{thingIdOfHoveredRelationship = cohortMemberWithIndex.member.thingId}}
     on:mouseleave={()=>{thingIdOfHoveredRelationship = null}}
 >
+    <svg
+        style="
+            height: 100%; width: 100%;
+            stroke: {relationshipsWidgetModel.relationshipColor};
+            fill: {relationshipsWidgetModel.relationshipColor};
+        "
+    >
 
     <!-- Hoverable zone of leaf. -->
     <line
@@ -55,30 +61,49 @@
         x2="{leavesGeometries[cohortMemberWithIndex.index].topMidline}" y2="{leavesGeometries[cohortMemberWithIndex.index].top}"
     />
 
-</svg>
+    </svg>
 
-<div
-    class="direction-widget-anchor"
-    style="
-        left: {
-            (
-                leavesGeometries[cohortMemberWithIndex.index].bottomMidline
-                + leavesGeometries[cohortMemberWithIndex.index].topMidline
-            ) / 2
-        }px;
-        top: {
-            (
-                leavesGeometries[cohortMemberWithIndex.index].bottom
-                + leavesGeometries[cohortMemberWithIndex.index].top
-            ) / 2
-        }px;
-    "
->
-    TEST
-    {cohortMemberWithIndex.index}
+    <!-- Direction text. -->
+    {#if showDirection}
+        <div
+            class="direction-widget-anchor"
+            style="
+                left: {
+                    (
+                        leavesGeometries[cohortMemberWithIndex.index].bottomMidline
+                        + leavesGeometries[cohortMemberWithIndex.index].topMidline
+                        - 3 / tweenedScale
+                    ) / 2
+                }px;
+                top: {
+                    (
+                        leavesGeometries[cohortMemberWithIndex.index].bottom
+                        + leavesGeometries[cohortMemberWithIndex.index].top
+                    ) / 2
+                }px;
+                transform-origin: calc(right - {1.5 / tweenedScale}px) 50%;
+                transform:
+                    translate(-100%, -50%)
+                    scaleY({relationshipsWidgetModel.mirroring})
+                    rotate({
+                        -relationshipsWidgetModel.rotation * relationshipsWidgetModel.mirroring
+                        + (
+                            relationshipsWidgetModel.halfAxisId === 3 ? -90 :
+                            relationshipsWidgetModel.halfAxisId === 4 ? 90 :
+                            0
+                        )
+                    }deg);
+            "
+        >
+            <DirectionWidget
+                direction={relationshipsWidgetModel.direction}
+                halfAxisId={relationshipsWidgetModel.halfAxisId}
+                graph={relationshipsWidgetModel.graph}
+                optionClickedFunction={(direction, _, option) => {console.log(direction, option)}}
+            />
+        </div>
+    {/if}
 </div>
-
-
 
 
 <style>
@@ -109,7 +134,6 @@
 
     .direction-widget-anchor {
         position: absolute;
-        z-index: 1;
-        transform: translate(-50%, -50%);
+        z-index: 2;
     }
 </style>

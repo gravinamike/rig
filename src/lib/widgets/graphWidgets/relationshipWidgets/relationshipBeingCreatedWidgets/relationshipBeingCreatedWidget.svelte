@@ -73,8 +73,6 @@
 
     // Handling outside mouse releases.
 	function handleMouseUp() {
-        console.log("FOOOOOOO")
-        //////////////////////////////////// HAVE TO PUT THIS ON A 50ms DELAY TO LET IT CLEAR, SO MOUSE CLICK RE-PERSPECT WON'T HAPPEN?
         setRelationshipBeingCreatedTrackingMouse(false)
         if (sourceWidgetModel) enableRemoteRelating(sourceWidgetModel)
 	}

@@ -42,7 +42,10 @@
     $: tweenedScale.set(scale)
 
     // Information related to Direction.
-    $: showDirection = model.parentThingWidgetModel.address.generationId === 0 || stemHovered ?
+    $: showDirection = (
+        (model.parentThingWidgetModel.address.generationId === 0 || stemHovered)
+        && !thingIdOfHoveredRelationship
+    ) ?
         true :
         false
 
