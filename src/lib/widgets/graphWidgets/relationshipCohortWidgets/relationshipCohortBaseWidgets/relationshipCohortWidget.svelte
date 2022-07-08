@@ -102,7 +102,7 @@
 
 <!-- Outer Relationships Widget (doesn't rotate, but takes up appropriate dimensions). -->
 <div
-    class="relationships-widget"
+    class="relationship-cohort-widget"
     style="
         left: calc(50% + {xOffset}px + {xOffsetToGrandparentThing}px);
         top: calc(50% + {yOffset}px + {yOffsetToGrandparentThing}px);
@@ -115,7 +115,11 @@
     <!-- Inner "rotator" which is rotated according to the Half-Axis. -->
     <div
         class="rotator"
-        style="transform: scaleY({model.mirroring}) rotate({model.rotation * model.mirroring}deg); "
+        style="
+            width: { [1, 2].includes(halfAxisId) ? widgetWidth : widgetHeight }px;
+            height: { [1, 2].includes(halfAxisId) ? widgetHeight : widgetWidth }px;
+            transform: scaleY({model.mirroring}) rotate({model.rotation * model.mirroring}deg);
+        "
     >
 
         <!-- Direction text. -->
@@ -125,8 +129,14 @@
                 style="
                     transform:
                         scaleY({model.mirroring})
-                        rotate({-model.rotation * model.mirroring + (halfAxisId === 3 ? -90 : (halfAxisId === 4 ? 90 : 0))}deg);
-                    z-index: 1;
+                        rotate({
+                            -model.rotation * model.mirroring
+                            + (
+                                halfAxisId === 3 ? -90 :
+                                halfAxisId === 4 ? 90 :
+                                0
+                            )
+                        }deg);
                 "
             >
                 <DirectionWidget
@@ -139,13 +149,13 @@
         {/if}
 
         <!-- Relationship image. -->
-        <svg
+        <div
             class="relationship-image"
             style="
                 width: {relationshipsWidth}px; height: {relationshipsLength}px;
-                stroke: {model.relationshipColor}; fill: {model.relationshipColor};
             "
         >
+            
             <!-- Relationship stem. -->
             {#if model.cohort.indexOfGrandparentThing === null}
                 <RelationshipStemWidget
@@ -160,12 +170,18 @@
                 />
             {/if}
 
-            {#if !(model.cohort.members.length === 1 && model.cohort.indexOfGrandparentThing !== null)}<!-- Unless the ONLY descendent in a Half-Axis is a doubled-back parent Thing, -->
+            {#if
+                !(
+                    model.cohort.members.length === 1
+                    && model.cohort.indexOfGrandparentThing !== null
+                )
+            }<!-- Unless the ONLY descendent in a Half-Axis is a doubled-back parent Thing, -->
                 {#each model.cohortMembersWithIndices as memberWithIndex}
                     {#if model.cohort.indexOfGrandparentThing !== memberWithIndex.index}<!-- Don't re-draw the existing Relationship to a parent Thing. -->
-                                                 
+                                                
                         {#if !(memberWithIndex.member.kind === "thingBaseWidgetModel")}
                             <RelationshipLeafWidget
+                                relationshipsWidgetModel={model}
                                 bind:thingIdOfHoveredRelationship
                                 tweenedScale={$tweenedScale}
                                 {leavesGeometries}
@@ -174,6 +190,7 @@
                         {/if}
 
                         <RelationshipFanSegmentWidget
+                            relationshipsWidgetModel={model}
                             bind:thingIdOfHoveredRelationship
                             tweenedScale={$tweenedScale}
                             {midline}
@@ -185,14 +202,15 @@
                     {/if}
                 {/each}
             {/if}
-        </svg>
+            
+        </div>
 
     </div>
 </div>
 
 
 <style>
-    .relationships-widget {
+    .relationship-cohort-widget {
         position: absolute;
         transform: translate(-50%, -50%);
         z-index: -1;
@@ -212,5 +230,9 @@
         position: absolute;
 
         overflow: visible;
+    }
+
+    .direction-widget-anchor {
+        z-index: 1;
     }
 </style>

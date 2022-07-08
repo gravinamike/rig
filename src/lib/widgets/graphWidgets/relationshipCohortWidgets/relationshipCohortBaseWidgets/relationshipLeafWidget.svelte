@@ -1,9 +1,11 @@
 <script context="module" lang="ts">
     import type { GenerationMember } from "$lib/models/graphModels"
+    import type { RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
     import { hoveredThingIdStore } from "$lib/stores"
 </script>
 
 <script lang="ts">
+    export let relationshipsWidgetModel: RelationshipCohortWidgetModel
     export let thingIdOfHoveredRelationship: number | null
     export let tweenedScale: number
 
@@ -19,11 +21,16 @@
 
 
 <!-- Relationship leaf. -->
-<g
+<svg
     class="relationship-leaf"
+    style="
+        stroke: {relationshipsWidgetModel.relationshipColor};
+        fill: {relationshipsWidgetModel.relationshipColor};
+    "
     on:mouseenter={()=>{thingIdOfHoveredRelationship = cohortMemberWithIndex.member.thingId}}
     on:mouseleave={()=>{thingIdOfHoveredRelationship = null}}
 >
+
     <!-- Hoverable zone of leaf. -->
     <line
         class="leaf-hover-zone"
@@ -48,13 +55,39 @@
         x2="{leavesGeometries[cohortMemberWithIndex.index].topMidline}" y2="{leavesGeometries[cohortMemberWithIndex.index].top}"
     />
 
+</svg>
 
-    
+<div
+    class="direction-widget-anchor"
+    style="
+        left: {
+            (
+                leavesGeometries[cohortMemberWithIndex.index].bottomMidline
+                + leavesGeometries[cohortMemberWithIndex.index].topMidline
+            ) / 2
+        }px;
+        top: {
+            (
+                leavesGeometries[cohortMemberWithIndex.index].bottom
+                + leavesGeometries[cohortMemberWithIndex.index].top
+            ) / 2
+        }px;
+    "
+>
+    TEST
+    {cohortMemberWithIndex.index}
+</div>
 
-</g>
+
 
 
 <style>
+    .relationship-leaf {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+    }
+
     .leaf-hover-zone {
         opacity: 0;
 
@@ -72,5 +105,11 @@
 
     .leaf-image.clicked {
         opacity: 1;
+    }
+
+    .direction-widget-anchor {
+        position: absolute;
+        z-index: 1;
+        transform: translate(-50%, -50%);
     }
 </style>

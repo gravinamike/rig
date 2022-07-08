@@ -53,10 +53,15 @@
 </script>
 
 
-<g
+<svg
     class="relationship-stem"
+    style="
+        stroke: {relationshipsWidgetModel.relationshipColor};
+        fill: {relationshipsWidgetModel.relationshipColor};
+    "
     on:click={addThingForm}
 >
+
     <!-- Hoverable zone of stem. -->
     <line
         class="stem-hover-zone"
@@ -98,11 +103,17 @@
             style="stroke-width: {3 / tweenedScale};"
         />
     </g>
-</g>
 
+</svg>
 
 
 <style>
+    svg {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+    }
+
     .stem-hover-zone {
         opacity: 0;
 
