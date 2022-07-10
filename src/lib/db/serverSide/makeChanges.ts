@@ -105,7 +105,7 @@ export async function updateNote(noteId: number, text: string): Promise<void> {
     const knex = Model.knex()
     await knex.transaction(async (transaction: Knex.Transaction) => {
         // Update the Note.
-        await NoteDbModel.query().update({ text: text, whenmodded: whenModded }).where('id', noteId).transacting(transaction)
+        await NoteDbModel.query().patch({ text: text, whenmodded: whenModded }).where('id', noteId).transacting(transaction)
         
         return
     })
@@ -267,6 +267,75 @@ export async function createNewRelationship(sourceThingId: number, destThingId: 
 
     }
 }
+
+
+/*
+ * Update the Directions of a set of Relationships.
+ */
+export async function updateRelationships(relationshipInfos: {sourceThingId: number, destThingId: number, directionId: number}[]): Promise<void> {
+    // Get parameters for SQL query.
+    const whenModded = new Date()
+
+    let relationshipsOk = true
+    for (const info of relationshipInfos) {
+        // Get Direction info.
+        const direction = (await DirectionDbModel.query().where("id", info.directionId))[0]
+        const oppositeDirectionId = direction.oppositeid as number
+
+        // Verify the change won't duplicate an existing Relationship.
+        const forwardDuplicates = await RelationshipDbModel.query()
+            .where('thingaid', info.sourceThingId)
+            .where('thingbid', info.destThingId)
+            .whereIn("direction", [info.directionId, oppositeDirectionId])
+        const reverseDuplicates = await RelationshipDbModel.query()
+            .where('thingaid', info.sourceThingId)
+            .where('thingbid', info.destThingId)
+            .whereIn("direction", [info.directionId, oppositeDirectionId])
+
+        if (forwardDuplicates.length || reverseDuplicates.length) relationshipsOk = false
+    }
+
+    if (relationshipsOk) {
+        
+        const knex = Model.knex()
+        await knex.transaction(async (transaction: Knex.Transaction) => {
+
+            for (const info of relationshipInfos) {
+
+                const direction = (await DirectionDbModel.query().where("id", info.directionId))[0]
+                const oppositeDirectionId = direction.oppositeid as number
+
+                await RelationshipDbModel.query()
+                    .patch({ direction: info.directionId, whenmodded: whenModded })
+                    .where('thingaid', info.sourceThingId)
+                    .where('thingbid', info.destThingId)
+                    .transacting(transaction)
+
+                await RelationshipDbModel.query()
+                    .patch({ direction: oppositeDirectionId, whenmodded: whenModded })
+                    .where('thingaid', info.destThingId)
+                    .where('thingbid', info.sourceThingId)
+                    .transacting(transaction)
+            }
+
+            return
+        })
+
+        // Report on the response.
+        .then(function() {
+            console.log('Transaction complete.')
+        })
+        .catch(function(err: Error) {
+            console.error(err)
+        })
+
+    } else {
+
+        console.log("The specified change to this Relationship's Direction would duplicate an existing Relationship.")
+
+    }    
+}
+
 
 /*
  * Delete a Relationship.

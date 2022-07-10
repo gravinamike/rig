@@ -1,6 +1,6 @@
 <script context="module" lang="ts">
     // Type imports.
-    import type { Graph } from "$lib/models/graphModels"
+    import type { Thing, Graph } from "$lib/models/graphModels"
     import type { RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
 
     // Basic UI imports.
@@ -10,11 +10,15 @@
     // Constant and utility imports.
     import { zoomBase } from "$lib/shared/constants"
 
+    import { storeGraphConstructs, addGraphIdsNeedingViewerRefresh } from "$lib/stores"
+
     // Widget imports.
     import RelationshipStemWidget from "./relationshipStemWidget.svelte"
     import RelationshipFanSegmentWidget from "./relationshipFanSegmentWidget.svelte"
     import RelationshipLeafWidget from "./relationshipLeafWidget.svelte"
     import { DirectionWidget } from "$lib/widgets/graphWidgets"
+
+    import { updateRelationships } from "$lib/db/clientSide"
 </script>
 
 <script lang="ts">
@@ -42,7 +46,10 @@
     $: tweenedScale.set(scale)
 
     // Information related to Direction.
-    $: showDirection = model.parentThingWidgetModel.address.generationId === 0 || stemHovered ?
+    $: showDirection = (
+        (model.parentThingWidgetModel.address.generationId === 0 || stemHovered)
+        && !thingIdOfHoveredRelationship
+    ) ?
         true :
         false
 
@@ -97,12 +104,37 @@
         stemTop = model.stemTop
         leavesGeometries = model.leavesGeometries($tweenedScale)
     }
+
+
+
+    async function changeRelationshipsDirection(directionId: number) {
+        const sourceThingId = model.parentThingWidgetModel.thingId as number
+        const destThingIds = model.cohort.members.map(thingWidgetModel => thingWidgetModel.thingId)
+
+        const relationshipInfos: {sourceThingId: number, destThingId: number, directionId: number }[] = []
+        for (const destThingId of destThingIds) {
+            if (destThingId) {
+                relationshipInfos.push( { sourceThingId: sourceThingId, destThingId: destThingId, directionId: directionId } )
+            } else {
+                console.log("Relationship info is missing - aborting operation.")
+                return
+            }
+        }
+
+        const relationshipsUpdated = await updateRelationships(relationshipInfos)
+        if (relationshipsUpdated) {
+            await storeGraphConstructs<Thing>("Thing", sourceThingId, true)
+            await graph.build()
+            addGraphIdsNeedingViewerRefresh(graph.id)
+        }
+    }
+
 </script>
 
 
 <!-- Outer Relationships Widget (doesn't rotate, but takes up appropriate dimensions). -->
 <div
-    class="relationships-widget"
+    class="relationship-cohort-widget"
     style="
         left: calc(50% + {xOffset}px + {xOffsetToGrandparentThing}px);
         top: calc(50% + {yOffset}px + {yOffsetToGrandparentThing}px);
@@ -115,37 +147,49 @@
     <!-- Inner "rotator" which is rotated according to the Half-Axis. -->
     <div
         class="rotator"
-        style="transform: scaleY({model.mirroring}) rotate({model.rotation * model.mirroring}deg); "
+        style="
+            width: { [1, 2].includes(halfAxisId) ? widgetWidth : widgetHeight }px;
+            height: { [1, 2].includes(halfAxisId) ? widgetHeight : widgetWidth }px;
+            transform: scaleY({model.mirroring}) rotate({model.rotation * model.mirroring}deg);
+        "
     >
 
-        <!-- Direction text. -->
+        <!-- Direction widget. -->
         {#if showDirection}
             <div
                 class="direction-widget-anchor"
                 style="
                     transform:
                         scaleY({model.mirroring})
-                        rotate({-model.rotation * model.mirroring + (halfAxisId === 3 ? -90 : (halfAxisId === 4 ? 90 : 0))}deg);
-                    z-index: 1;
+                        rotate({
+                            -model.rotation * model.mirroring
+                            + (
+                                halfAxisId === 3 ? -90 :
+                                halfAxisId === 4 ? 90 :
+                                0
+                            )
+                        }deg);
                 "
             >
                 <DirectionWidget
                     direction={model.direction}
                     {halfAxisId}
                     {graph}
-                    optionClickedFunction={(direction, _, option) => {console.log(direction, option)}}
+                    optionClickedFunction={(direction, _, __) => {
+                        if (direction?.id) changeRelationshipsDirection(direction.id)
+                    }}
                 />
             </div>
         {/if}
 
         <!-- Relationship image. -->
-        <svg
+        <div
             class="relationship-image"
             style="
                 width: {relationshipsWidth}px; height: {relationshipsLength}px;
-                stroke: {model.relationshipColor}; fill: {model.relationshipColor};
             "
         >
+            
             <!-- Relationship stem. -->
             {#if model.cohort.indexOfGrandparentThing === null}
                 <RelationshipStemWidget
@@ -160,12 +204,18 @@
                 />
             {/if}
 
-            {#if !(model.cohort.members.length === 1 && model.cohort.indexOfGrandparentThing !== null)}<!-- Unless the ONLY descendent in a Half-Axis is a doubled-back parent Thing, -->
+            {#if
+                !(
+                    model.cohort.members.length === 1
+                    && model.cohort.indexOfGrandparentThing !== null
+                )
+            }<!-- Unless the ONLY descendent in a Half-Axis is a doubled-back parent Thing, -->
                 {#each model.cohortMembersWithIndices as memberWithIndex}
                     {#if model.cohort.indexOfGrandparentThing !== memberWithIndex.index}<!-- Don't re-draw the existing Relationship to a parent Thing. -->
-                                                 
+                                                
                         {#if !(memberWithIndex.member.kind === "thingBaseWidgetModel")}
                             <RelationshipLeafWidget
+                                relationshipsWidgetModel={model}
                                 bind:thingIdOfHoveredRelationship
                                 tweenedScale={$tweenedScale}
                                 {leavesGeometries}
@@ -174,6 +224,7 @@
                         {/if}
 
                         <RelationshipFanSegmentWidget
+                            relationshipsWidgetModel={model}
                             bind:thingIdOfHoveredRelationship
                             tweenedScale={$tweenedScale}
                             {midline}
@@ -185,14 +236,15 @@
                     {/if}
                 {/each}
             {/if}
-        </svg>
+            
+        </div>
 
     </div>
 </div>
 
 
 <style>
-    .relationships-widget {
+    .relationship-cohort-widget {
         position: absolute;
         transform: translate(-50%, -50%);
         z-index: -1;
@@ -212,5 +264,9 @@
         position: absolute;
 
         overflow: visible;
+    }
+
+    .direction-widget-anchor {
+        z-index: 2;
     }
 </style>

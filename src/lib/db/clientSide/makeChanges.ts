@@ -60,7 +60,7 @@ export async function addNoteToThing( thingId: number ): Promise<boolean> {
  * Update the text of a Note.
  */
 export async function updateNote( noteId: number, text: string ): Promise<boolean> {
-    // Post to the update-Note API./////////////////
+    // Post to the update-Note API.
     const res = await fetch(
         `api/db/graphManipulation/updateNote`,
         {
@@ -156,6 +156,32 @@ export async function createNewRelationship(sourceThingId: number, destThingId: 
         return false
     }
 }
+
+
+/*
+ * Update the Direction of a set of Relationships.
+ */
+export async function updateRelationships( relationshipInfos: {sourceThingId: number, destThingId: number, directionId: number}[] ): Promise<boolean> {
+    // Post to the update-Relationships API.
+    const res = await fetch(
+        `api/db/graphManipulation/updateRelationships`,
+        {
+            method: "POST",
+            body: JSON.stringify({
+                relationshipInfos: relationshipInfos
+            })
+        }
+    )
+
+    // Report on the response.
+    if (res.ok) {
+        return true
+    } else {
+        res.text().then(text => {throw Error(text)})
+        return false
+    }
+}
+
 
 /*
  * Delete a Thing.

@@ -1,5 +1,6 @@
 <script context="module" lang="ts">
     import type { Thing, GenerationMember } from "$lib/models/graphModels"
+    import type { RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
     import { retrieveGraphConstructs, addGraphIdsNeedingViewerRefresh, relationshipBeingCreatedInfoStore, hoveredThingIdStore, hoveredRelationshipTarget } from "$lib/stores"
     import { XButton } from "$lib/widgets/layoutWidgets"
 </script>
@@ -8,6 +9,7 @@
     export let thingIdOfHoveredRelationship: number | null
     export let tweenedScale: number
 
+    export let relationshipsWidgetModel: RelationshipCohortWidgetModel
     export let midline: number
     export let stemTop: number
     export let leavesGeometries: { bottom: number, top: number, bottomMidline: number, topMidline: number }[]
@@ -50,9 +52,6 @@
 
 
 
-
-
-
     $: sourceThingId = cohortMemberWithIndex.member.parentThingWidgetModel?.thingId || null
     $: destThingId = cohortMemberWithIndex.member.thingId
     $: dragSourceThingId = $relationshipBeingCreatedInfoStore.sourceWidgetModel ?
@@ -82,12 +81,16 @@
 
 
 <!-- Relationship fan segment. -->
-<g
+<svg
     class="relationship-fan-segment"
-    style="z-index: 1;"
+    style="
+        stroke: {relationshipsWidgetModel.relationshipColor};
+        fill: {relationshipsWidgetModel.relationshipColor};
+    "
     on:mouseenter={()=>{thingIdOfHoveredRelationship = cohortMemberWithIndex.member.thingId}}
     on:mouseleave={()=>{thingIdOfHoveredRelationship = null}}
->    
+>
+ 
     <!-- Hoverable zone of fan segment. -->
     <line
         class="fan-segment-hover-zone"
@@ -150,10 +153,18 @@
             <line x1=18 y1=2 x2=2 y2=18 />
         </svg>
     {/if}
-</g>
+
+</svg>
 
 
 <style>
+    .relationship-fan-segment {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+    }
+
     .fan-segment-hover-zone {
         opacity: 0;
 

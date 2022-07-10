@@ -8,7 +8,8 @@
         graphConstructInStore, unstoreGraphConstructs,
         hoveredThingIdStore, hoveredRelationshipTarget,
         relationshipBeingCreatedInfoStore, enableRelationshipBeingCreated,
-        setRelationshipBeingCreatedDestWidgetModel, disableRelationshipBeingCreated,
+        setRelationshipBeingCreatedDestWidgetModel, setRelationshipBeingCreatedTrackingMouse,
+        disableRelationshipBeingCreated,
         pinIdsStore, openContextCommandPalette, addPin, removePin,
         removeIdsFromThingSearchListStore
     } from "$lib/stores"
@@ -110,7 +111,45 @@
             [{ text: "Add Thing to Pins", iconName: "pin", iconHtml: null, isActive: false, onClick: () => {addPin(thingId)} }]
         openContextCommandPalette(position, buttonInfos)
     }
+
+
+
+    
+    
+    let dragStartPosition: [number, number] | null = null
+
+    function handleMouseDown(event: MouseEvent) {
+        const position = [event.clientX, event.clientY] as [number, number]
+        dragStartPosition = position
+        setRelationshipBeingCreatedTrackingMouse(true)
+    }
+
+    function handleMouseDrag(event: MouseEvent) {
+        if (
+            dragStartPosition
+            && Math.hypot(event.clientX - dragStartPosition[0], event.clientX - dragStartPosition[0]) > 5
+            && !$relationshipBeingCreatedInfoStore.sourceWidgetModel
+        ) {
+            enableRelationshipBeingCreated(
+                thingWidgetModel,
+                [event.clientX, event.clientY]
+            )
+        }
+    }
+
+    function handleBodyMouseUp() {
+        dragStartPosition = null
+    }
+
+
+
 </script>
+
+
+<svelte:body
+    on:mousemove={handleMouseDrag}
+    on:mouseup={event => {if (event.button === 0) handleBodyMouseUp()}}
+/>
 
 
 <!-- Thing Widget. -->
@@ -125,7 +164,7 @@
         }
         width: {thingWidth}px; height: {thingHeight}px; opacity: {opacity};
         pointer-events: {
-            distanceFromFocalPlane === 0 && !(relationshipBeingCreated && !relatableForCurrentDrag) ?
+            distanceFromFocalPlane === 0 && !(relationshipBeingCreated && !relatableForCurrentDrag) ?/////////// NEED TO MAKE DRAG ACTUALLY HAPPEN WITH THE DRAG.
                 "auto" :
                 "none"
         };
@@ -141,10 +180,7 @@
         confirmDeleteBoxOpen = false, hoveredRelationshipTarget.set(null)
     }}
     on:mousedown={ event => {if (event.button === 0) {
-        enableRelationshipBeingCreated(
-            thingWidgetModel,
-            [event.clientX, event.clientY]
-        )
+        handleMouseDown(event)
     }}}
     on:click={ () => {if ($relationshipBeingCreatedInfoStore.sourceWidgetModel === null) rePerspectToThingId(thingId) } }
     on:mouseup={ () => {
