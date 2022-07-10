@@ -1,11 +1,13 @@
 <script context="module" lang="ts">
-    import type { GenerationMember } from "$lib/models/graphModels"
+    import type { Thing, GenerationMember } from "$lib/models/graphModels"
     import type { RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
-    import { hoveredThingIdStore } from "$lib/stores"
+    import { hoveredThingIdStore, storeGraphConstructs, addGraphIdsNeedingViewerRefresh } from "$lib/stores"
     import { DirectionWidget } from "$lib/widgets/graphWidgets"
+    import { updateRelationships } from "$lib/db/clientSide"
 </script>
 
 <script lang="ts">
+
     export let relationshipsWidgetModel: RelationshipCohortWidgetModel
     export let thingIdOfHoveredRelationship: number | null
     export let tweenedScale: number
@@ -20,6 +22,27 @@
     let leafClicked = false
 
     $: showDirection = leafHovered || relationshipHovered ? true : false
+
+    async function changeRelationshipDirection(directionId: number) {
+        const sourceThingId = cohortMemberWithIndex.member.parentThingWidgetModel?.thingId || null
+        const destThingId = cohortMemberWithIndex.member.thingId
+
+        if (sourceThingId && destThingId && directionId) {
+            const relationshipsUpdated = await updateRelationships([
+                {
+                    sourceThingId: sourceThingId,
+                    destThingId: destThingId,
+                    directionId: directionId
+                }
+            ])
+            if (relationshipsUpdated) {
+                await storeGraphConstructs<Thing>("Thing", sourceThingId, true)
+                await relationshipsWidgetModel.graph.build()
+                addGraphIdsNeedingViewerRefresh(relationshipsWidgetModel.graph.id)
+            }
+
+        }
+    }
 </script>
 
 
@@ -99,10 +122,8 @@
                 direction={relationshipsWidgetModel.direction}
                 halfAxisId={relationshipsWidgetModel.halfAxisId}
                 graph={relationshipsWidgetModel.graph}
-                optionClickedFunction={() => {
-                    const sourceThingId = cohortMemberWithIndex.member.parentThingWidgetModel?.thingId || null
-                    const destThingId = cohortMemberWithIndex.member.thingId
-                    console.log(sourceThingId, destThingId)
+                optionClickedFunction={(direction, _, __) => {
+                    if (direction?.id) changeRelationshipDirection(direction.id)
                 }}
             />
         </div>

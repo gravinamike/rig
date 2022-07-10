@@ -286,11 +286,11 @@ export async function updateRelationships(relationshipInfos: {sourceThingId: num
         const forwardDuplicates = await RelationshipDbModel.query()
             .where('thingaid', info.sourceThingId)
             .where('thingbid', info.destThingId)
-            .whereIn("directionid", [info.directionId, oppositeDirectionId])
+            .whereIn("direction", [info.directionId, oppositeDirectionId])
         const reverseDuplicates = await RelationshipDbModel.query()
             .where('thingaid', info.sourceThingId)
             .where('thingbid', info.destThingId)
-            .whereIn("directionid", [info.directionId, oppositeDirectionId])
+            .whereIn("direction", [info.directionId, oppositeDirectionId])
 
         if (forwardDuplicates.length || reverseDuplicates.length) relationshipsOk = false
     }

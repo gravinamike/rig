@@ -1,6 +1,6 @@
 <script context="module" lang="ts">
     // Type imports.
-    import type { Graph } from "$lib/models/graphModels"
+    import type { Thing, Graph } from "$lib/models/graphModels"
     import type { RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
 
     // Basic UI imports.
@@ -10,16 +10,18 @@
     // Constant and utility imports.
     import { zoomBase } from "$lib/shared/constants"
 
+    import { storeGraphConstructs, addGraphIdsNeedingViewerRefresh } from "$lib/stores"
+
     // Widget imports.
     import RelationshipStemWidget from "./relationshipStemWidget.svelte"
     import RelationshipFanSegmentWidget from "./relationshipFanSegmentWidget.svelte"
     import RelationshipLeafWidget from "./relationshipLeafWidget.svelte"
     import { DirectionWidget } from "$lib/widgets/graphWidgets"
+
+    import { updateRelationships } from "$lib/db/clientSide"
 </script>
 
 <script lang="ts">
-import { loop_guard } from "svelte/internal"
-
     /**
      * @param  {RelationshipsWidgetModel} model - The Relationships Widget Model used to set up this Widget.
      * @param  {Graph} graph - The Graph that the Relationships are in.
@@ -105,16 +107,26 @@ import { loop_guard } from "svelte/internal"
 
 
 
-    function getRelationshipThingIdPairs() {
-        const sourceThingId = model.parentThingWidgetModel.thingId;
-        const destThingIds = model.cohort.members.map(thingWidgetModel => thingWidgetModel.thingId);
+    async function changeRelationshipsDirection(directionId: number) {
+        const sourceThingId = model.parentThingWidgetModel.thingId as number
+        const destThingIds = model.cohort.members.map(thingWidgetModel => thingWidgetModel.thingId)
 
-        const relationshipThingIdPairs: {sourceThingId: number | null, destThingId: number | null}[] = []
+        const relationshipInfos: {sourceThingId: number, destThingId: number, directionId: number }[] = []
         for (const destThingId of destThingIds) {
-            relationshipThingIdPairs.push( { sourceThingId: sourceThingId, destThingId: destThingId } )
+            if (destThingId) {
+                relationshipInfos.push( { sourceThingId: sourceThingId, destThingId: destThingId, directionId: directionId } )
+            } else {
+                console.log("Relationship info is missing - aborting operation.")
+                return
+            }
         }
 
-        console.log(relationshipThingIdPairs)
+        const relationshipsUpdated = await updateRelationships(relationshipInfos)
+        if (relationshipsUpdated) {
+            await storeGraphConstructs<Thing>("Thing", sourceThingId, true)
+            await graph.build()
+            addGraphIdsNeedingViewerRefresh(graph.id)
+        }
     }
 
 </script>
@@ -163,7 +175,9 @@ import { loop_guard } from "svelte/internal"
                     direction={model.direction}
                     {halfAxisId}
                     {graph}
-                    optionClickedFunction={getRelationshipThingIdPairs}
+                    optionClickedFunction={(direction, _, __) => {
+                        if (direction?.id) changeRelationshipsDirection(direction.id)
+                    }}
                 />
             </div>
         {/if}
