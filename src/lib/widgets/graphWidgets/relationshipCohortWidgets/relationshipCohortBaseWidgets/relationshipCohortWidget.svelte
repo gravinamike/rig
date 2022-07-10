@@ -18,6 +18,8 @@
 </script>
 
 <script lang="ts">
+import { loop_guard } from "svelte/internal"
+
     /**
      * @param  {RelationshipsWidgetModel} model - The Relationships Widget Model used to set up this Widget.
      * @param  {Graph} graph - The Graph that the Relationships are in.
@@ -100,6 +102,21 @@
         stemTop = model.stemTop
         leavesGeometries = model.leavesGeometries($tweenedScale)
     }
+
+
+
+    function getRelationshipThingIdPairs() {
+        const sourceThingId = model.parentThingWidgetModel.thingId;
+        const destThingIds = model.cohort.members.map(thingWidgetModel => thingWidgetModel.thingId);
+
+        const relationshipThingIdPairs: {sourceThingId: number | null, destThingId: number | null}[] = []
+        for (const destThingId of destThingIds) {
+            relationshipThingIdPairs.push( { sourceThingId: sourceThingId, destThingId: destThingId } )
+        }
+
+        console.log(relationshipThingIdPairs)
+    }
+
 </script>
 
 
@@ -125,7 +142,7 @@
         "
     >
 
-        <!-- Direction text. -->
+        <!-- Direction widget. -->
         {#if showDirection}
             <div
                 class="direction-widget-anchor"
@@ -146,7 +163,7 @@
                     direction={model.direction}
                     {halfAxisId}
                     {graph}
-                    optionClickedFunction={(direction, _, option) => {console.log(direction, option)}}
+                    optionClickedFunction={getRelationshipThingIdPairs}
                 />
             </div>
         {/if}
@@ -236,6 +253,6 @@
     }
 
     .direction-widget-anchor {
-        z-index: 1;
+        z-index: 2;
     }
 </style>

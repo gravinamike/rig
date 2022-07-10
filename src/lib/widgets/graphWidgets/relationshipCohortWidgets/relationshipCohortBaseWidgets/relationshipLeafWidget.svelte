@@ -63,7 +63,7 @@
 
     </svg>
 
-    <!-- Direction text. -->
+    <!-- Direction widget. -->
     {#if showDirection}
         <div
             class="direction-widget-anchor"
@@ -99,7 +99,11 @@
                 direction={relationshipsWidgetModel.direction}
                 halfAxisId={relationshipsWidgetModel.halfAxisId}
                 graph={relationshipsWidgetModel.graph}
-                optionClickedFunction={(direction, _, option) => {console.log(direction, option)}}
+                optionClickedFunction={() => {
+                    const sourceThingId = cohortMemberWithIndex.member.parentThingWidgetModel?.thingId || null
+                    const destThingId = cohortMemberWithIndex.member.thingId
+                    console.log(sourceThingId, destThingId)
+                }}
             />
         </div>
     {/if}
