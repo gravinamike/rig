@@ -52,3 +52,8 @@ export function rectOfThingWidgetByThingId(graphId: number, thingId: number): DO
     const thingWidget = document.getElementById(`graph#${graphId}-thing#${thingId}`)
     return thingWidget ? thingWidget.getBoundingClientRect() : null
 }
+
+export function removeItemFromArray<Type>( array: Type[], item: Type ): void {
+    const index = array.indexOf(item)
+    if (index !== -1) array.splice(index, 1)
+}

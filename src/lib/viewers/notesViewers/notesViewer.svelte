@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { Thing, Graph } from "$lib/models/graphModels"
-    import { thingsStore, storeGraphConstructs, retrieveGraphConstructs, graphConstructInStore } from "$lib/stores/graphStores"
+    import { thingsStore, storeGraphConstructs, retrieveGraphConstructs, graphConstructInStore } from "$lib/stores/graphConstructStores"
     import NotesEditor from "./notesEditor.svelte"
     import { addNoteToThing, markNotesModified, thingsByGuid, updateNote } from "$lib/db/clientSide"
     import { hyperlinkProtocols } from "$lib/shared/constants"

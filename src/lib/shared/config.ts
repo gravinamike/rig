@@ -1,6 +1,6 @@
 import type { AppConfig, GraphConfig } from "$lib/shared/constants"
 import { get } from "svelte/store"
-import { pinIdsStore } from "$lib/stores/appStores"
+import { pinIdsStore } from "$lib/stores/pinStores"
 import { getAppConfig, getGraphConfig } from "$lib/db/clientSide/getInfo"
 import { setUnigraphFolder, saveAppConfig as apiSaveAppConfig, saveGraphConfig as apiSaveGraphConfig } from "$lib/db/clientSide/makeChanges"
 

@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { Thing, Graph } from "$lib/models/graphModels"
-    import { thingsStore, storeGraphConstructs, retrieveGraphConstructs, graphConstructInStore } from "$lib/stores/graphStores"
+    import { thingsStore, storeGraphConstructs, retrieveGraphConstructs, graphConstructInStore } from "$lib/stores/graphConstructStores"
     import { addFolderToThing } from "$lib/db/clientSide"
 
     export let graph: Graph

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { spacesStoreAsArray, spaceIdsNotFoundStore } from "$lib/stores/graphStores"
+    import { spacesStoreAsArray, spaceIdsNotFoundStore } from "$lib/stores/graphConstructStores"
     import { SpaceDetailsWidget } from "$lib/widgets/detailsWidgets"
 </script>
 
