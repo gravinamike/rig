@@ -66,8 +66,7 @@
             // If the new Perspective Thing is already in the Graph, scroll to center it.
             graph.allowScrollToThingId = true
             graph.thingIdToScrollTo = thingId
-            addGraphIdsNeedingViewerRefresh(graph.id)
-            await sleep(500) // Allow for scroll time (since there's no actual feedback from the Portal to `await`).
+            await sleep(300) // Allow for scroll time (since there's no actual feedback from the Portal to `await`).
 
             // Re-Perspect the Graph.
             await graph.setPThingIds([thingId]) // Re-Perspect to this Thing.
