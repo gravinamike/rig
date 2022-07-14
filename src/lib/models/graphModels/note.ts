@@ -19,8 +19,8 @@ export class Note {
         this.id = dbModel.id
         this.guid = dbModel.guid
         this.text = dbModel.text
-        this.whencreated = dbModel.whencreated
-        this.whenmodded = dbModel.whenmodded
+        this.whencreated = dbModel.whencreated ? new Date(dbModel.whencreated): null
+        this.whenmodded = dbModel.whenmodded? new Date(dbModel.whenmodded): null
     }
 }
 

@@ -11,7 +11,7 @@ export class FolderDbModel extends Model {
     static tableName = "folders" as const
 
     id!: number
-    whencreated!: Date | null
+    whencreated!: string | null
     path!: string
 
     static get relationMappings(): RelationMappings | RelationMappingsThunk {
@@ -33,11 +33,11 @@ export class FolderDbModel extends Model {
 }
 
 interface NewFolderInfo {
-    whencreated: Date,
+    whencreated: string,
     path: string
 }
 
-export function getNewFolderInfo(whenCreated: Date, guid: string): NewFolderInfo {
+export function getNewFolderInfo(whenCreated: string, guid: string): NewFolderInfo {
     const newFolderInfo = {
         whencreated: whenCreated,
         path: guid

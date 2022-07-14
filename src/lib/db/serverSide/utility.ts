@@ -9,7 +9,7 @@ import { ThingDbModel, RelationshipDbModel, NoteDbModel, NoteToThingDbModel, Fol
 export async function alterQuerystringForH2AndRun(
     querystring: string,
     transaction: Knex.Transaction,
-    whenCreated: Date,
+    whenCreated: string,
     constructName: "Thing" | "Relationship" | "Note" | "NoteToThing" | "Folder" | "FolderToThing"
 ): Promise< ThingDbModel | RelationshipDbModel | NoteDbModel | NoteToThingDbModel | FolderDbModel | FolderToThingDbModel > {
     // Remove the "returning" clause in the query string.

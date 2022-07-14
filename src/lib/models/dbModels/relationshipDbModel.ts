@@ -12,9 +12,9 @@ export class RelationshipDbModel extends Model {
     guid!: string
     thingaid!: number | null
     thingbid!: number | null
-    whencreated!: Date | null
-    whenmodded!: Date | null
-    whentrashed!: Date | null
+    whencreated!: string | null
+    whenmodded!: string | null
+    whentrashed!: string | null
     text!: string | null
     direction!: number// Default is 1
     meta!: number// Default is 0
@@ -27,7 +27,7 @@ interface NewRelationshipInfo {
     guid: string,
     thingaid: number,
     thingbid: number,
-    whencreated: Date,
+    whencreated: string,
     whenmodded: null,
     whentrashed: null,
     text: null,
@@ -38,7 +38,7 @@ interface NewRelationshipInfo {
     ensystemed: null
 }
 
-export function getNewRelationshipInfo(thingAId: number, thingBId: number, whenCreated: Date, direction: number): NewRelationshipInfo {
+export function getNewRelationshipInfo(thingAId: number, thingBId: number, whenCreated: string, direction: number): NewRelationshipInfo {
     const newRelationshipInfo = {
         guid: uuidv4(),
         thingaid: thingAId,

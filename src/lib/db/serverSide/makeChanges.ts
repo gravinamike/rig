@@ -25,7 +25,7 @@ import { createFolder } from "$lib/shared/fileSystem"
 export async function createNewRelatedThing(thingIdToRelateFrom: number, directionId: number, text: string): Promise<Thing | false> {
     try {    
         // Get parameters for SQL query.
-        const whenCreated = new Date()
+        const whenCreated = (new Date()).toISOString()
 
         // Construct and run SQL query.
         const knex = Model.knex()
@@ -67,7 +67,7 @@ export async function createNewRelatedThing(thingIdToRelateFrom: number, directi
  */
 export async function addNoteToThing(thingId: number): Promise<void> {
     // Get parameters for SQL query.
-    const whenCreated = new Date()
+    const whenCreated = (new Date()).toISOString()
 
     // Construct and run SQL query.
     const knex = Model.knex()
@@ -99,7 +99,7 @@ export async function addNoteToThing(thingId: number): Promise<void> {
  */
 export async function updateNote(noteId: number, text: string): Promise<void> {
     // Get parameters for SQL query.
-    const whenModded = new Date()
+    const whenModded = (new Date()).toISOString()
 
     // Construct and run SQL query.
     const knex = Model.knex()
@@ -124,7 +124,7 @@ export async function updateNote(noteId: number, text: string): Promise<void> {
  */
 export async function addFolderToThing(thingId: number): Promise<void> {
     // Get parameters for SQL query.
-    const whenCreated = new Date()
+    const whenCreated = (new Date()).toISOString()
     const folderGuid = uuidv4()
 
     // Construct and run SQL query.
@@ -230,7 +230,7 @@ export async function createNewRelationship(sourceThingId: number, destThingId: 
     } else {
 
         // Get parameters for SQL query.
-        const whenCreated = new Date()
+        const whenCreated = (new Date()).toISOString()
         
         // Construct and run SQL query.
         const knex = Model.knex()
@@ -274,7 +274,7 @@ export async function createNewRelationship(sourceThingId: number, destThingId: 
  */
 export async function updateRelationships(relationshipInfos: {sourceThingId: number, destThingId: number, directionId: number}[]): Promise<void> {
     // Get parameters for SQL query.
-    const whenModded = new Date()
+    const whenModded = (new Date()).toISOString()
 
     let relationshipsOk = true
     for (const info of relationshipInfos) {
@@ -368,7 +368,7 @@ export async function deleteRelationship(sourceThingId: number, destThingId: num
 export async function markThingsVisited(thingIds: number[]): Promise<void> {
     const knex = Model.knex()
     await knex.transaction(async (transaction: Knex.Transaction) => {
-        const timestamp = new Date()
+        const timestamp = (new Date()).toISOString()
         await ThingDbModel.query().whereIn("id", thingIds).patch({whenvisited: timestamp}).transacting(transaction)
 
         return
@@ -390,7 +390,7 @@ export async function markThingsVisited(thingIds: number[]): Promise<void> {
 export async function markNotesModified(noteIds: number[]): Promise<void> {
     const knex = Model.knex()
     await knex.transaction(async (transaction: Knex.Transaction) => {
-        const timestamp = new Date()
+        const timestamp = (new Date()).toISOString()
         await NoteDbModel.query().whereIn("id", noteIds).patch({whenmodded: timestamp}).transacting(transaction)
 
         return

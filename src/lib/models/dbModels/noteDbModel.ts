@@ -14,8 +14,8 @@ export class NoteDbModel extends Model {
     id!: number
     guid!: string
     text!: string
-    whencreated!: Date | null
-    whenmodded!: Date | null
+    whencreated!: string | null
+    whenmodded!: string | null
 
     static get relationMappings(): RelationMappings | RelationMappingsThunk {
         return {
@@ -38,11 +38,11 @@ export class NoteDbModel extends Model {
 interface NewNoteInfo {
     guid: string,
     text: string,
-    whencreated: Date,
+    whencreated: string,
     whenmodded: null
 }
 
-export function getNewNoteInfo(whenCreated: Date): NewNoteInfo {
+export function getNewNoteInfo(whenCreated: string): NewNoteInfo {
     const newThingInfo = {
         guid: uuidv4(),
         text: "",

@@ -14,10 +14,10 @@ export class ThingDbModel extends Model {
     id!: number
     guid!: string
     text!: string
-    whencreated!: Date | null
-    whenmodded!: Date | null
-    whentrashed!: Date | null
-    whenvisited!: Date | null
+    whencreated!: string | null
+    whenmodded!: string | null
+    whentrashed!: string | null
+    whenvisited!: string | null
     defaultplane!: number | null//CAN WE RENAME TO DEFAULTSPACEID?
     depthprofile!: string// Default is "{}"
     formula!: string// Default is "{}"
@@ -111,7 +111,7 @@ export class ThingDbModel extends Model {
 interface NewThingInfo {
     guid: string,
     text: string,
-    whencreated: Date,
+    whencreated: string,
     whenmodded: null,
     whentrashed: null,
     whenvisited: null,
@@ -136,7 +136,7 @@ interface NewThingInfo {
     perspectiveviewers: "{}"
 }
 
-export function getNewThingInfo(text: string, whenCreated: Date, defaultSpace: number): NewThingInfo {
+export function getNewThingInfo(text: string, whenCreated: string, defaultSpace: number): NewThingInfo {
     const newThingInfo = {
         guid: uuidv4(),
         text: text,

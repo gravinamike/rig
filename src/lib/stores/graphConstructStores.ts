@@ -2,8 +2,10 @@ import type { Writable } from "svelte/store"
 import type { GraphConstruct } from "$lib/shared/constants"
 
 import { writable, derived } from "svelte/store"
+import { maxThingsToStore } from "$lib/shared/constants"
 import { Direction, Space, isDirection, isSpace, Thing, isThing } from "$lib/models/graphModels"
 import { graphConstructs } from "$lib/db/clientSide"
+import { removeItemFromArray } from "$lib/shared/utility"
 
 
 
@@ -42,7 +44,11 @@ thingsStore.subscribe(value => {thingsStoreValue = value})
 
 export const thingsStoreAsArray = derived( thingsStore, $thingsStore => Object.values($thingsStore) )
 
-export const thingIdsNotFoundStore = writable( [] as number[] );
+export const thingIdsStore = writable( [] as number[] )
+let thingIdsStoreValue: number[]
+thingIdsStore.subscribe(value => {thingIdsStoreValue = value})
+
+export const thingIdsNotFoundStore = writable( [] as number[] )
 
 
 /**
@@ -78,7 +84,7 @@ function updateConstructStore<Type extends GraphConstruct>( constructs: Type | T
  * @param  {number | number[]} ids - The construct IDs to add to the stores.
  */
 function updateIdStore(
-    constructName: "Direction" | "Space" | "Thing",
+    constructName: "Direction" | "Space" | "Thing" | "ThingNotFound",
     ids: number | number[]
 ): void {
     // If necessary, pack a single supplied id in an array for processing.
@@ -91,6 +97,8 @@ function updateIdStore(
     } else if (constructName === "Space") {
         store = spaceIdsNotFoundStore
     } else if (constructName === "Thing") {
+        store = thingIdsStore
+    } else if (constructName === "ThingNotFound") {
         store = thingIdsNotFoundStore
     }
 
@@ -98,6 +106,25 @@ function updateIdStore(
     ids.forEach((id) => {
         store.update( (current) => { if (!current.includes(id)) current.push(id); return current } )
     })
+}
+
+
+/**
+ * Trim Thing store down to their maximum allowed size.
+ */
+function trimThingStore(): void {
+    const thingIdsInReverseOrder = [...thingIdsStoreValue].reverse()
+    const trimmedThingIds = thingIdsInReverseOrder.slice(0, maxThingsToStore)
+
+    thingsStore.update( (current) => {
+        const filteredThingsStore = Object.fromEntries(
+            Object.entries(current).filter(
+               (keyVal) => trimmedThingIds.includes(Number(keyVal[0]))
+            )
+        )
+
+        return filteredThingsStore
+    } )
 }
 
 
@@ -126,7 +153,7 @@ export function graphConstructInStore(
  * Fetch Graph constructs from the API, then add them to the stores.
  * @param  {"Direction" | "Space" | "Thing"} constructName - The name of the construct type.
  * @param  {number | number[]} ids - The construct IDs to fetch and store.
- * @param  {boolean} allowUpdating - Whether to update or skip constructs that are already in the store.
+ * @param  allowUpdating - Whether to update or skip constructs that are already in the store.
  */
 export async function storeGraphConstructs<Type extends GraphConstruct>(
     constructName: "Direction" | "Space" | "Thing",
@@ -171,11 +198,20 @@ export async function storeGraphConstructs<Type extends GraphConstruct>(
     updateConstructStore(queriedInstances)
     // Update the IDs Not Found store with any IDs that weren't fetched.
     if (!(typeof ids === "undefined")) {
-        const idsFound = queriedInstances.map(x => x.id)
+        const idsFound = queriedInstances.map(x => x.id) as number[]
         const idsNotFound = idsToQuery.filter( x => !idsFound.includes(x) )
-        updateIdStore(constructName, idsNotFound)
+        if (constructName === "Thing") {
+            updateIdStore("Thing", idsFound)
+            updateIdStore("ThingNotFound", idsNotFound)
+        } else {
+            updateIdStore(constructName, idsNotFound)
+        }
     }
-    // Return the array of Directions.
+
+    // If the construct is "Thing", trim the store to the maximum allowed size.
+    if (constructName === "Thing") trimThingStore()
+
+    // Return the array of constructs.
     return queriedInstances
 }
 
@@ -202,6 +238,13 @@ export async function unstoreGraphConstructs(
     // Update the store with each supplied id.
     ids.forEach((id) => {
         store.update( (current) => { delete current[id]; return current } )
+
+        // If the construct type is Thing, remove the ID from the Thing ID store as well.
+        if (constructName === "Thing") {
+            thingIdsStore.update(
+                (current) => { removeItemFromArray(current, id); return current }
+            )
+        }
     })
 }
 

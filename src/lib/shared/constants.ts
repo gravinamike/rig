@@ -189,3 +189,6 @@ export const hyperlinkProtocols = [
     "news",
     "telnet"
 ]
+
+
+export const maxThingsToStore = 500

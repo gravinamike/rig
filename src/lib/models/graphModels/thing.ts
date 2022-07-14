@@ -49,10 +49,10 @@ export class Thing {
         this.id = dbModel.id
         this.guid = dbModel.guid
         this.text = dbModel.text
-        this.whencreated = dbModel.whencreated
-        this.whenmodded = dbModel.whenmodded
-        this.whentrashed = dbModel.whentrashed
-        this.whenvisited = dbModel.whenvisited
+        this.whencreated = dbModel.whencreated ? new Date(dbModel.whencreated): null
+        this.whenmodded = dbModel.whenmodded ? new Date(dbModel.whenmodded): null
+        this.whentrashed = dbModel.whentrashed ? new Date(dbModel.whentrashed): null
+        this.whenvisited = dbModel.whenvisited ? new Date(dbModel.whenvisited): null
         this.defaultplane = dbModel.defaultplane
         this.depthprofile = dbModel.depthprofile
         this.formula = dbModel.formula

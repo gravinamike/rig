@@ -15,7 +15,7 @@ export class Folder {
         this.dbModel = dbModel
 
         this.id = dbModel.id
-        this.whencreated = dbModel.whencreated
+        this.whencreated = dbModel.whencreated ? new Date(dbModel.whencreated): null
         this.path = dbModel.path
     }
 }

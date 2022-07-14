@@ -28,9 +28,9 @@ export class Relationship {
         this.guid = dbModel.guid
         this.thingaid = dbModel.thingaid
         this.thingbid = dbModel.thingbid
-        this.whencreated = dbModel.whencreated
-        this.whenmodded = dbModel.whenmodded
-        this.whentrashed = dbModel.whentrashed
+        this.whencreated = dbModel.whencreated ? new Date(dbModel.whencreated): null
+        this.whenmodded = dbModel.whenmodded ? new Date(dbModel.whenmodded): null
+        this.whentrashed = dbModel.whentrashed ? new Date(dbModel.whentrashed): null
         this.text = dbModel.text
         this.direction = dbModel.direction
         this.meta = dbModel.meta
