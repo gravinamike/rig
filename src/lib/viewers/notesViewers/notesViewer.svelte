@@ -28,7 +28,14 @@
     $: title = pThing ? pThing.text : "THING NOT FOUND IN STORE"
     $: noteId = pThing?.note?.id || null
     let noteText = ""
-    $: if (!editable) noteText = pThing?.note?.text || "" // Don't reset the text if the text editor is open.
+    let noteTextForDisplay = "" // Post-processing is needed to make empty paragraphs and line breaks render correctly in the display.
+    $: if (!editable) {
+        noteText = pThing?.note?.text || "" // Don't reset the text if the text editor is open.
+        noteTextForDisplay = noteText
+            .replace(/<br><\/p><\/li>/gi, "<br><br></p></li>")
+            .replace(/<p><\/p>/gi, "<p>&nbsp;</p>")
+    }
+
     // When Perspective changes, reset Note-changed flag.
     $: {
         noteText
@@ -141,7 +148,7 @@
         <!-- Note display. -->
         {:else}
             <div class="notes-display">
-                {@html noteText}
+                {@html noteTextForDisplay}
             </div>
         {/if}
     </div>
