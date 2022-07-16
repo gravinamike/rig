@@ -16,7 +16,7 @@
     import {
         ContextCommandPalette, Collapser, TabBlock, TabFlap, TabFlaps, TabBody, WaitingIndicator
     } from "$lib/widgets/layoutWidgets"
-    import { RemoteRelatingWidget, ThingLinkingWidget, TextHyperlinkingWidget } from "$lib/widgets/dialogWidgets"
+    import { NewFileWidget, RemoteRelatingWidget, ThingLinkingWidget, TextHyperlinkingWidget } from "$lib/widgets/dialogWidgets"
 
     // Import viewers.
     import FileViewer from "$lib/viewers/settingsViewers/fileViewer.svelte"
@@ -93,6 +93,9 @@
 
     <!-- Front pane for context menus and command palettes. -->
     <ContextCommandPalette />
+
+    <!-- Front pane for new file dialog. -->
+    <NewFileWidget />
 
     <!-- Front pane for Relationship-being-created Widget. -->
     <RelationshipBeingCreatedWidget />

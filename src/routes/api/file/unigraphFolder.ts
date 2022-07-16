@@ -1,5 +1,5 @@
 import { get as getStore } from "svelte/store"
-import { unigraphFolderStore } from "$lib/stores/appStores"
+import { unigraphFolderStore } from "$lib/stores/fileStores"
 
 
 export async function get(): Promise<{

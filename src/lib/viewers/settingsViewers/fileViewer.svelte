@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { loadingState, openGraphStore } from "$lib/stores"
+    import { enableNewFileCreation, loadingState, openGraphStore } from "$lib/stores"
     import { setUnigraphFolder } from "$lib/db/clientSide"
     import { openUnigraph, closeUnigraph } from "$lib/shared/unigraph"
 
@@ -31,15 +31,23 @@
 <main>
     <h4>Open file:</h4>
 
-    <div class="graph-folders">
+    <div class="graph-folder-buttons">
         {#each graphFolders as folder}
             <div
-                class="graph-folder { folder === $openGraphStore ? "opened" : "" }"
+                class="button graph-folder-button { folder === $openGraphStore ? "opened" : "" }"
                 on:click={() => {openUnigraphFolder(folder)}}
             >
                 {folder}
             </div>
         {/each}
+
+        <div
+            class="button new-graph-button"
+            style={ graphFolders.length ? "margin-top: 25px;" : ""}
+            on:click={enableNewFileCreation}
+        >
+            New Graph
+        </div>
     </div>
 </main>
 
@@ -68,7 +76,7 @@
         margin: 0;
     }
 
-    .graph-folders {
+    .graph-folder-buttons {
         display: flex;
         flex-direction: column;
         gap: 0.25rem;
@@ -76,29 +84,36 @@
         font-size: 0.85rem;
     }
 
-    .graph-folder {
+    .button {
         border-radius: 3px;
         outline: solid 1px lightgrey;
         outline-offset: -1px;
 
         padding: 0.5rem;
 
-        text-align: left;
-
         cursor: pointer;
     }
 
-    .graph-folder:hover {
+    .button:hover {
         background-color: gainsboro;
     }
 
-    .graph-folder:active {
+    .button:active {
         background-color: silver;
     }
 
-    .graph-folder.opened {
+    .graph-folder-button {
+        text-align: left;
+    }
+
+    .graph-folder-button.opened {
         background-color: lightgrey;
 
         pointer-events: none;
+    }
+
+    .new-graph-button {
+        color: grey;
+        font-style: italic;
     }
   </style>

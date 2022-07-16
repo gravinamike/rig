@@ -10,11 +10,6 @@ export const loadingState = writable(
 )
 
 
-// Unigraph Folder Store.
-// Holds the folder path for the currently-loaded Graph.
-export const unigraphFolderStore = writable( null as string | null )
-
-
 // Hovered Thing ID Store.
 // Holds the ID of the Thing that the mouse is hovered over.
 export const hoveredThingIdStore = writable( null as number | null )

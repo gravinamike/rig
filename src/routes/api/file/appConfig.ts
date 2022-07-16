@@ -1,7 +1,7 @@
 import fs from "fs"
 import type { AppConfig } from "$lib/shared/constants"
 import { get as getStore } from "svelte/store"
-import { unigraphFolderStore } from "$lib/stores/appStores"
+import { unigraphFolderStore } from "$lib/stores/fileStores"
 
 
 const configPath = "./static/config/config.json"
