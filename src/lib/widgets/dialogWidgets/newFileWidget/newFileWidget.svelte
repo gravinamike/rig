@@ -1,12 +1,27 @@
 <script lang="ts">
-      import { newFileCreationStore, updateNewFileCreationFileName, disableNewFileCreation } from "$lib/stores"
+    import { newFileCreationStore, updateNewFileCreationFileName, disableNewFileCreation } from "$lib/stores"
+    import { createGraph } from "$lib/db/clientSide/makeChanges"
+
 
     let newFileNameField: HTMLInputElement
+    
+    let currentGraphFolders: string[] = []
+    function refreshCurrentGraphFolders() {
+        fetch(`api/file/graphFolders`)
+            .then(response => {return (response.json() as unknown) as string[]})
+            .then(data => currentGraphFolders = data)
+    }
 
-    const validCharactersRegex = /^[a-z0-9]+$/i
+    const validCharactersRegex = /^[-_a-z0-9]+$/i
     let invalidFilename = false
-    function checkForError() {
-        if (newFileNameField && newFileNameField.value !== "" && !validCharactersRegex.test(newFileNameField.value))  {
+    async function checkForError() {
+        if (
+            newFileNameField && newFileNameField.value !== ""
+            && (
+                !validCharactersRegex.test(newFileNameField.value)
+                || currentGraphFolders.includes(newFileNameField.value)
+            )
+        )  {
             invalidFilename = true
         } else {
             invalidFilename = false
@@ -27,10 +42,10 @@
         }
     }
 
-    function handleEnter() {
+    async function handleEnter() {
         if (newFileNameField && newFileNameField.value !== "" && !invalidFilename) {
             updateNewFileCreationFileName(newFileNameField.value)
-            console.log("CODE TO CREATE NEW FILE GOES HERE.")
+            await createGraph(newFileNameField.value)
             disableNewFileCreation()
         }
     }
@@ -61,13 +76,16 @@
                 on:keypress={ (event) => {
                     if (event.key === "Enter") handleEnter()
                 } }
-                on:input={checkForError}
+                on:input={() => {
+                    checkForError()
+                    refreshCurrentGraphFolders()
+                } }
             />
         </div>
 
         {#if invalidFilename}
             <div class="error-message">
-                Filename can only contain alphanumeric characters, hyphens and underscores.
+                Filename contains invalid characters or duplicates an existing filename.
             </div>
         {/if}
     </div>

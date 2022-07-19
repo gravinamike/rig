@@ -296,3 +296,27 @@ export async function markNotesModified( noteIds: number | number[] ): Promise<b
         return false
     }
 }
+
+
+
+
+export async function createGraph( newGraphName: string ): Promise<boolean> {
+    // Post to the create-new-Graph API.
+    const res = await fetch(
+        `api/file/createGraph`,
+        {
+            method: "POST",
+            body: JSON.stringify({
+                newGraphName: newGraphName
+            })
+        }
+    )
+
+    // Report on the response.
+    if (res.ok) {
+        return true
+    } else {
+        res.text().then(text => {throw Error(text)})
+        return false
+    }
+}

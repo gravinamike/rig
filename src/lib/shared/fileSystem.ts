@@ -1,5 +1,6 @@
 import path from "path"
 import fs from "fs"
+const fsPromises = fs.promises
 import { graphsBaseFolder, unigraphFolder } from "$lib/shared/constants"
 
 
@@ -39,4 +40,19 @@ export async function listGraphsFolder(): Promise<string[]> {
     } )
 
     return validGraphFolders
+}
+
+
+export async function createNewGraphFile(folderName: string): Promise< void > {
+    const sourceGraphFilePath = "./static/templates/empty.mv.db"
+    const destFolderPath = path.join(graphsBaseFolder, folderName)
+    const destGraphFilePath = path.join(destFolderPath, "graph.mv.db")
+    const destConfigFilePath = path.join(destFolderPath, "config.json")
+    const destFoldersFolderPath = path.join(graphsBaseFolder, folderName, "Folders")
+    
+    await fsPromises.mkdir(destFolderPath)
+    await fsPromises.mkdir(destFoldersFolderPath)
+    await fsPromises.copyFile(sourceGraphFilePath, destGraphFilePath)
+    const configHandle = await fsPromises.open(destConfigFilePath, 'w')
+    await configHandle.close()
 }
