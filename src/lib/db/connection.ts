@@ -22,12 +22,13 @@ const cached = global.h2
 /**
  * Get a connection to the database.
  */
-export async function getDatabaseConnection(): Promise<typeof Model> {
-    const unigraphFolderStoreValue = get(unigraphFolderStore)
-
-    const unigraphFolderPath = unigraphFolderStoreValue ?
-            path.join(graphsBaseFolder, unigraphFolderStoreValue) :
-            null
+export async function getDatabaseConnection( newGraphName: (string | null) = null ): Promise<typeof Model> {
+    const unigraphFolderName = newGraphName ?
+        newGraphName :
+        get(unigraphFolderStore)
+    const unigraphFolderPath = unigraphFolderName ?
+        path.join(graphsBaseFolder, unigraphFolderName) :
+        null
 
     const knexConfig = {
         client: 'pg',

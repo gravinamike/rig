@@ -2,6 +2,7 @@ import path from "path"
 import fs from "fs"
 const fsPromises = fs.promises
 import { graphsBaseFolder, unigraphFolder } from "$lib/shared/constants"
+import { initializeNewGraph } from "$lib/db/serverSide"
 
 
 export async function listAttachmentsFolder(folderGuid: string): Promise<string[]> {
@@ -55,4 +56,6 @@ export async function createNewGraphFile(folderName: string): Promise< void > {
     await fsPromises.copyFile(sourceGraphFilePath, destGraphFilePath)
     const configHandle = await fsPromises.open(destConfigFilePath, 'w')
     await configHandle.close()
+
+    await initializeNewGraph()
 }
