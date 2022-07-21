@@ -22,58 +22,38 @@ export function dbInfo(): DbInfo {
 
     const dbInfo: DbInfo = {
 
-        "graphinfo": {
-            "fields": {
-                "id": "bigint",
-                "guid": "varchar(255)"
-            },
-            "defaultValues": {},
-            'entries': [
-                ['1', uuidv4()],
-            ]
-        },
-
         "directions": {
             "fields": {
                 "id": "bigint",
                 "oppositeid": "integer",
-                "symbolthingid": "integer",
                 "text": "varchar(255)",
                 "nameforobjects": "varchar(255)",
-                "depthdelta": "integer",
-                "inheritcolor": "integer",
-                "inheritalpha": "integer",
-                "inheritlayer": "integer",
-                "encapsulation": "integer",
                 "whencreated": "timestamp",
-                "whenmodded": "timestamp",
-                "access": "integer",
+                "whenmodded": "timestamp"
             },
             "defaultValues": {
-                "symbolthingid": null,
                 "text": "''(NONE)''",
                 "nameforobjects": noneText,
                 "whencreated": "NULL",
-                "whenmodded": "NULL",
-                "access": 0
+                "whenmodded": "NULL"
             },
             "entries": [
-                [1, 1, 3, "is related to", "relations", 0, 0, 0, 0, 0, dateTimeStamp, dateTimeStamp, 0],
-                [2, 2, 4, "is idiomatic synonym of", "idiomatic synonyms", 0, 0, 0, 0, 0, dateTimeStamp, dateTimeStamp, 0],
-                [3, 3, 5, "is analogous to", "analogues", 0, 0, 0, 0, 0, dateTimeStamp, dateTimeStamp, 0],
-                [4, 4, 6, "is opposite of", "opposites", 0, 0, 0, 0, 0, dateTimeStamp, dateTimeStamp, 0],
-                [5, 6, 7, "is exemplar of", "categories", 0, 0, 0, 0, 0, dateTimeStamp, dateTimeStamp, 0],
-                [6, 5, 8, "is category of", "examples", 0, 0, 0, 0, 0, dateTimeStamp, dateTimeStamp, 0],
-                [7, 8, 9, "constitutes", "products", 0, 0, 0, 0, 0, dateTimeStamp, dateTimeStamp, 0],
-                [8, 7, 10, "comprises", "constituents", 0, 0, 0, 0, 0, dateTimeStamp, dateTimeStamp, 0],
-                [9, 10, 11, "is set for category", "categories for set", 0, 0, 0, 0, 0, dateTimeStamp, dateTimeStamp, 0],
-                [10, 9, 12, "is category for set", "sets for category", 0, 0, 0, 0, 0, dateTimeStamp, dateTimeStamp, 0],
-                [11, 12, 13, "is means of", "ends", 0, 0, 0, 0, 0, dateTimeStamp, dateTimeStamp, 0],
-                [12, 11, 14, "is end of", "means", 0, 0, 0, 0, 0, dateTimeStamp, dateTimeStamp, 0],
-                [13, 14, 15, "describes", "model subjects", 0, 0, 0, 0, 0, dateTimeStamp, dateTimeStamp, 0],
-                [14, 13, 16, "is described by", "models", 0, 0, 0, 0, 0, dateTimeStamp, dateTimeStamp, 0],
-                [15, 16, 17, "elaborates", "abstractions", 0, 0, 0, 0, 0, dateTimeStamp, dateTimeStamp, 0],
-                [16, 15, 18, "abstracts", "elaborations", 0, 0, 0, 0, 0, dateTimeStamp, dateTimeStamp, 0]
+                [1, 1, "is related to", "relations", dateTimeStamp, dateTimeStamp],
+                [2, 2, "is idiomatic synonym of", "idiomatic synonyms", dateTimeStamp, dateTimeStamp],
+                [3, 3, "is analogous to", "analogues", dateTimeStamp, dateTimeStamp],
+                [4, 4, "is opposite of", "opposites", dateTimeStamp, dateTimeStamp],
+                [5, 6, "is exemplar of", "categories", dateTimeStamp, dateTimeStamp],
+                [6, 5, "is category of", "examples", dateTimeStamp, dateTimeStamp],
+                [7, 8, "constitutes", "products", dateTimeStamp, dateTimeStamp],
+                [8, 7, "comprises", "constituents", dateTimeStamp, dateTimeStamp],
+                [9, 10, "is set for category", "categories for set", dateTimeStamp, dateTimeStamp],
+                [10, 9, "is category for set", "sets for category", dateTimeStamp, dateTimeStamp],
+                [11, 12, "is means of", "ends", dateTimeStamp, dateTimeStamp],
+                [12, 11, "is end of", "means", dateTimeStamp, dateTimeStamp],
+                [13, 14, "describes", "model subjects", dateTimeStamp, dateTimeStamp],
+                [14, 13, "is described by", "models", dateTimeStamp, dateTimeStamp],
+                [15, 16, "elaborates", "abstractions", dateTimeStamp, dateTimeStamp],
+                [16, 15, "abstracts", "elaborations", dateTimeStamp, dateTimeStamp]
             ]
         },
 
@@ -146,118 +126,23 @@ export function dbInfo(): DbInfo {
                 "text": "varchar(255)",
                 "perspectivetexts": "clob(2147483647)",
                 "defaultplane": "integer",
-                "ensystems": "integer",
-                "depthprofile": "clob(2147483647)",
                 "perspectivedepths": "clob(2147483647)",
-                "formula": "clob(2147483647)",
-                "lastformulated": "timestamp",
-                "fillcolor": "varchar(255)",
-                "stackbehavior": "varchar(255)",
-                "xoffset": "integer",
-                "yoffset": "integer",
-                "zoffset": "integer",
-                "sizemultiplier": "double(17)",
-                "taskactivity": "integer",
-                "taskactivityreps": "integer",
                 "whencreated": "timestamp",
                 "whenvisited": "timestamp",
-                "whenmodded": "timestamp",
-                "whentrashed": "timestamp",
-                "access": "integer",
-                "portalperspectivethingid": "integer",
-                "portaldefaultspaceid": "integer",
-                "perspectiveviewers": "clob(2147483647)"
+                "whenmodded": "timestamp"
             },
             "defaultValues": {
                 "text": noneText,
                 "perspectivetexts": emptyObjectText,
                 "defaultplane": 0,
-                "depthprofile": emptyObjectText,
                 "perspectivedepths": emptyObjectText,
-                "formula": emptyObjectText,
-                "sizemultiplier": 1.0,
-                "taskactivityreps": 1,
                 "whenvisited": "NULL",
-                "whenmodded": "NULL",
-                "whentrashed": "NULL",
-                "access": 0,
-                "portalperspectivethingid": "NULL",
-                "portaldefaultspaceid": "NULL",
-                "perspectiveviewers": emptyObjectText
+                "whenmodded": "NULL"
             },
             'entries': [
                 [
-                    1, uuidv4(), "--Graph origin--", emptyObjectText, 1, 0, emptyObjectText, emptyObjectText, emptyObjectText, dateTimeStamp,
-                    null, null, 0, 0, 0, 1.0, 0, 1, dateTimeStamp, null, dateTimeStamp, null, 0, null, null
-                ],
-                [
-                    2, uuidv4(), "--Set of Graph Directions--", emptyObjectText, 1, 0, emptyObjectText, emptyObjectText, emptyObjectText, dateTimeStamp,
-                    null, null, 0, 0, 0, 1.0, 0, 1, dateTimeStamp, null, dateTimeStamp, null, 0, null, null
-                ],
-                [
-                    3, uuidv4(), "is related to", emptyObjectText, 1, 0, emptyObjectText, emptyObjectText, emptyObjectText, dateTimeStamp,
-                    null, null, 0, 0, 0, 1.0, 0, 1, dateTimeStamp, null, dateTimeStamp, null, 0, null, null
-                ],
-                [
-                    4, uuidv4(), "is idiomatic synonym of", emptyObjectText, 1, 0, emptyObjectText, emptyObjectText, emptyObjectText, dateTimeStamp,
-                    null, null, 0, 0, 0, 1.0, 0, 1, dateTimeStamp, null, dateTimeStamp, null, 0, null, null
-                ],
-                [
-                    5, uuidv4(), "is analogous to", emptyObjectText, 1, 0, emptyObjectText, emptyObjectText, emptyObjectText, dateTimeStamp,
-                    null, null, 0, 0, 0, 1.0, 0, 1, dateTimeStamp, null, dateTimeStamp, null, 0, null, null
-                ],
-                [
-                    6, uuidv4(), "is opposite of", emptyObjectText, 1, 0, emptyObjectText, emptyObjectText, emptyObjectText, dateTimeStamp,
-                    null, null, 0, 0, 0, 1.0, 0, 1, dateTimeStamp, null, dateTimeStamp, null, 0, null, null
-                ],
-                [
-                    7, uuidv4(), "is exemplar of", emptyObjectText, 1, 0, emptyObjectText, emptyObjectText, emptyObjectText, dateTimeStamp,
-                    null, null, 0, 0, 0, 1.0, 0, 1, dateTimeStamp, null, dateTimeStamp, null, 0, null, null
-                ],
-                [
-                    8, uuidv4(), "is category of", emptyObjectText, 1, 0, emptyObjectText, emptyObjectText, emptyObjectText, dateTimeStamp,
-                    null, null, 0, 0, 0, 1.0, 0, 1, dateTimeStamp, null, dateTimeStamp, null, 0, null, null
-                ],
-                [
-                    9, uuidv4(), "constitutes", emptyObjectText, 1, 0, emptyObjectText, emptyObjectText, emptyObjectText, dateTimeStamp,
-                    null, null, 0, 0, 0, 1.0, 0, 1, dateTimeStamp, null, dateTimeStamp, null, 0, null, null
-                ],
-                [
-                    10, uuidv4(), "comprises", emptyObjectText, 1, 0, emptyObjectText, emptyObjectText, emptyObjectText, dateTimeStamp,
-                    null, null, 0, 0, 0, 1.0, 0, 1, dateTimeStamp, null, dateTimeStamp, null, 0, null, null
-                ],
-                [
-                    11, uuidv4(), "is set for category", emptyObjectText, 1, 0, emptyObjectText, emptyObjectText, emptyObjectText, dateTimeStamp,
-                    null, null, 0, 0, 0, 1.0, 0, 1, dateTimeStamp, null, dateTimeStamp, null, 0, null, null
-                ],
-                [
-                    12, uuidv4(), "is category for set", emptyObjectText, 1, 0, emptyObjectText, emptyObjectText, emptyObjectText, dateTimeStamp,
-                    null, null, 0, 0, 0, 1.0, 0, 1, dateTimeStamp, null, dateTimeStamp, null, 0, null, null
-                ],
-                [
-                    13, uuidv4(), "is means of", emptyObjectText, 1, 0, emptyObjectText, emptyObjectText, emptyObjectText, dateTimeStamp,
-                    null, null, 0, 0, 0, 1.0, 0, 1, dateTimeStamp, null, dateTimeStamp, null, 0, null, null
-                ],
-                [
-                    14, uuidv4(), "is end of", emptyObjectText, 1, 0, emptyObjectText, emptyObjectText, emptyObjectText, dateTimeStamp,
-                    null, null, 0, 0, 0, 1.0, 0, 1, dateTimeStamp, null, dateTimeStamp, null, 0, null, null
-                ],
-                [
-                    15, uuidv4(), "describes", emptyObjectText, 1, 0, emptyObjectText, emptyObjectText, emptyObjectText, dateTimeStamp,
-                    null, null, 0, 0, 0, 1.0, 0, 1, dateTimeStamp, null, dateTimeStamp, null, 0, null, null
-                ],
-                [
-                    16, uuidv4(), "is described by", emptyObjectText, 1, 0, emptyObjectText, emptyObjectText, emptyObjectText, dateTimeStamp,
-                    null, null, 0, 0, 0, 1.0, 0, 1, dateTimeStamp, null, dateTimeStamp, null, 0, null, null
-                ],
-                [
-                    17, uuidv4(), "elaborates", emptyObjectText, 1, 0, emptyObjectText, emptyObjectText, emptyObjectText, dateTimeStamp,
-                    null, null, 0, 0, 0, 1.0, 0, 1, dateTimeStamp, null, dateTimeStamp, null, 0, null, null
-                ],
-                [
-                    18, uuidv4(), "abstracts", emptyObjectText, 1, 0, emptyObjectText, emptyObjectText, emptyObjectText, dateTimeStamp,
-                    null, null, 0, 0, 0, 1.0, 0, 1, dateTimeStamp, null, dateTimeStamp, null, 0, null, null
-                ],
+                    1, uuidv4(), "--Graph origin--", emptyObjectText, 1, emptyObjectText, dateTimeStamp, null, dateTimeStamp
+                ]
             ]
         },
 
@@ -268,163 +153,16 @@ export function dbInfo(): DbInfo {
                 "thingaid": "integer",
                 "thingbid": "integer",
                 "direction": "integer",
-                "meta": "integer",
                 "relationshiporder": "double(17)",
-                "ensystemed": "integer",
-                "text": "varchar(255)",
                 "whencreated": "timestamp",
                 "whenmodded": "timestamp",
-                "whentrashed": "timestamp",
-                "access": "integer"
             },
             "defaultValues": {
                 "direction": 1,
-                "meta": 0,
                 "relationshiporder": 0.0,
-                "ensystemed": 0,
-                "text": noneText,
-                "whenmodded": null,
-                "whentrashed": null,
-                "access": 0
+                "whenmodded": null
             },
-            'entries': [
-                [
-                    1, uuidv4(), 1, 2, 1, 0, 0.0, 0, null,
-                    dateTimeStamp, null, null, 0
-                ],
-                [
-                    2, uuidv4(), 2, 1, 1, 0, 0.0, 0, null,
-                    dateTimeStamp, null, null, 0
-                ],
-                [
-                    3, uuidv4(), 2, 3, 8, 0, 0.0, 0, null,
-                    dateTimeStamp, null, null, 0
-                ],
-                [
-                    4, uuidv4(), 3, 2, 7, 0, 0.0, 0, null,
-                    dateTimeStamp, null, null, 0
-                ],
-                [
-                    5, uuidv4(), 2, 4, 8, 0, 0.0, 0, null,
-                    dateTimeStamp, null, null, 0
-                ],
-                [
-                    6, uuidv4(), 4, 2, 7, 0, 0.0, 0, null,
-                    dateTimeStamp, null, null, 0
-                ],
-                [
-                    7, uuidv4(), 2, 5, 8, 0, 0.0, 0, null,
-                    dateTimeStamp, null, null, 0
-                ],
-                [
-                    8, uuidv4(), 5, 2, 7, 0, 0.0, 0, null,
-                    dateTimeStamp, null, null, 0
-                ],
-                [
-                    9, uuidv4(), 2, 6, 8, 0, 0.0, 0, null,
-                    dateTimeStamp, null, null, 0
-                ],
-                [
-                    10, uuidv4(), 6, 2, 7, 0, 0.0, 0, null,
-                    dateTimeStamp, null, null, 0
-                ],
-                [
-                    11, uuidv4(), 2, 7, 8, 0, 0.0, 0, null,
-                    dateTimeStamp, null, null, 0
-                ],
-                [
-                    12, uuidv4(), 7, 2, 7, 0, 0.0, 0, null,
-                    dateTimeStamp, null, null, 0
-                ],
-                [
-                    13, uuidv4(), 2, 8, 8, 0, 0.0, 0, null,
-                    dateTimeStamp, null, null, 0
-                ],
-                [
-                    14, uuidv4(), 8, 2, 7, 0, 0.0, 0, null,
-                    dateTimeStamp, null, null, 0
-                ],
-                [
-                    15, uuidv4(), 2, 9, 8, 0, 0.0, 0, null,
-                    dateTimeStamp, null, null, 0
-                ],
-                [
-                    16, uuidv4(), 9, 2, 7, 0, 0.0, 0, null,
-                    dateTimeStamp, null, null, 0
-                ],
-                [
-                    17, uuidv4(), 2, 10, 8, 0, 0.0, 0, null,
-                    dateTimeStamp, null, null, 0
-                ],
-                [
-                    18, uuidv4(), 10, 2, 7, 0, 0.0, 0, null,
-                    dateTimeStamp, null, null, 0
-                ],
-                [
-                    19, uuidv4(), 2, 11, 8, 0, 0.0, 0, null,
-                    dateTimeStamp, null, null, 0
-                ],
-                [
-                    20, uuidv4(), 11, 2, 7, 0, 0.0, 0, null,
-                    dateTimeStamp, null, null, 0
-                ],
-                [
-                    21, uuidv4(), 2, 12, 8, 0, 0.0, 0, null,
-                    dateTimeStamp, null, null, 0
-                ],
-                [
-                    22, uuidv4(), 12, 2, 7, 0, 0.0, 0, null,
-                    dateTimeStamp, null, null, 0
-                ],
-                [
-                    23, uuidv4(), 2, 13, 8, 0, 0.0, 0, null,
-                    dateTimeStamp, null, null, 0
-                ],
-                [
-                    24, uuidv4(), 13, 2, 7, 0, 0.0, 0, null,
-                    dateTimeStamp, null, null, 0
-                ],
-                [
-                    25, uuidv4(), 2, 14, 8, 0, 0.0, 0, null,
-                    dateTimeStamp, null, null, 0
-                ],
-                [
-                    26, uuidv4(), 14, 2, 7, 0, 0.0, 0, null,
-                    dateTimeStamp, null, null, 0
-                ],
-                [
-                    27, uuidv4(), 2, 15, 8, 0, 0.0, 0, null,
-                    dateTimeStamp, null, null, 0
-                ],
-                [
-                    28, uuidv4(), 15, 2, 7, 0, 0.0, 0, null,
-                    dateTimeStamp, null, null, 0
-                ],
-                [
-                    29, uuidv4(), 2, 16, 8, 0, 0.0, 0, null,
-                    dateTimeStamp, null, null, 0
-                ],
-                [
-                    30, uuidv4(), 16, 2, 7, 0, 0.0, 0, null,
-                    dateTimeStamp, null, null, 0
-                ],
-                [
-                    31, uuidv4(), 2, 17, 8, 0, 0.0, 0, null,
-                    dateTimeStamp, null, null, 0
-                ],
-                [
-                    32, uuidv4(), 17, 2, 7, 0, 0.0, 0, null,
-                    dateTimeStamp, null, null, 0
-                ],
-                [
-                    33, uuidv4(), 2, 18, 8, 0, 0.0, 0, null,
-                    dateTimeStamp, null, null, 0
-                ],
-                [
-                    34, uuidv4(), 18, 2, 7, 0, 0.0, 0, null,
-                    dateTimeStamp, null, null, 0
-                ],
-            ]
+            'entries': []
         },
 
         "notes": {
@@ -469,36 +207,7 @@ export function dbInfo(): DbInfo {
             },
             "defaultValues": {},
             'entries': []
-        },
-
-        "relationshiptosystem": {
-            "fields": {
-                "id": "bigint",
-                "idr": "integer",
-                "ids": "integer"
-            },
-            "defaultValues": {},
-            'entries': []
-        },
-
-        "structures": {
-            "fields": {
-                "id": "bigint",
-                "formula": "clob(2147483647)"
-            },
-            "defaultValues": {},
-            'entries': []
-        },
-
-        "implications": {
-            "fields": {
-                "id": "bigint",
-                "structureida": "integer",
-                "structureidb": "integer"
-            },
-            "defaultValues": {},
-            'entries': []
-        },
+        }
 
     }
 
