@@ -4,22 +4,57 @@ import type Knex from "knex"
 // Database-related imports.
 import { Model } from "objection"
 
+import { getDbInfo } from "./dbInfo"
+
+
+function convertValueForQuery(info: string | number | null): string | number {
+    if (typeof info === "string") {
+        return `'${info}'`
+    } else if (info === null) {
+        return "NULL"
+    } else {
+        return info
+    }
+}
 
 export async function initializeNewGraph(): Promise<void> {
-    // Run the modified query string.
     const knex = Model.knex()
-    const placeholder = await knex.transaction(async (transaction: Knex.Transaction) => {
+    await knex.transaction(async (transaction: Knex.Transaction) => {
 
-        const querystring1 = `CREATE TABLE IF NOT EXISTS test ();`
-        await knex.raw(querystring1).transacting(transaction)
+        const dbInfo = getDbInfo()
 
-        const querystring = `SELECT * FROM pg_catalog.pg_tables WHERE schemaname != 'pg_catalog' AND schemaname != 'information_schema';`
-        const placeholder = await knex.raw(querystring).transacting(transaction)
-        
-        return placeholder
+        for (const [tableName, tableInfo] of Object.entries(dbInfo)) {
+            const queryLines1: string[] = []
+            for (const [fieldName, dataType] of Object.entries(tableInfo.fields)) {
+                let queryLine = `${fieldName} ${dataType}`
+                const constraintText = fieldName in tableInfo.constraints ? tableInfo.constraints[fieldName] : null
+                const defaultValueText = fieldName in tableInfo.defaultValues ? convertValueForQuery(tableInfo.defaultValues[fieldName]) : null
+
+                if (constraintText) queryLine = `${queryLine} ${constraintText}`
+                if (defaultValueText) queryLine = `${queryLine} DEFAULT ${defaultValueText}`
+                queryLines1.push(queryLine)
+            }
+
+            // Create the tables.
+            const querystring1 = `CREATE TABLE IF NOT EXISTS ${ tableName } (${ queryLines1.join(", ") });`
+            //console.log(querystring1)
+            await knex.raw(querystring1).transacting(transaction)
+
+
+            // Create the starting entries.
+            const queryLines2: string[] = []
+            for (const entryValues of tableInfo.entries) {
+                const processedValues = entryValues.map(convertValueForQuery)
+                const queryLine = `INSERT INTO ${ tableName }(${ Object.keys(tableInfo.fields).join(", ") }) VALUES (${ processedValues.join(", ") });`
+                queryLines2.push(queryLine)
+            }
+            for (const queryLine of queryLines2) {
+                //console.log(queryLine)
+                await knex.raw(queryLine).transacting(transaction)
+            }
+
+
+        }
+        return null
     })
-    console.log("FOO", placeholder)
-    
-
-    //const queried = await ThingSearchListItemDbModel.query().orderBy('id')
 }

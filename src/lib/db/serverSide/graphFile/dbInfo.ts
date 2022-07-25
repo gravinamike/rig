@@ -8,6 +8,9 @@ interface DbInfo {
         "fields": {
             [ fieldName: string ]: string
         },
+        "constraints": {
+            [ fieldName: string ]: string
+        },
         "defaultValues": {
             [ fieldName: string ]: DbInfoFieldValue
         },
@@ -15,9 +18,9 @@ interface DbInfo {
     }
 }
 
-export function dbInfo(): DbInfo {
-    const noneText = "''(NONE)''"
-    const emptyObjectText = "'{}'"
+export function getDbInfo(): DbInfo {
+    const noneText = "(NONE)"
+    const emptyObjectText = "{}"
     const dateTimeStamp = (new Date()).toISOString()
 
     const dbInfo: DbInfo = {
@@ -30,6 +33,9 @@ export function dbInfo(): DbInfo {
                 "nameforobjects": "varchar(255)",
                 "whencreated": "timestamp",
                 "whenmodded": "timestamp"
+            },
+            "constraints": {
+                "id": "PRIMARY KEY"
             },
             "defaultValues": {
                 "text": "''(NONE)''",
@@ -69,6 +75,9 @@ export function dbInfo(): DbInfo {
                 "whencreated": "NULL",
                 "whenmodded": "NULL"
             },
+            "constraints": {
+                "id": "PRIMARY KEY"
+            },
             'entries': [
                 [1, 'Constitution/Category', dateTimeStamp, dateTimeStamp],
                 [2, 'Service/Representation', dateTimeStamp, dateTimeStamp],
@@ -84,6 +93,9 @@ export function dbInfo(): DbInfo {
                 "id": "bigint",
                 "directionid": "integer",
                 "spaceid": "integer"
+            },
+            "constraints": {
+                "id": "PRIMARY KEY"
             },
             "defaultValues": {},
             'entries': [
@@ -131,6 +143,10 @@ export function dbInfo(): DbInfo {
                 "whenvisited": "timestamp",
                 "whenmodded": "timestamp"
             },
+            "constraints": {
+                "id": "PRIMARY KEY",
+                "guid": "UNIQUE"
+            },
             "defaultValues": {
                 "text": noneText,
                 "perspectivetexts": emptyObjectText,
@@ -157,6 +173,10 @@ export function dbInfo(): DbInfo {
                 "whencreated": "timestamp",
                 "whenmodded": "timestamp",
             },
+            "constraints": {
+                "id": "PRIMARY KEY",
+                "guid": "UNIQUE"
+            },
             "defaultValues": {
                 "direction": 1,
                 "relationshiporder": 0.0,
@@ -169,9 +189,13 @@ export function dbInfo(): DbInfo {
             "fields": {
                 "id": "bigint",
                 "guid": "varchar(255)",
-                "text": "'clob(2147483647)",
+                "text": "clob(2147483647)",
                 "whencreated": "timestamp",
                 "whenmodded": "timestamp"
+            },
+            "constraints": {
+                "id": "PRIMARY KEY",
+                "guid": "UNIQUE"
             },
             "defaultValues": {
                 "text": noneText
@@ -185,6 +209,9 @@ export function dbInfo(): DbInfo {
                 "noteid": "integer",
                 "thingid": "integer"
             },
+            "constraints": {
+                "id": "PRIMARY KEY"
+            },
             "defaultValues": {},
             'entries': []
         },
@@ -195,6 +222,9 @@ export function dbInfo(): DbInfo {
                 "whencreated": "timestamp",
                 "path": "varchar(255)"
             },
+            "constraints": {
+                "id": "PRIMARY KEY"
+            },
             "defaultValues": {},
             'entries': []
         },
@@ -204,6 +234,9 @@ export function dbInfo(): DbInfo {
                 "id": "bigint",
                 "folderid": "integer",
                 "thingid": "integer"
+            },
+            "constraints": {
+                "id": "PRIMARY KEY"
             },
             "defaultValues": {},
             'entries': []

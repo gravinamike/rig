@@ -14,27 +14,10 @@ export class Thing {
     text: string | null
     whencreated: Date | null
     whenmodded: Date | null
-    whentrashed: Date | null
     whenvisited: Date | null
     defaultplane: number | null
-    depthprofile: string// Default is "{}"
-    formula: string// Default is "{}"
-    lastformulated: Date | null
-    fillcolor: string | null
-    stackbehavior: string | null
-    xoffset: number | null
-    yoffset: number | null
-    zoffset: number | null
     perspectivedepths: string// Default is "{}"
-    taskactivity: number | null
-    taskactivityreps: number// Default is 1
-    access: number | null
     perspectivetexts: string// Default is "{}"
-    ensystems: number | null
-    portalperspectivethingid: number | null
-    portaldefaultspaceid: number | null
-    sizemultiplier: number// Default is 1.0
-    perspectiveviewers: string// Default is "{}"
 
     note: Note | null
     folder: Folder | null
@@ -51,27 +34,10 @@ export class Thing {
         this.text = dbModel.text
         this.whencreated = dbModel.whencreated ? new Date(dbModel.whencreated): null
         this.whenmodded = dbModel.whenmodded ? new Date(dbModel.whenmodded): null
-        this.whentrashed = dbModel.whentrashed ? new Date(dbModel.whentrashed): null
         this.whenvisited = dbModel.whenvisited ? new Date(dbModel.whenvisited): null
         this.defaultplane = dbModel.defaultplane
-        this.depthprofile = dbModel.depthprofile
-        this.formula = dbModel.formula
-        this.lastformulated = dbModel.lastformulated
-        this.fillcolor = dbModel.fillcolor
-        this.stackbehavior = dbModel.stackbehavior
-        this.xoffset = dbModel.xoffset
-        this.yoffset = dbModel.yoffset
-        this.zoffset = dbModel.zoffset
         this.perspectivedepths = dbModel.perspectivedepths
-        this.taskactivity = dbModel.taskactivity
-        this.taskactivityreps = dbModel.taskactivityreps
-        this.access = dbModel.access
         this.perspectivetexts = dbModel.perspectivedepths
-        this.ensystems = dbModel.ensystems
-        this.portalperspectivethingid = dbModel.portaldefaultspaceid
-        this.portaldefaultspaceid = dbModel.portaldefaultspaceid
-        this.sizemultiplier = dbModel.sizemultiplier
-        this.perspectiveviewers = dbModel.perspectiveviewers
 
         this.note = dbModel.note ? new Note(dbModel.note) : null
         this.folder = dbModel.folder ? new Folder(dbModel.folder) : null     
