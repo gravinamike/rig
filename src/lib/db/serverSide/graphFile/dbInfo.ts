@@ -95,7 +95,7 @@ export function getDbInfo(): DbInfo {
                 "spaceid": "integer"
             },
             "constraints": {
-                "id": "PRIMARY KEY"
+                "id": "IDENTITY PRIMARY KEY"
             },
             "defaultValues": {},
             'entries': [
@@ -144,7 +144,7 @@ export function getDbInfo(): DbInfo {
                 "whenmodded": "timestamp"
             },
             "constraints": {
-                "id": "PRIMARY KEY",
+                "id": "IDENTITY PRIMARY KEY",
                 "guid": "UNIQUE"
             },
             "defaultValues": {
@@ -174,7 +174,7 @@ export function getDbInfo(): DbInfo {
                 "whenmodded": "timestamp",
             },
             "constraints": {
-                "id": "PRIMARY KEY",
+                "id": "IDENTITY PRIMARY KEY",
                 "guid": "UNIQUE"
             },
             "defaultValues": {
@@ -194,7 +194,7 @@ export function getDbInfo(): DbInfo {
                 "whenmodded": "timestamp"
             },
             "constraints": {
-                "id": "PRIMARY KEY",
+                "id": "IDENTITY PRIMARY KEY",
                 "guid": "UNIQUE"
             },
             "defaultValues": {
@@ -210,7 +210,7 @@ export function getDbInfo(): DbInfo {
                 "thingid": "integer"
             },
             "constraints": {
-                "id": "PRIMARY KEY"
+                "id": "IDENTITY PRIMARY KEY"
             },
             "defaultValues": {},
             'entries': []
@@ -223,7 +223,7 @@ export function getDbInfo(): DbInfo {
                 "path": "varchar(255)"
             },
             "constraints": {
-                "id": "PRIMARY KEY"
+                "id": "IDENTITY PRIMARY KEY"
             },
             "defaultValues": {},
             'entries': []
@@ -236,7 +236,7 @@ export function getDbInfo(): DbInfo {
                 "thingid": "integer"
             },
             "constraints": {
-                "id": "PRIMARY KEY"
+                "id": "IDENTITY PRIMARY KEY"
             },
             "defaultValues": {},
             'entries': []
