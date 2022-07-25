@@ -1,7 +1,8 @@
 <script lang="ts">
     import { enableNewFileCreation, loadingState, openGraphStore } from "$lib/stores"
-    import { setUnigraphFolder } from "$lib/db/clientSide"
-    import { openUnigraph, closeUnigraph } from "$lib/shared/unigraph"
+    //import { setUnigraphFolder } from "$lib/db/clientSide"
+    //import { openUnigraph, closeUnigraph } from "$lib/shared/unigraph"
+    import { openUnigraphFolder } from "$lib/shared/unigraph"
 
 
     let graphFolders: string[] = []
@@ -14,7 +15,7 @@
     refreshGraphFolders()
 
 
-    async function openUnigraphFolder(folderName: string) {
+    /*async function openUnigraphFolder(folderName: string) {
         await setUnigraphFolder(folderName)
 
         await closeUnigraph()
@@ -24,7 +25,7 @@
         await openUnigraph()
         openGraphStore.set(folderName)
         $loadingState = "graphLoaded"
-    }
+    }*/
 </script>
 
 

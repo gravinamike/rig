@@ -32,7 +32,7 @@ export async function listGraphsFolder(): Promise<string[]> {
         const graphFolderContents = fs.readdirSync(graphFolderPath)
         const graphFolderIsValid = (
             graphFolderContents.includes("graph.mv.db")
-            && graphFolderContents.includes("settings.ini")
+            && graphFolderContents.includes("config.json")
             && graphFolderContents.includes("Folders")
         ) ?
             true :
@@ -54,8 +54,7 @@ export async function createNewGraphFile(folderName: string): Promise< void > {
     await fsPromises.mkdir(destFolderPath)
     await fsPromises.mkdir(destFoldersFolderPath)
     await fsPromises.copyFile(sourceGraphFilePath, destGraphFilePath)
-    const configHandle = await fsPromises.open(destConfigFilePath, 'w')
-    await configHandle.close()
+    await fsPromises.writeFile(destConfigFilePath, `{"pinIds":[1]}`, "utf8")
 
     await initializeNewGraph()
 }

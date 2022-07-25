@@ -115,11 +115,12 @@ function updateIdStore(
 function trimThingStore(): void {
     const thingIdsInReverseOrder = [...thingIdsStoreValue].reverse()
     const trimmedThingIds = thingIdsInReverseOrder.slice(0, maxThingsToStore)
+    console.log(thingIdsInReverseOrder, trimmedThingIds, typeof trimmedThingIds[0])
 
     thingsStore.update( (current) => {
         const filteredThingsStore = Object.fromEntries(
             Object.entries(current).filter(
-               (keyVal) => trimmedThingIds.includes(Number(keyVal[0]))
+               (keyVal) => trimmedThingIds.map(id => Number(id)).includes(Number(keyVal[0]))
             )
         )
 

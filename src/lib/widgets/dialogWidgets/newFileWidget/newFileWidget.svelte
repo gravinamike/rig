@@ -1,6 +1,7 @@
 <script lang="ts">
     import { newFileCreationStore, updateNewFileCreationFileName, disableNewFileCreation } from "$lib/stores"
     import { createGraph } from "$lib/db/clientSide/makeChanges"
+    import { openUnigraphFolder } from "$lib/shared/unigraph"
 
 
     let newFileNameField: HTMLInputElement
@@ -44,8 +45,10 @@
 
     async function handleEnter() {
         if (newFileNameField && newFileNameField.value !== "" && !invalidFilename) {
-            updateNewFileCreationFileName(newFileNameField.value)
-            await createGraph(newFileNameField.value)
+            const newFileName = newFileNameField.value
+            updateNewFileCreationFileName(newFileName)
+            const graphCreated = await createGraph(newFileName)
+            if (graphCreated) openUnigraphFolder(newFileName)
             disableNewFileCreation()
         }
     }
