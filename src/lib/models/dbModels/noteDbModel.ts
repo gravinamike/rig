@@ -11,7 +11,7 @@ import { ThingDbModel } from "$lib/models/dbModels"
 export class NoteDbModel extends Model {
     static tableName = "notes" as const
 
-    id!: number
+    id!: string | number
     guid!: string
     text!: string
     whencreated!: string | null
@@ -59,7 +59,7 @@ export function getNewNoteInfo(whenCreated: string): NewNoteInfo {
 export class NoteToThingDbModel extends Model {
     static tableName = "notetothing" as const
 
-    id!: number
+    id!: string | number
     noteid!: number
     thingid!: number
 }

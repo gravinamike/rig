@@ -16,7 +16,7 @@ export class Note {
     constructor(dbModel: NoteDbModel) {
         this.dbModel = dbModel
 
-        this.id = dbModel.id
+        this.id = Number(dbModel.id)
         this.guid = dbModel.guid
         this.text = dbModel.text
         this.whencreated = dbModel.whencreated ? new Date(dbModel.whencreated): null
@@ -37,7 +37,7 @@ export class NoteToThing {
     constructor(dbModel: NoteToThingDbModel) {
         this.dbModel = dbModel
 
-        this.id = dbModel.id
+        this.id = Number(dbModel.id)
         this.noteid = dbModel.noteid
         this.thingid = dbModel.thingid
     }

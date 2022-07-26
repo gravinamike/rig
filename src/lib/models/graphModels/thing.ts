@@ -29,7 +29,7 @@ export class Thing {
     constructor(dbModel: ThingDbModel) {
         this.dbModel = dbModel
 
-        this.id = dbModel.id
+        this.id = Number(dbModel.id)
         this.guid = dbModel.guid
         this.text = dbModel.text
         this.whencreated = dbModel.whencreated ? new Date(dbModel.whencreated): null

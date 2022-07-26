@@ -8,7 +8,7 @@ import { v4 as uuidv4 } from "uuid"
 export class RelationshipDbModel extends Model {
     static tableName = "relationships" as const
 
-    id!: number
+    id!: string | number
     guid!: string
     thingaid!: number | null
     thingbid!: number | null

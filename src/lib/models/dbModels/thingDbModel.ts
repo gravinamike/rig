@@ -11,7 +11,7 @@ import { RelationshipDbModel, NoteDbModel, NoteToThingDbModel, FolderDbModel, Fo
 export class ThingDbModel extends Model {
     static tableName = "things" as const
 
-    id!: number
+    id!: string | number
     guid!: string
     text!: string
     whencreated!: string | null

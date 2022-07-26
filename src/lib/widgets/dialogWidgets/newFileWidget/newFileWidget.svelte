@@ -48,7 +48,9 @@
             const newFileName = newFileNameField.value
             updateNewFileCreationFileName(newFileName)
             const graphCreated = await createGraph(newFileName)
-            if (graphCreated) openUnigraphFolder(newFileName)
+            if (graphCreated) {
+                openUnigraphFolder(newFileName)
+            }
             disableNewFileCreation()
         }
     }

@@ -19,7 +19,7 @@ export class Relationship {
     constructor(dbModel: RelationshipDbModel) {
         this.dbModel = dbModel
 
-        this.id = dbModel.id
+        this.id = Number(dbModel.id)
         this.guid = dbModel.guid
         this.thingaid = dbModel.thingaid
         this.thingbid = dbModel.thingbid

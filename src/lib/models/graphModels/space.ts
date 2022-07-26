@@ -20,7 +20,7 @@ export class Space {
     constructor(dbModel: SpaceDbModel) {
         this.dbModel = dbModel
 
-        this.id = dbModel.id
+        this.id = Number(dbModel.id)
         this.text = dbModel.text
 
         for (const directionDbModel of dbModel.directions) {

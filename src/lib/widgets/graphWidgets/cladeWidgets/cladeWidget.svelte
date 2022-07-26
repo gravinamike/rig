@@ -18,6 +18,7 @@
     $: rootThing = model.submodels.rootThing
     $: childThingCohorts = model.submodels.childThingCohorts
     $: childRelationshipCohortsByHalfAxisId = model.submodels.childRelationshipCohortsByHalfAxisId
+    $: console.log(childRelationshipCohortsByHalfAxisId)
     $: note = model.note
 
 

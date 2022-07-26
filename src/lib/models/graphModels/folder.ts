@@ -14,7 +14,7 @@ export class Folder {
     constructor(dbModel: FolderDbModel) {
         this.dbModel = dbModel
 
-        this.id = dbModel.id
+        this.id = Number(dbModel.id)
         this.whencreated = dbModel.whencreated ? new Date(dbModel.whencreated): null
         this.path = dbModel.path
     }
@@ -34,7 +34,7 @@ export class FolderToThing {
     constructor(dbModel: FolderToThingDbModel) {
         this.dbModel = dbModel
 
-        this.id = dbModel.id
+        this.id = Number(dbModel.id)
         this.folderid = dbModel.folderid
         this.thingid = dbModel.thingid
     }

@@ -10,7 +10,7 @@ import { ThingDbModel } from "$lib/models/dbModels"
 export class FolderDbModel extends Model {
     static tableName = "folders" as const
 
-    id!: number
+    id!: string | number
     whencreated!: string | null
     path!: string
 
@@ -52,7 +52,7 @@ export function getNewFolderInfo(whenCreated: string, guid: string): NewFolderIn
 export class FolderToThingDbModel extends Model {
     static tableName = "foldertothing" as const
 
-    id!: number
+    id!: string | number
     folderid!: number
     thingid!: number
 }
