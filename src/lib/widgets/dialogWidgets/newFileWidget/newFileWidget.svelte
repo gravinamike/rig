@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { newFileCreationStore, updateNewFileCreationFileName, disableNewFileCreation } from "$lib/stores"
+    import { refreshGraphFoldersStore, newFileCreationStore, updateNewFileCreationFileName, disableNewFileCreation } from "$lib/stores"
     import { createGraph } from "$lib/db/clientSide/makeChanges"
     import { openUnigraphFolder } from "$lib/shared/unigraph"
 
@@ -52,6 +52,7 @@
                 openUnigraphFolder(newFileName)
             }
             disableNewFileCreation()
+            refreshGraphFoldersStore()
         }
     }
 </script>

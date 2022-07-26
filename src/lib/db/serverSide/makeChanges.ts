@@ -40,9 +40,9 @@ export async function createNewRelatedThing(thingIdToRelateFrom: number, directi
             const oppositeDirectionId = direction.oppositeid as number
 
             // Create new Relationship.
-            const newARelationshipInfo = getNewRelationshipInfo(thingIdToRelateFrom, newRelatedThingDbModel.id, whenCreated, directionId)
+            const newARelationshipInfo = getNewRelationshipInfo(thingIdToRelateFrom, Number(newRelatedThingDbModel.id), whenCreated, directionId)
             const querystring2 = RelationshipDbModel.query().insert(newARelationshipInfo).toKnexQuery().toString()
-            const newBRelationshipInfo = getNewRelationshipInfo(newRelatedThingDbModel.id, thingIdToRelateFrom, whenCreated, oppositeDirectionId)
+            const newBRelationshipInfo = getNewRelationshipInfo(Number(newRelatedThingDbModel.id), thingIdToRelateFrom, whenCreated, oppositeDirectionId)
             const querystring3 = RelationshipDbModel.query().insert(newBRelationshipInfo).toKnexQuery().toString()
             await Promise.all([
                 alterQuerystringForH2AndRun(querystring2, transaction, whenCreated, "Relationship"),

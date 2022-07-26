@@ -1,16 +1,16 @@
 <script lang="ts">
-    import { enableNewFileCreation, openGraphStore } from "$lib/stores"
+    import { graphFoldersStore, refreshGraphFoldersStore, enableNewFileCreation, openGraphStore } from "$lib/stores"
     import { openUnigraphFolder } from "$lib/shared/unigraph"
 
 
-    let graphFolders: string[] = []
+    /*let graphFolders: string[] = []
 
     function refreshGraphFolders() {
         fetch(`api/file/graphFolders`)
             .then(response => {return (response.json() as unknown) as string[]})
             .then(data => graphFolders = data)
-    }
-    refreshGraphFolders()
+    }*/
+    refreshGraphFoldersStore()
 </script>
 
 
@@ -18,7 +18,7 @@
     <h4>Open file:</h4>
 
     <div class="graph-folder-buttons">
-        {#each graphFolders as folder}
+        {#each $graphFoldersStore as folder}
             <div
                 class="button graph-folder-button { folder === $openGraphStore ? "opened" : "" }"
                 on:click={() => {openUnigraphFolder(folder)}}
@@ -29,7 +29,7 @@
 
         <div
             class="button new-graph-button"
-            style={ graphFolders.length ? "margin-top: 25px;" : ""}
+            style={ $graphFoldersStore.length ? "margin-top: 25px;" : ""}
             on:click={enableNewFileCreation}
         >
             New Graph
@@ -101,5 +101,10 @@
     .new-graph-button {
         color: grey;
         font-style: italic;
+    }
+
+    .new-graph-button:hover {
+        color: black;
+        font-style: normal;
     }
   </style>
