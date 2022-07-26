@@ -11,32 +11,15 @@ import { RelationshipDbModel, NoteDbModel, NoteToThingDbModel, FolderDbModel, Fo
 export class ThingDbModel extends Model {
     static tableName = "things" as const
 
-    id!: number
+    id!: string | number
     guid!: string
     text!: string
     whencreated!: string | null
     whenmodded!: string | null
-    whentrashed!: string | null
     whenvisited!: string | null
     defaultplane!: number | null//CAN WE RENAME TO DEFAULTSPACEID?
-    depthprofile!: string// Default is "{}"
-    formula!: string// Default is "{}"
-    lastformulated!: Date | null
-    fillcolor!: string | null
-    stackbehavior!: string | null
-    xoffset!: number | null
-    yoffset!: number | null
-    zoffset!: number | null
     perspectivedepths!: string// Default is "{}"
-    taskactivity!: number | null
-    taskactivityreps!: number// Default is 1
-    access!: number | null
     perspectivetexts!: string// Default is "{}"
-    ensystems!: number | null
-    portalperspectivethingid!: number | null
-    portaldefaultspaceid!: number | null
-    sizemultiplier!: number// Default is 1.0
-    perspectiveviewers!: string// Default is "{}"
 
     note!: NoteDbModel | null
     folder!: FolderDbModel | null
@@ -113,27 +96,10 @@ interface NewThingInfo {
     text: string,
     whencreated: string,
     whenmodded: null,
-    whentrashed: null,
     whenvisited: null,
     defaultplane: number,
-    depthprofile: "{}",
-    formula: "{}",
-    lastformulated: null,
-    fillcolor: null,
-    stackbehavior: null,
-    xoffset: null,
-    yoffset: null,
-    zoffset: null,
     perspectivedepths: "{}",
-    taskactivity: null,
-    taskactivityreps: 1,
-    access: number | null
-    perspectivetexts: "{}",
-    ensystems: null,
-    portalperspectivethingid: null,
-    portaldefaultspaceid: null,
-    sizemultiplier: 1,
-    perspectiveviewers: "{}"
+    perspectivetexts: "{}"
 }
 
 export function getNewThingInfo(text: string, whenCreated: string, defaultSpace: number): NewThingInfo {
@@ -142,27 +108,10 @@ export function getNewThingInfo(text: string, whenCreated: string, defaultSpace:
         text: text,
         whencreated: whenCreated,
         whenmodded: null,
-        whentrashed: null,
         whenvisited: null,
         defaultplane: defaultSpace,
-        depthprofile: "{}" as const,
-        formula: "{}" as const,
-        lastformulated: null,
-        fillcolor: null,
-        stackbehavior: null,
-        xoffset: null,
-        yoffset: null,
-        zoffset: null,
         perspectivedepths: "{}" as const,
-        taskactivity: null,
-        taskactivityreps: 1 as const,
-        access: null,
-        perspectivetexts: "{}" as const,
-        ensystems: null,
-        portalperspectivethingid: null,
-        portaldefaultspaceid: null,
-        sizemultiplier: 1 as const,
-        perspectiveviewers: "{}" as const
+        perspectivetexts: "{}" as const
     }
 
     return newThingInfo

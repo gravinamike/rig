@@ -1,45 +1,39 @@
 <script lang="ts">
-    import { loadingState, openGraphStore } from "$lib/stores"
-    import { setUnigraphFolder } from "$lib/db/clientSide"
-    import { openUnigraph, closeUnigraph } from "$lib/shared/unigraph"
+    import { graphFoldersStore, refreshGraphFoldersStore, enableNewFileCreation, openGraphStore } from "$lib/stores"
+    import { openUnigraphFolder } from "$lib/shared/unigraph"
 
 
-    let graphFolders: string[] = []
+    /*let graphFolders: string[] = []
 
     function refreshGraphFolders() {
         fetch(`api/file/graphFolders`)
             .then(response => {return (response.json() as unknown) as string[]})
             .then(data => graphFolders = data)
-    }
-    refreshGraphFolders()
-
-
-    async function openUnigraphFolder(folderName: string) {
-        await setUnigraphFolder(folderName)
-
-        await closeUnigraph()
-        openGraphStore.set(null)
-        
-        $loadingState = "graphLoading"
-        await openUnigraph()
-        openGraphStore.set(folderName)
-        $loadingState = "graphLoaded"
-    }
+    }*/
+    refreshGraphFoldersStore()
 </script>
 
 
 <main>
     <h4>Open file:</h4>
 
-    <div class="graph-folders">
-        {#each graphFolders as folder}
+    <div class="graph-folder-buttons">
+        {#each $graphFoldersStore as folder}
             <div
-                class="graph-folder { folder === $openGraphStore ? "opened" : "" }"
+                class="button graph-folder-button { folder === $openGraphStore ? "opened" : "" }"
                 on:click={() => {openUnigraphFolder(folder)}}
             >
                 {folder}
             </div>
         {/each}
+
+        <div
+            class="button new-graph-button"
+            style={ $graphFoldersStore.length ? "margin-top: 25px;" : ""}
+            on:click={enableNewFileCreation}
+        >
+            New Graph
+        </div>
     </div>
 </main>
 
@@ -68,7 +62,7 @@
         margin: 0;
     }
 
-    .graph-folders {
+    .graph-folder-buttons {
         display: flex;
         flex-direction: column;
         gap: 0.25rem;
@@ -76,29 +70,41 @@
         font-size: 0.85rem;
     }
 
-    .graph-folder {
+    .button {
         border-radius: 3px;
         outline: solid 1px lightgrey;
         outline-offset: -1px;
 
         padding: 0.5rem;
 
-        text-align: left;
-
         cursor: pointer;
     }
 
-    .graph-folder:hover {
+    .button:hover {
         background-color: gainsboro;
     }
 
-    .graph-folder:active {
+    .button:active {
         background-color: silver;
     }
 
-    .graph-folder.opened {
+    .graph-folder-button {
+        text-align: left;
+    }
+
+    .graph-folder-button.opened {
         background-color: lightgrey;
 
         pointer-events: none;
+    }
+
+    .new-graph-button {
+        color: grey;
+        font-style: italic;
+    }
+
+    .new-graph-button:hover {
+        color: black;
+        font-style: normal;
     }
   </style>

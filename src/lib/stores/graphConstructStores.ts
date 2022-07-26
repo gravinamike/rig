@@ -119,7 +119,7 @@ function trimThingStore(): void {
     thingsStore.update( (current) => {
         const filteredThingsStore = Object.fromEntries(
             Object.entries(current).filter(
-               (keyVal) => trimmedThingIds.includes(Number(keyVal[0]))
+               (keyVal) => trimmedThingIds.map(id => Number(id)).includes(Number(keyVal[0]))
             )
         )
 

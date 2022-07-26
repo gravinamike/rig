@@ -189,12 +189,12 @@ export async function queryThingSearchList( thingIds: number[] | null ): Promise
  * Get the latest Graph constructs that were added to the database.
  */
 export interface LatestConstructInfos {
-    things: {id: number, text: string}[],
-    relationships: {id: number, thingaid: number | null, thingbid: number | null}[],
-    notes: {id: number}[],
-    noteToThings: {id: number, noteid: number, thingid: number}[],
-    folders: {id: number}[],
-    folderToThings: {id: number, folderid: number, thingid: number}[]
+    things: {id: string | number, text: string}[],
+    relationships: {id: string | number, thingaid: number | null, thingbid: number | null}[],
+    notes: {id: string | number}[],
+    noteToThings: {id: string | number, noteid: number, thingid: number}[],
+    folders: {id: string | number}[],
+    folderToThings: {id: string | number, folderid: number, thingid: number}[]
 }
 export async function getLatestConstructs(): Promise<LatestConstructInfos> {
     // Get latest Things.

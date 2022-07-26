@@ -9,7 +9,7 @@ import { Model } from "objection"
 export class DirectionDbModel extends Model {
     static tableName = "directions" as const
 
-    id!: number
+    id!: string | number
     oppositeid!: number | null
     text!: string | null
     nameforobjects!: string | null

@@ -17,7 +17,7 @@ export class Direction {
     constructor(dbModel: DirectionDbModel) {
         this.dbModel = dbModel
 
-        this.id = dbModel.id
+        this.id = Number(dbModel.id)
         this.oppositeid = dbModel.oppositeid
         this.text = dbModel.text
         this.nameforobjects = dbModel.nameforobjects

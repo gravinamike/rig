@@ -1,6 +1,7 @@
 import { storeGraphConfig, saveAppConfig } from "$lib/shared/config"
 import { storeGraphConstructs, clearGraphConstructs, storeThingSearchList, clearThingSearchList } from "$lib/stores"
-import { getUnigraphFolder } from "$lib/db/clientSide"
+import { getUnigraphFolder, setUnigraphFolder } from "$lib/db/clientSide"
+import { loadingState, openGraphStore } from "$lib/stores"
 
 export async function openUnigraph(): Promise<boolean> {
     const unigraphFolder = await getUnigraphFolder()
@@ -37,4 +38,17 @@ export async function closeUnigraph(): Promise<void> {
     await clearGraphConstructs("Space")
     await clearGraphConstructs("Thing")
     await clearThingSearchList()
+}
+
+
+export async function openUnigraphFolder(folderName: string): Promise<void> {
+    await setUnigraphFolder(folderName)
+
+    await closeUnigraph()
+    openGraphStore.set(null)
+    
+    loadingState.set("graphLoading")
+    await openUnigraph()
+    openGraphStore.set(folderName)
+    loadingState.set("graphLoaded")
 }

@@ -11,7 +11,7 @@ import { DirectionDbModel } from "$lib/models/dbModels"
 export class SpaceDbModel extends Model {
     static tableName = "spaces" as const
 
-    id!: number | null
+    id!: string | number | null
     text!: string | null
     directions!: DirectionDbModel[]
 
