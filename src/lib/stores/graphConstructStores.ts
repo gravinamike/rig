@@ -5,7 +5,6 @@ import { writable, derived } from "svelte/store"
 import { maxThingsToStore } from "$lib/shared/constants"
 import { Direction, Space, isDirection, isSpace, Thing, isThing } from "$lib/models/graphModels"
 import { graphConstructs } from "$lib/db/clientSide"
-import { removeItemFromArray } from "$lib/shared/utility"
 
 
 
@@ -43,10 +42,6 @@ let thingsStoreValue: { [id: number]: Thing }
 thingsStore.subscribe(value => {thingsStoreValue = value})
 
 export const thingsStoreAsArray = derived( thingsStore, $thingsStore => Object.values($thingsStore) )
-
-export const thingIdsStore = writable( [] as number[] )
-let thingIdsStoreValue: number[]
-thingIdsStore.subscribe(value => {thingIdsStoreValue = value})
 
 export const thingIdsNotFoundStore = writable( [] as number[] )
 
@@ -97,8 +92,6 @@ function updateIdStore(
     } else if (constructName === "Space") {
         store = spaceIdsNotFoundStore
     } else if (constructName === "Thing") {
-        store = thingIdsStore
-    } else if (constructName === "ThingNotFound") {
         store = thingIdsNotFoundStore
     }
 
@@ -113,10 +106,14 @@ function updateIdStore(
  * Trim Thing store down to their maximum allowed size.
  */
 function trimThingStore(): void {
-    const thingIdsInReverseOrder = [...thingIdsStoreValue].reverse()
-    const trimmedThingIds = thingIdsInReverseOrder.slice(0, maxThingsToStore)
-
     thingsStore.update( (current) => {
+        const thingsStoreAsArray = Object.values(current)
+        const thingIdsInOrderInstantiated = thingsStoreAsArray
+            .sort((a, b) => b.whenModelInstantiated.getTime() - a.whenModelInstantiated.getTime())
+            .map(thing => thing.id)
+        
+        const trimmedThingIds = thingIdsInOrderInstantiated.slice(0, maxThingsToStore)
+
         const filteredThingsStore = Object.fromEntries(
             Object.entries(current).filter(
                (keyVal) => trimmedThingIds.map(id => Number(id)).includes(Number(keyVal[0]))
@@ -200,12 +197,7 @@ export async function storeGraphConstructs<Type extends GraphConstruct>(
     if (!(typeof ids === "undefined")) {
         const idsFound = queriedInstances.map(x => x.id) as number[]
         const idsNotFound = idsToQuery.filter( x => !idsFound.includes(x) )
-        if (constructName === "Thing") {
-            updateIdStore("Thing", idsFound)
-            updateIdStore("ThingNotFound", idsNotFound)
-        } else {
-            updateIdStore(constructName, idsNotFound)
-        }
+        updateIdStore(constructName, idsNotFound)
     }
 
     // If the construct is "Thing", trim the store to the maximum allowed size.
@@ -238,13 +230,6 @@ export async function unstoreGraphConstructs(
     // Update the store with each supplied id.
     ids.forEach((id) => {
         store.update( (current) => { delete current[id]; return current } )
-
-        // If the construct type is Thing, remove the ID from the Thing ID store as well.
-        if (constructName === "Thing") {
-            thingIdsStore.update(
-                (current) => { removeItemFromArray(current, id); return current }
-            )
-        }
     })
 }
 

@@ -26,6 +26,8 @@ export class Thing {
     noteToThing: NoteToThing | null
     folderToThing: FolderToThing | null
 
+    whenModelInstantiated: Date
+
     constructor(dbModel: ThingDbModel) {
         this.dbModel = dbModel
 
@@ -49,6 +51,8 @@ export class Thing {
         }
         this.noteToThing = dbModel.noteToThing ? new NoteToThing(dbModel.noteToThing) : null
         this.folderToThing = dbModel.folderToThing ? new FolderToThing(dbModel.folderToThing) : null
+
+        this.whenModelInstantiated = new Date()
     }
 
 
