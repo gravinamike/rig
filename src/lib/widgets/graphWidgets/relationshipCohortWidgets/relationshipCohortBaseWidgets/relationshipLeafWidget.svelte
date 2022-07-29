@@ -21,6 +21,14 @@
     $: relationshipHovered = cohortMemberWithIndex.member.thingId === thingIdOfHoveredRelationship
     let leafClicked = false
 
+    $: isLastBranch = cohortMemberWithIndex.index === relationshipsWidgetModel.cohort.members.length - 1 ?
+        true :
+        false
+    $: receivingRegionWidth = (
+        relationshipsWidgetModel.graph.graphWidgetStyle.betweenThingSpacing
+        + relationshipsWidgetModel.graph.graphWidgetStyle.thingSize
+    )
+
     $: showDirection = leafHovered || relationshipHovered ? true : false
 
     async function changeRelationshipDirection(directionId: number) {
@@ -46,6 +54,42 @@
 </script>
 
 
+<!-- Reorder-receiving region(s). -->
+<div
+    class="receiving-region"
+    style="
+        left: {
+            leavesGeometries[cohortMemberWithIndex.index].topMidline - receivingRegionWidth
+        }px;
+        top: {
+            leavesGeometries[cohortMemberWithIndex.index].top
+        }px;
+        width: {receivingRegionWidth}px;
+        height: {leavesGeometries[cohortMemberWithIndex.index].bottom - leavesGeometries[cohortMemberWithIndex.index].top}px
+    "
+    on:click={() => {console.log(cohortMemberWithIndex.index)}}
+/>
+
+{#if isLastBranch}
+    <div
+        class="receiving-region"
+        style="
+            left: {
+                leavesGeometries[cohortMemberWithIndex.index].topMidline
+            }px;
+            top: {
+                leavesGeometries[cohortMemberWithIndex.index].top
+            }px;
+            width: {
+                relationshipsWidgetModel.graph.graphWidgetStyle.betweenThingSpacing
+                + relationshipsWidgetModel.graph.graphWidgetStyle.thingSize
+            }px;
+            height: {leavesGeometries[cohortMemberWithIndex.index].bottom - leavesGeometries[cohortMemberWithIndex.index].top}px
+        "
+        on:click={() => {console.log(cohortMemberWithIndex.index + 1)}}
+    />
+{/if}
+
 <!-- Relationship leaf. -->
 <div
     class="relationship-leaf"
@@ -60,29 +104,29 @@
         "
     >
 
-    <!-- Hoverable zone of leaf. -->
-    <line
-        class="leaf-hover-zone"
-        x1="{leavesGeometries[cohortMemberWithIndex.index].bottomMidline}" y1="{leavesGeometries[cohortMemberWithIndex.index].bottom}"
-        x2="{leavesGeometries[cohortMemberWithIndex.index].topMidline}" y2="{leavesGeometries[cohortMemberWithIndex.index].top}"
-        style="stroke-width: {8 / tweenedScale};"
-        on:mouseenter={()=>{leafHovered = true}}
-        on:mouseleave={()=>{leafHovered = false}}
-        on:mousedown={()=>{leafClicked = true}}
-        on:mouseup={()=>{leafClicked = false}}
-    />
+        <!-- Hoverable zone of leaf. -->
+        <line
+            class="leaf-hover-zone"
+            x1="{leavesGeometries[cohortMemberWithIndex.index].bottomMidline}" y1="{leavesGeometries[cohortMemberWithIndex.index].bottom}"
+            x2="{leavesGeometries[cohortMemberWithIndex.index].topMidline}" y2="{leavesGeometries[cohortMemberWithIndex.index].top}"
+            style="stroke-width: {8 / tweenedScale};"
+            on:mouseenter={()=>{leafHovered = true}}
+            on:mouseleave={()=>{leafHovered = false}}
+            on:mousedown={()=>{leafClicked = true}}
+            on:mouseup={()=>{leafClicked = false}}
+        />
 
-    <!-- Visual image of leaf. -->
-    <line
-        class="
-            leaf-image
-            {leafHovered || relationshipHovered || thingHovered ? "hovered" : ""}
-            {leafClicked ? "clicked" : ""}
-        "
-        style="stroke-width: {3 / tweenedScale};"
-        x1="{leavesGeometries[cohortMemberWithIndex.index].bottomMidline}" y1="{leavesGeometries[cohortMemberWithIndex.index].bottom}"
-        x2="{leavesGeometries[cohortMemberWithIndex.index].topMidline}" y2="{leavesGeometries[cohortMemberWithIndex.index].top}"
-    />
+        <!-- Visual image of leaf. -->
+        <line
+            class="
+                leaf-image
+                {leafHovered || relationshipHovered || thingHovered ? "hovered" : ""}
+                {leafClicked ? "clicked" : ""}
+            "
+            style="stroke-width: {3 / tweenedScale};"
+            x1="{leavesGeometries[cohortMemberWithIndex.index].bottomMidline}" y1="{leavesGeometries[cohortMemberWithIndex.index].bottom}"
+            x2="{leavesGeometries[cohortMemberWithIndex.index].topMidline}" y2="{leavesGeometries[cohortMemberWithIndex.index].top}"
+        />
 
     </svg>
 
@@ -160,5 +204,14 @@
     .direction-widget-anchor {
         position: absolute;
         z-index: 2;
+    }
+
+    .receiving-region {
+        outline: solid 1px red;
+
+        position: absolute;
+        height: 100px;
+
+        pointer-events: auto;
     }
 </style>
