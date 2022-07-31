@@ -140,9 +140,6 @@
     function handleBodyMouseUp() {
         dragStartPosition = null
     }
-
-
-
 </script>
 
 
@@ -164,7 +161,7 @@
         }
         width: {thingWidth}px; height: {thingHeight}px; opacity: {opacity};
         pointer-events: {
-            distanceFromFocalPlane === 0 && !(relationshipBeingCreated && !relatableForCurrentDrag) ?/////////// NEED TO MAKE DRAG ACTUALLY HAPPEN WITH THE DRAG.
+            distanceFromFocalPlane === 0 && !(relationshipBeingCreated && !relatableForCurrentDrag) ?
                 "auto" :
                 "none"
         };

@@ -1,7 +1,7 @@
 <script context="module" lang="ts">
     import type { Thing, GenerationMember } from "$lib/models/graphModels"
     import type { RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
-    import { hoveredThingIdStore, storeGraphConstructs, addGraphIdsNeedingViewerRefresh } from "$lib/stores"
+    import { hoveredThingIdStore, storeGraphConstructs, addGraphIdsNeedingViewerRefresh, reorderingInfoStore, enableReordering, setReorderingTrackingMouse, setReorderingDestInfo, disableReordering } from "$lib/stores"
     import { DirectionWidget } from "$lib/widgets/graphWidgets"
     import { updateRelationships } from "$lib/db/clientSide"
 </script>
@@ -48,46 +48,96 @@
                 await relationshipsWidgetModel.graph.build()
                 addGraphIdsNeedingViewerRefresh(relationshipsWidgetModel.graph.id)
             }
-
         }
+    }
+
+
+    let dragStartPosition: [number, number] | null = null
+
+    function handleMouseDown(event: MouseEvent) {
+        const position = [event.clientX, event.clientY] as [number, number]
+        dragStartPosition = position
+        setReorderingTrackingMouse(true)
+    }
+
+    function handleMouseDrag(event: MouseEvent) {
+        if (
+            dragStartPosition
+            && Math.hypot(event.clientX - dragStartPosition[0], event.clientX - dragStartPosition[0]) > 5
+            && !$reorderingInfoStore.sourceWidgetModel
+        ) {
+            enableReordering(
+                relationshipsWidgetModel
+            )
+        }
+    }
+
+    function handleBodyMouseUp() {
+        dragStartPosition = null
+        disableReordering()
     }
 </script>
 
 
-<!-- Reorder-receiving region(s). -->
-<div
-    class="receiving-region"
-    style="
-        left: {
-            leavesGeometries[cohortMemberWithIndex.index].topMidline - receivingRegionWidth
-        }px;
-        top: {
-            leavesGeometries[cohortMemberWithIndex.index].top
-        }px;
-        width: {receivingRegionWidth}px;
-        height: {leavesGeometries[cohortMemberWithIndex.index].bottom - leavesGeometries[cohortMemberWithIndex.index].top}px
-    "
-    on:click={() => {console.log(cohortMemberWithIndex.index)}}
+<svelte:body
+    on:mousemove={handleMouseDrag}
+    on:mouseup={ event => {
+        leafClicked = false
+        if (event.button === 0) handleBodyMouseUp()
+    } }
 />
 
-{#if isLastBranch}
+
+<!-- Reorder-receiving region(s). -->
+{#if $reorderingInfoStore.sourceWidgetModel}
     <div
         class="receiving-region"
         style="
             left: {
-                leavesGeometries[cohortMemberWithIndex.index].topMidline
+                leavesGeometries[cohortMemberWithIndex.index].topMidline - receivingRegionWidth
             }px;
             top: {
                 leavesGeometries[cohortMemberWithIndex.index].top
             }px;
-            width: {
-                relationshipsWidgetModel.graph.graphWidgetStyle.betweenThingSpacing
-                + relationshipsWidgetModel.graph.graphWidgetStyle.thingSize
-            }px;
+            width: {receivingRegionWidth}px;
             height: {leavesGeometries[cohortMemberWithIndex.index].bottom - leavesGeometries[cohortMemberWithIndex.index].top}px
         "
-        on:click={() => {console.log(cohortMemberWithIndex.index + 1)}}
+        on:mouseup={ () => {
+            if (cohortMemberWithIndex.member.thing?.id) {
+                setReorderingDestInfo(
+                    cohortMemberWithIndex.member.thing.id,
+                    cohortMemberWithIndex.index
+                )
+            }
+        } }
     />
+
+    {#if isLastBranch}
+        <div
+            class="receiving-region"
+            style="
+                left: {
+                    leavesGeometries[cohortMemberWithIndex.index].topMidline
+                }px;
+                top: {
+                    leavesGeometries[cohortMemberWithIndex.index].top
+                }px;
+                width: {
+                    relationshipsWidgetModel.graph.graphWidgetStyle.betweenThingSpacing
+                    + relationshipsWidgetModel.graph.graphWidgetStyle.thingSize
+                }px;
+                height: {leavesGeometries[cohortMemberWithIndex.index].bottom - leavesGeometries[cohortMemberWithIndex.index].top}px
+            "
+            on:mouseup={ () => {
+                if (cohortMemberWithIndex.member.thing?.id) {
+                setReorderingDestInfo(
+                    cohortMemberWithIndex.member.thing.id,
+                    cohortMemberWithIndex.index + 1
+                )
+            }
+            } }
+        />
+    {/if}
 {/if}
 
 <!-- Relationship leaf. -->
@@ -112,8 +162,10 @@
             style="stroke-width: {8 / tweenedScale};"
             on:mouseenter={()=>{leafHovered = true}}
             on:mouseleave={()=>{leafHovered = false}}
-            on:mousedown={()=>{leafClicked = true}}
-            on:mouseup={()=>{leafClicked = false}}
+            on:mousedown={ (event)=>{
+                leafClicked = true
+                if (event.button === 0) handleMouseDown(event)
+            } }
         />
 
         <!-- Visual image of leaf. -->

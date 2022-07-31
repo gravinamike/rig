@@ -11,7 +11,7 @@
     // Import constants.
     import { zoomBase } from "$lib/shared/constants"
 
-    import { relationshipBeingCreatedInfoStore } from "$lib/stores"
+    import { relationshipBeingCreatedInfoStore, reorderingInfoStore } from "$lib/stores"
 
     // Import widgets.
     import { PlaneControls } from "$lib/widgets/controlWidgets"
@@ -70,6 +70,7 @@
         if (
             trackingMouse
             && !$relationshipBeingCreatedInfoStore.trackingMouse
+            && !$reorderingInfoStore.trackingMouse
             && prevtrackingMouseLocation.x
             && prevtrackingMouseLocation.y
         ) {
