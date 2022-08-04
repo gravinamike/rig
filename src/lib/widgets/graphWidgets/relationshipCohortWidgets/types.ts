@@ -1,16 +1,15 @@
-import type { RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
-
-
 export interface ReorderingInfo{
-    sourceWidgetModel: RelationshipCohortWidgetModel | null,
+    sourceThingId: number | null,
+    destThingDirectionId: number | null,
     destThingId: number | null
-    destThingIndex: number | null
+    newIndex: number | null
     trackingMouse: boolean
 }
 
 export const nullReorderingInfo: ReorderingInfo = {
-    sourceWidgetModel: null,
+    sourceThingId: null,
+    destThingDirectionId: null,
     destThingId: null,
-    destThingIndex: null,
+    newIndex: null,
     trackingMouse: false
 }

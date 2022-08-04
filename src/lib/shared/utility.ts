@@ -57,3 +57,12 @@ export function removeItemFromArray<Type>( array: Type[], item: Type ): void {
     const index = array.indexOf(item)
     if (index !== -1) array.splice(index, 1)
 }
+
+export function changeIndexInArray<Type>(array: Type[], currentIndex: number, newIndex: number): Type[] | void {
+    if ( newIndex < 0 || array.length <= newIndex ) return
+    const newArray = [...array]
+
+    const extractedElement = newArray.splice(currentIndex, 1)[0]
+    newArray.splice(newIndex, 0, extractedElement)
+    return newArray
+}

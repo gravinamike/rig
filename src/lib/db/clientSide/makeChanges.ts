@@ -320,3 +320,37 @@ export async function createGraph( newGraphName: string ): Promise<boolean> {
         return false
     }
 }
+
+
+
+
+
+
+export async function reorderRelationship(
+    sourceThingId: number,
+    destThingDirectionId: number,
+    destThingId: number,
+    newIndex: number
+): Promise< boolean > {
+    // Post to the reorder-Relationship API.
+    const res = await fetch(
+        `api/db/graphManipulation/reorderRelationship`,
+        {
+            method: "POST",
+            body: JSON.stringify({
+                sourceThingId: sourceThingId,
+                destThingDirectionId: destThingDirectionId,
+                destThingId: destThingId,
+                newIndex: newIndex
+            })
+        }
+    )
+
+    // Report on the response.
+    if (res.ok) {
+        return true
+    } else {
+        res.text().then(text => {throw Error(text)})
+        return false
+    }
+}

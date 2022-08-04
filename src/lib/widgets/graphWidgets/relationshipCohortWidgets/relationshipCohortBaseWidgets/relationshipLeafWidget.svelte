@@ -1,9 +1,9 @@
 <script context="module" lang="ts">
     import type { Thing, GenerationMember } from "$lib/models/graphModels"
     import type { RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
-    import { hoveredThingIdStore, storeGraphConstructs, addGraphIdsNeedingViewerRefresh, reorderingInfoStore, enableReordering, setReorderingTrackingMouse, setReorderingDestInfo, disableReordering } from "$lib/stores"
+    import { hoveredThingIdStore, storeGraphConstructs, addGraphIdsNeedingViewerRefresh, reorderingInfoStore, enableReordering, setReorderingTrackingMouse, setReorderingIndex, disableReordering } from "$lib/stores"
     import { DirectionWidget } from "$lib/widgets/graphWidgets"
-    import { updateRelationships } from "$lib/db/clientSide"
+    import { reorderRelationship, updateRelationships } from "$lib/db/clientSide"
 </script>
 
 <script lang="ts">
@@ -64,16 +64,37 @@
         if (
             dragStartPosition
             && Math.hypot(event.clientX - dragStartPosition[0], event.clientX - dragStartPosition[0]) > 5
-            && !$reorderingInfoStore.sourceWidgetModel
+            && !$reorderingInfoStore.sourceThingId
+            && relationshipsWidgetModel.cohort.parentThingId
+            && relationshipsWidgetModel.cohort.address.directionId
+            && cohortMemberWithIndex.member.thingId
         ) {
             enableReordering(
-                relationshipsWidgetModel
+                relationshipsWidgetModel.cohort.parentThingId,
+                relationshipsWidgetModel.cohort.address.directionId,
+                cohortMemberWithIndex.member.thingId
             )
         }
     }
 
     function handleBodyMouseUp() {
         dragStartPosition = null
+        disableReordering()
+    }
+
+    $: if (
+        $reorderingInfoStore.sourceThingId
+        && $reorderingInfoStore.destThingDirectionId
+        && $reorderingInfoStore.destThingId
+        && $reorderingInfoStore.newIndex
+    ) {
+        console.log("REQUEST")
+        reorderRelationship(
+            $reorderingInfoStore.sourceThingId,
+            $reorderingInfoStore.destThingDirectionId,
+            $reorderingInfoStore.destThingId,
+            $reorderingInfoStore.newIndex
+        )
         disableReordering()
     }
 </script>
@@ -89,7 +110,7 @@
 
 
 <!-- Reorder-receiving region(s). -->
-{#if $reorderingInfoStore.sourceWidgetModel}
+{#if $reorderingInfoStore.sourceThingId}
     <div
         class="receiving-region"
         style="
@@ -104,8 +125,7 @@
         "
         on:mouseup={ () => {
             if (cohortMemberWithIndex.member.thing?.id) {
-                setReorderingDestInfo(
-                    cohortMemberWithIndex.member.thing.id,
+                setReorderingIndex(
                     cohortMemberWithIndex.index
                 )
             }
@@ -130,8 +150,7 @@
             "
             on:mouseup={ () => {
                 if (cohortMemberWithIndex.member.thing?.id) {
-                setReorderingDestInfo(
-                    cohortMemberWithIndex.member.thing.id,
+                setReorderingIndex(
                     cohortMemberWithIndex.index + 1
                 )
             }

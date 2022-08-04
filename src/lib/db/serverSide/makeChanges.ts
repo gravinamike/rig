@@ -18,6 +18,8 @@ import { Thing } from "$lib/models/graphModels"
 // Filesystem-related imports.
 import { createFolder } from "$lib/shared/fileSystem"
 
+import { changeIndexInArray } from "$lib/shared/utility"
+
 
 /*
  * From a starting Thing, create a related Thing.
@@ -338,6 +340,42 @@ export async function updateRelationships(relationshipInfos: {sourceThingId: num
 
 
 /*
+ * Update the Orders of a set of Relationships.
+ */
+export async function updateRelationshipOrders(relationshipInfos: {sourceThingId: number, destThingId: number, directionId: number, newOrder: number}[]): Promise<void> {
+    // Get parameters for SQL query.
+    const whenModded = (new Date()).toISOString()
+    
+    const knex = Model.knex()
+    await knex.transaction(async (transaction: Knex.Transaction) => {
+        for (const info of relationshipInfos) {
+            await RelationshipDbModel.query()
+                .patch({ relationshiporder: info.newOrder, whenmodded: whenModded })
+                .where('thingaid', info.sourceThingId)
+                .where('thingbid', info.destThingId)
+                .where('direction', info.directionId)
+                .transacting(transaction)
+
+            await RelationshipDbModel.query()
+                .patch({ relationshiporder: info.newOrder, whenmodded: whenModded })
+                .where('thingaid', info.destThingId)
+                .where('thingbid', info.sourceThingId)
+                .where('direction', info.directionId)
+                .transacting(transaction)
+        }
+    })
+
+    // Report on the response.
+    .then(function() {
+        console.log('Transaction complete.')
+    })
+    .catch(function(err: Error) {
+        console.error(err)
+    })
+}
+
+
+/*
  * Delete a Relationship.
  */
 export async function deleteRelationship(sourceThingId: number, destThingId: number): Promise<void> {
@@ -403,4 +441,76 @@ export async function markNotesModified(noteIds: number[]): Promise<void> {
     .catch(function(err: Error) {
         console.error(err)
     })
+}
+
+
+
+interface UpdateRelationshipOrderInfo {
+    sourceThingId: number,
+    destThingId: number,
+    directionId: number,
+    newOrder: number
+}
+
+export async function reorderRelationship(
+    sourceThingId: number,
+    destThingDirectionId: number,
+    destThingId: number,
+    newIndex: number
+): Promise<void> {
+
+    console.log(sourceThingId, destThingDirectionId, destThingId, newIndex)
+
+    // Get info on the Relationships in the Cohort.
+    const queriedARelationships = await RelationshipDbModel.query()
+        .where("thingbid", sourceThingId)
+        .where("direction", destThingDirectionId)
+    const queriedBRelationships = await RelationshipDbModel.query()
+        .where("thingaid", sourceThingId)
+        .where("direction", destThingDirectionId)
+
+    const relationshipOrderingInfos: { destThingId: number, order: number | null }[] = []
+    queriedARelationships.forEach( model => {
+        relationshipOrderingInfos.push(
+            {
+                destThingId: model.thingaid as number,
+                order: model.relationshiporder,
+            }
+        )
+    } )
+    queriedBRelationships.forEach( model => {
+        relationshipOrderingInfos.push(
+            {
+                destThingId: model.thingbid as number,
+                order: model.relationshiporder,
+            }
+        )
+    } )
+
+    // Order the Relationship infos according to their order attributes.
+    const orderedRelationshipOrderingInfos = relationshipOrderingInfos
+        .sort((a, b) => (a.order ? a.order : 0) - (b.order ? b.order : 0))
+
+
+    // Move the to-be-reordered Relationship to the specified new index.
+    const currentIndex = orderedRelationshipOrderingInfos.findIndex(info => info.destThingId === destThingId)
+    const reOrderedRelationshipOrderingInfos = (
+        changeIndexInArray(orderedRelationshipOrderingInfos, currentIndex, newIndex) as
+            {destThingId: number, order: number | null}[]
+    )
+
+    
+    const updateRelationshipOrderInfos: UpdateRelationshipOrderInfo[] = []
+    reOrderedRelationshipOrderingInfos.forEach( (info, i) => {
+        updateRelationshipOrderInfos.push(
+            {
+                sourceThingId: sourceThingId,
+                destThingId: info.destThingId,
+                directionId: destThingDirectionId,
+                newOrder: i
+            }
+        )
+    } )
+
+    updateRelationshipOrders(updateRelationshipOrderInfos)////// BACK UP GRAPH, THEN TEST.
 }
