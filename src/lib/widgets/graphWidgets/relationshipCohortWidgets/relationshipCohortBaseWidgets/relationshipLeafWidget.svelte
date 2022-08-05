@@ -24,7 +24,7 @@
     $: isLastBranch = cohortMemberWithIndex.index === relationshipsWidgetModel.cohort.members.length - 1 ?
         true :
         false
-    $: receivingRegionWidth = (
+    $: betweenRelationshipLeafDistance = (
         relationshipsWidgetModel.graph.graphWidgetStyle.betweenThingSpacing
         + relationshipsWidgetModel.graph.graphWidgetStyle.thingSize
     )
@@ -53,6 +53,15 @@
 
 
     let dragStartPosition: [number, number] | null = null
+    let deltaIndex: number | null = null
+    $: currentPlusDeltaIndex = cohortMemberWithIndex.index + (deltaIndex || 0)
+    // Clamp the value between the Relationships Cohort's beginning and end indices.
+    $: newIndex = currentPlusDeltaIndex < 0 ?
+        0 :
+        currentPlusDeltaIndex > relationshipsWidgetModel.cohort.members.length - 1 ?
+            relationshipsWidgetModel.cohort.members.length - 1 :
+            currentPlusDeltaIndex
+    $: console.log(newIndex)
 
     function handleMouseDown(event: MouseEvent) {
         const position = [event.clientX, event.clientY] as [number, number]
@@ -61,9 +70,11 @@
     }
 
     function handleMouseDrag(event: MouseEvent) {
+        const dragChangeX = dragStartPosition ? event.clientX - dragStartPosition[0] : null
+        const dragChangeY = dragStartPosition ? event.clientY - dragStartPosition[1] : null
         if (
-            dragStartPosition
-            && Math.hypot(event.clientX - dragStartPosition[0], event.clientX - dragStartPosition[0]) > 5
+            dragChangeX && dragChangeY
+            && Math.hypot(dragChangeX, dragChangeY) > 5
             && !$reorderingInfoStore.sourceThingId
             && relationshipsWidgetModel.cohort.parentThingId
             && relationshipsWidgetModel.cohort.address.directionId
@@ -75,10 +86,21 @@
                 cohortMemberWithIndex.member.thingId
             )
         }
+
+        if (dragChangeX && dragChangeY && $reorderingInfoStore.sourceThingId) {
+            deltaIndex = Math.floor(
+                (
+                    relationshipsWidgetModel.cohort.rowOrColumn() === "row" ?
+                        dragChangeX :
+                        dragChangeY
+                ) / (betweenRelationshipLeafDistance * tweenedScale)
+            )
+        }
     }
 
     function handleBodyMouseUp() {
         dragStartPosition = null
+        deltaIndex = null
         disableReordering()
     }
 
@@ -115,12 +137,12 @@
         class="receiving-region"
         style="
             left: {
-                leavesGeometries[cohortMemberWithIndex.index].topMidline - receivingRegionWidth
+                leavesGeometries[cohortMemberWithIndex.index].topMidline - betweenRelationshipLeafDistance
             }px;
             top: {
                 leavesGeometries[cohortMemberWithIndex.index].top
             }px;
-            width: {receivingRegionWidth}px;
+            width: {betweenRelationshipLeafDistance}px;
             height: {leavesGeometries[cohortMemberWithIndex.index].bottom - leavesGeometries[cohortMemberWithIndex.index].top}px
         "
         on:mouseup={ () => {
