@@ -84,6 +84,10 @@ export class Cohort {
             "row"
     }
 
+    setMembers(members: GenerationMember[]): void {
+        this.members = members
+    }
+
     addMember(member: GenerationMember): void {
         if (!this.members.includes(member)) {
             this.members.push(member)

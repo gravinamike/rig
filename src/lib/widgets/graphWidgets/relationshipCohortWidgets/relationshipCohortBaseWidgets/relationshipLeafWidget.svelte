@@ -1,9 +1,10 @@
 <script context="module" lang="ts">
     import type { Thing, GenerationMember } from "$lib/models/graphModels"
     import type { RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
-    import { hoveredThingIdStore, storeGraphConstructs, addGraphIdsNeedingViewerRefresh, reorderingInfoStore, enableReordering, setReorderingTrackingMouse, setReorderingIndex, disableReordering } from "$lib/stores"
+    import { hoveredThingIdStore, storeGraphConstructs, addGraphIdsNeedingViewerRefresh, reorderingInfoStore, enableReordering, setReorderingTrackingMouse, setReorderingIndex, disableReordering, graphConstructInStore } from "$lib/stores"
     import { DirectionWidget } from "$lib/widgets/graphWidgets"
     import { reorderRelationship, updateRelationships } from "$lib/db/clientSide"
+    import { changeIndexInArray } from "$lib/shared/utility"
 </script>
 
 <script lang="ts">
@@ -56,12 +57,62 @@
     let deltaIndex: number | null = null
     $: currentPlusDeltaIndex = cohortMemberWithIndex.index + (deltaIndex || 0)
     // Clamp the value between the Relationships Cohort's beginning and end indices.
-    $: newIndex = currentPlusDeltaIndex < 0 ?
-        0 :
-        currentPlusDeltaIndex > relationshipsWidgetModel.cohort.members.length - 1 ?
-            relationshipsWidgetModel.cohort.members.length - 1 :
-            currentPlusDeltaIndex
+    $: newIndex = deltaIndex ?
+        (
+            currentPlusDeltaIndex < 0 ?
+                0 :
+                currentPlusDeltaIndex > relationshipsWidgetModel.cohort.members.length - 1 ?
+                    relationshipsWidgetModel.cohort.members.length - 1 :
+                    currentPlusDeltaIndex
+        ) :
+        null         
+        
     $: console.log(newIndex)
+    $: if (newIndex !== null) {
+        const addressForCohorts = {
+            graph: relationshipsWidgetModel.graph,
+            generationId: relationshipsWidgetModel.generationId,
+            parentThingWidgetModel: relationshipsWidgetModel.parentThingWidgetModel,
+            directionId: relationshipsWidgetModel.directionId
+        }
+        const reorderedCohortMemberIds = changeIndexInArray(
+            relationshipsWidgetModel.cohort.members.map(member => member.thingId),
+            cohortMemberWithIndex.index,
+            newIndex
+        )
+        console.log("INDICES", cohortMemberWithIndex.index, newIndex)
+        if (reorderedCohortMemberIds) {
+            console.log(reorderedCohortMemberIds)
+            relationshipsWidgetModel.parentThingWidgetModel.buildCohortWidgetModelsForDirectionId(
+                addressForCohorts, reorderedCohortMemberIds as number[]
+            )
+            
+            ///////////////////////////////////// Now reactively refresh the cohort from here...
+            //addGraphAddressNeedingViewerRefresh(relationshipsWidgetModel.graph.id)
+        }
+
+
+
+
+
+
+
+
+
+        ////////////////////////////////////// 2. Then need to re-build the
+        // ThingWidgetModel's Relationship and Thing Cohorts, by calling the new
+        // method in ThingWidgetModel.
+
+
+
+
+
+
+
+
+        
+    }
+
 
     function handleMouseDown(event: MouseEvent) {
         const position = [event.clientX, event.clientY] as [number, number]
@@ -88,13 +139,16 @@
         }
 
         if (dragChangeX && dragChangeY && $reorderingInfoStore.sourceThingId) {
-            deltaIndex = Math.floor(
-                (
-                    relationshipsWidgetModel.cohort.rowOrColumn() === "row" ?
-                        dragChangeX :
-                        dragChangeY
-                ) / (betweenRelationshipLeafDistance * tweenedScale)
-            )
+            const dragInRelationshipSpacings = (
+                relationshipsWidgetModel.cohort.rowOrColumn() === "row" ?
+                    dragChangeX  :
+                    dragChangeY
+            ) / (betweenRelationshipLeafDistance * tweenedScale) + 0.5
+            /*deltaIndex = dragInRelationshipSpacings > 0 ?
+                Math.floor(dragInRelationshipSpacings) :
+                Math.ceil(dragInRelationshipSpacings)
+            )*/
+            deltaIndex = Math.floor(dragInRelationshipSpacings)
         }
     }
 

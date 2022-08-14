@@ -512,5 +512,5 @@ export async function reorderRelationship(
         )
     } )
 
-    updateRelationshipOrders(updateRelationshipOrderInfos)////// BACK UP GRAPH, THEN TEST.
+    updateRelationshipOrders(updateRelationshipOrderInfos)
 }

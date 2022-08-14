@@ -1,10 +1,13 @@
 import type { HalfAxisId } from "$lib/shared/constants"
-import type { Cohort, Note, Graph } from "$lib/models/graphModels"
-import type { ThingCohortWidgetModel } from "$lib/models/widgetModels/thingCohortWidgetModel"
-import type { RelationshipCohortWidgetModel } from "$lib/models/widgetModels/relationshipCohortWidgetModel"
+import type { Note, Graph, CohortAddress } from "$lib/models/graphModels"
 import type { RelationshipBeingCreatedInfo } from "$lib/widgets/graphWidgets"
 
 import { ThingBaseWidgetModel } from "./"
+import { Cohort } from "$lib/models/graphModels"
+import { graphConstructInStore } from "$lib/stores"
+import { ThingMissingFromStoreWidgetModel } from "$lib/models/widgetModels"
+import { ThingCohortWidgetModel } from "$lib/models/widgetModels/thingCohortWidgetModel"
+import { RelationshipCohortWidgetModel } from "$lib/models/widgetModels/relationshipCohortWidgetModel"
 
 
 /*
@@ -101,27 +104,76 @@ export class ThingWidgetModel extends ThingBaseWidgetModel {
         }
     }
 
+
+
+
+
+
+
+
     childThingCohortWidgetModel( thingCohortWidgetModel: ThingCohortWidgetModel ): void {
         this.childThingCohortWidgetModels.push(thingCohortWidgetModel) 
     }
 
-
-
-
-
-
-
-
-
-
-
-    
-
-
-
     relationshipsWidgetModel( relationshipsWidgetModel: RelationshipCohortWidgetModel ): void {
         this.relationshipsWidgetModels.push(relationshipsWidgetModel)
     }
+
+
+
+    async buildCohortWidgetModelsForDirectionId(addressForCohorts: CohortAddress, memberIdsForCohorts: number[]): Promise< void > {
+        const childCohort = new Cohort(addressForCohorts, [])
+
+        for (const memberId of memberIdsForCohorts) {
+
+            const member = this.graph.generations.thingIdsAlreadyInGraph.includes(memberId) ? new ThingBaseWidgetModel(memberId, this.graph) : // If the Thing is already modeled in the Graph, return a spacer model.
+            graphConstructInStore("Thing", memberId) ?
+                new ThingWidgetModel(memberId, this.graph) :      // Else, if the Thing is in the Thing store, create a new model for that Thing ID.
+                new ThingMissingFromStoreWidgetModel(memberId, this.graph)     
+                
+            childCohort.addMember(member)
+        }
+
+        // Create a new Cohort Widget Model.
+        const childThingCohortWidgetModel = new ThingCohortWidgetModel(childCohort, this.graph)
+        // Create a new Relationships Widget Model.
+        const relationshipsWidgetModel = new RelationshipCohortWidgetModel(childCohort, this.space, this.graph)
+
+        // If the address is already represented in the existing Cohorts, replace them.
+        const indexOfAddress = this.childThingCohortWidgetModels.findIndex(
+            model => {
+                return (
+                    model.cohort.address.graph === addressForCohorts.graph
+                    && model.cohort.address.generationId === addressForCohorts.generationId
+                    && model.cohort.address.parentThingWidgetModel === addressForCohorts.parentThingWidgetModel
+                    && model.cohort.address.directionId === addressForCohorts.directionId
+                ) ?
+                    true :
+                    false
+            }
+        )
+        if (indexOfAddress === -1) {
+            console.log("NOT REPLACING")
+            this.childThingCohortWidgetModel(childThingCohortWidgetModel)
+            this.relationshipsWidgetModel(relationshipsWidgetModel)
+            
+        } else {
+            console.log("REPLACING")
+            console.log(this.childThingCohortWidgetModels[indexOfAddress].cohort.members.map(model => model.thingId))
+            this.childThingCohortWidgetModels.splice(indexOfAddress, 1, childThingCohortWidgetModel)
+            console.log(this.childThingCohortWidgetModels[indexOfAddress].cohort.members.map(model => model.thingId))
+            this.relationshipsWidgetModels.splice(indexOfAddress, 1, relationshipsWidgetModel)
+        }
+    }
+
+
+
+
+
+
+
+
+
 
     get relationshipsWidgetModelsByDirectionId(): { [directionId: number]: RelationshipCohortWidgetModel } {
         const relationshipsWidgetModelsByDirectionId: { [directionId: number]: RelationshipCohortWidgetModel } = {}

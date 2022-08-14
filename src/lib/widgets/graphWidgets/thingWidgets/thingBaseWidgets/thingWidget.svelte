@@ -203,6 +203,7 @@
             class:hide-content={!showContent}
             style="font-size: {textFontSize}px;"
         >
+            {thingWidgetModel.thingId}
             {thingWidgetModel.text}
         </div>
     </div>

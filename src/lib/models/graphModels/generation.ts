@@ -4,7 +4,6 @@ import { cartesianHalfAxisIds } from "$lib/shared/constants"
 import { graphConstructInStore } from "$lib/stores"
 import { Cohort } from "$lib/models/graphModels"
 import { ThingCohortWidgetModel } from "$lib/models/widgetModels/thingCohortWidgetModel"
-import { RelationshipCohortWidgetModel } from "$lib/models/widgetModels/relationshipCohortWidgetModel"
 import { ThingBaseWidgetModel, ThingWidgetModel, ThingMissingFromStoreWidgetModel } from "$lib/models/widgetModels"
 
 
@@ -106,6 +105,7 @@ export class Generation {
                     ...cartesianDirectionIds])
                 ]///////////////////////////////////////////////////// FIX THIS
                 for (const directionId of directionIdsForCohorts) {
+
                     // Get the address for that half axis' Cohort.
                     const addressForCohort = {
                         graph: this.graph,
@@ -120,24 +120,8 @@ export class Generation {
                     const membersIdForCohort = childCohortThingIds.length ?
                         memberIdsForGeneration.filter((memberId) => {if (childCohortThingIds.includes(memberId)) return true}) :
                         []
-                    const childCohort = new Cohort(addressForCohort, [])
 
-                    for (const memberId of membersIdForCohort) {
-
-                        const member = this.graph.generations.thingIdsAlreadyInGraph.includes(memberId) ? new ThingBaseWidgetModel(memberId, this.graph) : // If the Thing is already modeled in the Graph, return a spacer model.
-                        graphConstructInStore("Thing", memberId) ? new ThingWidgetModel(memberId, this.graph) :      // Else, if the Thing is in the Thing store, create a new model for that Thing ID.
-                        new ThingMissingFromStoreWidgetModel(memberId, this.graph)     
-                         
-                        childCohort.addMember(member)
-                    }
-
-                    // Create a new Cohort Widget Model and assign to the previous Generation's Thing in that Direction.
-                    const childThingCohortWidgetModel = new ThingCohortWidgetModel(childCohort, this.graph)
-                    prevThingWidgetModel.childThingCohortWidgetModel(childThingCohortWidgetModel)
-
-                    // Create a new Relationships Widget Model and assign to the previous Generation's Thing in that Direction.
-                    const relationshipsWidgetModel = new RelationshipCohortWidgetModel(childCohort, prevThingWidgetModel.space, this.graph)
-                    prevThingWidgetModel.relationshipsWidgetModel(relationshipsWidgetModel)
+                    await prevThingWidgetModel.buildCohortWidgetModelsForDirectionId(addressForCohort, membersIdForCohort)
                 }
             }
         }
