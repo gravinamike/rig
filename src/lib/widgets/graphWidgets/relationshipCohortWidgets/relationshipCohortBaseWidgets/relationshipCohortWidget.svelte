@@ -14,8 +14,7 @@
 
     // Widget imports.
     import RelationshipStemWidget from "./relationshipStemWidget.svelte"
-    import RelationshipFanSegmentWidget from "./relationshipFanSegmentWidget.svelte"
-    import RelationshipLeafWidget from "./relationshipLeafWidget.svelte"
+    import { RelationshipWidget } from "$lib/widgets/graphWidgets"
     import { DirectionWidget } from "$lib/widgets/graphWidgets"
 
     import { updateRelationships } from "$lib/db/clientSide"
@@ -105,7 +104,7 @@
 
 
 
-    async function changeRelationshipsDirection(directionId: number) {
+    async function changeRelationshipsDirection(directionId: number) {//////////////////////// MOVE TO MODEL
         const sourceThingId = model.parentThingWidgetModel.thingId as number
         const destThingIds = model.cohort.members.map(thingWidgetModel => thingWidgetModel.thingId)
 
@@ -202,37 +201,26 @@
                 />
             {/if}
 
+            <!-- Relationship image. -->    
             {#if
                 !(
                     model.cohort.members.length === 1
                     && model.cohort.indexOfGrandparentThing !== null
                 )
-            }<!-- Unless the ONLY descendent in a Half-Axis is a doubled-back parent Thing, -->
-                {#each model.relationshipWidgetModels as relationshipWidgetModel}
-                    {#if model.cohort.indexOfGrandparentThing !== relationshipWidgetModel.cohortMemberWithIndex.index}<!-- Don't re-draw the existing Relationship to a parent Thing. -->
-                                                
-                        {#if !(relationshipWidgetModel.cohortMemberWithIndex.member.kind === "thingBaseWidgetModel")}
-                            <RelationshipLeafWidget
-                                relationshipsWidgetModel={model}
-                                bind:thingIdOfHoveredRelationship
-                                tweenedScale={$tweenedScale}
-                                leafGeometry={relationshipWidgetModel.leafGeometry($tweenedScale)}
-                                cohortMemberWithIndex={relationshipWidgetModel.cohortMemberWithIndex}
-                            />
-                        {/if}
+            }
 
-                        <RelationshipFanSegmentWidget
-                            relationshipsWidgetModel={model}
-                            bind:thingIdOfHoveredRelationship
-                            tweenedScale={$tweenedScale}
+                {#each model.relationshipWidgetModels as relationshipWidgetModel}
+                    {#if model.cohort.indexOfGrandparentThing !== relationshipWidgetModel.cohortMemberWithIndex.index}<!-- Don't re-draw the existing Relationship to a parent Thing. -->                
+                        <RelationshipWidget
+                            model={relationshipWidgetModel}
                             {midline}
                             {stemTop}
-                            leafGeometry={relationshipWidgetModel.leafGeometry($tweenedScale)}
-                            cohortMemberWithIndex={relationshipWidgetModel.cohortMemberWithIndex}
+                            {thingIdOfHoveredRelationship}
+                            {graph}
                         />
-
                     {/if}
                 {/each}
+
             {/if}
             
         </div>

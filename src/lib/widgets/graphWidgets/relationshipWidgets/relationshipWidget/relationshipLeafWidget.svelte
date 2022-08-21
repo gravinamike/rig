@@ -1,14 +1,14 @@
 <script context="module" lang="ts">
     import type { Thing, GenerationMember } from "$lib/models/graphModels"
-    import type { RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
     import { hoveredThingIdStore, storeGraphConstructs, addGraphIdsNeedingViewerRefresh } from "$lib/stores"
     import { DirectionWidget } from "$lib/widgets/graphWidgets"
     import { updateRelationships } from "$lib/db/clientSide"
+import type { RelationshipWidgetModel } from "$lib/models/widgetModels/relationshipWidgetModel";
 </script>
 
 <script lang="ts">
 
-    export let relationshipsWidgetModel: RelationshipCohortWidgetModel
+    export let relationshipWidgetModel: RelationshipWidgetModel
     export let thingIdOfHoveredRelationship: number | null
     export let tweenedScale: number
 
@@ -37,8 +37,8 @@
             ])
             if (relationshipsUpdated) {
                 await storeGraphConstructs<Thing>("Thing", sourceThingId, true)
-                await relationshipsWidgetModel.graph.build()
-                addGraphIdsNeedingViewerRefresh(relationshipsWidgetModel.graph.id)
+                await relationshipWidgetModel.relationshipCohortWidgetModel.graph.build()
+                addGraphIdsNeedingViewerRefresh(relationshipWidgetModel.relationshipCohortWidgetModel.graph.id)
             }
 
         }
@@ -55,8 +55,8 @@
     <svg
         style="
             height: 100%; width: 100%;
-            stroke: {relationshipsWidgetModel.relationshipColor};
-            fill: {relationshipsWidgetModel.relationshipColor};
+            stroke: {relationshipWidgetModel.relationshipCohortWidgetModel.relationshipColor};
+            fill: {relationshipWidgetModel.relationshipCohortWidgetModel.relationshipColor};
         "
     >
 
@@ -107,21 +107,21 @@
                 transform-origin: calc(right - {1.5 / tweenedScale}px) 50%;
                 transform:
                     translate(-100%, -50%)
-                    scaleY({relationshipsWidgetModel.mirroring})
+                    scaleY({relationshipWidgetModel.relationshipCohortWidgetModel.mirroring})
                     rotate({
-                        -relationshipsWidgetModel.rotation * relationshipsWidgetModel.mirroring
+                        -relationshipWidgetModel.relationshipCohortWidgetModel.rotation * relationshipWidgetModel.relationshipCohortWidgetModel.mirroring
                         + (
-                            relationshipsWidgetModel.halfAxisId === 3 ? -90 :
-                            relationshipsWidgetModel.halfAxisId === 4 ? 90 :
+                            relationshipWidgetModel.relationshipCohortWidgetModel.halfAxisId === 3 ? -90 :
+                            relationshipWidgetModel.relationshipCohortWidgetModel.halfAxisId === 4 ? 90 :
                             0
                         )
                     }deg);
             "
         >
             <DirectionWidget
-                direction={relationshipsWidgetModel.direction}
-                halfAxisId={relationshipsWidgetModel.halfAxisId}
-                graph={relationshipsWidgetModel.graph}
+                direction={relationshipWidgetModel.relationshipCohortWidgetModel.direction}
+                halfAxisId={relationshipWidgetModel.relationshipCohortWidgetModel.halfAxisId}
+                graph={relationshipWidgetModel.relationshipCohortWidgetModel.graph}
                 optionClickedFunction={(direction, _, __) => {
                     if (direction?.id) changeRelationshipDirection(direction.id)
                 }}

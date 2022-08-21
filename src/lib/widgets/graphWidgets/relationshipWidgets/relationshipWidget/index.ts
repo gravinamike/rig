@@ -1,0 +1,1 @@
+export { default as RelationshipWidget } from "./relationshipWidget.svelte"
