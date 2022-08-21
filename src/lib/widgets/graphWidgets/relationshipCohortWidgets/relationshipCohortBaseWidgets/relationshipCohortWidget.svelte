@@ -79,7 +79,6 @@
     let midline: number
     let stemBottom: number
     let stemTop: number
-    let leavesGeometries: { bottom: number, top: number, bottomMidline: number, topMidline: number }[]
 
 
     /* Reactive re-calculations. */
@@ -102,7 +101,6 @@
         midline = model.midline
         stemBottom = model.stemBottom
         stemTop = model.stemTop
-        leavesGeometries = model.leavesGeometries($tweenedScale)
     }
 
 
@@ -210,16 +208,16 @@
                     && model.cohort.indexOfGrandparentThing !== null
                 )
             }<!-- Unless the ONLY descendent in a Half-Axis is a doubled-back parent Thing, -->
-                {#each model.cohortMembersWithIndices as memberWithIndex}
-                    {#if model.cohort.indexOfGrandparentThing !== memberWithIndex.index}<!-- Don't re-draw the existing Relationship to a parent Thing. -->
+                {#each model.relationshipWidgetModels as relationshipWidgetModel}
+                    {#if model.cohort.indexOfGrandparentThing !== relationshipWidgetModel.cohortMemberWithIndex.index}<!-- Don't re-draw the existing Relationship to a parent Thing. -->
                                                 
-                        {#if !(memberWithIndex.member.kind === "thingBaseWidgetModel")}
+                        {#if !(relationshipWidgetModel.cohortMemberWithIndex.member.kind === "thingBaseWidgetModel")}
                             <RelationshipLeafWidget
                                 relationshipsWidgetModel={model}
                                 bind:thingIdOfHoveredRelationship
                                 tweenedScale={$tweenedScale}
-                                {leavesGeometries}
-                                cohortMemberWithIndex={memberWithIndex}
+                                leafGeometry={relationshipWidgetModel.leafGeometry($tweenedScale)}
+                                cohortMemberWithIndex={relationshipWidgetModel.cohortMemberWithIndex}
                             />
                         {/if}
 
@@ -229,8 +227,8 @@
                             tweenedScale={$tweenedScale}
                             {midline}
                             {stemTop}
-                            {leavesGeometries}
-                            cohortMemberWithIndex={memberWithIndex}
+                            leafGeometry={relationshipWidgetModel.leafGeometry($tweenedScale)}
+                            cohortMemberWithIndex={relationshipWidgetModel.cohortMemberWithIndex}
                         />
 
                     {/if}

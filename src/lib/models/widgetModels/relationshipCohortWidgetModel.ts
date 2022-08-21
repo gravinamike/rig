@@ -9,6 +9,7 @@ import {
 } from "$lib/shared/constants"
 import { retrieveGraphConstructs } from "$lib/stores"
 import { rectOfThingWidgetByThingId } from "$lib/shared/utility"
+import { RelationshipWidgetModel } from "./relationshipWidgetModel"
 
 
 export class RelationshipCohortWidgetModel {
@@ -20,26 +21,38 @@ export class RelationshipCohortWidgetModel {
 
     parentThingWidgetModel: ThingWidgetModel
     generationId: number
-    halfAxisId: HalfAxisId
     directionId: number
+    halfAxisId: HalfAxisId
     direction: Direction
     planeId: number
     rotation: number
     relationshipColor: string
 
+    relationshipWidgetModels: RelationshipWidgetModel[] = []
+
     constructor(cohort: Cohort, space: Space, graph: Graph) {
         this.cohort = cohort
         this.space = space
+
         this.graph = graph
-    
         this.parentThingWidgetModel = this.cohort.address.parentThingWidgetModel as ThingWidgetModel
         this.generationId = cohort.address?.generationId || 0
-        this.halfAxisId = cohort.halfAxisId ? cohort.halfAxisId : 0
         this.directionId = cohort.address.directionId as number
+
+        this.halfAxisId = cohort.halfAxisId ? cohort.halfAxisId : 0
         this.direction = retrieveGraphConstructs("Direction", this.directionId) as Direction
         this.planeId = this.cohort.plane?.id || 0
         this.rotation = rotationByHalfAxisId[this.halfAxisId]
         this.relationshipColor = relationshipColorByHalfAxisId[this.halfAxisId]
+
+        this.buildRelationshipWidgetModels()
+    }
+
+
+    buildRelationshipWidgetModels(): void {
+        for (const cohortMemberWithIndex of this.cohortMembersWithIndices) {
+            this.relationshipWidgetModels.push( new RelationshipWidgetModel(this, cohortMemberWithIndex) )
+        }
     }
 
     

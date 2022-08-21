@@ -12,7 +12,7 @@
     export let thingIdOfHoveredRelationship: number | null
     export let tweenedScale: number
 
-    export let leavesGeometries: { bottom: number, top: number, bottomMidline: number, topMidline: number }[]
+    export let leafGeometry: { bottom: number, top: number, bottomMidline: number, topMidline: number }
     export let cohortMemberWithIndex: { index: number, member: GenerationMember }
 
 
@@ -63,8 +63,8 @@
     <!-- Hoverable zone of leaf. -->
     <line
         class="leaf-hover-zone"
-        x1="{leavesGeometries[cohortMemberWithIndex.index].bottomMidline}" y1="{leavesGeometries[cohortMemberWithIndex.index].bottom}"
-        x2="{leavesGeometries[cohortMemberWithIndex.index].topMidline}" y2="{leavesGeometries[cohortMemberWithIndex.index].top}"
+        x1="{leafGeometry.bottomMidline}" y1="{leafGeometry.bottom}"
+        x2="{leafGeometry.topMidline}" y2="{leafGeometry.top}"
         style="stroke-width: {8 / tweenedScale};"
         on:mouseenter={()=>{leafHovered = true}}
         on:mouseleave={()=>{leafHovered = false}}
@@ -80,8 +80,8 @@
             {leafClicked ? "clicked" : ""}
         "
         style="stroke-width: {3 / tweenedScale};"
-        x1="{leavesGeometries[cohortMemberWithIndex.index].bottomMidline}" y1="{leavesGeometries[cohortMemberWithIndex.index].bottom}"
-        x2="{leavesGeometries[cohortMemberWithIndex.index].topMidline}" y2="{leavesGeometries[cohortMemberWithIndex.index].top}"
+        x1="{leafGeometry.bottomMidline}" y1="{leafGeometry.bottom}"
+        x2="{leafGeometry.topMidline}" y2="{leafGeometry.top}"
     />
 
     </svg>
@@ -93,15 +93,15 @@
             style="
                 left: {
                     (
-                        leavesGeometries[cohortMemberWithIndex.index].bottomMidline
-                        + leavesGeometries[cohortMemberWithIndex.index].topMidline
+                        leafGeometry.bottomMidline
+                        + leafGeometry.topMidline
                         - 3 / tweenedScale
                     ) / 2
                 }px;
                 top: {
                     (
-                        leavesGeometries[cohortMemberWithIndex.index].bottom
-                        + leavesGeometries[cohortMemberWithIndex.index].top
+                        leafGeometry.bottom
+                        + leafGeometry.top
                     ) / 2
                 }px;
                 transform-origin: calc(right - {1.5 / tweenedScale}px) 50%;
