@@ -208,7 +208,6 @@
                     && model.cohort.indexOfGrandparentThing !== null
                 )
             }
-
                 {#each model.relationshipWidgetModels as relationshipWidgetModel}
                     {#if model.cohort.indexOfGrandparentThing !== relationshipWidgetModel.cohortMemberWithIndex.index}<!-- Don't re-draw the existing Relationship to a parent Thing. -->                
                         <RelationshipWidget
@@ -220,7 +219,6 @@
                         />
                     {/if}
                 {/each}
-
             {/if}
             
         </div>

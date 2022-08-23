@@ -4,12 +4,18 @@ import type { RelationshipCohortWidgetModel } from "./relationshipCohortWidgetMo
 import { mirroringByHalfAxisId } from "$lib/shared/constants"
 
 
+/* Model specifying a Relationship Widget. */
 export class RelationshipWidgetModel {
     kind = "relationshipWidgetModel" as const
 
     relationshipCohortWidgetModel: RelationshipCohortWidgetModel
     cohortMemberWithIndex: { index: number, member: GenerationMember }
 
+    /**
+     * Create a Relationship Widget Model.
+     * @param {RelationshipCohortWidgetModel} relationshipCohortWidgetModel - The model specifying the Relationship's cohort.
+     * @param {Object} cohortMemberWithIndex - Object referencing the Relationship and its index in the cohort.
+     */
     constructor(
         relationshipCohortWidgetModel: RelationshipCohortWidgetModel,
         cohortMemberWithIndex: { index: number, member: GenerationMember }
@@ -18,6 +24,12 @@ export class RelationshipWidgetModel {
         this.cohortMemberWithIndex = cohortMemberWithIndex
     }
 
+    /**
+     * Get geometry of the leaf.
+     * @param {number} scale - The Relationship's index in the cohort.
+     * 
+     * @return {Object} - Object specifying the leaf's geometry.
+     */
     leafGeometry( scale: number ): { bottom: number, top: number, bottomMidline: number, topMidline: number } {
         if (this.cohortMemberWithIndex.member.kind === "thingBaseWidgetModel") {
 
@@ -52,14 +64,18 @@ export class RelationshipWidgetModel {
 
         } else {
 
+            const defaultLeafMidline = (
+                0.5 * this.relationshipCohortWidgetModel.sizeOfThingsAlongWidth
+                + (this.relationshipCohortWidgetModel.sizeOfThingsAlongWidth + this.relationshipCohortWidgetModel.graph.graphWidgetStyle.betweenThingSpacing) * this.cohortMemberWithIndex.index
+            )
+
             return {
                 bottom: this.relationshipCohortWidgetModel.relationshipsLength * 1/3,
                 top: 0,
-                bottomMidline: this.relationshipCohortWidgetModel.defaultLeafMidline(this.cohortMemberWithIndex.index),
-                topMidline: this.relationshipCohortWidgetModel.defaultLeafMidline(this.cohortMemberWithIndex.index)
+                bottomMidline: defaultLeafMidline,
+                topMidline: defaultLeafMidline
             }
 
         }
     }
-
 }

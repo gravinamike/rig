@@ -3,8 +3,7 @@ import type { Graph, Direction, Space, GenerationMember, Cohort } from "$lib/mod
 import type { ThingWidgetModel } from "./index"
 
 import {
-    halfAxisOppositeIds,
-    rotationByHalfAxisId, mirroringByHalfAxisId,
+    halfAxisOppositeIds, rotationByHalfAxisId, mirroringByHalfAxisId,
     offsetsByHalfAxisId, relationshipColorByHalfAxisId
 } from "$lib/shared/constants"
 import { retrieveGraphConstructs } from "$lib/stores"
@@ -12,6 +11,7 @@ import { rectOfThingWidgetByThingId } from "$lib/shared/utility"
 import { RelationshipWidgetModel } from "./relationshipWidgetModel"
 
 
+/* Model specifying a Relationship Cohort Widget. */
 export class RelationshipCohortWidgetModel {
     kind = "relationshipCohortWidgetModel" as const
 
@@ -30,6 +30,12 @@ export class RelationshipCohortWidgetModel {
 
     relationshipWidgetModels: RelationshipWidgetModel[] = []
 
+    /**
+     * Create a Relationship Cohort Widget Model.
+     * @param {Cohort} cohort - The Relationship Cohort that the widget represents.
+     * @param {Space} space - The Space that the widget is rendered in.
+     * @param {Graph} graph - The Graph that the Cohort is in.
+     */
     constructor(cohort: Cohort, space: Space, graph: Graph) {
         this.cohort = cohort
         this.space = space
@@ -48,8 +54,11 @@ export class RelationshipCohortWidgetModel {
         this.buildRelationshipWidgetModels()
     }
 
-
+    /**
+     * Build the array of Relationship Widget Models in this cohort.
+     */
     buildRelationshipWidgetModels(): void {
+        this.relationshipWidgetModels = []
         for (const cohortMemberWithIndex of this.cohortMembersWithIndices) {
             this.relationshipWidgetModels.push( new RelationshipWidgetModel(this, cohortMemberWithIndex) )
         }
@@ -258,72 +267,4 @@ export class RelationshipCohortWidgetModel {
                 this.parentThingWidgetModel.thingHeight
         )
     }
-
-
-    defaultLeafMidline(index: number): number {
-        return (
-            0.5 * this.sizeOfThingsAlongWidth
-            + (this.sizeOfThingsAlongWidth + this.graph.graphWidgetStyle.betweenThingSpacing) * index
-        )
-
-
-        //(this.graph.graphWidgetStyle.thingSize + this.graph.graphWidgetStyle.betweenThingSpacing)
-        //* this.cohort.address.parentThingWidgetModel.address.indexInCohort
-
-
-
-    }
-
-
-    leavesGeometries(scale: number): { bottom: number, top: number, bottomMidline: number, topMidline: number }[] {
-        const leavesGeometries = this.cohortMembersWithIndices.map(
-            memberWithIndex => {
-
-                if (memberWithIndex.member.kind === "thingBaseWidgetModel") {
-
-                    const sizeOfThingsAlongLength = (
-                        [1, 2].includes(this.halfAxisId) ?
-                            this.parentThingWidgetModel.thingHeight :
-                            this.parentThingWidgetModel.thingWidth
-                    )
-
-                    const offsetsOfRelatedThing = this.getOffsetsOfRelatedThing(memberWithIndex.member, scale)
-
-                    const offsetAlongLength = [1, 2].includes(this.halfAxisId) ?
-                            offsetsOfRelatedThing.y :
-                            offsetsOfRelatedThing.x
-
-                    const offsetAlongWidth = [1, 2].includes(this.halfAxisId) ?
-                            offsetsOfRelatedThing.x :
-                            offsetsOfRelatedThing.y
-
-                    const flip = [1, 2].includes(this.halfAxisId) ?
-                            mirroringByHalfAxisId[this.halfAxisId] :
-                            -mirroringByHalfAxisId[this.halfAxisId]
-                            
-
-                    return {
-                        bottom: this.relationshipsLength + 0.5 * sizeOfThingsAlongLength + 0.5 * offsetAlongLength * flip,
-                        top: this.relationshipsLength + 0.5 * sizeOfThingsAlongLength + 0.5 * offsetAlongLength * flip,
-                        bottomMidline: this.midline + 0.5 * offsetAlongWidth,
-                        topMidline: this.midline + 0.5 * offsetAlongWidth
-                    }
-
-
-                } else {
-
-                    return {
-                        bottom: this.relationshipsLength * 1/3,
-                        top: 0,
-                        bottomMidline: this.defaultLeafMidline(memberWithIndex.index),
-                        topMidline: this.defaultLeafMidline(memberWithIndex.index)
-                    }
-
-                }
-
-            }
-        )
-        return leavesGeometries
-    }
-
 }
