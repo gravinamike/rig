@@ -1,6 +1,6 @@
 <script context="module" lang="ts">
     import type { Thing, GenerationMember } from "$lib/models/graphModels"
-    import type { RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
+    import type { RelationshipWidgetModel } from "$lib/models/widgetModels/relationshipWidgetModel"
     import { retrieveGraphConstructs, addGraphIdsNeedingViewerRefresh, relationshipBeingCreatedInfoStore, hoveredThingIdStore, hoveredRelationshipTarget } from "$lib/stores"
     import { XButton } from "$lib/widgets/layoutWidgets"
 </script>
@@ -9,10 +9,10 @@
     export let thingIdOfHoveredRelationship: number | null
     export let tweenedScale: number
 
-    export let relationshipsWidgetModel: RelationshipCohortWidgetModel
+    export let relationshipWidgetModel: RelationshipWidgetModel
     export let midline: number
     export let stemTop: number
-    export let leavesGeometries: { bottom: number, top: number, bottomMidline: number, topMidline: number }[]
+    export let leafGeometry: { bottom: number, top: number, bottomMidline: number, topMidline: number }
     export let cohortMemberWithIndex: { index: number, member: GenerationMember }
 
 
@@ -84,8 +84,8 @@
 <svg
     class="relationship-fan-segment"
     style="
-        stroke: {relationshipsWidgetModel.relationshipColor};
-        fill: {relationshipsWidgetModel.relationshipColor};
+        stroke: {relationshipWidgetModel.relationshipCohortWidgetModel.relationshipColor};
+        fill: {relationshipWidgetModel.relationshipCohortWidgetModel.relationshipColor};
     "
     on:mouseenter={()=>{thingIdOfHoveredRelationship = cohortMemberWithIndex.member.thingId}}
     on:mouseleave={()=>{thingIdOfHoveredRelationship = null}}
@@ -95,7 +95,7 @@
     <line
         class="fan-segment-hover-zone"
         x1="{midline}" y1="{stemTop}"
-        x2="{leavesGeometries[cohortMemberWithIndex.index].bottomMidline}" y2="{leavesGeometries[cohortMemberWithIndex.index].bottom}"
+        x2="{leafGeometry.bottomMidline}" y2="{leafGeometry.bottom}"
         style="stroke-width: {8 / tweenedScale};"
         on:mouseenter={()=>{fanSegmentHovered = true}}
         on:mouseleave={()=>{fanSegmentHovered = false}}
@@ -112,7 +112,7 @@
         "
         style="stroke-width: {3 / tweenedScale};"
         x1="{midline}" y1="{stemTop}"
-        x2="{leavesGeometries[cohortMemberWithIndex.index].bottomMidline}" y2="{leavesGeometries[cohortMemberWithIndex.index].bottom}"
+        x2="{leafGeometry.bottomMidline}" y2="{leafGeometry.bottom}"
     />
 
     <!-- Delete button. -->
@@ -130,8 +130,8 @@
                 transform: translate(-10px, -10px);
                 pointer-events: auto;
             "
-            x={leavesGeometries[cohortMemberWithIndex.index].bottomMidline}
-            y={leavesGeometries[cohortMemberWithIndex.index].bottom}
+            x={leafGeometry.bottomMidline}
+            y={leafGeometry.bottom}
             on:mouseenter={()=>{fanSegmentHovered = true; thingIdOfHoveredRelationship = cohortMemberWithIndex.member.thingId}}
             on:mouseleave={()=>{fanSegmentHovered = false; thingIdOfHoveredRelationship = null}}
         >
@@ -146,8 +146,8 @@
     {#if willBeDeleted}
         <svg
             class="will-be-deleted-indicator"
-            x={leavesGeometries[cohortMemberWithIndex.index].bottomMidline}
-            y={leavesGeometries[cohortMemberWithIndex.index].bottom}
+            x={leafGeometry.bottomMidline}
+            y={leafGeometry.bottom}
         >
             <line x1=2 y1=2 x2=18 y2=18 />
             <line x1=18 y1=2 x2=2 y2=18 />

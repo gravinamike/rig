@@ -1,18 +1,18 @@
 <script context="module" lang="ts">
     import type { Thing, GenerationMember } from "$lib/models/graphModels"
-    import type { RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
     import { hoveredThingIdStore, storeGraphConstructs, addGraphIdsNeedingViewerRefresh } from "$lib/stores"
     import { DirectionWidget } from "$lib/widgets/graphWidgets"
     import { updateRelationships } from "$lib/db/clientSide"
+import type { RelationshipWidgetModel } from "$lib/models/widgetModels/relationshipWidgetModel";
 </script>
 
 <script lang="ts">
 
-    export let relationshipsWidgetModel: RelationshipCohortWidgetModel
+    export let relationshipWidgetModel: RelationshipWidgetModel
     export let thingIdOfHoveredRelationship: number | null
     export let tweenedScale: number
 
-    export let leavesGeometries: { bottom: number, top: number, bottomMidline: number, topMidline: number }[]
+    export let leafGeometry: { bottom: number, top: number, bottomMidline: number, topMidline: number }
     export let cohortMemberWithIndex: { index: number, member: GenerationMember }
 
 
@@ -37,8 +37,8 @@
             ])
             if (relationshipsUpdated) {
                 await storeGraphConstructs<Thing>("Thing", sourceThingId, true)
-                await relationshipsWidgetModel.graph.build()
-                addGraphIdsNeedingViewerRefresh(relationshipsWidgetModel.graph.id)
+                await relationshipWidgetModel.relationshipCohortWidgetModel.graph.build()
+                addGraphIdsNeedingViewerRefresh(relationshipWidgetModel.relationshipCohortWidgetModel.graph.id)
             }
 
         }
@@ -55,16 +55,16 @@
     <svg
         style="
             height: 100%; width: 100%;
-            stroke: {relationshipsWidgetModel.relationshipColor};
-            fill: {relationshipsWidgetModel.relationshipColor};
+            stroke: {relationshipWidgetModel.relationshipCohortWidgetModel.relationshipColor};
+            fill: {relationshipWidgetModel.relationshipCohortWidgetModel.relationshipColor};
         "
     >
 
     <!-- Hoverable zone of leaf. -->
     <line
         class="leaf-hover-zone"
-        x1="{leavesGeometries[cohortMemberWithIndex.index].bottomMidline}" y1="{leavesGeometries[cohortMemberWithIndex.index].bottom}"
-        x2="{leavesGeometries[cohortMemberWithIndex.index].topMidline}" y2="{leavesGeometries[cohortMemberWithIndex.index].top}"
+        x1="{leafGeometry.bottomMidline}" y1="{leafGeometry.bottom}"
+        x2="{leafGeometry.topMidline}" y2="{leafGeometry.top}"
         style="stroke-width: {8 / tweenedScale};"
         on:mouseenter={()=>{leafHovered = true}}
         on:mouseleave={()=>{leafHovered = false}}
@@ -80,8 +80,8 @@
             {leafClicked ? "clicked" : ""}
         "
         style="stroke-width: {3 / tweenedScale};"
-        x1="{leavesGeometries[cohortMemberWithIndex.index].bottomMidline}" y1="{leavesGeometries[cohortMemberWithIndex.index].bottom}"
-        x2="{leavesGeometries[cohortMemberWithIndex.index].topMidline}" y2="{leavesGeometries[cohortMemberWithIndex.index].top}"
+        x1="{leafGeometry.bottomMidline}" y1="{leafGeometry.bottom}"
+        x2="{leafGeometry.topMidline}" y2="{leafGeometry.top}"
     />
 
     </svg>
@@ -93,35 +93,35 @@
             style="
                 left: {
                     (
-                        leavesGeometries[cohortMemberWithIndex.index].bottomMidline
-                        + leavesGeometries[cohortMemberWithIndex.index].topMidline
+                        leafGeometry.bottomMidline
+                        + leafGeometry.topMidline
                         - 3 / tweenedScale
                     ) / 2
                 }px;
                 top: {
                     (
-                        leavesGeometries[cohortMemberWithIndex.index].bottom
-                        + leavesGeometries[cohortMemberWithIndex.index].top
+                        leafGeometry.bottom
+                        + leafGeometry.top
                     ) / 2
                 }px;
                 transform-origin: calc(right - {1.5 / tweenedScale}px) 50%;
                 transform:
                     translate(-100%, -50%)
-                    scaleY({relationshipsWidgetModel.mirroring})
+                    scaleY({relationshipWidgetModel.relationshipCohortWidgetModel.mirroring})
                     rotate({
-                        -relationshipsWidgetModel.rotation * relationshipsWidgetModel.mirroring
+                        -relationshipWidgetModel.relationshipCohortWidgetModel.rotation * relationshipWidgetModel.relationshipCohortWidgetModel.mirroring
                         + (
-                            relationshipsWidgetModel.halfAxisId === 3 ? -90 :
-                            relationshipsWidgetModel.halfAxisId === 4 ? 90 :
+                            relationshipWidgetModel.relationshipCohortWidgetModel.halfAxisId === 3 ? -90 :
+                            relationshipWidgetModel.relationshipCohortWidgetModel.halfAxisId === 4 ? 90 :
                             0
                         )
                     }deg);
             "
         >
             <DirectionWidget
-                direction={relationshipsWidgetModel.direction}
-                halfAxisId={relationshipsWidgetModel.halfAxisId}
-                graph={relationshipsWidgetModel.graph}
+                direction={relationshipWidgetModel.relationshipCohortWidgetModel.direction}
+                halfAxisId={relationshipWidgetModel.relationshipCohortWidgetModel.halfAxisId}
+                graph={relationshipWidgetModel.relationshipCohortWidgetModel.graph}
                 optionClickedFunction={(direction, _, __) => {
                     if (direction?.id) changeRelationshipDirection(direction.id)
                 }}
