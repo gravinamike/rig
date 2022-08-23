@@ -1,2 +1,1 @@
-export * from "./basic"
-export * from "./outline"
+export { default as RelationshipCohortWidget } from "./widget.svelte"

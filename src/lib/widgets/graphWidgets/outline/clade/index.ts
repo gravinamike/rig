@@ -1,0 +1,1 @@
+export { default as CladeOutlineWidget } from "./widget.svelte"

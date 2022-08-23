@@ -4,7 +4,7 @@
     import type { ThingCohortWidgetModel } from "$lib/models/widgetModels";
 
     /* Widget imports */
-    import { CladeOutlineWidget, ThingOutlineAlreadyRenderedWidget } from "$lib/widgets/graphWidgets"
+    import { CladeOutlineWidget, ThingOutlineAlreadyRenderedWidget } from "$lib/widgets/graphWidgets/"
 </script>
 
 <script lang="ts">

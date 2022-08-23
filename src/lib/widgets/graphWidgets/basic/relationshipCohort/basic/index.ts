@@ -1,1 +1,0 @@
-export { default as RelationshipCohortWidget } from "./widget.svelte"

@@ -1,2 +1,1 @@
-export { default as GraphWidget } from "./basic.svelte"
-export { default as GraphOutlineWidget } from "./outline.svelte"
+export { default as GraphWidget } from "./widget.svelte"

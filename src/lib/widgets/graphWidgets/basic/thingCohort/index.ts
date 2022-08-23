@@ -1,2 +1,1 @@
-export { default as ThingCohortWidget }  from "./basic.svelte"
-export { default as ThingCohortOutlineWidget }  from "./outline.svelte"
+export { default as ThingCohortWidget }  from "./widget.svelte"
