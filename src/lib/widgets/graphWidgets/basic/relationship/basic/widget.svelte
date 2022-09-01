@@ -1,6 +1,6 @@
 <script context="module" lang="ts">
     // Type imports.
-    import type { Graph } from "$lib/models/graphModels"
+    import type { GraphWidgetModel } from "$lib/models/widgetModels"
     import type { RelationshipWidgetModel } from "$lib/models/widgetModels/relationshipWidgetModel"
 
     // Basic UI imports.
@@ -24,17 +24,17 @@
     export let midline: number
     export let stemTop: number
     export let thingIdOfHoveredRelationship: number | null
-    export let graph: Graph
+    export let graphWidgetModel: GraphWidgetModel
     
     
     // Graph-scale-related variables.
-    $: scale = zoomBase ** graph.graphWidgetStyle.zoom
+    $: scale = zoomBase ** graphWidgetModel.graphWidgetStyle.zoom
     let tweenedScale = tweened(1, {duration: 100, easing: cubicOut})
     $: tweenedScale.set(scale)
 </script>
     
                         
-{#if !(model.cohortMemberWithIndex.member.kind === "thingBaseWidgetModel")}
+{#if model.cohortMemberWithIndex.member}
     <RelationshipLeafWidget
         relationshipWidgetModel={model}
         bind:thingIdOfHoveredRelationship

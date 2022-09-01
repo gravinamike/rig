@@ -1,14 +1,14 @@
 <script lang="ts">
-    import type { Graph } from "$lib/models/graphModels"
     import type { ThingSearchListItem } from "$lib/models/graphModels"
     import type { SearchOption } from "$lib/widgets/navWidgets/searchWidget"
     import {
         thingSearchListStore, addGraph, removeGraph, graphIdsNeedingViewerRefresh, addGraphIdsNeedingViewerRefresh, removeGraphIdsNeedingViewerRefresh
     } from "$lib/stores"
+    import { GraphWidgetModel } from "$lib/models/widgetModels"
     import { GraphWidget } from "$lib/widgets/graphWidgets"
     import { SearchWidget } from "$lib/widgets/navWidgets"
 
-    export let graph: Graph | null = null
+    export let graphWidgetModel: GraphWidgetModel | null = null
     export let submitMethod: (selectedItem: SearchOption | null, matchedItems: SearchOption[]) => void
 
 
@@ -35,11 +35,12 @@
 
     async function createGraph(thingIdToShowGraphFor: number) {
         // Close any existing Graph.
-        if (graph !== null) await removeGraph(graph)
+        if (graphWidgetModel !== null) await removeGraph(graphWidgetModel.graph)
         // Open and build the new Graph.
-        graph = await addGraph([thingIdToShowGraphFor], 1)
-        graph.graphWidgetStyle.animateZoomAndScroll = false
+        const graph = await addGraph([thingIdToShowGraphFor], 1)
         await graph.build()
+        graphWidgetModel = new GraphWidgetModel(graph)
+        graphWidgetModel.graphWidgetStyle.animateZoomAndScroll = false
         // Refresh the Graph viewers.
         addGraphIdsNeedingViewerRefresh(graph.id)
     }
@@ -47,15 +48,15 @@
         createGraph(thingIdToShowGraphFor)
     }
     $: if (!thingIdToShowGraphFor) {
-        if (graph !== null) removeGraph(graph)
-        graph = null
+        if (graphWidgetModel !== null) removeGraph(graphWidgetModel.graph)
+        graphWidgetModel = null
     }
 
     // Set up Graph refreshing.
-    $: if ( graph?.lifecycleStatus === "built" && $graphIdsNeedingViewerRefresh.includes(graph.id) ) {
-        removeGraphIdsNeedingViewerRefresh(graph.id)
-        graph = graph // Needed for reactivity.
-        graph.allowZoomAndScrollToFit = true
+    $: if ( graphWidgetModel?.graph?.lifecycleStatus === "built" && $graphIdsNeedingViewerRefresh.includes(graphWidgetModel.graph.id) ) {
+        removeGraphIdsNeedingViewerRefresh(graphWidgetModel.graph.id)
+        graphWidgetModel.graph = graphWidgetModel.graph // Needed for reactivity.
+        graphWidgetModel.allowZoomAndScrollToFit = true
     }
 
 
@@ -78,9 +79,9 @@
     </div>
 
     <div class="graph-container">
-        {#if graph}
+        {#if graphWidgetModel}
             <GraphWidget
-                bind:graph
+                bind:model={graphWidgetModel}
                 rePerspectToThingId={async () => {}}
             />
         {/if}

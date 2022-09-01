@@ -1,6 +1,6 @@
 import type { HalfAxisId } from "$lib/shared/constants"
-import type { Graph, Direction, Space, GenerationMember, Cohort } from "$lib/models/graphModels"
-import type { ThingWidgetModel } from "./index"
+import type { Direction, Space, GenerationMember, Cohort, Thing } from "$lib/models/graphModels"
+import type { GraphWidgetModel } from "./graphWidgetModel"
 
 import {
     halfAxisOppositeIds, rotationByHalfAxisId, mirroringByHalfAxisId,
@@ -9,6 +9,7 @@ import {
 import { retrieveGraphConstructs } from "$lib/stores"
 import { rectOfThingWidgetByThingId } from "$lib/shared/utility"
 import { RelationshipWidgetModel } from "./relationshipWidgetModel"
+import type { ThingWidgetModel } from "./thingWidgetModels"
 
 
 /* Model specifying a Relationship Cohort Widget. */
@@ -17,9 +18,9 @@ export class RelationshipCohortWidgetModel {
 
     cohort: Cohort
     space: Space
-    graph: Graph
+    graphWidgetModel: GraphWidgetModel
 
-    parentThingWidgetModel: ThingWidgetModel
+    parentThing: Thing | null
     generationId: number
     directionId: number
     halfAxisId: HalfAxisId
@@ -28,20 +29,21 @@ export class RelationshipCohortWidgetModel {
     rotation: number
     relationshipColor: string
 
+    parentThingWidgetModel: ThingWidgetModel
     relationshipWidgetModels: RelationshipWidgetModel[] = []
 
     /**
      * Create a Relationship Cohort Widget Model.
      * @param {Cohort} cohort - The Relationship Cohort that the widget represents.
      * @param {Space} space - The Space that the widget is rendered in.
-     * @param {Graph} graph - The Graph that the Cohort is in.
+     * @param {GraphWidgetModel} graphWidgetModel - Widget model of the Graph that the Cohort is in.
      */
-    constructor(cohort: Cohort, space: Space, graph: Graph) {
+    constructor(cohort: Cohort, space: Space, graphWidgetModel: GraphWidgetModel, parentThingWidgetModel: ThingWidgetModel) {
         this.cohort = cohort
         this.space = space
 
-        this.graph = graph
-        this.parentThingWidgetModel = this.cohort.address.parentThingWidgetModel as ThingWidgetModel
+        this.graphWidgetModel = graphWidgetModel
+        this.parentThing = this.cohort.parentThing
         this.generationId = cohort.address?.generationId || 0
         this.directionId = cohort.address.directionId as number
 
@@ -51,6 +53,7 @@ export class RelationshipCohortWidgetModel {
         this.rotation = rotationByHalfAxisId[this.halfAxisId]
         this.relationshipColor = relationshipColorByHalfAxisId[this.halfAxisId]
 
+        this.parentThingWidgetModel = parentThingWidgetModel
         this.buildRelationshipWidgetModels()
     }
 
@@ -68,11 +71,11 @@ export class RelationshipCohortWidgetModel {
     // Variables related to the x, y, and z position of this Relationships Widget (relative to parent Thing Widget).
     
     get xOffset(): number {
-        return 0.5 * this.graph.graphWidgetStyle.relationDistance * offsetsByHalfAxisId[this.halfAxisId][0]
+        return 0.5 * this.graphWidgetModel.graphWidgetStyle.relationDistance * offsetsByHalfAxisId[this.halfAxisId][0]
     }
 
     get yOffset(): number {
-        return 0.5 * this.graph.graphWidgetStyle.relationDistance * offsetsByHalfAxisId[this.halfAxisId][1]
+        return 0.5 * this.graphWidgetModel.graphWidgetStyle.relationDistance * offsetsByHalfAxisId[this.halfAxisId][1]
     }
 
     get zIndex(): number {
@@ -88,12 +91,12 @@ export class RelationshipCohortWidgetModel {
             [1, 2].includes(this.halfAxisId) ?
                 this.parentThingWidgetModel.thingWidth :
                 this.parentThingWidgetModel.thingHeight
-        ) + (Math.max(this.cohort.members.length, 1) - 1) * this.graph.graphWidgetStyle.betweenThingSpacing
+        ) + (Math.max(this.cohort.members.length, 1) - 1) * this.graphWidgetModel.graphWidgetStyle.betweenThingSpacing
     }
 
     // The edge-to-edge distance between two related Things.
     get relationshipsLength(): number {
-        return this.graph.graphWidgetStyle.relationDistance - ([1, 2].includes(this.halfAxisId) ?
+        return this.graphWidgetModel.graphWidgetStyle.relationDistance - ([1, 2].includes(this.halfAxisId) ?
             this.parentThingWidgetModel.thingHeight :
             this.parentThingWidgetModel.thingWidth) * this.cohort.axialElongation
     }
@@ -111,7 +114,7 @@ export class RelationshipCohortWidgetModel {
     get parentRelationshipsWidgetModel(): RelationshipCohortWidgetModel | null {
         if (this.parentThingWidgetModel.parentThingWidgetModel !== null) {
             const grandParentThingWidgetModel = this.parentThingWidgetModel.parentThingWidgetModel
-            const parentThingHalfAxisId = this.parentThingWidgetModel.address.halfAxisId as number
+            const parentThingHalfAxisId = (this.parentThing as Thing).address.halfAxisId as number
             const parentRelationshipsWidgetModel = grandParentThingWidgetModel.relationshipsWidgetModelsByHalfAxisId[parentThingHalfAxisId]
             return parentRelationshipsWidgetModel
         } else {
@@ -149,7 +152,7 @@ export class RelationshipCohortWidgetModel {
                         this.parentThingWidgetModel.thingWidth :
                         this.parentThingWidgetModel.thingHeight
                 )
-                + this.graph.graphWidgetStyle.betweenThingSpacing
+                + this.graphWidgetModel.graphWidgetStyle.betweenThingSpacing
             )
 
             /* The offset between the Cohort's parent Thing and the Cohort's grandparent Thing. */
@@ -158,8 +161,8 @@ export class RelationshipCohortWidgetModel {
                 && this.halfAxisId !== 0
                 && this.parentRelationshipsWidgetModel.halfAxisId === halfAxisOppositeIds[this.halfAxisId] ?
                     (
-                        (this.sizeOfThingsAlongWidth + this.graph.graphWidgetStyle.betweenThingSpacing)
-                        * this.parentThingWidgetModel.address.indexInCohort
+                        (this.sizeOfThingsAlongWidth + this.graphWidgetModel.graphWidgetStyle.betweenThingSpacing)
+                        * (this.parentThing as Thing).address.indexInCohort
                     ) :
                     0
             )
@@ -204,7 +207,7 @@ export class RelationshipCohortWidgetModel {
 
     // Formatting-related variables.
     get distanceFromFocalPlane(): number {
-        return this.planeId - this.graph.planes.focalPlaneId
+        return this.planeId - this.graphWidgetModel.graph.planes.focalPlaneId
     }
     
     get opacity(): number {
@@ -243,12 +246,12 @@ export class RelationshipCohortWidgetModel {
 
     getOffsetsOfRelatedThing(member: GenerationMember, scale: number): {x: number, y: number} {
         // Get location of parent Thing Widget.
-        const parentDomRect = rectOfThingWidgetByThingId(this.graph.id, this.cohort.parentThingId as number)
+        const parentDomRect = rectOfThingWidgetByThingId(this.graphWidgetModel.graph.id, this.cohort.parentThingId as number)
         const parentRectX = parentDomRect === null ? 0 : parentDomRect.x
         const parentRectY = parentDomRect === null ? 0 : parentDomRect.y
 
         // Get posisition of related Thing Widget.
-        const relatedRect = rectOfThingWidgetByThingId(this.graph.id, member.thingId as number)
+        const relatedRect = rectOfThingWidgetByThingId(this.graphWidgetModel.graph.id, member?.id as number)
         const relatedRectX = relatedRect === null ? 0 : relatedRect.x
         const relatedRectY = relatedRect === null ? 0 : relatedRect.y
 

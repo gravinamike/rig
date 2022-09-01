@@ -1,18 +1,16 @@
 <script lang="ts">
-    // Graph construct imports.
-    import type { Graph } from "$lib/models/graphModels"
-
-    import { CladeWidgetModel, ThingWidgetModel } from "$lib/models/widgetModels"
+    // Widget model imports.
+    import { CladeWidgetModel, GraphWidgetModel, ThingWidgetModel } from "$lib/models/widgetModels"
 
     // Graph widget imports.
     import { ThingWidget, ThingFormWidget, RelationshipCohortWidget, ThingCohortWidget, OffAxisRelationsWidget } from "$lib/widgets/graphWidgets"
 
     export let thingWidgetModel: ThingWidgetModel
-    export let graph: Graph
+    export let graphWidgetModel: GraphWidgetModel
     export let rePerspectToThingId: (id: number) => Promise<void>
 
     
-    $: model = new CladeWidgetModel(thingWidgetModel, graph)
+    $: model = new CladeWidgetModel(thingWidgetModel, graphWidgetModel)
 
 
     $: rootThing = model.submodels.rootThing
@@ -33,13 +31,13 @@
     {#if rootThing.thing}
         <ThingWidget
             thingWidgetModel={rootThing}
-            bind:graph={graph}
+            bind:graphWidgetModel
             {rePerspectToThingId}
         />
     {:else}
         <ThingFormWidget
             thingWidgetModel={rootThing}
-            bind:graph={graph}
+            bind:graphWidgetModel
         />
     {/if}
 
@@ -57,13 +55,13 @@
             {#if [1, 2, 3, 4].includes(thingCohortWidgetModel.cohort.halfAxisId)}
                 <RelationshipCohortWidget
                     model={childRelationshipCohortsByHalfAxisId[thingCohortWidgetModel.cohort.halfAxisId]}
-                    bind:graph={graph}
+                    bind:graphWidgetModel
                 />
             {/if}
             {#if [1, 2, 3, 4, 5, 6, 7, 8].includes(thingCohortWidgetModel.cohort.halfAxisId)}
                 <ThingCohortWidget
                     {thingCohortWidgetModel}
-                    bind:graph={graph}
+                    bind:graphWidgetModel
                     {rePerspectToThingId}
                 />
             {/if}
@@ -72,7 +70,7 @@
 
     <OffAxisRelationsWidget
         parentThingWidgetModel={rootThing}
-        parentGraph={graph}
+        parentGraphWidgetModel={graphWidgetModel}
         {rePerspectToThingId}
     />
 </div>

@@ -1,7 +1,7 @@
 <script context="module" lang="ts">
     // Type imports.
-    import type { Thing, Graph } from "$lib/models/graphModels"
-    import type { RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
+    import type { Thing } from "$lib/models/graphModels"
+    import type { GraphWidgetModel, RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
 
     // Basic UI imports.
     import { tweened } from "svelte/motion"
@@ -23,10 +23,10 @@
 <script lang="ts">
     /**
      * @param  {RelationshipsWidgetModel} model - The Relationships Widget Model used to set up this Widget.
-     * @param  {Graph} graph - The Graph that the Relationships are in.
+     * @param  {GraphWidgetModel} graphWidgetModel - The Graph that the Relationships are in.
      */
     export let model: RelationshipCohortWidgetModel
-    export let graph: Graph
+    export let graphWidgetModel: GraphWidgetModel
 
 
     /* Information related to hovering. */
@@ -40,13 +40,13 @@
     const halfAxisId = model.halfAxisId
     
     // Graph-scale-related variables.
-    $: scale = zoomBase ** graph.graphWidgetStyle.zoom
+    $: scale = zoomBase ** graphWidgetModel.graphWidgetStyle.zoom
     let tweenedScale = tweened(1, {duration: 100, easing: cubicOut})
     $: tweenedScale.set(scale)
 
     // Information related to Direction.
     $: showDirection = (
-        (model.parentThingWidgetModel.address.generationId === 0 || stemHovered)
+        (model.parentThing && model.parentThing.address.generationId === 0 || stemHovered)
         && !thingIdOfHoveredRelationship
     ) ?
         true :
@@ -56,11 +56,11 @@
     /* Variables related to whole-Widget geometry. */
 
     // Variables related to the geometry of Graph construct widgets.
-    $: relationDistance = graph.graphWidgetStyle.relationDistance // The center-to-center distance between two related Things.
+    $: relationDistance = graphWidgetModel.graphWidgetStyle.relationDistance // The center-to-center distance between two related Things.
     $: thingWidth = model.parentThingWidgetModel.thingWidth
     $: thingHeight = model.parentThingWidgetModel.thingHeight
-    $: betweenThingSpacing = graph.graphWidgetStyle.betweenThingSpacing
-    $: betweenThingOverlap = graph.graphWidgetStyle.betweenThingOverlap
+    $: betweenThingSpacing = graphWidgetModel.graphWidgetStyle.betweenThingSpacing
+    $: betweenThingOverlap = graphWidgetModel.graphWidgetStyle.betweenThingOverlap
 
     // Variables related to the x, y, and z position of this Relationships Widget (relative to parent Thing Widget).
     let xOffset: number
@@ -106,7 +106,7 @@
 
     async function changeRelationshipsDirection(directionId: number) {//////////////////////// MOVE TO MODEL
         const sourceThingId = model.parentThingWidgetModel.thingId as number
-        const destThingIds = model.cohort.members.map(thingWidgetModel => thingWidgetModel.thingId)
+        const destThingIds = model.cohort.members.map(thing => thing && thing.id)
 
         const relationshipInfos: {sourceThingId: number, destThingId: number, directionId: number }[] = []
         for (const destThingId of destThingIds) {
@@ -121,8 +121,8 @@
         const relationshipsUpdated = await updateRelationships(relationshipInfos)
         if (relationshipsUpdated) {
             await storeGraphConstructs<Thing>("Thing", sourceThingId, true)
-            await graph.build()
-            addGraphIdsNeedingViewerRefresh(graph.id)
+            await graphWidgetModel.graph.build()
+            addGraphIdsNeedingViewerRefresh(graphWidgetModel.graph.id)
         }
     }
 
@@ -171,7 +171,7 @@
                 <DirectionWidget
                     direction={model.direction}
                     {halfAxisId}
-                    {graph}
+                    {graphWidgetModel}
                     optionClickedFunction={(direction, _, __) => {
                         if (direction?.id) changeRelationshipsDirection(direction.id)
                     }}
@@ -197,7 +197,7 @@
                     {midline}
                     {stemBottom}
                     {stemTop}
-                    bind:graph
+                    bind:graphWidgetModel
                 />
             {/if}
 
@@ -215,7 +215,7 @@
                             {midline}
                             {stemTop}
                             {thingIdOfHoveredRelationship}
-                            {graph}
+                            {graphWidgetModel}
                         />
                     {/if}
                 {/each}

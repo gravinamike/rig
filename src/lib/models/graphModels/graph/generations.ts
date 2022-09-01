@@ -1,6 +1,5 @@
 // Type imports.
 import type { Thing } from "$lib/models/graphModels"
-import type { ThingWidgetModel } from "$lib/models/widgetModels"
 
 // Store imports.
 import { storeGraphConstructs } from "$lib/stores"
@@ -111,12 +110,12 @@ export class Generations {
             null
     }
 
-    get seedGenerationThingWidgetModels(): ThingWidgetModel[] {
-        return this.seedGeneration?.thingWidgetModels() || [] // Note for the future: When adding Perspective depth deltas, filter the seedThingWidgetModels list based on depth deltas.
+    get seedGenerationThings(): Thing[] {
+        return this.seedGeneration?.things() || [] // Note for the future: When adding Perspective depth deltas, filter the seedThings list based on depth deltas.
     }
 
     get seedGenerationRelatedThingIds(): number[] {
-        const seedGenerationRelatedThingIdsAndNulls = unique(this.seedGenerationThingWidgetModels.map(thingWidgetModel => thingWidgetModel.relatedThingIds).flat())
+        const seedGenerationRelatedThingIdsAndNulls = unique(this.seedGenerationThings.map(thingWidgetModel => thingWidgetModel.relatedThingIds).flat())
         const seedGenerationRelatedThingIds = seedGenerationRelatedThingIdsAndNulls.filter(id => !!id) as number[]
         return seedGenerationRelatedThingIds
     }
@@ -138,11 +137,11 @@ export class Generations {
     
 
     /**
-     * Get all of the Thing Widget Models across the Generations.
-     * @return {ThingWidgetModel[]} - An array of the Graph's Thing Widget Models.
+     * Get all of the Things across the Generations.
+     * @return {Thing[]} - An array of the Graph's Thingss.
      */
-    get thingWidgetModels(): ThingWidgetModel[] {
-        return this._members.map(member => member.thingWidgetModels()).flat()
+    get things(): Thing[] {
+        return this._members.map(member => member.things()).flat()
     }
 
     /**
@@ -150,7 +149,7 @@ export class Generations {
      * @return {number[]} - An array of Thing IDs already rendered in the Graph.
      */
     get thingIdsAlreadyInGraph(): number[] {
-        return this.thingWidgetModels.map(model => model.thingId).filter(thingId => thingId) as number[]
+        return this.things.map(thing => thing.id).filter(thingId => thingId) as number[]
     }
 
 
@@ -161,7 +160,7 @@ export class Generations {
      */
     async storeNextGenerationThings(): Promise<void> {
         // Filter out Thing IDs already represented in the Graph (to avoid recursion).
-        const thingIdsOfGraph = this.thingWidgetModels.map(model => model.thingId)
+        const thingIdsOfGraph = this.things.map(thing => thing.id)
         const thingIdsToStore = this.newGenerationThingIds().filter( id => !thingIdsOfGraph.includes(id) )
 
         // Store Things from the IDs.
@@ -199,16 +198,16 @@ export class Generations {
             generationToStrip.lifecycleStatus = "stripping"
 
             // For each ThingWidgetModel of the parent Generation,
-            for (const thingWidgetModel of generationToStrip.parentGeneration?.thingWidgetModels() || []) {
+            for (const thing of generationToStrip.parentGeneration?.things() || []) {
                 // For each Cohort of that ThingWidgetModel's cohorts,
-                for (const cohort of thingWidgetModel.childCohorts) {
+                for (const cohort of thing.childThingCohorts) {
                     // Clear the Cohort's members.
                     cohort.members = []
                     // Remove the Cohort from its Generation and its Plane.
                     cohort.removeFromGroups()
                 }
                 // Clear the ThingWidgetModel's cohorts attribute.
-                thingWidgetModel.childCohortsByHalfAxisId = {}
+                thing.childCohortsByHalfAxisId = {}
             }
             // Remove the Generation from the graph.
             const index = this._members.indexOf(generationToStrip)

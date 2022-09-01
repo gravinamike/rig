@@ -1,19 +1,53 @@
+import type { Cohort } from "$lib/models/graphModels"
+import type { GraphWidgetModel } from "./graphWidgetModel"
 import { halfAxisOppositeIds, offsetsByHalfAxisId } from "$lib/shared/constants"
-import type { Graph, Cohort } from "$lib/models/graphModels"
+import { graphConstructInStore } from "$lib/stores"
+import { ThingBaseWidgetModel, ThingWidgetModel, ThingMissingFromStoreWidgetModel, RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
 
 
 export class ThingCohortWidgetModel {
     kind = "thingCohortWidgetModel"
 
     cohort: Cohort
-    graph: Graph
+    graphWidgetModel: GraphWidgetModel
+    parentThingWidgetModel: ThingWidgetModel | null
+    memberModels: (ThingWidgetModel | ThingBaseWidgetModel | ThingMissingFromStoreWidgetModel)[] = []
 
-    constructor(cohort: Cohort, graph: Graph) {
+    constructor(cohort: Cohort, graphWidgetModel: GraphWidgetModel, parentThingWidgetModel: ThingWidgetModel | null) {
         this.cohort = cohort
-        this.graph = graph
+        this.graphWidgetModel = graphWidgetModel
+        this.parentThingWidgetModel = parentThingWidgetModel
 
-        
+        this.build()
     }
+
+
+    async build(): Promise< void > {
+        this.memberModels = []
+        
+        for (const member of this.cohort.members) {
+
+            const model= (
+                member?.id ? (
+                    this.graphWidgetModel.graph.generations.thingIdsAlreadyInGraph.includes(member.id) ? new ThingBaseWidgetModel(member.id, this.graphWidgetModel, this) : // If the Thing is already modeled in the Graph, return a spacer model.
+                    graphConstructInStore("Thing", member.id) ? new ThingWidgetModel(member.id, this.graphWidgetModel, this) :      // Else, if the Thing is in the Thing store, create a new model for that Thing ID.
+                    new ThingMissingFromStoreWidgetModel(member.id, this.graphWidgetModel, this)
+                ) :
+                new ThingMissingFromStoreWidgetModel(null, this.graphWidgetModel, this)
+            ) 
+                
+            this.addMemberModel(model)
+        }
+    }
+
+    addMemberModel(model: ThingWidgetModel | ThingBaseWidgetModel | ThingMissingFromStoreWidgetModel): void {
+        this.memberModels.push(model)
+        model.parentThingCohortWidgetModel = this
+    }
+
+
+
+
 
     get planeId(): number {
         return this.cohort.plane?.id || 0
@@ -25,10 +59,10 @@ export class ThingCohortWidgetModel {
         return [7, 8].includes(this.cohort.halfAxisId) ?
             { x: 0, y: 0 } :
             {
-                x: this.graph.graphWidgetStyle.relationDistance * offsetSigns[0]
-                    + this.graph.planes.offsets[0] * this.planeId,
-                y: this.graph.graphWidgetStyle.relationDistance * offsetSigns[1]
-                    + this.graph.planes.offsets[1] * this.planeId
+                x: this.graphWidgetModel.graphWidgetStyle.relationDistance * offsetSigns[0]
+                    + this.graphWidgetModel.graph.planes.offsets[0] * this.planeId,
+                y: this.graphWidgetModel.graphWidgetStyle.relationDistance * offsetSigns[1]
+                    + this.graphWidgetModel.graph.planes.offsets[1] * this.planeId
             }
     }
 
@@ -46,14 +80,14 @@ export class ThingCohortWidgetModel {
     }
 
     get grandparentThingId(): number | null {
-        return this.cohort.parentCohort()?.address.parentThingWidgetModel?.thingId || null
+        return this.cohort.parentCohort()?.address.parentThingId || null
     }
 
     // If the Cohort contains its own doubled-back grandparent Thing, get the index of that Thing in the Cohort.
     ////////////////////////////////////////////////////// MOVE THIS TO COHORT ITSELF INSTEAD OF WIDGET MODEL?
     get indexOfGrandparentThing(): number | null {
         return this.grandparentThingId !== null ? 
-            this.cohort.members.findIndex( member => member.thingId === this.grandparentThingId )
+            this.cohort.members.findIndex( member => member && member.id === this.grandparentThingId )
             : null
     }
 
@@ -81,15 +115,15 @@ export class ThingCohortWidgetModel {
         } else {
 
             const parentThingOffsetToGrandparentThing = (
-                this.cohort.matchedRelationshipsWidgetModel
+                this.matchedRelationshipsWidgetModel
                 && this.cohort.halfAxisId
-                && this.cohort.address.parentThingWidgetModel
-                && this.cohort.matchedRelationshipsWidgetModel.parentRelationshipsWidgetModel
-                && this.cohort.matchedRelationshipsWidgetModel.parentRelationshipsWidgetModel.halfAxisId === halfAxisOppositeIds[this.cohort.halfAxisId]
+                && this.cohort.parentThing
+                && this.matchedRelationshipsWidgetModel.parentRelationshipsWidgetModel
+                && this.matchedRelationshipsWidgetModel.parentRelationshipsWidgetModel.halfAxisId === halfAxisOppositeIds[this.cohort.halfAxisId]
             ) ?
                 (
-                    (this.graph.graphWidgetStyle.thingSize + this.graph.graphWidgetStyle.betweenThingSpacing)
-                    * this.cohort.address.parentThingWidgetModel.address.indexInCohort
+                    (this.graphWidgetModel.graphWidgetStyle.thingSize + this.graphWidgetModel.graphWidgetStyle.betweenThingSpacing)
+                    * this.cohort.parentThing.address.indexInCohort
                 ) :
                 0
  
@@ -97,7 +131,7 @@ export class ThingCohortWidgetModel {
                 // The difference between the halfway index of the Cohort and the index of the grandparent Thing.
                 ((this.cohort.members.length - 1) / 2 - this.indexOfGrandparentThing)
                 // The combined width of 1 Thing and 1 gap between Things.
-                * (this.graph.graphWidgetStyle.thingSize + this.graph.graphWidgetStyle.betweenThingSpacing) :
+                * (this.graphWidgetModel.graphWidgetStyle.thingSize + this.graphWidgetModel.graphWidgetStyle.betweenThingSpacing) :
                 0
 
             const offsetToGrandparentThing = parentThingOffsetToGrandparentThing + grandparentSpacerOffsetToParentThing
@@ -124,5 +158,14 @@ export class ThingCohortWidgetModel {
         return this.rowOrColumn === "column" ?
             this.offsetToGrandparentThing :
             0
+    }
+
+
+    get matchedRelationshipsWidgetModel(): RelationshipCohortWidgetModel | null {
+        if (this.parentThingWidgetModel && this.cohort.halfAxisId) {
+            return this.parentThingWidgetModel.relationshipsWidgetModelsByHalfAxisId[this.cohort.halfAxisId]
+        } else {
+            return null
+        }
     }
 }

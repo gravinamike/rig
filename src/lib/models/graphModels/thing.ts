@@ -1,7 +1,18 @@
 import type { GraphConstruct } from "$lib/shared/constants"
 import type { ThingDbModel, ThingSearchListItemDbModel } from "$lib/models/dbModels"
-import { Note, Folder, Relationship, NoteToThing, FolderToThing } from "$lib/models/graphModels"
+import type { HalfAxisId } from "$lib/shared/constants"
+import { oddHalfAxisIds } from "$lib/shared/constants"
+import { graphConstructInStore, retrieveGraphConstructs } from "$lib/stores"
+import { Graph, Space, Note, Folder, Relationship, NoteToThing, FolderToThing, Cohort } from "$lib/models/graphModels"
 
+
+type ThingAddress = {
+    graph: Graph;
+    generationId: number,
+    parentThingId: number | null,
+    halfAxisId: number | null,
+    indexInCohort: number
+}
 
 /*
  * Thing model.
@@ -15,7 +26,7 @@ export class Thing {
     whencreated: Date | null
     whenmodded: Date | null
     whenvisited: Date | null
-    defaultplane: number | null
+    defaultSpaceId: number | null
     perspectivedepths: string// Default is "{}"
     perspectivetexts: string// Default is "{}"
 
@@ -28,6 +39,13 @@ export class Thing {
 
     whenModelInstantiated: Date
 
+    graph: Graph | null = null
+    parentThing: Thing | null = null
+    _parentCohort: Cohort | null = null
+
+    inheritSpace = true // For now.
+    childCohortsByHalfAxisId: { [directionId: number]: Cohort } = {}
+
     constructor(dbModel: ThingDbModel) {
         this.dbModel = dbModel
 
@@ -37,7 +55,7 @@ export class Thing {
         this.whencreated = dbModel.whencreated ? new Date(dbModel.whencreated): null
         this.whenmodded = dbModel.whenmodded ? new Date(dbModel.whenmodded): null
         this.whenvisited = dbModel.whenvisited ? new Date(dbModel.whenvisited): null
-        this.defaultplane = dbModel.defaultplane
+        this.defaultSpaceId = dbModel.defaultplane
         this.perspectivedepths = dbModel.perspectivedepths
         this.perspectivetexts = dbModel.perspectivedepths
 
@@ -53,6 +71,15 @@ export class Thing {
         this.folderToThing = dbModel.folderToThing ? new FolderToThing(dbModel.folderToThing) : null
 
         this.whenModelInstantiated = new Date()
+    }
+
+
+    setGraph(graph: Graph): void {
+        this.graph = graph
+    }
+
+    setParentThing(parentThing: Thing): void {
+        this.parentThing = parentThing
     }
 
 
@@ -83,6 +110,140 @@ export class Thing {
             if (!(relatedThingId === null || relatedThingId in relatedThingIdsByDirectionId[directionId])) relatedThingIdsByDirectionId[directionId].push(relatedThingId)
         }
         return relatedThingIdsByDirectionId
+    }
+
+
+
+
+    // Just created graph and parentThing, so rewrite the below, first with a
+    // conditional to return null if either of those are falsey.
+
+    get space(): Space | null {
+        if (!this.graph) {
+
+            return null
+
+        } else {
+
+            let space: Space | null
+
+            // If the Graph has a starting Space and this is the Perspective Thing,
+            // use the starting Space.
+            if (this.graph.startingSpace && !this.parentThing) {
+                space = this.graph.startingSpace
+                
+            // Else, if...
+            } else if (
+                (
+                    // ... the Thing Widget Model doesn't have a parent,
+                    !this.parentThing
+                    // ... or is set not to inherit Space from a parent,
+                    || !this.inheritSpace
+                )
+                && (
+                    // ... and the Thing Widget Model has a default Space set,
+                    this.defaultSpaceId
+                    // ... and that default Space is in the Store,
+                    && graphConstructInStore("Space", this.defaultSpaceId)
+                )
+            ) {
+                // ...use the Thing Widget Model's own default Space.
+                space = retrieveGraphConstructs<Space>("Space", this.defaultSpaceId) as Space
+
+            // Else, if the Thing Widget model has a parent, inherit the parent's Space.
+            } else if (this.parentThing) {
+                space = this.parentThing.space
+
+            // If all else fails, just use the first Space in the list of Spaces.
+            } else {
+                space = retrieveGraphConstructs<Space>("Space", 1) as Space//What if there is no spacesStoreValue[1]? Supply an empty Space.
+            }
+
+            return space
+
+        }
+    }
+
+    get relatedThingDirectionIds(): number[] {
+        const relatedThingDirectionIds = Object.keys(this.relatedThingIdsByDirectionId).map(k => Number(k))
+        return relatedThingDirectionIds
+    }
+
+    childThingCohort( directionId: number ): Cohort | null
+    childThingCohort( directionId: number, cohort: Cohort ): void
+    childThingCohort( directionId: number, cohort?: Cohort ): Cohort | null | void {
+        if ( cohort === undefined ) {
+            return directionId in this.childCohortsByHalfAxisId ? this.childCohortsByHalfAxisId[directionId] : null
+        } else {
+            // Set child Cohort for this Direction.
+            this.childCohortsByHalfAxisId[directionId] = cohort
+        }
+    }
+
+    get childThingCohorts(): Cohort[] {
+        return Object.values(this.childCohortsByHalfAxisId)
+    }
+
+    offAxisRelatedThingIds(space=this.space): number[] {
+        if (!space) return []
+
+        const offAxisRelatedThingIds: number[] = []
+
+        const onAxisDirectionIds: number[] = []
+
+        for (const direction of space.directions) {
+            if (direction.id) onAxisDirectionIds.push(direction.id)
+            if (direction.oppositeid) onAxisDirectionIds.push(direction.oppositeid)
+        }
+
+        for (const directionId of this.relatedThingDirectionIds) {
+            if (!(onAxisDirectionIds.includes(directionId))) {
+                offAxisRelatedThingIds.push(...this.relatedThingIdsByDirectionId[directionId])
+            }
+        }
+        return offAxisRelatedThingIds
+    }
+
+    get relatedThingHalfAxisIds(): Set<HalfAxisId> {
+        const relatedThingHalfAxisIds: Set<HalfAxisId> = new Set()
+        if (this.space) {
+            for (const directionID of this.relatedThingDirectionIds) {
+                const halfAxisId = this.space.halfAxisIdByDirectionId[directionID]
+                if (halfAxisId) relatedThingHalfAxisIds.add(halfAxisId)
+            }
+        }
+        return relatedThingHalfAxisIds
+    }
+    
+    get directionIdByHalfAxisId(): { [halfAxisId: number]: number | null } {
+        const directionIdByHalfAxisId: { [halfAxisId: number]: number | null } = {}
+        if (this.space) {
+            for (const oddHalfAxisId of oddHalfAxisIds) {
+                const direction = this.space.directions[(oddHalfAxisId - 1)/2];
+                directionIdByHalfAxisId[oddHalfAxisId] = direction.id;
+                directionIdByHalfAxisId[oddHalfAxisId + 1] = direction.oppositeid;
+            }
+        }
+        return directionIdByHalfAxisId
+    }
+
+    get address(): ThingAddress {
+        const address = {
+            graph: this.parentCohort.address.graph,
+            generationId: this.parentCohort.address.generationId,
+            parentThingId: this.parentCohort.address.parentThingId,
+            halfAxisId: this.parentCohort.halfAxisId,
+            indexInCohort: this.parentCohort.indexOfMember(this) as number
+        }
+        return address
+    }
+
+    get parentCohort(): Cohort {
+        return this._parentCohort as Cohort
+    }
+
+    set parentCohort(cohort: Cohort) {
+        this._parentCohort = cohort
     }
 }
 

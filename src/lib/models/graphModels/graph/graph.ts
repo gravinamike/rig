@@ -1,8 +1,5 @@
-import type { GraphWidgetStyle } from "$lib/shared/constants"
 import type { Space, Thing, Cohort } from "$lib/models/graphModels"
-import type { ThingCohortWidgetModel, ThingBaseWidgetModel } from "$lib/models/widgetModels"
 
-import { defaultGraphWidgetStyle } from "$lib/shared/constants"
 import { storeGraphConstructs, retrieveGraphConstructs, unstoreGraphConstructs } from "$lib/stores"
 import { Generations } from "./generations"
 import { Planes } from "./planes"
@@ -18,19 +15,20 @@ export class Graph {
     parentGraph: Graph | null
     childGraphs: Graph[] = []
     rootCohort: Cohort | null = null
-    rootThingCohortWidgetModel: ThingCohortWidgetModel | null = null
     generations: Generations
     planes: Planes
     history: PerspectiveHistory
     lifecycleStatus: "new" | "building" | "built" | "cleared" = "new"
     startingSpace: Space | null
+    offAxis: boolean
 
     ////////////////////////////////////////////////// Put into widgetmodel
+    /*rootThingCohortWidgetModel: ThingCohortWidgetModel | null = null
     graphWidgetStyle: GraphWidgetStyle = {...defaultGraphWidgetStyle}
     thingIdToScrollTo: number | null = null
     allowScrollToThingId = false
     allowZoomAndScrollToFit = false
-    formActive = false
+    formActive = false*/
 
     /**
      * Create a Graph.
@@ -47,11 +45,12 @@ export class Graph {
         this.planes = new Planes(this)
         this.history = new PerspectiveHistory(this)
         this.startingSpace = startingSpace
+        this.offAxis = offAxis
 
-        if (offAxis) {
+        /*if (offAxis) {
             this.graphWidgetStyle.excludePerspectiveThing = true
             this.graphWidgetStyle.excludeCartesianAxes = true
-        }
+        }*/
     }
 
 
@@ -104,10 +103,8 @@ export class Graph {
     async build(): Promise<void> {
         // Set (or reset) build attributes to their starting values.
         this.rootCohort = null
-        this.rootThingCohortWidgetModel = null
         this.generations.reset()
         this.planes.reset()
-        this.formActive = false
         this.lifecycleStatus = "cleared"
 
         // Adjust (build) the Generations to the Graph's specified Depth.
@@ -156,8 +153,8 @@ export class Graph {
 
     }
 
-    get pThingBaseWidgetModel(): ThingBaseWidgetModel | null {
-        const pThingBaseWidgetModel = this.rootCohort?.members[0] || null
-        return pThingBaseWidgetModel
+    get pThing(): Thing | null {
+        const pThing = this.rootCohort?.members[0] || null
+        return pThing
     }
 }

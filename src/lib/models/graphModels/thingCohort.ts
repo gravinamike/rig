@@ -1,14 +1,12 @@
-import type { HalfAxisId } from "$lib/shared/constants"
-import type { Graph, Generation, GenerationMember, Plane } from "$lib/models/graphModels"
-import type { ThingWidgetModel, RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
+import type { Space, Graph, Generation, GenerationMember, Plane, Thing } from "$lib/models/graphModels"
 
-import { offsetsByHalfAxisId } from "$lib/shared/constants"
+import { offsetsByHalfAxisId, type HalfAxisId } from "$lib/shared/constants"
 
 
 export type CohortAddress = {
     graph: Graph,
     generationId: number,
-    parentThingWidgetModel: ThingWidgetModel | null,
+    parentThingId: number | null,
     directionId: number | null
 }
 
@@ -17,7 +15,7 @@ export class Cohort {
 
     address: CohortAddress
     generation: Generation | null
-    halfAxisId: HalfAxisId | null
+    parentThing: Thing | null = null
     members: GenerationMember[]
     encapsulatingDepth: number
     plane: Plane | null = null
@@ -25,11 +23,8 @@ export class Cohort {
 
     constructor(address: CohortAddress, members: GenerationMember[]) {
         this.address = address
-        this.halfAxisId = this.address.directionId && this.address.parentThingWidgetModel ?
-            this.address.parentThingWidgetModel.space.halfAxisIdByDirectionId[this.address.directionId] :
-            0
         this.members = members
-        for (const member of members) member.parentCohort = this
+        for (const member of members) if (member) member.parentCohort = this
 
         // Plane.
         let planeId: number
@@ -52,12 +47,21 @@ export class Cohort {
         this.encapsulatingDepth = parentEncapsulatingDepth + changeInEncapsulatingDepth
     }
 
+    get halfAxisId(): HalfAxisId {
+        return (
+            this.address.directionId
+            && this.parentThing
+        ) ?
+            (this.parentThing.space as Space).halfAxisIdByDirectionId[this.address.directionId] :
+            0
+    }
+
     parentCohort(): Cohort | null {
-        return this.address.parentThingWidgetModel?.parentCohort || null
+        return this.parentThing?.parentCohort || null
     }
 
     get parentThingId(): number | null {
-        return this.address.parentThingWidgetModel?.thingId || null
+        return this.address.parentThingId || null
     }
 
     indexOfMember(member: GenerationMember): number | null {
@@ -67,10 +71,10 @@ export class Cohort {
     }
 
     get indexOfGrandparentThing(): number | null {
-        const grandparentThingId = this.parentCohort()?.address.parentThingWidgetModel?.thingId || null
+        const grandparentThingId = this.parentCohort()?.address.parentThingId || null
     
         let indexOfGrandparentThing = grandparentThingId !== null ? 
-            this.members.findIndex( member => member.thingId === grandparentThingId )
+            this.members.findIndex( member => member && member.id === grandparentThingId )
             : null
 
         if (indexOfGrandparentThing === -1) indexOfGrandparentThing = null
@@ -87,7 +91,7 @@ export class Cohort {
     addMember(member: GenerationMember): void {
         if (!this.members.includes(member)) {
             this.members.push(member)
-            member.parentCohort = this
+            if (member) member.parentCohort = this
         }
     }
 
@@ -109,17 +113,6 @@ export class Cohort {
         }
     }
 
-
-
-
-
-    get matchedRelationshipsWidgetModel(): RelationshipCohortWidgetModel | null {
-        if (this.address.parentThingWidgetModel && this.halfAxisId) {
-            return this.address.parentThingWidgetModel.relationshipsWidgetModelsByHalfAxisId[this.halfAxisId]
-        } else {
-            return null
-        }
-    }
 
     get isInRelationshipsOnlyGeneration(): boolean {
         if (

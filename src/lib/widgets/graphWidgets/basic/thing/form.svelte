@@ -1,7 +1,7 @@
 <script lang="ts">
     // Type imports.
-    import type { Thing, Cohort, Graph } from "$lib/models/graphModels"
-    import type { ThingWidgetModel } from "$lib/models/widgetModels"
+    import type { Thing, Cohort, Space } from "$lib/models/graphModels"
+    import type { GraphWidgetModel, ThingWidgetModel } from "$lib/models/widgetModels"
 
     // Graph widget imports.
     import { planePadding } from "$lib/shared/constants"
@@ -11,24 +11,24 @@
     import { storeGraphConstructs, addGraphIdsNeedingViewerRefresh, updateThingSearchListStore } from "$lib/stores"
 
     export let thingWidgetModel: ThingWidgetModel
-    export let graph: Graph
+    export let graphWidgetModel: GraphWidgetModel
 
 
     let textField: HTMLTextAreaElement
 
     // Variables situating the Thing in its spatial context (Half-Axis, Plane)
-    $: halfAxisId = thingWidgetModel.parentCohort.halfAxisId || 0
+    $: halfAxisId = thingWidgetModel.thing?.parentCohort.halfAxisId || 0
     $: planeId = [7, 8].includes(halfAxisId) ?
-        thingWidgetModel.parentCohort.address.parentThingWidgetModel?.parentCohort.plane?.id || 0 :
-        thingWidgetModel.parentCohort.plane?.id || 0
-    $: distanceFromFocalPlane = planeId - graph.planes.focalPlaneId
+        thingWidgetModel.thing?.parentCohort.parentThing?.parentCohort.plane?.id || 0 :
+        thingWidgetModel.thing?.parentCohort.plane?.id || 0
+    $: distanceFromFocalPlane = planeId - graphWidgetModel.graph.planes.focalPlaneId
     
     // Variables dealing with encapsulation (Things containing other Things).
-    $: encapsulatingDepth = thingWidgetModel.parentCohort.encapsulatingDepth || 0
+    $: encapsulatingDepth = thingWidgetModel.thing?.parentCohort.encapsulatingDepth || 0
     $: encapsulatingPadding = encapsulatingDepth >= 0 ? 40 : 20
 
     /* Variables dealing with Thing sizing. */
-    $: elongation = thingWidgetModel.parentCohort.axialElongation
+    $: elongation = thingWidgetModel.thing?.parentCohort.axialElongation || 1
     $: elongationCategory = (
         [1, 2, 3, 4].includes(halfAxisId) ?
         ( [1, 2].includes(halfAxisId) ? "vertical" : "horizontal" ) :
@@ -45,23 +45,23 @@
     }
 
     // Variables dealing with Thing sizing.
-    $: cohortSize = thingWidgetModel.parentCohort.members.length || 1
-    $: thingSize = graph.graphWidgetStyle.thingSize + planePadding * planeId + encapsulatingPadding * encapsulatingDepth
+    $: cohortSize = thingWidgetModel.thing?.parentCohort.members.length || 1
+    $: thingSize = graphWidgetModel.graphWidgetStyle.thingSize + planePadding * planeId + encapsulatingPadding * encapsulatingDepth
     $: thingWidth = thingSize * XYElongation.x
     $: thingHeight = encapsulatingDepth >= 0 ? thingSize * XYElongation.y : thingSize * XYElongation.y / cohortSize - 2
     
 
     async function submit() {
         const parentThingId = ((thingWidgetModel.parentThingWidgetModel as ThingWidgetModel).thingId as number)
-        const space = (thingWidgetModel.parentCohort.address.parentThingWidgetModel as ThingWidgetModel).space
+        const space = (thingWidgetModel.thing?.parentCohort.parentThing as Thing).space as Space
         const directionId = space.directionIdByHalfAxisId[halfAxisId] as number
         const text = textField.value
 
         const newRelatedThing = await createNewRelatedThing(parentThingId, directionId, text)
         if (newRelatedThing && newRelatedThing.id) {
             await storeGraphConstructs<Thing>("Thing", parentThingId, true)
-            await graph.build()
-            addGraphIdsNeedingViewerRefresh(graph.id)
+            await graphWidgetModel.graph.build()
+            addGraphIdsNeedingViewerRefresh(graphWidgetModel.graph.id)
 
             const queriedThingSearchListItems = await thingSearchListItems([newRelatedThing.id])
             if (queriedThingSearchListItems) updateThingSearchListStore(queriedThingSearchListItems)
@@ -69,9 +69,9 @@
     }
 
     async function cancel() {
-        (thingWidgetModel.parentCohort as Cohort).removeMember(thingWidgetModel)
-        graph.formActive = false
-        addGraphIdsNeedingViewerRefresh(graph.id)
+        (thingWidgetModel.thing?.parentCohort as Cohort).removeMember(thingWidgetModel.thing)
+        graphWidgetModel.formActive = false
+        addGraphIdsNeedingViewerRefresh(graphWidgetModel.graph.id)
     }    
 </script>
 

@@ -1,14 +1,10 @@
-import type { Graph, CohortAddress } from "$lib/models/graphModels"
-
+import type { Graph, CohortAddress, Space } from "$lib/models/graphModels"
 import { cartesianHalfAxisIds } from "$lib/shared/constants"
-import { graphConstructInStore } from "$lib/stores"
-import { Cohort } from "$lib/models/graphModels"
-import { ThingCohortWidgetModel } from "$lib/models/widgetModels/thingCohortWidgetModel"
-import { RelationshipCohortWidgetModel } from "$lib/models/widgetModels/relationshipCohortWidgetModel"
-import { ThingBaseWidgetModel, ThingWidgetModel, ThingMissingFromStoreWidgetModel } from "$lib/models/widgetModels"
+import { graphConstructInStore, retrieveGraphConstructs } from "$lib/stores"
+import { Thing, Cohort } from "$lib/models/graphModels"
 
 
-export type GenerationMember = ThingBaseWidgetModel | ThingWidgetModel
+export type GenerationMember = Thing | null
 
 export class Generation {
     kind = "generation"
@@ -50,13 +46,13 @@ export class Generation {
 
     get membersById(): { [memberId: number]: GenerationMember } {
         const membersById: { [memberId: number]: GenerationMember } = {}
-        for (const member of this.members) if (member.thingId) membersById[member.thingId] = member
+        for (const member of this.members) if (member?.id) membersById[member.id] = member
         return membersById
     }
 
-    thingWidgetModels(): ThingWidgetModel[] {
-        const thingWidgetModels = this.members.filter(member => member.kind === "thingWidgetModel") as ThingWidgetModel[]
-        return thingWidgetModels
+    things(): Thing[] {
+        const things = this.members.filter(member => member !== null) as Thing[]
+        return things
     }
 
     
@@ -71,51 +67,52 @@ export class Generation {
             const addressForCohort: CohortAddress = {
                 graph: this.graph,
                 generationId: this.id,
-                parentThingWidgetModel: null,
+                parentThingId: null,
                 directionId: null
             }
             this.graph.rootCohort = new Cohort(addressForCohort, [])
             for (const memberId of memberIdsForGeneration) {
 
-                const member = this.graph.generations.thingIdsAlreadyInGraph.includes(memberId) ? new ThingBaseWidgetModel(memberId, this.graph) : // If the Thing is already modeled in the Graph, return a spacer model.
-                graphConstructInStore("Thing", memberId) ? new ThingWidgetModel(memberId, this.graph) :      // Else, if the Thing is in the Thing store, create a new model for that Thing ID.
-                new ThingMissingFromStoreWidgetModel(memberId, this.graph)     
-                 
+
+                const member = graphConstructInStore("Thing", memberId) ?
+                    retrieveGraphConstructs<Thing>("Thing", memberId) :
+                    null  
+                
                 this.graph.rootCohort.addMember(member)
             }
 
-            this.graph.rootThingCohortWidgetModel = new ThingCohortWidgetModel(this.graph.rootCohort, this.graph)
             this.graph.planes.addCohortToPlane(this.graph.rootCohort, 0)
 
 
         // For all Generations after 0, hook up that Generation's members, packaged in
-        // Cohorts, to the parent Thing Widget Models of the previous Generation.
+        // Cohorts, to the parent Things of the previous Generation.
         } else {
             // For each Thing (not Placeholder) in the previous Generation,
-            for (const prevThingWidgetModel of this.parentGeneration?.thingWidgetModels() || []) {
+            for (const prevThing of this.parentGeneration?.things() || []) {
                 
                 const cartesianDirectionIds: number[] = []
                 for (const cartesianHalfAxisId of cartesianHalfAxisIds) {
-                    const cartesianDirectionId = prevThingWidgetModel.space.directionIdByHalfAxisId[cartesianHalfAxisId]
+                    const cartesianDirectionId = (prevThing.space as Space).directionIdByHalfAxisId[cartesianHalfAxisId]
                     if (cartesianDirectionId) cartesianDirectionIds.push(cartesianDirectionId)
                 }
 
                 // For the ID of each half-axis from that Thing (plus any empty "Cartesian" half-axes - 1, 2, 3, 4),
                 const directionIdsForCohorts = [...new Set([
-                    ...prevThingWidgetModel.relatedThingDirectionIds,
+                    ...prevThing.relatedThingDirectionIds,
                     ...cartesianDirectionIds])
                 ]///////////////////////////////////////////////////// FIX THIS
                 for (const directionId of directionIdsForCohorts) {
+
                     // Get the address for that half axis' Cohort.
                     const addressForCohort = {
                         graph: this.graph,
                         generationId: this.id,
-                        parentThingWidgetModel: prevThingWidgetModel,
+                        parentThingId: prevThing.id,
                         directionId: directionId
                     }
 
                     // Get list of the Things in that half axis' Cohort.
-                    const childCohortThingIds = prevThingWidgetModel.relatedThingIdsByDirectionId[directionId] || []
+                    const childCohortThingIds = prevThing.relatedThingIdsByDirectionId[directionId] || []
                     // Add the members from this Generation matching those IDs as a new Cohort on that Half-Axis.
                     const membersIdForCohort = childCohortThingIds.length ?
                         memberIdsForGeneration.filter((memberId) => {if (childCohortThingIds.includes(memberId)) return true}) :
@@ -123,21 +120,14 @@ export class Generation {
                     const childCohort = new Cohort(addressForCohort, [])
 
                     for (const memberId of membersIdForCohort) {
-
-                        const member = this.graph.generations.thingIdsAlreadyInGraph.includes(memberId) ? new ThingBaseWidgetModel(memberId, this.graph) : // If the Thing is already modeled in the Graph, return a spacer model.
-                        graphConstructInStore("Thing", memberId) ? new ThingWidgetModel(memberId, this.graph) :      // Else, if the Thing is in the Thing store, create a new model for that Thing ID.
-                        new ThingMissingFromStoreWidgetModel(memberId, this.graph)     
-                         
+                        const member = graphConstructInStore("Thing", memberId) ?
+                            retrieveGraphConstructs<Thing>("Thing", memberId) :
+                            null  
+                        
                         childCohort.addMember(member)
                     }
 
-                    // Create a new Cohort Widget Model and assign to the previous Generation's Thing in that Direction.
-                    const childThingCohortWidgetModel = new ThingCohortWidgetModel(childCohort, this.graph)
-                    prevThingWidgetModel.childThingCohortWidgetModel(childThingCohortWidgetModel)
-
-                    // Create a new Relationships Widget Model and assign to the previous Generation's Thing in that Direction.
-                    const relationshipsWidgetModel = new RelationshipCohortWidgetModel(childCohort, prevThingWidgetModel.space, this.graph)
-                    prevThingWidgetModel.relationshipsWidgetModel(relationshipsWidgetModel)
+                    prevThing.childThingCohort(directionId, childCohort)
                 }
             }
         }

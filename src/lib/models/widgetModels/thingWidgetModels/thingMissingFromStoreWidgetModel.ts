@@ -1,11 +1,12 @@
-import type { Graph } from "$lib/models/graphModels"
+import type { GraphWidgetModel } from "../graphWidgetModel"
+import type { ThingCohortWidgetModel } from "$lib/models/widgetModels"
 import { ThingBaseWidgetModel } from "./"
 
 
 export class ThingMissingFromStoreWidgetModel extends ThingBaseWidgetModel {
     kind = "thingMissingFromStoreWidgetModel" as const
 
-    constructor(thingId: number, graph: Graph) {
-        super(thingId, graph)
+    constructor(thingId: number | null, graphWidgetModel: GraphWidgetModel, parentThingCohortWidgetModel: ThingCohortWidgetModel) {
+        super(thingId, graphWidgetModel, parentThingCohortWidgetModel)
     }
 }

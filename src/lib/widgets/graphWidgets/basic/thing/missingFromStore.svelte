@@ -1,10 +1,9 @@
 <script lang="ts">
-    import type { ThingMissingFromStoreWidgetModel } from "$lib/models/widgetModels"
-    import type { Graph } from "$lib/models/graphModels"
+    import type { GraphWidgetModel, ThingMissingFromStoreWidgetModel } from "$lib/models/widgetModels"
     import { planePadding } from "$lib/shared/constants"
 
     export let thingMissingFromStoreWidgetModel: ThingMissingFromStoreWidgetModel
-    export let graph: Graph
+    export let graphWidgetModel: GraphWidgetModel
 
 
     /* Variables situating the Thing in its spatial context (Half-Axis, Plane). */
@@ -19,7 +18,7 @@
     $: xYElongation = thingMissingFromStoreWidgetModel.xYElongation
 
     $: cohortSize = thingMissingFromStoreWidgetModel.cohortSize
-    $: thingSize = graph.graphWidgetStyle.thingSize + planePadding * planeId + encapsulatingPadding * encapsulatingDepth
+    $: thingSize = graphWidgetModel.graphWidgetStyle.thingSize + planePadding * planeId + encapsulatingPadding * encapsulatingDepth
     $: thingWidth = thingSize * xYElongation.x
     $: thingHeight = encapsulatingDepth >= 0 ? thingSize * xYElongation.y : thingSize * xYElongation.y / cohortSize - 2
 </script>

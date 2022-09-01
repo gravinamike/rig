@@ -17,15 +17,15 @@ import type { RelationshipWidgetModel } from "$lib/models/widgetModels/relations
 
 
     let leafHovered = false
-    $: thingHovered = cohortMemberWithIndex.member.thingId === $hoveredThingIdStore
-    $: relationshipHovered = cohortMemberWithIndex.member.thingId === thingIdOfHoveredRelationship
+    $: thingHovered = cohortMemberWithIndex.member && cohortMemberWithIndex.member.id === $hoveredThingIdStore
+    $: relationshipHovered = cohortMemberWithIndex.member && cohortMemberWithIndex.member.id === thingIdOfHoveredRelationship
     let leafClicked = false
 
     $: showDirection = leafHovered || relationshipHovered ? true : false
 
     async function changeRelationshipDirection(directionId: number) {
-        const sourceThingId = cohortMemberWithIndex.member.parentThingWidgetModel?.thingId || null
-        const destThingId = cohortMemberWithIndex.member.thingId
+        const sourceThingId = cohortMemberWithIndex.member?.parentThing?.id || null
+        const destThingId = cohortMemberWithIndex.member?.id || null
 
         if (sourceThingId && destThingId && directionId) {
             const relationshipsUpdated = await updateRelationships([
@@ -37,8 +37,8 @@ import type { RelationshipWidgetModel } from "$lib/models/widgetModels/relations
             ])
             if (relationshipsUpdated) {
                 await storeGraphConstructs<Thing>("Thing", sourceThingId, true)
-                await relationshipWidgetModel.relationshipCohortWidgetModel.graph.build()
-                addGraphIdsNeedingViewerRefresh(relationshipWidgetModel.relationshipCohortWidgetModel.graph.id)
+                await relationshipWidgetModel.relationshipCohortWidgetModel.graphWidgetModel.graph.build()
+                addGraphIdsNeedingViewerRefresh(relationshipWidgetModel.relationshipCohortWidgetModel.graphWidgetModel.graph.id)
             }
 
         }
@@ -49,7 +49,7 @@ import type { RelationshipWidgetModel } from "$lib/models/widgetModels/relations
 <!-- Relationship leaf. -->
 <div
     class="relationship-leaf"
-    on:mouseenter={()=>{thingIdOfHoveredRelationship = cohortMemberWithIndex.member.thingId}}
+    on:mouseenter={()=>{thingIdOfHoveredRelationship = cohortMemberWithIndex.member?.id || null}}
     on:mouseleave={()=>{thingIdOfHoveredRelationship = null}}
 >
     <svg
@@ -121,7 +121,7 @@ import type { RelationshipWidgetModel } from "$lib/models/widgetModels/relations
             <DirectionWidget
                 direction={relationshipWidgetModel.relationshipCohortWidgetModel.direction}
                 halfAxisId={relationshipWidgetModel.relationshipCohortWidgetModel.halfAxisId}
-                graph={relationshipWidgetModel.relationshipCohortWidgetModel.graph}
+                graphWidgetModel={relationshipWidgetModel.relationshipCohortWidgetModel.graphWidgetModel}
                 optionClickedFunction={(direction, _, __) => {
                     if (direction?.id) changeRelationshipDirection(direction.id)
                 }}

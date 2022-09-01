@@ -24,13 +24,13 @@
             <Collapser headerText={`Generation ${id}`} expanded={true}>
                 <div class="related-things-list">
                     {#each generation.members as member}
-                        {#if "text" in member && member.thing}
+                        {#if member}
                             <ThingDetailsWidget
-                                thing={member.thing}
+                                thing={member}
                             />
                         {:else}
                             <div class="box">
-                                ID: {member.thingId}
+                                ID: {member}
                             </div>
                         {/if}
                     {/each}

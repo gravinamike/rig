@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { HalfAxisId } from "$lib/shared/constants"
     import type { Direction, Thing, Graph } from "$lib/models/graphModels"
-    import type { ThingWidgetModel, RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
+    import type { ThingWidgetModel, RelationshipCohortWidgetModel, GraphWidgetModel } from "$lib/models/widgetModels"
 
     import { tweened } from "svelte/motion"
 	import { cubicOut } from "svelte/easing"
@@ -17,7 +17,7 @@
     let halfAxisId: HalfAxisId | null
     let color: string
     let opacity: number
-    let graph: Graph | null
+    let graphWidgetModel: GraphWidgetModel | null
     let scale: number | null
     let tweenedScale = tweened(1, {duration: 100, easing: cubicOut})
 
@@ -54,13 +54,13 @@
         color = "grey"
     }
 
-    $: if (sourceWidgetModel) {
-        graph = sourceWidgetModel.graph
+    $: if (sourceWidgetModel && graphWidgetModel) {
+        graphWidgetModel = sourceWidgetModel.graphWidgetModel
 
-        scale = zoomBase ** graph.graphWidgetStyle.zoom
+        scale = zoomBase ** sourceWidgetModel.graphWidgetModel.graphWidgetStyle.zoom
         tweenedScale.set(scale)
     } else {
-        graph = null
+        graphWidgetModel = null
 
         tweenedScale.set(1)
     }
@@ -98,8 +98,8 @@
             const newRelationshipCreated = await createNewRelationship(sourceThingId, destThingId, (direction.id) as number)
             if (newRelationshipCreated) {
                 await storeGraphConstructs<Thing>("Thing", [sourceThingId, destThingId], true)
-                await (graph as Graph).build()
-                addGraphIdsNeedingViewerRefresh((graph as Graph).id)
+                await (graphWidgetModel?.graph as Graph).build()
+                addGraphIdsNeedingViewerRefresh((graphWidgetModel?.graph as Graph).id)
             }
             disableRelationshipBeingCreated()
             disableRemoteRelating()
@@ -167,7 +167,7 @@
             display: flex; flex-direction: row;
         "
     >
-        {#if graph && (askingForDirection || (direction && halfAxisId))}
+        {#if graphWidgetModel && (askingForDirection || (direction && halfAxisId))}
             <div
                 class="direction-widget-container"
                 style="
@@ -180,7 +180,7 @@
                     {direction}
                     {halfAxisId}
                     {askingForDirection}
-                    {graph}
+                    {graphWidgetModel}
                     optionClickedFunction={(_, __, option) => {direction = option; $relationshipBeingCreatedInfoStore.selectedDirection = option}}
                 />
             </div>

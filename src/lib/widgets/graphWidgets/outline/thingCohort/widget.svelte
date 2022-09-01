@@ -1,7 +1,6 @@
 <script context="module" lang="ts">
     /* Type imports. */
-    import type { Graph } from "$lib/models/graphModels"
-    import type { ThingCohortWidgetModel } from "$lib/models/widgetModels";
+    import type { GraphWidgetModel, ThingCohortWidgetModel } from "$lib/models/widgetModels";
 
     /* Widget imports */
     import { CladeOutlineWidget, ThingOutlineAlreadyRenderedWidget } from "$lib/widgets/graphWidgets/"
@@ -14,7 +13,7 @@
      * @param  {(thingId: number) => Promise<void>} rePerspectToThingId - A function that re-perspects the Graph to a given Thing ID.
      */
     export let thingCohortWidgetModel: ThingCohortWidgetModel
-    export let graph: Graph
+    export let graphWidgetModel: GraphWidgetModel
     export let rePerspectToThingId: (thingId: number) => Promise<void>
 
 
@@ -25,19 +24,19 @@
 <div
     class="cohort-outline-widget"
 >
-    {#if !(thingCohortWidgetModel.cohort.members.length === 1 && indexOfGrandparentThing !== null && indexOfGrandparentThing !== -1)}<!-- Unless the ONLY descendent in a Half-Axis is a doubled-back parent Thing, -->
-        {#each thingCohortWidgetModel.cohort.members as cohortMember}
+    {#if !(thingCohortWidgetModel.memberModels.length === 1 && indexOfGrandparentThing !== null && indexOfGrandparentThing !== -1)}<!-- Unless the ONLY descendent in a Half-Axis is a doubled-back parent Thing, -->
+        {#each thingCohortWidgetModel.memberModels as cohortMember}
             {#if "text" in cohortMember}
                 <CladeOutlineWidget
                     thingWidgetModel={cohortMember}
-                    bind:graph
+                    bind:graphWidgetModel
                     {rePerspectToThingId}
                 />
             {:else if thingCohortWidgetModel.cohort.halfAxisId}
                 <ThingOutlineAlreadyRenderedWidget
                     thingBaseWidgetModel={cohortMember}
                     cohortHalfAxisId={thingCohortWidgetModel.cohort.halfAxisId}
-                    {graph}
+                    {graphWidgetModel}
                 />
             {/if}
         {/each}

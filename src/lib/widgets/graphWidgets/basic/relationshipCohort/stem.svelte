@@ -1,8 +1,7 @@
 <script context="module" lang="ts">
-    import type { Graph } from "$lib/models/graphModels"
     import { sleep } from "$lib/shared/utility"
     import { relationshipBeingCreatedInfoStore, enableRelationshipBeingCreated, setRelationshipBeingCreatedDestWidgetModel, hoveredThingIdStore, hoveredRelationshipTarget, inferredRelationshipBeingCreatedDirection, addGraphIdsNeedingViewerRefresh } from "$lib/stores"
-    import { ThingWidgetModel, RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
+    import { ThingWidgetModel, RelationshipCohortWidgetModel, GraphWidgetModel } from "$lib/models/widgetModels"
 </script>
 
 <script lang="ts">
@@ -15,27 +14,29 @@
     export let stemBottom: number
     export let stemTop: number
 
-    export let graph: Graph
+    export let graphWidgetModel: GraphWidgetModel
 
     const cohort = relationshipsWidgetModel.cohort
 
-    const ofPerspectiveThing = relationshipsWidgetModel.parentThingWidgetModel.address.generationId === 0 ? true : false
+    const ofPerspectiveThing = relationshipsWidgetModel.parentThing && relationshipsWidgetModel.parentThing.address.generationId === 0 ? true : false
     $: relationshipsExist = cohort.members.length ? true : false
 
-    $: thingHovered = cohort.members.map(member => member.thingId).includes($hoveredThingIdStore)
-    $: relationshipHovered = cohort.members.map(member => member.thingId).includes(thingIdOfHoveredRelationship)
+    $: thingHovered = cohort.members.map(member => member && member.id).includes($hoveredThingIdStore)
+    $: relationshipHovered = cohort.members.map(member => member && member.id).includes(thingIdOfHoveredRelationship)
     let stemClicked = false
 
     /*
      * Add a blank Thing Form to the related Cohort.
      */
     async function addThingForm() {
-        const newThingWidgetModel = new ThingWidgetModel(null, graph)
-        if (!graph.formActive) {
-            cohort.addMember(newThingWidgetModel)
-            graph.formActive = true
+        const associatedThingCohortWidgetModel = relationshipsWidgetModel.parentThingWidgetModel.childThingCohortWidgetModelByHalfAxisId[cohort.halfAxisId]
+
+        const newThingWidgetModel = new ThingWidgetModel(null, graphWidgetModel, associatedThingCohortWidgetModel)
+        if (!graphWidgetModel.formActive) {
+            associatedThingCohortWidgetModel.addMemberModel(newThingWidgetModel)
+            graphWidgetModel.formActive = true
         }
-        addGraphIdsNeedingViewerRefresh(graph.id)
+        addGraphIdsNeedingViewerRefresh(graphWidgetModel.graph.id)
         await sleep(50)// Allow the Thing Form Widget to render.
         const thingFormTextField = document.getElementById("thing-form-text-field")//// Instead find the ThingForm, and access the field as a property.
         thingFormTextField?.focus()

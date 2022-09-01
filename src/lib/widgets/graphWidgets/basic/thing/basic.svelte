@@ -1,7 +1,7 @@
 <script lang="ts">
     /* Type imports. */
-    import type { Thing, Graph } from "$lib/models/graphModels"
-    import type { ThingWidgetModel } from "$lib/models/widgetModels"
+    import type { Thing } from "$lib/models/graphModels"
+    import type { GraphWidgetModel, ThingWidgetModel } from "$lib/models/widgetModels"
 
     /* Store imports. */
     import {
@@ -29,7 +29,7 @@
      * @param  {(thingId: number) => Promise<void>} rePerspectToThingId - A function that re-perspects the Graph to a given Thing ID.
      */
     export let thingWidgetModel: ThingWidgetModel
-    export let graph: Graph
+    export let graphWidgetModel: GraphWidgetModel
     export let rePerspectToThingId: (id: number) => Promise<void>
 
 
@@ -41,7 +41,7 @@
     /* Variables situating the Thing in its spatial context (Half-Axis, Plane). */
     $: halfAxisId = thingWidgetModel.halfAxisId
     $: planeId = thingWidgetModel.planeId
-    $: distanceFromFocalPlane = planeId - graph.planes.focalPlaneId
+    $: distanceFromFocalPlane = planeId - graphWidgetModel.graph.planes.focalPlaneId
     
     /* Variables dealing with Thing sizing. */
     $: elongationCategory = thingWidgetModel.elongationCategory
@@ -66,8 +66,8 @@
 
     /* Variables dealing with visual formatting of the Thing's text. */
     let textFontSize = encapsulatingDepth >= 0 ?
-        graph.graphWidgetStyle.thingTextSize :
-        graph.graphWidgetStyle.thingTextSize / Math.log2(cohortSize)
+        graphWidgetModel.graphWidgetStyle.thingTextSize :
+        graphWidgetModel.graphWidgetStyle.thingTextSize / Math.log2(cohortSize)
 
     /* Variables dealing with associated components. */
     const showContent = false // Content is in development - so `showContent` will eventually be a variable.
@@ -85,10 +85,10 @@
      * Complete a delete operation after it has been confirmed.
      */
     async function completeDelete() {
-        await graph.deleteThingById(thingId)
+        await graphWidgetModel.graph.deleteThingById(thingId)
         await unstoreGraphConstructs("Thing", thingId)
 
-        const reverseHistory = graph.history._entries.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+        const reverseHistory = graphWidgetModel.graph.history._entries.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
         for (const historyEntry of reverseHistory) {
             if (historyEntry.thingId !== thingId && graphConstructInStore("Thing", historyEntry.thingId)) {
                 rePerspectToThingId(historyEntry.thingId)

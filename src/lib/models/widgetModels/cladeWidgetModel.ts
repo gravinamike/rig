@@ -1,5 +1,5 @@
-import type { Note, Graph } from "$lib/models/graphModels"
-import type { ThingWidgetModel, ThingCohortWidgetModel, RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
+import type { Note } from "$lib/models/graphModels"
+import type { GraphWidgetModel, ThingWidgetModel, ThingCohortWidgetModel, RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
 
 
 export class CladeWidgetModel {
@@ -10,32 +10,32 @@ export class CladeWidgetModel {
         childThingCohorts: ThingCohortWidgetModel[]
         childRelationshipCohortsByHalfAxisId: { [directionId: number]: RelationshipCohortWidgetModel }
     }
-    graph: Graph
+    graphWidgetModel: GraphWidgetModel
 
-    constructor(rootThingWidgetModel: ThingWidgetModel, graph: Graph) {
+    constructor(rootThingWidgetModel: ThingWidgetModel, graphWidgetModel: GraphWidgetModel) {
         this.submodels = {
             rootThing: rootThingWidgetModel,
             childThingCohorts: rootThingWidgetModel.childThingCohortWidgetModels,
             childRelationshipCohortsByHalfAxisId: rootThingWidgetModel.relationshipsWidgetModelsByHalfAxisId
         }
-        this.graph = graph
+        this.graphWidgetModel = graphWidgetModel
     }
 
     get overlapMarginStyleText(): string {
-        const betweenThingOverlap = this.graph.graphWidgetStyle.betweenThingOverlap
+        const betweenThingOverlap = this.graphWidgetModel.graphWidgetStyle.betweenThingOverlap
         let overlapMarginStyleText: string
-        if (this.submodels.rootThing.parentCohort.members.length === 1) {
+        if (this.submodels.rootThing.thing && this.submodels.rootThing.thing.parentCohort.members.length === 1) {
             overlapMarginStyleText = ""
-        } else if (this.submodels.rootThing.address.indexInCohort === 0) {
-            overlapMarginStyleText = this.submodels.rootThing.parentCohort.rowOrColumn() === "row" ?
+        } else if (this.submodels.rootThing.thing && this.submodels.rootThing.thing.address.indexInCohort === 0) {
+            overlapMarginStyleText = this.submodels.rootThing.thing && this.submodels.rootThing.thing.parentCohort.rowOrColumn() === "row" ?
                 `margin-right: ${betweenThingOverlap / 2}px;` :
                 `margin-bottom: ${betweenThingOverlap / 2}px;`
-        } else if (this.submodels.rootThing.address.indexInCohort === this.submodels.rootThing.parentCohort.members.length - 1) {
-            overlapMarginStyleText = this.submodels.rootThing.parentCohort.rowOrColumn() === "row" ?
+        } else if (this.submodels.rootThing.thing && this.submodels.rootThing.thing.address.indexInCohort === this.submodels.rootThing.thing.parentCohort.members.length - 1) {
+            overlapMarginStyleText = this.submodels.rootThing.thing.parentCohort.rowOrColumn() === "row" ?
                 `margin-left: ${betweenThingOverlap / 2}px;` :
                 `margin-top: ${betweenThingOverlap / 2}px;`
         } else {
-            overlapMarginStyleText = this.submodels.rootThing.parentCohort.rowOrColumn() === "row" ?
+            overlapMarginStyleText = this.submodels.rootThing.thing && this.submodels.rootThing.thing.parentCohort.rowOrColumn() === "row" ?
                 `margin-left: ${betweenThingOverlap / 2}px; margin-right: ${betweenThingOverlap / 2}px;` :
                 `margin-top: ${betweenThingOverlap / 2}px; margin-bottom: ${betweenThingOverlap / 2}px;`
         }

@@ -21,7 +21,7 @@
 
         <h4>{`${thing.id} ${thing.text}`}</h4>
 
-        <h4>Space: {thing.defaultplane}</h4>
+        <h4>Space: {thing.dbModel?.defaultplane || "UNDEFINED"}</h4>
 
         <Collapser headerText={"Related Things"}>
             <div class="related-things-list">

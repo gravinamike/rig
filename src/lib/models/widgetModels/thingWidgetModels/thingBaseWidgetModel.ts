@@ -1,9 +1,10 @@
 import type { HalfAxisId } from "$lib/shared/constants"
-import type { Space, Thing, Cohort, Graph } from "$lib/models/graphModels"
-import type { ThingAddress, ThingWidgetModel } from "./"
+import type { Thing, Graph } from "$lib/models/graphModels"
+import type { GraphWidgetModel } from "../graphWidgetModel"
+import type { ThingCohortWidgetModel, ThingWidgetModel } from "$lib/models/widgetModels"
 
-import { oddHalfAxisIds, planePadding } from "$lib/shared/constants"
-import { graphConstructInStore, retrieveGraphConstructs } from "$lib/stores"
+import { planePadding } from "$lib/shared/constants"
+import { retrieveGraphConstructs } from "$lib/stores"
 
 
 export class ThingBaseWidgetModel {
@@ -11,30 +12,19 @@ export class ThingBaseWidgetModel {
 
     thingId: number | null
     thing: Thing | null
+    graphWidgetModel: GraphWidgetModel
     graph: Graph
-    _parentCohort: Cohort | null = null
-    inheritSpace = true // For now.
+    parentThingCohortWidgetModel: ThingCohortWidgetModel | null
 
-    constructor(thingId: number | null, graph: Graph) {
+    constructor(thingId: number | null, graphWidgetModel: GraphWidgetModel, parentThingCohortWidgetModel: ThingCohortWidgetModel) {
         this.thingId = thingId
         this.thing = typeof thingId === "number" ? retrieveGraphConstructs("Thing", thingId) : null
-        this.graph = graph
-    }
-
-    get parentCohort(): Cohort {
-        return this._parentCohort as Cohort
-    }
-
-    set parentCohort(cohort: Cohort) {
-        this._parentCohort = cohort
+        this.graphWidgetModel = graphWidgetModel
+        this.graph = graphWidgetModel.graph
+        this.parentThingCohortWidgetModel = parentThingCohortWidgetModel
     }
 
     // The following getter functions pass along the corresponding attributes from the encapsulated Thing.
-    get defaultSpaceId(): number | null {
-        const defaultSpaceId = this.thing ? this.thing.defaultplane : null
-        return defaultSpaceId
-    }
-
     get relatedThingIds(): (number | null)[] {
         const relatedThingIds = this.thing ? this.thing.relatedThingIds : []
         return relatedThingIds
@@ -45,130 +35,41 @@ export class ThingBaseWidgetModel {
         return relatedThingIdsByDirectionId
     }
 
-    
-    
-    offAxisRelatedThingIds(space=this.space): number[] {
-        const offAxisRelatedThingIds: number[] = []
 
-        const onAxisDirectionIds: number[] = []
-
-        for (const direction of space.directions) {
-            if (direction.id) onAxisDirectionIds.push(direction.id)
-            if (direction.oppositeid) onAxisDirectionIds.push(direction.oppositeid)
-        }
-
-
-
-        for (const directionId of this.relatedThingDirectionIds) {
-            if (!(onAxisDirectionIds.includes(directionId))) {
-                offAxisRelatedThingIds.push(...this.relatedThingIdsByDirectionId[directionId])
-            }
-        }
-        return offAxisRelatedThingIds
+    get parentThingWidgetModel(): ThingWidgetModel | null {
+        return this.parentThingCohortWidgetModel?.parentThingWidgetModel || null
     }
 
 
-
-    get relatedThingDirectionIds(): number[] {
-        const relatedThingDirectionIds = Object.keys(this.relatedThingIdsByDirectionId).map(k => Number(k))
-        return relatedThingDirectionIds
-    }
 
     // The following getter functions pass along the corresponding attributes from the Thing Widget's Cohort.
-    get parentThingWidgetModel(): ThingWidgetModel | null {
-        const parentThingWidgetModel = this.parentCohort && this.parentCohort.address ?
-            this.parentCohort.address.parentThingWidgetModel :
+    get parentThingId(): number | null {
+        const parentThingId = this.thing?.parentCohort?.address ?
+            this.thing.parentCohort.address.parentThingId :
             null
-        return parentThingWidgetModel
+        return parentThingId
     }
 
     get halfAxisId(): HalfAxisId | 0 {
-        return this.parentCohort.halfAxisId || 0
+        return this.thing?.parentCohort.halfAxisId || 0
     }
 
     get encapsulatingDepth(): number {
-        return this.parentCohort.encapsulatingDepth
+        return this.thing?.parentCohort.encapsulatingDepth || 0
     }
 
     // The following getter functions are derived from the pass-along getter functions above.
-    get address(): ThingAddress {
-        const address = {
-            graph: this.parentCohort.address.graph,
-            generationId: this.parentCohort.address.generationId,
-            parentThingWidgetModel: this.parentCohort.address.parentThingWidgetModel,
-            halfAxisId: this.parentCohort.halfAxisId,
-            indexInCohort: this.parentCohort.indexOfMember(this) as number
-        }
-        return address
-    }
-
-    get space(): Space {
-        let space: Space
-
-        // If the Graph has a starting Space and this is the Perspective Thing,
-        // use the starting Space.
-        if (this.graph.startingSpace && !this.parentThingWidgetModel) {
-            space = this.graph.startingSpace
-            
-        // Else, if...
-        } else if (
-            (
-                // ... the Thing Widget Model doesn't have a parent,
-                !this.parentThingWidgetModel
-                // ... or is set not to inherit Space from a parent,
-                || !this.inheritSpace
-            )
-            && (
-                // ... and the Thing Widget Model has a default Space set,
-                this.defaultSpaceId
-                // ... and that default Space is in the Store,
-                && graphConstructInStore("Space", this.defaultSpaceId)
-            )
-        ) {
-            // ...use the Thing Widget Model's own default Space.
-            space = retrieveGraphConstructs<Space>("Space", this.defaultSpaceId) as Space
-
-        // Else, if the Thing Widget model has a parent, inherit the parent's Space.
-        } else if (this.parentThingWidgetModel) {
-            space = this.parentThingWidgetModel.space
-
-        // If all else fails, just use the first Space in the list of Spaces.
-        } else {
-            space = retrieveGraphConstructs<Space>("Space", 1) as Space//What if there is no spacesStoreValue[1]? Supply an empty Space.
-        }
-
-        return space
-    }
 
     get cohortSize(): number {
-        return this.parentCohort.members.length || 1
-    }
-
-    get relatedThingHalfAxisIds(): Set<HalfAxisId> {
-        const relatedThingHalfAxisIds: Set<HalfAxisId> = new Set()
-        for (const directionID of this.relatedThingDirectionIds) {
-            const halfAxisId = this.space.halfAxisIdByDirectionId[directionID]
-            if (halfAxisId) relatedThingHalfAxisIds.add(halfAxisId)
-        }
-        return relatedThingHalfAxisIds
-    }
-    
-    get directionIdByHalfAxisId(): { [halfAxisId: number]: number | null } {
-        const directionIdByHalfAxisId: { [halfAxisId: number]: number | null } = {};
-        for (const oddHalfAxisId of oddHalfAxisIds) {
-            const direction = this.space.directions[(oddHalfAxisId - 1)/2];
-            directionIdByHalfAxisId[oddHalfAxisId] = direction.id;
-            directionIdByHalfAxisId[oddHalfAxisId + 1] = direction.oppositeid;
-        }
-        return directionIdByHalfAxisId
+        return this.thing?.parentCohort.members.length || 1
     }
 
     get planeId(): number {
-        const planeId = [7, 8].includes(this.halfAxisId) && this.parentThingWidgetModel ?
+        const planeId = [7, 8].includes(this.halfAxisId) && this.thing?.parentThing ?
             // If the Thing is on the encapsulating axis, inherit the Plane from the Thing's parent Thing.
-            this.parentThingWidgetModel.parentCohort.plane?.id || 0 :
+            this.thing.parentThing.parentCohort.plane?.id || 0 :
             // Otherwise use the Thing's own Plane.
-            this.parentCohort.plane?.id || 0
+            this.thing?.parentCohort.plane?.id || 0
         return planeId
     }
 
@@ -187,7 +88,7 @@ export class ThingBaseWidgetModel {
 
 
     get elongation(): number {
-        return this.parentCohort.axialElongation
+        return this.thing?.parentCohort.axialElongation || 1
     }
 
     get elongationCategory(): "vertical" | "horizontal" | "neutral" {
@@ -232,7 +133,7 @@ export class ThingBaseWidgetModel {
 
     get thingSize(): number {
         return (
-            this.graph.graphWidgetStyle.thingSize
+            this.graphWidgetModel.graphWidgetStyle.thingSize
             + planePadding * this.planeId
             + this.encapsulatingPadding * this.encapsulatingDepth
         )

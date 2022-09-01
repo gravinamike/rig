@@ -1,7 +1,6 @@
 <script lang="ts">
     // Graph construct imports.
-    import type { Graph } from "$lib/models/graphModels"
-    import type { ThingWidgetModel, ThingCohortWidgetModel } from "$lib/models/widgetModels"
+    import type { ThingWidgetModel, ThingCohortWidgetModel, GraphWidgetModel } from "$lib/models/widgetModels"
     
     // Constant imports.
     import { relationshipColorByHalfAxisId } from "$lib/shared/constants"
@@ -13,7 +12,7 @@
     import { ThingOutlineWidget, ThingOutlineFormWidget, RelationshipsOutlineWidget, ThingCohortOutlineWidget } from "$lib/widgets/graphWidgets"
 
     export let thingWidgetModel: ThingWidgetModel
-    export let graph: Graph
+    export let graphWidgetModel: GraphWidgetModel
     export let rePerspectToThingId: (id: number) => Promise<void>
     
 
@@ -27,7 +26,7 @@
     // 3. Then all those not on a half-axis.
     function getOrderedThingCohortWidgetModels(
         thingWidgetModel: ThingWidgetModel,
-        excludeHalfAxes=graph.graphWidgetStyle.excludeCartesianAxes
+        excludeHalfAxes=graphWidgetModel.graphWidgetStyle.excludeCartesianAxes
     ): ThingCohortWidgetModel[] {
 
         const orderedHalfAxisIds = [2, 1, 4, 3, 5, 6, 8, 7]
@@ -76,8 +75,9 @@
 
 
     $: showCladeRootThing = (
-        thingWidgetModel.address.generationId === 0
-        && graph.graphWidgetStyle.excludePerspectiveThing
+        thingWidgetModel.thing
+        && thingWidgetModel.thing.address.generationId === 0
+        && graphWidgetModel.graphWidgetStyle.excludePerspectiveThing
     ) ?
         false :
         true
@@ -95,13 +95,13 @@
         {#if thingWidgetModel.thing}
             <ThingOutlineWidget
                 {thingWidgetModel}
-                bind:graph
+                bind:graphWidgetModel
                 {rePerspectToThingId}
             />
         {:else}
             <ThingOutlineFormWidget
                 {thingWidgetModel}
-                bind:graph
+                bind:graphWidgetModel
             />
         {/if}
     {/if}
@@ -140,7 +140,7 @@
                     >
                         <RelationshipsOutlineWidget
                             relationshipsWidgetModel={relationshipWidgetModelsByHalfAxisId[thingCohortWidgetModel.cohort.halfAxisId]}
-                            bind:graph
+                            bind:graphWidgetModel
                         />
                     </div>
                 {/if}
@@ -153,7 +153,7 @@
                 )}
                     <ThingCohortOutlineWidget
                         {thingCohortWidgetModel}
-                        bind:graph
+                        bind:graphWidgetModel
                         {rePerspectToThingId}
                     />
                 {/if}

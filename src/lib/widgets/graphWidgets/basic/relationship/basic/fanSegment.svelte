@@ -17,14 +17,14 @@
 
 
     let fanSegmentHovered = false
-    $: thingHovered = cohortMemberWithIndex.member.thingId === $hoveredThingIdStore
-    $: relationshipHovered = cohortMemberWithIndex.member.thingId === thingIdOfHoveredRelationship
+    $: thingHovered = cohortMemberWithIndex.member && cohortMemberWithIndex.member.id === $hoveredThingIdStore
+    $: relationshipHovered = cohortMemberWithIndex.member && cohortMemberWithIndex.member.id === thingIdOfHoveredRelationship
     let fanSegmentClicked = false
 
     async function deleteRelationship() {
-        const graph = cohortMemberWithIndex.member.graph
-        const sourceThingId = cohortMemberWithIndex.member.parentThingWidgetModel?.thingId || null
-        const sourceThing = cohortMemberWithIndex.member.parentThingWidgetModel?.thing || null
+        const graph = (cohortMemberWithIndex.member as Thing).graph
+        const sourceThingId = cohortMemberWithIndex.member?.parentThing?.id || null
+        const sourceThing = cohortMemberWithIndex.member?.parentThing || null
         const destThingId = thingIdOfHoveredRelationship
         const destThing = thingIdOfHoveredRelationship ?
             retrieveGraphConstructs("Thing", thingIdOfHoveredRelationship) as Thing :
@@ -44,7 +44,7 @@
             }
         }
 
-        if (sourceThingId && destThingId) {
+        if (graph && sourceThingId && destThingId) {
             await graph.deleteRelationshipByThingIds(sourceThingId, destThingId)
             addGraphIdsNeedingViewerRefresh(graph.id)
         }
@@ -52,8 +52,8 @@
 
 
 
-    $: sourceThingId = cohortMemberWithIndex.member.parentThingWidgetModel?.thingId || null
-    $: destThingId = cohortMemberWithIndex.member.thingId
+    $: sourceThingId = cohortMemberWithIndex.member?.parentThing?.id || null
+    $: destThingId = cohortMemberWithIndex.member?.id
     $: dragSourceThingId = $relationshipBeingCreatedInfoStore.sourceWidgetModel ?
         (
             $relationshipBeingCreatedInfoStore.sourceWidgetModel.kind === "thingWidgetModel" ?
@@ -87,7 +87,9 @@
         stroke: {relationshipWidgetModel.relationshipCohortWidgetModel.relationshipColor};
         fill: {relationshipWidgetModel.relationshipCohortWidgetModel.relationshipColor};
     "
-    on:mouseenter={()=>{thingIdOfHoveredRelationship = cohortMemberWithIndex.member.thingId}}
+    on:mouseenter={()=>{
+        thingIdOfHoveredRelationship = cohortMemberWithIndex.member?.id || null
+    }}
     on:mouseleave={()=>{thingIdOfHoveredRelationship = null}}
 >
  
@@ -119,10 +121,7 @@
     {#if (
         // Show delete button if the Relationship is hovered, except those relating to Thing Forms.
         relationshipHovered
-        && !(
-            cohortMemberWithIndex.member.kind === "thingWidgetModel"
-            && !cohortMemberWithIndex.member.thing
-        )
+        && cohortMemberWithIndex.member
     )}
         <svg
             class="delete-button-container"
@@ -132,7 +131,10 @@
             "
             x={leafGeometry.bottomMidline}
             y={leafGeometry.bottom}
-            on:mouseenter={()=>{fanSegmentHovered = true; thingIdOfHoveredRelationship = cohortMemberWithIndex.member.thingId}}
+            on:mouseenter={()=>{
+                fanSegmentHovered = true
+                thingIdOfHoveredRelationship = cohortMemberWithIndex.member?.id || null
+            }}
             on:mouseleave={()=>{fanSegmentHovered = false; thingIdOfHoveredRelationship = null}}
         >
             <XButton

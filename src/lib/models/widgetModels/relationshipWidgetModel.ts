@@ -31,7 +31,7 @@ export class RelationshipWidgetModel {
      * @return {Object} - Object specifying the leaf's geometry.
      */
     leafGeometry( scale: number ): { bottom: number, top: number, bottomMidline: number, topMidline: number } {
-        if (this.cohortMemberWithIndex.member.kind === "thingBaseWidgetModel") {
+        if (this.cohortMemberWithIndex.member === null) {
 
             const sizeOfThingsAlongLength = (
                 [1, 2].includes(this.relationshipCohortWidgetModel.halfAxisId) ?
@@ -66,7 +66,7 @@ export class RelationshipWidgetModel {
 
             const defaultLeafMidline = (
                 0.5 * this.relationshipCohortWidgetModel.sizeOfThingsAlongWidth
-                + (this.relationshipCohortWidgetModel.sizeOfThingsAlongWidth + this.relationshipCohortWidgetModel.graph.graphWidgetStyle.betweenThingSpacing) * this.cohortMemberWithIndex.index
+                + (this.relationshipCohortWidgetModel.sizeOfThingsAlongWidth + this.relationshipCohortWidgetModel.graphWidgetModel.graphWidgetStyle.betweenThingSpacing) * this.cohortMemberWithIndex.index
             )
 
             return {

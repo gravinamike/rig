@@ -1,5 +1,6 @@
 <script lang="ts">
-    import type { Thing, Graph } from "$lib/models/graphModels"
+    import type { Thing } from "$lib/models/graphModels"
+    import type { GraphWidgetModel } from "$lib/models/widgetModels"
     import type { SearchOption } from "$lib/widgets/navWidgets/searchWidget"
     import {
         thingLinkingStore, updateThingLinkingUrl, disableThingLinking, retrieveGraphConstructs
@@ -8,7 +9,7 @@
     import { sleep } from "$lib/shared/utility"
 
 
-    let graph: Graph | null = null
+    let graphWidgetModel: GraphWidgetModel | null = null
 
     function handleEscape(event: KeyboardEvent) {
         if (event.key === "Escape") cancel()
@@ -61,7 +62,7 @@
         on:keyup|stopPropagation={handleEscape}
     >
         <RemoteSelectingWidget
-            bind:graph
+            bind:graphWidgetModel
             {submitMethod}
         /> 
     </div>

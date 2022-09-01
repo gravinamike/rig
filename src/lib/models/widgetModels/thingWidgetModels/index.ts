@@ -1,4 +1,3 @@
-export * from "./thingAddress"
 export * from "./thingBaseWidgetModel"
 export * from "./thingMissingFromStoreWidgetModel"
 export * from "./thingAlreadyRenderedWidgetModel"

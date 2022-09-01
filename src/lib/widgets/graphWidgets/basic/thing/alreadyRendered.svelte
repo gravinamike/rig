@@ -1,14 +1,14 @@
 <script lang="ts">
     import { hoveredThingIdStore } from "$lib/stores"
-    import type { ThingBaseWidgetModel } from "$lib/models/widgetModels"
-    import type { Graph } from "$lib/models/graphModels"
+    import type { Thing } from "$lib/models/graphModels";
+    import type { GraphWidgetModel, ThingBaseWidgetModel } from "$lib/models/widgetModels"
     import type { HalfAxisId } from "$lib/shared/constants"
     import { planePadding, relationshipColorByHalfAxisId } from "$lib/shared/constants"
     
 
     export let thingBaseWidgetModel: ThingBaseWidgetModel
     export let cohortHalfAxisId: HalfAxisId | 0
-    export let graph: Graph
+    export let graphWidgetModel: GraphWidgetModel
 
 
     /* Variables situating the Thing in its spatial context (Half-Axis, Plane). */
@@ -23,7 +23,7 @@
     $: xYElongation = thingBaseWidgetModel.xYElongation
 
     $: cohortSize = thingBaseWidgetModel.cohortSize
-    $: thingSize = graph.graphWidgetStyle.thingSize + planePadding * planeId + encapsulatingPadding * encapsulatingDepth
+    $: thingSize = graphWidgetModel.graphWidgetStyle.thingSize + planePadding * planeId + encapsulatingPadding * encapsulatingDepth
     $: thingWidth = thingSize * xYElongation.x
     $: thingHeight = encapsulatingDepth >= 0 ? thingSize * xYElongation.y : thingSize * xYElongation.y / cohortSize - 2
 
@@ -37,17 +37,17 @@
 
 
     
-    $: betweenThingOverlap = graph.graphWidgetStyle.betweenThingOverlap
+    $: betweenThingOverlap = graphWidgetModel.graphWidgetStyle.betweenThingOverlap
 
     let overlapMarginStyleText: string
     const rowOrColumn = [1, 2].includes(cohortHalfAxisId) ? "row" : "column"
-    $: if (thingBaseWidgetModel.parentCohort.members.length === 1) {
+    $: if ((thingBaseWidgetModel.thing as Thing).parentCohort.members.length === 1) {
         overlapMarginStyleText = ""
-    } else if (thingBaseWidgetModel.address.indexInCohort === 0) {
+    } else if ((thingBaseWidgetModel.thing as Thing).address.indexInCohort === 0) {
         overlapMarginStyleText = rowOrColumn === "row" ?
             `margin-right: ${betweenThingOverlap / 2}px;` :
             `margin-bottom: ${betweenThingOverlap / 2}px;`
-    } else if (thingBaseWidgetModel.address.indexInCohort === thingBaseWidgetModel.parentCohort.members.length - 1) {
+    } else if ((thingBaseWidgetModel.thing as Thing).address.indexInCohort === (thingBaseWidgetModel.thing as Thing).parentCohort.members.length - 1) {
         overlapMarginStyleText = rowOrColumn === "row" ?
             `margin-left: ${betweenThingOverlap / 2}px;` :
             `margin-top: ${betweenThingOverlap / 2}px;`

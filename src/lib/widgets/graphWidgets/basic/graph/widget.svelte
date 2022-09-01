@@ -1,6 +1,6 @@
 <script lang="ts">
     // Import types.
-    import type { Graph } from "$lib/models/graphModels"
+    import type { GraphWidgetModel } from "$lib/models/widgetModels"
 
     // Import basic framework functions.
     import { onMount } from "svelte"
@@ -18,12 +18,13 @@
     import { ThingCohortWidget } from "$lib/widgets/graphWidgets"
     import SpaceFrameWidget from "./spaceFrame.svelte"
     
-    export let graph: Graph
+    export let model: GraphWidgetModel
     export let rePerspectToThingId: (thingId: number) => Promise<void>
 
     
     // Set up reactively derived attributes of Graph.
-    $: graphWidgetStyle = graph.graphWidgetStyle
+    $: graph = model.graph
+    $: graphWidgetStyle = model.graphWidgetStyle
     $: graphWidgetStyle.betweenThingSpacing = 0.01 * graphWidgetStyle.thingSpacingPercent * graphWidgetStyle.thingSize
     $: graphWidgetStyle.betweenThingGap = Math.max(0, graphWidgetStyle.betweenThingSpacing)
     $: graphWidgetStyle.betweenThingOverlap = Math.min(0, graphWidgetStyle.betweenThingSpacing)
@@ -38,20 +39,20 @@
 
     $: currentSpace = graph.startingSpace ?
         graph.startingSpace :
-        graph.pThingBaseWidgetModel?.space || null
+        graph.pThing?.space || null
 
 
     // Set up reactive zooming and scrolling.
-    $: scale = zoomBase ** graph.graphWidgetStyle.zoom
+    $: scale = zoomBase ** model.graphWidgetStyle.zoom
     $: tweenedScale = tweened(1, { duration: 100, easing: cubicOut })
     $: tweenedScale.set(scale)
-    $: zoomPadding = graph.graphWidgetStyle.zoomPadding
-    $: if (graph.allowScrollToThingId && graph.thingIdToScrollTo) { // Before graph is re-Perspected, scroll to new Perspective Thing.
-        scrollToThingId(graph.thingIdToScrollTo)
+    $: zoomPadding = model.graphWidgetStyle.zoomPadding
+    $: if (model.allowScrollToThingId && model.thingIdToScrollTo) { // Before graph is re-Perspected, scroll to new Perspective Thing.
+        scrollToThingId(model.thingIdToScrollTo)
     }
-    $: if (centralAnchor && graph.allowZoomAndScrollToFit) { // When graph is re-built, scroll to central anchor, then zoom and scroll to fit.
+    $: if (centralAnchor && model.allowZoomAndScrollToFit) { // When graph is re-built, scroll to central anchor, then zoom and scroll to fit.
         scrollToCentralAnchor(false)
-        graph.allowZoomAndScrollToFit = false
+        model.allowZoomAndScrollToFit = false
         zoomAndScroll()
     }
 
@@ -87,8 +88,8 @@
      */
     function handleWheelScroll(event: WheelEvent) {
         if ($relationshipBeingCreatedInfoStore.sourceWidgetModel === null) {
-            const newZoom = graph.graphWidgetStyle.zoom + event.deltaY * -0.005
-            if (-5 <= newZoom && newZoom <= 5) graph.graphWidgetStyle.zoom = newZoom
+            const newZoom = model.graphWidgetStyle.zoom + event.deltaY * -0.005
+            if (-5 <= newZoom && newZoom <= 5) model.graphWidgetStyle.zoom = newZoom
         }
     }
 
@@ -102,7 +103,7 @@
         if (thingWidget) {
             thingWidget.scrollIntoView({behavior: graphWidgetStyle.animateZoomAndScroll ? "smooth" : "auto", block: "center", inline: "center"})
         }
-        graph.allowScrollToThingId = false
+        model.allowScrollToThingId = false
     }
 
     /**
@@ -150,7 +151,7 @@
         // Determine the new scale, and set the Graph's zoom accordingly.
         const newScale = scaleChange * scale
         const newZoom = Math.log(newScale) / Math.log(1.45)
-        graph.graphWidgetStyle.zoom = newZoom
+        model.graphWidgetStyle.zoom = newZoom
     }
 
     /**
@@ -208,10 +209,10 @@
             />
             
             <!-- Root Cohort Widget (from which the rest of the Graph automatically "grows"). -->
-            {#if graph.rootThingCohortWidgetModel}
+            {#if model.rootThingCohortWidgetModel}
                 <ThingCohortWidget
-                    thingCohortWidgetModel={graph.rootThingCohortWidgetModel}
-                    bind:graph
+                    thingCohortWidgetModel={model.rootThingCohortWidgetModel}
+                    bind:graphWidgetModel={model}
                     {rePerspectToThingId}
                 />
             {/if}
@@ -229,7 +230,7 @@
 
     <!-- Space frame. -->
     <SpaceFrameWidget
-        {graph}
+        graphWidgetModel={model}
         {currentSpace}
     />
 </div>

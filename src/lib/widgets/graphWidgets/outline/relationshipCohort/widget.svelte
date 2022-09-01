@@ -1,13 +1,12 @@
 <script context="module" lang="ts">
     // Type imports.
-    import type { Graph } from "$lib/models/graphModels"
-    import type { RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
+    import type { GraphWidgetModel, RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
 </script>
 
 <script lang="ts">
     import { DirectionWidget } from "$lib/widgets/graphWidgets"
     export let relationshipsWidgetModel: RelationshipCohortWidgetModel
-    export let graph: Graph
+    export let graphWidgetModel: GraphWidgetModel
 
 
     /* Basic Widget information. */
@@ -31,7 +30,7 @@
     <DirectionWidget
         {direction}
         {halfAxisId}
-        {graph}
+        {graphWidgetModel}
         optionClickedFunction={(direction, _, option) => {console.log(direction, option)}}
     />
 </div>

@@ -1,6 +1,6 @@
 <script lang="ts">
     // Type imports.
-    import type { Graph, Space } from "$lib/models/graphModels"
+    import type { Graph, Space, Thing } from "$lib/models/graphModels"
     import type { ThingWidgetModel } from "$lib/models/widgetModels"
 
     // Basic UI imports.
@@ -11,35 +11,39 @@
     import { zoomBase } from "$lib/shared/constants"
     import { addGraph, removeGraph, graphIdsNeedingViewerRefresh, addGraphIdsNeedingViewerRefresh, removeGraphIdsNeedingViewerRefresh } from "$lib/stores"
 
+    import { GraphWidgetModel } from "$lib/models/widgetModels"
+
     // Import widgets.
     import { GraphOutlineWidget } from "$lib/widgets/graphWidgets"
 
     export let parentThingWidgetModel: ThingWidgetModel
-    export let parentGraph: Graph
+    export let parentGraphWidgetModel: GraphWidgetModel
     export let rePerspectToThingId: (thingId: number) => Promise<void>
 
 
     const parentThingId = parentThingWidgetModel.thingId as number
 
 
-    $: scale = zoomBase ** parentGraph.graphWidgetStyle.zoom
+    $: scale = zoomBase ** parentGraphWidgetModel.graphWidgetStyle.zoom
     let tweenedScale = tweened(1, {duration: 100, easing: cubicOut})
     $: tweenedScale.set(scale)
 
     const size = 25
     $: diagonal = Math.hypot(size, size)
     $: diagonalOverhang = (diagonal - size) / 2 + 8
-    $: numberOfRelations = parentThingWidgetModel.offAxisRelatedThingIds(parentThingWidgetModel.space).length
+    $: numberOfRelations = (parentThingWidgetModel.thing as Thing).offAxisRelatedThingIds((parentThingWidgetModel.thing?.space as Space)).length
     let expanded = false
 
     let graph: Graph | null = null
+    let graphWidgetModel: GraphWidgetModel | null = null
     async function createGraph() {
         // Close any existing Graph.
         if (graph !== null) await removeGraph(graph)
         // Open and build the new Graph.
-        const parentGraphSpace = parentGraph.pThingBaseWidgetModel?.space as Space
-        graph = await addGraph([parentThingId], 1, parentGraph, true, parentGraphSpace)
+        const parentGraphSpace = parentGraphWidgetModel.graph.pThing?.space as Space
+        graph = await addGraph([parentThingId], 1, parentGraphWidgetModel.graph, true, parentGraphSpace)
         await graph.build()
+        graphWidgetModel = new GraphWidgetModel(graph)
         // Refresh the Graph viewers.
         addGraphIdsNeedingViewerRefresh(graph.id)
     }
@@ -100,9 +104,9 @@
         class="box off-axis-relations-widget"
         on:wheel|stopPropagation
     >
-        {#if graph}
+        {#if graphWidgetModel}
             <GraphOutlineWidget
-                bind:graph
+                bind:graphWidgetModel
                 {rePerspectToThingId}
             />
         {/if}

@@ -1,4 +1,6 @@
 export * from "./thingWidgetModels"
 export * from "./cladeWidgetModel"
+export * from "./graphWidgetModel"
 export * from "./thingCohortWidgetModel"
 export * from "./relationshipCohortWidgetModel"
+export * from "./thingCohortWidgetModel"

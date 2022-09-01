@@ -1,6 +1,5 @@
 <script lang="ts">
-    import type { Graph } from "$lib/models/graphModels"
-    import type { ThingWidgetModel } from "$lib/models/widgetModels"
+    import type { GraphWidgetModel, ThingWidgetModel } from "$lib/models/widgetModels"
     import type { SearchOption } from "$lib/widgets/navWidgets/searchWidget"
     import {
         setRelationshipBeingCreatedDestWidgetModel, disableRelationshipBeingCreated, remoteRelatingInfoStore, disableRemoteRelating, relationshipBeingCreatedInfoStore
@@ -8,7 +7,7 @@
     import { RemoteSelectingWidget } from "$lib/widgets/dialogWidgets"
 
 
-    let graph: Graph | null = null
+    let graphWidgetModel: GraphWidgetModel | null = null
 
     function handleEscape(event: KeyboardEvent) {
         if (event.key === "Escape") cancel()
@@ -41,10 +40,10 @@
         if (
             destThingId
             && relatableForCurrentDrag
-            && graph?.rootThingCohortWidgetModel?.cohort.members[0]
+            && graphWidgetModel?.rootThingCohortWidgetModel?.cohort.members[0]
         ) {
             setRelationshipBeingCreatedDestWidgetModel(
-                graph?.rootThingCohortWidgetModel?.cohort.members[0] as ThingWidgetModel
+                graphWidgetModel.rootThingCohortWidgetModel?.memberModels[0] as ThingWidgetModel
             )
         }
     }
@@ -56,7 +55,7 @@
 />
 
 
-{#if $remoteRelatingInfoStore.sourceWidgetModel && !$relationshipBeingCreatedInfoStore.destWidgetModel }
+{#if graphWidgetModel && $remoteRelatingInfoStore.sourceWidgetModel && !$relationshipBeingCreatedInfoStore.destWidgetModel }
     <div
         class="disabled-background"
         style="position: absolute; left: 0px; top: 0px; width: 100%; height: 100%; z-index: 1; background-color: grey; opacity: 0.5;"
@@ -69,7 +68,7 @@
         on:click|stopPropagation
     >
         <RemoteSelectingWidget
-            bind:graph
+            bind:graphWidgetModel
             {submitMethod}
         /> 
     </div>

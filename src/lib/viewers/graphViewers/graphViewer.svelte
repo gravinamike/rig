@@ -22,6 +22,7 @@
 
     // Import modification functions.
     import { markThingsVisited } from "$lib/db/clientSide/makeChanges"
+    import { GraphWidgetModel } from "$lib/models/widgetModels/graphWidgetModel"
     
     export let pThingIds: number[]
     export let depth: number
@@ -29,22 +30,26 @@
 
     // Initialize the Graph.
     let graph: Graph | null
+    let graphWidgetModel: GraphWidgetModel
     
 
     // Set up Graph refreshing.
     $: if ( graph && $graphIdsNeedingViewerRefresh.includes(graph.id) ) {
         removeGraphIdsNeedingViewerRefresh(graph.id)
         graph = graph // Needed for reactivity.
-        graph.allowZoomAndScrollToFit = true
+        graphWidgetModel.allowZoomAndScrollToFit = true
     }
 
     async function buildAndRefresh() {
         // Close any existing Graph.
         if (graph) removeGraph(graph)
+
         // Open and build the new Graph.
         graph = await addGraph(pThingIds, depth)
         await graph.build()
+        graphWidgetModel = new GraphWidgetModel(graph)
         await markThingsVisited(pThingIds)
+
         // Refresh the Graph viewers.
         addGraphIdsNeedingViewerRefresh(graph.id)
     }
@@ -64,14 +69,14 @@
     async function rePerspectToThingId(thingId: number) {
         if (graph) {
             // If the new Perspective Thing is already in the Graph, scroll to center it.
-            graph.allowScrollToThingId = true
-            graph.thingIdToScrollTo = thingId
+            graphWidgetModel.allowScrollToThingId = true
+            graphWidgetModel.thingIdToScrollTo = thingId
             await sleep(300) // Allow for scroll time (since there's no actual feedback from the Portal to `await`).
 
             // Re-Perspect the Graph.
             await graph.setPThingIds([thingId]) // Re-Perspect to this Thing.
             hoveredThingIdStore.set(null) // Clear the hovered-Thing highlighting.
-            graph.allowZoomAndScrollToFit = true
+            graphWidgetModel.allowZoomAndScrollToFit = true
             addGraphIdsNeedingViewerRefresh(graph.id)
             await markThingsVisited(pThingIds)
 
@@ -100,7 +105,7 @@
                     <!-- Graph Settings viewer -->
                     <TabBody>
                         <GraphSettingsViewer
-                            bind:graph
+                            bind:graphWidgetModel
                         />
                     </TabBody>
 
@@ -148,7 +153,7 @@
         <!-- Graph Widget -->
         <div class="graph-widget-container">
             <GraphWidget
-                bind:graph
+                bind:model={graphWidgetModel}
                 {rePerspectToThingId}
             />
         </div>
@@ -175,7 +180,7 @@
                     <TabBody>
                         <div class="graph-outline-widget-container">
                             <GraphOutlineWidget
-                                bind:graph
+                                bind:graphWidgetModel
                                 {rePerspectToThingId}
                             />
                         </div>
