@@ -51,8 +51,8 @@
 
     /* Variables dealing with visual formatting of the Thing's text. */
     let textFontSize = encapsulatingDepth >= 0 ?
-        graphWidgetModel.graphWidgetStyle.thingTextSize :
-        graphWidgetModel.graphWidgetStyle.thingTextSize / Math.log2(cohortSize)
+        graphWidgetModel.style.thingTextSize :
+        graphWidgetModel.style.thingTextSize / Math.log2(cohortSize)
 
     /* Variables dealing with associated components. */
     const showContent = false // Content is in development - so `showContent` will eventually be a variable.

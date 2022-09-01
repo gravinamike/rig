@@ -57,7 +57,7 @@
     $: if (sourceWidgetModel && graphWidgetModel) {
         graphWidgetModel = sourceWidgetModel.graphWidgetModel
 
-        scale = zoomBase ** sourceWidgetModel.graphWidgetModel.graphWidgetStyle.zoom
+        scale = zoomBase ** sourceWidgetModel.graphWidgetModel.style.zoom
         tweenedScale.set(scale)
     } else {
         graphWidgetModel = null

@@ -144,14 +144,6 @@ export class Generations {
         return this._members.map(member => member.things()).flat()
     }
 
-    /**
-     * Get the IDs of all of the Things already rendered in the Graph.
-     * @return {number[]} - An array of Thing IDs already rendered in the Graph.
-     */
-    get thingIdsAlreadyInGraph(): number[] {
-        return this.things.map(thing => thing.id).filter(thingId => thingId) as number[]
-    }
-
 
     /* Methods for building/stripping Generations. */
 
@@ -222,7 +214,7 @@ export class Generations {
         const generationIdToBuild = this._members.length
 
         const memberIdsForGeneration = this.newGenerationThingIds()
-            .filter(id => this.thingIdsAlreadyInGraph.includes(id))
+            .filter(id => this._graph.thingIdsAlreadyInGraph.includes(id))
 
         // Add the new, empty Generation as the Relationships-only Generation.
         const newGeneration = new Generation(this._graph, generationIdToBuild)

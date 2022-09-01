@@ -24,10 +24,10 @@
     
     // Set up reactively derived attributes of Graph.
     $: graph = model.graph
-    $: graphWidgetStyle = model.graphWidgetStyle
-    $: graphWidgetStyle.betweenThingSpacing = 0.01 * graphWidgetStyle.thingSpacingPercent * graphWidgetStyle.thingSize
-    $: graphWidgetStyle.betweenThingGap = Math.max(0, graphWidgetStyle.betweenThingSpacing)
-    $: graphWidgetStyle.betweenThingOverlap = Math.min(0, graphWidgetStyle.betweenThingSpacing)
+    $: style = model.style
+    $: style.betweenThingSpacing = 0.01 * style.thingSpacingPercent * style.thingSize
+    $: style.betweenThingGap = Math.max(0, style.betweenThingSpacing)
+    $: style.betweenThingOverlap = Math.min(0, style.betweenThingSpacing)
 
     let graphWidget: HTMLElement
     let centralAnchor: Element
@@ -43,10 +43,10 @@
 
 
     // Set up reactive zooming and scrolling.
-    $: scale = zoomBase ** model.graphWidgetStyle.zoom
+    $: scale = zoomBase ** model.style.zoom
     $: tweenedScale = tweened(1, { duration: 100, easing: cubicOut })
     $: tweenedScale.set(scale)
-    $: zoomPadding = model.graphWidgetStyle.zoomPadding
+    $: zoomPadding = model.style.zoomPadding
     $: if (model.allowScrollToThingId && model.thingIdToScrollTo) { // Before graph is re-Perspected, scroll to new Perspective Thing.
         scrollToThingId(model.thingIdToScrollTo)
     }
@@ -88,8 +88,8 @@
      */
     function handleWheelScroll(event: WheelEvent) {
         if ($relationshipBeingCreatedInfoStore.sourceWidgetModel === null) {
-            const newZoom = model.graphWidgetStyle.zoom + event.deltaY * -0.005
-            if (-5 <= newZoom && newZoom <= 5) model.graphWidgetStyle.zoom = newZoom
+            const newZoom = model.style.zoom + event.deltaY * -0.005
+            if (-5 <= newZoom && newZoom <= 5) model.style.zoom = newZoom
         }
     }
 
@@ -101,7 +101,7 @@
         const thingWidgetId = `graph#${graph.id}-thing#${thingId}`
         const thingWidget = document.getElementById(thingWidgetId)
         if (thingWidget) {
-            thingWidget.scrollIntoView({behavior: graphWidgetStyle.animateZoomAndScroll ? "smooth" : "auto", block: "center", inline: "center"})
+            thingWidget.scrollIntoView({behavior: style.animateZoomAndScroll ? "smooth" : "auto", block: "center", inline: "center"})
         }
         model.allowScrollToThingId = false
     }
@@ -151,7 +151,7 @@
         // Determine the new scale, and set the Graph's zoom accordingly.
         const newScale = scaleChange * scale
         const newZoom = Math.log(newScale) / Math.log(1.45)
-        model.graphWidgetStyle.zoom = newZoom
+        model.style.zoom = newZoom
     }
 
     /**
@@ -166,7 +166,7 @@
      */
     async function scrollToZoomBoundsCenter(): Promise<void> {
         updateGraphBounds()
-        if (graphWidgetStyle.animateZoomAndScroll) {
+        if (style.animateZoomAndScroll) {
             zoomBoundsDiv.scrollIntoView({behavior: "smooth", block: "center", inline: "center"})
         } else {
             zoomBoundsDiv.scrollIntoView({block: "center", inline: "center"})
@@ -199,7 +199,7 @@
         <div
             class="central-anchor"
             bind:this={centralAnchor}
-            style="scale: {graphWidgetStyle.animateZoomAndScroll ? $tweenedScale : scale};"
+            style="scale: {style.animateZoomAndScroll ? $tweenedScale : scale};"
         >
             <!-- Zoom bounds (closely surrounds the Graph). -->
             <div

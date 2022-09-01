@@ -1,44 +1,81 @@
-import type { Cohort } from "$lib/models/graphModels"
-import type { GraphWidgetModel } from "./graphWidgetModel"
+import type { ThingCohort } from "$lib/models/graphModels"
+import type { GraphWidgetModel } from "./graph"
 import { halfAxisOppositeIds, offsetsByHalfAxisId } from "$lib/shared/constants"
 import { graphConstructInStore } from "$lib/stores"
-import { ThingBaseWidgetModel, ThingWidgetModel, ThingMissingFromStoreWidgetModel, RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
+import {
+    ThingBaseWidgetModel, ThingWidgetModel, ThingMissingFromStoreWidgetModel,
+    RelationshipCohortWidgetModel
+} from "$lib/models/widgetModels"
 
 
+/* Model specifying a Thing Cohort Widget. */
 export class ThingCohortWidgetModel {
     kind = "thingCohortWidgetModel"
 
-    cohort: Cohort
+    cohort: ThingCohort
     graphWidgetModel: GraphWidgetModel
     parentThingWidgetModel: ThingWidgetModel | null
-    memberModels: (ThingWidgetModel | ThingBaseWidgetModel | ThingMissingFromStoreWidgetModel)[] = []
+    memberModels: ( ThingWidgetModel | ThingBaseWidgetModel | ThingMissingFromStoreWidgetModel )[] = []
 
-    constructor(cohort: Cohort, graphWidgetModel: GraphWidgetModel, parentThingWidgetModel: ThingWidgetModel | null) {
+    /**
+     * Create a Graph Widget Model.
+     * @param {ThingCohort} cohort - The Thing Cohort that the widget is based on.
+     * @param {GraphWidgetModel} graphWidgetModel - The model of the Graph that the widget is in.
+     * @param {ThingWidgetModel} parentThingWidgetModel - The Model of the widget's parent Thing Widget, if it has one.
+     */
+    constructor(
+        cohort: ThingCohort,
+        graphWidgetModel: GraphWidgetModel,
+        parentThingWidgetModel?: ThingWidgetModel
+    ) {
         this.cohort = cohort
         this.graphWidgetModel = graphWidgetModel
-        this.parentThingWidgetModel = parentThingWidgetModel
+        this.parentThingWidgetModel = parentThingWidgetModel === undefined ? null : parentThingWidgetModel
 
+        // Build the model.
         this.build()
     }
 
-
+    /**
+     * Build the model.
+     */
     async build(): Promise< void > {
+        // Reset the array of member Thing Widget Models...
         this.memberModels = []
-        
-        for (const member of this.cohort.members) {
 
-            const model= (
-                member?.id ? (
-                    this.graphWidgetModel.graph.generations.thingIdsAlreadyInGraph.includes(member.id) ? new ThingBaseWidgetModel(member.id, this.graphWidgetModel, this) : // If the Thing is already modeled in the Graph, return a spacer model.
-                    graphConstructInStore("Thing", member.id) ? new ThingWidgetModel(member.id, this.graphWidgetModel, this) :      // Else, if the Thing is in the Thing store, create a new model for that Thing ID.
-                    new ThingMissingFromStoreWidgetModel(member.id, this.graphWidgetModel, this)
-                ) :
-                new ThingMissingFromStoreWidgetModel(null, this.graphWidgetModel, this)
-            ) 
-                
+        // ...then re-populate it with new models based on the Cohort's member Things.
+        for (const member of this.cohort.members) {
+            // Create a model based on the Thing.
+            const model = (
+                // If the Thing is null, create a missing-from-store model.
+                !member ?
+                    new ThingMissingFromStoreWidgetModel(null, this.graphWidgetModel, this) :
+                // Else, if the Thing is already modeled in the Graph, create a spacer model.
+                this.graphWidgetModel.graph.thingIdsAlreadyInGraph.includes(member.id) ?
+                    new ThingBaseWidgetModel(member.id, this.graphWidgetModel, this) :
+                // Else, if the Thing is in the Thing store, create a model for that Thing ID.
+                graphConstructInStore("Thing", member.id) ?
+                    new ThingWidgetModel(member.id, this.graphWidgetModel, this) :
+                // Else create a missing-from-store model.
+                new ThingMissingFromStoreWidgetModel(member.id, this.graphWidgetModel, this)
+            )
+            
+            // Add the new model to the array of member Thing Widget Models.
             this.addMemberModel(model)
         }
     }
+
+
+    //////////////////////////// REWORK COHORTWIDGETMODELS TO TAKE CLADES INSTEAD OF THINGS?
+
+
+
+
+
+    
+
+
+
 
     addMemberModel(model: ThingWidgetModel | ThingBaseWidgetModel | ThingMissingFromStoreWidgetModel): void {
         this.memberModels.push(model)
@@ -59,9 +96,9 @@ export class ThingCohortWidgetModel {
         return [7, 8].includes(this.cohort.halfAxisId) ?
             { x: 0, y: 0 } :
             {
-                x: this.graphWidgetModel.graphWidgetStyle.relationDistance * offsetSigns[0]
+                x: this.graphWidgetModel.style.relationDistance * offsetSigns[0]
                     + this.graphWidgetModel.graph.planes.offsets[0] * this.planeId,
-                y: this.graphWidgetModel.graphWidgetStyle.relationDistance * offsetSigns[1]
+                y: this.graphWidgetModel.style.relationDistance * offsetSigns[1]
                     + this.graphWidgetModel.graph.planes.offsets[1] * this.planeId
             }
     }
@@ -122,7 +159,7 @@ export class ThingCohortWidgetModel {
                 && this.matchedRelationshipsWidgetModel.parentRelationshipsWidgetModel.halfAxisId === halfAxisOppositeIds[this.cohort.halfAxisId]
             ) ?
                 (
-                    (this.graphWidgetModel.graphWidgetStyle.thingSize + this.graphWidgetModel.graphWidgetStyle.betweenThingSpacing)
+                    (this.graphWidgetModel.style.thingSize + this.graphWidgetModel.style.betweenThingSpacing)
                     * this.cohort.parentThing.address.indexInCohort
                 ) :
                 0
@@ -131,7 +168,7 @@ export class ThingCohortWidgetModel {
                 // The difference between the halfway index of the Cohort and the index of the grandparent Thing.
                 ((this.cohort.members.length - 1) / 2 - this.indexOfGrandparentThing)
                 // The combined width of 1 Thing and 1 gap between Things.
-                * (this.graphWidgetModel.graphWidgetStyle.thingSize + this.graphWidgetModel.graphWidgetStyle.betweenThingSpacing) :
+                * (this.graphWidgetModel.style.thingSize + this.graphWidgetModel.style.betweenThingSpacing) :
                 0
 
             const offsetToGrandparentThing = parentThingOffsetToGrandparentThing + grandparentSpacerOffsetToParentThing

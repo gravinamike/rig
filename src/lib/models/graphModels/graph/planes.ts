@@ -1,5 +1,5 @@
 // Model imports.
-import { Graph, Cohort, Plane } from "$lib/models/graphModels"
+import { Graph, ThingCohort, Plane } from "$lib/models/graphModels"
 
 
 /** Class representing the set of Planes belonging to a Graph. */
@@ -27,11 +27,11 @@ export class Planes {
     }
 
     /**
-     * Add a Cohort to a Plane by ID (creating the Plane if necessary).
-     * @param {Cohort} cohort - The Cohort which will be added to the Plane.
-     * @param {number} planeId - The ID of the Plane to which the Cohort will be added.
+     * Add a Thing Cohort to a Plane by ID (creating the Plane if necessary).
+     * @param {ThingCohort} cohort - The Thing Cohort which will be added to the Plane.
+     * @param {number} planeId - The ID of the Plane to which the Thing Cohort will be added.
      */
-    addCohortToPlane( cohort: Cohort, planeId: number ): void {
+    addCohortToPlane( cohort: ThingCohort, planeId: number ): void {
         if (!(planeId in this._members)) this._members[planeId] = new Plane(planeId, this._graph)
         this._members[planeId].addCohort(cohort)
     }

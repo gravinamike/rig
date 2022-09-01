@@ -1,7 +1,7 @@
 import type { Graph, CohortAddress, Space } from "$lib/models/graphModels"
 import { cartesianHalfAxisIds } from "$lib/shared/constants"
 import { graphConstructInStore, retrieveGraphConstructs } from "$lib/stores"
-import { Thing, Cohort } from "$lib/models/graphModels"
+import { Thing, ThingCohort } from "$lib/models/graphModels"
 
 
 export type GenerationMember = Thing | null
@@ -12,7 +12,7 @@ export class Generation {
     graph: Graph
     id: number
     _isRelationshipsOnly = false
-    cohorts: Cohort[] = []
+    cohorts: ThingCohort[] = []
     lifecycleStatus: "new" | "building" | "built" | "stripping" | "stripped" = "new"
 
     constructor(graph: Graph, generationIdToBuild: number) {
@@ -70,7 +70,7 @@ export class Generation {
                 parentThingId: null,
                 directionId: null
             }
-            this.graph.rootCohort = new Cohort(addressForCohort, [])
+            this.graph.rootCohort = new ThingCohort(addressForCohort, [])
             for (const memberId of memberIdsForGeneration) {
 
 
@@ -117,7 +117,7 @@ export class Generation {
                     const membersIdForCohort = childCohortThingIds.length ?
                         memberIdsForGeneration.filter((memberId) => {if (childCohortThingIds.includes(memberId)) return true}) :
                         []
-                    const childCohort = new Cohort(addressForCohort, [])
+                    const childCohort = new ThingCohort(addressForCohort, [])
 
                     for (const memberId of membersIdForCohort) {
                         const member = graphConstructInStore("Thing", memberId) ?

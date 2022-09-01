@@ -38,9 +38,8 @@
         if (graphWidgetModel !== null) await removeGraph(graphWidgetModel.graph)
         // Open and build the new Graph.
         const graph = await addGraph([thingIdToShowGraphFor], 1)
-        await graph.build()
         graphWidgetModel = new GraphWidgetModel(graph)
-        graphWidgetModel.graphWidgetStyle.animateZoomAndScroll = false
+        graphWidgetModel.style.animateZoomAndScroll = false
         // Refresh the Graph viewers.
         addGraphIdsNeedingViewerRefresh(graph.id)
     }

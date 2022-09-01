@@ -24,7 +24,7 @@
     const parentThingId = parentThingWidgetModel.thingId as number
 
 
-    $: scale = zoomBase ** parentGraphWidgetModel.graphWidgetStyle.zoom
+    $: scale = zoomBase ** parentGraphWidgetModel.style.zoom
     let tweenedScale = tweened(1, {duration: 100, easing: cubicOut})
     $: tweenedScale.set(scale)
 
@@ -42,7 +42,6 @@
         // Open and build the new Graph.
         const parentGraphSpace = parentGraphWidgetModel.graph.pThing?.space as Space
         graph = await addGraph([parentThingId], 1, parentGraphWidgetModel.graph, true, parentGraphSpace)
-        await graph.build()
         graphWidgetModel = new GraphWidgetModel(graph)
         // Refresh the Graph viewers.
         addGraphIdsNeedingViewerRefresh(graph.id)

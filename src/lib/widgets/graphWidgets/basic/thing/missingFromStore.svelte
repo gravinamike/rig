@@ -18,7 +18,7 @@
     $: xYElongation = thingMissingFromStoreWidgetModel.xYElongation
 
     $: cohortSize = thingMissingFromStoreWidgetModel.cohortSize
-    $: thingSize = graphWidgetModel.graphWidgetStyle.thingSize + planePadding * planeId + encapsulatingPadding * encapsulatingDepth
+    $: thingSize = graphWidgetModel.style.thingSize + planePadding * planeId + encapsulatingPadding * encapsulatingDepth
     $: thingWidth = thingSize * xYElongation.x
     $: thingHeight = encapsulatingDepth >= 0 ? thingSize * xYElongation.y : thingSize * xYElongation.y / cohortSize - 2
 </script>

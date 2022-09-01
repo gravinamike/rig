@@ -10,8 +10,8 @@ export type CohortAddress = {
     directionId: number | null
 }
 
-export class Cohort {
-    kind = "cohort"
+export class ThingCohort {
+    kind = "thingCohort"
 
     address: CohortAddress
     generation: Generation | null
@@ -56,7 +56,7 @@ export class Cohort {
             0
     }
 
-    parentCohort(): Cohort | null {
+    parentCohort(): ThingCohort | null {
         return this.parentThing?.parentCohort || null
     }
 

@@ -46,7 +46,6 @@
 
         // Open and build the new Graph.
         graph = await addGraph(pThingIds, depth)
-        await graph.build()
         graphWidgetModel = new GraphWidgetModel(graph)
         await markThingsVisited(pThingIds)
 

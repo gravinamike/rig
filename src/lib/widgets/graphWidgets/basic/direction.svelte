@@ -54,7 +54,7 @@
     <!-- Direction text. -->
     <div
         style="
-            font-size: {graphWidgetModel.graphWidgetStyle.relationshipTextSize}px;
+            font-size: {graphWidgetModel.style.relationshipTextSize}px;
             {direction ? "" : "font-style: italic;"}
             color: {relationshipColor};
         "

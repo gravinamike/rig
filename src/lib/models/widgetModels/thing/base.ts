@@ -1,12 +1,13 @@
 import type { HalfAxisId } from "$lib/shared/constants"
 import type { Thing, Graph } from "$lib/models/graphModels"
-import type { GraphWidgetModel } from "../graphWidgetModel"
-import type { ThingCohortWidgetModel, ThingWidgetModel } from "$lib/models/widgetModels"
+import type { GraphWidgetModel, ThingCohortWidgetModel } from "$lib/models/widgetModels"
+import type { ThingWidgetModel } from "./basic"
 
 import { planePadding } from "$lib/shared/constants"
 import { retrieveGraphConstructs } from "$lib/stores"
 
 
+/* Model specifying the base Thing Widget from which other Thing Widgets are derived. */
 export class ThingBaseWidgetModel {
     kind = "thingBaseWidgetModel"
 
@@ -16,7 +17,17 @@ export class ThingBaseWidgetModel {
     graph: Graph
     parentThingCohortWidgetModel: ThingCohortWidgetModel | null
 
-    constructor(thingId: number | null, graphWidgetModel: GraphWidgetModel, parentThingCohortWidgetModel: ThingCohortWidgetModel) {
+    /**
+     * Create a Thing Base Widget Model.
+     * @param {number | null} thingId - The ID of the Thing the widget is based on
+     * @param {GraphWidgetModel} graphWidgetModel - The model of the Graph that the widget is in.
+     * @param {ThingCohortWidgetModel} parentThingCohortWidgetModel - The Model of the widget's parent Thing Cohort Widget.
+     */
+    constructor(
+        thingId: number | null,
+        graphWidgetModel: GraphWidgetModel,
+        parentThingCohortWidgetModel: ThingCohortWidgetModel
+    ) {
         this.thingId = thingId
         this.thing = typeof thingId === "number" ? retrieveGraphConstructs("Thing", thingId) : null
         this.graphWidgetModel = graphWidgetModel
@@ -133,7 +144,7 @@ export class ThingBaseWidgetModel {
 
     get thingSize(): number {
         return (
-            this.graphWidgetModel.graphWidgetStyle.thingSize
+            this.graphWidgetModel.style.thingSize
             + planePadding * this.planeId
             + this.encapsulatingPadding * this.encapsulatingDepth
         )

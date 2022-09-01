@@ -1,4 +1,4 @@
-import type { Graph, Cohort } from "$lib/models/graphModels"
+import type { Graph, ThingCohort } from "$lib/models/graphModels"
 
 
 export class Plane {
@@ -6,23 +6,23 @@ export class Plane {
 
     id: number
     graph: Graph
-    cohorts: Cohort[] = []
+    cohorts: ThingCohort[] = []
 
     constructor(id: number, graph: Graph) {
         this.id = id
         this.graph = graph
     }
 
-    addCohort(cohort: Cohort): void {
+    addCohort(cohort: ThingCohort): void {
         this.cohorts.push(cohort)
         cohort.plane = this
     }
 
     /**
-     * Remove a Cohort from the Graph's Planes.
-     * @param {Cohort} cohort - The Cohort which will be removed from the Plane.
+     * Remove a Thing Cohort from the Graph's Planes.
+     * @param {ThingCohort} cohort - The Thing Cohort which will be removed from the Plane.
      */
-    removeCohort( cohort: Cohort ): void {
+    removeCohort( cohort: ThingCohort ): void {
         const index = this.cohorts.indexOf(cohort)
         if (index > -1) this.cohorts.splice(index, 1)
 

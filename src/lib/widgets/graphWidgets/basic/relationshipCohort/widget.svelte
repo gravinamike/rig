@@ -40,7 +40,7 @@
     const halfAxisId = model.halfAxisId
     
     // Graph-scale-related variables.
-    $: scale = zoomBase ** graphWidgetModel.graphWidgetStyle.zoom
+    $: scale = zoomBase ** graphWidgetModel.style.zoom
     let tweenedScale = tweened(1, {duration: 100, easing: cubicOut})
     $: tweenedScale.set(scale)
 
@@ -56,11 +56,11 @@
     /* Variables related to whole-Widget geometry. */
 
     // Variables related to the geometry of Graph construct widgets.
-    $: relationDistance = graphWidgetModel.graphWidgetStyle.relationDistance // The center-to-center distance between two related Things.
+    $: relationDistance = graphWidgetModel.style.relationDistance // The center-to-center distance between two related Things.
     $: thingWidth = model.parentThingWidgetModel.thingWidth
     $: thingHeight = model.parentThingWidgetModel.thingHeight
-    $: betweenThingSpacing = graphWidgetModel.graphWidgetStyle.betweenThingSpacing
-    $: betweenThingOverlap = graphWidgetModel.graphWidgetStyle.betweenThingOverlap
+    $: betweenThingSpacing = graphWidgetModel.style.betweenThingSpacing
+    $: betweenThingOverlap = graphWidgetModel.style.betweenThingOverlap
 
     // Variables related to the x, y, and z position of this Relationships Widget (relative to parent Thing Widget).
     let xOffset: number

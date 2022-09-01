@@ -3,7 +3,7 @@ import type { ThingDbModel, ThingSearchListItemDbModel } from "$lib/models/dbMod
 import type { HalfAxisId } from "$lib/shared/constants"
 import { oddHalfAxisIds } from "$lib/shared/constants"
 import { graphConstructInStore, retrieveGraphConstructs } from "$lib/stores"
-import { Graph, Space, Note, Folder, Relationship, NoteToThing, FolderToThing, Cohort } from "$lib/models/graphModels"
+import { Graph, Space, Note, Folder, Relationship, NoteToThing, FolderToThing, ThingCohort } from "$lib/models/graphModels"
 
 
 type ThingAddress = {
@@ -20,7 +20,7 @@ type ThingAddress = {
 export class Thing {
     dbModel: ThingDbModel | null
 
-    id: number | null
+    id: number
     guid: string | null
     text: string | null
     whencreated: Date | null
@@ -41,10 +41,10 @@ export class Thing {
 
     graph: Graph | null = null
     parentThing: Thing | null = null
-    _parentCohort: Cohort | null = null
+    _parentCohort: ThingCohort | null = null
 
     inheritSpace = true // For now.
-    childCohortsByHalfAxisId: { [directionId: number]: Cohort } = {}
+    childCohortsByHalfAxisId: { [directionId: number]: ThingCohort } = {}
 
     constructor(dbModel: ThingDbModel) {
         this.dbModel = dbModel
@@ -169,18 +169,18 @@ export class Thing {
         return relatedThingDirectionIds
     }
 
-    childThingCohort( directionId: number ): Cohort | null
-    childThingCohort( directionId: number, cohort: Cohort ): void
-    childThingCohort( directionId: number, cohort?: Cohort ): Cohort | null | void {
+    childThingCohort( directionId: number ): ThingCohort | null
+    childThingCohort( directionId: number, cohort: ThingCohort ): void
+    childThingCohort( directionId: number, cohort?: ThingCohort ): ThingCohort | null | void {
         if ( cohort === undefined ) {
             return directionId in this.childCohortsByHalfAxisId ? this.childCohortsByHalfAxisId[directionId] : null
         } else {
-            // Set child Cohort for this Direction.
+            // Set child Thing Cohort for this Direction.
             this.childCohortsByHalfAxisId[directionId] = cohort
         }
     }
 
-    get childThingCohorts(): Cohort[] {
+    get childThingCohorts(): ThingCohort[] {
         return Object.values(this.childCohortsByHalfAxisId)
     }
 
@@ -238,11 +238,11 @@ export class Thing {
         return address
     }
 
-    get parentCohort(): Cohort {
-        return this._parentCohort as Cohort
+    get parentCohort(): ThingCohort {
+        return this._parentCohort as ThingCohort
     }
 
-    set parentCohort(cohort: Cohort) {
+    set parentCohort(cohort: ThingCohort) {
         this._parentCohort = cohort
     }
 }

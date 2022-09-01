@@ -28,7 +28,7 @@
     
     
     // Graph-scale-related variables.
-    $: scale = zoomBase ** graphWidgetModel.graphWidgetStyle.zoom
+    $: scale = zoomBase ** graphWidgetModel.style.zoom
     let tweenedScale = tweened(1, {duration: 100, easing: cubicOut})
     $: tweenedScale.set(scale)
 </script>

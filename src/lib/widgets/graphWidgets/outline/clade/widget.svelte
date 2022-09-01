@@ -26,7 +26,7 @@
     // 3. Then all those not on a half-axis.
     function getOrderedThingCohortWidgetModels(
         thingWidgetModel: ThingWidgetModel,
-        excludeHalfAxes=graphWidgetModel.graphWidgetStyle.excludeCartesianAxes
+        excludeHalfAxes=graphWidgetModel.style.excludeCartesianAxes
     ): ThingCohortWidgetModel[] {
 
         const orderedHalfAxisIds = [2, 1, 4, 3, 5, 6, 8, 7]
@@ -77,7 +77,7 @@
     $: showCladeRootThing = (
         thingWidgetModel.thing
         && thingWidgetModel.thing.address.generationId === 0
-        && graphWidgetModel.graphWidgetStyle.excludePerspectiveThing
+        && graphWidgetModel.style.excludePerspectiveThing
     ) ?
         false :
         true

@@ -31,7 +31,7 @@
 
     <SettingWidget
         labelText={"Zoom"}
-        bind:boundValue={graphWidgetModel.graphWidgetStyle.zoom}
+        bind:boundValue={graphWidgetModel.style.zoom}
         minValue={-5}
         maxValue={5}
         onChangeFunction={updateGraphFormat}
@@ -39,21 +39,21 @@
 
     <SettingWidget
         labelText={"Relation offset length"}
-        bind:boundValue={graphWidgetModel.graphWidgetStyle.relationDistance}
+        bind:boundValue={graphWidgetModel.style.relationDistance}
         maxValue={1000}
         onChangeFunction={updateGraphFormat}
     />
 
     <SettingWidget
         labelText={"Thing size"}
-        bind:boundValue={graphWidgetModel.graphWidgetStyle.thingSize}
+        bind:boundValue={graphWidgetModel.style.thingSize}
         maxValue={1000}
         onChangeFunction={updateGraphFormat}
     />
 
     <SettingWidget
         labelText={"% Thing spacing"}
-        bind:boundValue={graphWidgetModel.graphWidgetStyle.thingSpacingPercent}
+        bind:boundValue={graphWidgetModel.style.thingSpacingPercent}
         minValue={-100}
         maxValue={100}
         onChangeFunction={updateGraphFormat}
@@ -61,14 +61,14 @@
 
     <SettingWidget
         labelText={"Relationship text size"}
-        bind:boundValue={graphWidgetModel.graphWidgetStyle.relationshipTextSize}
+        bind:boundValue={graphWidgetModel.style.relationshipTextSize}
         maxValue={100}
         onChangeFunction={updateGraphFormat}
     />
 
     <SettingWidget
         labelText={"Thing text size"}
-        bind:boundValue={graphWidgetModel.graphWidgetStyle.thingTextSize}
+        bind:boundValue={graphWidgetModel.style.thingTextSize}
         maxValue={100}
         onChangeFunction={updateGraphFormat}
     />

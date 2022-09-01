@@ -1,6 +1,6 @@
 <script lang="ts">
     // Type imports.
-    import type { Space, Thing, Cohort } from "$lib/models/graphModels"
+    import type { Space, Thing, ThingCohort } from "$lib/models/graphModels"
     import type { GraphWidgetModel, ThingWidgetModel } from "$lib/models/widgetModels"
 
     // Graph widget imports.
@@ -46,7 +46,7 @@
 
     // Variables dealing with Thing sizing.
     $: cohortSize = thingWidgetModel.thing?.parentCohort.members.length || 1
-    $: thingSize = graphWidgetModel.graphWidgetStyle.thingSize + planePadding * planeId + encapsulatingPadding * encapsulatingDepth
+    $: thingSize = graphWidgetModel.style.thingSize + planePadding * planeId + encapsulatingPadding * encapsulatingDepth
     $: thingWidth = thingSize * XYElongation.x
     $: thingHeight = encapsulatingDepth >= 0 ? thingSize * XYElongation.y : thingSize * XYElongation.y / cohortSize - 2
     
@@ -66,7 +66,7 @@
     }
 
     async function cancel() {
-        (thingWidgetModel.thing?.parentCohort as Cohort).removeMember(thingWidgetModel.thing)
+        (thingWidgetModel.thing?.parentCohort as ThingCohort).removeMember(thingWidgetModel.thing)
         graphWidgetModel.formActive = false
         addGraphIdsNeedingViewerRefresh(graphWidgetModel.graph.id)
     }    

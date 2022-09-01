@@ -1,8 +1,8 @@
 import type { HalfAxisId } from "$lib/shared/constants"
-import type { Space, Cohort, Note, Thing } from "$lib/models/graphModels"
+import type { Space, ThingCohort, Note, Thing } from "$lib/models/graphModels"
 import type { RelationshipBeingCreatedInfo } from "$lib/widgets/graphWidgets"
 
-import { ThingBaseWidgetModel } from "./"
+import { ThingBaseWidgetModel } from "."
 import { GraphWidgetModel, ThingCohortWidgetModel, RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
 
 
@@ -61,7 +61,7 @@ export class ThingWidgetModel extends ThingBaseWidgetModel {
 
 
 
-    get childCohorts(): Cohort[] {
+    get childCohorts(): ThingCohort[] {
         const childCohorts = Object.values((this.thing as Thing).childCohortsByHalfAxisId)
         return childCohorts
     }

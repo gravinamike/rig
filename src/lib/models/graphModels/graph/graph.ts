@@ -1,4 +1,4 @@
-import type { Space, Thing, Cohort } from "$lib/models/graphModels"
+import type { Space, Thing, ThingCohort } from "$lib/models/graphModels"
 
 import { storeGraphConstructs, retrieveGraphConstructs, unstoreGraphConstructs } from "$lib/stores"
 import { Generations } from "./generations"
@@ -14,21 +14,13 @@ export class Graph {
     _depth: number
     parentGraph: Graph | null
     childGraphs: Graph[] = []
-    rootCohort: Cohort | null = null
+    rootCohort: ThingCohort | null = null
     generations: Generations
     planes: Planes
     history: PerspectiveHistory
     lifecycleStatus: "new" | "building" | "built" | "cleared" = "new"
     startingSpace: Space | null
     offAxis: boolean
-
-    ////////////////////////////////////////////////// Put into widgetmodel
-    /*rootThingCohortWidgetModel: ThingCohortWidgetModel | null = null
-    graphWidgetStyle: GraphWidgetStyle = {...defaultGraphWidgetStyle}
-    thingIdToScrollTo: number | null = null
-    allowScrollToThingId = false
-    allowZoomAndScrollToFit = false
-    formActive = false*/
 
     /**
      * Create a Graph.
@@ -47,10 +39,7 @@ export class Graph {
         this.startingSpace = startingSpace
         this.offAxis = offAxis
 
-        /*if (offAxis) {
-            this.graphWidgetStyle.excludePerspectiveThing = true
-            this.graphWidgetStyle.excludeCartesianAxes = true
-        }*/
+        this.build()
     }
 
 
@@ -156,5 +145,13 @@ export class Graph {
     get pThing(): Thing | null {
         const pThing = this.rootCohort?.members[0] || null
         return pThing
+    }
+
+    /**
+     * Get the IDs of all of the Things already rendered in the Graph.
+     * @return {number[]} - An array of Thing IDs already rendered in the Graph.
+     */
+    get thingIdsAlreadyInGraph(): number[] {
+        return this.generations.things.map(thing => thing.id).filter(thingId => thingId) as number[]
     }
 }

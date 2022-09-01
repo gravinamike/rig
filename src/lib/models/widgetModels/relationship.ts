@@ -1,5 +1,5 @@
 import type { GenerationMember } from "$lib/models/graphModels"
-import type { RelationshipCohortWidgetModel } from "./relationshipCohortWidgetModel"
+import type { RelationshipCohortWidgetModel } from "./relationshipCohort"
 
 import { mirroringByHalfAxisId } from "$lib/shared/constants"
 
@@ -66,7 +66,7 @@ export class RelationshipWidgetModel {
 
             const defaultLeafMidline = (
                 0.5 * this.relationshipCohortWidgetModel.sizeOfThingsAlongWidth
-                + (this.relationshipCohortWidgetModel.sizeOfThingsAlongWidth + this.relationshipCohortWidgetModel.graphWidgetModel.graphWidgetStyle.betweenThingSpacing) * this.cohortMemberWithIndex.index
+                + (this.relationshipCohortWidgetModel.sizeOfThingsAlongWidth + this.relationshipCohortWidgetModel.graphWidgetModel.style.betweenThingSpacing) * this.cohortMemberWithIndex.index
             )
 
             return {

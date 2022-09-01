@@ -22,7 +22,7 @@ export class CladeWidgetModel {
     }
 
     get overlapMarginStyleText(): string {
-        const betweenThingOverlap = this.graphWidgetModel.graphWidgetStyle.betweenThingOverlap
+        const betweenThingOverlap = this.graphWidgetModel.style.betweenThingOverlap
         let overlapMarginStyleText: string
         if (this.submodels.rootThing.thing && this.submodels.rootThing.thing.parentCohort.members.length === 1) {
             overlapMarginStyleText = ""

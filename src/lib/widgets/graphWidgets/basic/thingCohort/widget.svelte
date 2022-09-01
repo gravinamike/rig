@@ -35,7 +35,7 @@
         top: calc({xYOffsets.y}px + 50% + {offsetToGrandparentThingY}px);
         z-index: {zIndex};
         flex-direction: {rowOrColumn};
-        gap: {thingCohortWidgetModel.cohort.halfAxisId && [5, 6, 7, 8].includes(thingCohortWidgetModel.cohort.halfAxisId) ? 4 : graphWidgetModel.graphWidgetStyle.betweenThingGap}px;
+        gap: {thingCohortWidgetModel.cohort.halfAxisId && [5, 6, 7, 8].includes(thingCohortWidgetModel.cohort.halfAxisId) ? 4 : graphWidgetModel.style.betweenThingGap}px;
     "
 >        
     {#if !(thingCohortWidgetModel.memberModels.length === 1 && indexOfGrandparentThing !== null && indexOfGrandparentThing !== -1)}<!-- Unless the ONLY descendent in a Half-Axis is a doubled-back parent Thing, -->

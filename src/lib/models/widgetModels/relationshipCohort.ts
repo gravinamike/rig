@@ -1,6 +1,6 @@
 import type { HalfAxisId } from "$lib/shared/constants"
-import type { Direction, Space, GenerationMember, Cohort, Thing } from "$lib/models/graphModels"
-import type { GraphWidgetModel } from "./graphWidgetModel"
+import type { Direction, Space, GenerationMember, ThingCohort, Thing } from "$lib/models/graphModels"
+import type { GraphWidgetModel } from "./graph"
 
 import {
     halfAxisOppositeIds, rotationByHalfAxisId, mirroringByHalfAxisId,
@@ -8,15 +8,15 @@ import {
 } from "$lib/shared/constants"
 import { retrieveGraphConstructs } from "$lib/stores"
 import { rectOfThingWidgetByThingId } from "$lib/shared/utility"
-import { RelationshipWidgetModel } from "./relationshipWidgetModel"
-import type { ThingWidgetModel } from "./thingWidgetModels"
+import { RelationshipWidgetModel } from "./relationship"
+import type { ThingWidgetModel } from "./thing"
 
 
 /* Model specifying a Relationship Cohort Widget. */
 export class RelationshipCohortWidgetModel {
     kind = "relationshipCohortWidgetModel" as const
 
-    cohort: Cohort
+    cohort: ThingCohort
     space: Space
     graphWidgetModel: GraphWidgetModel
 
@@ -38,7 +38,7 @@ export class RelationshipCohortWidgetModel {
      * @param {Space} space - The Space that the widget is rendered in.
      * @param {GraphWidgetModel} graphWidgetModel - Widget model of the Graph that the Cohort is in.
      */
-    constructor(cohort: Cohort, space: Space, graphWidgetModel: GraphWidgetModel, parentThingWidgetModel: ThingWidgetModel) {
+    constructor(cohort: ThingCohort, space: Space, graphWidgetModel: GraphWidgetModel, parentThingWidgetModel: ThingWidgetModel) {
         this.cohort = cohort
         this.space = space
 
@@ -71,11 +71,11 @@ export class RelationshipCohortWidgetModel {
     // Variables related to the x, y, and z position of this Relationships Widget (relative to parent Thing Widget).
     
     get xOffset(): number {
-        return 0.5 * this.graphWidgetModel.graphWidgetStyle.relationDistance * offsetsByHalfAxisId[this.halfAxisId][0]
+        return 0.5 * this.graphWidgetModel.style.relationDistance * offsetsByHalfAxisId[this.halfAxisId][0]
     }
 
     get yOffset(): number {
-        return 0.5 * this.graphWidgetModel.graphWidgetStyle.relationDistance * offsetsByHalfAxisId[this.halfAxisId][1]
+        return 0.5 * this.graphWidgetModel.style.relationDistance * offsetsByHalfAxisId[this.halfAxisId][1]
     }
 
     get zIndex(): number {
@@ -91,12 +91,12 @@ export class RelationshipCohortWidgetModel {
             [1, 2].includes(this.halfAxisId) ?
                 this.parentThingWidgetModel.thingWidth :
                 this.parentThingWidgetModel.thingHeight
-        ) + (Math.max(this.cohort.members.length, 1) - 1) * this.graphWidgetModel.graphWidgetStyle.betweenThingSpacing
+        ) + (Math.max(this.cohort.members.length, 1) - 1) * this.graphWidgetModel.style.betweenThingSpacing
     }
 
     // The edge-to-edge distance between two related Things.
     get relationshipsLength(): number {
-        return this.graphWidgetModel.graphWidgetStyle.relationDistance - ([1, 2].includes(this.halfAxisId) ?
+        return this.graphWidgetModel.style.relationDistance - ([1, 2].includes(this.halfAxisId) ?
             this.parentThingWidgetModel.thingHeight :
             this.parentThingWidgetModel.thingWidth) * this.cohort.axialElongation
     }
@@ -152,7 +152,7 @@ export class RelationshipCohortWidgetModel {
                         this.parentThingWidgetModel.thingWidth :
                         this.parentThingWidgetModel.thingHeight
                 )
-                + this.graphWidgetModel.graphWidgetStyle.betweenThingSpacing
+                + this.graphWidgetModel.style.betweenThingSpacing
             )
 
             /* The offset between the Cohort's parent Thing and the Cohort's grandparent Thing. */
@@ -161,7 +161,7 @@ export class RelationshipCohortWidgetModel {
                 && this.halfAxisId !== 0
                 && this.parentRelationshipsWidgetModel.halfAxisId === halfAxisOppositeIds[this.halfAxisId] ?
                     (
-                        (this.sizeOfThingsAlongWidth + this.graphWidgetModel.graphWidgetStyle.betweenThingSpacing)
+                        (this.sizeOfThingsAlongWidth + this.graphWidgetModel.style.betweenThingSpacing)
                         * (this.parentThing as Thing).address.indexInCohort
                     ) :
                     0

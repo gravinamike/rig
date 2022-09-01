@@ -68,12 +68,12 @@ are added into a Graph as Related Things to a Thing that already exists in the
 Graph. Things added this way are called Child Things to the Thing that they are
 first related to, and in return, that Thing is called their Parent Thing.
 
-* **Cohort** All Child Things in a single Direction from the Parent Thing. (Note
+* **Thing Cohort** All Child Things in a single Direction from the Parent Thing. (Note
 that if the Parent Thing's own Parent Thing is a Related Thing in that Direction,
-the Cohort does *not* include that "grandparent" Thing.)
+the Thing Cohort does *not* include that "grandparent" Thing.)
 
 * **Brood**: All Child Things of a single Parent Thing, regardless of Direction.
-(Identical to all Cohorts of a single parent Thing.)
+(Identical to all Thing Cohorts of a single parent Thing.)
 
 * **Clade**: A Parent Thing, together with its Brood.
 
@@ -104,12 +104,12 @@ When a Clade is displayed in a given Space, one pair of opposite Directions of
 that Space is mapped to each Axis. Opposite Directions are generally mapped to
 opposite Half-Axes.
 
-* **Relationships Stem**: All of the Relationships for a given Cohort share a
-source Thing and a Direction, so they're shown in a way that highlights
-these shared elements. The parts of all the Relationships closest to the source
-Thing are joined together visually into a single "Stem". Interacting with the
-Stem allows the user to perform operations on all the Relationships in the
-Cohort at the same time.
+* **Relationships Stem**: All of the Relationships for a given Relationship 
+Cohort share a source Thing and a Direction, so they're shown in a way that
+highlights these shared elements. The parts of all the Relationships closest
+to the source Thing are joined together visually into a single "Stem".
+Interacting with the Stem allows the user to perform operations on all the
+Relationships in the Cohort at the same time.
 
 * **Relationships Fan**: The "Fan" shows the separation of the Relationships
 into separate Branches (see below). The diagonal lines of the fan are generally
