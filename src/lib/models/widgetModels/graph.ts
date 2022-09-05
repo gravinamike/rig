@@ -38,13 +38,14 @@ export class GraphWidgetModel {
      * Build the model.
      */
     async build(): Promise< void > {
+        console.log("Building Graph Widget Model.")
         // Set model attributes to initial configuration.
         this.formActive = false
 
         // Assign a root Thing Cohort Widget Model, based on the Graph's root Thing Cohort.
         if (this.graph.rootCohort) {
             this.rootThingCohortWidgetModel = new ThingCohortWidgetModel(this.graph.rootCohort, this)
-            await this.rootThingCohortWidgetModel.build()
+            await this.rootThingCohortWidgetModel.build(3)
         }
     }
 

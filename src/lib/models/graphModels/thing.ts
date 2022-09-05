@@ -176,6 +176,7 @@ export class Thing {
         } else {
             // Set child Thing Cohort for this Direction.
             this.childCohortsByHalfAxisId[directionId] = cohort
+            cohort.parentThing = this
         }
     }
 

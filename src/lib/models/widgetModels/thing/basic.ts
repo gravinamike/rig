@@ -31,8 +31,8 @@ export class ThingWidgetModel extends ThingBaseWidgetModel {
     /**
      * Build the model.
      */
-    async build(): Promise< boolean > {
-        console.log("THINGWIDGET", this.thingId)
+    async build(cyclesLeft: number): Promise< boolean > {
+        console.log("        Building Thing Widget Model:", this.thingId)
         this.lifecycleStatus = "building"
 
         // If thing has not been initialized correctly, exit with failure.
@@ -42,6 +42,7 @@ export class ThingWidgetModel extends ThingBaseWidgetModel {
         }
 
         // For each of the Thing's child Thing Cohorts,
+        console.log("        Child Thing Cohorts are:", this.thing.childThingCohorts)
         for (const childThingCohort of this.thing.childThingCohorts) {
             // Create a new Thing Cohort Widget Model and add to the array in this model.
             const childThingCohortWidgetModel = new ThingCohortWidgetModel(
@@ -49,7 +50,7 @@ export class ThingWidgetModel extends ThingBaseWidgetModel {
                 this.graphWidgetModel,
                 this
             )
-            await childThingCohortWidgetModel.build()
+            await childThingCohortWidgetModel.build(cyclesLeft)
             this.childThingCohortWidgetModel(childThingCohortWidgetModel)
 
             // Create a new Relationships Widget Model and add to the array in this model.

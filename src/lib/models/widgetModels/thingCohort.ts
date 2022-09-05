@@ -37,14 +37,23 @@ export class ThingCohortWidgetModel {
     /**
      * Build the model.
      */
-    async build(): Promise< boolean > {
-        console.log("BUILDING COHORT WIDGET MODEL", this.cohort.address)
+    async build(cyclesLeft: number): Promise< boolean > {
+        if (cyclesLeft === 0) return false
+        cyclesLeft -= 1
+
+        console.log("    Building Thing Cohort Widget Model: GEN", this.cohort.address.generationId, "PARENT", this.cohort.address.parentThingId, "DIR", this.cohort.address.directionId)
         this.lifecycleStatus = "building"
 
         // Reset the array of member Thing Widget Models...
         this.memberModels = []
 
         // ...then re-populate it with new models based on the Cohort's member Things.
+        console.log("    Member Thing IDs are:", this.cohort.members.map(
+                member => typeof member === "number" ? `MIS ${member}` :
+                (this.graphWidgetModel.thingIdsAlreadyInModel.includes(member.id)) ? `SPA ${member}` :
+                member.id
+            )
+        )
         for (const member of this.cohort.members) {
             let model: ThingMissingFromStoreWidgetModel | ThingAlreadyRenderedWidgetModel | ThingWidgetModel
 
@@ -57,14 +66,14 @@ export class ThingCohortWidgetModel {
                 model = new ThingAlreadyRenderedWidgetModel(member.id, this.graphWidgetModel, this)
 
             // Else create a Thing Widget Model for that Thing ID.
-            } else {
-                console.log("trying")///////////////////////////////////////////////////////////////// This is happening with infinite recursion...
-                console.log(this.graphWidgetModel.thingIdsAlreadyInModel, member.id)
+            } else {///////////////////////////////////////////////////////////////// This is happening with infinite recursion...
                 model = new ThingWidgetModel(member.id, this.graphWidgetModel, this)
-                await model.build()
             }
+
             // Add the new model to the array of member Thing Widget Models.
             this.addMemberModel(model)
+
+            if (model.kind === "thingWidgetModel") await model.build(cyclesLeft)
         }
 
         this.lifecycleStatus = "built"
@@ -217,20 +226,19 @@ export class ThingCohortWidgetModel {
      * @return {number[]} - An array of Thing IDs in the Cohort Widget Model.
      */
     get thingIdsInModel(): number[] {
-        console.log("MEMBER THING WIDGET MODELS:", this.memberModels)
         let thingIdsInModel: number[] = []
-        /*for (const model of this.memberModels) {/////////////////////// THIS IS EMPTY...
+        for (const model of this.memberModels) {////////////////////////////////////////////////// THIS IS EMPTY...
             if (model.thingId) {
                 thingIdsInModel.push(model.thingId)
-            }*/
-            /*if (model.kind === "thingWidgetModel") {
+            }
+            if (model.kind === "thingWidgetModel") {
                 for (const childThingCohortWidgetModel of model.childThingCohortWidgetModels) {
                     const thingIdsInChildThingCohortModel = childThingCohortWidgetModel.thingIdsInModel
                     thingIdsInModel.push(...thingIdsInChildThingCohortModel)
                 }
-            }*/
-        /*}
-        thingIdsInModel = [...new Set(thingIdsInModel)]*/
+            }
+        }
+        thingIdsInModel = [...new Set(thingIdsInModel)]
         return thingIdsInModel
     }
 }
