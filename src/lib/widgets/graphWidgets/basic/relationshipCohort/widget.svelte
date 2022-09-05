@@ -106,7 +106,7 @@
 
     async function changeRelationshipsDirection(directionId: number) {//////////////////////// MOVE TO MODEL
         const sourceThingId = model.parentThingWidgetModel.thingId as number
-        const destThingIds = model.cohort.members.map(thing => thing && thing.id)
+        const destThingIds = model.cohort.members.map(thing => typeof thing === "object" ? thing.id : thing)
 
         const relationshipInfos: {sourceThingId: number, destThingId: number, directionId: number }[] = []
         for (const destThingId of destThingIds) {

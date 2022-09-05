@@ -1,6 +1,6 @@
 import type { GraphWidgetModel } from "../graph"
 import type { ThingCohortWidgetModel } from "$lib/models/widgetModels"
-import { ThingBaseWidgetModel } from "."
+import { ThingBaseWidgetModel } from "./base"
 
 
 export class ThingAlreadyRenderedWidgetModel extends ThingBaseWidgetModel {

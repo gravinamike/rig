@@ -2,22 +2,22 @@
     import type { GraphWidgetModel, ThingMissingFromStoreWidgetModel } from "$lib/models/widgetModels"
     import { planePadding } from "$lib/shared/constants"
 
-    export let thingMissingFromStoreWidgetModel: ThingMissingFromStoreWidgetModel
+    export let model: ThingMissingFromStoreWidgetModel
     export let graphWidgetModel: GraphWidgetModel
 
 
     /* Variables situating the Thing in its spatial context (Half-Axis, Plane). */
-    $: planeId = thingMissingFromStoreWidgetModel.planeId
+    $: planeId = model.planeId
 
     /* Variables dealing with encapsulation (Things containing other Things). */
     // If the Half-Axis is "Outwards, or the Thing has "Inwards" children, it is encapsulating.
-    $: encapsulatingDepth = thingMissingFromStoreWidgetModel.encapsulatingDepth
+    $: encapsulatingDepth = model.encapsulatingDepth
     $: encapsulatingPadding = encapsulatingDepth >= 0 ? 40 : 20
 
     /* Variables dealing with Thing sizing. */
-    $: xYElongation = thingMissingFromStoreWidgetModel.xYElongation
+    $: xYElongation = model.xYElongation
 
-    $: cohortSize = thingMissingFromStoreWidgetModel.cohortSize
+    $: cohortSize = model.cohortSize
     $: thingSize = graphWidgetModel.style.thingSize + planePadding * planeId + encapsulatingPadding * encapsulatingDepth
     $: thingWidth = thingSize * xYElongation.x
     $: thingHeight = encapsulatingDepth >= 0 ? thingSize * xYElongation.y : thingSize * xYElongation.y / cohortSize - 2
@@ -29,7 +29,7 @@
         class="box"
         style="width: {thingWidth}px; height: {thingHeight}px;"
     >
-        PLACEHOLDER FOR THING {thingMissingFromStoreWidgetModel.thingId}
+        THING {model.thingId} MISSING FROM STORE
     </div>
 </main>
 

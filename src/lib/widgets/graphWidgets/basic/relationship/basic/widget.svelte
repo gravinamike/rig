@@ -1,7 +1,7 @@
 <script context="module" lang="ts">
     // Type imports.
     import type { GraphWidgetModel } from "$lib/models/widgetModels"
-    import type { RelationshipWidgetModel } from "$lib/models/widgetModels/relationshipWidgetModel"
+    import type { RelationshipWidgetModel } from "$lib/models/widgetModels"
 
     // Basic UI imports.
     import { tweened } from "svelte/motion"

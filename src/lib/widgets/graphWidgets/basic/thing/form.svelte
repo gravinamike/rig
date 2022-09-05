@@ -1,6 +1,6 @@
 <script lang="ts">
     // Type imports.
-    import type { Thing, ThingCohort, Space } from "$lib/models/graphModels"
+    import type { Thing, Space } from "$lib/models/graphModels"
     import type { GraphWidgetModel, ThingWidgetModel } from "$lib/models/widgetModels"
 
     // Graph widget imports.
@@ -69,7 +69,7 @@
     }
 
     async function cancel() {
-        (thingWidgetModel.thing?.parentCohort as ThingCohort).removeMember(thingWidgetModel.thing)
+        if (thingWidgetModel.thing) thingWidgetModel.thing.parentCohort.removeMember(thingWidgetModel.thing)
         graphWidgetModel.formActive = false
         addGraphIdsNeedingViewerRefresh(graphWidgetModel.graph.id)
     }    

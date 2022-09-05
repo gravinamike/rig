@@ -1,9 +1,8 @@
 import type { ThingCohort } from "$lib/models/graphModels"
 import type { GraphWidgetModel } from "./graph"
 import { halfAxisOppositeIds, offsetsByHalfAxisId } from "$lib/shared/constants"
-import { graphConstructInStore } from "$lib/stores"
 import {
-    ThingBaseWidgetModel, ThingWidgetModel, ThingMissingFromStoreWidgetModel,
+    ThingMissingFromStoreWidgetModel, ThingAlreadyRenderedWidgetModel, ThingWidgetModel,
     RelationshipCohortWidgetModel
 } from "$lib/models/widgetModels"
 
@@ -15,7 +14,9 @@ export class ThingCohortWidgetModel {
     cohort: ThingCohort
     graphWidgetModel: GraphWidgetModel
     parentThingWidgetModel: ThingWidgetModel | null
-    memberModels: ( ThingWidgetModel | ThingBaseWidgetModel | ThingMissingFromStoreWidgetModel )[] = []
+
+    lifecycleStatus: "new" | "building" | "built" | "failed" | "cleared" = "new"
+    memberModels: ( ThingWidgetModel | ThingAlreadyRenderedWidgetModel | ThingMissingFromStoreWidgetModel )[] = []
 
     /**
      * Create a Graph Widget Model.
@@ -31,38 +32,43 @@ export class ThingCohortWidgetModel {
         this.cohort = cohort
         this.graphWidgetModel = graphWidgetModel
         this.parentThingWidgetModel = parentThingWidgetModel === undefined ? null : parentThingWidgetModel
-
-        // Build the model.
-        this.build()
     }
 
     /**
      * Build the model.
      */
-    async build(): Promise< void > {
+    async build(): Promise< boolean > {
+        console.log("BUILDING COHORT WIDGET MODEL", this.cohort.address)
+        this.lifecycleStatus = "building"
+
         // Reset the array of member Thing Widget Models...
         this.memberModels = []
 
         // ...then re-populate it with new models based on the Cohort's member Things.
         for (const member of this.cohort.members) {
-            // Create a model based on the Thing.
-            const model = (
-                // If the Thing is null, create a missing-from-store model.
-                !member ?
-                    new ThingMissingFromStoreWidgetModel(null, this.graphWidgetModel, this) :
-                // Else, if the Thing is already modeled in the Graph, create a spacer model.
-                this.graphWidgetModel.graph.thingIdsAlreadyInGraph.includes(member.id) ?
-                    new ThingBaseWidgetModel(member.id, this.graphWidgetModel, this) :
-                // Else, if the Thing is in the Thing store, create a model for that Thing ID.
-                graphConstructInStore("Thing", member.id) ?
-                    new ThingWidgetModel(member.id, this.graphWidgetModel, this) :
-                // Else create a missing-from-store model.
-                new ThingMissingFromStoreWidgetModel(member.id, this.graphWidgetModel, this)
-            )
-            
+            let model: ThingMissingFromStoreWidgetModel | ThingAlreadyRenderedWidgetModel | ThingWidgetModel
+
+            // If the Thing is missing from the store, create a missing-from-store model.
+            if (typeof member === "number") {
+                model = new ThingMissingFromStoreWidgetModel(member, this.graphWidgetModel, this)
+
+            // Else, if the Thing is already modeled in the Graph, create a spacer model.
+            } else if (this.graphWidgetModel.thingIdsAlreadyInModel.includes(member.id)) {
+                model = new ThingAlreadyRenderedWidgetModel(member.id, this.graphWidgetModel, this)
+
+            // Else create a Thing Widget Model for that Thing ID.
+            } else {
+                console.log("trying")///////////////////////////////////////////////////////////////// This is happening with infinite recursion...
+                console.log(this.graphWidgetModel.thingIdsAlreadyInModel, member.id)
+                model = new ThingWidgetModel(member.id, this.graphWidgetModel, this)
+                await model.build()
+            }
             // Add the new model to the array of member Thing Widget Models.
             this.addMemberModel(model)
         }
+
+        this.lifecycleStatus = "built"
+        return true
     }
 
 
@@ -77,7 +83,7 @@ export class ThingCohortWidgetModel {
 
 
 
-    addMemberModel(model: ThingWidgetModel | ThingBaseWidgetModel | ThingMissingFromStoreWidgetModel): void {
+    addMemberModel(model: ThingWidgetModel | ThingAlreadyRenderedWidgetModel | ThingMissingFromStoreWidgetModel): void {
         this.memberModels.push(model)
         model.parentThingCohortWidgetModel = this
     }
@@ -124,7 +130,7 @@ export class ThingCohortWidgetModel {
     ////////////////////////////////////////////////////// MOVE THIS TO COHORT ITSELF INSTEAD OF WIDGET MODEL?
     get indexOfGrandparentThing(): number | null {
         return this.grandparentThingId !== null ? 
-            this.cohort.members.findIndex( member => member && member.id === this.grandparentThingId )
+            this.cohort.members.findIndex( member => (typeof member === "object") && member.id === this.grandparentThingId )
             : null
     }
 
@@ -204,5 +210,27 @@ export class ThingCohortWidgetModel {
         } else {
             return null
         }
+    }
+
+    /**
+     * Get the IDs of all of the Things in the Cohort Widget Model.
+     * @return {number[]} - An array of Thing IDs in the Cohort Widget Model.
+     */
+    get thingIdsInModel(): number[] {
+        console.log("MEMBER THING WIDGET MODELS:", this.memberModels)
+        let thingIdsInModel: number[] = []
+        /*for (const model of this.memberModels) {/////////////////////// THIS IS EMPTY...
+            if (model.thingId) {
+                thingIdsInModel.push(model.thingId)
+            }*/
+            /*if (model.kind === "thingWidgetModel") {
+                for (const childThingCohortWidgetModel of model.childThingCohortWidgetModels) {
+                    const thingIdsInChildThingCohortModel = childThingCohortWidgetModel.thingIdsInModel
+                    thingIdsInModel.push(...thingIdsInChildThingCohortModel)
+                }
+            }*/
+        /*}
+        thingIdsInModel = [...new Set(thingIdsInModel)]*/
+        return thingIdsInModel
     }
 }

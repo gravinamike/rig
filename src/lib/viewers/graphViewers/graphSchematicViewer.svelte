@@ -24,7 +24,7 @@
             <Collapser headerText={`Generation ${id}`} expanded={true}>
                 <div class="related-things-list">
                     {#each generation.members as member}
-                        {#if member}
+                        {#if typeof member === "object"}
                             <ThingDetailsWidget
                                 thing={member}
                             />

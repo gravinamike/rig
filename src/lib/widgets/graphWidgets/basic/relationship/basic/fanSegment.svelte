@@ -1,6 +1,6 @@
 <script context="module" lang="ts">
     import type { Thing, GenerationMember } from "$lib/models/graphModels"
-    import type { RelationshipWidgetModel } from "$lib/models/widgetModels/relationshipWidgetModel"
+    import type { RelationshipWidgetModel } from "$lib/models/widgetModels"
     import { retrieveGraphConstructs, addGraphIdsNeedingViewerRefresh, relationshipBeingCreatedInfoStore, hoveredThingIdStore, hoveredRelationshipTarget } from "$lib/stores"
     import { XButton } from "$lib/widgets/layoutWidgets"
 </script>
@@ -17,14 +17,15 @@
 
 
     let fanSegmentHovered = false
-    $: thingHovered = cohortMemberWithIndex.member && cohortMemberWithIndex.member.id === $hoveredThingIdStore
-    $: relationshipHovered = cohortMemberWithIndex.member && cohortMemberWithIndex.member.id === thingIdOfHoveredRelationship
+    $: thing = cohortMemberWithIndex.member as Thing
+    $: thingHovered = thing.id === $hoveredThingIdStore
+    $: relationshipHovered = thing.id === thingIdOfHoveredRelationship
     let fanSegmentClicked = false
 
     async function deleteRelationship() {
         const graph = (cohortMemberWithIndex.member as Thing).graph
-        const sourceThingId = cohortMemberWithIndex.member?.parentThing?.id || null
-        const sourceThing = cohortMemberWithIndex.member?.parentThing || null
+        const sourceThingId = thing.parentThing?.id || null
+        const sourceThing = thing?.parentThing || null
         const destThingId = thingIdOfHoveredRelationship
         const destThing = thingIdOfHoveredRelationship ?
             retrieveGraphConstructs("Thing", thingIdOfHoveredRelationship) as Thing :
@@ -52,8 +53,8 @@
 
 
 
-    $: sourceThingId = cohortMemberWithIndex.member?.parentThing?.id || null
-    $: destThingId = cohortMemberWithIndex.member?.id
+    $: sourceThingId = thing.parentThing?.id || null
+    $: destThingId = thing.id
     $: dragSourceThingId = $relationshipBeingCreatedInfoStore.sourceWidgetModel ?
         (
             $relationshipBeingCreatedInfoStore.sourceWidgetModel.kind === "thingWidgetModel" ?
@@ -88,7 +89,7 @@
         fill: {relationshipWidgetModel.relationshipCohortWidgetModel.relationshipColor};
     "
     on:mouseenter={()=>{
-        thingIdOfHoveredRelationship = cohortMemberWithIndex.member?.id || null
+        thingIdOfHoveredRelationship = thing.id || null
     }}
     on:mouseleave={()=>{thingIdOfHoveredRelationship = null}}
 >
@@ -133,7 +134,7 @@
             y={leafGeometry.bottom}
             on:mouseenter={()=>{
                 fanSegmentHovered = true
-                thingIdOfHoveredRelationship = cohortMemberWithIndex.member?.id || null
+                thingIdOfHoveredRelationship = thing.id || null
             }}
             on:mouseleave={()=>{fanSegmentHovered = false; thingIdOfHoveredRelationship = null}}
         >

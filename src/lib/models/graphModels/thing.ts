@@ -115,8 +115,7 @@ export class Thing {
 
 
 
-    // Just created graph and parentThing, so rewrite the below, first with a
-    // conditional to return null if either of those are falsey.
+
 
     get space(): Space | null {
         if (!this.graph) {

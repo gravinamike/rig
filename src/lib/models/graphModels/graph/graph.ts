@@ -38,8 +38,6 @@ export class Graph {
         this.history = new PerspectiveHistory(this)
         this.startingSpace = startingSpace
         this.offAxis = offAxis
-
-        this.build()
     }
 
 
@@ -143,7 +141,7 @@ export class Graph {
     }
 
     get pThing(): Thing | null {
-        const pThing = this.rootCohort?.members[0] || null
+        const pThing = (this.rootCohort?.members[0] as Thing) || null
         return pThing
     }
 

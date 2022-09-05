@@ -21,8 +21,8 @@
     const ofPerspectiveThing = relationshipsWidgetModel.parentThing && relationshipsWidgetModel.parentThing.address.generationId === 0 ? true : false
     $: relationshipsExist = cohort.members.length ? true : false
 
-    $: thingHovered = cohort.members.map(member => member && member.id).includes($hoveredThingIdStore)
-    $: relationshipHovered = cohort.members.map(member => member && member.id).includes(thingIdOfHoveredRelationship)
+    $: thingHovered = $hoveredThingIdStore && cohort.members.map(member => typeof member === "object" ? member.id : member).includes($hoveredThingIdStore)
+    $: relationshipHovered = thingIdOfHoveredRelationship && cohort.members.map(member => typeof member === "object" ? member.id : member).includes(thingIdOfHoveredRelationship)
     let stemClicked = false
 
     /*
@@ -32,6 +32,7 @@
         const associatedThingCohortWidgetModel = relationshipsWidgetModel.parentThingWidgetModel.childThingCohortWidgetModelByHalfAxisId[cohort.halfAxisId]
 
         const newThingWidgetModel = new ThingWidgetModel(null, graphWidgetModel, associatedThingCohortWidgetModel)
+        await newThingWidgetModel.build()
         if (!graphWidgetModel.formActive) {
             associatedThingCohortWidgetModel.addMemberModel(newThingWidgetModel)
             graphWidgetModel.formActive = true

@@ -25,6 +25,7 @@ export async function addGraph(pThingIds: number[], depth: number, parentGraph: 
     const newGraphId = allGraphIds.length ? Math.max(...allGraphIds) + 1 : 1
 
     const graph = new Graph(newGraphId, pThingIds, depth, parentGraph, offAxis, startingSpace)
+    await graph.build()
 
     graphsStore.update( current => {
         if (!current.includes(graph)) current.push(graph)

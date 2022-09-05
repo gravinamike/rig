@@ -22,7 +22,7 @@
 
     // Import modification functions.
     import { markThingsVisited } from "$lib/db/clientSide/makeChanges"
-    import { GraphWidgetModel } from "$lib/models/widgetModels/graphWidgetModel"
+    import { GraphWidgetModel } from "$lib/models/widgetModels"
     
     export let pThingIds: number[]
     export let depth: number
@@ -31,7 +31,6 @@
     // Initialize the Graph.
     let graph: Graph | null
     let graphWidgetModel: GraphWidgetModel
-    
 
     // Set up Graph refreshing.
     $: if ( graph && $graphIdsNeedingViewerRefresh.includes(graph.id) ) {
@@ -86,7 +85,7 @@
 </script>
 
 
-{#if graph?.lifecycleStatus === "built"}
+{#if graph && graph.lifecycleStatus === "built"}
     <div class="graph-viewer">
         <!-- Graph-related viewers (Schematic and Settings) -->
         <Collapser

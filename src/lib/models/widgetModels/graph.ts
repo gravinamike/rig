@@ -44,6 +44,16 @@ export class GraphWidgetModel {
         // Assign a root Thing Cohort Widget Model, based on the Graph's root Thing Cohort.
         if (this.graph.rootCohort) {
             this.rootThingCohortWidgetModel = new ThingCohortWidgetModel(this.graph.rootCohort, this)
+            await this.rootThingCohortWidgetModel.build()
         }
+    }
+
+    /**
+     * Get the IDs of all of the Things already added to the Graph Widget Model.
+     * @return {number[]} - An array of Thing IDs already added to the Graph Widget Model.
+     */
+    get thingIdsAlreadyInModel(): number[] {
+        const thingIdsAlreadyInModel = this.rootThingCohortWidgetModel?.thingIdsInModel || []
+        return thingIdsAlreadyInModel
     }
 }

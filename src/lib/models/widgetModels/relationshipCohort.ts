@@ -251,7 +251,7 @@ export class RelationshipCohortWidgetModel {
         const parentRectY = parentDomRect === null ? 0 : parentDomRect.y
 
         // Get posisition of related Thing Widget.
-        const relatedRect = rectOfThingWidgetByThingId(this.graphWidgetModel.graph.id, member?.id as number)
+        const relatedRect = rectOfThingWidgetByThingId(this.graphWidgetModel.graph.id, (member as Thing).id)
         const relatedRectX = relatedRect === null ? 0 : relatedRect.x
         const relatedRectY = relatedRect === null ? 0 : relatedRect.y
 

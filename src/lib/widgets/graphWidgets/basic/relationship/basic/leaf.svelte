@@ -1,9 +1,9 @@
 <script context="module" lang="ts">
     import type { Thing, GenerationMember } from "$lib/models/graphModels"
+    import type { RelationshipWidgetModel } from "$lib/models/widgetModels"
     import { hoveredThingIdStore, storeGraphConstructs, addGraphIdsNeedingViewerRefresh } from "$lib/stores"
     import { DirectionWidget } from "$lib/widgets/graphWidgets"
     import { updateRelationships } from "$lib/db/clientSide"
-import type { RelationshipWidgetModel } from "$lib/models/widgetModels/relationshipWidgetModel";
 </script>
 
 <script lang="ts">
@@ -15,17 +15,17 @@ import type { RelationshipWidgetModel } from "$lib/models/widgetModels/relations
     export let leafGeometry: { bottom: number, top: number, bottomMidline: number, topMidline: number }
     export let cohortMemberWithIndex: { index: number, member: GenerationMember }
 
-
+    $: thing = cohortMemberWithIndex.member as Thing
     let leafHovered = false
-    $: thingHovered = cohortMemberWithIndex.member && cohortMemberWithIndex.member.id === $hoveredThingIdStore
-    $: relationshipHovered = cohortMemberWithIndex.member && cohortMemberWithIndex.member.id === thingIdOfHoveredRelationship
+    $: thingHovered = thing.id === $hoveredThingIdStore
+    $: relationshipHovered = thing.id === thingIdOfHoveredRelationship
     let leafClicked = false
 
     $: showDirection = leafHovered || relationshipHovered ? true : false
 
     async function changeRelationshipDirection(directionId: number) {
-        const sourceThingId = cohortMemberWithIndex.member?.parentThing?.id || null
-        const destThingId = cohortMemberWithIndex.member?.id || null
+        const sourceThingId = thing.parentThing?.id || null
+        const destThingId = thing.id || null
 
         if (sourceThingId && destThingId && directionId) {
             const relationshipsUpdated = await updateRelationships([
@@ -49,7 +49,7 @@ import type { RelationshipWidgetModel } from "$lib/models/widgetModels/relations
 <!-- Relationship leaf. -->
 <div
     class="relationship-leaf"
-    on:mouseenter={()=>{thingIdOfHoveredRelationship = cohortMemberWithIndex.member?.id || null}}
+    on:mouseenter={()=>{thingIdOfHoveredRelationship = thing.id || null}}
     on:mouseleave={()=>{thingIdOfHoveredRelationship = null}}
 >
     <svg

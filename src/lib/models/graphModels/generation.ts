@@ -4,7 +4,7 @@ import { graphConstructInStore, retrieveGraphConstructs } from "$lib/stores"
 import { Thing, ThingCohort } from "$lib/models/graphModels"
 
 
-export type GenerationMember = Thing | null
+export type GenerationMember = Thing | number
 
 export class Generation {
     kind = "generation"
@@ -46,7 +46,7 @@ export class Generation {
 
     get membersById(): { [memberId: number]: GenerationMember } {
         const membersById: { [memberId: number]: GenerationMember } = {}
-        for (const member of this.members) if (member?.id) membersById[member.id] = member
+        for (const member of this.members) if (typeof member === "object") membersById[member.id] = member
         return membersById
     }
 
@@ -75,8 +75,8 @@ export class Generation {
 
 
                 const member = graphConstructInStore("Thing", memberId) ?
-                    retrieveGraphConstructs<Thing>("Thing", memberId) :
-                    null  
+                    retrieveGraphConstructs<Thing>("Thing", memberId) as Thing :
+                    memberId  
                 
                 this.graph.rootCohort.addMember(member)
             }
@@ -121,8 +121,8 @@ export class Generation {
 
                     for (const memberId of membersIdForCohort) {
                         const member = graphConstructInStore("Thing", memberId) ?
-                            retrieveGraphConstructs<Thing>("Thing", memberId) :
-                            null  
+                            retrieveGraphConstructs<Thing>("Thing", memberId) as Thing :
+                            memberId  
                         
                         childCohort.addMember(member)
                     }

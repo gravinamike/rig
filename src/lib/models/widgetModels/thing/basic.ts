@@ -1,43 +1,77 @@
 import type { HalfAxisId } from "$lib/shared/constants"
-import type { Space, ThingCohort, Note, Thing } from "$lib/models/graphModels"
+import type { Space, ThingCohort, Thing, Note } from "$lib/models/graphModels"
 import type { RelationshipBeingCreatedInfo } from "$lib/widgets/graphWidgets"
 
 import { ThingBaseWidgetModel } from "."
 import { GraphWidgetModel, ThingCohortWidgetModel, RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
 
 
-/*
- * Thing Widget Model.
- * Specifies info to build the widget representing a Thing within a specific Graph Portal.
- */
+/* Model specifying a Thing Widget. */
 export class ThingWidgetModel extends ThingBaseWidgetModel {
     kind = "thingWidgetModel" as const
 
+    lifecycleStatus: "new" | "building" | "built" | "failed" | "cleared" = "new"
     childThingCohortWidgetModels: ThingCohortWidgetModel[] = []
-    relationshipsWidgetModels: RelationshipCohortWidgetModel[] = []
+    relationshipCohortWidgetModels: RelationshipCohortWidgetModel[] = []
 
-    constructor(thingId: number | null, graphWidgetModel: GraphWidgetModel, parentThingCohortWidgetModel: ThingCohortWidgetModel) {
+    /**
+     * Create a Thing Widget Model.
+     * @param {number | null} thingId - The ID of the Thing that the widget is based on.
+     * @param {GraphWidgetModel} graphWidgetModel - The model of the Graph that the widget is in.
+     * @param {ThingWidgetModel} parentThingCohortWidgetModel - The Model of the widget's parent Thing Cohort Widget.
+     */
+    constructor(
+        thingId: number | null,
+        graphWidgetModel: GraphWidgetModel,
+        parentThingCohortWidgetModel: ThingCohortWidgetModel
+    ) {
         super(thingId, graphWidgetModel, parentThingCohortWidgetModel)
-
-        this.build()
     }
 
+    /**
+     * Build the model.
+     */
+    async build(): Promise< boolean > {
+        console.log("THINGWIDGET", this.thingId)
+        this.lifecycleStatus = "building"
 
-
-    
-    async build(): Promise< void > {
-        if (this.thing) {
-            for (const childThingCohort of this.thing.childThingCohorts) {
-                // Create a new Cohort Widget Model and assign to the previous Generation's Thing in that Direction.
-                const childThingCohortWidgetModel = new ThingCohortWidgetModel(childThingCohort, this.graphWidgetModel, this)
-                this.childThingCohortWidgetModel(childThingCohortWidgetModel)
-    
-                // Create a new Relationships Widget Model and assign to the previous Generation's Thing in that Direction.
-                const relationshipsWidgetModel = new RelationshipCohortWidgetModel(childThingCohort, this.thing.space as Space, this.graphWidgetModel, this)
-                this.relationshipsWidgetModel(relationshipsWidgetModel)
-            }
+        // If thing has not been initialized correctly, exit with failure.
+        if ( !(this.thing && this.thing.space) ) {
+            this.lifecycleStatus = "failed"
+            return false
         }
+
+        // For each of the Thing's child Thing Cohorts,
+        for (const childThingCohort of this.thing.childThingCohorts) {
+            // Create a new Thing Cohort Widget Model and add to the array in this model.
+            const childThingCohortWidgetModel = new ThingCohortWidgetModel(
+                childThingCohort,
+                this.graphWidgetModel,
+                this
+            )
+            await childThingCohortWidgetModel.build()
+            this.childThingCohortWidgetModel(childThingCohortWidgetModel)
+
+            // Create a new Relationships Widget Model and add to the array in this model.
+            const relationshipCohortWidgetModel = new RelationshipCohortWidgetModel(
+                childThingCohort,
+                this.thing.space,
+                this.graphWidgetModel,
+                this
+            )
+            this.childRelationshipCohortWidgetModel(relationshipCohortWidgetModel)
+        }
+
+        this.lifecycleStatus = "built"
+        return true
     }
+
+
+
+
+
+
+
 
 
 
@@ -121,13 +155,13 @@ export class ThingWidgetModel extends ThingBaseWidgetModel {
 
 
 
-    relationshipsWidgetModel( relationshipsWidgetModel: RelationshipCohortWidgetModel ): void {
-        this.relationshipsWidgetModels.push(relationshipsWidgetModel)
+    childRelationshipCohortWidgetModel( relationshipsWidgetModel: RelationshipCohortWidgetModel ): void {
+        this.relationshipCohortWidgetModels.push(relationshipsWidgetModel)
     }
 
     get relationshipsWidgetModelsByDirectionId(): { [directionId: number]: RelationshipCohortWidgetModel } {
         const relationshipsWidgetModelsByDirectionId: { [directionId: number]: RelationshipCohortWidgetModel } = {}
-        for (const relationshipsWidgetModel of this.relationshipsWidgetModels) {
+        for (const relationshipsWidgetModel of this.relationshipCohortWidgetModels) {
             const directionId = relationshipsWidgetModel.cohort.address.directionId
             if (directionId) relationshipsWidgetModelsByDirectionId[directionId] = relationshipsWidgetModel
         }
@@ -136,7 +170,7 @@ export class ThingWidgetModel extends ThingBaseWidgetModel {
 
     get relationshipsWidgetModelsByHalfAxisId(): { [directionId: number]: RelationshipCohortWidgetModel } {
         const relationshipsWidgetModelsByHalfAxisId: { [directionId: number]: RelationshipCohortWidgetModel } = {}
-        for (const relationshipsWidgetModel of this.relationshipsWidgetModels) {
+        for (const relationshipsWidgetModel of this.relationshipCohortWidgetModels) {
             const directionId = relationshipsWidgetModel.cohort.address.directionId
             if (directionId) {
                 const halfAxisId = ((this.thing as Thing).space as Space).halfAxisIdByDirectionId[directionId]

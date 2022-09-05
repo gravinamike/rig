@@ -1,9 +1,9 @@
 <script context="module" lang="ts">
     /* Type imports. */
-    import type { GraphWidgetModel, ThingCohortWidgetModel } from "$lib/models/widgetModels";
+    import type { GraphWidgetModel, ThingCohortWidgetModel } from "$lib/models/widgetModels"
 
     /* Widget imports */
-    import { CladeWidget, ThingAlreadyRenderedWidget } from "$lib/widgets/graphWidgets"
+    import { ThingMissingFromStoreWidget, ThingAlreadyRenderedWidget, CladeWidget } from "$lib/widgets/graphWidgets"
 </script>
 
 <script lang="ts">
@@ -38,22 +38,35 @@
         gap: {thingCohortWidgetModel.cohort.halfAxisId && [5, 6, 7, 8].includes(thingCohortWidgetModel.cohort.halfAxisId) ? 4 : graphWidgetModel.style.betweenThingGap}px;
     "
 >        
-    {#if !(thingCohortWidgetModel.memberModels.length === 1 && indexOfGrandparentThing !== null && indexOfGrandparentThing !== -1)}<!-- Unless the ONLY descendent in a Half-Axis is a doubled-back parent Thing, -->
+    {#if !(
+        thingCohortWidgetModel.memberModels.length === 1
+        && indexOfGrandparentThing !== null
+        && indexOfGrandparentThing !== -1
+    )}<!-- Unless the ONLY descendent in a Half-Axis is a doubled-back parent Thing, -->
+
         {#each thingCohortWidgetModel.memberModels as cohortMember}
-            {#if "text" in cohortMember}
+
+            {#if cohortMember.kind === "thingMissingFromStoreWidgetModel"}
+                <ThingMissingFromStoreWidget
+                    model={cohortMember}
+                    {graphWidgetModel}
+                />
+            {:else if cohortMember.kind === "thingAlreadyRenderedWidgetModel"}
+                <ThingAlreadyRenderedWidget
+                    model={cohortMember}
+                    cohortHalfAxisId={thingCohortWidgetModel.cohort.halfAxisId}
+                    {graphWidgetModel}
+                />
+            {:else if cohortMember.kind === "thingWidgetModel"}
                 <CladeWidget
                     thingWidgetModel={cohortMember}
                     bind:graphWidgetModel
                     {rePerspectToThingId}
                 />
-            {:else if thingCohortWidgetModel.cohort.halfAxisId}
-                <ThingAlreadyRenderedWidget
-                    thingBaseWidgetModel={cohortMember}
-                    cohortHalfAxisId={thingCohortWidgetModel.cohort.halfAxisId}
-                    {graphWidgetModel}
-                />
             {/if}
+            
         {/each}
+
     {/if}
 </main>
 

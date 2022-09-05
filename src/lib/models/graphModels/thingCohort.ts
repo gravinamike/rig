@@ -24,7 +24,7 @@ export class ThingCohort {
     constructor(address: CohortAddress, members: GenerationMember[]) {
         this.address = address
         this.members = members
-        for (const member of members) if (member) member.parentCohort = this
+        for (const member of members) if (typeof member === "object") member.parentCohort = this
 
         // Plane.
         let planeId: number
@@ -74,7 +74,7 @@ export class ThingCohort {
         const grandparentThingId = this.parentCohort()?.address.parentThingId || null
     
         let indexOfGrandparentThing = grandparentThingId !== null ? 
-            this.members.findIndex( member => member && member.id === grandparentThingId )
+            this.members.findIndex( member => (typeof member === "object") && member.id === grandparentThingId )
             : null
 
         if (indexOfGrandparentThing === -1) indexOfGrandparentThing = null
@@ -91,7 +91,10 @@ export class ThingCohort {
     addMember(member: GenerationMember): void {
         if (!this.members.includes(member)) {
             this.members.push(member)
-            if (member) member.parentCohort = this
+            if (typeof member === "object") {
+                member.parentCohort = this
+                member.setGraph(this.address.graph)
+            }
         }
     }
 
