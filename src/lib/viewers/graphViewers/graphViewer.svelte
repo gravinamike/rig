@@ -30,10 +30,10 @@
 
     // Initialize the Graph.
     let graph: Graph | null
-    let graphWidgetModel: GraphWidgetModel
+    let graphWidgetModel: GraphWidgetModel | null = null
 
     // Set up Graph refreshing.
-    $: if ( graph && $graphIdsNeedingViewerRefresh.includes(graph.id) ) {
+    $: if ( graph && graphWidgetModel && $graphIdsNeedingViewerRefresh.includes(graph.id) ) {
         removeGraphIdsNeedingViewerRefresh(graph.id)
         graph = graph // Needed for reactivity.
         graphWidgetModel.allowZoomAndScrollToFit = true
@@ -59,13 +59,17 @@
         buildAndRefresh()
     }
 
+    $: if (graph && graph.lifecycleStatus === "built" && graphWidgetModel) {//////////////////// SHOULD WORK...
+        graphWidgetModel.build()
+    }
+
     
 
     /**
      * Re-Perspect the Graph to a given Thing ID.
      */
     async function rePerspectToThingId(thingId: number) {
-        if (graph) {
+        if (graph && graphWidgetModel) {
             // If the new Perspective Thing is already in the Graph, scroll to center it.
             graphWidgetModel.allowScrollToThingId = true
             graphWidgetModel.thingIdToScrollTo = thingId
@@ -82,10 +86,11 @@
             graph.history.addEntries([thingId])
         }
     }
+    $: console.log("---------------------------------------------", graphWidgetModel) //////////////////// WHY IS THIS GOING NULL?
 </script>
 
 
-{#if graph && graph.lifecycleStatus === "built"}
+{#if graph && graph.lifecycleStatus === "built" && graphWidgetModel}
     <div class="graph-viewer">
         <!-- Graph-related viewers (Schematic and Settings) -->
         <Collapser

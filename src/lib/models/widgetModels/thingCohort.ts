@@ -41,19 +41,19 @@ export class ThingCohortWidgetModel {
         if (cyclesLeft === 0) return false
         cyclesLeft -= 1
 
-        console.log("    Building Thing Cohort Widget Model: GEN", this.cohort.address.generationId, "PARENT", this.cohort.address.parentThingId, "DIR", this.cohort.address.directionId)
+        //console.log("    Building Thing Cohort Widget Model: GEN", this.cohort.address.generationId, "PARENT", this.cohort.address.parentThingId, "DIR", this.cohort.address.directionId)
         this.lifecycleStatus = "building"
 
         // Reset the array of member Thing Widget Models...
         this.memberModels = []
 
         // ...then re-populate it with new models based on the Cohort's member Things.
-        console.log("    Member Thing IDs are:", this.cohort.members.map(
+        /*console.log("    Member Thing IDs are:", this.cohort.members.map(
                 member => typeof member === "number" ? `MIS ${member}` :
                 (this.graphWidgetModel.thingIdsAlreadyInModel.includes(member.id)) ? `SPA ${member}` :
                 member.id
             )
-        )
+        )*/
         for (const member of this.cohort.members) {
             let model: ThingMissingFromStoreWidgetModel | ThingAlreadyRenderedWidgetModel | ThingWidgetModel
 

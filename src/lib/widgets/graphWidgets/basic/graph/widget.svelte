@@ -51,6 +51,7 @@
         scrollToThingId(model.thingIdToScrollTo)
     }
     $: if (centralAnchor && model.allowZoomAndScrollToFit) { // When graph is re-built, scroll to central anchor, then zoom and scroll to fit.
+        console.log("ANCHOR", centralAnchor)
         scrollToCentralAnchor(false)
         model.allowZoomAndScrollToFit = false
         zoomAndScroll()
@@ -111,6 +112,7 @@
      */
     function updateGraphBounds() {
         // Get all elements in the Graph, except the zoom bounds element.
+        console.log("ANCHOR2", centralAnchor)
         const descendants = descendantElements(centralAnchor)
         const descendantThingElements = descendants.filter(
             element => {
@@ -134,6 +136,7 @@
      * Zoom the Graph Widget to fit the Graph.
      */
     async function zoomToFit(): Promise<void> {
+        console.log("BEFORE -- ", centralAnchor)
         // Update the Graph bounds.
         updateGraphBounds()
 
@@ -152,6 +155,7 @@
         const newScale = scaleChange * scale
         const newZoom = Math.log(newScale) / Math.log(1.45)
         model.style.zoom = newZoom
+        console.log("AFTER -- ", centralAnchor)
     }
 
     /**
@@ -178,8 +182,12 @@
      */
     async function zoomAndScroll() {
         await sleep(10) // Allow time for Graph re-draw before zooming.
+        console.log("zoomToFit")
+        console.log("BEFORE --- ", centralAnchor)
         await zoomToFit()
+        console.log("AFTER ---", centralAnchor, graphWidget)
         await sleep(100)
+        console.log("scrollToZoomBoundsCenter")
         await scrollToZoomBoundsCenter()
     }
 </script>
@@ -210,6 +218,8 @@
             
             <!-- Root Cohort Widget (from which the rest of the Graph automatically "grows"). -->
             {#if model.rootThingCohortWidgetModel}
+                {"FOOOOOOOO" + String(model.rootThingCohortWidgetModel.memberModels.map(model => model.thingId)) + "   " + String(model.graph._pThingIds)}
+                <!-- ////////////////////////// THE ATTRIBUTES OF model DON'T CHANGE HERE... TRACE FROM setPThingIds AND FIND OUT WHY THAT DOESN'T AFFECT THESE... -->
                 <ThingCohortWidget
                     thingCohortWidgetModel={model.rootThingCohortWidgetModel}
                     bind:graphWidgetModel={model}
