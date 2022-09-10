@@ -1,4 +1,4 @@
-import type { Direction } from "$lib/models/graphModels"
+import type { Direction } from "$lib/models/constructModels"
 import type { ThingWidgetModel, RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
 
 

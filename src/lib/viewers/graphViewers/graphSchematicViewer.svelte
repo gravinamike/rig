@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { Graph, Generation } from "$lib/models/graphModels"
+    import type { Graph, Generation } from "$lib/models/constructModels"
     
     import { Collapser } from "$lib/widgets/layoutWidgets"
     import { ThingDetailsWidget } from "$lib/widgets/detailsWidgets"

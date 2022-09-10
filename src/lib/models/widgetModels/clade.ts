@@ -1,5 +1,6 @@
-import type { Note } from "$lib/models/graphModels"
-import type { GraphWidgetModel, ThingWidgetModel, ThingCohortWidgetModel, RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
+import type { Note } from "$lib/models/constructModels"
+import type { GraphWidgetModel, ThingWidgetModel, RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
+import type { ThingCohortWidgetModel } from "$lib/widgets/graphWidgets/basic/thingCohort"
 
 
 export class CladeWidgetModel {

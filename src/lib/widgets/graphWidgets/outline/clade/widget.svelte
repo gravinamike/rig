@@ -1,6 +1,7 @@
 <script lang="ts">
     // Graph construct imports.
-    import type { ThingWidgetModel, ThingCohortWidgetModel, GraphWidgetModel } from "$lib/models/widgetModels"
+    import type { ThingWidgetModel, GraphWidgetModel } from "$lib/models/widgetModels"
+    import type { ThingCohortWidgetModel } from "$lib/widgets/graphWidgets/basic/thingCohort"
     
     // Constant imports.
     import { relationshipColorByHalfAxisId } from "$lib/shared/constants"

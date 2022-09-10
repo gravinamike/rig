@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { Thing } from "$lib/models/graphModels"
+    import type { Thing } from "$lib/models/constructModels"
     import { hoveredThingIdStore } from "$lib/stores/appStores"
     import { Collapser } from "$lib/widgets/layoutWidgets"
 

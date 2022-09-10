@@ -1,7 +1,7 @@
-import type { ThingSearchListItem } from "$lib/models/graphModels"
+import type { ThingSearchListItem } from "$lib/models/constructModels"
 
 import { writable } from "svelte/store"
-import { Graph, Space } from "$lib/models/graphModels"
+import { Graph, Space } from "$lib/models/constructModels"
 import { thingSearchListItems } from "$lib/db/clientSide"
 
 

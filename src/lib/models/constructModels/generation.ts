@@ -1,7 +1,7 @@
-import type { Graph, CohortAddress, Space } from "$lib/models/graphModels"
+import type { Graph, CohortAddress, Space } from "$lib/models/constructModels"
 import { cartesianHalfAxisIds } from "$lib/shared/constants"
 import { graphConstructInStore, retrieveGraphConstructs } from "$lib/stores"
-import { Thing, ThingCohort } from "$lib/models/graphModels"
+import { Thing, ThingCohort } from "$lib/models/constructModels"
 
 
 export type GenerationMember = Thing | number

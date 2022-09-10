@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { Thing, Graph } from "$lib/models/graphModels"
+    import type { Thing, Graph } from "$lib/models/constructModels"
     import { hoveredThingIdStore, retrieveGraphConstructs, graphConstructInStore } from "$lib/stores"
     import { Toggle } from "$lib/widgets/layoutWidgets"
 

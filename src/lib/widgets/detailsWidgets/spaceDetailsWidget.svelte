@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { Space } from "$lib/models/graphModels"
+    import type { Space } from "$lib/models/constructModels"
     import { Collapser } from "$lib/widgets/layoutWidgets"
 
     export let space: Space

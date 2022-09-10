@@ -1,6 +1,6 @@
 import type { Editor } from "@tiptap/core"
 import type { RemoteRelatingInfo, TextHyperlinkingInfo, ThingLinkingInfo } from "$lib/widgets/dialogWidgets"
-import type { Direction } from "$lib/models/graphModels"
+import type { Direction } from "$lib/models/constructModels"
 import type { ThingWidgetModel, RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
 import type { RelationshipBeingCreatedInfo } from "$lib/widgets/graphWidgets"
 

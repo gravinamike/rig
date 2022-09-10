@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { Graph } from "$lib/models/graphModels"
+    import type { Graph } from "$lib/models/constructModels"
     import { addGraphIdsNeedingViewerRefresh } from "$lib/stores"
 
     export let graph: Graph

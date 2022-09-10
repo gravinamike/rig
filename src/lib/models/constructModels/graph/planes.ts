@@ -1,5 +1,5 @@
 // Model imports.
-import { Graph, ThingCohort, Plane } from "$lib/models/graphModels"
+import { Graph, ThingCohort, Plane } from "$lib/models/constructModels"
 
 
 /** Class representing the set of Planes belonging to a Graph. */
@@ -7,7 +7,7 @@ export class Planes {
     _graph: Graph
     _members: { [planeId: number]: Plane } = {}
 
-    offsets = [0, 0]
+    offsets: [number, number] = [0, 0]
     focalPlaneId = 0
 
     /**

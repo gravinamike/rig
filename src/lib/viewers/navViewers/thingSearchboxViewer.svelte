@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { ThingSearchListItem } from "$lib/models/graphModels"
+    import type { ThingSearchListItem } from "$lib/models/constructModels"
     import type { SearchOption } from "$lib/widgets/navWidgets/searchWidget"
     import { thingSearchListStore } from "$lib/stores"
     import { SearchWidget } from "$lib/widgets/navWidgets"

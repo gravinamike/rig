@@ -1,5 +1,5 @@
 // Type imports.
-import type { Thing } from "$lib/models/graphModels"
+import type { Thing } from "$lib/models/constructModels"
 
 // Store imports.
 import { storeGraphConstructs } from "$lib/stores"
@@ -8,7 +8,7 @@ import { storeGraphConstructs } from "$lib/stores"
 import { unique } from "$lib/shared/utility"
 
 // Model imports.
-import { Graph, Generation } from "$lib/models/graphModels"
+import { Graph, Generation } from "$lib/models/constructModels"
 
 
 /** Class representing the set of Generations belonging to a Graph. */

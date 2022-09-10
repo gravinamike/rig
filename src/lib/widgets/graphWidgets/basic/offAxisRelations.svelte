@@ -1,6 +1,6 @@
 <script lang="ts">
     // Type imports.
-    import type { Graph, Space, Thing } from "$lib/models/graphModels"
+    import type { Graph, Space, Thing } from "$lib/models/constructModels"
     import type { ThingWidgetModel } from "$lib/models/widgetModels"
 
     // Basic UI imports.

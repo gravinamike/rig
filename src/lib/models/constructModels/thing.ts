@@ -3,7 +3,8 @@ import type { ThingDbModel, ThingSearchListItemDbModel } from "$lib/models/dbMod
 import type { HalfAxisId } from "$lib/shared/constants"
 import { oddHalfAxisIds } from "$lib/shared/constants"
 import { graphConstructInStore, retrieveGraphConstructs } from "$lib/stores"
-import { Graph, Space, Note, Folder, Relationship, NoteToThing, FolderToThing, ThingCohort } from "$lib/models/graphModels"
+import { Graph, Space, Note, Folder, Relationship, NoteToThing, FolderToThing, ThingCohort } from "$lib/models/constructModels"
+import type ThingSearchboxViewer from "$lib/viewers/navViewers/thingSearchboxViewer.svelte"
 
 
 type ThingAddress = {
@@ -244,6 +245,10 @@ export class Thing {
 
     set parentCohort(cohort: ThingCohort) {
         this._parentCohort = cohort
+    }
+
+    get childCohorts(): ThingCohort[] {
+        return Object.values(this.childCohortsByHalfAxisId)
     }
 }
 

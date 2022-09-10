@@ -1,6 +1,6 @@
 <script lang="ts">
     import { hoveredThingIdStore } from "$lib/stores"
-    import type { Thing } from "$lib/models/graphModels";
+    import type { Thing } from "$lib/models/constructModels";
     import type { GraphWidgetModel, ThingBaseWidgetModel } from "$lib/models/widgetModels"
     import type { HalfAxisId } from "$lib/shared/constants"
     import { planePadding, relationshipColorByHalfAxisId } from "$lib/shared/constants"
@@ -11,18 +11,25 @@
     export let graphWidgetModel: GraphWidgetModel
 
 
-    /* Variables situating the Thing in its spatial context (Half-Axis, Plane). */
+    
     $: planeId = model.planeId
+    $: encapsulatingDepth = model.encapsulatingDepth
+    $: xYElongation = model.xYElongation
+    $: cohortSize = model.cohortSize
+    $: halfAxisId = model.halfAxisId
+    $: thing = model.thing
+    $: thingId = model.thingId
+
+
+
+
 
     /* Variables dealing with encapsulation (Things containing other Things). */
     // If the Half-Axis is "Outwards, or the Thing has "Inwards" children, it is encapsulating.
-    $: encapsulatingDepth = model.encapsulatingDepth
+    
     $: encapsulatingPadding = encapsulatingDepth >= 0 ? 40 : 20
 
     /* Variables dealing with Thing sizing. */
-    $: xYElongation = model.xYElongation
-
-    $: cohortSize = model.cohortSize
     $: thingSize = graphWidgetModel.style.thingSize + planePadding * planeId + encapsulatingPadding * encapsulatingDepth
     $: thingWidth = thingSize * xYElongation.x
     $: thingHeight = encapsulatingDepth >= 0 ? thingSize * xYElongation.y : thingSize * xYElongation.y / cohortSize - 2
@@ -32,7 +39,6 @@
     hoveredThingIdStore.subscribe(value => {hoveredThingIdStoreValue = value})
 
     // Calculate color of Relationship image.
-    const halfAxisId = model.halfAxisId
     const relationshipColor = relationshipColorByHalfAxisId[halfAxisId]
 
 

@@ -1,7 +1,7 @@
 <script lang="ts">
     // Type imports.
     import type { HalfAxisId } from "$lib/shared/constants"
-    import type { Direction } from "$lib/models/graphModels"
+    import type { Direction } from "$lib/models/constructModels"
     import type { GraphWidgetModel } from "$lib/models/widgetModels"
 
     // Constants and stores imports.

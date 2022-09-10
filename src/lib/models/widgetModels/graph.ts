@@ -1,7 +1,7 @@
 import type { GraphWidgetStyle } from "$lib/shared/constants"
-import type { Graph } from "$lib/models/graphModels"
+import type { Graph } from "$lib/models/constructModels"
 import { defaultGraphWidgetStyle } from "$lib/shared/constants"
-import { ThingCohortWidgetModel } from "$lib/models/widgetModels"
+import { ThingCohortWidgetModel } from "$lib/widgets/graphWidgets/basic/thingCohort"
 
 
 /* Model specifying a Graph Widget. */

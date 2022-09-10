@@ -1,7 +1,7 @@
 <script lang="ts">
     /* Type imports. */
-    import type { Thing } from "$lib/models/graphModels"
-    import type { GraphWidgetModel, ThingWidgetModel } from "$lib/models/widgetModels"
+    import type { Thing } from "$lib/models/constructModels"
+    import type { GraphWidgetModel } from "$lib/models/widgetModels"
 
     /* Store imports. */
     import {
@@ -19,8 +19,9 @@
 
     /* Widget imports. */
     import { ThingDetailsWidget } from "$lib/widgets/detailsWidgets"
-    import { relationshipColorByHalfAxisId } from "$lib/shared/constants"
+    import { relationshipColorByHalfAxisId, type HalfAxisId } from "$lib/shared/constants"
     import { XButton, ConfirmDeleteBox } from "$lib/widgets/layoutWidgets"
+    import ThingWidgetController from "./controller.svelte"
 
 
     /**
@@ -28,30 +29,37 @@
      * @param  {Graph} graph - The Graph that the Thing is in.
      * @param  {(thingId: number) => Promise<void>} rePerspectToThingId - A function that re-perspects the Graph to a given Thing ID.
      */
-    export let thingWidgetModel: ThingWidgetModel
+    export let thingId: number
     export let graphWidgetModel: GraphWidgetModel
     export let rePerspectToThingId: (id: number) => Promise<void>
 
 
-    /* Basic Thing IDs and models. */
-    $: thingId = thingWidgetModel.thingId as number
-    $: thingWidgetId = thingWidgetModel.thingWidgetId
-    $: thing = thingWidgetModel.thing as Thing
+    let planeId: number
+    let encapsulatingDepth: number = 0
+    let thingSize: number
+    let thingWidth: number
+    let thingHeight: number
+    let xYElongation: {x: number, y: number}
+    let cohortSize: number = 0
+    let thing: Thing
+    let halfAxisId: HalfAxisId
+    let elongationCategory: "vertical" | "horizontal" | "neutral"
+    let thingWidgetId: string
+    let isEncapsulating: boolean
+    let relatableForCurrentDrag: boolean
 
-    /* Variables situating the Thing in its spatial context (Half-Axis, Plane). */
-    $: halfAxisId = thingWidgetModel.halfAxisId
-    $: planeId = thingWidgetModel.planeId
+
+
+
+
+
+
+
+
+
+
+
     $: distanceFromFocalPlane = planeId - graphWidgetModel.graph.planes.focalPlaneId
-    
-    /* Variables dealing with Thing sizing. */
-    $: elongationCategory = thingWidgetModel.elongationCategory
-    $: cohortSize = thingWidgetModel.cohortSize
-    $: thingWidth = thingWidgetModel.thingWidth
-    $: thingHeight = thingWidgetModel.thingHeight
-
-    /* Variables dealing with encapsulation (Things containing other Things). */
-    $: isEncapsulating = thingWidgetModel.isEncapsulating
-    $: encapsulatingDepth = thingWidgetModel.encapsulatingDepth
     
     /* Variables dealing with visual formatting of the Thing itself (color, opacity, outline, etc.). */
     $: opacity = [7, 8].includes(halfAxisId) ?
@@ -61,7 +69,6 @@
     let isHoveredWidget = false
     $: isHoveredThing = thingId === $hoveredThingIdStore
     $: relationshipBeingCreated = $relationshipBeingCreatedInfoStore.sourceWidgetModel ? true : false
-    $: relatableForCurrentDrag = thingWidgetModel.relatableForCurrentDrag($relationshipBeingCreatedInfoStore)
     $: highlighted = isHoveredThing && !(relationshipBeingCreated && !relatableForCurrentDrag) ? true : false
 
     /* Variables dealing with visual formatting of the Thing's text. */
@@ -146,6 +153,42 @@
 </script>
 
 
+
+
+
+
+<ThingWidgetController
+    {thingId}
+    {graphWidgetModel}
+
+    bind:planeId
+    bind:encapsulatingDepth
+    bind:thingSize
+    bind:thingWidth
+    bind:thingHeight
+    bind:xYElongation
+    bind:cohortSize
+
+    bind:thingWidgetId
+    bind:thing
+    bind:halfAxisId
+    bind:elongationCategory
+    bind:isEncapsulating
+    bind:relatableForCurrentDrag
+/>
+
+
+
+
+
+
+
+
+
+
+
+
+
 <svelte:body
     on:mousemove={handleMouseDrag}
     on:mouseup={event => {if (event.button === 0) handleBodyMouseUp()}}
@@ -206,7 +249,7 @@
             class:hide-content={!showContent}
             style="font-size: {textFontSize}px;"
         >
-            {thingWidgetModel.text}
+            {thing.text}
         </div>
     </div>
 

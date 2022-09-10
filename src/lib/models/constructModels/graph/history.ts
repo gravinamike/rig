@@ -1,5 +1,5 @@
 // Type imports.
-import type { Graph } from "$lib/models/graphModels"
+import type { Graph } from "$lib/models/constructModels"
 
 
 

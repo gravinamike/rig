@@ -3,7 +3,7 @@ import type { GraphConstruct } from "$lib/shared/constants"
 
 import { writable, derived } from "svelte/store"
 import { maxThingsToStore } from "$lib/shared/constants"
-import { Direction, Space, isDirection, isSpace, Thing, isThing } from "$lib/models/graphModels"
+import { Direction, Space, isDirection, isSpace, Thing, isThing } from "$lib/models/constructModels"
 import { graphConstructs } from "$lib/db/clientSide"
 
 

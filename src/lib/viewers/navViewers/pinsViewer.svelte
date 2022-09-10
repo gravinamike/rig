@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { Thing } from "$lib/models/graphModels"
+    import type { Thing } from "$lib/models/constructModels"
     import { pinIdsStore, storeGraphConstructs, graphConstructInStore, retrieveGraphConstructs } from "$lib/stores"
     import { PinWidget } from "$lib/widgets/navWidgets"
 

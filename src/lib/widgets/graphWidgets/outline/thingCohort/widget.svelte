@@ -1,6 +1,7 @@
 <script context="module" lang="ts">
     /* Type imports. */
-    import type { GraphWidgetModel, ThingCohortWidgetModel } from "$lib/models/widgetModels";
+    import type { GraphWidgetModel } from "$lib/models/widgetModels"
+    import type { ThingCohortWidgetModel } from "$lib/widgets/graphWidgets/basic/thingCohort"
 
     /* Widget imports */
     import { CladeOutlineWidget, ThingOutlineAlreadyRenderedWidget } from "$lib/widgets/graphWidgets/"

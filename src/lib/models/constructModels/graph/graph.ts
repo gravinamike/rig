@@ -1,4 +1,4 @@
-import type { Space, Thing, ThingCohort } from "$lib/models/graphModels"
+import type { Space, Thing, ThingCohort } from "$lib/models/constructModels"
 
 import { storeGraphConstructs, retrieveGraphConstructs, unstoreGraphConstructs } from "$lib/stores"
 import { Generations } from "./generations"

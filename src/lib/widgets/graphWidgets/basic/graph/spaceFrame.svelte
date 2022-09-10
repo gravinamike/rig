@@ -1,11 +1,11 @@
 <script lang="ts">
     import type { HalfAxisId } from "$lib/shared/constants"
-    import type { Space } from "$lib/models/graphModels"
+    import type { Space } from "$lib/models/constructModels"
     import type { GraphWidgetModel } from "$lib/models/widgetModels";
 
     import { relationshipColorByHalfAxisId } from "$lib/shared/constants"
     import { sleep } from "$lib/shared/utility"
-    import { copiedSpace, alteredSpace } from "$lib/models/graphModels"
+    import { copiedSpace, alteredSpace } from "$lib/models/constructModels"
     import { DirectionWidget } from "$lib/widgets/graphWidgets"
     import { addGraphIdsNeedingViewerRefresh } from "$lib/stores"
 

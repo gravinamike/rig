@@ -1,4 +1,4 @@
-import type { Graph, ThingCohort } from "$lib/models/graphModels"
+import type { Graph, ThingCohort } from "$lib/models/constructModels"
 
 
 export class Plane {

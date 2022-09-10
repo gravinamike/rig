@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { HalfAxisId } from "$lib/shared/constants"
-    import type { Direction, Thing, Graph } from "$lib/models/graphModels"
+    import type { Direction, Thing, Graph } from "$lib/models/constructModels"
     import type { ThingWidgetModel, RelationshipCohortWidgetModel, GraphWidgetModel } from "$lib/models/widgetModels"
 
     import { tweened } from "svelte/motion"

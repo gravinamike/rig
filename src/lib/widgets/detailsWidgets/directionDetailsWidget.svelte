@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { Direction } from "$lib/models/graphModels"
+    import type { Direction } from "$lib/models/constructModels"
 
     export let direction: Direction
 </script>

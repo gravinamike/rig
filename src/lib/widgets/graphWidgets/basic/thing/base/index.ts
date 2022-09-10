@@ -1,0 +1,1 @@
+export { default as ThingBaseWidgetController }  from "./controller.svelte"

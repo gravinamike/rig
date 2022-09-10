@@ -1,14 +1,14 @@
 <script context="module" lang="ts">
     // Type imports.
-    import type { Thing } from "$lib/models/graphModels"
-    import type { GraphWidgetModel, RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
+    import type { Thing, ThingCohort } from "$lib/models/constructModels"
+    import type { GraphWidgetModel } from "$lib/models/widgetModels"
 
     // Basic UI imports.
     import { tweened } from "svelte/motion"
 	import { cubicOut } from "svelte/easing"
 
     // Constant and utility imports.
-    import { zoomBase } from "$lib/shared/constants"
+    import { zoomBase, type HalfAxisId } from "$lib/shared/constants"
 
     import { storeGraphConstructs, addGraphIdsNeedingViewerRefresh } from "$lib/stores"
 
@@ -21,12 +21,37 @@
 </script>
 
 <script lang="ts">
+    import RelationshipCohortWidgetController from "./controller.svelte"
+
     /**
-     * @param  {RelationshipsWidgetModel} model - The Relationships Widget Model used to set up this Widget.
      * @param  {GraphWidgetModel} graphWidgetModel - The Graph that the Relationships are in.
      */
-    export let model: RelationshipCohortWidgetModel
     export let graphWidgetModel: GraphWidgetModel
+    export let cohort: ThingCohort
+
+    export let halfAxisId: HalfAxisId
+    export let parentThing: Thing
+    export let thingWidth: number
+    export let thingHeight: number
+    export let xOffset: number
+    export let yOffset: number
+    export let relationshipsWidth: number
+    export let relationshipsLength: number
+    export let widgetWidth: number
+    export let widgetHeight: number
+    export let xOffsetToGrandparentThing: number
+    export let yOffsetToGrandparentThing: number
+    export let midline: number
+    export let stemBottom: number
+    export let stemTop: number
+    export let zIndex: number
+    export let opacity: number
+    export let mirroring: 1 | -1
+    export let rotation: number
+    export let direction: number
+
+
+
 
 
     /* Information related to hovering. */
@@ -36,9 +61,6 @@
 
     /* Basic Widget information. */
     
-    // Information related to the Relationships Widget's place in the Graph.
-    const halfAxisId = model.halfAxisId
-    
     // Graph-scale-related variables.
     $: scale = zoomBase ** graphWidgetModel.style.zoom
     let tweenedScale = tweened(1, {duration: 100, easing: cubicOut})
@@ -46,7 +68,7 @@
 
     // Information related to Direction.
     $: showDirection = (
-        (model.parentThing && model.parentThing.address.generationId === 0 || stemHovered)
+        (parentThing && parentThing.address.generationId === 0 || stemHovered)
         && !thingIdOfHoveredRelationship
     ) ?
         true :
@@ -57,56 +79,15 @@
 
     // Variables related to the geometry of Graph construct widgets.
     $: relationDistance = graphWidgetModel.style.relationDistance // The center-to-center distance between two related Things.
-    $: thingWidth = model.parentThingWidgetModel.thingWidth
-    $: thingHeight = model.parentThingWidgetModel.thingHeight
+   
     $: betweenThingSpacing = graphWidgetModel.style.betweenThingSpacing
     $: betweenThingOverlap = graphWidgetModel.style.betweenThingOverlap
-
-    // Variables related to the x, y, and z position of this Relationships Widget (relative to parent Thing Widget).
-    let xOffset: number
-    let yOffset: number
     
-    // Variables related to the widths and heights of this Relationships Widget.
-    let relationshipsWidth: number
-    let relationshipsLength: number
-    let widgetWidth: number
-    let widgetHeight: number
-
-    /* Variables related to the geometries of the Widget's parts. */
-    let xOffsetToGrandparentThing: number
-    let yOffsetToGrandparentThing: number
-    let midline: number
-    let stemBottom: number
-    let stemTop: number
-
-
-    /* Reactive re-calculations. */
-    $: {
-        relationDistance
-
-        xOffset = model.xOffset
-        yOffset = model.yOffset
-    }
-
-    $: {
-        relationDistance; thingWidth; thingHeight; betweenThingSpacing; betweenThingOverlap; $tweenedScale
-
-        relationshipsWidth = model.relationshipsWidth
-        relationshipsLength = model.relationshipsLength
-        widgetWidth = model.widgetWidth
-        widgetHeight = model.widgetHeight
-        xOffsetToGrandparentThing = model.xOffsetToGrandparentThing
-        yOffsetToGrandparentThing = model.yOffsetToGrandparentThing
-        midline = model.midline
-        stemBottom = model.stemBottom
-        stemTop = model.stemTop
-    }
-
 
 
     async function changeRelationshipsDirection(directionId: number) {//////////////////////// MOVE TO MODEL
-        const sourceThingId = model.parentThingWidgetModel.thingId as number
-        const destThingIds = model.cohort.members.map(thing => typeof thing === "object" ? thing.id : thing)
+        const sourceThingId = parentThing.id as number
+        const destThingIds = cohort.members.map(thing => typeof thing === "object" ? thing.id : thing)
 
         const relationshipInfos: {sourceThingId: number, destThingId: number, directionId: number }[] = []
         for (const destThingId of destThingIds) {
@@ -129,16 +110,50 @@
 </script>
 
 
+
+
+<RelationshipCohortWidgetController
+    {graphWidgetModel}
+    {halfAxisId}
+    
+    bind:parentThing
+    bind:thingWidth
+    bind:thingHeight
+    bind:xOffset
+    bind:yOffset
+    bind:relationshipsWidth
+    bind:relationshipsLength
+    bind:widgetWidth
+    bind:widgetHeight
+    bind:xOffsetToGrandparentThing
+    bind:yOffsetToGrandparentThing
+    bind:midline
+    bind:stemBottom
+    bind:stemTop
+    bind:zIndex
+    bind:opacity
+    bind:mirroring
+    bind:rotation
+    bind:direction
+/>
+
+
+
+
+
+
+
+
 <!-- Outer Relationships Widget (doesn't rotate, but takes up appropriate dimensions). -->
 <div
     class="relationship-cohort-widget"
     style="
         left: calc(50% + {xOffset}px + {xOffsetToGrandparentThing}px);
         top: calc(50% + {yOffset}px + {yOffsetToGrandparentThing}px);
-        z-index: {model.zIndex};
+        z-index: {zIndex};
         width: {widgetWidth}px;
         height: {widgetHeight}px;
-        opacity: {model.opacity};
+        opacity: {opacity};
     "
 >
     <!-- Inner "rotator" which is rotated according to the Half-Axis. -->
@@ -147,7 +162,7 @@
         style="
             width: { [1, 2].includes(halfAxisId) ? widgetWidth : widgetHeight }px;
             height: { [1, 2].includes(halfAxisId) ? widgetHeight : widgetWidth }px;
-            transform: scaleY({model.mirroring}) rotate({model.rotation * model.mirroring}deg);
+            transform: scaleY({mirroring}) rotate({rotation * mirroring}deg);
         "
     >
 
@@ -157,9 +172,9 @@
                 class="direction-widget-anchor"
                 style="
                     transform:
-                        scaleY({model.mirroring})
+                        scaleY({mirroring})
                         rotate({
-                            -model.rotation * model.mirroring
+                            -rotation * mirroring
                             + (
                                 halfAxisId === 3 ? -90 :
                                 halfAxisId === 4 ? 90 :
@@ -169,7 +184,7 @@
                 "
             >
                 <DirectionWidget
-                    direction={model.direction}
+                    {direction}
                     {halfAxisId}
                     {graphWidgetModel}
                     optionClickedFunction={(direction, _, __) => {
@@ -188,7 +203,7 @@
         >
             
             <!-- Relationship stem. -->
-            {#if model.cohort.indexOfGrandparentThing === null}
+            {#if cohort.indexOfGrandparentThing === null}
                 <RelationshipStemWidget
                     relationshipsWidgetModel={model}
                     {thingIdOfHoveredRelationship}
@@ -204,12 +219,12 @@
             <!-- Relationship image. -->    
             {#if
                 !(
-                    model.cohort.members.length === 1
-                    && model.cohort.indexOfGrandparentThing !== null
+                    cohort.members.length === 1
+                    && cohort.indexOfGrandparentThing !== null
                 )
             }
                 {#each model.relationshipWidgetModels as relationshipWidgetModel}
-                    {#if model.cohort.indexOfGrandparentThing !== relationshipWidgetModel.cohortMemberWithIndex.index}<!-- Don't re-draw the existing Relationship to a parent Thing. -->                
+                    {#if cohort.indexOfGrandparentThing !== relationshipWidgetModel.cohortMemberWithIndex.index}<!-- Don't re-draw the existing Relationship to a parent Thing. -->                
                         <RelationshipWidget
                             model={relationshipWidgetModel}
                             {midline}

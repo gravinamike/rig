@@ -1,5 +1,5 @@
 <script context="module" lang="ts">
-    import type { Thing, GenerationMember } from "$lib/models/graphModels"
+    import type { Thing, GenerationMember } from "$lib/models/constructModels"
     import type { RelationshipWidgetModel } from "$lib/models/widgetModels"
     import { hoveredThingIdStore, storeGraphConstructs, addGraphIdsNeedingViewerRefresh } from "$lib/stores"
     import { DirectionWidget } from "$lib/widgets/graphWidgets"

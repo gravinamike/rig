@@ -1,7 +1,3 @@
-export * from "./thing"
 export * from "./clade"
 export * from "./graph"
-export * from "./thing"
 export * from "./relationship"
-export * from "./relationshipCohort"
-export * from "./thingCohort"

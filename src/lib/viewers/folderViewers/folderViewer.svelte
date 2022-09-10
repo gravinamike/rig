@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { Thing, Graph } from "$lib/models/graphModels"
+    import type { Thing, Graph } from "$lib/models/constructModels"
     import { thingsStore, storeGraphConstructs, retrieveGraphConstructs, graphConstructInStore } from "$lib/stores/graphConstructStores"
     import { addFolderToThing } from "$lib/db/clientSide"
 

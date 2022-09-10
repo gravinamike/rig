@@ -1,34 +1,56 @@
 <script context="module" lang="ts">
-    /* Type imports. */
-    import type { GraphWidgetModel, ThingCohortWidgetModel } from "$lib/models/widgetModels"
-
-    /* Widget imports */
-    import { ThingMissingFromStoreWidget, ThingAlreadyRenderedWidget, CladeWidget } from "$lib/widgets/graphWidgets"
+    
 </script>
 
 <script lang="ts">
+    /* Type imports. */
+    import type { GraphWidgetModel, ThingWidgetModel } from "$lib/models/widgetModels"
+    import ThingCohortWidgetController from "./controller.svelte"
+
+    /* Widget imports */
+    import { ThingMissingFromStoreWidget, ThingAlreadyRenderedWidget, CladeWidget } from "$lib/widgets/graphWidgets"
+
+
     /**
      * @param  {ThingCohortWidgetModel} thingCohortWidgetModel - The Cohort Widget Model used to set up this Widget.
-     * @param  {Graph} graph - The Graph that the Cohort is in.
+     * @param  {GraphWidgetModel} graphWidgetModel - The Graph Widget Model that the Cohort is in.
      * @param  {(thingId: number) => Promise<void>} rePerspectToThingId - A function that re-perspects the Graph to a given Thing ID.
      */
-    export let thingCohortWidgetModel: ThingCohortWidgetModel
+    export let thingCohortWidgetModel: ThingCohortWidgetController
+    export let parentThingWidgetModel: ThingWidgetModel
     export let graphWidgetModel: GraphWidgetModel
     export let rePerspectToThingId: (thingId: number) => Promise<void>
         
 
-    $: xYOffsets = thingCohortWidgetModel.xYOffsets
-    $: zIndex = thingCohortWidgetModel.zIndex
+    let xYOffsets: { x: number, y: number }
+    let zIndex: number
 
-    $: rowOrColumn = thingCohortWidgetModel.rowOrColumn
+    let rowOrColumn: "row" | "column"
 
-    $: indexOfGrandparentThing = thingCohortWidgetModel.indexOfGrandparentThing
-    $: offsetToGrandparentThingX = thingCohortWidgetModel.offsetToGrandparentThingX
-    $: offsetToGrandparentThingY = thingCohortWidgetModel.offsetToGrandparentThingY
+    let indexOfGrandparentThing: number | null
+    let offsetToGrandparentThingX: number
+    let offsetToGrandparentThingY: number
 </script>
 
 
-<main
+
+<ThingCohortWidgetController
+    thingCohort={thingCohortWidgetModel.thingCohort}
+    {parentThingWidgetModel}
+    graphWidgetStyle={graphWidgetModel.style}
+    planesOffsets={graphWidgetModel.graph.planes.offsets}
+
+    bind:xYOffsets
+    bind:zIndex
+    bind:rowOrColumn
+    bind:indexOfGrandparentThing
+    bind:offsetToGrandparentThingX
+    bind:offsetToGrandparentThingY
+/>
+
+
+
+<div
     class="cohort-widget"
     style="
         left: calc({xYOffsets.x}px + 50% + {offsetToGrandparentThingX}px);
@@ -68,11 +90,11 @@
         {/each}
 
     {/if}
-</main>
+</div>
 
 
 <style>
-    main {
+    .cohort-widget {
         position: absolute;
         transform: translate(-50%, -50%);
         

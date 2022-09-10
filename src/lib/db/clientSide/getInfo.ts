@@ -1,7 +1,7 @@
 import type { AppConfig, GraphConfig, GraphConstruct } from "$lib/shared/constants"
 import type { LatestConstructInfos } from "$lib/db/serverSide/getInfo"
 import type { DirectionDbModel, SpaceDbModel, ThingDbModel, ThingSearchListItemDbModel } from "$lib/models/dbModels"
-import { Direction, Space, Thing, ThingSearchListItem } from "$lib/models/graphModels"
+import { Direction, Space, Thing, ThingSearchListItem } from "$lib/models/constructModels"
 
 
 

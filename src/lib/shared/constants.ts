@@ -1,4 +1,4 @@
-import type { Direction, Space, Thing, Relationship } from "$lib/models/graphModels"
+import type { Direction, Space, Thing, Relationship } from "$lib/models/constructModels"
 
 
 /*

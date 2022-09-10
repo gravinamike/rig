@@ -1,4 +1,4 @@
-import type { Space, Graph, Generation, GenerationMember, Plane, Thing } from "$lib/models/graphModels"
+import type { Space, Graph, Generation, GenerationMember, Plane, Thing } from "$lib/models/constructModels"
 
 import { offsetsByHalfAxisId, type HalfAxisId } from "$lib/shared/constants"
 
