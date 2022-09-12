@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { ThingCohort } from "$lib/models/constructModels"
-    import type { GraphWidgetModel } from "../../../../models/widgetModels/graph"
+    import type { GraphWidgetModel } from "../graph/graph"
     import type { ThingWidgetModel } from "$lib/models/widgetModels";
     import { halfAxisOppositeIds, offsetsByHalfAxisId, type GraphWidgetStyle } from "$lib/shared/constants"
     import type {

@@ -1,32 +1,62 @@
 <script lang="ts">
     // Widget model imports.
-    import { CladeWidgetModel, GraphWidgetModel, ThingWidgetModel } from "$lib/models/widgetModels"
+    import type { GraphWidgetModel } from "$lib/models/widgetModels"
+    import type { ThingWidgetController } from "$lib/widgets/graphWidgets"
+    import CladeWidgetController from "./controller.svelte"
 
     // Graph widget imports.
     import { ThingWidget, ThingFormWidget, RelationshipCohortWidget, ThingCohortWidget, OffAxisRelationsWidget } from "$lib/widgets/graphWidgets"
+    import type { Note } from "$lib/models/constructModels"
+    import type { ThingCohortWidgetModel } from "..";
 
-    export let thingWidgetModel: ThingWidgetModel
     export let graphWidgetModel: GraphWidgetModel
     export let rePerspectToThingId: (id: number) => Promise<void>
 
-    
-    $: model = new CladeWidgetModel(thingWidgetModel, graphWidgetModel)
+    let submodels: {
+            rootThing: ThingWidgetController,
+            childThingCohorts: ThingCohortWidgetModel[]
+            childRelationshipCohortsByHalfAxisId: { [directionId: number]: RelationshipCohortWidgetModel }
+        }
+    let note: Note | null
+    let overlapMarginStyleText: string
 
 
-    $: rootThing = model.submodels.rootThing
-    $: childThingCohorts = model.submodels.childThingCohorts
-    $: childRelationshipCohortsByHalfAxisId = model.submodels.childRelationshipCohortsByHalfAxisId
-    $: note = model.note
+    $: rootThing = submodels.rootThing
+    $: childThingCohorts = submodels.childThingCohorts
+    $: childRelationshipCohortsByHalfAxisId = submodels.childRelationshipCohortsByHalfAxisId
+    $: note = note
 
 
     const showNotes = false
 </script>
 
 
+
+
+
+
+
+
+<CladeWidgetController
+    {graphWidgetModel}
+    {rootThingWidgetModel}
+
+    bind:submodels
+    bind:note
+    bind:overlapMarginStyleText
+/>
+
+
+
+
+
+
+
+
 <!-- Clade widget.-->
 <div
     class="clade-widget"
-    style="{model.overlapMarginStyleText}"
+    style="{overlapMarginStyleText}"
 >
     {#if rootThing.thing}
         <ThingWidget

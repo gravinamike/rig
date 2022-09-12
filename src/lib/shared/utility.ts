@@ -1,3 +1,7 @@
+export function sleep(time: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, time))
+}
+
 /** Class representing a rectangle. */
 export class Rectangle {
     x = 0
@@ -31,10 +35,6 @@ export function elementGroupEdges(elementGroup: Element[]): {top: number, right:
     }
 
     return edges
-}
-
-export function sleep(time: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, time))
 }
 
 export function unique<Type>(array: Type[]): Type[] {

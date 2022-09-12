@@ -1,7 +1,6 @@
 <script context="module" lang="ts">
     // Type imports.
     import type { GraphWidgetModel } from "$lib/models/widgetModels"
-    import type { RelationshipWidgetModel } from "$lib/models/widgetModels"
 
     // Basic UI imports.
     import { tweened } from "svelte/motion"
@@ -16,15 +15,19 @@
 </script>
 
 <script lang="ts">
+    import type { GenerationMember } from "$lib/models/constructModels"
+    import RelationshipWidgetController from "./controller.svelte"
+
     /**
-     * @param  {RelationshipWidgetModel} model - The Relationship Widget Model used to set up this Widget.
      * @param  {Graph} graph - The Graph that the Relationships are in.
      */
-    export let model: RelationshipWidgetModel
     export let midline: number
     export let stemTop: number
     export let thingIdOfHoveredRelationship: number | null
     export let graphWidgetModel: GraphWidgetModel
+
+    let cohortMemberWithIndex: { index: number, member: GenerationMember }
+    let leafGeometry: { bottom: number, top: number, bottomMidline: number, topMidline: number }
     
     
     // Graph-scale-related variables.
@@ -32,24 +35,48 @@
     let tweenedScale = tweened(1, {duration: 100, easing: cubicOut})
     $: tweenedScale.set(scale)
 </script>
+
+
+
+<RelationshipWidgetController
+    {graphWidgetModel}
+    scale={$tweenedScale}
+    {cohortMemberWithIndex}
+    {relationshipsLength}
+    {midline}
+    {halfAxisId}
+    {thingHeight}
+    {thingWidth}
+    {leafGeometry}
+/>
+
+
+
+
+
+
+
+
+
+
+
+
     
                         
-{#if model.cohortMemberWithIndex.member}
+{#if cohortMemberWithIndex.member}
     <RelationshipLeafWidget
-        relationshipWidgetModel={model}
         bind:thingIdOfHoveredRelationship
         tweenedScale={$tweenedScale}
-        leafGeometry={model.leafGeometry($tweenedScale)}
-        cohortMemberWithIndex={model.cohortMemberWithIndex}
+        leafGeometry={leafGeometry}
+        cohortMemberWithIndex={cohortMemberWithIndex}
     />
 {/if}
 
 <RelationshipFanSegmentWidget
-    relationshipWidgetModel={model}
     bind:thingIdOfHoveredRelationship
     tweenedScale={$tweenedScale}
     {midline}
     {stemTop}
-    leafGeometry={model.leafGeometry($tweenedScale)}
-    cohortMemberWithIndex={model.cohortMemberWithIndex}
+    leafGeometry={leafGeometry}
+    cohortMemberWithIndex={cohortMemberWithIndex}
 />

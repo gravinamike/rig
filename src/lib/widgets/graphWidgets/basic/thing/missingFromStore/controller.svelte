@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { GraphWidgetModel } from "../../../../../models/widgetModels/graph"
+    import type { GraphWidgetModel } from "../../graph/graph"
     import { ThingBaseWidgetController } from "../base"
 
     export let thingId: number

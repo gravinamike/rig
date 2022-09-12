@@ -1,8 +1,8 @@
-import type { Direction, Space, Thing, Relationship } from "$lib/models/constructModels"
+import type { Space, Direction, Thing, Relationship } from "$lib/models/constructModels"
 
 
 /*
- * "Constants" that will eventually be moved into a mutable config file.
+ * "Constants" that will eventually be moved into an editable config file.
  */
 export const graphsBaseFolder = "C:/Rig/graphs"
 export const unigraphFolder = "C:/Users/mtgra/Desktop/LifeSeahorse_test/LifeGrid_graph"
