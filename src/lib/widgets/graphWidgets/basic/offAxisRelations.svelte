@@ -1,7 +1,6 @@
 <script lang="ts">
     // Type imports.
     import type { Graph, Space, Thing } from "$lib/models/constructModels"
-    import type { ThingWidgetModel } from "$lib/models/widgetModels"
 
     // Basic UI imports.
     import { tweened } from "svelte/motion"
@@ -11,27 +10,27 @@
     import { zoomBase } from "$lib/shared/constants"
     import { addGraph, removeGraph, graphIdsNeedingViewerRefresh, addGraphIdsNeedingViewerRefresh, removeGraphIdsNeedingViewerRefresh } from "$lib/stores"
 
-    import { GraphWidgetModel } from "$lib/models/widgetModels"
-
     // Import widgets.
     import { GraphOutlineWidget } from "$lib/widgets/graphWidgets"
+    import type { GraphWidgetStyle } from "./graph";
 
-    export let parentThingWidgetModel: ThingWidgetModel
-    export let parentGraphWidgetModel: GraphWidgetModel
+    export let parentThing: Thing
+    export let parentGraph: Graph
+    export let parentGraphWidgetStyle: GraphWidgetStyle
     export let rePerspectToThingId: (thingId: number) => Promise<void>
 
 
-    const parentThingId = parentThingWidgetModel.thingId as number
+    const parentThingId = parentThing.id
 
 
-    $: scale = zoomBase ** parentGraphWidgetModel.style.zoom
+    $: scale = zoomBase ** parentGraphWidgetStyle.zoom
     let tweenedScale = tweened(1, {duration: 100, easing: cubicOut})
     $: tweenedScale.set(scale)
 
     const size = 25
     $: diagonal = Math.hypot(size, size)
     $: diagonalOverhang = (diagonal - size) / 2 + 8
-    $: numberOfRelations = (parentThingWidgetModel.thing as Thing).offAxisRelatedThingIds((parentThingWidgetModel.thing?.space as Space)).length
+    $: numberOfRelations = parentThing.offAxisRelatedThingIds((parentThing.space as Space)).length
     let expanded = false
 
     let graph: Graph | null = null
@@ -40,8 +39,8 @@
         // Close any existing Graph.
         if (graph !== null) await removeGraph(graph)
         // Open and build the new Graph.
-        const parentGraphSpace = parentGraphWidgetModel.graph.pThing?.space as Space
-        graph = await addGraph([parentThingId], 1, parentGraphWidgetModel.graph, true, parentGraphSpace)
+        const parentGraphSpace = parentGraph.pThing?.space as Space
+        graph = await addGraph([parentThingId], 1, parentGraph, true, parentGraphSpace)
         graphWidgetModel = new GraphWidgetModel(graph)
         // Refresh the Graph viewers.
         addGraphIdsNeedingViewerRefresh(graph.id)

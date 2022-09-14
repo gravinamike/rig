@@ -87,7 +87,8 @@
             <!-- Otherwise show a Clade Widget. -->
             {:else}
                 <CladeWidget
-                    thingWidgetModel={member}
+                    rootThing={member.thing}
+                    bind:graph
                     {graphWidgetStyle}
                     {rePerspectToThingId}
                 />

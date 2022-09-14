@@ -1,56 +1,43 @@
 <script lang="ts">
-    // Widget model imports.
-    import type { ThingWidgetController } from "$lib/widgets/graphWidgets"
+    // Import types.
+    import type { Graph, ThingCohort, Thing, Note } from "$lib/models/constructModels"
+    import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
+    
+    // Import widget controller.
     import CladeWidgetController from "./controller.svelte"
 
-    // Graph widget imports.
-    import { ThingWidget, ThingFormWidget, RelationshipCohortWidget, ThingCohortWidget, OffAxisRelationsWidget } from "$lib/widgets/graphWidgets"
-    import type { Note } from "$lib/models/constructModels"
-    import type { ThingCohortWidgetModel } from "..";
-    import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
+    // Import related widgets.
+    import {
+        ThingWidget, ThingFormWidget,
+        RelationshipCohortWidget, ThingCohortWidget,
+        OffAxisRelationsWidget
+    } from "$lib/widgets/graphWidgets"
+    
 
+    /**
+     * @param {Thing} rootThing - The Thing that forms the root of the Clade.
+     * @param {Graph} graph - The Graph that the Clade is in.
+     * @param {GraphWidgetStyle} graphWidgetStyle - Controls the style of the Graph widget.
+     * @param {(thingId: number) => Promise<void>} rePerspectToThingId - A function that re-perspects the Graph to a given Thing ID.
+     */
+    export let rootThing: Thing
+    export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
     export let rePerspectToThingId: (id: number) => Promise<void>
 
-    let submodels: {
-            rootThing: ThingWidgetController,
-            childThingCohorts: ThingCohortWidgetModel[]
-            childRelationshipCohortsByHalfAxisId: { [directionId: number]: RelationshipCohortWidgetModel }
-        }
-    let note: Note | null
+
+    // Attributes managed by the widget controller.
     let overlapMarginStyleText: string
-
-
-    $: rootThing = submodels.rootThing
-    $: childThingCohorts = submodels.childThingCohorts
-    $: childRelationshipCohortsByHalfAxisId = submodels.childRelationshipCohortsByHalfAxisId
-    $: note = note
-
-
-    const showNotes = false
 </script>
 
 
-
-
-
-
-
-
+<!-- Widget controller. -->
 <CladeWidgetController
+    {rootThing}
     {graphWidgetStyle}
-    {rootThingWidgetModel}
 
-    bind:submodels
-    bind:note
     bind:overlapMarginStyleText
 />
-
-
-
-
-
-
 
 
 <!-- Clade widget.-->
@@ -58,49 +45,53 @@
     class="clade-widget"
     style="{overlapMarginStyleText}"
 >
-    {#if rootThing.thing}
+
+    <!-- If the root Thing is specified, show a Thing Widget. -->
+    {#if rootThing}
         <ThingWidget
-            thingWidgetModel={rootThing}
-            bind:graphWidgetModel
+            thingId={rootThing.id}
+            bind:graph
+            {graphWidgetStyle}
             {rePerspectToThingId}
         />
+    <!-- Otherwise, show a Thing-Form Widget. -->
     {:else}
         <ThingFormWidget
-            thingWidgetModel={rootThing}
-            bind:graphWidgetModel
+            thing={rootThing}
+            bind:graph
+            {graphWidgetStyle}
         />
     {/if}
 
-    {#if showNotes}
-        {#if note}
-            {@html note.text}
-        {:else}
-            <h2>NO NOTES YET</h2>
-        {/if}
-    {/if}
+    <!-- The Thing's child Thing and Relationship Cohorts. -->
+    {#each rootThing.childThingCohorts as thingCohort (thingCohort.address)}
 
-    <!-- The Thing's Relationships and child Cohorts. -->
-    {#each childThingCohorts as thingCohortWidgetModel (thingCohortWidgetModel.cohort.address)}
-        {#if thingCohortWidgetModel.cohort.halfAxisId}
-            {#if [1, 2, 3, 4].includes(thingCohortWidgetModel.cohort.halfAxisId)}
-                <RelationshipCohortWidget
-                    model={childRelationshipCohortsByHalfAxisId[thingCohortWidgetModel.cohort.halfAxisId]}
-                    bind:graphWidgetModel
-                />
-            {/if}
-            {#if [1, 2, 3, 4, 5, 6, 7, 8].includes(thingCohortWidgetModel.cohort.halfAxisId)}
-                <ThingCohortWidget
-                    {thingCohortWidgetModel}
-                    bind:graphWidgetModel
-                    {rePerspectToThingId}
-                />
-            {/if}
+        <!-- Relationship Cohort Widgets (only for Cartesian axes). -->
+        {#if [1, 2, 3, 4].includes(thingCohort.halfAxisId)}
+            <RelationshipCohortWidget
+                cohort={thingCohort}
+                bind:graph
+                {graphWidgetStyle}
+            />
         {/if}
+
+        <!-- Thing Cohort Widgets. -->
+        {#if [1, 2, 3, 4, 5, 6, 7, 8].includes(thingCohort.halfAxisId)}
+            <ThingCohortWidget
+                {thingCohort}
+                bind:graph
+                {graphWidgetStyle}
+                {rePerspectToThingId}
+            />
+        {/if}
+
     {/each}
 
+    <!--- Off-axis relations widget. -->
     <OffAxisRelationsWidget
-        parentThingWidgetModel={rootThing}
-        parentGraphWidgetModel={graphWidgetModel}
+        parentThing={rootThing}
+        parentGraph={graph}
+        parentGraphWidgetStyle={graphWidgetStyle}
         {rePerspectToThingId}
     />
 </div>

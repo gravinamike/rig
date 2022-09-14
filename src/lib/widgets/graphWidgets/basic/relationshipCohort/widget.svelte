@@ -1,7 +1,6 @@
-<script context="module" lang="ts">
+<script lang="ts">
     // Type imports.
-    import type { Thing, ThingCohort } from "$lib/models/constructModels"
-    import type { GraphWidgetModel } from "$lib/models/widgetModels"
+    import type { Graph, Thing, ThingCohort } from "$lib/models/constructModels"
 
     // Basic UI imports.
     import { tweened } from "svelte/motion"
@@ -18,18 +17,18 @@
     import { DirectionWidget } from "$lib/widgets/graphWidgets"
 
     import { updateRelationships } from "$lib/db/clientSide"
-</script>
 
-<script lang="ts">
     import RelationshipCohortWidgetController from "./controller.svelte"
+    import type { GraphWidgetStyle } from "../graph";
 
     /**
      * @param  {GraphWidgetModel} graphWidgetModel - The Graph that the Relationships are in.
      */
-    export let graphWidgetModel: GraphWidgetModel
     export let cohort: ThingCohort
+    export let graph: Graph
+    export let graphWidgetStyle: GraphWidgetStyle
 
-    export let halfAxisId: HalfAxisId
+    /*export let halfAxisId: HalfAxisId
     export let parentThing: Thing
     export let thingWidth: number
     export let thingHeight: number
@@ -48,7 +47,7 @@
     export let opacity: number
     export let mirroring: 1 | -1
     export let rotation: number
-    export let direction: number
+    export let direction: number*/
 
 
 
@@ -62,7 +61,7 @@
     /* Basic Widget information. */
     
     // Graph-scale-related variables.
-    $: scale = zoomBase ** graphWidgetModel.style.zoom
+    $: scale = zoomBase ** graphWidgetStyle.zoom
     let tweenedScale = tweened(1, {duration: 100, easing: cubicOut})
     $: tweenedScale.set(scale)
 
@@ -78,16 +77,16 @@
     /* Variables related to whole-Widget geometry. */
 
     // Variables related to the geometry of Graph construct widgets.
-    $: relationDistance = graphWidgetModel.style.relationDistance // The center-to-center distance between two related Things.
+    $: relationDistance = graphWidgetStyle.relationDistance // The center-to-center distance between two related Things.
    
-    $: betweenThingSpacing = graphWidgetModel.style.betweenThingSpacing
-    $: betweenThingOverlap = graphWidgetModel.style.betweenThingOverlap
+    $: betweenThingSpacing = graphWidgetStyle.betweenThingSpacing
+    $: betweenThingOverlap = graphWidgetStyle.betweenThingOverlap
     
 
 
     async function changeRelationshipsDirection(directionId: number) {//////////////////////// MOVE TO MODEL
         const sourceThingId = parentThing.id as number
-        const destThingIds = cohort.members.map(thing => typeof thing === "object" ? thing.id : thing)
+        const destThingIds = cohort.members.map(member => member.thingId)
 
         const relationshipInfos: {sourceThingId: number, destThingId: number, directionId: number }[] = []
         for (const destThingId of destThingIds) {
@@ -102,8 +101,8 @@
         const relationshipsUpdated = await updateRelationships(relationshipInfos)
         if (relationshipsUpdated) {
             await storeGraphConstructs<Thing>("Thing", sourceThingId, true)
-            await graphWidgetModel.graph.build()
-            addGraphIdsNeedingViewerRefresh(graphWidgetModel.graph.id)
+            await graph.build()
+            addGraphIdsNeedingViewerRefresh(graph.id)
         }
     }
 
@@ -113,7 +112,7 @@
 
 
 <RelationshipCohortWidgetController
-    {graphWidgetModel}
+    {graph}
     {halfAxisId}
     
     bind:parentThing
