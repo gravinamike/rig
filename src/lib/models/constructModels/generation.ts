@@ -4,7 +4,11 @@ import { graphConstructInStore, retrieveGraphConstructs } from "$lib/stores"
 import { Thing, ThingCohort } from "$lib/models/constructModels"
 
 
-export type GenerationMember = Thing | number
+export interface GenerationMember {
+    thingId: number
+    thing: Thing | null
+    alreadyRendered: boolean
+}
 
 export class Generation {
     kind = "generation"
@@ -46,12 +50,12 @@ export class Generation {
 
     get membersById(): { [memberId: number]: GenerationMember } {
         const membersById: { [memberId: number]: GenerationMember } = {}
-        for (const member of this.members) if (typeof member === "object") membersById[member.id] = member
+        for (const member of this.members) if (typeof member === "object") membersById[member.thingId] = member
         return membersById
     }
 
     things(): Thing[] {
-        const things = this.members.filter(member => member !== null) as Thing[]
+        const things = this.members.filter(member => member.thing !== null).map(member => member.thing) as Thing[]
         return things
     }
 
@@ -72,11 +76,17 @@ export class Generation {
             }
             this.graph.rootCohort = new ThingCohort(addressForCohort, [])
             for (const memberId of memberIdsForGeneration) {
+                const thing =
+                    graphConstructInStore("Thing", memberId) ? retrieveGraphConstructs<Thing>("Thing", memberId) :
+                    null
 
-
-                const member = graphConstructInStore("Thing", memberId) ?
-                    retrieveGraphConstructs<Thing>("Thing", memberId) as Thing :
-                    memberId  
+                const alreadyRendered = this.graph.thingIdsAlreadyInGraph.includes(memberId)
+                
+                const member: GenerationMember = {
+                    thingId: memberId,
+                    thing: thing,
+                    alreadyRendered: alreadyRendered
+                }
                 
                 this.graph.rootCohort.addMember(member)
             }
@@ -120,9 +130,17 @@ export class Generation {
                     const childCohort = new ThingCohort(addressForCohort, [])
 
                     for (const memberId of membersIdForCohort) {
-                        const member = graphConstructInStore("Thing", memberId) ?
-                            retrieveGraphConstructs<Thing>("Thing", memberId) as Thing :
-                            memberId  
+                        const thing =
+                            graphConstructInStore("Thing", memberId) ? retrieveGraphConstructs<Thing>("Thing", memberId) :
+                            null
+
+                        const alreadyRendered = this.graph.thingIdsAlreadyInGraph.includes(memberId)
+                        
+                        const member: GenerationMember = {
+                            thingId: memberId,
+                            thing: thing,
+                            alreadyRendered: alreadyRendered
+                        }
                         
                         childCohort.addMember(member)
                     }

@@ -1,95 +1,73 @@
 <script lang="ts">
-    import { hoveredThingIdStore } from "$lib/stores"
-    import type { Thing } from "$lib/models/constructModels";
-    import type { GraphWidgetModel, ThingBaseWidgetModel } from "$lib/models/widgetModels"
+    // Import types.
+    import type { Thing } from "$lib/models/constructModels"
     import type { HalfAxisId } from "$lib/shared/constants"
-    import { planePadding, relationshipColorByHalfAxisId } from "$lib/shared/constants"
+    import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
+
+    // Import stores.
+    import { hoveredThingIdStore } from "$lib/stores"
+
+    // Import widget controller.
+    import ThingAlreadyRenderedWidgetController from "./controller.svelte"
     
 
-    export let model: ThingBaseWidgetModel
-    export let cohortHalfAxisId: HalfAxisId | 0
-    export let graphWidgetModel: GraphWidgetModel
+    /**
+     * Create a Thing-Already-Rendered widget.
+     * @param {number | null} thingId - The ID of the Thing the widget is based on.
+     * @param {HalfAxisId} cohortHalfAxisId - The ID of the half-axis the Thing's Thing Cohort is on.
+     * @param {GraphWidgetStyle} graphWidgetStyle - Controls the style of the Graph widget.
+     */
+    export let thingId: number
+    export let cohortHalfAxisId: HalfAxisId
+    export let graphWidgetStyle: GraphWidgetStyle
 
 
-    
-    $: planeId = model.planeId
-    $: encapsulatingDepth = model.encapsulatingDepth
-    $: xYElongation = model.xYElongation
-    $: cohortSize = model.cohortSize
-    $: halfAxisId = model.halfAxisId
-    $: thing = model.thing
-    $: thingId = model.thingId
-
-
-
-
-
-    /* Variables dealing with encapsulation (Things containing other Things). */
-    // If the Half-Axis is "Outwards, or the Thing has "Inwards" children, it is encapsulating.
-    
-    $: encapsulatingPadding = encapsulatingDepth >= 0 ? 40 : 20
-
-    /* Variables dealing with Thing sizing. */
-    $: thingSize = graphWidgetModel.style.thingSize + planePadding * planeId + encapsulatingPadding * encapsulatingDepth
-    $: thingWidth = thingSize * xYElongation.x
-    $: thingHeight = encapsulatingDepth >= 0 ? thingSize * xYElongation.y : thingSize * xYElongation.y / cohortSize - 2
-
-
-    let hoveredThingIdStoreValue: number | null = null
-    hoveredThingIdStore.subscribe(value => {hoveredThingIdStoreValue = value})
-
-    // Calculate color of Relationship image.
-    const relationshipColor = relationshipColorByHalfAxisId[halfAxisId]
-
-
-    
-    $: betweenThingOverlap = graphWidgetModel.style.betweenThingOverlap
-
+    // Attributes managed by the widget controller.
+    let encapsulatingDepth: number
+    let thingWidth: number
+    let thingHeight: number
     let overlapMarginStyleText: string
-    const rowOrColumn = [1, 2].includes(cohortHalfAxisId) ? "row" : "column"
-    $: if ((model.thing as Thing).parentCohort.members.length === 1) {
-        overlapMarginStyleText = ""
-    } else if ((model.thing as Thing).address.indexInCohort === 0) {
-        overlapMarginStyleText = rowOrColumn === "row" ?
-            `margin-right: ${betweenThingOverlap / 2}px;` :
-            `margin-bottom: ${betweenThingOverlap / 2}px;`
-    } else if ((model.thing as Thing).address.indexInCohort === (model.thing as Thing).parentCohort.members.length - 1) {
-        overlapMarginStyleText = rowOrColumn === "row" ?
-            `margin-left: ${betweenThingOverlap / 2}px;` :
-            `margin-top: ${betweenThingOverlap / 2}px;`
-    } else {
-        overlapMarginStyleText = rowOrColumn === "row" ?
-            `margin-left: ${betweenThingOverlap / 2}px; margin-right: ${betweenThingOverlap / 2}px;` :
-            `margin-top: ${betweenThingOverlap / 2}px; margin-bottom: ${betweenThingOverlap / 2}px;`
-    }
+    let relationshipColor: string
+    let isHoveredThing: boolean    
 </script>
 
 
+<!-- Widget controller. -->
+<ThingAlreadyRenderedWidgetController
+    {thingId}
+    {cohortHalfAxisId}
+    {graphWidgetStyle}
+
+    bind:encapsulatingDepth
+    bind:thingWidth
+    bind:thingHeight
+    bind:overlapMarginStyleText
+    bind:relationshipColor
+    bind:isHoveredThing
+/>
+
+
+<!-- Thing-already-rendered widget. -->
 <div
     class="thing-already-rendered-widget"
->
-    <div
-        class="box"
-        style="
-            {overlapMarginStyleText}
-            {
-                model.thingId === hoveredThingIdStoreValue ?
-                    `border: solid 1px ${relationshipColor}; border-style: dashed; ` :
-                    ""
-            }
-            border-radius: {10 + 4 * encapsulatingDepth}px;
-            width: {thingWidth}px; height: {thingHeight}px;
-        "
-        on:mouseenter={()=>{hoveredThingIdStore.set(model.thingId)}}
-        on:mouseleave={()=>{hoveredThingIdStore.set(null)}}
-    >
-        <!--SPACER FOR THING {thingBaseWidgetModel.thingId}-->
-    </div>
-</div>
+    style="
+        border-radius: {10 + 4 * encapsulatingDepth}px;
+        {
+            isHoveredThing ? `border: solid 1px ${relationshipColor}; border-style: dashed; ` :
+            ""
+        }
+        width: {thingWidth}px;
+        height: {thingHeight}px;
+        {overlapMarginStyleText}
+    "
+
+    on:mouseenter={ ()=>{hoveredThingIdStore.set(thingId)} }
+    on:mouseleave={ ()=>{hoveredThingIdStore.set(null)} }
+/>
 
 
 <style>
-    .box {
+    .thing-already-rendered-widget {
         outline-offset: -1px;
 
         box-sizing: border-box;

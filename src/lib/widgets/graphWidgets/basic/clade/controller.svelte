@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { Note } from "$lib/models/constructModels"
-    import type { GraphWidgetModel, ThingWidgetController, RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
+    import type { ThingWidgetController, RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
     import type { ThingCohortWidgetModel } from "$lib/widgets/graphWidgets/basic/thingCohort"
 
 
@@ -8,7 +8,6 @@
 
 
 
-    export let graphWidgetModel: GraphWidgetModel
     export let rootThingWidgetModel: ThingWidgetController
 
     export let submodels: {
@@ -34,7 +33,7 @@
 
 
 
-    $: betweenThingOverlap = graphWidgetModel.style.betweenThingOverlap
+    $: betweenThingOverlap = graphWidgetStyle.betweenThingOverlap
 
     $: overlapMarginStyleText =
         submodels.rootThing.thing && submodels.rootThing.thing.parentCohort.members.length === 1 ?

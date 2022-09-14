@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { HalfAxisId } from "$lib/shared/constants"
-    import type { Space } from "$lib/models/constructModels"
-    import type { GraphWidgetModel } from "$lib/models/widgetModels";
+    import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
+    import type { Graph, Space } from "$lib/models/constructModels"
 
     import { relationshipColorByHalfAxisId } from "$lib/shared/constants"
     import { sleep } from "$lib/shared/utility"
@@ -9,7 +9,8 @@
     import { DirectionWidget } from "$lib/widgets/graphWidgets"
     import { addGraphIdsNeedingViewerRefresh } from "$lib/stores"
 
-    export let graphWidgetModel: GraphWidgetModel
+    export let graph: Graph
+    export let graphWidgetStyle: GraphWidgetStyle
     export let currentSpace: Space | null
 
 
@@ -154,7 +155,7 @@
                 <DirectionWidget
                     direction={arrowInfo.direction}
                     halfAxisId={arrowInfo.halfAxisId}
-                    {graphWidgetModel}
+                    {graphWidgetStyle}
                     optionClickedFunction={(direction, _, option) => {
                         console.log(direction, option)
 
@@ -162,15 +163,15 @@
                     optionHoveredFunction={async (_, option) => {
                         if (currentSpace) {
                             const newSpace = alteredSpace(currentSpace, option, arrowInfo.halfAxisId)
-                            graphWidgetModel.graph.startingSpace = newSpace
-                            await graphWidgetModel.graph.build()
-                            addGraphIdsNeedingViewerRefresh(graphWidgetModel.graph.id)
+                            graph.startingSpace = newSpace
+                            await graph.build()
+                            addGraphIdsNeedingViewerRefresh(graph.id)
                         }
                     }}
                     exitOptionHoveredFunction={async () => {
-                        graphWidgetModel.graph.startingSpace = originalSpace
-                        await graphWidgetModel.graph.build()
-                        addGraphIdsNeedingViewerRefresh(graphWidgetModel.graph.id)
+                        graph.startingSpace = originalSpace
+                        await graph.build()
+                        addGraphIdsNeedingViewerRefresh(graph.id)
                     }}
                 />
             {/if}

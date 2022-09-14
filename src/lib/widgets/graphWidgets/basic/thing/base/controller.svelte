@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { HalfAxisId } from "$lib/shared/constants"
     import type { Thing } from "$lib/models/constructModels"
-    import type { GraphWidgetModel } from "$lib/models/widgetModels"
+    import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets" 
 
     import { planePadding } from "$lib/shared/constants"
     import { retrieveGraphConstructs } from "$lib/stores"
@@ -12,19 +12,20 @@
      * @param {GraphWidgetModel} graphWidgetModel - The model of the Graph that the widget is in.
      */
     export let thingId: number | null
-    export let graphWidgetModel: GraphWidgetModel
+    export let graphWidgetStyle: GraphWidgetStyle
 
-    export let planeId: number
+    export let planeId: number = 0
     export let encapsulatingDepth: number
     export let thingSize: number = 0
     export let thingWidth: number = 0
     export let thingHeight: number = 0
-    export let xYElongation: {x: number, y: number}
-    export let cohortSize: number
+    export let xYElongation: {x: number, y: number} = {x: 0, y: 0}
+    export let cohortSize: number = 0
 
     export let thing: Thing | null = null
     export let halfAxisId: HalfAxisId = 0
     export let elongationCategory: "vertical" | "horizontal" | "neutral" = "neutral"
+    export let encapsulatingPadding: number = 0
 
     
     /* --------------- Output attributes. --------------- */
@@ -62,7 +63,7 @@
      * padding times the encapsulation depth.
      */
     $: thingSize = (
-        graphWidgetModel.style.thingSize
+        graphWidgetStyle.thingSize
         + planePadding * planeId
         + encapsulatingPadding * encapsulatingDepth
     )
@@ -138,6 +139,15 @@
         [3, 4].includes(halfAxisId) ? "horizontal" :
         "neutral"
 
+    /**
+     * Encapsulation padding.
+     * 
+     * The amount of space to place between encapsulation levels. For outward
+     * encapsulation levels, the padding is 40 pixels. For inward encapsulation
+     * levels, it is 20 pixels.
+     */
+    $: encapsulatingPadding = encapsulatingDepth >= 0 ? 40 : 20
+
 
     /* --------------- Supporting attributes. --------------- */
 
@@ -149,13 +159,4 @@
      * (no elongation).
      */
     $: elongation = thing?.parentCohort.axialElongation || 1
-
-    /**
-     * Encapsulation padding.
-     * 
-     * The amount of space to place between encapsulation levels. For outward
-     * encapsulation levels, the padding is 40 pixels. For inward encapsulation
-     * levels, it is 20 pixels.
-     */
-    $: encapsulatingPadding = encapsulatingDepth >= 0 ? 40 : 20
 </script>

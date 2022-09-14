@@ -1,8 +1,8 @@
 <script lang="ts">
     // Type imports.
     import type { HalfAxisId } from "$lib/shared/constants"
+    import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
     import type { Direction } from "$lib/models/constructModels"
-    import type { GraphWidgetModel } from "$lib/models/widgetModels"
 
     // Constants and stores imports.
     import { relationshipColorByHalfAxisId } from "$lib/shared/constants"
@@ -17,7 +17,7 @@
      */
     export let direction: Direction | null
     export let halfAxisId: HalfAxisId | null
-    export let graphWidgetModel: GraphWidgetModel
+    export let graphWidgetStyle: GraphWidgetStyle
     export let askingForDirection = false
     export let optionClickedFunction: (direction: Direction | null, optionId: number, option: Direction) => void = (_: Direction | null, __: number, option: Direction) => {console.log(option.text)}
     export let optionHoveredFunction: (optionId: number, option: Direction) => void = () => {}
@@ -54,7 +54,7 @@
     <!-- Direction text. -->
     <div
         style="
-            font-size: {graphWidgetModel.style.relationshipTextSize}px;
+            font-size: {graphWidgetStyle.relationshipTextSize}px;
             {direction ? "" : "font-style: italic;"}
             color: {relationshipColor};
         "

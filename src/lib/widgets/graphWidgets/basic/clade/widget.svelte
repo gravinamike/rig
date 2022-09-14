@@ -1,6 +1,5 @@
 <script lang="ts">
     // Widget model imports.
-    import type { GraphWidgetModel } from "$lib/models/widgetModels"
     import type { ThingWidgetController } from "$lib/widgets/graphWidgets"
     import CladeWidgetController from "./controller.svelte"
 
@@ -8,8 +7,9 @@
     import { ThingWidget, ThingFormWidget, RelationshipCohortWidget, ThingCohortWidget, OffAxisRelationsWidget } from "$lib/widgets/graphWidgets"
     import type { Note } from "$lib/models/constructModels"
     import type { ThingCohortWidgetModel } from "..";
+    import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
-    export let graphWidgetModel: GraphWidgetModel
+    export let graphWidgetStyle: GraphWidgetStyle
     export let rePerspectToThingId: (id: number) => Promise<void>
 
     let submodels: {
@@ -38,7 +38,7 @@
 
 
 <CladeWidgetController
-    {graphWidgetModel}
+    {graphWidgetStyle}
     {rootThingWidgetModel}
 
     bind:submodels

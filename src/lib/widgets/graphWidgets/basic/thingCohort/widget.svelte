@@ -1,44 +1,43 @@
-<script context="module" lang="ts">
-    
-</script>
-
 <script lang="ts">
-    /* Type imports. */
-    import type { GraphWidgetModel, ThingWidgetModel } from "$lib/models/widgetModels"
+    /* Import types. */
+    import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
+    import type { Graph, Thing, ThingCohort } from "$lib/models/constructModels"
+
+    /* Import widget controller. */
     import ThingCohortWidgetController from "./controller.svelte"
 
-    /* Widget imports */
+    /* Import widgets. */
     import { ThingMissingFromStoreWidget, ThingAlreadyRenderedWidget, CladeWidget } from "$lib/widgets/graphWidgets"
 
 
     /**
-     * @param  {ThingCohortWidgetModel} thingCohortWidgetModel - The Cohort Widget Model used to set up this Widget.
-     * @param  {GraphWidgetModel} graphWidgetModel - The Graph Widget Model that the Cohort is in.
-     * @param  {(thingId: number) => Promise<void>} rePerspectToThingId - A function that re-perspects the Graph to a given Thing ID.
+     * @param {ThingCohort} thingCohort - The Thing Cohort that the widget is based on.
+     * @param {Graph} graph - The Graph that contains the Thing Cohort.
+     * @param {GraphWidgetStyle} graphWidgetStyle - Controls the style of the Graph widget.
+     * @param {(thingId: number) => Promise<void>} rePerspectToThingId - A function that re-perspects the Graph to a given Thing ID.
      */
-    export let thingCohortWidgetModel: ThingCohortWidgetController
-    export let parentThingWidgetModel: ThingWidgetModel
-    export let graphWidgetModel: GraphWidgetModel
+    export let thingCohort: ThingCohort
+    export let graph: Graph
+    export let graphWidgetStyle: GraphWidgetStyle
     export let rePerspectToThingId: (thingId: number) => Promise<void>
         
-
+    
+    // Attributes managed by the widget controller.
     let xYOffsets: { x: number, y: number }
     let zIndex: number
-
     let rowOrColumn: "row" | "column"
-
     let indexOfGrandparentThing: number | null
     let offsetToGrandparentThingX: number
     let offsetToGrandparentThingY: number
+    let showMembers: boolean
 </script>
 
 
-
+<!-- Widget controller. -->
 <ThingCohortWidgetController
-    thingCohort={thingCohortWidgetModel.thingCohort}
-    {parentThingWidgetModel}
-    graphWidgetStyle={graphWidgetModel.style}
-    planesOffsets={graphWidgetModel.graph.planes.offsets}
+    {thingCohort}
+    graphWidgetStyle={graphWidgetStyle}
+    planesOffsets={graph.planes.offsets}
 
     bind:xYOffsets
     bind:zIndex
@@ -46,43 +45,50 @@
     bind:indexOfGrandparentThing
     bind:offsetToGrandparentThingX
     bind:offsetToGrandparentThingY
+    bind:showMembers
 />
 
 
-
+<!-- Thing Cohort Widget. -->
 <div
-    class="cohort-widget"
+    class="thing-cohort-widget"
     style="
         left: calc({xYOffsets.x}px + 50% + {offsetToGrandparentThingX}px);
         top: calc({xYOffsets.y}px + 50% + {offsetToGrandparentThingY}px);
         z-index: {zIndex};
         flex-direction: {rowOrColumn};
-        gap: {thingCohortWidgetModel.cohort.halfAxisId && [5, 6, 7, 8].includes(thingCohortWidgetModel.cohort.halfAxisId) ? 4 : graphWidgetModel.style.betweenThingGap}px;
+        gap: {
+            [5, 6, 7, 8].includes(thingCohort.halfAxisId) ? 4 :
+            graphWidgetStyle.betweenThingGap
+        }px;
     "
 >        
-    {#if !(
-        thingCohortWidgetModel.memberModels.length === 1
-        && indexOfGrandparentThing !== null
-        && indexOfGrandparentThing !== -1
-    )}<!-- Unless the ONLY descendent in a Half-Axis is a doubled-back parent Thing, -->
 
-        {#each thingCohortWidgetModel.memberModels as cohortMember}
+    <!-- Member widgets (either Clade widgets or various Thing-placeholder widgets). -->
+    {#if showMembers}
 
-            {#if cohortMember.kind === "thingMissingFromStoreWidgetModel"}
+        {#each thingCohort.members as member}
+
+            <!-- If no Thing was found in the store for the Thing ID, show a Thing Missing From Store Widget. -->
+            {#if member.thing === null}
                 <ThingMissingFromStoreWidget
-                    model={cohortMember}
-                    {graphWidgetModel}
+                    thingId={member.thingId}
+                    {graphWidgetStyle}
                 />
-            {:else if cohortMember.kind === "thingAlreadyRenderedWidgetModel"}
+
+            <!-- Else, if the Thing is already rendered elsewhere in the Graph, show a Thing Already Rendered Widget. -->
+            {:else if member.alreadyRendered === true}
                 <ThingAlreadyRenderedWidget
-                    model={cohortMember}
-                    cohortHalfAxisId={thingCohortWidgetModel.cohort.halfAxisId}
-                    {graphWidgetModel}
+                    thingId={member.thingId}
+                    cohortHalfAxisId={thingCohort.halfAxisId}
+                    {graphWidgetStyle}
                 />
-            {:else if cohortMember.kind === "thingWidgetModel"}
+
+            <!-- Otherwise show a Clade Widget. -->
+            {:else}
                 <CladeWidget
-                    thingWidgetModel={cohortMember}
-                    bind:graphWidgetModel
+                    thingWidgetModel={member}
+                    {graphWidgetStyle}
                     {rePerspectToThingId}
                 />
             {/if}
@@ -94,7 +100,7 @@
 
 
 <style>
-    .cohort-widget {
+    .thing-cohort-widget {
         position: absolute;
         transform: translate(-50%, -50%);
         

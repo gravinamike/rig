@@ -1,22 +1,24 @@
 <script lang="ts">
     import type { ThingCohort } from "$lib/models/constructModels"
-    import type { GraphWidgetModel } from "../graph/graph"
-    import type { ThingWidgetModel } from "$lib/models/widgetModels";
-    import { halfAxisOppositeIds, offsetsByHalfAxisId, type GraphWidgetStyle } from "$lib/shared/constants"
-    import type {
-        ThingMissingFromStoreWidgetModel, ThingAlreadyRenderedWidgetModel
-    } from "$lib/models/widgetModels"
+    import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets";
+    import { halfAxisOppositeIds, offsetsByHalfAxisId } from "$lib/shared/constants"
 
     /**
      * Create a Graph Widget Model.
-     * @param {ThingCohort} cohort - The Thing Cohort that the widget is based on.
-     * @param {GraphWidgetModel} graphWidgetModel - The model of the Graph that the widget is in.
-     * @param {ThingWidgetModel} parentThingWidgetModel - The Model of the widget's parent Thing Widget, if it has one.
+     * @param {ThingCohort} thingcohort - The Thing Cohort that the widget is based on.
+     * @param {GraphWidgetStyle} graphWidgetStyle - Controls the style of the Graph widget.
+     * @param {[number, number]} planesOffsets - The per-Plane X and Y offsets.
+     * @param {{ x: number, y: number }} xYOffsets - The X and Y offsets of the widget relative to its parent Clade widget.
+     * @param {number} zIndex - The stacking order of the widget relative to other HTML elements.
+     * @param {"row" | "column"} rowOrColumn - Whether the Things are arranged in a row or column.
+     * @param {number | null} indexOfGrandparentThing - The index of the Thing Cohort's grandparent Thing if it is included the Thing Cohort.
+     * @param {number} offsetToGrandparentThingX - The X component of the offset between the center of the Thing Cohort and the grandparent Thing.
+     * @param {number} offsetToGrandparentThingY - The Y component of the offset between the center of the Thing Cohort and the grandparent Thing.
+     * @param {boolean} showMembers - Whether to display the member Things of the Thing Cohort.
      */
     
     // Input props.
     export let thingCohort: ThingCohort
-    export let parentThingWidgetModel: ThingWidgetModel | null = null
     export let graphWidgetStyle: GraphWidgetStyle
     export let planesOffsets: [number, number]
 
@@ -30,8 +32,7 @@
     export let offsetToGrandparentThingX: number
     export let offsetToGrandparentThingY: number
 
-    export let lifecycleStatus: "new" | "building" | "built" | "failed" | "cleared" = "new"
-    export let memberModels: ( ThingWidgetModel | ThingAlreadyRenderedWidgetModel | ThingMissingFromStoreWidgetModel )[] = []
+    export let showMembers: boolean
 
 
     /* --------------- Output attributes. --------------- */
@@ -101,8 +102,7 @@
         grandparentThingId === null ? null :
         // Otherwise, find the index in the Thing Cohort's members.
         thingCohort.members.findIndex(
-            member => (typeof member === "object")
-            && member.id === grandparentThingId
+            member => member.thingId === grandparentThingId
         )
 
     /**
@@ -136,12 +136,25 @@
      * determined based on whether the Thing Cohort's Things are formatted in a
      * row or a column.
      */
-    offsetToGrandparentThingX = 
+    $: offsetToGrandparentThingX = 
         rowOrColumn === "row" ? offsetToGrandparentThing :
         0
-    offsetToGrandparentThingY =
+    $: offsetToGrandparentThingY =
         rowOrColumn === "column" ? offsetToGrandparentThing :
         0
+
+
+    /**
+     * Show-members flag.
+     * 
+     * This attribute determines whether the Thing Cohort's member Things should
+     * be shown. The only case where this is false is when the Thing Cohort
+     * "doubles back" towards its own grandparent Thing, and that grandparent
+     * Thing is the only member of the Thing Cohort.
+     */
+    $: showMembers =
+        isDoubledBackHalfAxis && thingCohort.members.length === 1 ? false :
+        true
 
 
     /* --------------- Supporting attributes. --------------- */
@@ -227,21 +240,10 @@
      * Is-doubled-back-half-axis flag.
      *
      * This attribute indicates whether the Thing Cohort is on a half-axis that
-     * "doubles back" towards the half-axis of its grandparent THing. It is true
-     * if the half-axis ID of the grandparent Relationships Cohort is the
+     * "doubles back" towards the half-axis of its grandparent Thing. It is true
+     * if the half-axis ID of the Thing Cohort's parent Thing Cohort is the
      * opposite of the half-axis of the Thing Cohort.
      */
     $: isDoubledBackHalfAxis =
-        matchedRelationshipCohortWidgetModel?.parentRelationshipsWidgetModel?.halfAxisId
-        === halfAxisOppositeIds[thingCohort.halfAxisId]
-
-    /*
-     * Matched RelationshipCohortWidgetModel.
-     *
-     * The Relationship Cohort Widget Model which is "parallel" to this Thing
-     * Cohort Widget. In other words, it contains the Relationship Widgets from
-     * the parent Thing to the child Things of the Thing Cohort.
-     */
-    $: matchedRelationshipCohortWidgetModel =
-        parentThingWidgetModel?.relationshipsWidgetModelsByHalfAxisId[thingCohort.halfAxisId] || null
+        thingCohort.parentCohort()?.halfAxisId === halfAxisOppositeIds[thingCohort.halfAxisId]
 </script>

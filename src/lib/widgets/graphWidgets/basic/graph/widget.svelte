@@ -5,7 +5,7 @@
     import type { Graph, Space } from "$lib/models/constructModels"
 
     // Import constants and utility functions.
-    import type { GraphWidgetStyle } from "$lib/shared/constants"
+    import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
     // Import stores.
     import { relationshipBeingCreatedInfoStore } from "$lib/stores"
@@ -62,8 +62,6 @@
     bind:trackingMouse
     bind:handleMouseMove
     bind:handleWheelScroll
-    
-    
 />
 
 
@@ -103,10 +101,14 @@
             />
             
             <!-- Root Cohort Widget (from which the rest of the Graph automatically "grows"). -->
-            <ThingCohortWidget
-                bind:graphWidgetModel={model}
-                {rePerspectToThingId}
-            />
+            {#if graph.rootCohort}
+                <ThingCohortWidget
+                    thingCohort={graph.rootCohort}
+                    bind:graph
+                    graphWidgetStyle={style}
+                    {rePerspectToThingId}
+                />
+            {/if}
 
         </div>
 
@@ -125,7 +127,8 @@
 
     <!-- Space frame. -->
     <SpaceFrameWidget
-        graphWidgetModel={model}
+        bind:graph
+        graphWidgetStyle={style}
         {currentSpace}
     />
 </div>
