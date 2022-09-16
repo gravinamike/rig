@@ -1,19 +1,22 @@
 <script lang="ts">
-    import type { GraphWidgetModel } from "$lib/models/widgetModels";
+    import type { Graph } from "$lib/models/constructModels"
+    import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
     import { addGraphIdsNeedingViewerRefresh } from "$lib/stores"
     import { SettingWidget } from "$lib/widgets/layoutWidgets"
 
-    export let graphWidgetModel: GraphWidgetModel
+    export let graph: Graph
+    export let graphWidgetStyle: GraphWidgetStyle
+    export let allowZoomAndScrollToFit: boolean
 
 
     async function setGraphDepth() {
-        await graphWidgetModel.graph.generations.adjustToDepth(graphWidgetModel.graph._depth)
-        graphWidgetModel.allowZoomAndScrollToFit = true
-        addGraphIdsNeedingViewerRefresh(graphWidgetModel.graph.id)
+        await graph.generations.adjustToDepth(graph._depth)
+        allowZoomAndScrollToFit = true
+        addGraphIdsNeedingViewerRefresh(graph.id)
     }
 
     function updateGraphFormat() {
-        addGraphIdsNeedingViewerRefresh(graphWidgetModel.graph.id)
+        addGraphIdsNeedingViewerRefresh(graph.id)
     }
 </script>
 
@@ -23,7 +26,7 @@
 
     <SettingWidget
         labelText={"Graph Depth"}
-        bind:boundValue={graphWidgetModel.graph._depth}
+        bind:boundValue={graph._depth}
         minValue={0}
         maxValue={3}
         onChangeFunction={setGraphDepth}
@@ -31,7 +34,7 @@
 
     <SettingWidget
         labelText={"Zoom"}
-        bind:boundValue={graphWidgetModel.style.zoom}
+        bind:boundValue={graphWidgetStyle.zoom}
         minValue={-5}
         maxValue={5}
         onChangeFunction={updateGraphFormat}
@@ -39,21 +42,21 @@
 
     <SettingWidget
         labelText={"Relation offset length"}
-        bind:boundValue={graphWidgetModel.style.relationDistance}
+        bind:boundValue={graphWidgetStyle.relationDistance}
         maxValue={1000}
         onChangeFunction={updateGraphFormat}
     />
 
     <SettingWidget
         labelText={"Thing size"}
-        bind:boundValue={graphWidgetModel.style.thingSize}
+        bind:boundValue={graphWidgetStyle.thingSize}
         maxValue={1000}
         onChangeFunction={updateGraphFormat}
     />
 
     <SettingWidget
         labelText={"% Thing spacing"}
-        bind:boundValue={graphWidgetModel.style.thingSpacingPercent}
+        bind:boundValue={graphWidgetStyle.thingSpacingPercent}
         minValue={-100}
         maxValue={100}
         onChangeFunction={updateGraphFormat}
@@ -61,21 +64,21 @@
 
     <SettingWidget
         labelText={"Relationship text size"}
-        bind:boundValue={graphWidgetModel.style.relationshipTextSize}
+        bind:boundValue={graphWidgetStyle.relationshipTextSize}
         maxValue={100}
         onChangeFunction={updateGraphFormat}
     />
 
     <SettingWidget
         labelText={"Thing text size"}
-        bind:boundValue={graphWidgetModel.style.thingTextSize}
+        bind:boundValue={graphWidgetStyle.thingTextSize}
         maxValue={100}
         onChangeFunction={updateGraphFormat}
     />
 
     <SettingWidget
         labelText={"Focal Plane"}
-        bind:boundValue={graphWidgetModel.graph.planes.focalPlaneId}
+        bind:boundValue={graph.planes.focalPlaneId}
         minValue={-10}
         maxValue={10}
         onChangeFunction={updateGraphFormat}

@@ -1,6 +1,5 @@
 <script lang="ts">
     // Graph construct imports.
-    import type { ThingWidgetModel, GraphWidgetModel } from "$lib/models/widgetModels"
     import type { ThingCohortWidgetModel } from "$lib/widgets/graphWidgets/basic/thingCohort"
     
     // Constant imports.
@@ -11,53 +10,59 @@
 
     // Graph widget imports.
     import { ThingOutlineWidget, ThingOutlineFormWidget, RelationshipsOutlineWidget, ThingCohortOutlineWidget } from "$lib/widgets/graphWidgets"
+    import type { GraphWidgetStyle } from "../../basic";
 
-    export let thingWidgetModel: ThingWidgetModel
-    export let graphWidgetModel: GraphWidgetModel
+    // Import widget controller.
+    import CladeWidgetController from "./controller.svelte"
+    import type { Thing, ThingCohort } from "$lib/models/constructModels";
+
+
+    export let rootThing: Thing
+    export let graphWidgetStyle: GraphWidgetStyle
     export let rePerspectToThingId: (id: number) => Promise<void>
     
 
     // Cohort-related variables.
-    $: thingCohortWidgetModels = thingWidgetModel.childThingCohortWidgetModels
+    $: thingCohorts = rootThing.childThingCohorts
 
 
     // Cohort Widget Models are ordered in a specific way:
     // 1. First those on the "Cartesian" half-axes, from top to bottom and left to right,
     // 2. Then those on the other half-axes,
     // 3. Then all those not on a half-axis.
-    function getOrderedThingCohortWidgetModels(
-        thingWidgetModel: ThingWidgetModel,
-        excludeHalfAxes=graphWidgetModel.style.excludeCartesianAxes
-    ): ThingCohortWidgetModel[] {
+    function getOrderedThingCohorts(
+        thing: Thing,
+        excludeHalfAxes=graphWidgetStyle.excludeCartesianAxes
+    ): ThingCohort[] {
 
         const orderedHalfAxisIds = [2, 1, 4, 3, 5, 6, 8, 7]
-        const allCohortWidgetModelGroups: ThingCohortWidgetModel[][] = []
+        const allCohortGroups: ThingCohort[][] = []
 
         if (!excludeHalfAxes) {
             // Get an array of the half-axis IDs that currently have Cohorts.
             
-            const orderedHalfAxisIdsWithThingCohorts = orderedHalfAxisIds.filter(
-                id => id in thingWidgetModel.childThingCohortWidgetModelByHalfAxisId
+            const orderedHalfAxisIdsWithThings = orderedHalfAxisIds.filter(
+                id => id in thing.childCohortsByHalfAxisId
             )
 
-            const thingCohortWidgetModelsOnHalfAxes: ThingCohortWidgetModel[] = []
-            for (const halfAxisId of orderedHalfAxisIdsWithThingCohorts) {
-                thingCohortWidgetModelsOnHalfAxes.push(thingWidgetModel.childThingCohortWidgetModelByHalfAxisId[halfAxisId])
+            const thingCohortsOnHalfAxes: ThingCohort[] = []
+            for (const halfAxisId of orderedHalfAxisIdsWithThings) {
+                thingCohortsOnHalfAxes.push(thing.childCohortsByHalfAxisId[halfAxisId])
             }
 
-            allCohortWidgetModelGroups.push(thingCohortWidgetModelsOnHalfAxes)
+            allCohortGroups.push(thingCohortsOnHalfAxes)
         }
         
-        const thingCohortWidgetModelsNotOnHalfAxes = thingWidgetModel.childThingCohortWidgetModels
-            .filter(model => !(model.cohort.halfAxisId && orderedHalfAxisIds.includes(model.cohort.halfAxisId)))
+        const thingCohortsNotOnHalfAxes = thing.childThingCohorts
+            .filter(cohort => !(cohort.halfAxisId && orderedHalfAxisIds.includes(cohort.halfAxisId)))
 
 
-        allCohortWidgetModelGroups.push(thingCohortWidgetModelsNotOnHalfAxes)
+        allCohortGroups.push(thingCohortsNotOnHalfAxes)
 
-        const orderedThingCohortWidgetModels = allCohortWidgetModelGroups.flat()
-        return orderedThingCohortWidgetModels
+        const orderedThingCohorts = allCohortGroups.flat()
+        return orderedThingCohorts
     }
-    $: orderedThingCohortWidgetModels = getOrderedThingCohortWidgetModels(thingWidgetModel)
+    $: orderedThingCohorts = getOrderedThingCohorts(rootThing)
     
 
 
@@ -65,50 +70,66 @@
     $: relationshipWidgetModelsByHalfAxisId = thingWidgetModel.relationshipsWidgetModelsByHalfAxisId
 
     $: expanded = (
-        thingCohortWidgetModels.length
-        && thingCohortWidgetModels[0].cohort.generation
-        && !thingCohortWidgetModels[0].cohort.generation.isRelationshipsOnly
+        thingCohorts.length
+        && thingCohorts[0].generation
+        && !thingCohorts[0].generation.isRelationshipsOnly
     ) ?
         true :
         false
 
-    $: shadowColor = relationshipColorByHalfAxisId[thingWidgetModel.halfAxisId]
+    $: shadowColor = relationshipColorByHalfAxisId[rootThing.parentCohort.halfAxisId]
 
 
     $: showCladeRootThing = (
-        thingWidgetModel.thing
-        && thingWidgetModel.thing.address.generationId === 0
-        && graphWidgetModel.style.excludePerspectiveThing
+        rootThing.address.generationId === 0
+        && graphWidgetStyle.excludePerspectiveThing
     ) ?
         false :
         true
+
+
+
+    // Attributes managed by the widget controller.
+    let overlapMarginStyleText: string
 </script>
+
+
+
+<!-- Widget controller. -->
+<CladeWidgetController
+    {rootThing}
+    {graphWidgetStyle}
+
+    bind:overlapMarginStyleText
+/>
+
+
 
 
 <!-- Clade widget.-->
 <div
     class="clade-outline-widget"
     class:expanded
-    class:has-children={thingCohortWidgetModels.length}
+    class:has-children={thingCohorts.length}
     style="box-shadow: 5px 5px 10px 2px {hexToRgba(shadowColor, 0.333)};"
 >
     {#if showCladeRootThing}
-        {#if thingWidgetModel.thing}
+        {#if rootThing}
             <ThingOutlineWidget
                 {thingWidgetModel}
-                bind:graphWidgetModel
+                bind:graphWidgetStyle
                 {rePerspectToThingId}
             />
         {:else}
             <ThingOutlineFormWidget
                 {thingWidgetModel}
-                bind:graphWidgetModel
+                bind:graphWidgetStyle
             />
         {/if}
     {/if}
 
     <!-- The Thing's Relationships and child Cohorts (outer container). -->
-    {#each orderedThingCohortWidgetModels as thingCohortWidgetModel (thingCohortWidgetModel.cohort.address)}  
+    {#each orderedThingCohorts as thingCohort (thingCohort.address)}  
         <div
             class="relationships-and-child-cohorts-outer-container"
             style="
@@ -122,7 +143,7 @@
                     border-top: dotted 1px grey;
                     box-sizing: border-box;
                     position: absolute; width: 100%; height: 100%;
-                    background-color: {relationshipColorByHalfAxisId[thingCohortWidgetModel.cohort.halfAxisId ? thingCohortWidgetModel.cohort.halfAxisId : 0]};
+                    background-color: {relationshipColorByHalfAxisId[thingCohort.halfAxisId]};
                     opacity: 0.25;
                 "
             />
@@ -133,28 +154,28 @@
                 style="flex-direction: { expanded ? "row" : "column" };"    
             >
                 <!-- Relationships Widget. -->
-                {#if thingCohortWidgetModel.cohort.halfAxisId}
+                {#if thingCohort.halfAxisId}
                     <div
                         class="relationships-outline-widget-container"
                         class:expanded
-                        class:has-children={thingCohortWidgetModel.cohort.members.length}
+                        class:has-children={thingCohort.members.length}
                     >
                         <RelationshipsOutlineWidget
-                            relationshipsWidgetModel={relationshipWidgetModelsByHalfAxisId[thingCohortWidgetModel.cohort.halfAxisId]}
-                            bind:graphWidgetModel
+                            relationshipsWidgetModel={relationshipWidgetModelsByHalfAxisId[thingCohort.halfAxisId]}
+                            bind:graphWidgetStyle
                         />
                     </div>
                 {/if}
 
                 <!-- Cohort Widget. -->
                 {#if (
-                    thingCohortWidgetModel.cohort.members.length
-                    && thingCohortWidgetModel.cohort.generation
-                    && !thingCohortWidgetModel.cohort.generation.isRelationshipsOnly
+                    thingCohort.members.length
+                    && thingCohort.generation
+                    && !thingCohort.generation.isRelationshipsOnly
                 )}
                     <ThingCohortOutlineWidget
-                        {thingCohortWidgetModel}
-                        bind:graphWidgetModel
+                        {thingCohort}
+                        bind:graphWidgetStyle
                         {rePerspectToThingId}
                     />
                 {/if}

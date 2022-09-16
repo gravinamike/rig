@@ -1,43 +1,38 @@
-<script context="module" lang="ts">
-    /* Type imports. */
-    import type { GraphWidgetModel } from "$lib/models/widgetModels"
-    import type { ThingCohortWidgetModel } from "$lib/widgets/graphWidgets/basic/thingCohort"
-
-    /* Widget imports */
-    import { CladeOutlineWidget, ThingOutlineAlreadyRenderedWidget } from "$lib/widgets/graphWidgets/"
-</script>
-
 <script lang="ts">
+    import type { Graph, ThingCohort } from "$lib/models/constructModels";
+    import type { GraphWidgetStyle } from "../../basic";
+    import { CladeOutlineWidget, ThingOutlineAlreadyRenderedWidget } from "$lib/widgets/graphWidgets/"
+
     /**
-     * @param  {ThingCohortWidgetModel} thingCohortWidgetModel - The Cohort Widget Model used to set up this Widget.
+     * @param  {ThingCohort} thingCohort - The Thing Cohort used to set up this Widget.
      * @param  {Graph} graph - The Graph that the Cohort is in.
      * @param  {(thingId: number) => Promise<void>} rePerspectToThingId - A function that re-perspects the Graph to a given Thing ID.
      */
-    export let thingCohortWidgetModel: ThingCohortWidgetModel
-    export let graphWidgetModel: GraphWidgetModel
+    export let thingCohort: ThingCohort
+    export let graphWidgetStyle: GraphWidgetStyle
     export let rePerspectToThingId: (thingId: number) => Promise<void>
 
 
-    $: indexOfGrandparentThing = thingCohortWidgetModel.indexOfGrandparentThing
+    $: indexOfGrandparentThing = thingCohort.indexOfGrandparentThing
 </script>
 
 
 <div
     class="cohort-outline-widget"
 >
-    {#if !(thingCohortWidgetModel.memberModels.length === 1 && indexOfGrandparentThing !== null && indexOfGrandparentThing !== -1)}<!-- Unless the ONLY descendent in a Half-Axis is a doubled-back parent Thing, -->
-        {#each thingCohortWidgetModel.memberModels as cohortMember}
-            {#if "text" in cohortMember}
-                <CladeOutlineWidget
-                    thingWidgetModel={cohortMember}
-                    bind:graphWidgetModel
-                    {rePerspectToThingId}
-                />
-            {:else if thingCohortWidgetModel.cohort.halfAxisId}
+    {#if !(thingCohort.members.length === 1 && indexOfGrandparentThing !== null && indexOfGrandparentThing !== -1)}<!-- Unless the ONLY descendent in a Half-Axis is a doubled-back parent Thing, -->
+        {#each thingCohort.members as cohortMember}
+            {#if cohortMember.alreadyRendered}
                 <ThingOutlineAlreadyRenderedWidget
-                    thingBaseWidgetModel={cohortMember}
-                    cohortHalfAxisId={thingCohortWidgetModel.cohort.halfAxisId}
-                    {graphWidgetModel}
+                    thingId={cohortMember.thingId}
+                    cohortHalfAxisId={thingCohort.halfAxisId}
+                    {graphWidgetStyle}
+                />
+            {:else if cohortMember.thing}
+                <CladeOutlineWidget
+                    rootThing={cohortMember.thing}
+                    {graphWidgetStyle}
+                    {rePerspectToThingId}
                 />
             {/if}
         {/each}

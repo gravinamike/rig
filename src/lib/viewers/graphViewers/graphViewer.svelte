@@ -17,26 +17,30 @@
     import { HistoryViewer, PinsViewer, ThingSearchboxViewer } from "$lib/viewers/navViewers"
     import { NotesViewer } from "$lib/viewers/notesViewers"
     import { FolderViewer } from "$lib/viewers/folderViewers"
-    import { GraphWidget } from "$lib/widgets/graphWidgets"
+    import { defaultGraphWidgetStyle, GraphWidget, type GraphWidgetStyle } from "$lib/widgets/graphWidgets"
     import { GraphOutlineWidget } from "$lib/widgets/graphWidgets"
 
     // Import modification functions.
     import { markThingsVisited } from "$lib/db/clientSide/makeChanges"
-    import { GraphWidgetModel } from "$lib/models/widgetModels"
     
     export let pThingIds: number[]
     export let depth: number
 
 
+    let allowZoomAndScrollToFit: boolean
+    let allowScrollToThingId: boolean
+    let thingIdToScrollTo: number | null
+    let graphWidgetStyle: GraphWidgetStyle
+
+
     // Initialize the Graph.
     let graph: Graph | null
-    let graphWidgetModel: GraphWidgetModel | null = null
 
     // Set up Graph refreshing.
-    $: if ( graph && graphWidgetModel && $graphIdsNeedingViewerRefresh.includes(graph.id) ) {
+    $: if ( graph && $graphIdsNeedingViewerRefresh.includes(graph.id) ) {
         removeGraphIdsNeedingViewerRefresh(graph.id)
         graph = graph // Needed for reactivity.
-        graphWidgetModel.allowZoomAndScrollToFit = true
+        allowZoomAndScrollToFit = true
     }
 
     async function buildAndRefresh() {
@@ -45,7 +49,7 @@
 
         // Open and build the new Graph.
         graph = await addGraph(pThingIds, depth)
-        graphWidgetModel = new GraphWidgetModel(graph)
+        graphWidgetStyle = {...defaultGraphWidgetStyle}
         await markThingsVisited(pThingIds)
 
         // Refresh the Graph viewers.
@@ -58,27 +62,22 @@
 
         buildAndRefresh()
     }
-
-    $: if (graph && graph.lifecycleStatus === "built" && graphWidgetModel) {//////////////////// SHOULD WORK...
-        graphWidgetModel.build()
-    }
-
     
 
     /**
      * Re-Perspect the Graph to a given Thing ID.
      */
     async function rePerspectToThingId(thingId: number) {
-        if (graph && graphWidgetModel) {
+        if (graph) {
             // If the new Perspective Thing is already in the Graph, scroll to center it.
-            graphWidgetModel.allowScrollToThingId = true
-            graphWidgetModel.thingIdToScrollTo = thingId
+            allowScrollToThingId = true
+            thingIdToScrollTo = thingId
             await sleep(300) // Allow for scroll time (since there's no actual feedback from the Portal to `await`).
 
             // Re-Perspect the Graph.
             await graph.setPThingIds([thingId]) // Re-Perspect to this Thing.
             hoveredThingIdStore.set(null) // Clear the hovered-Thing highlighting.
-            graphWidgetModel.allowZoomAndScrollToFit = true
+            allowZoomAndScrollToFit = true
             addGraphIdsNeedingViewerRefresh(graph.id)
             await markThingsVisited(pThingIds)
 
@@ -86,11 +85,10 @@
             graph.history.addEntries([thingId])
         }
     }
-    $: console.log("---------------------------------------------", graphWidgetModel) //////////////////// WHY IS THIS GOING NULL?
 </script>
 
 
-{#if graph && graph.lifecycleStatus === "built" && graphWidgetModel}
+{#if graph && graph.lifecycleStatus === "built"}
     <div class="graph-viewer">
         <!-- Graph-related viewers (Schematic and Settings) -->
         <Collapser
@@ -108,7 +106,9 @@
                     <!-- Graph Settings viewer -->
                     <TabBody>
                         <GraphSettingsViewer
-                            bind:graphWidgetModel
+                            bind:graph
+                            bind:graphWidgetStyle
+                            bind:allowZoomAndScrollToFit
                         />
                     </TabBody>
 
@@ -156,7 +156,10 @@
         <!-- Graph Widget -->
         <div class="graph-widget-container">
             <GraphWidget
-                bind:model={graphWidgetModel}
+                {graphWidgetStyle}
+                bind:allowZoomAndScrollToFit
+                bind:allowScrollToThingId
+                bind:thingIdToScrollTo
                 {rePerspectToThingId}
             />
         </div>
@@ -183,7 +186,8 @@
                     <TabBody>
                         <div class="graph-outline-widget-container">
                             <GraphOutlineWidget
-                                bind:graphWidgetModel
+                                bind:graph
+                                {graphWidgetStyle}
                                 {rePerspectToThingId}
                             />
                         </div>

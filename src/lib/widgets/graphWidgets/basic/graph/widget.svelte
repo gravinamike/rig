@@ -19,20 +19,20 @@
     import { ThingCohortWidget } from "$lib/widgets/graphWidgets"
     
 
+    export let graphWidgetStyle: GraphWidgetStyle
     export let rePerspectToThingId: (thingId: number) => Promise<void>
+    export let allowZoomAndScrollToFit: boolean
+    export let allowScrollToThingId: boolean
+    export let thingIdToScrollTo: number | null
 
 
     // Variables handled by widget controller.
     let graph: Graph
-    let style: GraphWidgetStyle
     let currentSpace: Space | null
     let showPlaneControls: boolean
     let scale: number
     let tweenedScale: Tweened<number>
     let zoomBounds: Rectangle
-    let allowZoomAndScrollToFit: boolean
-    let allowScrollToThingId: boolean
-    let thingIdToScrollTo: number | null
     let trackingMouse: boolean
     let handleMouseMove: (event: MouseEvent) => void
     let handleWheelScroll: (event: WheelEvent) => void
@@ -49,7 +49,7 @@
     {widget}
     {centralAnchor}
     {zoomBoundsDiv}
-    {style}
+    style={graphWidgetStyle}
 
     bind:currentSpace
     bind:showPlaneControls
@@ -71,7 +71,7 @@
     bind:this={widget}
 
     on:mousedown={() => {
-        if (!$relationshipBeingCreatedInfoStore.sourceWidgetModel) trackingMouse = true
+        /*if (!$relationshipBeingCreatedInfoStore.sourceWidgetModel) trackingMouse = true*/
     }}
     on:mouseup={() =>
         trackingMouse = false
@@ -87,7 +87,7 @@
         <div
             class="central-anchor"
             bind:this={centralAnchor}
-            style="scale: { style.animateZoomAndScroll ? tweenedScale : scale };"
+            style="scale: { graphWidgetStyle.animateZoomAndScroll ? tweenedScale : scale };"
         >
 
             <!-- Zoom bounds (a Rectangle that closely hugs the edges of the Graph, defining the target for zooming). -->
@@ -105,7 +105,7 @@
                 <ThingCohortWidget
                     thingCohort={graph.rootCohort}
                     bind:graph
-                    graphWidgetStyle={style}
+                    {graphWidgetStyle}
                     {rePerspectToThingId}
                 />
             {/if}
@@ -128,7 +128,7 @@
     <!-- Space frame. -->
     <SpaceFrameWidget
         bind:graph
-        graphWidgetStyle={style}
+        {graphWidgetStyle}
         {currentSpace}
     />
 </div>

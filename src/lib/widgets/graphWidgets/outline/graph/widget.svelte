@@ -1,11 +1,12 @@
 <script lang="ts">
-    // Import types.
-    import type { GraphWidgetModel } from "$lib/models/widgetModels";
+    import type { Graph } from "$lib/models/constructModels"
 
     // Import widgets.
     import { ThingCohortOutlineWidget } from "$lib/widgets/graphWidgets"
+    import type { GraphWidgetStyle } from "../../basic";
     
-    export let graphWidgetModel: GraphWidgetModel
+    export let graph: Graph
+    export let graphWidgetStyle: GraphWidgetStyle
     export let rePerspectToThingId: (thingId: number) => Promise<void>
 </script>
 
@@ -14,10 +15,10 @@
     class="graph-outline-widget"
 >
     <!-- Root Cohort Widget (from which the rest of the Graph Outline automatically "grows"). -->
-    {#if graphWidgetModel.rootThingCohortWidgetModel}
+    {#if graph.rootCohort}
         <ThingCohortOutlineWidget
-            thingCohortWidgetModel={graphWidgetModel.rootThingCohortWidgetModel}
-            bind:graphWidgetModel
+            thingCohort={graph.rootCohort}
+            {graphWidgetStyle}
             {rePerspectToThingId}
         />
     {/if}
