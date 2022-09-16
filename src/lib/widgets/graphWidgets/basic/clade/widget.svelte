@@ -28,6 +28,10 @@
 
     // Attributes managed by the widget controller.
     let overlapMarginStyleText: string
+
+    // Attributes managed by sub-widgets.
+    let rootThingWidth: number
+    let rootThingHeight: number
 </script>
 
 
@@ -53,6 +57,8 @@
             bind:graph
             {graphWidgetStyle}
             {rePerspectToThingId}
+            bind:thingWidth={rootThingWidth}
+            bind:thingHeight={rootThingHeight}
         />
     <!-- Otherwise, show a Thing-Form Widget. -->
     {:else}
@@ -72,6 +78,8 @@
                 cohort={thingCohort}
                 bind:graph
                 {graphWidgetStyle}
+                thingWidth={rootThingWidth}
+                thingHeight={rootThingHeight}
             />
         {/if}
 

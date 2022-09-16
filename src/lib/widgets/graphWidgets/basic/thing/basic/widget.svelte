@@ -33,13 +33,13 @@
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
     export let rePerspectToThingId: (id: number) => Promise<void>
+    export let thingWidth: number
+    export let thingHeight: number 
 
 
     let planeId: number
     let encapsulatingDepth: number = 0
     let thingSize: number
-    let thingWidth: number
-    let thingHeight: number
     let xYElongation: {x: number, y: number}
     let cohortSize: number = 0
     let thing: Thing
