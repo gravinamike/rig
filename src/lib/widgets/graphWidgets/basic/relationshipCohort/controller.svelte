@@ -12,14 +12,14 @@
     import {
         halfAxisOppositeIds, rotationByHalfAxisId, mirroringByHalfAxisId,
         offsetsByHalfAxisId, relationshipColorByHalfAxisId,
-        zoomBase
+        zoomBase,
+        type HalfAxisId
      } from "$lib/shared/constants"
 
     // Import stores.
     import { storeGraphConstructs, retrieveGraphConstructs, addGraphIdsNeedingViewerRefresh } from "$lib/stores"
 
-    // Import utility and API functions.
-    import { rectOfThingWidgetByThingId } from "$lib/shared/utility"
+    // Import API functions.
     import { updateRelationships } from "$lib/db/clientSide"
     
 
@@ -51,6 +51,8 @@
      * @param {number} stemBottom - The vertical location of the bottom of the Relationship stem (pre-rotation).
      * @param {number} stemTop - The vertical location of the top of the Relationship stem (pre-rotation).
      * @param {boolean} showRelationships - Whether to display the Relationship widgets (besides the stem).
+     * @param {string} relationshipColor - The color of the Relationship widget, determined by the half-axis.
+     * @param {string} sizeOfThingsAlongWidth - The size of a Thing widget along the "width" dimension of its Thing Cohort widget.
      */
     export let cohort: ThingCohort
     export let graph: Graph
@@ -81,6 +83,9 @@
     export let stemBottom: number
     export let stemTop: number
     export let showRelationships: boolean
+    export let relationshipColor: string
+    export let halfAxisId: HalfAxisId
+    export let sizeOfThingsAlongWidth: number
 
     
     /* --------------- Output attributes. --------------- */
@@ -335,6 +340,25 @@
         && cohort.indexOfGrandparentThing !== null
     )
 
+    /**
+     * Half-axis ID.
+     * 
+     * The ID of the half-axis the Relationship Cohort is on. Taken from the
+     * associated Thing Cohort's attribute.
+     */
+    $: halfAxisId = cohort.halfAxisId
+
+    /**
+     * Size of Things along width.
+     * 
+     * This refers to the size of a Thing widget along the "width" dimension of
+     * its Thing Cohort widget, which may be horizontal or vertical depending on
+     * the half-axis.
+     */
+    $: sizeOfThingsAlongWidth =
+        [1, 2].includes(halfAxisId) ? thingWidth :
+        thingHeight
+
     
     /* --------------- Supporting attributes. --------------- */
 
@@ -377,14 +401,6 @@
     $: yOffsetToGrandparentThing =
         cohort.rowOrColumn() === "column" ? offsetToGrandparentThing() :
         0
-    
-    /**
-     * Half-axis ID.
-     * 
-     * The ID of the half-axis the Relationship Cohort is on. Taken from the
-     * associated Thing Cohort's attribute.
-     */
-    $: halfAxisId = cohort.halfAxisId
 
     /**
      * Generation ID.
@@ -474,17 +490,6 @@
      * associated Thing Cohort's attribute (defaults to 0 if there is none).
      */
     $: planeId = cohort.plane?.id || 0
-
-    /**
-     * Size of Things along width.
-     * 
-     * This refers to the size of a Thing widget along the "width" dimension of
-     * its Thing Cohort widget, which may be horizontal or vertical depending on
-     * the half-axis.
-     */
-    $: sizeOfThingsAlongWidth =
-        [1, 2].includes(halfAxisId) ? thingWidth :
-        thingHeight
     
     /**
      * Scale.
@@ -493,6 +498,13 @@
      * exponentially modified by the Graph widget's zoom factor.
      */
     $: scale = zoomBase ** graphWidgetStyle.zoom
+
+    /**
+     * Relationship color.
+     * 
+     * The color of the Relationship widget, determined by the half-axis.
+     */
+    $: relationshipColor = relationshipColorByHalfAxisId[halfAxisId]
 
 
 
@@ -513,24 +525,8 @@
     $: betweenThingSpacing = graphWidgetStyle.betweenThingSpacing
     $: betweenThingOverlap = graphWidgetStyle.betweenThingOverlap
 
-    function getOffsetsOfRelatedThing(member: GenerationMember, scale: number): {x: number, y: number} {
-        // Get location of parent Thing Widget.
-        const parentDomRect = rectOfThingWidgetByThingId(graphWidgetModel.graph.id, cohort.parentThingId as number)
-        const parentRectX = parentDomRect === null ? 0 : parentDomRect.x
-        const parentRectY = parentDomRect === null ? 0 : parentDomRect.y
+    
 
-        // Get posisition of related Thing Widget.
-        const relatedRect = rectOfThingWidgetByThingId(graphWidgetModel.graph.id, (member as Thing).id)
-        const relatedRectX = relatedRect === null ? 0 : relatedRect.x
-        const relatedRectY = relatedRect === null ? 0 : relatedRect.y
-
-        // Get the offset (the difference between the two).
-        const offsetLengthX = (relatedRectX - parentRectX) / scale
-        const offsetLengthY = (relatedRectY - parentRectY) / scale
-        
-        return {x: offsetLengthX, y: offsetLengthY}
-    }
-
-    $: relationshipColor = relationshipColorByHalfAxisId[halfAxisId]
+    
     */
 </script>

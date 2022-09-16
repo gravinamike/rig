@@ -1,11 +1,20 @@
-<script context="module" lang="ts">
-    import { sleep } from "$lib/shared/utility"
-    import { relationshipBeingCreatedInfoStore, enableRelationshipBeingCreated, setRelationshipBeingCreatedDestWidgetModel, hoveredThingIdStore, hoveredRelationshipTarget, inferredRelationshipBeingCreatedDirection, addGraphIdsNeedingViewerRefresh } from "$lib/stores"
-    import { ThingWidgetModel, RelationshipCohortWidgetModel, GraphWidgetModel } from "$lib/models/widgetModels"
-</script>
-
 <script lang="ts">
-    export let relationshipsWidgetModel: RelationshipCohortWidgetModel
+    // Import types.
+    import type { Graph, ThingCohort } from "$lib/models/constructModels";
+
+    // Import utility functions.
+    import { sleep } from "$lib/shared/utility"
+
+    // Import stores.
+    import { 
+        hoveredThingIdStore, hoveredRelationshipTarget,
+        relationshipBeingCreatedInfoStore, enableRelationshipBeingCreated,
+        setRelationshipBeingCreatedDestWidgetModel, inferredRelationshipBeingCreatedDirection,
+        addGraphIdsNeedingViewerRefresh
+    } from "$lib/stores"
+    
+
+    export let cohort: ThingCohort
     export let thingIdOfHoveredRelationship: number | null
     export let stemHovered: boolean
     export let tweenedScale: number
@@ -14,22 +23,25 @@
     export let stemBottom: number
     export let stemTop: number
 
-    export let graphWidgetModel: GraphWidgetModel
+    export let graph: Graph
+    export let relationshipColor: string
 
-    const cohort = relationshipsWidgetModel.cohort
 
-    const ofPerspectiveThing = relationshipsWidgetModel.parentThing && relationshipsWidgetModel.parentThing.address.generationId === 0 ? true : false
+    const ofPerspectiveThing = cohort.parentThing && cohort.parentThing.address.generationId === 0 ? true : false
     $: relationshipsExist = cohort.members.length ? true : false
 
-    $: thingHovered = $hoveredThingIdStore && cohort.members.map(member => typeof member === "object" ? member.id : member).includes($hoveredThingIdStore)
-    $: relationshipHovered = thingIdOfHoveredRelationship && cohort.members.map(member => typeof member === "object" ? member.id : member).includes(thingIdOfHoveredRelationship)
+    $: thingHovered = $hoveredThingIdStore && cohort.members.map(member =>  member.thingId).includes($hoveredThingIdStore)
+    $: relationshipHovered = thingIdOfHoveredRelationship && cohort.members.map(member => member.thingId).includes(thingIdOfHoveredRelationship)
     let stemClicked = false
 
     /*
      * Add a blank Thing Form to the related Cohort.
      */
     async function addThingForm() {
-        const associatedThingCohortWidgetModel = relationshipsWidgetModel.parentThingWidgetModel.childThingCohortWidgetModelByHalfAxisId[cohort.halfAxisId]
+        // Needs complete rebuild.
+
+
+        /*const associatedThingCohortWidgetModel = relationshipsWidgetModel.parentThingWidgetModel.childThingCohortWidgetModelByHalfAxisId[cohort.halfAxisId]
 
         const newThingWidgetModel = new ThingWidgetModel(null, graphWidgetModel, associatedThingCohortWidgetModel)
         await newThingWidgetModel.build()
@@ -37,13 +49,13 @@
             associatedThingCohortWidgetModel.addMemberModel(newThingWidgetModel)
             graphWidgetModel.formActive = true
         }
-        addGraphIdsNeedingViewerRefresh(graphWidgetModel.graph.id)
+        addGraphIdsNeedingViewerRefresh(graph.id)
         await sleep(50)// Allow the Thing Form Widget to render.
         const thingFormTextField = document.getElementById("thing-form-text-field")//// Instead find the ThingForm, and access the field as a property.
-        thingFormTextField?.focus()
+        thingFormTextField?.focus()*/
     }
 
-    $: relatableForCurrentDrag = (
+    $: relatableForCurrentDrag = false/*(
         $relationshipBeingCreatedInfoStore.sourceWidgetModel !== relationshipsWidgetModel.parentThingWidgetModel
         && (
             !$inferredRelationshipBeingCreatedDirection ||
@@ -51,15 +63,19 @@
         )
     ) ?
         true :
-        false
+        false*/
+
+    $: isDragRelateSource = false
+        /*$relationshipBeingCreatedInfoStore.sourceWidgetModel === relationshipsWidgetModel ? true :
+        false*/
 </script>
 
 
 <svg
     class="relationship-stem"
     style="
-        stroke: {relationshipsWidgetModel.relationshipColor};
-        fill: {relationshipsWidgetModel.relationshipColor};
+        stroke: {relationshipColor};
+        fill: {relationshipColor};
     "
     on:click={addThingForm}
 >
@@ -70,15 +86,15 @@
         x1="{midline}" y1="{stemBottom}"
         x2="{midline}" y2="{stemTop}"
         style="stroke-width: {20 / tweenedScale};"
-        on:mouseenter={()=>{stemHovered = true; hoveredRelationshipTarget.set(relationshipsWidgetModel)}}
+        on:mouseenter={()=>{stemHovered = true; /*hoveredRelationshipTarget.set(relationshipsWidgetModel)*/}}
         on:mouseleave={()=>{stemHovered = false; stemClicked = false; hoveredRelationshipTarget.set(null)}}
-        on:mousedown={event=>{stemClicked = true; enableRelationshipBeingCreated(
+        on:mousedown={event=>{stemClicked = true; /*enableRelationshipBeingCreated(
             relationshipsWidgetModel,
             [event.clientX, event.clientY]
-        )}}
+        )*/}}
         on:mouseup={ () => {
             stemClicked = false;
-            if (relatableForCurrentDrag) setRelationshipBeingCreatedDestWidgetModel(relationshipsWidgetModel)
+            /*if (relatableForCurrentDrag) setRelationshipBeingCreatedDestWidgetModel(relationshipsWidgetModel)*/
         } }
     />
 
@@ -86,9 +102,9 @@
     <g
         class="
             stem-image
-            {relationshipsExist || ofPerspectiveThing || (relatableForCurrentDrag && stemHovered) || $relationshipBeingCreatedInfoStore.sourceWidgetModel === relationshipsWidgetModel ? "" : "hidden"}
+            {relationshipsExist || ofPerspectiveThing || (relatableForCurrentDrag && stemHovered) || isDragRelateSource ? "" : "hidden"}
             {stemHovered || relationshipHovered || thingHovered ? "hovered" : ""}
-            {stemClicked || $relationshipBeingCreatedInfoStore.sourceWidgetModel === relationshipsWidgetModel ? "clicked" : ""}
+            {stemClicked || isDragRelateSource ? "clicked" : ""}
         "
     >
         <line

@@ -1,15 +1,18 @@
 <script lang="ts">
-    import type { GenerationMember } from "$lib/models/constructModels"
-    import type { GraphWidgetModel } from "$lib/models/widgetModels"
+    import type { GenerationMember, Graph, ThingCohort } from "$lib/models/constructModels"
 
     import { mirroringByHalfAxisId, type HalfAxisId } from "$lib/shared/constants"
+    import type { GraphWidgetStyle } from "../../graph"
+    import { rectOfThingWidgetByThingId } from "$lib/shared/utility"
 
 
     /**
      * Create a Relationship Widget Model.
      * @param {Object} cohortMemberWithIndex - Object referencing the Relationship and its index in the cohort.
      */
-    export let graphWidgetModel: GraphWidgetModel
+    export let cohort: ThingCohort
+    export let graph: Graph
+    export let graphWidgetStyle: GraphWidgetStyle
     export let scale: number
     export let cohortMemberWithIndex: { index: number, member: GenerationMember }
     export let relationshipsLength: number
@@ -17,6 +20,7 @@
     export let halfAxisId: HalfAxisId
     export let thingHeight: number
     export let thingWidth: number
+    export let sizeOfThingsAlongWidth: number
 
     export let leafGeometry: { bottom: number, top: number, bottomMidline: number, topMidline: number }
 
@@ -47,7 +51,28 @@
     )
 
 
-    $: offsetsOfRelatedThing = relationshipCohortWidgetModel.getOffsetsOfRelatedThing(cohortMemberWithIndex.member, scale)
+
+    function getOffsetsOfRelatedThing(member: GenerationMember, scale: number): {x: number, y: number} {
+        // Get location of parent Thing Widget.
+        const parentDomRect = rectOfThingWidgetByThingId(graph.id, cohort.parentThingId as number)
+        const parentRectX = parentDomRect === null ? 0 : parentDomRect.x
+        const parentRectY = parentDomRect === null ? 0 : parentDomRect.y
+
+        // Get posisition of related Thing Widget.
+        const relatedRect = rectOfThingWidgetByThingId(graph.id, member.thingId)
+        const relatedRectX = relatedRect === null ? 0 : relatedRect.x
+        const relatedRectY = relatedRect === null ? 0 : relatedRect.y
+
+        // Get the offset (the difference between the two).
+        const offsetLengthX = (relatedRectX - parentRectX) / scale
+        const offsetLengthY = (relatedRectY - parentRectY) / scale
+        
+        return {x: offsetLengthX, y: offsetLengthY}
+    }
+
+
+
+    $: offsetsOfRelatedThing = getOffsetsOfRelatedThing(cohortMemberWithIndex.member, scale)
 
     $: offsetAlongLength =
         [1, 2].includes(halfAxisId) ? offsetsOfRelatedThing.y :
@@ -62,10 +87,10 @@
         -mirroringByHalfAxisId[halfAxisId]
 
     $: defaultLeafMidline = (
-        0.5 * relationshipCohortWidgetModel.sizeOfThingsAlongWidth
+        0.5 * sizeOfThingsAlongWidth
         + (
-            relationshipCohortWidgetModel.sizeOfThingsAlongWidth
-            + graphWidgetModel.style.betweenThingSpacing) * cohortMemberWithIndex.index
+            sizeOfThingsAlongWidth
+            + graphWidgetStyle.betweenThingSpacing) * cohortMemberWithIndex.index
     )
 
 </script>

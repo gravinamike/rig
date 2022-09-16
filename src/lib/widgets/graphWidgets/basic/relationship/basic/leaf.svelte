@@ -1,21 +1,29 @@
 <script context="module" lang="ts">
-    import type { Thing, GenerationMember } from "$lib/models/constructModels"
-    import type { RelationshipWidgetModel } from "$lib/models/widgetModels"
+    import type { Direction, Thing, GenerationMember, Graph } from "$lib/models/constructModels"
     import { hoveredThingIdStore, storeGraphConstructs, addGraphIdsNeedingViewerRefresh } from "$lib/stores"
     import { DirectionWidget } from "$lib/widgets/graphWidgets"
     import { updateRelationships } from "$lib/db/clientSide"
 </script>
 
 <script lang="ts">
+import type { HalfAxisId } from "$lib/shared/constants";
+    import type { GraphWidgetStyle } from "../../graph";
 
-    export let relationshipWidgetModel: RelationshipWidgetModel
+
+    export let graph: Graph
     export let thingIdOfHoveredRelationship: number | null
     export let tweenedScale: number
 
     export let leafGeometry: { bottom: number, top: number, bottomMidline: number, topMidline: number }
     export let cohortMemberWithIndex: { index: number, member: GenerationMember }
+    export let relationshipColor: string
+    export let mirroring: -1 |1
+    export let rotation: number
+    export let direction: Direction
+    export let halfAxisId: HalfAxisId
+    export let graphWidgetStyle: GraphWidgetStyle
 
-    $: thing = cohortMemberWithIndex.member as Thing
+    $: thing = cohortMemberWithIndex.member.thing as Thing
     let leafHovered = false
     $: thingHovered = thing.id === $hoveredThingIdStore
     $: relationshipHovered = thing.id === thingIdOfHoveredRelationship
@@ -37,8 +45,8 @@
             ])
             if (relationshipsUpdated) {
                 await storeGraphConstructs<Thing>("Thing", sourceThingId, true)
-                await relationshipWidgetModel.relationshipCohortWidgetModel.graphWidgetModel.graph.build()
-                addGraphIdsNeedingViewerRefresh(relationshipWidgetModel.relationshipCohortWidgetModel.graphWidgetModel.graph.id)
+                await graph.build()
+                addGraphIdsNeedingViewerRefresh(graph.id)
             }
 
         }
@@ -55,8 +63,8 @@
     <svg
         style="
             height: 100%; width: 100%;
-            stroke: {relationshipWidgetModel.relationshipCohortWidgetModel.relationshipColor};
-            fill: {relationshipWidgetModel.relationshipCohortWidgetModel.relationshipColor};
+            stroke: {relationshipColor};
+            fill: {relationshipColor};
         "
     >
 
@@ -107,21 +115,21 @@
                 transform-origin: calc(right - {1.5 / tweenedScale}px) 50%;
                 transform:
                     translate(-100%, -50%)
-                    scaleY({relationshipWidgetModel.relationshipCohortWidgetModel.mirroring})
+                    scaleY({mirroring})
                     rotate({
-                        -relationshipWidgetModel.relationshipCohortWidgetModel.rotation * relationshipWidgetModel.relationshipCohortWidgetModel.mirroring
+                        -rotation * mirroring
                         + (
-                            relationshipWidgetModel.relationshipCohortWidgetModel.halfAxisId === 3 ? -90 :
-                            relationshipWidgetModel.relationshipCohortWidgetModel.halfAxisId === 4 ? 90 :
+                            halfAxisId === 3 ? -90 :
+                            halfAxisId === 4 ? 90 :
                             0
                         )
                     }deg);
             "
         >
             <DirectionWidget
-                direction={relationshipWidgetModel.relationshipCohortWidgetModel.direction}
-                halfAxisId={relationshipWidgetModel.relationshipCohortWidgetModel.halfAxisId}
-                graphWidgetModel={relationshipWidgetModel.relationshipCohortWidgetModel.graphWidgetModel}
+                direction={direction}
+                halfAxisId={halfAxisId}
+                {graphWidgetStyle}
                 optionClickedFunction={(direction, _, __) => {
                     if (direction?.id) changeRelationshipDirection(direction.id)
                 }}

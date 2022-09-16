@@ -1,6 +1,5 @@
 <script context="module" lang="ts">
     import type { Thing, GenerationMember } from "$lib/models/constructModels"
-    import type { RelationshipWidgetModel } from "$lib/models/widgetModels"
     import { retrieveGraphConstructs, addGraphIdsNeedingViewerRefresh, relationshipBeingCreatedInfoStore, hoveredThingIdStore, hoveredRelationshipTarget } from "$lib/stores"
     import { XButton } from "$lib/widgets/layoutWidgets"
 </script>
@@ -9,21 +8,21 @@
     export let thingIdOfHoveredRelationship: number | null
     export let tweenedScale: number
 
-    export let relationshipWidgetModel: RelationshipWidgetModel
     export let midline: number
     export let stemTop: number
     export let leafGeometry: { bottom: number, top: number, bottomMidline: number, topMidline: number }
     export let cohortMemberWithIndex: { index: number, member: GenerationMember }
+    export let relationshipColor: string
 
 
     let fanSegmentHovered = false
-    $: thing = cohortMemberWithIndex.member as Thing
+    $: thing = cohortMemberWithIndex.member.thing as Thing
     $: thingHovered = thing.id === $hoveredThingIdStore
     $: relationshipHovered = thing.id === thingIdOfHoveredRelationship
     let fanSegmentClicked = false
 
     async function deleteRelationship() {
-        const graph = (cohortMemberWithIndex.member as Thing).graph
+        const graph = (cohortMemberWithIndex.member.thing as Thing).graph
         const sourceThingId = thing.parentThing?.id || null
         const sourceThing = thing?.parentThing || null
         const destThingId = thingIdOfHoveredRelationship
@@ -55,13 +54,13 @@
 
     $: sourceThingId = thing.parentThing?.id || null
     $: destThingId = thing.id
-    $: dragSourceThingId = $relationshipBeingCreatedInfoStore.sourceWidgetModel ?
-        (
+    $: dragSourceThingId = null
+        /*$relationshipBeingCreatedInfoStore.sourceWidgetModel ? (
             $relationshipBeingCreatedInfoStore.sourceWidgetModel.kind === "thingWidgetModel" ?
                 $relationshipBeingCreatedInfoStore.sourceWidgetModel.thingId as number :
                 $relationshipBeingCreatedInfoStore.sourceWidgetModel.parentThingWidgetModel.thingId as number
         ) :
-        null
+        null*/
     $: dragDestThingId = $hoveredRelationshipTarget ?
         (
             $hoveredRelationshipTarget.kind === "thingWidgetModel" ?
@@ -85,8 +84,8 @@
 <svg
     class="relationship-fan-segment"
     style="
-        stroke: {relationshipWidgetModel.relationshipCohortWidgetModel.relationshipColor};
-        fill: {relationshipWidgetModel.relationshipCohortWidgetModel.relationshipColor};
+        stroke: {relationshipColor};
+        fill: {relationshipColor};
     "
     on:mouseenter={()=>{
         thingIdOfHoveredRelationship = thing.id || null

@@ -10,6 +10,7 @@
 
     // Import widget controller.
     import RelationshipCohortWidgetController from "./controller.svelte"
+    import type { HalfAxisId } from "$lib/shared/constants";
     
 
     /**
@@ -46,6 +47,9 @@
     let stemBottom: number
     let stemTop: number
     let showRelationships: boolean
+    let relationshipColor: string
+    let halfAxisId: HalfAxisId
+    let sizeOfThingsAlongWidth: number
 
     // Attributes managed by sub-widgets.
     let thingIdOfHoveredRelationship: number | null = null
@@ -85,6 +89,9 @@
     bind:stemBottom
     bind:stemTop
     bind:showRelationships
+    bind:relationshipColor
+    bind:halfAxisId
+    bind:sizeOfThingsAlongWidth
 />
 
 
@@ -123,9 +130,9 @@
                 <DirectionWidget
                     {direction}
                     halfAxisId={cohort.halfAxisId}
-                    {graphWidgetModel}
+                    {graphWidgetStyle}
                     optionClickedFunction={(direction, _, __) => {
-                        if (direction) changeRelationshipsDirection(direction.id)
+                        if (direction?.id) changeRelationshipsDirection(direction.id)
                     }}
                 />
             </div>
@@ -143,27 +150,38 @@
             <!-- Relationship stem. -->
             {#if cohort.indexOfGrandparentThing === null}
                 <RelationshipStemWidget
-                    relationshipsWidgetModel={model}
+                    {cohort}
                     {thingIdOfHoveredRelationship}
                     bind:stemHovered
-                    tweenedScale={tweenedScale}
+                    tweenedScale={$tweenedScale}
                     {midline}
                     {stemBottom}
                     {stemTop}
-                    bind:graphWidgetModel
+                    bind:graph
+                    {relationshipColor}
                 />
             {/if}
 
             <!-- Relationship image. -->    
             {#if showRelationships}
-                {#each model.relationshipWidgetModels as relationshipWidgetModel}
-                    {#if cohort.indexOfGrandparentThing !== relationshipWidgetModel.cohortMemberWithIndex.index}<!-- Don't re-draw the existing Relationship to a parent Thing. -->                
+                {#each Array.from(cohort.members.entries()) as [index, member]}
+                    {#if cohort.indexOfGrandparentThing !== index}<!-- Don't re-draw the existing Relationship to a parent Thing. -->                
                         <RelationshipWidget
-                            model={relationshipWidgetModel}
+                            {cohort}
+                            {graph}
                             {midline}
                             {stemTop}
                             {thingIdOfHoveredRelationship}
-                            {graphWidgetModel}
+                            {graphWidgetStyle}
+                            {halfAxisId}
+                            {thingWidth}
+                            {thingHeight}
+                            {relationshipsLength}
+                            {sizeOfThingsAlongWidth}
+                            {relationshipColor}
+                            {mirroring}
+                            {rotation}
+                            {direction}
                         />
                     {/if}
                 {/each}

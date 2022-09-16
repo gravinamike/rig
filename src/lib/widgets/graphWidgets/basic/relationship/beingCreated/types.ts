@@ -3,7 +3,7 @@ import type { ThingWidgetModel, RelationshipCohortWidgetModel } from "$lib/model
 
 
 export interface RelationshipBeingCreatedInfo{
-    sourceWidgetModel: ThingWidgetModel | RelationshipCohortWidgetModel | null,
+    sourceT: ThingWidgetModel | RelationshipCohortWidgetModel | null,
     destWidgetModel: ThingWidgetModel | RelationshipCohortWidgetModel | null,
     startPosition: [number, number],
     endPosition: [number, number],
