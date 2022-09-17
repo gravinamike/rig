@@ -1,7 +1,6 @@
 <script lang="ts">
     // Type imports.
-    import type { Space, Thing } from "$lib/models/constructModels"
-    import type { GraphWidgetModel, ThingWidgetModel } from "$lib/models/widgetModels"
+    import type { Graph, Space, Thing } from "$lib/models/constructModels"
 
     // Graph widget imports.
     import { planePadding } from "$lib/shared/constants"
@@ -9,26 +8,28 @@
 
     import { createNewRelatedThing } from "$lib/db/clientSide"
     import { storeGraphConstructs, addGraphIdsNeedingViewerRefresh } from "$lib/stores"
+    import type { GraphWidgetStyle } from "../../basic";
 
-    export let thingWidgetModel: ThingWidgetModel
-    export let graphWidgetModel: GraphWidgetModel
+    export let thing: Thing
+    export let graph: Graph
+    export let graphWidgetStyle: GraphWidgetStyle
 
 
     let textField: HTMLTextAreaElement
 
     // Variables situating the Thing in its spatial context (Half-Axis, Plane)
-    $: halfAxisId = thingWidgetModel.thing?.parentCohort.halfAxisId || 0
+    $: halfAxisId = thing?.parentCohort.halfAxisId || 0
     $: planeId = [7, 8].includes(halfAxisId) ?
-        thingWidgetModel.thing?.parentCohort.parentThing?.parentCohort.plane?.id || 0 :
-        thingWidgetModel.thing?.parentCohort.plane?.id || 0
-    $: distanceFromFocalPlane = planeId - graphWidgetModel.graph.planes.focalPlaneId
+        thing?.parentCohort.parentThing?.parentCohort.plane?.id || 0 :
+        thing?.parentCohort.plane?.id || 0
+    $: distanceFromFocalPlane = planeId - graph.planes.focalPlaneId
     
     // Variables dealing with encapsulation (Things containing other Things).
-    $: encapsulatingDepth = thingWidgetModel.thing?.parentCohort.encapsulatingDepth || 0
+    $: encapsulatingDepth = thing?.parentCohort.encapsulatingDepth || 0
     $: encapsulatingPadding = encapsulatingDepth >= 0 ? 40 : 20
 
     /* Variables dealing with Thing sizing. */
-    $: elongation = thingWidgetModel.thing?.parentCohort.axialElongation || 1
+    $: elongation = thing?.parentCohort.axialElongation || 1
     $: elongationCategory = (
         [1, 2, 3, 4].includes(halfAxisId) ?
         ( [1, 2].includes(halfAxisId) ? "vertical" : "horizontal" ) :
@@ -45,30 +46,30 @@
     }
 
     // Variables dealing with Thing sizing.
-    $: cohortSize = thingWidgetModel.thing?.parentCohort.members.length || 1
-    $: thingSize = graphWidgetModel.style.thingSize + planePadding * planeId + encapsulatingPadding * encapsulatingDepth
+    $: cohortSize = thing?.parentCohort.members.length || 1
+    $: thingSize = graphWidgetStyle.thingSize + planePadding * planeId + encapsulatingPadding * encapsulatingDepth
     $: thingWidth = thingSize * XYElongation.x
     $: thingHeight = encapsulatingDepth >= 0 ? thingSize * XYElongation.y : thingSize * XYElongation.y / cohortSize - 2
     
 
     async function submit() {
-        const parentThingId = ((thingWidgetModel.parentThingWidgetModel as ThingWidgetModel).thingId as number)
-        const space = (thingWidgetModel.thing?.parentCohort.parentThing as Thing).space as Space
+        const parentThingId = thing.parentThing?.id as number
+        const space = (thing.parentCohort.parentThing as Thing).space as Space
         const directionId = space.directionIdByHalfAxisId[halfAxisId] as number
         const text = textField.value
 
         const newRelatedThingCreated = await createNewRelatedThing(parentThingId, directionId, text)
         if (newRelatedThingCreated) {
             await storeGraphConstructs<Thing>("Thing", parentThingId, true)
-            await graphWidgetModel.graph.build()
-            addGraphIdsNeedingViewerRefresh(graphWidgetModel.graph.id)
+            await graph.build()
+            addGraphIdsNeedingViewerRefresh(graph.id)
         }
     }
 
     async function cancel() {
-        if (thingWidgetModel.thing) thingWidgetModel.thing.parentCohort.removeMember(thingWidgetModel.thing)
-        graphWidgetModel.formActive = false
-        addGraphIdsNeedingViewerRefresh(graphWidgetModel.graph.id)
+        //thing.parentCohort.removeMember(thing)
+        //graphWidgetModel.formActive = false
+        addGraphIdsNeedingViewerRefresh(graph.id)
     }    
 </script>
 

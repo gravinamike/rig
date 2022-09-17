@@ -1,10 +1,10 @@
 <script lang="ts">
     import type { HalfAxisId } from "$lib/shared/constants"
-    import type { ThingCohort, Thing } from "$lib/models/constructModels"
-    import type { GraphWidgetModel} from "$lib/models/widgetModels"
+    import type { Thing } from "$lib/models/constructModels"
 
-    import { relationshipBeingCreatedInfoStore } from "$lib/stores"
+    //import { relationshipBeingCreatedInfoStore } from "$lib/stores"
     import { ThingBaseWidgetController } from "../base"
+    import type { GraphWidgetStyle } from "../../graph";
 
     /**
      * Create a Thing Widget Model.
@@ -12,7 +12,7 @@
      * @param {GraphWidgetModel} graphWidgetModel - The model of the Graph that the widget is in.
      */
     export let thingId: number
-    export let graphWidgetModel: GraphWidgetModel
+    export let graphWidgetStyle: GraphWidgetStyle
 
     export let planeId: number
     export let encapsulatingDepth: number
@@ -57,7 +57,7 @@
      * This attribute indicates whether the Thing is a valid target for relating
      * for the current drag-relate operation.
      */
-    $: relatableForCurrentDrag =
+    $: relatableForCurrentDrag = false/*
         // The flag is true if...
         (
             // ...there is a drag-relate in progress...
@@ -69,14 +69,14 @@
             )
         ) ?
             true :
-            false
+            false*/
 </script>
 
 
 
 <ThingBaseWidgetController
     {thingId}
-    {graphWidgetModel}
+    {graphWidgetStyle}
 
     bind:planeId
     bind:encapsulatingDepth

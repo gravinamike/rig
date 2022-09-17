@@ -1,28 +1,37 @@
-<script context="module" lang="ts">
-    // Type imports.
-    import type { GraphWidgetModel, RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
-</script>
-
 <script lang="ts">
+    import type { Graph, Direction, ThingCohort } from "$lib/models/constructModels"
+    import type { HalfAxisId } from "$lib/shared/constants"
     import { DirectionWidget } from "$lib/widgets/graphWidgets"
-    export let relationshipsWidgetModel: RelationshipCohortWidgetModel
-    export let graphWidgetModel: GraphWidgetModel
+    import type { GraphWidgetStyle } from "../graph";
+
+    import RelationshipCohortWidgetController from "./controller.svelte"
 
 
-    /* Basic Widget information. */
-    
-    // Information related to the Relationships Widget's place in the Graph.
-    const halfAxisId = relationshipsWidgetModel.halfAxisId
+    export let thingCohort: ThingCohort
+    export let graph: Graph
+    export let graphWidgetStyle: GraphWidgetStyle
 
-    // Information related to Direction.
-    const direction = relationshipsWidgetModel.direction
+
+    // Attributes managed by widget controller.
+    let direction: Direction
+    let halfAxisId: HalfAxisId
 </script>
+
+
+<!-- Widget controller. -->
+<RelationshipCohortWidgetController
+    cohort={thingCohort}
+    {graphWidgetStyle}
+    {graph}
+    
+    bind:direction
+    bind:halfAxisId
+/>
 
 
 <!-- Relationships Outline Widget. -->
 <div
     class="relationships-outline-widget"
-    
 />
 
 <!-- Direction text. -->
@@ -30,7 +39,7 @@
     <DirectionWidget
         {direction}
         {halfAxisId}
-        {graphWidgetModel}
+        {graphWidgetStyle}
         optionClickedFunction={(direction, _, option) => {console.log(direction, option)}}
     />
 </div>

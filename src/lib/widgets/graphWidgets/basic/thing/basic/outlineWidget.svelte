@@ -1,7 +1,7 @@
 <script lang="ts">
     /* Type imports. */
-    import type { Thing } from "$lib/models/constructModels"
-    import type { GraphWidgetModel, ThingWidgetModel } from "$lib/models/widgetModels"
+    import type { Graph, Thing } from "$lib/models/constructModels"
+    import type { HalfAxisId } from "$lib/shared/constants"
 
     /* Store imports. */
     import {
@@ -15,6 +15,9 @@
     /* Widget imports. */
     import { ThingDetailsWidget } from "$lib/widgets/detailsWidgets"
     import { XButton, ConfirmDeleteBox } from "$lib/widgets/layoutWidgets"
+    import type { GraphWidgetStyle } from "../../graph";
+
+    import ThingWidgetController from "./controller.svelte"
 
 
     /**
@@ -22,37 +25,46 @@
      * @param  {Graph} graph - The Graph that the Thing is in.
      * @param  {(thingId: number) => Promise<void>} rePerspectToThingId - A function that re-perspects the Graph to a given Thing ID.
      */
-    export let thingWidgetModel: ThingWidgetModel
-    export let graphWidgetModel: GraphWidgetModel
+    export let thingId: number
+    export let graph: Graph
+    export let graphWidgetStyle: GraphWidgetStyle
     export let rePerspectToThingId: (id: number) => Promise<void>
 
 
-    /* Basic Thing IDs and models. */
-    $: thingId = thingWidgetModel.thingId as number
-    $: thingWidgetId = thingWidgetModel.thingWidgetId
-    $: thing = thingWidgetModel.thing as Thing
-    
-    /* Variables dealing with Thing sizing. */
-    $: elongationCategory = thingWidgetModel.elongationCategory
-    $: cohortSize = thingWidgetModel.cohortSize
-    $: thingWidth = thingWidgetModel.thingWidth
-    $: thingHeight = thingWidgetModel.thingHeight
+    let planeId: number
+    let encapsulatingDepth: number = 0
+    let thingSize: number
+    let xYElongation: {x: number, y: number}
+    let cohortSize: number = 0
+    let thing: Thing
+    let halfAxisId: HalfAxisId
+    let elongationCategory: "vertical" | "horizontal" | "neutral"
+    let thingWidgetId: string
+    let isEncapsulating: boolean
+    let relatableForCurrentDrag: boolean
+    let thingWidth: number
+    let thingHeight: number 
 
-    /* Variables dealing with encapsulation (Things containing other Things). */
-    $: isEncapsulating = thingWidgetModel.isEncapsulating
-    $: encapsulatingDepth = thingWidgetModel.encapsulatingDepth
+
+
+
+
+
+    $: thingWidgetId = `graph#${ thing.address.graph.id }-thing#${ thingId }`
+    
+
+
     
     /* Variables dealing with visual formatting of the Thing itself (color, opacity, outline, etc.). */
     let isHoveredWidget = false
     $: isHoveredThing = thingId === $hoveredThingIdStore
-    $: relationshipBeingCreated = $relationshipBeingCreatedInfoStore.sourceWidgetModel ? true : false
-    $: relatableForCurrentDrag = thingWidgetModel.relatableForCurrentDrag($relationshipBeingCreatedInfoStore)
+    $: relationshipBeingCreated = false/*$relationshipBeingCreatedInfoStore.sourceWidgetModel ? true : false*/
     $: highlighted = isHoveredThing && !(relationshipBeingCreated && !relatableForCurrentDrag) ? true : false
 
     /* Variables dealing with visual formatting of the Thing's text. */
     let textFontSize = encapsulatingDepth >= 0 ?
-        graphWidgetModel.style.thingTextSize :
-        graphWidgetModel.style.thingTextSize / Math.log2(cohortSize)
+        graphWidgetStyle.thingTextSize :
+        graphWidgetStyle.thingTextSize / Math.log2(cohortSize)
 
     /* Variables dealing with associated components. */
     const showContent = false // Content is in development - so `showContent` will eventually be a variable.
@@ -70,10 +82,10 @@
      * Complete a delete operation after it has been confirmed.
      */
      async function completeDelete() {
-        await graphWidgetModel.graph.deleteThingById(thingId)
+        await graph.deleteThingById(thingId)
         await unstoreGraphConstructs("Thing", thingId)
 
-        const reverseHistory = graphWidgetModel.graph.history._entries.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+        const reverseHistory = graph.history._entries.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
         for (const historyEntry of reverseHistory) {
             if (historyEntry.thingId !== thingId && graphConstructInStore("Thing", historyEntry.thingId)) {
                 rePerspectToThingId(historyEntry.thingId)
@@ -97,36 +109,62 @@
 </script>
 
 
+
+
+
+<ThingWidgetController
+    {thingId}
+    {graphWidgetStyle}
+
+    bind:planeId
+    bind:encapsulatingDepth
+    bind:thingSize
+    bind:thingWidth
+    bind:thingHeight
+    bind:xYElongation
+    bind:cohortSize
+
+    bind:thingWidgetId
+    bind:thing
+    bind:halfAxisId
+    bind:elongationCategory
+    bind:isEncapsulating
+    bind:relatableForCurrentDrag
+/>
+
+
+
+
 <!-- Thing Widget. -->
 <div
     id="{thingWidgetId}"
     class="box thing-outline-widget" class:highlighted
     style="
-        border-radius: { thingWidgetModel.childThingCohortWidgetModels.length ? "10px 10px 0 0" : "10px" };
+        border-radius: { thing.childThingCohorts.length ? "10px 10px 0 0" : "10px" };
     "
 
     on:mouseenter={()=>{
         hoveredThingIdStore.set(thingId)
-        isHoveredWidget = true, hoveredRelationshipTarget.set(thingWidgetModel)
+        isHoveredWidget = true/*, hoveredRelationshipTarget.set(thingWidgetModel)*/
     }}
     on:mouseleave={()=>{
         hoveredThingIdStore.set(null)
         isHoveredWidget = false
         confirmDeleteBoxOpen = false, hoveredRelationshipTarget.set(null)
     }}
-    on:mousedown={ event => {if (event.button === 0) {
+    on:mousedown={ event => {if (event.button === 0) {/*
         enableRelationshipBeingCreated(
             thingWidgetModel,
             [event.clientX, event.clientY]
-        )
+        )*/
     }}}
-    on:click={ () => {if ($relationshipBeingCreatedInfoStore.sourceWidgetModel === null) rePerspectToThingId(thingId) } }
-    on:mouseup={ () => {
+    on:click={ () => {/*if ($relationshipBeingCreatedInfoStore.sourceWidgetModel === null) rePerspectToThingId(thingId)*/ } }
+    on:mouseup={ () => {/*
         if (relatableForCurrentDrag) {
             setRelationshipBeingCreatedDestWidgetModel(thingWidgetModel)
         } else {
             disableRelationshipBeingCreated()
-        }
+        }*/
     } }
     on:contextmenu|preventDefault={openCommandPalette}
 >
@@ -144,7 +182,7 @@
             class:hide-content={!showContent}
             style="width: 100%; font-size: {textFontSize}px;"
         >
-            {thingWidgetModel.text}
+            {thing.text}
         </div>
     </div>
 

@@ -1,7 +1,4 @@
-<script lang="ts">
-    // Graph construct imports.
-    import type { ThingCohortWidgetModel } from "$lib/widgets/graphWidgets/basic/thingCohort"
-    
+<script lang="ts">    
     // Constant imports.
     import { relationshipColorByHalfAxisId } from "$lib/shared/constants"
 
@@ -9,15 +6,16 @@
     import { hexToRgba } from "$lib/shared/utility"
 
     // Graph widget imports.
-    import { ThingOutlineWidget, ThingOutlineFormWidget, RelationshipsOutlineWidget, ThingCohortOutlineWidget } from "$lib/widgets/graphWidgets"
+    import { ThingOutlineWidget, ThingOutlineFormWidget, RelationshipCohortOutlineWidget, ThingCohortOutlineWidget } from "$lib/widgets/graphWidgets"
     import type { GraphWidgetStyle } from "../../basic";
 
     // Import widget controller.
     import CladeWidgetController from "./controller.svelte"
-    import type { Thing, ThingCohort } from "$lib/models/constructModels";
+    import type { Graph, Thing, ThingCohort } from "$lib/models/constructModels";
 
 
     export let rootThing: Thing
+    export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
     export let rePerspectToThingId: (id: number) => Promise<void>
     
@@ -26,7 +24,7 @@
     $: thingCohorts = rootThing.childThingCohorts
 
 
-    // Cohort Widget Models are ordered in a specific way:
+    // Thing Cohorts are ordered in a specific way:
     // 1. First those on the "Cartesian" half-axes, from top to bottom and left to right,
     // 2. Then those on the other half-axes,
     // 3. Then all those not on a half-axis.
@@ -66,8 +64,6 @@
     
 
 
-
-    $: relationshipWidgetModelsByHalfAxisId = thingWidgetModel.relationshipsWidgetModelsByHalfAxisId
 
     $: expanded = (
         thingCohorts.length
@@ -113,18 +109,21 @@
     class:has-children={thingCohorts.length}
     style="box-shadow: 5px 5px 10px 2px {hexToRgba(shadowColor, 0.333)};"
 >
+
     {#if showCladeRootThing}
         {#if rootThing}
             <ThingOutlineWidget
-                {thingWidgetModel}
-                bind:graphWidgetStyle
+                thingId={rootThing.id}
+                {graph}
+                {graphWidgetStyle}
                 {rePerspectToThingId}
             />
         {:else}
             <ThingOutlineFormWidget
-                {thingWidgetModel}
-                bind:graphWidgetStyle
-            />
+                thing={rootThing}
+                bind:graph
+                {graphWidgetStyle}
+            /><!-- Root Thing needs to be replaced with some kind of placeholder "Form" Thing. -->
         {/if}
     {/if}
 
@@ -160,9 +159,10 @@
                         class:expanded
                         class:has-children={thingCohort.members.length}
                     >
-                        <RelationshipsOutlineWidget
-                            relationshipsWidgetModel={relationshipWidgetModelsByHalfAxisId[thingCohort.halfAxisId]}
-                            bind:graphWidgetStyle
+                        <RelationshipCohortOutlineWidget
+                            {thingCohort}
+                            bind:graph
+                            {graphWidgetStyle}
                         />
                     </div>
                 {/if}

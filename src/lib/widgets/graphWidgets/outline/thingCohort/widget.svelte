@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { Graph, ThingCohort } from "$lib/models/constructModels";
     import type { GraphWidgetStyle } from "../../basic";
-    import { CladeOutlineWidget, ThingOutlineAlreadyRenderedWidget } from "$lib/widgets/graphWidgets/"
+    import { CladeOutlineWidget, ThingOutlineAlreadyRenderedWidget } from "$lib/widgets/graphWidgets"
 
     /**
      * @param  {ThingCohort} thingCohort - The Thing Cohort used to set up this Widget.
@@ -31,6 +31,7 @@
             {:else if cohortMember.thing}
                 <CladeOutlineWidget
                     rootThing={cohortMember.thing}
+                    {graph}
                     {graphWidgetStyle}
                     {rePerspectToThingId}
                 />
