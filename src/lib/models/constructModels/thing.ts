@@ -4,7 +4,6 @@ import type { HalfAxisId } from "$lib/shared/constants"
 import { oddHalfAxisIds } from "$lib/shared/constants"
 import { graphConstructInStore, retrieveGraphConstructs } from "$lib/stores"
 import { Graph, Space, Note, Folder, Relationship, NoteToThing, FolderToThing, ThingCohort } from "$lib/models/constructModels"
-import type ThingSearchboxViewer from "$lib/viewers/navViewers/thingSearchboxViewer.svelte"
 
 
 type ThingAddress = {
@@ -19,6 +18,8 @@ type ThingAddress = {
  * Thing model.
  */
 export class Thing {
+    kind = "thing"
+
     dbModel: ThingDbModel | null
 
     id: number
@@ -234,7 +235,7 @@ export class Thing {
             generationId: this.parentCohort.address.generationId,
             parentThingId: this.parentCohort.address.parentThingId,
             halfAxisId: this.parentCohort.halfAxisId,
-            indexInCohort: this.parentCohort.indexOfMember(this) as number
+            indexInCohort: this.parentCohort.indexOfMemberById(this.id) as number
         }
         return address
     }

@@ -1,8 +1,0 @@
-export * from "./clade"
-export *  from "./graph"
-export * from "./relationship"
-export * from "./relationshipCohort"
-export * from "./thing"
-export *  from "./thingCohort"
-export { default as DirectionWidget } from "./direction.svelte"
-export { default as OffAxisRelationsWidget } from "./offAxisRelations.svelte"

@@ -1,13 +1,14 @@
 <script lang="ts">
-    import type { GraphWidgetModel, ThingWidgetModel } from "$lib/models/widgetModels"
     import type { SearchOption } from "$lib/widgets/navWidgets/searchWidget"
     import {
-        setRelationshipBeingCreatedDestWidgetModel, disableRelationshipBeingCreated, remoteRelatingInfoStore, disableRemoteRelating, relationshipBeingCreatedInfoStore
+        setRelationshipBeingCreatedDestThingId, disableRelationshipBeingCreated, remoteRelatingInfoStore, disableRemoteRelating, relationshipBeingCreatedInfoStore
     } from "$lib/stores"
     import { RemoteSelectingWidget } from "$lib/widgets/dialogWidgets"
+    import type { Graph } from "$lib/models/constructModels"
+    import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets";
 
 
-    let graphWidgetModel: GraphWidgetModel | null = null
+    let graph: Graph | null = null
 
     function handleEscape(event: KeyboardEvent) {
         if (event.key === "Escape") cancel()
@@ -25,25 +26,22 @@
             null
         )
 
-        const relatableForCurrentDrag = (
-            // There is a drag-relate in progress,
-            $remoteRelatingInfoStore.sourceWidgetModel
-            // and the source of the drag is not *this* Thing.
-            && !(
-                $remoteRelatingInfoStore.sourceWidgetModel.kind === "thingWidgetModel"
-                && $remoteRelatingInfoStore.sourceWidgetModel.thingId === destThingId
-            )
-        ) ?
-            true :
+        const relatableForCurrentDrag =
+            (
+                // There is a drag-relate in progress,
+                $remoteRelatingInfoStore.sourceThingId
+                // and the source of the drag is not *this* Thing.
+                && $remoteRelatingInfoStore.sourceThingId !== destThingId
+            ) ? true :
             false
 
         if (
             destThingId
             && relatableForCurrentDrag
-            && graphWidgetModel?.rootThingCohortWidgetModel?.cohort.members[0]
+            && graph?.rootCohort?.members[0]
         ) {
-            setRelationshipBeingCreatedDestWidgetModel(
-                graphWidgetModel.rootThingCohortWidgetModel?.memberModels[0] as ThingWidgetModel
+            setRelationshipBeingCreatedDestThingId(
+                graph.rootCohort.members[0].thingId
             )
         }
     }
@@ -55,7 +53,7 @@
 />
 
 
-{#if graphWidgetModel && $remoteRelatingInfoStore.sourceWidgetModel && !$relationshipBeingCreatedInfoStore.destWidgetModel }
+{#if graph && $remoteRelatingInfoStore.sourceThingId && !$relationshipBeingCreatedInfoStore.destThingId}
     <div
         class="disabled-background"
         style="position: absolute; left: 0px; top: 0px; width: 100%; height: 100%; z-index: 1; background-color: grey; opacity: 0.5;"
@@ -68,7 +66,6 @@
         on:click|stopPropagation
     >
         <RemoteSelectingWidget
-            bind:graphWidgetModel
             {submitMethod}
         /> 
     </div>

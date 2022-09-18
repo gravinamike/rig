@@ -1,1 +1,0 @@
-export { default as GraphOutlineWidget } from "./widget.svelte"

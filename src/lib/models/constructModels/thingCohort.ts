@@ -1,6 +1,7 @@
-import type { Space, Graph, Generation, GenerationMember, Plane, Thing } from "$lib/models/constructModels"
+import type { Direction, Space, Graph, Generation, GenerationMember, Plane, Thing } from "$lib/models/constructModels"
 
 import { offsetsByHalfAxisId, type HalfAxisId } from "$lib/shared/constants"
+import { retrieveGraphConstructs } from "$lib/stores"
 
 
 export type CohortAddress = {
@@ -24,7 +25,7 @@ export class ThingCohort {
     constructor(address: CohortAddress, members: GenerationMember[]) {
         this.address = address
         this.members = members
-        for (const member of members) if (typeof member === "object") member.parentCohort = this
+        for (const member of members) if (member.thing) member.thing.parentCohort = this
 
         // Plane.
         let planeId: number
@@ -64,8 +65,8 @@ export class ThingCohort {
         return this.address.parentThingId || null
     }
 
-    indexOfMember(member: GenerationMember): number | null {
-        const index = this.members.indexOf(member)
+    indexOfMemberById(thingId: number): number | null {
+        const index = this.members.findIndex( member => member.thingId === thingId )
         const output = index !== -1 ? index : null
         return output
     }
@@ -74,7 +75,7 @@ export class ThingCohort {
         const grandparentThingId = this.parentCohort()?.address.parentThingId || null
     
         let indexOfGrandparentThing = grandparentThingId !== null ? 
-            this.members.findIndex( member => (typeof member === "object") && member.id === grandparentThingId )
+            this.members.findIndex( member => member.thingId === grandparentThingId )
             : null
 
         if (indexOfGrandparentThing === -1) indexOfGrandparentThing = null
@@ -91,9 +92,9 @@ export class ThingCohort {
     addMember(member: GenerationMember): void {
         if (!this.members.includes(member)) {
             this.members.push(member)
-            if (typeof member === "object") {
-                member.parentCohort = this
-                member.setGraph(this.address.graph)
+            if (member.thing) {
+                member.thing.parentCohort = this
+                member.thing.setGraph(this.address.graph)
             }
         }
     }
@@ -126,5 +127,9 @@ export class ThingCohort {
         } else {
             return false
         }
+    }
+
+    get direction(): Direction {
+        return retrieveGraphConstructs("Direction", this.address.directionId as number) as Direction
     }
 }

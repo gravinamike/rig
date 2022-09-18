@@ -1,18 +1,23 @@
 <script lang="ts">
-    import type { ThingSearchListItem } from "$lib/models/constructModels"
+    import type { Graph, ThingSearchListItem } from "$lib/models/constructModels"
     import type { SearchOption } from "$lib/widgets/navWidgets/searchWidget"
     import {
         thingSearchListStore, addGraph, removeGraph, graphIdsNeedingViewerRefresh, addGraphIdsNeedingViewerRefresh, removeGraphIdsNeedingViewerRefresh
     } from "$lib/stores"
-    import { GraphWidgetModel } from "$lib/models/widgetModels"
-    import { GraphWidget } from "$lib/widgets/graphWidgets"
+    import { defaultGraphWidgetStyle, GraphWidget, type GraphWidgetStyle } from "$lib/widgets/graphWidgets"
     import { SearchWidget } from "$lib/widgets/navWidgets"
 
-    export let graphWidgetModel: GraphWidgetModel | null = null
+
     export let submitMethod: (selectedItem: SearchOption | null, matchedItems: SearchOption[]) => void
 
 
-    
+    let allowZoomAndScrollToFit: boolean
+    let allowScrollToThingId: boolean
+    let thingIdToScrollTo: number | null
+    let graphWidgetStyle: GraphWidgetStyle
+
+
+
     let thingIdToShowGraphFor: number | null = null
 
     let unfilteredArray: {id: number, name: string}[] = []
@@ -33,13 +38,12 @@
 
 
 
-    async function createGraph(thingIdToShowGraphFor: number) {
+    /*async function createGraph(thingIdToShowGraphFor: number) {
         // Close any existing Graph.
-        if (graphWidgetModel !== null) await removeGraph(graphWidgetModel.graph)
+        if (graph !== null) await removeGraph(graph)
         // Open and build the new Graph.
         const graph = await addGraph([thingIdToShowGraphFor], 1)
-        graphWidgetModel = new GraphWidgetModel(graph)
-        graphWidgetModel.style.animateZoomAndScroll = false
+        graphWidgetStyle.animateZoomAndScroll = false
         // Refresh the Graph viewers.
         addGraphIdsNeedingViewerRefresh(graph.id)
     }
@@ -47,16 +51,16 @@
         createGraph(thingIdToShowGraphFor)
     }
     $: if (!thingIdToShowGraphFor) {
-        if (graphWidgetModel !== null) removeGraph(graphWidgetModel.graph)
-        graphWidgetModel = null
+        if (graph !== null) removeGraph(graph)
+        graph = null
     }
 
     // Set up Graph refreshing.
-    $: if ( graphWidgetModel?.graph?.lifecycleStatus === "built" && $graphIdsNeedingViewerRefresh.includes(graphWidgetModel.graph.id) ) {
-        removeGraphIdsNeedingViewerRefresh(graphWidgetModel.graph.id)
-        graphWidgetModel.graph = graphWidgetModel.graph // Needed for reactivity.
-        graphWidgetModel.allowZoomAndScrollToFit = true
-    }
+    $: if ( graph?.lifecycleStatus === "built" && $graphIdsNeedingViewerRefresh.includes(graph.id) ) {
+        removeGraphIdsNeedingViewerRefresh(graph.id)
+        graph = graph // Needed for reactivity.
+        allowZoomAndScrollToFit = true
+    }*/
 
 
 
@@ -78,12 +82,13 @@
     </div>
 
     <div class="graph-container">
-        {#if graphWidgetModel}
-            <GraphWidget
-                bind:model={graphWidgetModel}
-                rePerspectToThingId={async () => {}}
-            />
-        {/if}
+        <GraphWidget
+            {graphWidgetStyle}
+            bind:allowZoomAndScrollToFit
+            bind:allowScrollToThingId
+            bind:thingIdToScrollTo
+            rePerspectToThingId={async () => {}}
+        />
         <div class="glass-pane" />
     </div>
     

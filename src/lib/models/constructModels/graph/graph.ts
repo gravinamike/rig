@@ -141,7 +141,7 @@ export class Graph {
     }
 
     get pThing(): Thing | null {
-        const pThing = (this.rootCohort?.members[0] as Thing) || null
+        const pThing = (this.rootCohort?.members[0].thing as Thing) || null
         return pThing
     }
 

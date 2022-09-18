@@ -1,1 +1,0 @@
-export { default as ThingCohortOutlineWidget }  from "./widget.svelte"
