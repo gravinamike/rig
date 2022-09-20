@@ -167,6 +167,7 @@
 
 <ThingWidgetController
     {thingId}
+    {graph}
     {graphWidgetStyle}
 
     bind:planeId
@@ -204,95 +205,97 @@
 
 
 <!-- Thing Widget. -->
-<div
-    id="{thingWidgetId}"
-    class="box thing-widget" class:highlighted
-    style="
-        border-radius: {10 + 4 * encapsulatingDepth}px;
-        {isHoveredThing && !(relationshipBeingCreated && !relatableForCurrentDrag) ? 
-            `box-shadow: 5px 5px 10px 10px ${hexToRgba(shadowColor, 0.15)};` :
-            `box-shadow: 5px 5px 10px 2px ${hexToRgba(shadowColor, 0.15)};`
-        }
-        width: {thingWidth}px; height: {thingHeight}px; opacity: {opacity};
-        pointer-events: {
-            distanceFromFocalPlane === 0 && !(relationshipBeingCreated && !relatableForCurrentDrag) ?/////////// NEED TO MAKE DRAG ACTUALLY HAPPEN WITH THE DRAG.
-                "auto" :
-                "none"
-        };
-    "
-
-    on:mouseenter={()=>{
-        hoveredThingIdStore.set(thingId)
-        isHoveredWidget = true, hoveredRelationshipTarget.set(thing)
-    }}
-    on:mouseleave={()=>{
-        hoveredThingIdStore.set(null)
-        isHoveredWidget = false
-        confirmDeleteBoxOpen = false, hoveredRelationshipTarget.set(null)
-    }}
-    on:mousedown={ event => {if (event.button === 0) {
-        handleMouseDown(event)
-    }}}
-    on:click={ () => {if ($relationshipBeingCreatedInfoStore.sourceThingId === null) rePerspectToThingId(thingId) } }
-    on:mouseup={ () => {
-        if (relatableForCurrentDrag) {
-            setRelationshipBeingCreatedDestThingId(thingId)
-        } else {
-            disableRelationshipBeingCreated()
-        }
-    } }
-    on:contextmenu|preventDefault={openCommandPalette}
->
-    <!-- Thing text. -->
+{#if thing}
     <div
-        class="text-container"
-        class:horizontal={showContent && elongationCategory === "horizontal"}
-        class:sideways={showContent && elongationCategory !== "horizontal"}
-        style="width: { Math.min(thingWidth, thingHeight) }px; height: { Math.min(thingWidth, thingHeight) }px;"
+        id="{thingWidgetId}"
+        class="box thing-widget" class:highlighted
+        style="
+            border-radius: {10 + 4 * encapsulatingDepth}px;
+            {isHoveredThing && !(relationshipBeingCreated && !relatableForCurrentDrag) ? 
+                `box-shadow: 5px 5px 10px 10px ${hexToRgba(shadowColor, 0.15)};` :
+                `box-shadow: 5px 5px 10px 2px ${hexToRgba(shadowColor, 0.15)};`
+            }
+            width: {thingWidth}px; height: {thingHeight}px; opacity: {opacity};
+            pointer-events: {
+                distanceFromFocalPlane === 0 && !(relationshipBeingCreated && !relatableForCurrentDrag) ?/////////// NEED TO MAKE DRAG ACTUALLY HAPPEN WITH THE DRAG.
+                    "auto" :
+                    "none"
+            };
+        "
+
+        on:mouseenter={()=>{
+            hoveredThingIdStore.set(thingId)
+            isHoveredWidget = true, hoveredRelationshipTarget.set(thing)
+        }}
+        on:mouseleave={()=>{
+            hoveredThingIdStore.set(null)
+            isHoveredWidget = false
+            confirmDeleteBoxOpen = false, hoveredRelationshipTarget.set(null)
+        }}
+        on:mousedown={ event => {if (event.button === 0) {
+            handleMouseDown(event)
+        }}}
+        on:click={ () => {if ($relationshipBeingCreatedInfoStore.sourceThingId === null) rePerspectToThingId(thingId) } }
+        on:mouseup={ () => {
+            if (relatableForCurrentDrag) {
+                setRelationshipBeingCreatedDestThingId(thingId)
+            } else {
+                disableRelationshipBeingCreated()
+            }
+        } }
+        on:contextmenu|preventDefault={openCommandPalette}
     >
+        <!-- Thing text. -->
         <div
-            class="thing-text"
-            class:encapsulating={isEncapsulating}
-            class:show-content={showContent}
-            class:hide-content={!showContent}
-            style="font-size: {textFontSize}px;"
+            class="text-container"
+            class:horizontal={showContent && elongationCategory === "horizontal"}
+            class:sideways={showContent && elongationCategory !== "horizontal"}
+            style="width: { Math.min(thingWidth, thingHeight) }px; height: { Math.min(thingWidth, thingHeight) }px;"
         >
-            {thing.text}
+            <div
+                class="thing-text"
+                class:encapsulating={isEncapsulating}
+                class:show-content={showContent}
+                class:hide-content={!showContent}
+                style="font-size: {textFontSize}px;"
+            >
+                {thing.text}
+            </div>
         </div>
+
+        <!-- Content box. -->
+        {#if showContent}
+            <div 
+                class="content-box"
+                class:horizontal={elongationCategory === "horizontal"}
+                class:vertical={!(elongationCategory === "horizontal")}
+            >
+                <ThingDetailsWidget
+                    {thing}
+                    freestanding={false}
+                />
+            </div>
+        {/if}
+
+        <!-- Delete button and confirm delete dialog. -->
+        {#if isHoveredWidget && !confirmDeleteBoxOpen}
+            <div class="delete-button-container">
+                <XButton
+                    buttonFunction={startDelete}
+                />
+            </div>
+        {/if}
+        {#if confirmDeleteBoxOpen}
+            <ConfirmDeleteBox
+                {thingWidth}
+                {thingHeight}
+                {encapsulatingDepth}
+                {elongationCategory}
+                confirmDeleteFunction={completeDelete}
+            />
+        {/if}
     </div>
-
-    <!-- Content box. -->
-    {#if showContent}
-        <div 
-            class="content-box"
-            class:horizontal={elongationCategory === "horizontal"}
-            class:vertical={!(elongationCategory === "horizontal")}
-        >
-            <ThingDetailsWidget
-                {thing}
-                freestanding={false}
-            />
-        </div>
-    {/if}
-
-    <!-- Delete button and confirm delete dialog. -->
-    {#if isHoveredWidget && !confirmDeleteBoxOpen}
-        <div class="delete-button-container">
-            <XButton
-                buttonFunction={startDelete}
-            />
-        </div>
-    {/if}
-    {#if confirmDeleteBoxOpen}
-        <ConfirmDeleteBox
-            {thingWidth}
-            {thingHeight}
-            {encapsulatingDepth}
-            {elongationCategory}
-            confirmDeleteFunction={completeDelete}
-        />
-    {/if}
-</div>
+{/if}
 
 
 <style>

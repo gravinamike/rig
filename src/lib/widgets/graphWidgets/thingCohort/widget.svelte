@@ -23,13 +23,13 @@
         
     
     // Attributes managed by the widget controller.
-    let xYOffsets: { x: number, y: number }
-    let zIndex: number
-    let rowOrColumn: "row" | "column"
-    let indexOfGrandparentThing: number | null
-    let offsetToGrandparentThingX: number
-    let offsetToGrandparentThingY: number
-    let showMembers: boolean
+    let xYOffsets: { x: number, y: number } = { x: 0, y: 0 }
+    let zIndex: number = 0
+    let rowOrColumn: "row" | "column" = "row"
+    let indexOfGrandparentThing: number | null = null
+    let offsetToGrandparentThingX: number = 0
+    let offsetToGrandparentThingY: number = 0
+    let showMembers = true
 </script>
 
 

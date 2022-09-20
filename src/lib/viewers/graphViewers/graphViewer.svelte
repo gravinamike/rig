@@ -27,10 +27,10 @@
     export let depth: number
 
 
-    let allowZoomAndScrollToFit: boolean
-    let allowScrollToThingId: boolean
-    let thingIdToScrollTo: number | null
-    let graphWidgetStyle: GraphWidgetStyle
+    let allowZoomAndScrollToFit = false
+    let allowScrollToThingId = false
+    let thingIdToScrollTo: number | null = null
+    let graphWidgetStyle: GraphWidgetStyle = {...defaultGraphWidgetStyle}
 
 
     // Initialize the Graph.
@@ -156,6 +156,7 @@
         <!-- Graph Widget -->
         <div class="graph-widget-container">
             <GraphWidget
+                bind:graph
                 {graphWidgetStyle}
                 bind:allowZoomAndScrollToFit
                 bind:allowScrollToThingId

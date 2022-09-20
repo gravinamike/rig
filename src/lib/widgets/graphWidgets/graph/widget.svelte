@@ -1,7 +1,7 @@
 <script lang="ts">
     // Import types.
-    import type { Tweened } from "svelte/motion"
-    import type { Rectangle } from "$lib/shared/utility"
+    import { tweened, type Tweened } from "svelte/motion"
+    import { Rectangle } from "$lib/shared/utility"
     import type { Graph, Space } from "$lib/models/constructModels"
 
     // Import constants and utility functions.
@@ -17,8 +17,9 @@
     import SpaceFrameWidget from "./spaceFrame.svelte"
     import PlaneControls from "./planeControls.svelte"
     import { ThingCohortWidget } from "$lib/widgets/graphWidgets"
+    import { cubicOut } from "svelte/easing";
     
-
+    export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
     export let rePerspectToThingId: (thingId: number) => Promise<void>
     export let allowZoomAndScrollToFit: boolean
@@ -27,13 +28,12 @@
 
 
     // Variables handled by widget controller.
-    let graph: Graph
-    let currentSpace: Space | null
-    let showPlaneControls: boolean
-    let scale: number
-    let tweenedScale: Tweened<number>
-    let zoomBounds: Rectangle
-    let trackingMouse: boolean
+    let currentSpace: Space | null = null
+    let showPlaneControls = false
+    let scale = 1
+    let tweenedScale: Tweened<number> = tweened( 1, { duration: 100, easing: cubicOut } )
+    let zoomBounds: Rectangle = new Rectangle()
+    let trackingMouse = false
     let handleMouseMove: (event: MouseEvent) => void
     let handleWheelScroll: (event: WheelEvent) => void
 

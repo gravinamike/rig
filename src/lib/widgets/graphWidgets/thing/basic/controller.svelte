@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { HalfAxisId } from "$lib/shared/constants"
-    import type { Thing } from "$lib/models/constructModels"
+    import type { Graph, Thing } from "$lib/models/constructModels"
 
     //import { relationshipBeingCreatedInfoStore } from "$lib/stores"
     import { ThingBaseWidgetController } from "../base"
@@ -11,22 +11,23 @@
      * @param {number} thingId - The ID of the Thing that the widget is based on.
      */
     export let thingId: number
+    export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
 
-    export let planeId: number
-    export let encapsulatingDepth: number
-    export let thingSize: number
-    export let thingWidth: number
-    export let thingHeight: number
-    export let xYElongation: {x: number, y: number}
-    export let cohortSize: number
-    export let thing: Thing
-    export let halfAxisId: HalfAxisId
-    export let elongationCategory: "vertical" | "horizontal" | "neutral"
+    export let planeId: number | null = null
+    export let encapsulatingDepth: number = 0
+    export let thingSize: number = 0
+    export let thingWidth: number = 0
+    export let thingHeight: number = 0
+    export let xYElongation: {x: number, y: number} = {x: 1, y:1}
+    export let cohortSize: number = 0
+    export let thing: Thing | null = null
+    export let halfAxisId: HalfAxisId | null = null
+    export let elongationCategory: "vertical" | "horizontal" | "neutral" = "neutral"
 
-    export let thingWidgetId: string
-    export let isEncapsulating: boolean
-    export let relatableForCurrentDrag: boolean
+    export let thingWidgetId: string = ""
+    export let isEncapsulating = false
+    export let relatableForCurrentDrag = false
 
 
     /* --------------- Output attributes. --------------- */
@@ -37,7 +38,7 @@
      * A unique ID for each Thing Widget, constructed from the Graph ID and the
      * Thing ID.
      */
-    $: thingWidgetId = `graph#${ thing.address.graph.id }-thing#${ thingId }`
+    $: thingWidgetId = `graph#${ graph.id }-thing#${ thingId }`
 
     /**
      * Is-encapsulating flag.
@@ -47,7 +48,7 @@
      * if it has child Thing Cohorts on the Outward half-axis.
      */
     $: isEncapsulating =
-        halfAxisId === 8 || 7 in thing.childCohortsByHalfAxisId ? true :
+        thing && (halfAxisId === 8 || 7 in thing.childCohortsByHalfAxisId) ? true :
         false
 
     /**

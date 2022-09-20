@@ -40,7 +40,7 @@
 
     // Attributes managed by the base widget controller.
     let halfAxisId: HalfAxisId
-    let thing: Thing
+    let thing: Thing | null
 
 
     /* --------------- Output attributes. --------------- */
@@ -54,6 +54,7 @@
      * arranged in a row or column.
      */
     $: overlapMarginStyleText =
+        !thing ? "" :
         // If there is only 1 Thing in the Thing Cohort, use an empty string (no formatting).
         thing.parentCohort.members.length === 1 ? "" :
         // Else, if the Thing is the first in the Thing Cohort, use only a right or bottom overlap margin.

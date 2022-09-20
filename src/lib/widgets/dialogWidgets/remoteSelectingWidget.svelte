@@ -82,13 +82,16 @@
     </div>
 
     <div class="graph-container">
-        <GraphWidget
-            {graphWidgetStyle}
-            bind:allowZoomAndScrollToFit
-            bind:allowScrollToThingId
-            bind:thingIdToScrollTo
-            rePerspectToThingId={async () => {}}
-        />
+        {#if graph}
+            <GraphWidget
+                bind:graph
+                {graphWidgetStyle}
+                bind:allowZoomAndScrollToFit
+                bind:allowScrollToThingId
+                bind:thingIdToScrollTo
+                rePerspectToThingId={async () => {}}
+            />
+        {/if}
         <div class="glass-pane" />
     </div>
     

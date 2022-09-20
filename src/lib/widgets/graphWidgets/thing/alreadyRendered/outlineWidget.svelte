@@ -17,12 +17,12 @@
 
 
     // Attributes managed by the widget controller.
-    let encapsulatingDepth: number
-    let thingWidth: number
-    let thingHeight: number
-    let overlapMarginStyleText: string
-    let relationshipColor: string
-    let isHoveredThing: boolean    
+    let encapsulatingDepth = 0
+    let thingWidth = 0
+    let thingHeight= 0
+    let overlapMarginStyleText = ""
+    let relationshipColor = "#000000"
+    let isHoveredThing = false
 </script>
 
 

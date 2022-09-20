@@ -14,16 +14,16 @@
     export let thingId: number | null
     export let graphWidgetStyle: GraphWidgetStyle
 
-    export let planeId: number = 0
+    export let planeId: number | null = null
     export let encapsulatingDepth: number
     export let thingSize: number = 0
     export let thingWidth: number = 0
     export let thingHeight: number = 0
-    export let xYElongation: {x: number, y: number} = {x: 0, y: 0}
+    export let xYElongation: {x: number, y: number} = {x: 1, y: 1}
     export let cohortSize: number = 0
 
     export let thing: Thing | null = null
-    export let halfAxisId: HalfAxisId = 0
+    export let halfAxisId: HalfAxisId | null = null
     export let elongationCategory: "vertical" | "horizontal" | "neutral" = "neutral"
     export let encapsulatingPadding: number = 0
 
@@ -38,7 +38,7 @@
     $: planeId =
         // If the Thing is on the encapsulating axis and has a parent Thing,
         // inherit the Plane from the Thing's parent Thing.
-        [7, 8].includes(halfAxisId) && thing?.parentThing ? thing.parentThing.parentCohort.plane?.id || 0 :
+        halfAxisId && [7, 8].includes(halfAxisId) && thing?.parentThing ? thing.parentThing.parentCohort.plane?.id || 0 :
         // Otherwise, use the Thing's own Plane.
         thing?.parentCohort.plane?.id || 0
 
@@ -64,7 +64,7 @@
      */
     $: thingSize = (
         graphWidgetStyle.thingSize
-        + planePadding * planeId
+        + planePadding * (planeId || 0)
         + encapsulatingPadding * encapsulatingDepth
     )
 
@@ -135,8 +135,8 @@
      * on other axes are "neutral", meaning enlongated both ways.
      */
     $: elongationCategory =
-        [1, 2].includes(halfAxisId) ? "vertical" :
-        [3, 4].includes(halfAxisId) ? "horizontal" :
+        halfAxisId && [1, 2].includes(halfAxisId) ? "vertical" :
+        halfAxisId && [3, 4].includes(halfAxisId) ? "horizontal" :
         "neutral"
 
     /**

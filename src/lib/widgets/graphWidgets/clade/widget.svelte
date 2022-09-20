@@ -30,8 +30,8 @@
     let overlapMarginStyleText: string
 
     // Attributes managed by sub-widgets.
-    let rootThingWidth: number
-    let rootThingHeight: number
+    let rootThingWidth: number = 0
+    let rootThingHeight: number = 0
 </script>
 
 
