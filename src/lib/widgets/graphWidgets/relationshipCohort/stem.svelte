@@ -1,6 +1,6 @@
 <script lang="ts">
     // Import types.
-    import type { Graph, ThingCohort } from "$lib/models/constructModels";
+    import type { Graph, ThingCohort } from "$lib/models/constructModels"
 
     // Import utility functions.
     import { sleep } from "$lib/shared/utility"
@@ -38,36 +38,28 @@
      * Add a blank Thing Form to the related Cohort.
      */
     async function addThingForm() {
-        // Needs complete rebuild.
-
-
-        /*const associatedThingCohortWidgetModel = relationshipsWidgetModel.parentThingWidgetModel.childThingCohortWidgetModelByHalfAxisId[cohort.halfAxisId]
-
-        const newThingWidgetModel = new ThingWidgetModel(null, graphWidgetModel, associatedThingCohortWidgetModel)
-        await newThingWidgetModel.build()
-        if (!graphWidgetModel.formActive) {
-            associatedThingCohortWidgetModel.addMemberModel(newThingWidgetModel)
-            graphWidgetModel.formActive = true
+        if (!graph.formActive) {
+            graph.formActive = true
         }
         addGraphIdsNeedingViewerRefresh(graph.id)
         await sleep(50)// Allow the Thing Form Widget to render.
         const thingFormTextField = document.getElementById("thing-form-text-field")//// Instead find the ThingForm, and access the field as a property.
-        thingFormTextField?.focus()*/
+        thingFormTextField?.focus()
     }
 
-    $: relatableForCurrentDrag = false/*(
-        $relationshipBeingCreatedInfoStore.sourceWidgetModel !== relationshipsWidgetModel.parentThingWidgetModel
+    $: relatableForCurrentDrag = (
+        $relationshipBeingCreatedInfoStore.sourceThingId !== cohort.parentThingId
         && (
             !$inferredRelationshipBeingCreatedDirection ||
-            $inferredRelationshipBeingCreatedDirection.id === relationshipsWidgetModel.direction.oppositeid
+            $inferredRelationshipBeingCreatedDirection.id === cohort.direction.oppositeid
         )
     ) ?
         true :
-        false*/
+        false
 
     $: isDragRelateSource = false
-        /*$relationshipBeingCreatedInfoStore.sourceWidgetModel === relationshipsWidgetModel ? true :
-        false*/
+        $relationshipBeingCreatedInfoStore.sourceThingId === cohort.parentThingId ? true :
+        false
 </script>
 
 
@@ -86,15 +78,18 @@
         x1="{midline}" y1="{stemBottom}"
         x2="{midline}" y2="{stemTop}"
         style="stroke-width: {20 / tweenedScale};"
-        on:mouseenter={()=>{stemHovered = true; /*hoveredRelationshipTarget.set(relationshipsWidgetModel)*/}}
+        on:mouseenter={()=>{stemHovered = true; hoveredRelationshipTarget.set(cohort)}}
         on:mouseleave={()=>{stemHovered = false; stemClicked = false; hoveredRelationshipTarget.set(null)}}
-        on:mousedown={event=>{stemClicked = true; /*enableRelationshipBeingCreated(
-            relationshipsWidgetModel,
+        on:mousedown={event=>{stemClicked = true; if (cohort.parentThingId) enableRelationshipBeingCreated(
+            cohort.parentThingId,
+            1,
+            cohort.halfAxisId,
+            cohort.direction,
             [event.clientX, event.clientY]
-        )*/}}
+        )}}
         on:mouseup={ () => {
             stemClicked = false;
-            /*if (relatableForCurrentDrag) setRelationshipBeingCreatedDestWidgetModel(relationshipsWidgetModel)*/
+            if (relatableForCurrentDrag) setRelationshipBeingCreatedDestThingId(cohort.parentThingId)
         } }
     />
 

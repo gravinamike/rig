@@ -1,7 +1,7 @@
 <script lang="ts">
     // Import types.
     import type { Tweened } from "svelte/motion"
-    import type { Direction, Graph, GenerationMember, ThingCohort, Thing } from "$lib/models/constructModels"
+    import type { Direction, Graph, ThingCohort, Thing } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
     // Import basic framework resources.

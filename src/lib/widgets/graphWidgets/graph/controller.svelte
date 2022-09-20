@@ -16,7 +16,6 @@
 
     // Import stores.
     import { relationshipBeingCreatedInfoStore } from "$lib/stores"
-    import type { findParentNode } from "@tiptap/core";
 
 
     /**

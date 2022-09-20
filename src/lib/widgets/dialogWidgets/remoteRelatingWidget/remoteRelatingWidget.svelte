@@ -5,7 +5,6 @@
     } from "$lib/stores"
     import { RemoteSelectingWidget } from "$lib/widgets/dialogWidgets"
     import type { Graph } from "$lib/models/constructModels"
-    import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets";
 
 
     let graph: Graph | null = null

@@ -22,7 +22,6 @@
     import { relationshipColorByHalfAxisId, type HalfAxisId } from "$lib/shared/constants"
     import { XButton, ConfirmDeleteBox } from "$lib/widgets/layoutWidgets"
     import ThingWidgetController from "./controller.svelte"
-    import Direction from "../../direction.svelte";
 
 
     /**

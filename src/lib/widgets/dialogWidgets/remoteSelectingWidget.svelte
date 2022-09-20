@@ -4,13 +4,13 @@
     import {
         thingSearchListStore, addGraph, removeGraph, graphIdsNeedingViewerRefresh, addGraphIdsNeedingViewerRefresh, removeGraphIdsNeedingViewerRefresh
     } from "$lib/stores"
-    import { defaultGraphWidgetStyle, GraphWidget, type GraphWidgetStyle } from "$lib/widgets/graphWidgets"
+    import { GraphWidget, type GraphWidgetStyle } from "$lib/widgets/graphWidgets"
     import { SearchWidget } from "$lib/widgets/navWidgets"
-
 
     export let submitMethod: (selectedItem: SearchOption | null, matchedItems: SearchOption[]) => void
 
 
+    let graph: Graph | null = null
     let allowZoomAndScrollToFit: boolean
     let allowScrollToThingId: boolean
     let thingIdToScrollTo: number | null
@@ -38,11 +38,11 @@
 
 
 
-    /*async function createGraph(thingIdToShowGraphFor: number) {
+    async function createGraph(thingIdToShowGraphFor: number) {
         // Close any existing Graph.
         if (graph !== null) await removeGraph(graph)
         // Open and build the new Graph.
-        const graph = await addGraph([thingIdToShowGraphFor], 1)
+        graph = await addGraph([thingIdToShowGraphFor], 1)
         graphWidgetStyle.animateZoomAndScroll = false
         // Refresh the Graph viewers.
         addGraphIdsNeedingViewerRefresh(graph.id)
@@ -60,7 +60,7 @@
         removeGraphIdsNeedingViewerRefresh(graph.id)
         graph = graph // Needed for reactivity.
         allowZoomAndScrollToFit = true
-    }*/
+    }
 
 
 

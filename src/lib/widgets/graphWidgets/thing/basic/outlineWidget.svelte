@@ -145,26 +145,29 @@
 
     on:mouseenter={()=>{
         hoveredThingIdStore.set(thingId)
-        isHoveredWidget = true/*, hoveredRelationshipTarget.set(thingWidgetModel)*/
+        isHoveredWidget = true, hoveredRelationshipTarget.set(thing)
     }}
     on:mouseleave={()=>{
         hoveredThingIdStore.set(null)
         isHoveredWidget = false
         confirmDeleteBoxOpen = false, hoveredRelationshipTarget.set(null)
     }}
-    on:mousedown={ event => {if (event.button === 0) {/*
+    on:mousedown={ event => {if (event.button === 0) {
         enableRelationshipBeingCreated(
-            thingWidgetModel,
+            thingId,
+            1,
+            halfAxisId,
+            thing.parentCohort.direction,
             [event.clientX, event.clientY]
-        )*/
+        )
     }}}
-    on:click={ () => {/*if ($relationshipBeingCreatedInfoStore.sourceWidgetModel === null) rePerspectToThingId(thingId)*/ } }
-    on:mouseup={ () => {/*
+    on:click={ () => {if ($relationshipBeingCreatedInfoStore.sourceThingId === null) rePerspectToThingId(thingId) } }
+    on:mouseup={ () => {
         if (relatableForCurrentDrag) {
-            setRelationshipBeingCreatedDestWidgetModel(thingWidgetModel)
+            setRelationshipBeingCreatedDestThingId(thingId)
         } else {
             disableRelationshipBeingCreated()
-        }*/
+        }
     } }
     on:contextmenu|preventDefault={openCommandPalette}
 >

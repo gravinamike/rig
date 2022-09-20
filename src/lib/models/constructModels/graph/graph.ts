@@ -21,6 +21,7 @@ export class Graph {
     lifecycleStatus: "new" | "building" | "built" | "cleared" = "new"
     startingSpace: Space | null
     offAxis: boolean
+    formActive: boolean
 
     /**
      * Create a Graph.
@@ -38,6 +39,7 @@ export class Graph {
         this.history = new PerspectiveHistory(this)
         this.startingSpace = startingSpace
         this.offAxis = offAxis
+        this.formActive = false
     }
 
 

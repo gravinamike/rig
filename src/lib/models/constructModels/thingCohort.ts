@@ -99,8 +99,8 @@ export class ThingCohort {
         }
     }
 
-    removeMember(member: GenerationMember): void {
-        const index = this.members.indexOf(member);
+    removeMemberById(thingId: number): void {
+        const index = this.members.findIndex(member => member.thingId === thingId);
         if (index > -1) {
             this.members.splice(index, 1)
         }

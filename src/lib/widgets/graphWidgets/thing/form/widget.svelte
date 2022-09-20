@@ -71,8 +71,8 @@
     }
 
     async function cancel() {
-        thing.parentCohort.removeMember(thing)
-        graphWidgetModel.formActive = false
+        thing.parentCohort.removeMemberById(thing.id)
+        graph.formActive = false
         addGraphIdsNeedingViewerRefresh(graph.id)
     }    
 </script>
