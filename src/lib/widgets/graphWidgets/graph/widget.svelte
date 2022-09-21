@@ -38,9 +38,9 @@
     let handleWheelScroll: (event: WheelEvent) => void
 
     // HTML element handles.
-    let widget: HTMLElement
-    let centralAnchor: Element
-    let zoomBoundsDiv: Element
+    let widget: HTMLElement | null = null
+    let centralAnchor: Element | null = null
+    let zoomBoundsDiv: Element | null = null
 </script>
 
 

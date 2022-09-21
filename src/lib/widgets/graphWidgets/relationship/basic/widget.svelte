@@ -33,8 +33,8 @@
     export let rotation: number
     export let direction: Direction
 
-    let cohortMemberWithIndex: { index: number, member: GenerationMember }
-    let leafGeometry: { bottom: number, top: number, bottomMidline: number, topMidline: number }
+    let cohortMemberWithIndex: { index: number, member: GenerationMember } | null = null
+    let leafGeometry: { bottom: number, top: number, bottomMidline: number, topMidline: number } | null = null
     
     
     // Graph-scale-related variables.
@@ -72,29 +72,30 @@
 
 
     
-                        
-{#if cohortMemberWithIndex.member}
-    <RelationshipLeafWidget
-        bind:graph
+{#if cohortMemberWithIndex && leafGeometry}                  
+    {#if cohortMemberWithIndex.member}
+        <RelationshipLeafWidget
+            bind:graph
+            bind:thingIdOfHoveredRelationship
+            tweenedScale={$tweenedScale}
+            leafGeometry={leafGeometry}
+            cohortMemberWithIndex={cohortMemberWithIndex}
+            {relationshipColor}
+            {mirroring}
+            {rotation}
+            {direction}
+            {halfAxisId}
+            {graphWidgetStyle}
+        />
+    {/if}
+
+    <RelationshipFanSegmentWidget
         bind:thingIdOfHoveredRelationship
         tweenedScale={$tweenedScale}
+        {midline}
+        {stemTop}
         leafGeometry={leafGeometry}
         cohortMemberWithIndex={cohortMemberWithIndex}
         {relationshipColor}
-        {mirroring}
-        {rotation}
-        {direction}
-        {halfAxisId}
-        {graphWidgetStyle}
     />
 {/if}
-
-<RelationshipFanSegmentWidget
-    bind:thingIdOfHoveredRelationship
-    tweenedScale={$tweenedScale}
-    {midline}
-    {stemTop}
-    leafGeometry={leafGeometry}
-    cohortMemberWithIndex={cohortMemberWithIndex}
-    {relationshipColor}
-/>

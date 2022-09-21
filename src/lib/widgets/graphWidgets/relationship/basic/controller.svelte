@@ -14,7 +14,7 @@
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
     export let scale: number
-    export let cohortMemberWithIndex: { index: number, member: GenerationMember }
+    export let cohortMemberWithIndex: { index: number, member: GenerationMember } | null
     export let relationshipsLength: number
     export let midline: number
     export let halfAxisId: HalfAxisId
@@ -22,12 +22,13 @@
     export let thingWidth: number
     export let sizeOfThingsAlongWidth: number
 
-    export let leafGeometry: { bottom: number, top: number, bottomMidline: number, topMidline: number }
+    export let leafGeometry: { bottom: number, top: number, bottomMidline: number, topMidline: number } | null
 
 
 
 
     $: leafGeometry =
+        cohortMemberWithIndex === null ? null :
         cohortMemberWithIndex.member === null ? {
             bottom: relationshipsLength + 0.5 * sizeOfThingsAlongLength + 0.5 * offsetAlongLength * flip,
             top: relationshipsLength + 0.5 * sizeOfThingsAlongLength + 0.5 * offsetAlongLength * flip,
@@ -72,7 +73,9 @@
 
 
 
-    $: offsetsOfRelatedThing = getOffsetsOfRelatedThing(cohortMemberWithIndex.member, scale)
+    $: offsetsOfRelatedThing =
+        cohortMemberWithIndex ? getOffsetsOfRelatedThing(cohortMemberWithIndex.member, scale) :
+        { x: 0, y: 0 }
 
     $: offsetAlongLength =
         [1, 2].includes(halfAxisId) ? offsetsOfRelatedThing.y :
@@ -90,7 +93,7 @@
         0.5 * sizeOfThingsAlongWidth
         + (
             sizeOfThingsAlongWidth
-            + graphWidgetStyle.betweenThingSpacing) * cohortMemberWithIndex.index
+            + graphWidgetStyle.betweenThingSpacing) * (cohortMemberWithIndex?.index || 0)
     )
 
 </script>

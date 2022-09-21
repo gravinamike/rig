@@ -38,9 +38,9 @@
      * @param {(MouseEvent) => void} handleWheelScroll - Function to scroll-zoom the widget.
      */
     export let graph: Graph
-    export let widget: HTMLElement
-    export let centralAnchor: Element
-    export let zoomBoundsDiv: Element
+    export let widget: HTMLElement | null
+    export let centralAnchor: Element | null
+    export let zoomBoundsDiv: Element | null
     export let style: GraphWidgetStyle = {...defaultGraphWidgetStyle}
     
     export let currentSpace: Space | null
@@ -123,7 +123,8 @@
     handleMouseMove = (event: MouseEvent) => {
         // If mouse tracking has been engaged for at least 1 previous event...
         if (
-            trackingMouse
+            widget
+            && trackingMouse
             && !$relationshipBeingCreatedInfoStore.trackingMouse
             && prevMouseTrackingLocation.x
             && prevMouseTrackingLocation.y
@@ -211,7 +212,7 @@
      */
     async function scrollToCentralAnchor( smooth: boolean = true ): Promise<void> {
         // Scroll the central anchor into the center of the view.
-        centralAnchor.scrollIntoView({
+        centralAnchor?.scrollIntoView({
             behavior: smooth ? "smooth" : "auto",
             block: "center",
             inline: "center"
@@ -257,6 +258,8 @@
      * Zooms the widget to fit the Graph.
      */
     async function zoomToFit(): Promise<void> {
+        if (!widget) return
+
         // Update the Graph bounds.
         updateGraphBounds()
 
@@ -285,6 +288,8 @@
      * Scrolls the widget so that the Graph is centered.
      */
     async function scrollToZoomBoundsCenter(): Promise<void> {
+        if (!zoomBoundsDiv) return
+
         // Update the Graph bounds.
         updateGraphBounds()
 
@@ -314,6 +319,8 @@
      * Updates the Graph bounds for the current configuration of the Graph.
      */
     function updateGraphBounds() {
+        if (!centralAnchor) return
+
         // Get all HTML elements in the Graph, except the zoom bounds element.
         const descendants = descendantElements(centralAnchor)
         const descendantThingElements = descendants.filter(
