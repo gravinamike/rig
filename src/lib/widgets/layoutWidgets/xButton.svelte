@@ -1,7 +1,6 @@
 <script lang="ts">
     export let buttonFunction: () => void
     export let size = 16
-    //export let square = false
     export let caution = false
 </script>
 

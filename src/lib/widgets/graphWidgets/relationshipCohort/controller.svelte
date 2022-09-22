@@ -73,7 +73,7 @@
     export let mirroring: 1 | -1 = 1
     export let rotation: number = 0
     export let showDirection: boolean = true
-    export let direction: Direction
+    export let direction: Direction | null = null
     export let directionWidgetRotation: number = 0
     export let changeRelationshipsDirection: (directionId: number) => void = () => {}
     export let relationshipsWidth: number = 0
@@ -84,7 +84,7 @@
     export let stemTop: number = 0
     export let showRelationships: boolean = true
     export let relationshipColor: string = "#000000"
-    export let halfAxisId: HalfAxisId
+    export let halfAxisId: HalfAxisId = 0
     export let sizeOfThingsAlongWidth: number = 0
 
     

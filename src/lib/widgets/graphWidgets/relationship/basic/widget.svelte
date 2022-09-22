@@ -31,7 +31,7 @@
     export let relationshipColor: string
     export let mirroring: -1 | 1
     export let rotation: number
-    export let direction: Direction
+    export let direction: Direction | null = null
 
     let cohortMemberWithIndex: { index: number, member: GenerationMember } | null = null
     let leafGeometry: { bottom: number, top: number, bottomMidline: number, topMidline: number } | null = null

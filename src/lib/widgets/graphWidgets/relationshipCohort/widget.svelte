@@ -1,6 +1,6 @@
 <script lang="ts">
     // Import types.
-    import type { Tweened } from "svelte/motion"
+    import { tweened, type Tweened } from "svelte/motion"
     import type { Graph, Direction, ThingCohort } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
@@ -11,6 +11,7 @@
     // Import widget controller.
     import RelationshipCohortWidgetController from "./controller.svelte"
     import type { HalfAxisId } from "$lib/shared/constants";
+    import { cubicOut } from "svelte/easing";
     
 
     /**
@@ -26,30 +27,30 @@
 
 
     // Attributes managed by widget controller.
-    let widgetOffsetX: number
-    let widgetOffsetY: number
-    let zIndex: number
-    let widgetWidth: number
-    let widgetHeight: number
-    let opacity: number
-    let rotatedWidth: number
-    let rotatedHeight: number
-    let mirroring: 1 | -1
-    let rotation: number
-    let showDirection: boolean
-    let direction: Direction
-    let directionWidgetRotation: number
+    let widgetOffsetX = 0
+    let widgetOffsetY = 0
+    let zIndex = 0
+    let widgetWidth = 0
+    let widgetHeight = 0
+    let opacity = 1
+    let rotatedWidth = 0
+    let rotatedHeight = 0
+    let mirroring: 1 | -1 = 1
+    let rotation = 0
+    let showDirection = false
+    let direction: Direction | null = null
+    let directionWidgetRotation = 0
     let changeRelationshipsDirection: (directionId: number) => void
-    let relationshipsWidth: number
-    let relationshipsLength: number
-    let tweenedScale: Tweened<number>
-    let midline: number
-    let stemBottom: number
-    let stemTop: number
-    let showRelationships: boolean
-    let relationshipColor: string
-    let halfAxisId: HalfAxisId
-    let sizeOfThingsAlongWidth: number
+    let relationshipsWidth = 0
+    let relationshipsLength = 0
+    let tweenedScale: Tweened<number> = tweened( 1, { duration: 100, easing: cubicOut } )
+    let midline = 0
+    let stemBottom = 0
+    let stemTop = 0
+    let showRelationships = false
+    let relationshipColor = "#000000"
+    let halfAxisId: HalfAxisId = 0
+    let sizeOfThingsAlongWidth = 0
 
     // Attributes managed by sub-widgets.
     let thingIdOfHoveredRelationship: number | null = null

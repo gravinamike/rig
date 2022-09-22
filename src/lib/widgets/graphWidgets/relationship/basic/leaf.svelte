@@ -19,7 +19,7 @@ import type { HalfAxisId } from "$lib/shared/constants";
     export let relationshipColor: string
     export let mirroring: -1 |1
     export let rotation: number
-    export let direction: Direction
+    export let direction: Direction | null = null
     export let halfAxisId: HalfAxisId
     export let graphWidgetStyle: GraphWidgetStyle
 
