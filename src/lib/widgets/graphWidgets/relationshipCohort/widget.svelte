@@ -166,10 +166,11 @@
 
             <!-- Relationship image. -->    
             {#if showRelationships}
-                {#each Array.from(cohort.members.entries()) as [index, _]}
+                {#each Array.from(cohort.members.entries()) as [index, member]}
                     {#if cohort.indexOfGrandparentThing !== index}<!-- Don't re-draw the existing Relationship to a parent Thing. -->                
                         <RelationshipWidget
                             {cohort}
+                            cohortMemberWithIndex={ {index: index, member: member} }
                             {graph}
                             {midline}
                             {stemTop}

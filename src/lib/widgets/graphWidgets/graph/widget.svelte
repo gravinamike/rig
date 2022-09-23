@@ -49,7 +49,7 @@
     {widget}
     {centralAnchor}
     {zoomBoundsDiv}
-    {graphWidgetStyle}
+    bind:graphWidgetStyle
 
     bind:currentSpace
     bind:showPlaneControls

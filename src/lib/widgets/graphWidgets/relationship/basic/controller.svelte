@@ -14,7 +14,7 @@
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
     export let scale: number
-    export let cohortMemberWithIndex: { index: number, member: GenerationMember } | null
+    export let cohortMemberWithIndex: { index: number, member: GenerationMember }
     export let relationshipsLength: number
     export let midline: number
     export let halfAxisId: HalfAxisId
@@ -28,8 +28,7 @@
 
 
     $: leafGeometry =
-        cohortMemberWithIndex === null ? null :
-        cohortMemberWithIndex.member === null ? {
+        cohortMemberWithIndex.member.alreadyRendered ? {
             bottom: relationshipsLength + 0.5 * sizeOfThingsAlongLength + 0.5 * offsetAlongLength * flip,
             top: relationshipsLength + 0.5 * sizeOfThingsAlongLength + 0.5 * offsetAlongLength * flip,
             bottomMidline: midline + 0.5 * offsetAlongWidth,

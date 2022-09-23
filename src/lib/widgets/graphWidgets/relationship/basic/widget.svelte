@@ -18,6 +18,7 @@
      * @param  {Graph} graph - The Graph that the Relationships are in.
      */
     export let cohort: ThingCohort
+    export let cohortMemberWithIndex: { index: number, member: GenerationMember }
     export let graph: Graph
     export let midline: number
     export let stemTop: number
@@ -33,7 +34,6 @@
     export let rotation: number
     export let direction: Direction | null = null
 
-    let cohortMemberWithIndex: { index: number, member: GenerationMember } | null = null
     let leafGeometry: { bottom: number, top: number, bottomMidline: number, topMidline: number } | null = null
     
     
@@ -57,7 +57,8 @@
     {thingHeight}
     {thingWidth}
     {sizeOfThingsAlongWidth}
-    {leafGeometry}
+
+    bind:leafGeometry
 />
 
 
@@ -67,11 +68,6 @@
 
 
 
-
-
-
-
-    
 {#if cohortMemberWithIndex && leafGeometry}                  
     {#if cohortMemberWithIndex.member}
         <RelationshipLeafWidget
