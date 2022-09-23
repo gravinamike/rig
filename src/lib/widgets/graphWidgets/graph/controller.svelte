@@ -11,7 +11,6 @@
 
     // Import constants and utility functions.
     import { zoomBase } from "$lib/shared/constants"
-    import { defaultGraphWidgetStyle } from "$lib/widgets/graphWidgets"
     import { sleep, Rectangle, descendantElements, elementGroupEdges } from "$lib/shared/utility"
 
     // Import stores.
@@ -24,7 +23,7 @@
      * @param {HTMLElement} widget - The top-level <div> of the Graph Widget.
      * @param {Element} centralAnchor - A <div> in the center of the Graph Widget that serves as a central attachment point for the Graph.
      * @param {Element} zoomBoundsDiv - A <div> that closely hugs the edges of the Graph, used as a target for zooms.
-     * @param {GraphWidgetStyle} style - Controls the style of the widget.
+     * @param {GraphWidgetStyle} graphWidgetStyle - Controls the style of the widget.
      * @param {Space | null} currentSpace - The current Space that is used when rendering the Graph.
      * @param {boolean} showPlaneControls - Whether or not to display the Plane Controls widget.
      * @param {number} scale - The target scale of the Graph Widget, used for zooming.
@@ -41,7 +40,7 @@
     export let widget: HTMLElement | null
     export let centralAnchor: Element | null
     export let zoomBoundsDiv: Element | null
-    export let style: GraphWidgetStyle = {...defaultGraphWidgetStyle}
+    export let graphWidgetStyle: GraphWidgetStyle
     
     export let currentSpace: Space | null
     export let showPlaneControls: boolean
@@ -50,7 +49,7 @@
     export let zoomBounds: Rectangle
     export let allowZoomAndScrollToFit: boolean
     export let allowScrollToThingId: boolean
-    export let thingIdToScrollTo: number | null = null
+    export let thingIdToScrollTo: number | null
     export let trackingMouse: boolean
     export let handleMouseMove: (event: MouseEvent) => void
     export let handleWheelScroll: (event: WheelEvent) => void
@@ -86,7 +85,7 @@
      * derived from the application's base zoom factor, with the Graph style's
      * zoom factor exponentially increasing or decreasing it.
      */
-    $: scale = zoomBase ** style.zoom
+    $: scale = zoomBase ** graphWidgetStyle.zoom
 
     /**
      * Tweened scale.
@@ -151,9 +150,9 @@
         // If there is not a Relationship-drag operation in progress,
         if ($relationshipBeingCreatedInfoStore.sourceThingId === null) {
             // Calculate the new zoom.
-            const newZoom = style.zoom + event.deltaY * -0.005
+            const newZoom = graphWidgetStyle.zoom + event.deltaY * -0.005
             // If the new zoom would not exceed min and max zoom bounds, set zoom to the new zoom.
-            if (-5 <= newZoom && newZoom <= 5) style.zoom = newZoom
+            if (-5 <= newZoom && newZoom <= 5) graphWidgetStyle.zoom = newZoom
         }
     }
 
@@ -162,8 +161,8 @@
 
     // Configure style for off-axis styling, if applicable.
     if (graph.offAxis) {
-        style.excludePerspectiveThing = true
-        style.excludeCartesianAxes = true
+        graphWidgetStyle.excludePerspectiveThing = true
+        graphWidgetStyle.excludeCartesianAxes = true
     }
 
     onMount(async () => {
@@ -175,9 +174,9 @@
     /* --------------- Reactive updating of primary attributes. --------------- */
 
     // Updating styling of the space between Things in a Thing Cohort.
-    $: style.betweenThingSpacing = 0.01 * style.thingSpacingPercent * style.thingSize
-    $: style.betweenThingGap = Math.max(0, style.betweenThingSpacing)
-    $: style.betweenThingOverlap = Math.min(0, style.betweenThingSpacing)
+    $: graphWidgetStyle.betweenThingSpacing = 0.01 * graphWidgetStyle.thingSpacingPercent * graphWidgetStyle.thingSize
+    $: graphWidgetStyle.betweenThingGap = Math.max(0, graphWidgetStyle.betweenThingSpacing)
+    $: graphWidgetStyle.betweenThingOverlap = Math.min(0, graphWidgetStyle.betweenThingSpacing)
 
 
     // Scrolling to a target Perspective Thing before the Perspective changes.
@@ -231,7 +230,7 @@
 
         // If the Thing exists, scroll it into the center of the view.
         if (thingWidget) thingWidget.scrollIntoView({
-            behavior: style.animateZoomAndScroll ? "smooth" : "auto",
+            behavior: graphWidgetStyle.animateZoomAndScroll ? "smooth" : "auto",
             block: "center",
             inline: "center"
         })
@@ -265,10 +264,10 @@
 
         // Set the zoom bounds from the Graph bounds, adjusting for both scale
         // and padding.
-        zoomBounds.x = ( graphBounds.x / scale ) - style.zoomPadding
-        zoomBounds.y = ( graphBounds.y / scale ) - style.zoomPadding
-        zoomBounds.width = ( graphBounds.width / scale ) + ( 2 * style.zoomPadding )
-        zoomBounds.height = ( graphBounds.height / scale ) + ( 2 * style.zoomPadding )
+        zoomBounds.x = ( graphBounds.x / scale ) - graphWidgetStyle.zoomPadding
+        zoomBounds.y = ( graphBounds.y / scale ) - graphWidgetStyle.zoomPadding
+        zoomBounds.width = ( graphBounds.width / scale ) + ( 2 * graphWidgetStyle.zoomPadding )
+        zoomBounds.height = ( graphBounds.height / scale ) + ( 2 * graphWidgetStyle.zoomPadding )
 
         // Determine the scale change factor. It's based on the ratio between the
         // widget's frame and the zoom bounds.
@@ -279,7 +278,7 @@
         // Determine the new scale, and set the Graph's zoom accordingly.
         const newScale = scaleChange * scale
         const newZoom = Math.log(newScale) / Math.log(1.45)
-        style.zoom = newZoom
+        graphWidgetStyle.zoom = newZoom
     }
 
     /**
@@ -295,7 +294,7 @@
 
         // If animated zoom/scroll is enabled, smooth-scroll to center the zoom
         // bounds.
-        if (style.animateZoomAndScroll) {
+        if (graphWidgetStyle.animateZoomAndScroll) {
             zoomBoundsDiv.scrollIntoView({
                 behavior: "smooth",
                 block: "center", inline: "center"})

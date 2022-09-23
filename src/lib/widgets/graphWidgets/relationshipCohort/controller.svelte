@@ -57,35 +57,35 @@
     export let cohort: ThingCohort
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
-    export let thingIdOfHoveredRelationship: number | null = null
-    export let stemHovered: boolean = false
-    export let thingWidth: number = 0
-    export let thingHeight: number = 0
+    export let thingIdOfHoveredRelationship: number | null
+    export let stemHovered: boolean
+    export let thingWidth: number
+    export let thingHeight: number
 
-    export let widgetOffsetX: number = 0
-    export let widgetOffsetY: number = 0
-    export let zIndex: number = 0
-    export let widgetWidth: number = 0
-    export let widgetHeight: number = 0
-    export let opacity: number = 0
-    export let rotatedWidth: number = 0
-    export let rotatedHeight: number = 0
-    export let mirroring: 1 | -1 = 1
-    export let rotation: number = 0
-    export let showDirection: boolean = true
-    export let direction: Direction | null = null
-    export let directionWidgetRotation: number = 0
-    export let changeRelationshipsDirection: (directionId: number) => void = () => {}
-    export let relationshipsWidth: number = 0
-    export let relationshipsLength: number = 0
-    export let tweenedScale: Tweened<number> = tweened(1, {duration: 100, easing: cubicOut})
-    export let midline: number = 0
-    export let stemBottom: number = 0
-    export let stemTop: number = 0
-    export let showRelationships: boolean = true
-    export let relationshipColor: string = "#000000"
-    export let halfAxisId: HalfAxisId = 0
-    export let sizeOfThingsAlongWidth: number = 0
+    export let widgetOffsetX: number
+    export let widgetOffsetY: number
+    export let zIndex: number
+    export let widgetWidth: number
+    export let widgetHeight: number
+    export let opacity: number
+    export let rotatedWidth: number
+    export let rotatedHeight: number
+    export let mirroring: 1 | -1
+    export let rotation: number
+    export let showDirection: boolean
+    export let direction: Direction | null
+    export let directionWidgetRotation: number
+    export let changeRelationshipsDirection: (directionId: number) => void
+    export let relationshipsWidth: number
+    export let relationshipsLength: number
+    export let tweenedScale: Tweened<number>
+    export let midline: number
+    export let stemBottom: number
+    export let stemTop: number
+    export let showRelationships: boolean
+    export let relationshipColor: string
+    export let halfAxisId: HalfAxisId
+    export let sizeOfThingsAlongWidth: number
 
     
     /* --------------- Output attributes. --------------- */
@@ -505,28 +505,4 @@
      * The color of the Relationship widget, determined by the half-axis.
      */
     $: relationshipColor = relationshipColorByHalfAxisId[halfAxisId]
-
-
-
-    
-
-    /*
-    // Construct a list of the related Things along with their indices.
-    function cohortMembersWithIndices(): { index: number, member: GenerationMember }[] {
-        const cohortMembersWithIndices: { index: number, member: GenerationMember }[] = []
-        cohort.members.forEach(
-            (member, index) => cohortMembersWithIndices.push({ index: index, member: member })
-        )
-        return cohortMembersWithIndices
-    }
-    
-    $: relationDistance = graphWidgetStyle.relationDistance // The center-to-center distance between two related Things.
-   
-    $: betweenThingSpacing = graphWidgetStyle.betweenThingSpacing
-    $: betweenThingOverlap = graphWidgetStyle.betweenThingOverlap
-
-    
-
-    
-    */
 </script>

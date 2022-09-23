@@ -49,7 +49,7 @@
     {widget}
     {centralAnchor}
     {zoomBoundsDiv}
-    style={graphWidgetStyle}
+    {graphWidgetStyle}
 
     bind:currentSpace
     bind:showPlaneControls
@@ -87,7 +87,7 @@
         <div
             class="central-anchor"
             bind:this={centralAnchor}
-            style="scale: { graphWidgetStyle.animateZoomAndScroll ? tweenedScale : scale };"
+            style="scale: { graphWidgetStyle.animateZoomAndScroll ? $tweenedScale : scale };"
         >
 
             <!-- Zoom bounds (a Rectangle that closely hugs the edges of the Graph, defining the target for zooming). -->
