@@ -148,7 +148,6 @@
                 height: {relationshipsLength}px;
             "
         >
-            
             <!-- Relationship stem. -->
             {#if cohort.indexOfGrandparentThing === null}
                 <RelationshipStemWidget

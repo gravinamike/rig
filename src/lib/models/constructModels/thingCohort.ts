@@ -93,7 +93,7 @@ export class ThingCohort {
         if (!this.members.includes(member)) {
             this.members.push(member)
             if (member.thing) {
-                member.thing.parentCohort = this
+                if (!member.thing._parentCohort) member.thing.parentCohort = this
                 member.thing.setGraph(this.address.graph)
             }
         }

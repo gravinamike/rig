@@ -15,7 +15,7 @@
 
     
     /**
-     * @param  {Graph} graph - The Graph that the Relationships are in.
+     * @param {Graph} graph - The Graph that the Relationships are in.
      */
     export let cohort: ThingCohort
     export let cohortMemberWithIndex: { index: number, member: GenerationMember }
