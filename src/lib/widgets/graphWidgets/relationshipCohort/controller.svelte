@@ -335,7 +335,7 @@
      * (though not the Relationship stem widget). It is true unless the only
      * member of the associated Thing Cohort is a looped-back grandparent Thing.
      */
-    $: showRelationships = !(
+    $: showRelationships = !(/////////////////////////////////////////////////////////// HERE IS THE PROBLEM.
         cohort.members.length === 1
         && cohort.indexOfGrandparentThing !== null
     )

@@ -42,7 +42,6 @@ export class Thing {
     whenModelInstantiated: Date
 
     graph: Graph | null = null
-    parentThing: Thing | null = null
     _parentCohort: ThingCohort | null = null
 
     inheritSpace = true // For now.
@@ -80,8 +79,8 @@ export class Thing {
         this.graph = graph
     }
 
-    setParentThing(parentThing: Thing): void {
-        this.parentThing = parentThing
+    get parentThing(): Thing | null {
+        return this._parentCohort?.parentThing || null
     }
 
 
