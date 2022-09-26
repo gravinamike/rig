@@ -52,7 +52,9 @@
             // The Leaf is collapsed to a point with the same bottom and top
             // coordinate. This is calculated starting at the bottom of the
             // widget (which is the "full length", since the coordinate system
-            // starts at the top)./////////////////////////////////////////////////// MORE ON THIS.
+            // starts at the top). It is displaced half the way towards the
+            // offset to the destination Thing along the Relationship Cohort's
+            // length, plus half the size of a Thing widget.
             bottom: (
                 relationshipsLength
                 + 0.5 * sizeOfThingsAlongLength
@@ -64,7 +66,8 @@
                 + 0.5 * offsetAlongLength * flip
             ),
             // The Leaf midline starts from the Relationship Cohort midline, and
-            // is displaced half the way towards///////////////////////////////////////////// MORE ON THIS.
+            // is displaced half the way towards the offset to the destination
+            // Thing along the Relationship Cohort's width.
             bottomMidline: (
                 midline
                 + 0.5 * offsetAlongWidth
@@ -178,7 +181,7 @@
      * Relationship and the related Thing. Used for "non-default" Leaf geometries
      * when the destination Thing is already rendered in the Graph.
      */
-    $: offsetsOfRelatedThing = getOffsetsOfRelatedThing(cohortMemberWithIndex.member, scale)
+    $: offsetsOfRelatedThing = getOffsetsOfRelatedThing(cohortMemberWithIndex.member, $tweenedScale)
 
     /**
      * Get-offsets-of-related-Thing method.

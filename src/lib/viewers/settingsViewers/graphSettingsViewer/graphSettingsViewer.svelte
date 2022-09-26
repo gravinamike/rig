@@ -37,7 +37,6 @@
         bind:boundValue={graphWidgetStyle.zoom}
         minValue={-5}
         maxValue={5}
-        onChangeFunction={updateGraphFormat}
     />
 
     <SettingWidget

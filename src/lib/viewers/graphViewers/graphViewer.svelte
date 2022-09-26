@@ -157,7 +157,7 @@
         <div class="graph-widget-container">
             <GraphWidget
                 bind:graph
-                {graphWidgetStyle}
+                bind:graphWidgetStyle
                 bind:allowZoomAndScrollToFit
                 bind:allowScrollToThingId
                 bind:thingIdToScrollTo
