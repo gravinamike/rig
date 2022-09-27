@@ -46,11 +46,6 @@
     let thingHeight: number 
 
 
-
-
-
-
-    $: thingWidgetId = `graph#${ thing.address.graph.id }-thing#${ thingId }`
     
 
 
@@ -114,6 +109,7 @@
 
 <ThingWidgetController
     {thingId}
+    {graph}
     {graphWidgetStyle}
 
     bind:planeId
@@ -136,91 +132,93 @@
 
 
 <!-- Thing Widget. -->
-<div
-    id="{thingWidgetId}"
-    class="box thing-outline-widget" class:highlighted
-    style="
-        border-radius: { thing.childThingCohorts.length ? "10px 10px 0 0" : "10px" };
-    "
-
-    on:mouseenter={()=>{
-        hoveredThingIdStore.set(thingId)
-        isHoveredWidget = true, hoveredRelationshipTarget.set(thing)
-    }}
-    on:mouseleave={()=>{
-        hoveredThingIdStore.set(null)
-        isHoveredWidget = false
-        confirmDeleteBoxOpen = false, hoveredRelationshipTarget.set(null)
-    }}
-    on:mousedown={ event => {if (event.button === 0) {
-        enableRelationshipBeingCreated(
-            thingId,
-            1,
-            halfAxisId,
-            thing.parentCohort.direction,
-            [event.clientX, event.clientY]
-        )
-    }}}
-    on:click={ () => {if ($relationshipBeingCreatedInfoStore.sourceThingId === null) rePerspectToThingId(thingId) } }
-    on:mouseup={ () => {
-        if (relatableForCurrentDrag) {
-            setRelationshipBeingCreatedDestThingId(thingId)
-        } else {
-            disableRelationshipBeingCreated()
-        }
-    } }
-    on:contextmenu|preventDefault={openCommandPalette}
->
-    <!-- Thing text. -->
+{#if thing}
     <div
-        class="text-container"
-        class:horizontal={showContent && elongationCategory === "horizontal"}
-        class:sideways={showContent && elongationCategory !== "horizontal"}
-        style="width: 100%;"
+        id="{thingWidgetId}"
+        class="box thing-outline-widget" class:highlighted
+        style="
+            border-radius: { thing.childThingCohorts.length ? "10px 10px 0 0" : "10px" };
+        "
+
+        on:mouseenter={()=>{
+            hoveredThingIdStore.set(thingId)
+            isHoveredWidget = true, hoveredRelationshipTarget.set(thing)
+        }}
+        on:mouseleave={()=>{
+            hoveredThingIdStore.set(null)
+            isHoveredWidget = false
+            confirmDeleteBoxOpen = false, hoveredRelationshipTarget.set(null)
+        }}
+        on:mousedown={ event => {if (event.button === 0) {
+            enableRelationshipBeingCreated(
+                thingId,
+                1,
+                halfAxisId,
+                thing.parentCohort.direction,
+                [event.clientX, event.clientY]
+            )
+        }}}
+        on:click={ () => {if ($relationshipBeingCreatedInfoStore.sourceThingId === null) rePerspectToThingId(thingId) } }
+        on:mouseup={ () => {
+            if (relatableForCurrentDrag) {
+                setRelationshipBeingCreatedDestThingId(thingId)
+            } else {
+                disableRelationshipBeingCreated()
+            }
+        } }
+        on:contextmenu|preventDefault={openCommandPalette}
     >
+        <!-- Thing text. -->
         <div
-            class="thing-text"
-            class:encapsulating={isEncapsulating}
-            class:show-content={showContent}
-            class:hide-content={!showContent}
-            style="width: 100%; font-size: {textFontSize}px;"
+            class="text-container"
+            class:horizontal={showContent && elongationCategory === "horizontal"}
+            class:sideways={showContent && elongationCategory !== "horizontal"}
+            style="width: 100%;"
         >
-            {thing.text}
+            <div
+                class="thing-text"
+                class:encapsulating={isEncapsulating}
+                class:show-content={showContent}
+                class:hide-content={!showContent}
+                style="width: 100%; font-size: {textFontSize}px;"
+            >
+                {thing.text}
+            </div>
         </div>
+
+        <!-- Content box. -->
+        {#if showContent}
+            <div 
+                class="content-box"
+                class:horizontal={elongationCategory === "horizontal"}
+                class:vertical={!(elongationCategory === "horizontal")}
+            >
+                <ThingDetailsWidget
+                    {thing}
+                    freestanding={false}
+                />
+            </div>
+        {/if}
+
+        <!-- Delete button and confirm delete dialog. -->
+        {#if isHoveredWidget && !confirmDeleteBoxOpen}
+            <div class="delete-button-container">
+                <XButton
+                    buttonFunction={startDelete}
+                />
+            </div>
+        {/if}
+        {#if confirmDeleteBoxOpen}
+            <ConfirmDeleteBox
+                {thingWidth}
+                {thingHeight}
+                {encapsulatingDepth}
+                {elongationCategory}
+                confirmDeleteFunction={completeDelete}
+            />
+        {/if}
     </div>
-
-    <!-- Content box. -->
-    {#if showContent}
-        <div 
-            class="content-box"
-            class:horizontal={elongationCategory === "horizontal"}
-            class:vertical={!(elongationCategory === "horizontal")}
-        >
-            <ThingDetailsWidget
-                {thing}
-                freestanding={false}
-            />
-        </div>
-    {/if}
-
-    <!-- Delete button and confirm delete dialog. -->
-    {#if isHoveredWidget && !confirmDeleteBoxOpen}
-        <div class="delete-button-container">
-            <XButton
-                buttonFunction={startDelete}
-            />
-        </div>
-    {/if}
-    {#if confirmDeleteBoxOpen}
-        <ConfirmDeleteBox
-            {thingWidth}
-            {thingHeight}
-            {encapsulatingDepth}
-            {elongationCategory}
-            confirmDeleteFunction={completeDelete}
-        />
-    {/if}
-</div>
+{/if}
 
 
 <style>

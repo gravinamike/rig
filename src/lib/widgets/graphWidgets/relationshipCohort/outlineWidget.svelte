@@ -1,10 +1,14 @@
 <script lang="ts">
-    import type { Graph, Direction, ThingCohort } from "$lib/models/constructModels"
+    // Import type.
     import type { HalfAxisId } from "$lib/shared/constants"
-    import { DirectionWidget } from "$lib/widgets/graphWidgets"
-    import type { GraphWidgetStyle } from "../graph";
+    import type { Graph, Direction, ThingCohort } from "$lib/models/constructModels"
+    import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
+    // Import widget controller.
     import RelationshipCohortWidgetController from "./controller.svelte"
+
+    // Import related widgets.
+    import { DirectionWidget } from "$lib/widgets/graphWidgets"
 
 
     export let thingCohort: ThingCohort
@@ -21,8 +25,8 @@
 <!-- Widget controller. -->
 <RelationshipCohortWidgetController
     cohort={thingCohort}
-    {graphWidgetStyle}
     {graph}
+    {graphWidgetStyle}
     
     bind:direction
     bind:halfAxisId

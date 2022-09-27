@@ -57,35 +57,35 @@
     export let cohort: ThingCohort
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
-    export let thingIdOfHoveredRelationship: number | null
-    export let stemHovered: boolean
-    export let thingWidth: number
-    export let thingHeight: number
 
-    export let widgetOffsetX: number
-    export let widgetOffsetY: number
-    export let zIndex: number
-    export let widgetWidth: number
-    export let widgetHeight: number
-    export let opacity: number
-    export let rotatedWidth: number
-    export let rotatedHeight: number
-    export let mirroring: 1 | -1
-    export let rotation: number
-    export let showDirection: boolean
+    export let thingIdOfHoveredRelationship: number | null = null
+    export let stemHovered = false
+    export let thingWidth = 0
+    export let thingHeight = 0
+    export let widgetOffsetX = 0
+    export let widgetOffsetY = 0
+    export let zIndex = 0
+    export let widgetWidth = 0
+    export let widgetHeight = 0
+    export let opacity = 1
+    export let rotatedWidth = 0
+    export let rotatedHeight = 0
+    export let mirroring: 1 | -1 = 1
+    export let rotation = 0
+    export let showDirection = false
     export let direction: Direction | null
-    export let directionWidgetRotation: number
-    export let changeRelationshipsDirection: (directionId: number) => void
-    export let relationshipsWidth: number
-    export let relationshipsLength: number
-    export let tweenedScale: Tweened<number>
-    export let midline: number
-    export let stemBottom: number
-    export let stemTop: number
-    export let showRelationships: boolean
-    export let relationshipColor: string
+    export let directionWidgetRotation = 0
+    export let changeRelationshipsDirection: (directionId: number) => void = () => {}
+    export let relationshipsWidth = 0
+    export let relationshipsLength = 0
+    export let tweenedScale: Tweened<number> = tweened(1)
+    export let midline = 0
+    export let stemBottom = 0
+    export let stemTop = 0
+    export let showRelationships = false
+    export let relationshipColor = "#000000"
     export let halfAxisId: HalfAxisId
-    export let sizeOfThingsAlongWidth: number
+    export let sizeOfThingsAlongWidth = 0
 
     
     /* --------------- Output attributes. --------------- */
