@@ -20,9 +20,11 @@
     export let rePerspectToThingId: (id: number) => Promise<void>
     
 
+    // The desired order of half-axes in the outline.
+    const orderedHalfAxisIds = [2, 1, 4, 3, 5, 6, 8, 7]
+    
     // Cohort-related variables.
     $: thingCohorts = rootThing.childThingCohorts
-
 
     // Thing Cohorts are ordered in a specific way:
     // 1. First those on the "Cartesian" half-axes, from top to bottom and left to right,
@@ -33,33 +35,50 @@
         excludeHalfAxes=graphWidgetStyle.excludeCartesianAxes
     ): ThingCohort[] {
 
-        const orderedHalfAxisIds = [2, 1, 4, 3, 5, 6, 8, 7]
         const allCohortGroups: ThingCohort[][] = []
+        const thingCohortsOnHalfAxes: ThingCohort[] = []
+        const thingCohortsNotOnHalfAxes: ThingCohort[] = []
 
+        // If the reordering process should include the main half-axes (Down, Up,
+        // Right, Left, Away, Towards, Inward, Outward), add all Thing Cohorts
+        // which *are* on those main half-axes to an array.
         if (!excludeHalfAxes) {
-            // Get an array of the half-axis IDs that currently have Cohorts.
-            
+
+            // Get an array of IDs for all half-axes in this Clade that currently
+            // have Thing Cohorts, in the desired order for an outline.
             const orderedHalfAxisIdsWithThings = orderedHalfAxisIds.filter(
                 id => id in thing.childCohortsByHalfAxisId
             )
+            console.log("++++++++++++++++")
+            console.log(thing.childCohortsByHalfAxisId)
+            console.log(orderedHalfAxisIdsWithThings)
 
-            const thingCohortsOnHalfAxes: ThingCohort[] = []
+            // For every half-axis ID in that array, add the corresponding Thing
+            // Cohort from the Clade's root Thing to the array of Thing Cohorts
+            // that are on the main half-axes.
             for (const halfAxisId of orderedHalfAxisIdsWithThings) {
                 thingCohortsOnHalfAxes.push(thing.childCohortsByHalfAxisId[halfAxisId])
             }
-
-            allCohortGroups.push(thingCohortsOnHalfAxes)
         }
         
-        const thingCohortsNotOnHalfAxes = thing.childThingCohorts
-            .filter(cohort => !(cohort.halfAxisId && orderedHalfAxisIds.includes(cohort.halfAxisId)))
-
-
+        // Add all Thing Cohorts which *are not* on the main half-axes to an array.
+        thingCohortsNotOnHalfAxes.push(
+            ...thing.childThingCohorts
+                .filter(cohort => !orderedHalfAxisIds.includes(cohort.halfAxisId))
+        )
+        console.log("=====================================================")
+        console.log(thingCohortsOnHalfAxes)
+        console.log(thingCohortsNotOnHalfAxes)
+        // Combine the arrays to produce a single array of all Thing Cohorts for
+        // this Clade, starting with those on the main half-axes in the desired
+        // order, and followed by those not on the main half-axes.
+        allCohortGroups.push(thingCohortsOnHalfAxes)
         allCohortGroups.push(thingCohortsNotOnHalfAxes)
-
         const orderedThingCohorts = allCohortGroups.flat()
+
         return orderedThingCohorts
     }
+    let orderedThingCohorts: ThingCohort[] = []
     $: orderedThingCohorts = getOrderedThingCohorts(rootThing)
     
 
@@ -87,6 +106,13 @@
 
     // Attributes managed by the widget controller.
     let overlapMarginStyleText: string
+
+    /*$: if (orderedThingCohorts) {
+        console.log("==========================")
+        for (const thingCohort of orderedThingCohorts) {
+            console.log(thingCohort.address.generationId, thingCohort.address.parentThingId, thingCohort.address.directionId)
+        }
+    }*/
 </script>
 
 

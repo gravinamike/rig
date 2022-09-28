@@ -45,7 +45,7 @@ export class Thing {
     _parentCohort: ThingCohort | null = null
 
     inheritSpace = true // For now.
-    childCohortsByHalfAxisId: { [directionId: number]: ThingCohort } = {}
+    childCohortsByDirectionId: { [directionId: number]: ThingCohort } = {}
 
     constructor(dbModel: ThingDbModel) {
         this.dbModel = dbModel
@@ -173,16 +173,16 @@ export class Thing {
     childThingCohort( directionId: number, cohort: ThingCohort ): void
     childThingCohort( directionId: number, cohort?: ThingCohort ): ThingCohort | null | void {
         if ( cohort === undefined ) {
-            return directionId in this.childCohortsByHalfAxisId ? this.childCohortsByHalfAxisId[directionId] : null
+            return directionId in this.childCohortsByDirectionId ? this.childCohortsByDirectionId[directionId] : null
         } else {
             // Set child Thing Cohort for this Direction.
-            this.childCohortsByHalfAxisId[directionId] = cohort
+            this.childCohortsByDirectionId[directionId] = cohort
             cohort.parentThing = this
         }
     }
 
     get childThingCohorts(): ThingCohort[] {
-        return Object.values(this.childCohortsByHalfAxisId)
+        return Object.values(this.childCohortsByDirectionId)
     }
 
     offAxisRelatedThingIds(space=this.space): number[] {
@@ -248,7 +248,16 @@ export class Thing {
     }
 
     get childCohorts(): ThingCohort[] {
-        return Object.values(this.childCohortsByHalfAxisId)
+        return Object.values(this.childCohortsByDirectionId)
+    }
+
+    get childCohortsByHalfAxisId(): { [halfAxisId: number]: ThingCohort } {
+        const childCohortsByHalfAxisId: { [halfAxisId: number]: ThingCohort } = {}
+        for (const [directionId, cohort] of Object.entries(this.childCohortsByDirectionId)) {
+            const halfAxisId = (this.space as Space).halfAxisIdByDirectionId[Number(directionId)]
+            childCohortsByHalfAxisId[halfAxisId] = cohort
+        }
+        return childCohortsByHalfAxisId
     }
 }
 

@@ -198,8 +198,6 @@ export class Generations {
                     // Remove the Cohort from its Generation and its Plane.
                     cohort.removeFromGroups()
                 }
-                // Clear the ThingWidgetModel's cohorts attribute.
-                thing.childCohortsByHalfAxisId = {}
             }
             // Remove the Generation from the graph.
             const index = this._members.indexOf(generationToStrip)
