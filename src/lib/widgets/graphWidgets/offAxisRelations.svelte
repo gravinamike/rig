@@ -12,7 +12,7 @@
 
     // Import widgets.
     import { GraphOutlineWidget } from "$lib/widgets/graphWidgets"
-    import type { GraphWidgetStyle } from "./graph";
+    import type { GraphWidgetStyle } from "./graph"
 
     export let parentThing: Thing
     export let parentGraph: Graph
@@ -20,7 +20,7 @@
     export let rePerspectToThingId: (thingId: number) => Promise<void>
 
 
-    const parentThingId = parentThing.id
+    $: parentThingId = parentThing.id
 
 
     $: scale = zoomBase ** parentGraphWidgetStyle.zoom
@@ -57,7 +57,7 @@
         graph = graph // Needed for reactivity.
     }
 
-    let toggleHovered = false
+    let toggleHovered = false    
 </script>
 
 

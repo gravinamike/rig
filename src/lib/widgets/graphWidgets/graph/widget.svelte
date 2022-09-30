@@ -1,11 +1,12 @@
 <script lang="ts">
     // Import types.
-    import { tweened, type Tweened } from "svelte/motion"
-    import { Rectangle } from "$lib/shared/utility"
+    import type { Tweened } from "svelte/motion"
     import type { Graph, Space } from "$lib/models/constructModels"
+    import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
     // Import constants and utility functions.
-    import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
+    import { tweened } from "svelte/motion"
+    import { Rectangle } from "$lib/shared/utility"
 
     // Import stores.
     import { relationshipBeingCreatedInfoStore } from "$lib/stores"
@@ -101,7 +102,7 @@
             />
             
             <!-- Root Cohort Widget (from which the rest of the Graph automatically "grows"). -->
-            {#if graph.rootCohort}
+            {#if graph.rootCohort && graph.lifecycleStatus === "built"}
                 <ThingCohortWidget
                     thingCohort={graph.rootCohort}
                     bind:graph

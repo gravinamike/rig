@@ -88,7 +88,7 @@
 </script>
 
 
-{#if graph && graph.lifecycleStatus === "built"}
+{#if graph}
     <div class="graph-viewer">
         <!-- Graph-related viewers (Schematic and Settings) -->
         <Collapser

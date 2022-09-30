@@ -49,9 +49,6 @@
             const orderedHalfAxisIdsWithThings = orderedHalfAxisIds.filter(
                 id => id in thing.childCohortsByHalfAxisId
             )
-            console.log("++++++++++++++++")
-            console.log(thing.childCohortsByHalfAxisId)
-            console.log(orderedHalfAxisIdsWithThings)
 
             // For every half-axis ID in that array, add the corresponding Thing
             // Cohort from the Clade's root Thing to the array of Thing Cohorts
@@ -66,9 +63,7 @@
             ...thing.childThingCohorts
                 .filter(cohort => !orderedHalfAxisIds.includes(cohort.halfAxisId))
         )
-        console.log("=====================================================")
-        console.log(thingCohortsOnHalfAxes)
-        console.log(thingCohortsNotOnHalfAxes)
+
         // Combine the arrays to produce a single array of all Thing Cohorts for
         // this Clade, starting with those on the main half-axes in the desired
         // order, and followed by those not on the main half-axes.
@@ -92,7 +87,9 @@
         true :
         false
 
-    $: shadowColor = relationshipColorByHalfAxisId[rootThing.parentCohort.halfAxisId]
+    $: shadowColor = rootThing.parentCohort.halfAxisId ?
+        relationshipColorByHalfAxisId[rootThing.parentCohort.halfAxisId] :
+        "#000000"
 
 
     $: showCladeRootThing = (
@@ -106,13 +103,6 @@
 
     // Attributes managed by the widget controller.
     let overlapMarginStyleText: string
-
-    /*$: if (orderedThingCohorts) {
-        console.log("==========================")
-        for (const thingCohort of orderedThingCohorts) {
-            console.log(thingCohort.address.generationId, thingCohort.address.parentThingId, thingCohort.address.directionId)
-        }
-    }*/
 </script>
 
 
