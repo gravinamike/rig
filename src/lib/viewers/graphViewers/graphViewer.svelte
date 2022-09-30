@@ -1,8 +1,9 @@
 <script lang="ts">
     // Type imports.
     import type { Graph } from "$lib/models/constructModels"
+    import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
     
-    // Import basic framework functions.
+    // Import utility functions.
     import { sleep } from "$lib/shared/utility"
 
     // Import stores.
@@ -17,35 +18,41 @@
     import { HistoryViewer, PinsViewer, ThingSearchboxViewer } from "$lib/viewers/navViewers"
     import { NotesViewer } from "$lib/viewers/notesViewers"
     import { FolderViewer } from "$lib/viewers/folderViewers"
-    import { defaultGraphWidgetStyle, GraphWidget, type GraphWidgetStyle } from "$lib/widgets/graphWidgets"
-    import { GraphOutlineWidget } from "$lib/widgets/graphWidgets"
+    import { defaultGraphWidgetStyle, GraphWidget, GraphOutlineWidget } from "$lib/widgets/graphWidgets"
 
-    // Import modification functions.
+    // Import API functions.
     import { markThingsVisited } from "$lib/db/clientSide/makeChanges"
     
+
     export let pThingIds: number[]
     export let depth: number
 
 
-    let allowZoomAndScrollToFit = false
-    let allowScrollToThingId = false
-    let thingIdToScrollTo: number | null = null
+    // Graph and Graph widget style object.
+    let graph: Graph | null
     let graphWidgetStyle: GraphWidgetStyle = {...defaultGraphWidgetStyle}
 
+    // Show-Graph flag. This is a kludge, to ensure that the Graph widgets are
+    // completely replaced at each re-Perspect to prevent retention of state
+    // information.
+    let showGraph = false
 
-    // Initialize the Graph.
-    let graph: Graph | null
+    // Attributes controlling zoom and scroll.
+    let allowZoomAndScrollToFit = false
+    let allowScrollToThingId = false
+    let thingIdToScrollTo: number | null = null  
 
-    // Set up Graph refreshing.
-    $: if ( graph && $graphIdsNeedingViewerRefresh.includes(graph.id) ) {
-        removeGraphIdsNeedingViewerRefresh(graph.id)
-        graph = graph // Needed for reactivity.
-        allowZoomAndScrollToFit = true
-    }
-
+    /**
+     * Build-and-refresh method.
+     * Replaces any existing Graph with a new one, builds the new Graph, then
+     * refreshes the viewers.
+     */
     async function buildAndRefresh() {
         // Close any existing Graph.
-        if (graph) removeGraph(graph)
+        if (graph) {
+            removeGraph(graph)
+            graph = null
+        }
 
         // Open and build the new Graph.
         graph = await addGraph(pThingIds, depth)
@@ -53,42 +60,60 @@
         await markThingsVisited(pThingIds)
 
         // Refresh the Graph viewers.
+        showGraph = true
         addGraphIdsNeedingViewerRefresh(graph.id)
     }
 
-
-    $: {
-        openGraphStore
-
-        buildAndRefresh()
-    }
-    
-
     /**
-     * Re-Perspect the Graph to a given Thing ID.
+     * Re-Perspect-to-Thing-ID method.
+     * Re-builds the the Graph using the given Thing ID as the Perspective Thing.
+     * 
+     * @param thingId - The ID of the new Perspective Thing.
      */
     async function rePerspectToThingId(thingId: number) {
         if (graph) {
             // If the new Perspective Thing is already in the Graph, scroll to center it.
             allowScrollToThingId = true
             thingIdToScrollTo = thingId
-            await sleep(300) // Allow for scroll time (since there's no actual feedback from the Portal to `await`).
+
+            // Allow for scroll time (since there's no actual feedback from the widget to `await`).
+            await sleep(300) 
 
             // Re-Perspect the Graph.
+            showGraph = false
             await graph.setPThingIds([thingId]) // Re-Perspect to this Thing.
-            hoveredThingIdStore.set(null) // Clear the hovered-Thing highlighting.
+            showGraph = true
+
+            // Clear the hovered-Thing highlighting.
+            hoveredThingIdStore.set(null)
+
+            // Refresh, then scroll and zoom to the new Graph.
             allowZoomAndScrollToFit = true
             addGraphIdsNeedingViewerRefresh(graph.id)
-            await markThingsVisited(pThingIds)
 
-            // Add the new Perspective Thing to the History.
+            // Update Thing-visit records in the database and History.
+            await markThingsVisited(pThingIds)
             graph.history.addEntries([thingId])
         }
+    }
+
+    // Set up viewer to refresh...
+    // ... when a Graph is opened...
+    $: {
+        $openGraphStore
+
+        buildAndRefresh()
+    }
+    // ... and whenever a refresh of the specific Graph ID is called for.
+    $: if ( graph && $graphIdsNeedingViewerRefresh.includes(graph.id) ) {
+        removeGraphIdsNeedingViewerRefresh(graph.id)
+        graph = graph // Needed for reactivity.
+        allowZoomAndScrollToFit = true
     }
 </script>
 
 
-{#if graph}
+{#if graph && showGraph}
     <div class="graph-viewer">
         <!-- Graph-related viewers (Schematic and Settings) -->
         <Collapser
