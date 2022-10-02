@@ -2,7 +2,7 @@ import type { GraphConstruct } from "$lib/shared/constants"
 import type { ThingDbModel, ThingSearchListItemDbModel } from "$lib/models/dbModels"
 import type { HalfAxisId } from "$lib/shared/constants"
 import { oddHalfAxisIds } from "$lib/shared/constants"
-import { graphConstructInStore, retrieveGraphConstructs } from "$lib/stores"
+import { graphDbModelInStore, getGraphConstructs } from "$lib/stores"
 import { Graph, Space, Note, Folder, Relationship, NoteToThing, FolderToThing, ThingCohort } from "$lib/models/constructModels"
 
 
@@ -39,8 +39,6 @@ export class Thing {
     noteToThing: NoteToThing | null
     folderToThing: FolderToThing | null
 
-    whenModelInstantiated: Date
-
     graph: Graph | null = null
     _parentCohort: ThingCohort | null = null
 
@@ -70,8 +68,6 @@ export class Thing {
         }
         this.noteToThing = dbModel.noteToThing ? new NoteToThing(dbModel.noteToThing) : null
         this.folderToThing = dbModel.folderToThing ? new FolderToThing(dbModel.folderToThing) : null
-
-        this.whenModelInstantiated = new Date()
     }
 
 
@@ -144,11 +140,11 @@ export class Thing {
                     // ... and the Thing Widget Model has a default Space set,
                     this.defaultSpaceId
                     // ... and that default Space is in the Store,
-                    && graphConstructInStore("Space", this.defaultSpaceId)
+                    && graphDbModelInStore("Space", this.defaultSpaceId)
                 )
             ) {
                 // ...use the Thing Widget Model's own default Space.
-                space = retrieveGraphConstructs<Space>("Space", this.defaultSpaceId) as Space
+                space = getGraphConstructs<Space>("Space", this.defaultSpaceId) as Space
 
             // Else, if the Thing Widget model has a parent, inherit the parent's Space.
             } else if (this.parentThing) {
@@ -156,7 +152,7 @@ export class Thing {
 
             // If all else fails, just use the first Space in the list of Spaces.
             } else {
-                space = retrieveGraphConstructs<Space>("Space", 1) as Space//What if there is no spacesStoreValue[1]? Supply an empty Space.
+                space = getGraphConstructs<Space>("Space", 1) as Space//What if there is no spacesStoreValue[1]? Supply an empty Space.
             }
 
             return space

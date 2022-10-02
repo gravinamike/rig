@@ -1,23 +1,35 @@
+// Import types.
 import type { Writable } from "svelte/store"
 import type { GraphConstruct } from "$lib/shared/constants"
+import type { DirectionDbModel, SpaceDbModel, ThingDbModel, GraphDbModel } from "$lib/models/dbModels"
 
+// Import framework tools.
 import { writable, derived } from "svelte/store"
+
+// Import constants.
 import { maxThingsToStore } from "$lib/shared/constants"
-import { Direction, Space, isDirection, isSpace, Thing, isThing } from "$lib/models/constructModels"
-import { graphConstructs } from "$lib/db/clientSide"
+
+// Import Graph constructs.
+import { isDirectionDbModel, isSpaceDbModel, isThingDbModel } from "$lib/models/dbModels"
+
+// Import API methods.
+import { graphDbModels } from "$lib/db/clientSide"
+import { Direction, Space, Thing } from "$lib/models/constructModels"
+
+
 
 
 
 /* Direction-related stores and subscriptions. */
 
-export const directionsStore = writable( {} as { [id: number]: Direction } )
+export const directionDbModelsStore = writable( {} as { [id: number]: DirectionDbModel } )
 
-let directionsStoreValue: { [id: number]: Direction }
-directionsStore.subscribe(value => {directionsStoreValue = value})
+let directionDbModelsStoreValue: { [id: number]: DirectionDbModel }
+directionDbModelsStore.subscribe(value => {directionDbModelsStoreValue = value})
 
-export const directionsStoreAsArray = derived(
-    directionsStore,
-    $directionsStore => Object.values($directionsStore)
+export const directionDbModelsStoreAsArray = derived(
+    directionDbModelsStore,
+    $directionDbModelsStore => Object.values($directionDbModelsStore)
 )
 
 export const directionIdsNotFoundStore = writable( [] as number[] )
@@ -25,50 +37,50 @@ export const directionIdsNotFoundStore = writable( [] as number[] )
 
 /* Space-related stores and subscriptions. */
 
-export const spacesStore = writable( {} as { [id: number]: Space } )
-let spacesStoreValue: { [id: number]: Space }
-spacesStore.subscribe(value => {spacesStoreValue = value})
+export const spaceDbModelsStore = writable( {} as { [id: number]: SpaceDbModel } )
+let spaceDbModelsStoreValue: { [id: number]: SpaceDbModel }
+spaceDbModelsStore.subscribe(value => {spaceDbModelsStoreValue = value})
 
-export const spacesStoreAsArray = derived( spacesStore, $spacesStore => Object.values($spacesStore) )
+export const spaceDbModelsStoreAsArray = derived( spaceDbModelsStore, $spaceDbModelsStore => Object.values($spaceDbModelsStore) )
 
 export const spaceIdsNotFoundStore = writable( [] as number[] );
 
 
 /* Thing-related stores and subscriptions. */
 
-export const thingsStore = writable( {} as { [id: number]: Thing } )
+export const thingDbModelsStore = writable( {} as { [id: number]: ThingDbModel } )
 
-let thingsStoreValue: { [id: number]: Thing }
-thingsStore.subscribe(value => {thingsStoreValue = value})
+let thingDbModelsStoreValue: { [id: number]: ThingDbModel }
+thingDbModelsStore.subscribe(value => {thingDbModelsStoreValue = value})
 
-export const thingsStoreAsArray = derived( thingsStore, $thingsStore => Object.values($thingsStore) )
+export const thingDbModelsStoreAsArray = derived( thingDbModelsStore, $thingDbModelsStore => Object.values($thingDbModelsStore) )
 
 export const thingIdsNotFoundStore = writable( [] as number[] )
 
 
 /**
- * Add Graph constructs to the stores.
- * @param  {Type} constructs - The Graph constructs to add to the store.
+ * Add Graph DB models to the stores.
+ * @param  {Type} models - The Graph DB models to add to the store.
  */
-function updateConstructStore<Type extends GraphConstruct>( constructs: Type | Type[] ): void {
-    // If necessary, pack a single supplied construct in an array for processing.
-    if (!("length" in constructs)) constructs = [constructs]
+function updateDbModelStore<Type extends GraphDbModel>( models: Type | Type[] ): void {
+    // If necessary, pack a single supplied model in an array for processing.
+    if (!("length" in models)) models = [models]
     
     // Determine which store to update based on construct type.
-    let store: Writable<{ [id: number]: GraphConstruct }>
-    if ( constructs.length && isDirection(constructs[0]) ) {
-        store = directionsStore
-    } else if ( constructs.length && isSpace(constructs[0]) ) {
-        store = spacesStore
-    } else if ( constructs.length && isThing(constructs[0]) ) {
-        store = thingsStore
+    let store: Writable<{ [id: number]: GraphDbModel }>
+    if ( models.length && isDirectionDbModel(models[0]) ) {
+        store = directionDbModelsStore
+    } else if ( models.length && isSpaceDbModel(models[0]) ) {
+        store = spaceDbModelsStore
+    } else if ( models.length && isThingDbModel(models[0]) ) {
+        store = thingDbModelsStore
     } else {
         return
     }
 
-    // Update the store with each supplied construct.
-    constructs.forEach((construct) => {
-        store.update( (current) => { current[construct.id as number] = construct; return current } )
+    // Update the store with each supplied DB model.
+    models.forEach((model) => {
+        store.update( (current) => { current[model.id as number] = model; return current } )
     })
 }
 
@@ -106,39 +118,39 @@ function updateIdStore(
  * Trim Thing store down to their maximum allowed size.
  */
 function trimThingStore(): void {
-    thingsStore.update( (current) => {
-        const thingsStoreAsArray = Object.values(current)
-        const thingIdsInOrderInstantiated = thingsStoreAsArray
-            .sort((a, b) => b.whenModelInstantiated.getTime() - a.whenModelInstantiated.getTime())
+    thingDbModelsStore.update( (current) => {
+        const thingDbModelsStoreAsArray = Object.values(current)
+        const thingIdsInOrderInstantiated = thingDbModelsStoreAsArray
+            //.sort((a, b) => b.whenModelInstantiated.getTime() - a.whenModelInstantiated.getTime())
             .map(thing => thing.id)
         
         const trimmedThingIds = thingIdsInOrderInstantiated.slice(0, maxThingsToStore)
 
-        const filteredThingsStore = Object.fromEntries(
+        const filteredThingDbModelsStore = Object.fromEntries(
             Object.entries(current).filter(
                (keyVal) => trimmedThingIds.map(id => Number(id)).includes(Number(keyVal[0]))
             )
         )
 
-        return filteredThingsStore
+        return filteredThingDbModelsStore
     } )
 }
 
 
 /**
- * Check whether a Graph construct is in the store (by ID).
+ * Check whether a Graph DB model is in the store (by ID).
  * @param  {"Direction" | "Space" | "Thing"} constructName - The name of the construct type.
  * @param  {number | number[]} id - The construct IDs to check.
  */
-export function graphConstructInStore(
+export function graphDbModelInStore(
     constructName: "Direction" | "Space" | "Thing",
     id: number
 ): boolean {
     // Determine which store to check based on construct name.
     const storeValue = {
-        "Direction": directionsStoreValue,
-        "Space": spacesStoreValue,
-        "Thing": thingsStoreValue
+        "Direction": directionDbModelsStoreValue,
+        "Space": spaceDbModelsStoreValue,
+        "Thing": thingDbModelsStoreValue
     }[constructName]
 
     // Determine if the construct ID is in the store.
@@ -147,29 +159,29 @@ export function graphConstructInStore(
 
 
 /**
- * Fetch Graph constructs from the API, then add them to the stores.
+ * Fetch Graph DB models from the API, then add them to the stores.
  * @param  {"Direction" | "Space" | "Thing"} constructName - The name of the construct type.
  * @param  {number | number[]} ids - The construct IDs to fetch and store.
- * @param  allowUpdating - Whether to update or skip constructs that are already in the store.
+ * @param  allowUpdating - Whether to update or skip DB models that are already in the store.
  */
-export async function storeGraphConstructs<Type extends GraphConstruct>(
+export async function storeGraphDbModels<Type extends GraphDbModel>(
     constructName: "Direction" | "Space" | "Thing",
     ids?: number | number[],
     allowUpdating = false
 ): Promise< Type[] > {
     // Determine which store to check based on construct name.
     const storeValue = {
-        "Direction": directionsStoreValue,
-        "Space": spacesStoreValue,
-        "Thing": thingsStoreValue
+        "Direction": directionDbModelsStoreValue,
+        "Space": spaceDbModelsStoreValue,
+        "Thing": thingDbModelsStoreValue
     }[constructName]
 
     let idsToQuery: number[] = []
     let queriedInstances: Type[]
     
-    // If no IDs were provided, fetch all instances of this construct.
+    // If no IDs were provided, fetch all instances of this Db model.
     if (typeof ids === "undefined") {
-        queriedInstances = await graphConstructs(constructName) as Type[]
+        queriedInstances = await graphDbModels(constructName) as Type[]
 
     // Else, if IDs *were* provided, fetch instances based on the IDs.
     } else {
@@ -188,11 +200,11 @@ export async function storeGraphConstructs<Type extends GraphConstruct>(
 
         // Fetch the instances from the API.
         if (!idsToQuery.length) return []
-        queriedInstances = await graphConstructs(constructName, idsToQuery) as Type[]
+        queriedInstances = await graphDbModels(constructName, idsToQuery) as Type[]
     }
 
     // Update the store with these instances.
-    updateConstructStore(queriedInstances)
+    updateDbModelStore(queriedInstances)
     // Update the IDs Not Found store with any IDs that weren't fetched.
     if (!(typeof ids === "undefined")) {
         const idsFound = queriedInstances.map(x => x.id) as number[]
@@ -209,19 +221,19 @@ export async function storeGraphConstructs<Type extends GraphConstruct>(
 
 
 /**
- * Remove Graph constructs from the stores.
+ * Remove Graph DB models from the stores.
  * @param  {"Direction" | "Space" | "Thing"} constructName - The name of the construct type.
- * @param  {number | number[]} ids - The IDs of the constructs to remove from the store.
+ * @param  {number | number[]} ids - The IDs of the DB models to remove from the store.
  */
-export async function unstoreGraphConstructs(
+export async function unstoreGraphDbModels(
     constructName: "Direction" | "Space" | "Thing",
     ids: number | number[]
 ): Promise<void> {
     // Determine which store to update based on construct name.
-    const store: Writable<{[id: number]: GraphConstruct}> = {
-        "Direction": directionsStore,
-        "Space": spacesStore,
-        "Thing": thingsStore
+    const store: Writable<{[id: number]: GraphDbModel}> = {
+        "Direction": directionDbModelsStore,
+        "Space": spaceDbModelsStore,
+        "Thing": thingDbModelsStore
     }[constructName]
 
     // Convert single IDs into arrays for processing (if needed).
@@ -235,15 +247,15 @@ export async function unstoreGraphConstructs(
 
 
 /**
- * Clear a Graph construct Store.
+ * Clear a Graph DB model store.
  * @param  {"Direction" | "Space" | "Thing"} constructName - The name of the construct type.
  */
-export async function clearGraphConstructs(constructName: "Direction" | "Space" | "Thing"): Promise<void> {
+export async function clearGraphDbModelStore(constructName: "Direction" | "Space" | "Thing"): Promise<void> {
     // Determine which store to clear based on construct name.
-    const store: Writable<{[id: number]: GraphConstruct}> = {
-        "Direction": directionsStore,
-        "Space": spacesStore,
-        "Thing": thingsStore
+    const store: Writable<{[id: number]: GraphDbModel}> = {
+        "Direction": directionDbModelsStore,
+        "Space": spaceDbModelsStore,
+        "Thing": thingDbModelsStore
     }[constructName]
 
     // Clear the store.
@@ -251,43 +263,75 @@ export async function clearGraphConstructs(constructName: "Direction" | "Space" 
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 /**
- * Retrieve Graph constructs from the stores.
+ * Get Graph constructs based on the DB models in the stores.
  * @param  {"Direction" | "Space" | "Thing"} constructName - The name of the construct type.
  * @param  {number | number[]} ids - The IDs of the constructs to retrieve from the stores.
  */
-export function retrieveGraphConstructs<Type extends GraphConstruct>(
+export function getGraphConstructs<Type extends GraphConstruct>(/////////////////// REBUILD AS GET GRAPH CONSTRUCTS
     constructName: "Direction" | "Space" | "Thing",
     ids: number
 ): Type | null
-export function retrieveGraphConstructs<Type extends GraphConstruct>(
+export function getGraphConstructs<Type extends GraphConstruct>(
     constructName: "Direction" | "Space" | "Thing",
     ids: number[]
 ): Type[]
-export function retrieveGraphConstructs<Type extends GraphConstruct>(
+export function getGraphConstructs<Type extends GraphConstruct>(
     constructName: "Direction" | "Space" | "Thing",
     ids: number | number[]
 ): Type[] | Type | null {
-    // Determine which store to get construct from based on construct name.
-    let storeValue: { [id: number]: GraphConstruct }
+    // Determine which store to get DbModel from based on construct name.
+    let storeValue: { [id: number]: GraphDbModel }
     if (constructName === "Direction") {
-        storeValue = directionsStoreValue
+        storeValue = directionDbModelsStoreValue
     } else if (constructName === "Space") {
-        storeValue = spacesStoreValue
+        storeValue = spaceDbModelsStoreValue
     } else {
-        storeValue = thingsStoreValue
+        storeValue = thingDbModelsStoreValue
     }
+
+
+
+
+
     
-    // For single IDs, return the stored construct or null if there isn't one stored.
+    // For single IDs, return a construct based on the the stored DB model, or
+    // null if there isn't one stored.
     if (typeof ids === "number") {
-        const output = graphConstructInStore(constructName, ids) ? storeValue[ids] as Type : null
+        const output = graphDbModelInStore(constructName, ids) ?
+            (
+                constructName === "Direction" ? new Direction(storeValue[ids] as DirectionDbModel) :
+                constructName === "Space" ? new Space(storeValue[ids] as SpaceDbModel) :
+                new Thing(storeValue[ids] as ThingDbModel)
+            ) as Type :
+            null
         return output
         
-    // For an array of IDs, return an array of the stored constructs that match.
+    // For an array of IDs, return an array of constructs based on the the stored
+    // DB models that match.
     } else {
         const output: Type[] = []
         for (const id of ids) {
-            if (graphConstructInStore(constructName, id)) output.push(storeValue[id] as Type)
+            if (graphDbModelInStore(constructName, id)) output.push(
+                (
+                    constructName === "Direction" ? new Direction(storeValue[id] as DirectionDbModel) :
+                    constructName === "Space" ? new Space(storeValue[id] as SpaceDbModel) :
+                    new Thing(storeValue[id] as ThingDbModel)
+                ) as Type
+            )
         }
         return output
     }

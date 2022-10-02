@@ -1,6 +1,6 @@
 <script context="module" lang="ts">
     import type { Direction, Thing, GenerationMember, Graph } from "$lib/models/constructModels"
-    import { hoveredThingIdStore, storeGraphConstructs, addGraphIdsNeedingViewerRefresh } from "$lib/stores"
+    import { hoveredThingIdStore, storeGraphDbModels, addGraphIdsNeedingViewerRefresh } from "$lib/stores"
     import { DirectionWidget } from "$lib/widgets/graphWidgets"
     import { updateRelationships } from "$lib/db/clientSide"
 </script>
@@ -8,6 +8,7 @@
 <script lang="ts">
 import type { HalfAxisId } from "$lib/shared/constants";
     import type { GraphWidgetStyle } from "../../graph";
+    import type { ThingDbModel } from "$lib/models/dbModels";
 
 
     export let graph: Graph
@@ -44,7 +45,7 @@ import type { HalfAxisId } from "$lib/shared/constants";
                 }
             ])
             if (relationshipsUpdated) {
-                await storeGraphConstructs<Thing>("Thing", sourceThingId, true)
+                await storeGraphDbModels<ThingDbModel>("Thing", sourceThingId, true)
                 await graph.build()
                 addGraphIdsNeedingViewerRefresh(graph.id)
             }

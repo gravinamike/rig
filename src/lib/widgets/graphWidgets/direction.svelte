@@ -6,7 +6,7 @@
 
     // Constants and stores imports.
     import { relationshipColorByHalfAxisId } from "$lib/shared/constants"
-    import { directionsStore } from "$lib/stores"
+    import { directionDbModelsStore, getGraphConstructs } from "$lib/stores"
 
     /**
      * @param  {Direction | null} direction - The Direction currently being represented by this widget.
@@ -72,16 +72,17 @@
             }}
             on:wheel|stopPropagation={()=>{}}
         >
-            {#each Object.entries($directionsStore) as [optionId, option]}
+            {#each Object.entries($directionDbModelsStore) as [optionId, option]}
                 <div
                     class="option"
                     on:click={() => {
-                        direction = option
+                        direction = getGraphConstructs("Direction", Number(option.id))
                         showOptions = false
-                        optionClickedFunction(direction, Number(optionId), option)
+                        if (direction) optionClickedFunction(direction, Number(optionId), direction)
                     }}
                     on:mouseenter={() => {
-                        optionHoveredFunction(Number(optionId), option)
+                        direction = getGraphConstructs("Direction", Number(option.id))
+                        if (direction) optionHoveredFunction(Number(optionId), direction)
                     }}
                 >
                     {option.text}

@@ -4,7 +4,7 @@
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets" 
 
     import { planePadding } from "$lib/shared/constants"
-    import { retrieveGraphConstructs } from "$lib/stores"
+    import { getGraphConstructs } from "$lib/stores"
 
     /**
      * Create a Thing Base Widget Model.
@@ -38,9 +38,9 @@
     $: planeId =
         // If the Thing is on the encapsulating axis and has a parent Thing,
         // inherit the Plane from the Thing's parent Thing.
-        halfAxisId && [7, 8].includes(halfAxisId) && thing?.parentThing ? thing.parentThing.parentCohort.plane?.id || 0 :
+        halfAxisId && [7, 8].includes(halfAxisId) && thing?.parentThing ? thing.parentThing.parentCohort?.plane?.id || 0 :
         // Otherwise, use the Thing's own Plane.
-        thing?.parentCohort.plane?.id || 0
+        thing?.parentCohort?.plane?.id || 0
 
     /**
      * Encapsulating depth.
@@ -53,7 +53,7 @@
      * Encapsulation depth is taken from the same attribute on the Thing's
      * parent Thing Cohort (or is 0 by default).
      */
-    $: encapsulatingDepth = thing?.parentCohort.encapsulatingDepth || 0
+    $: encapsulatingDepth = thing?.parentCohort?.encapsulatingDepth || 0
 
     /**
      * Thing size.
@@ -109,7 +109,7 @@
      * to 1 if there is no Thing specified, since "empty" Thing Cohort Widgets
      * are still formatted as if they take up space.
      */
-    $: cohortSize = thing?.parentCohort.members.length || 1
+    $: cohortSize = thing?.parentCohort?.members.length || 1
 
     /**
      * Thing.
@@ -117,7 +117,7 @@
      * If a Thing ID is specified, the Thing is retrieved from the store.
      * Otherwise, the default is null.
      */
-     $: thing = typeof thingId === "number" ? retrieveGraphConstructs<Thing>("Thing", thingId) : null
+     $: thing = typeof thingId === "number" ? getGraphConstructs<Thing>("Thing", thingId) : null
 
     /**
      * Half-axis ID.
@@ -125,7 +125,7 @@
      * This is taken from the Thing's parent Thing Cohort, with 0 as default if
      * no Thing ID is specified.
      */
-    $: halfAxisId = thing?.parentCohort.halfAxisId || (0 as HalfAxisId)
+    $: halfAxisId = thing?.parentCohort?.halfAxisId || (0 as HalfAxisId)
 
     /**
      * Elongation category.
@@ -158,5 +158,5 @@
      * Thing Cohort if the Thing ID is specified. Otherwise, the default is 1
      * (no elongation).
      */
-    $: elongation = thing?.parentCohort.axialElongation || 1
+    $: elongation = thing?.parentCohort?.axialElongation || 1
 </script>

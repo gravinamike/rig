@@ -5,7 +5,7 @@
 
     /* Store imports. */
     import {
-        graphConstructInStore, unstoreGraphConstructs,
+        graphDbModelInStore, unstoreGraphDbModels,
         hoveredThingIdStore, hoveredRelationshipTarget,
         relationshipBeingCreatedInfoStore, enableRelationshipBeingCreated,
         setRelationshipBeingCreatedDestThingId, setRelationshipBeingCreatedTrackingMouse,
@@ -94,11 +94,11 @@
      */
     async function completeDelete() {
         await graph.deleteThingById(thingId)
-        await unstoreGraphConstructs("Thing", thingId)
+        await unstoreGraphDbModels("Thing", thingId)
 
         const reverseHistory = graph.history._entries.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
         for (const historyEntry of reverseHistory) {
-            if (historyEntry.thingId !== thingId && graphConstructInStore("Thing", historyEntry.thingId)) {
+            if (historyEntry.thingId !== thingId && graphDbModelInStore("Thing", historyEntry.thingId)) {
                 rePerspectToThingId(historyEntry.thingId)
                 break
             }
@@ -264,14 +264,14 @@
         </div>
 
         <!-- Content box. -->
-        {#if showContent}
+        {#if showContent && thing.dbModel}
             <div 
                 class="content-box"
                 class:horizontal={elongationCategory === "horizontal"}
                 class:vertical={!(elongationCategory === "horizontal")}
             >
                 <ThingDetailsWidget
-                    {thing}
+                    thingDbModel={thing.dbModel}
                     freestanding={false}
                 />
             </div>

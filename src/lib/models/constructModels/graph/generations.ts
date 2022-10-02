@@ -2,13 +2,14 @@
 import type { Thing } from "$lib/models/constructModels"
 
 // Store imports.
-import { storeGraphConstructs } from "$lib/stores"
+import { storeGraphDbModels } from "$lib/stores"
 
 // Utility imports.
 import { unique } from "$lib/shared/utility"
 
 // Model imports.
 import { Graph, Generation } from "$lib/models/constructModels"
+import type { ThingDbModel } from "$lib/models/dbModels"
 
 
 /** Class representing the set of Generations belonging to a Graph. */
@@ -156,7 +157,7 @@ export class Generations {
         const thingIdsToStore = this.newGenerationThingIds().filter( id => !thingIdsOfGraph.includes(id) )
 
         // Store Things from the IDs.
-        await storeGraphConstructs<Thing>("Thing", thingIdsToStore)
+        await storeGraphDbModels<ThingDbModel>("Thing", thingIdsToStore)
     }
 
     /**

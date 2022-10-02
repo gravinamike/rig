@@ -1,24 +1,24 @@
 <script lang="ts">
-    import { thingsStoreAsArray, thingIdsNotFoundStore } from "$lib/stores"
+    import { thingDbModelsStoreAsArray, thingIdsNotFoundStore } from "$lib/stores"
     import { ThingDetailsWidget } from "$lib/widgets/detailsWidgets"
 </script>
 
 
 <main>
     <!-- List of Things found. -->
-    {#if $thingsStoreAsArray.length}
-        <h4>{$thingsStoreAsArray.length} Things found:</h4>
+    {#if $thingDbModelsStoreAsArray.length}
+        <h4>{$thingDbModelsStoreAsArray.length} Things found:</h4>
 
-        {#each $thingsStoreAsArray as thing}
+        {#each $thingDbModelsStoreAsArray as thingDbModel}
             <ThingDetailsWidget
-                {thing}
+                {thingDbModel}
             />
         {/each}
     {/if}
 
     <!-- List of Things not found. -->
     {#if $thingIdsNotFoundStore.length}
-        <h4>{$thingsStoreAsArray.length} Things not found:</h4>
+        <h4>{$thingDbModelsStoreAsArray.length} Things not found:</h4>
 
         {#each $thingIdsNotFoundStore as id}
             <div class="box">

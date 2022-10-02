@@ -1,6 +1,6 @@
 <script context="module" lang="ts">
     import type { Thing, GenerationMember, ThingCohort } from "$lib/models/constructModels"
-    import { retrieveGraphConstructs, addGraphIdsNeedingViewerRefresh, relationshipBeingCreatedInfoStore, hoveredThingIdStore, hoveredRelationshipTarget } from "$lib/stores"
+    import { getGraphConstructs, addGraphIdsNeedingViewerRefresh, relationshipBeingCreatedInfoStore, hoveredThingIdStore, hoveredRelationshipTarget } from "$lib/stores"
     import { XButton } from "$lib/widgets/layoutWidgets"
 </script>
 
@@ -27,7 +27,7 @@
         const sourceThing = thing?.parentThing || null
         const destThingId = thingIdOfHoveredRelationship
         const destThing = thingIdOfHoveredRelationship ?
-            retrieveGraphConstructs("Thing", thingIdOfHoveredRelationship) as Thing :
+            getGraphConstructs("Thing", thingIdOfHoveredRelationship) as Thing :
             null
 
         // Check both Things. If either has only 1 Relationship, warn the user that that

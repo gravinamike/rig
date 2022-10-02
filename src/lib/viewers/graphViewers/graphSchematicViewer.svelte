@@ -24,9 +24,9 @@
             <Collapser headerText={`Generation ${id}`} expanded={true}>
                 <div class="related-things-list">
                     {#each generation.members as member}
-                        {#if member.thing}
+                        {#if member.thing?.dbModel}
                             <ThingDetailsWidget
-                                thing={member.thing}
+                                thingDbModel={member.thing.dbModel}
                             />
                         {:else}
                             <div class="box">

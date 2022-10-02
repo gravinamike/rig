@@ -17,10 +17,11 @@
      } from "$lib/shared/constants"
 
     // Import stores.
-    import { storeGraphConstructs, retrieveGraphConstructs, addGraphIdsNeedingViewerRefresh } from "$lib/stores"
+    import { storeGraphDbModels, getGraphConstructs, addGraphIdsNeedingViewerRefresh } from "$lib/stores"
 
     // Import API functions.
     import { updateRelationships } from "$lib/db/clientSide"
+    import type { ThingDbModel } from "$lib/models/dbModels";
     
 
     /**
@@ -209,7 +210,7 @@
      * The Direction of the Relationships Cohort. Retrieved by Direction ID from
      * the store.
      */
-    $: direction = retrieveGraphConstructs("Direction", cohort.address.directionId as number) as Direction
+    $: direction = getGraphConstructs("Direction", cohort.address.directionId as number) as Direction
 
     /**
      * Direction widget rotation.
@@ -255,7 +256,7 @@
         // Update the Graph to reflect the updated Relationships.
         if (relationshipsUpdated) {
             // Re-store the source Thing (so that its related Things will be updated).
-            await storeGraphConstructs<Thing>("Thing", sourceThingId, true)
+            await storeGraphDbModels<ThingDbModel>("Thing", sourceThingId, true)
             // Re-build and refresh the Graph.
             await graph.build()
             addGraphIdsNeedingViewerRefresh(graph.id)

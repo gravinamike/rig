@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { Thing, Graph } from "$lib/models/constructModels"
-    import { hoveredThingIdStore, retrieveGraphConstructs, graphConstructInStore } from "$lib/stores"
+    import { hoveredThingIdStore, graphDbModelInStore, getGraphConstructs } from "$lib/stores"
     import { Toggle } from "$lib/widgets/layoutWidgets"
 
     export let graph: Graph
@@ -55,7 +55,7 @@
             return {
                 timestamp: entry.timestamp,
                 thingId: entry.thingId,
-                thing: graphConstructInStore("Thing", entry.thingId) ? retrieveGraphConstructs("Thing", entry.thingId) : null
+                thing: graphDbModelInStore("Thing", entry.thingId) ? getGraphConstructs("Thing", entry.thingId) : null
             }
         }
     )

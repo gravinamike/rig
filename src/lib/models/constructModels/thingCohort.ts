@@ -1,7 +1,7 @@
 import type { Direction, Space, Graph, Generation, GenerationMember, Plane, Thing } from "$lib/models/constructModels"
 
 import { offsetsByHalfAxisId, type HalfAxisId } from "$lib/shared/constants"
-import { retrieveGraphConstructs } from "$lib/stores"
+import { getGraphConstructs } from "$lib/stores"
 
 
 export type CohortAddress = {
@@ -130,6 +130,6 @@ export class ThingCohort {
     }
 
     get direction(): Direction {
-        return retrieveGraphConstructs("Direction", this.address.directionId as number) as Direction
+        return getGraphConstructs("Direction", this.address.directionId as number) as Direction
     }
 }

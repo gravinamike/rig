@@ -6,7 +6,7 @@ import type { RelationshipBeingCreatedInfo } from "$lib/widgets/graphWidgets"
 import { writable, derived } from "svelte/store"
 import { nullRelationshipBeingCreatedInfo } from "$lib/widgets/graphWidgets"
 import { nullRemoteRelatingInfo, nullTextHyperlinkingInfo, nullThingLinkingInfo } from "$lib/widgets/dialogWidgets"
-import { retrieveGraphConstructs } from "./graphConstructStores"
+import { getGraphConstructs } from "./graphConstructStores"
 import type { HalfAxisId } from "$lib/shared/constants"
 
 
@@ -112,7 +112,7 @@ export const inferredRelationshipBeingCreatedDirection = derived(
         ) {
             direction = (
                 $relationshipBeingCreatedInfoStore.destDirection.oppositeid ?
-                    retrieveGraphConstructs(
+                    getGraphConstructs(
                         "Direction",
                         $relationshipBeingCreatedInfoStore.destDirection.oppositeid
                     ) :

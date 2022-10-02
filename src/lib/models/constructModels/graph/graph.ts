@@ -1,10 +1,11 @@
 import type { Space, Thing, ThingCohort } from "$lib/models/constructModels"
 
-import { storeGraphConstructs, retrieveGraphConstructs, unstoreGraphConstructs } from "$lib/stores"
+import { storeGraphDbModels, getGraphConstructs, unstoreGraphDbModels } from "$lib/stores"
 import { Generations } from "./generations"
 import { Planes } from "./planes"
 import { PerspectiveHistory } from "./history"
 import { deleteThing, deleteRelationship } from "$lib/db/clientSide/makeChanges"
+import type { ThingDbModel } from "$lib/models/dbModels"
 
 
 /** Class representing a Graph. */
@@ -109,7 +110,7 @@ export class Graph {
 
     async deleteThingById(thingId: number): Promise<void> {
         // Get the to-be-deleted Thing from the Store.
-        const deletedThing = retrieveGraphConstructs<Thing>("Thing", thingId)
+        const deletedThing = getGraphConstructs<Thing>("Thing", thingId)
         if (deletedThing) {
 
             const thingDeleted = await deleteThing(thingId)
@@ -119,10 +120,10 @@ export class Graph {
 
                 // Re-store any Things that were related to the deleted Thing (in order to
                 // update their relations to reflect the deleted Thing's absence).
-                await storeGraphConstructs<Thing>("Thing", relatedThingIds, true)
+                await storeGraphDbModels<ThingDbModel>("Thing", relatedThingIds, true)
 
                 // Remove the deleted Thing itself from the Store.
-                await unstoreGraphConstructs("Thing", relatedThingIds)
+                await unstoreGraphDbModels("Thing", relatedThingIds)
 
                 await this.build()
             }
@@ -135,7 +136,7 @@ export class Graph {
         if (relationshipDeleted) {
             // Re-store the Things that were related by the Relationship (in order to
             // update their relations to reflect the Relationship's absence).
-            await storeGraphConstructs<Thing>("Thing", [sourceThingId, destThingId], true)
+            await storeGraphDbModels<ThingDbModel>("Thing", [sourceThingId, destThingId], true)
 
             await this.build()
         }

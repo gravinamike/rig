@@ -3,7 +3,7 @@ import type { SpaceDbModel } from "$lib/models/dbModels"
 import { Direction } from "$lib/models/constructModels"
 
 import { oddHalfAxisIds, halfAxisOppositeIds } from "$lib/shared/constants"
-import { retrieveGraphConstructs } from "$lib/stores"
+import { getGraphConstructs } from "$lib/stores"
 
 
 
@@ -51,7 +51,7 @@ export class Space {
             if (directionIndex < this.directions.length) {
                 const direction = this.directions[directionIndex]
                 const oppositeDirection = direction.oppositeid ?
-                    retrieveGraphConstructs("Direction", direction.oppositeid) as Direction | null :
+                    getGraphConstructs("Direction", direction.oppositeid) as Direction | null :
                     null
                 directionByHalfAxisId[oddHalfAxisId] = direction
                 directionByHalfAxisId[oddHalfAxisId + 1] = oppositeDirection
@@ -100,7 +100,7 @@ export function alteredSpace(
     const indexOfOppositeInSpace = oddHalfAxisIds.indexOf(oppositeHalfAxisId as OddHalfAxisId)
     
     const oppositeDirection = direction.oppositeid ?
-        retrieveGraphConstructs("Direction", direction.oppositeid) as Direction | null :
+        getGraphConstructs("Direction", direction.oppositeid) as Direction | null :
         null
 
     if (

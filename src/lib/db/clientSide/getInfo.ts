@@ -1,14 +1,14 @@
-import type { AppConfig, GraphConfig, GraphConstruct } from "$lib/shared/constants"
+import type { AppConfig, GraphConfig } from "$lib/shared/constants"
 import type { LatestConstructInfos } from "$lib/db/serverSide/getInfo"
-import type { DirectionDbModel, SpaceDbModel, ThingDbModel, ThingSearchListItemDbModel } from "$lib/models/dbModels"
-import { Direction, Space, Thing, ThingSearchListItem } from "$lib/models/constructModels"
+import type { GraphDbModel, ThingDbModel, ThingSearchListItemDbModel } from "$lib/models/dbModels"
+import { Thing, ThingSearchListItem } from "$lib/models/constructModels"
 
 
 
 /*
- * Retrieve Graph constructs from the database.
+ * Retrieve Graph DB models from the database.
  */
-export async function graphConstructs<Type extends GraphConstruct>(
+export async function graphDbModels<Type extends GraphDbModel>(
     constructName: "Direction" | "Space" | "Thing",
     ids?: number[]
 ): Promise<Type[]> {
@@ -27,26 +27,14 @@ export async function graphConstructs<Type extends GraphConstruct>(
     if (res.ok) {
         
         if (constructName === "Direction") {
-            const queriedInstances = await res.json() as DirectionDbModel[]
-            const directions: Direction[] = []
-            for (const model of queriedInstances) {
-                directions.push( new Direction(model) )
-            }
-            return directions as Type[]
+            const queriedInstances = await res.json() as Type[]
+            return queriedInstances
         } else if (constructName === "Space") {
-            const queriedInstances = await res.json() as SpaceDbModel[]
-            const spaces: Space[] = []
-            for (const model of queriedInstances) {
-                spaces.push( new Space(model) )
-            }
-            return spaces as Type[]
+            const queriedInstances = await res.json() as Type[]
+            return queriedInstances
         } else {
-            const queriedInstances = await res.json() as ThingDbModel[]
-            const things: Thing[] = []
-            for (const model of queriedInstances) {
-                things.push( new Thing(model) )
-            }
-            return things as Type[]
+            const queriedInstances = await res.json() as Type[]
+            return queriedInstances
         }
     // Handle errors if needed.
     } else {

@@ -1,6 +1,6 @@
 import type { Graph, CohortAddress, Space } from "$lib/models/constructModels"
 import { cartesianHalfAxisIds } from "$lib/shared/constants"
-import { graphConstructInStore, retrieveGraphConstructs } from "$lib/stores"
+import { graphDbModelInStore, getGraphConstructs } from "$lib/stores"
 import { Thing, ThingCohort } from "$lib/models/constructModels"
 
 
@@ -77,7 +77,7 @@ export class Generation {
             this.graph.rootCohort = new ThingCohort(addressForCohort, [])
             for (const memberId of memberIdsForGeneration) {
                 const thing =
-                    graphConstructInStore("Thing", memberId) ? retrieveGraphConstructs<Thing>("Thing", memberId) :
+                    graphDbModelInStore("Thing", memberId) ? getGraphConstructs<Thing>("Thing", memberId) :
                     null
 
                 const alreadyRendered = this.graph.thingIdsAlreadyInGraph.includes(memberId)
@@ -131,7 +131,7 @@ export class Generation {
 
                     for (const memberId of membersIdForCohort) {
                         const thing =
-                            graphConstructInStore("Thing", memberId) ? retrieveGraphConstructs<Thing>("Thing", memberId) :
+                            graphDbModelInStore("Thing", memberId) ? getGraphConstructs<Thing>("Thing", memberId) :
                             null
 
                         const alreadyRendered = this.graph.thingIdsAlreadyInGraph.includes(memberId)

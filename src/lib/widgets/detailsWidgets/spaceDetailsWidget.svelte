@@ -1,19 +1,19 @@
 <script lang="ts">
-    import type { Space } from "$lib/models/constructModels"
+    import type { SpaceDbModel } from "$lib/models/dbModels"
     import { Collapser } from "$lib/widgets/layoutWidgets"
 
-    export let space: Space
+    export let spaceDbModel: SpaceDbModel
 </script>
 
 
 <main>
     <div class="box">
 
-        <h4>{`${space.id} ${space.text}`}</h4>
+        <h4>{`${spaceDbModel.id} ${spaceDbModel.text}`}</h4>
 
         <Collapser headerText={"Directions"}>
             <div class="directions-list">
-                {#each space.directions as { id, oppositeid, text, nameforobjects }}
+                {#each spaceDbModel.directions as { id, oppositeid, text, nameforobjects }}
                     <p>
                         Id: {id} Opposite: {oppositeid}<br>
                         Text: {text}<br>

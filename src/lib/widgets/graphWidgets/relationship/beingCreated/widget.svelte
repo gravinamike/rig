@@ -1,14 +1,15 @@
 <script lang="ts">
     import type { HalfAxisId } from "$lib/shared/constants"
-    import type { Direction, Thing, Graph } from "$lib/models/constructModels"
+    import type { Direction, Graph } from "$lib/models/constructModels"
 
     import { tweened } from "svelte/motion"
 	import { cubicOut } from "svelte/easing"
-    import { storeGraphConstructs, relationshipBeingCreatedInfoStore, setRelationshipBeingCreatedTrackingMouse, disableRelationshipBeingCreated, addGraphIdsNeedingViewerRefresh, enableRemoteRelating, disableRemoteRelating } from "$lib/stores"
+    import { storeGraphDbModels, relationshipBeingCreatedInfoStore, setRelationshipBeingCreatedTrackingMouse, disableRelationshipBeingCreated, addGraphIdsNeedingViewerRefresh, enableRemoteRelating, disableRemoteRelating } from "$lib/stores"
     import { relationshipColorByHalfAxisId, zoomBase } from "$lib/shared/constants"
     import { XButton } from "$lib/widgets/layoutWidgets"
     import { DirectionWidget } from "$lib/widgets/graphWidgets"
     import { createNewRelationship } from "$lib/db/clientSide/makeChanges"
+    import type { ThingDbModel } from "$lib/models/dbModels";
     
 
 
@@ -111,7 +112,7 @@
                 direction.id as number
             )
             if (newRelationshipCreated) {
-                await storeGraphConstructs<Thing>("Thing", [sourceThingId, destThingId], true)
+                await storeGraphDbModels<ThingDbModel>("Thing", [sourceThingId, destThingId], true)
                 await (graph as Graph).build()
                 addGraphIdsNeedingViewerRefresh((graph as Graph).id)
             }

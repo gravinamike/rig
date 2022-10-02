@@ -8,7 +8,8 @@
     import { XButton } from "$lib/widgets/layoutWidgets"
 
     import { thingSearchListItems, createNewRelatedThing } from "$lib/db/clientSide"
-    import { storeGraphConstructs, addGraphIdsNeedingViewerRefresh, updateThingSearchListStore } from "$lib/stores"
+    import { storeGraphDbModels, addGraphIdsNeedingViewerRefresh, updateThingSearchListStore } from "$lib/stores"
+    import type { ThingDbModel } from "$lib/models/dbModels";
 
 
     export let thing: Thing
@@ -61,7 +62,7 @@
 
         const newRelatedThing = await createNewRelatedThing(parentThingId, directionId, text)
         if (newRelatedThing && newRelatedThing.id) {
-            await storeGraphConstructs<Thing>("Thing", parentThingId, true)
+            await storeGraphDbModels<ThingDbModel>("Thing", parentThingId, true)
             await graph.build()
             addGraphIdsNeedingViewerRefresh(graph.id)
 
