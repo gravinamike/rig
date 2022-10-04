@@ -51,7 +51,7 @@
 >
 
     <!-- If the root Thing is specified, show a Thing Widget. -->
-    {#if rootThing}
+    {#if rootThing?.id}
         <ThingWidget
             thingId={rootThing.id}
             bind:graph

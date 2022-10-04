@@ -20,24 +20,24 @@ type ThingAddress = {
 export class Thing {
     kind = "thing"
 
-    dbModel: ThingDbModel | null
+    dbModel: ThingDbModel | null = null
 
-    id: number
-    guid: string | null
-    text: string | null
-    whencreated: Date | null
-    whenmodded: Date | null
-    whenvisited: Date | null
-    defaultSpaceId: number | null
-    perspectivedepths: string// Default is "{}"
-    perspectivetexts: string// Default is "{}"
+    id: number | null = null
+    guid: string | null = null
+    text: string | null = null
+    whencreated: Date | null = null
+    whenmodded: Date | null = null
+    whenvisited: Date | null = null
+    defaultSpaceId: number | null = null
+    perspectivedepths = "{}"// Default is "{}"
+    perspectivetexts = "{}"// Default is "{}"
 
-    note: Note | null
-    folder: Folder | null
+    note: Note | null = null
+    folder: Folder | null = null
     a_relationships: Relationship[] = []
     b_relationships: Relationship[] = []
-    noteToThing: NoteToThing | null
-    folderToThing: FolderToThing | null
+    noteToThing: NoteToThing | null = null
+    folderToThing: FolderToThing | null = null
 
     graph: Graph | null = null
     _parentCohort: ThingCohort | null = null
@@ -45,29 +45,31 @@ export class Thing {
     inheritSpace = true // For now.
     childCohortsByDirectionId: { [directionId: number]: ThingCohort } = {}
 
-    constructor(dbModel: ThingDbModel) {
-        this.dbModel = dbModel
+    constructor(dbModel: ThingDbModel | null) {
+        if (dbModel) {
+            this.dbModel = dbModel
 
-        this.id = Number(dbModel.id)
-        this.guid = dbModel.guid
-        this.text = dbModel.text
-        this.whencreated = dbModel.whencreated ? new Date(dbModel.whencreated): null
-        this.whenmodded = dbModel.whenmodded ? new Date(dbModel.whenmodded): null
-        this.whenvisited = dbModel.whenvisited ? new Date(dbModel.whenvisited): null
-        this.defaultSpaceId = dbModel.defaultplane
-        this.perspectivedepths = dbModel.perspectivedepths
-        this.perspectivetexts = dbModel.perspectivedepths
+            this.id = Number(dbModel.id)
+            this.guid = dbModel.guid
+            this.text = dbModel.text
+            this.whencreated = dbModel.whencreated ? new Date(dbModel.whencreated): null
+            this.whenmodded = dbModel.whenmodded ? new Date(dbModel.whenmodded): null
+            this.whenvisited = dbModel.whenvisited ? new Date(dbModel.whenvisited): null
+            this.defaultSpaceId = dbModel.defaultplane
+            this.perspectivedepths = dbModel.perspectivedepths
+            this.perspectivetexts = dbModel.perspectivedepths
 
-        this.note = dbModel.note ? new Note(dbModel.note) : null
-        this.folder = dbModel.folder ? new Folder(dbModel.folder) : null     
-        for (const relationshipDbModel of dbModel.a_relationships) {
-            this.a_relationships.push( new Relationship(relationshipDbModel) )
+            this.note = dbModel.note ? new Note(dbModel.note) : null
+            this.folder = dbModel.folder ? new Folder(dbModel.folder) : null     
+            for (const relationshipDbModel of dbModel.a_relationships) {
+                this.a_relationships.push( new Relationship(relationshipDbModel) )
+            }
+            for (const relationshipDbModel of dbModel.b_relationships) {
+                this.b_relationships.push( new Relationship(relationshipDbModel) )
+            }
+            this.noteToThing = dbModel.noteToThing ? new NoteToThing(dbModel.noteToThing) : null
+            this.folderToThing = dbModel.folderToThing ? new FolderToThing(dbModel.folderToThing) : null
         }
-        for (const relationshipDbModel of dbModel.b_relationships) {
-            this.b_relationships.push( new Relationship(relationshipDbModel) )
-        }
-        this.noteToThing = dbModel.noteToThing ? new NoteToThing(dbModel.noteToThing) : null
-        this.folderToThing = dbModel.folderToThing ? new FolderToThing(dbModel.folderToThing) : null
     }
 
 
@@ -230,7 +232,7 @@ export class Thing {
             generationId: this.parentCohort.address.generationId,
             parentThingId: this.parentCohort.address.parentThingId,
             halfAxisId: this.parentCohort.halfAxisId,
-            indexInCohort: this.parentCohort.indexOfMemberById(this.id) as number
+            indexInCohort: this.id ? this.parentCohort.indexOfMemberById(this.id) as number : -1
         }
         return address
     }

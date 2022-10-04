@@ -1,6 +1,6 @@
 <script lang="ts">
     // Import types.
-    import type { Graph, ThingCohort } from "$lib/models/constructModels"
+    import { Thing, type Graph, type ThingCohort } from "$lib/models/constructModels"
 
     // Import utility functions.
     import { sleep } from "$lib/shared/utility"
@@ -38,7 +38,10 @@
      * Add a blank Thing Form to the related Cohort.
      */
     async function addThingForm() {
+        console.log("ADDING")
         if (!graph.formActive) {
+            const newThing = new Thing(null)
+            cohort.addMember({thingId: null, thing: newThing, alreadyRendered: false})
             graph.formActive = true
         }
         addGraphIdsNeedingViewerRefresh(graph.id)

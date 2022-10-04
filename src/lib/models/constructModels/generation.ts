@@ -5,7 +5,7 @@ import { Thing, ThingCohort } from "$lib/models/constructModels"
 
 
 export interface GenerationMember {
-    thingId: number
+    thingId: number | null
     thing: Thing | null
     alreadyRendered: boolean
 }
@@ -50,7 +50,7 @@ export class Generation {
 
     get membersById(): { [memberId: number]: GenerationMember } {
         const membersById: { [memberId: number]: GenerationMember } = {}
-        for (const member of this.members) if (typeof member === "object") membersById[member.thingId] = member
+        for (const member of this.members) if (member.thingId) membersById[member.thingId] = member
         return membersById
     }
 

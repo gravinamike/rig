@@ -113,73 +113,79 @@
 </script>
 
 
-{#if graph && showGraph}
-    <div class="graph-viewer">
-        <!-- Graph-related viewers (Schematic and Settings) -->
-        <Collapser
-            headerText={"Graph"}
-            contentDirection={"left"}
-            expanded={false}
-        >
-            <div class="tabs-container">
-                <TabBlock>
-                    <TabFlaps>
-                        <TabFlap>Settings</TabFlap>
-                        <TabFlap>Schematic</TabFlap>
-                    </TabFlaps>
-                
-                    <!-- Graph Settings viewer -->
-                    <TabBody>
+<div class="graph-viewer">
+    <!-- Graph-related viewers (Schematic and Settings) -->
+    <Collapser
+        headerText={"Graph"}
+        contentDirection={"left"}
+        expanded={false}
+    >
+        <div class="tabs-container">
+            <TabBlock>
+                <TabFlaps>
+                    <TabFlap>Settings</TabFlap>
+                    <TabFlap>Schematic</TabFlap>
+                </TabFlaps>
+            
+                <!-- Graph Settings viewer -->
+                <TabBody>
+                    {#if graph}
                         <GraphSettingsViewer
                             bind:graph
                             bind:graphWidgetStyle
                             bind:allowZoomAndScrollToFit
                         />
-                    </TabBody>
+                    {/if}
+                </TabBody>
 
-                    <!-- Graph Schematic viewer -->
-                    <TabBody>
+                <!-- Graph Schematic viewer -->
+                <TabBody>
+                    {#if graph}
                         <GraphSchematicViewer
                             {graph}
                         />
-                    </TabBody>
-                </TabBlock>
+                    {/if}
+                </TabBody>
+            </TabBlock>
+        </div>
+    </Collapser>
+
+    <!-- Navigation-related viewers (Pins and History) -->
+    <Collapser
+        headerText={"Navigation"}
+        contentDirection={"left"}
+        expanded={true}
+    >
+        <div class="navigation-view">
+            <!-- Thing searchbox -->
+            <div class="pins-container">
+                <ThingSearchboxViewer
+                    {rePerspectToThingId}
+                />
             </div>
-        </Collapser>
 
-        <!-- Navigation-related viewers (Pins and History) -->
-        <Collapser
-            headerText={"Navigation"}
-            contentDirection={"left"}
-            expanded={true}
-        >
-            <div class="navigation-view">
-                <!-- Thing searchbox -->
-                <div class="pins-container">
-                    <ThingSearchboxViewer
-                        {rePerspectToThingId}
-                    />
-                </div>
+            <!-- Graph pins viewer -->
+            <div class="pins-container">
+                <PinsViewer
+                    {rePerspectToThingId}
+                />
+            </div>
 
-                <!-- Graph pins viewer -->
-                <div class="pins-container">
-                    <PinsViewer
-                        {rePerspectToThingId}
-                    />
-                </div>
-
-                <!-- Graph history viewer -->
+            <!-- Graph history viewer -->
+            {#if graph}
                 <div class="history-container">
                     <HistoryViewer
                         bind:graph
                         {rePerspectToThingId}
                     />
                 </div>
-            </div>
-        </Collapser>
+            {/if}
+        </div>
+    </Collapser>
 
-        <!-- Graph Widget -->
-        <div class="graph-widget-container">
+    <!-- Graph Widget -->
+    <div class="graph-widget-container">
+        {#if graph && showGraph}
             <GraphWidget
                 bind:graph
                 bind:graphWidgetStyle
@@ -188,48 +194,54 @@
                 bind:thingIdToScrollTo
                 {rePerspectToThingId}
             />
-        </div>
+        {/if}
+    </div>
 
-        <!-- Notes viewer -->
-        <Collapser headerText={"Content"} contentDirection={"right"} expanded={false}>
-            <div class="tabs-container wide">
-                <TabBlock>
-                    <TabFlaps>
-                        <TabFlap>Notes</TabFlap>
-                        <TabFlap>Outline</TabFlap>
-                        <TabFlap>Attachments</TabFlap>
-                    </TabFlaps>
-                
-                    <!-- Notes viewer -->
-                    <TabBody>
+    <!-- Notes viewer -->
+    <Collapser headerText={"Content"} contentDirection={"right"} expanded={false}>
+        <div class="tabs-container wide">
+            <TabBlock>
+                <TabFlaps>
+                    <TabFlap>Notes</TabFlap>
+                    <TabFlap>Outline</TabFlap>
+                    <TabFlap>Attachments</TabFlap>
+                </TabFlaps>
+            
+                <!-- Notes viewer -->
+                <TabBody>
+                    {#if graph}
                         <NotesViewer
                             {graph}
                             {rePerspectToThingId}
                         />
-                    </TabBody>
+                    {/if}
+                </TabBody>
 
-                    <!-- Outline viewer -->
-                    <TabBody>
-                        <div class="graph-outline-widget-container">
+                <!-- Outline viewer -->
+                <TabBody>
+                    <div class="graph-outline-widget-container">
+                        {#if graph && showGraph}
                             <GraphOutlineWidget
                                 bind:graph
                                 {graphWidgetStyle}
                                 {rePerspectToThingId}
                             />
-                        </div>
-                    </TabBody>
+                        {/if}
+                    </div>
+                </TabBody>
 
-                    <!-- Attachments viewer -->
-                    <TabBody>
+                <!-- Attachments viewer -->
+                <TabBody>
+                    {#if graph}
                         <FolderViewer
                             {graph}
                         />
-                    </TabBody>
-                </TabBlock>
-            </div>
-        </Collapser>
-    </div>
-{/if}
+                    {/if}
+                </TabBody>
+            </TabBlock>
+        </div>
+    </Collapser>
+</div>
 
 
 <style>
@@ -281,6 +293,7 @@
         outline-offset: -1px;
 
         position: relative;
+        background-color: #eef8ff;
     }
 
     .graph-outline-widget-container {

@@ -70,14 +70,14 @@
         {#each thingCohort.members as member}
 
             <!-- If no Thing was found in the store for the Thing ID, show a Thing Missing From Store Widget. -->
-            {#if member.thing === null}
+            {#if member.thingId && member.thing === null}
                 <ThingMissingFromStoreWidget
                     thingId={member.thingId}
                     {graphWidgetStyle}
                 />
 
             <!-- Else, if the Thing is already rendered elsewhere in the Graph, show a Thing Already Rendered Widget. -->
-            {:else if member.alreadyRendered === true}
+            {:else if member.thingId && member.alreadyRendered === true}
                 <ThingAlreadyRenderedWidget
                     thingId={member.thingId}
                     cohortHalfAxisId={thingCohort.halfAxisId}
@@ -85,7 +85,7 @@
                 />
 
             <!-- Otherwise show a Clade Widget. -->
-            {:else}
+            {:else if member.thing}
                 <CladeWidget
                     rootThing={member.thing}
                     bind:graph
