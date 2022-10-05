@@ -1,15 +1,29 @@
 <script lang="ts">
+    // Import types.
     import type { HalfAxisId } from "$lib/shared/constants"
+    import type { ThingDbModel } from "$lib/models/dbModels"
     import type { Direction, Graph } from "$lib/models/constructModels"
 
+    // Import basic framework resources.
     import { tweened } from "svelte/motion"
 	import { cubicOut } from "svelte/easing"
-    import { storeGraphDbModels, relationshipBeingCreatedInfoStore, setRelationshipBeingCreatedTrackingMouse, disableRelationshipBeingCreated, addGraphIdsNeedingViewerRefresh, enableRemoteRelating, disableRemoteRelating } from "$lib/stores"
+
+    // Import constants.
     import { relationshipColorByHalfAxisId, zoomBase } from "$lib/shared/constants"
+
+    // Import stores.
+    import {
+        storeGraphDbModels, addGraphIdsNeedingViewerRefresh,
+        relationshipBeingCreatedInfoStore, setRelationshipBeingCreatedTrackingMouse, disableRelationshipBeingCreated,
+        enableRemoteRelating, disableRemoteRelating
+    } from "$lib/stores"
+
+    // Import associated widgets.
     import { XButton } from "$lib/widgets/layoutWidgets"
     import { DirectionWidget } from "$lib/widgets/graphWidgets"
+
+    // Import API methods.
     import { createNewRelationship } from "$lib/db/clientSide/makeChanges"
-    import type { ThingDbModel } from "$lib/models/dbModels";
     
 
 
@@ -144,7 +158,6 @@
     {#if askingForDirection}
         <div
             class="disabled-background"
-            style="position: absolute; left: 0px; top: 0px; width: 100%; height: 100%; z-index: 1; background-color: grey; opacity: 0.5;"
             on:wheel|preventDefault
         />
     {/if}
@@ -175,7 +188,8 @@
     <div
         class="midpoint-parts"
         style="
-            position: absolute; left: {midpointPositionX}px; top: {midpointPositionY}px;
+            position: absolute;
+            left: {midpointPositionX}px; top: {midpointPositionY}px;
             transform: translate(-50%, -50%) scale({$tweenedScale});
             z-index: 1;
             opacity: {opacity};
@@ -218,6 +232,17 @@
 
 
 <style>
+    .disabled-background {
+        position: absolute;
+        left: 0px;
+        top: 0px;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        background-color: grey;
+        opacity: 0.5;
+    }
+
     .relationship-being-created-widget {
         position: absolute;
         left: 0px;

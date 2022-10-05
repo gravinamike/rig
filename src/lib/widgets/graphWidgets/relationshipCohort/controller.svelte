@@ -235,7 +235,7 @@
      */
     changeRelationshipsDirection = async (directionId: number) => {
         // Get the IDs of the source Thing and all the destination Things.
-        const sourceThingId = parentThing.id
+        const sourceThingId = parentThing.id as number
         const destThingIds = cohort.members.map(member => member.thingId)
 
         // Construct an array containing informational objects for each Relationship.
@@ -244,7 +244,7 @@
             destThingId: number,
             directionId: number
         }[] = []
-        for (const destThingId of destThingIds) relationshipInfos.push({
+        for (const destThingId of destThingIds) if (destThingId) relationshipInfos.push({
             sourceThingId: sourceThingId,
             destThingId: destThingId,
             directionId: directionId

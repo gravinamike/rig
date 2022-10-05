@@ -1,23 +1,28 @@
 <script lang="ts">
     // Import types.
-    import { tweened, type Tweened } from "svelte/motion"
+    import type { Tweened } from "svelte/motion"
+    import type { HalfAxisId } from "$lib/shared/constants"
     import type { Graph, Direction, ThingCohort } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
+    // Import basic framework resources.
+    import { tweened } from "svelte/motion"
+    import { cubicOut } from "svelte/easing"
+
     // Import related widgets.
     import { DirectionWidget, RelationshipWidget } from "$lib/widgets/graphWidgets"
-    import RelationshipStemWidget from "./stem.svelte"
+    import { RelationshipStemWidget } from "./relationshipStem"
 
     // Import widget controller.
     import RelationshipCohortWidgetController from "./controller.svelte"
-    import type { HalfAxisId } from "$lib/shared/constants";
-    import { cubicOut } from "svelte/easing";
     
 
     /**
-     * @param  {ThingCohort} thingCohort - The Thing Cohort that is associated with this Relationship Cohort.
-     * @param  {Graph} graph - The Graph that the Relationship Cohort is part of
-     * @param  {GraphWidgetStyle} graphWidgetStyle - Controls the style of the Graph widget.
+     * @param thingCohort - The Thing Cohort that is associated with this Relationship Cohort.
+     * @param graph - The Graph that the Relationship Cohort is part of
+     * @param graphWidgetStyle - Controls the style of the Graph widget.
+     * @param thingWidth - The width of a Thing widget.
+     * @param thingHeight - The height of a Thing widget.
      */
     export let cohort: ThingCohort
     export let graph: Graph
