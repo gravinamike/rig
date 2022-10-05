@@ -1,6 +1,6 @@
 <script context="module" lang="ts">
     import type { Direction, Thing, GenerationMember, Graph } from "$lib/models/constructModels"
-    import { hoveredThingIdStore, storeGraphDbModels, addGraphIdsNeedingViewerRefresh } from "$lib/stores"
+    import { hoveredThingIdStore, storeGraphDbModels, addGraphIdsNeedingViewerRefresh, relationshipBeingCreatedInfoStore } from "$lib/stores"
     import { DirectionWidget } from "$lib/widgets/graphWidgets"
     import { updateRelationships } from "$lib/db/clientSide"
 </script>
@@ -23,6 +23,7 @@ import type { HalfAxisId } from "$lib/shared/constants";
     export let direction: Direction | null = null
     export let halfAxisId: HalfAxisId
     export let graphWidgetStyle: GraphWidgetStyle
+    export let relatableForCurrentDrag: boolean
 
     $: thing = cohortMemberWithIndex.member.thing as Thing
     let leafHovered = false
@@ -30,7 +31,12 @@ import type { HalfAxisId } from "$lib/shared/constants";
     $: relationshipHovered = thing.id === thingIdOfHoveredRelationship
     let leafClicked = false
 
-    $: showDirection = leafHovered || relationshipHovered ? true : false
+    $: showDirection =
+        (
+            !($relationshipBeingCreatedInfoStore.sourceThingId && !relatableForCurrentDrag)
+            && (leafHovered || relationshipHovered)
+        ) ? true :
+        false
 
     async function changeRelationshipDirection(directionId: number) {
         const sourceThingId = thing.parentThing?.id || null
@@ -85,7 +91,7 @@ import type { HalfAxisId } from "$lib/shared/constants";
     <line
         class="
             leaf-image
-            {leafHovered || relationshipHovered || thingHovered ? "hovered" : ""}
+            {!($relationshipBeingCreatedInfoStore.sourceThingId && !relatableForCurrentDrag) && (leafHovered || relationshipHovered || thingHovered) ? "hovered" : ""}
             {leafClicked ? "clicked" : ""}
         "
         style="stroke-width: {3 / tweenedScale};"

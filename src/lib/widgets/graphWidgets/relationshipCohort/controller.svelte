@@ -17,7 +17,10 @@
      } from "$lib/shared/constants"
 
     // Import stores.
-    import { storeGraphDbModels, getGraphConstructs, addGraphIdsNeedingViewerRefresh } from "$lib/stores"
+    import {
+        storeGraphDbModels, getGraphConstructs, addGraphIdsNeedingViewerRefresh,
+        relationshipBeingCreatedInfoStore, inferredRelationshipBeingCreatedDirection
+    } from "$lib/stores"
 
     // Import API functions.
     import { updateRelationships } from "$lib/db/clientSide"
@@ -26,34 +29,35 @@
 
     /**
      * Create a Relationship Cohort Widget controller.
-     * @param {ThingCohort} cohort - The Thing Cohort that is associated with the Relationship Cohort.
-     * @param {Graph} graph - The Graph that the Cohort is in.
-     * @param {GraphWidgetStyle} graphWidgetStyle - Controls the style of the Graph widget.
-     * @param {number | null} thingIdOfHoveredRelationship - The ID of the Thing corresponding to the currently-hovered Relationship, if there is one.
-     * @param {boolean} stemHovered - Whether or not the mouse is hovered over the Relationship stem widget.
-     * @param {number} widgetOffsetX - The horizontal offset of the widget relative to its parent Clade.
-     * @param {number} widgetOffsetY - The vertical offset of the widget relative to its parent Clade.
-     * @param {number} zIndex - The stacking order of the widget relative to other HTML elements.
-     * @param {number} widgetWidth - The pre-rotation width of the widget in pixels.
-     * @param {number} widgetHeight - The pre-rotation height of the widget in pixels.
-     * @param {number} opacity - The opacity of the widget.
-     * @param {number} rotatedWidth - The width of the widget after it has been rotated based on its half-axis.
-     * @param {number} rotatedHeight - The height of the widget after it has been rotated based on its half-axis.
-     * @param {-1 | 1} mirroring - Whether the content of the widget is flipped relative to the Graph centerline.
-     * @param {number} rotation - Rotation, in degrees, of the widget based on the half-axis.
-     * @param {boolean} showDirection - Whether to display the Direction selector widget.
-     * @param {Direction} direction - The Direction of the Relationship Cohort.
-     * @param {number} directionWidgetRotation - The rotation, in degrees, of the Direction selector widget.
-     * @param {(directionId: number) => void} changeRelationshipsDirection - A function that changes the Direction of the Relationships based on the supplied ID.
-     * @param {number} relationshipsWidth - The width of the Relationship Cohort widget.
-     * @param {number} relationshipsHeight - The height of the Relationship Cohort widget.
-     * @param {number} tweenedScale - The HTML scale of the Graph widget, smoothly interpolated. Used for zooming.
-     * @param {number} midline - The horizontal location of the Relationship stem midline (pre-rotation).
-     * @param {number} stemBottom - The vertical location of the bottom of the Relationship stem (pre-rotation).
-     * @param {number} stemTop - The vertical location of the top of the Relationship stem (pre-rotation).
-     * @param {boolean} showRelationships - Whether to display the Relationship widgets (besides the stem).
-     * @param {string} relationshipColor - The color of the Relationship widget, determined by the half-axis.
-     * @param {string} sizeOfThingsAlongWidth - The size of a Thing widget along the "width" dimension of its Thing Cohort widget.
+     * @param cohort - The Thing Cohort that is associated with the Relationship Cohort.
+     * @param graph - The Graph that the Cohort is in.
+     * @param graphWidgetStyle - Controls the style of the Graph widget.
+     * @param thingIdOfHoveredRelationship - The ID of the Thing corresponding to the currently-hovered Relationship, if there is one.
+     * @param stemHovered - Whether or not the mouse is hovered over the Relationship stem widget.
+     * @param widgetOffsetX - The horizontal offset of the widget relative to its parent Clade.
+     * @param widgetOffsetY - The vertical offset of the widget relative to its parent Clade.
+     * @param zIndex - The stacking order of the widget relative to other HTML elements.
+     * @param widgetWidth - The pre-rotation width of the widget in pixels.
+     * @param widgetHeight - The pre-rotation height of the widget in pixels.
+     * @param opacity - The opacity of the widget.
+     * @param rotatedWidth - The width of the widget after it has been rotated based on its half-axis.
+     * @param rotatedHeight - The height of the widget after it has been rotated based on its half-axis.
+     * @param mirroring - Whether the content of the widget is flipped relative to the Graph centerline.
+     * @param rotation - Rotation, in degrees, of the widget based on the half-axis.
+     * @param showDirection - Whether to display the Direction selector widget.
+     * @param direction - The Direction of the Relationship Cohort.
+     * @param directionWidgetRotation - The rotation, in degrees, of the Direction selector widget.
+     * @param changeRelationshipsDirection - A function that changes the Direction of the Relationships based on the supplied ID.
+     * @param relationshipsWidth - The width of the Relationship Cohort widget.
+     * @param relationshipsHeight - The height of the Relationship Cohort widget.
+     * @param tweenedScale - The HTML scale of the Graph widget, smoothly interpolated. Used for zooming.
+     * @param midline - The horizontal location of the Relationship stem midline (pre-rotation).
+     * @param stemBottom - The vertical location of the bottom of the Relationship stem (pre-rotation).
+     * @param stemTop - The vertical location of the top of the Relationship stem (pre-rotation).
+     * @param showRelationships - Whether to display the Relationship widgets (besides the stem).
+     * @param relationshipColor - The color of the Relationship widget, determined by the half-axis.
+     * @param sizeOfThingsAlongWidth - The size of a Thing widget along the "width" dimension of its Thing Cohort widget.
+     * @param relatableForCurrentDrag - Whether the Stem widget is a valid end target for an in-progress drag-relate operation.
      */
     export let cohort: ThingCohort
     export let graph: Graph
@@ -87,6 +91,7 @@
     export let relationshipColor = "#000000"
     export let halfAxisId: HalfAxisId
     export let sizeOfThingsAlongWidth = 0
+    export let relatableForCurrentDrag = false
 
     
     /* --------------- Output attributes. --------------- */
@@ -201,7 +206,8 @@
      * displayed on the Relationship branch widget instead of the stem).
      */
     $: showDirection =
-        (parentThing.address.generationId === 0 || stemHovered) && !thingIdOfHoveredRelationship ? true :
+        !($relationshipBeingCreatedInfoStore.sourceThingId && !relatableForCurrentDrag)
+        && (parentThing.address.generationId === 0 || stemHovered) && !thingIdOfHoveredRelationship ? true :
         false
 
     /**
@@ -336,7 +342,7 @@
      * (though not the Relationship stem widget). It is true unless the only
      * member of the associated Thing Cohort is a looped-back grandparent Thing.
      */
-    $: showRelationships = !(/////////////////////////////////////////////////////////// HERE IS THE PROBLEM.
+    $: showRelationships = !(
         cohort.members.length === 1
         && cohort.indexOfGrandparentThing !== null
     )
@@ -359,6 +365,30 @@
     $: sizeOfThingsAlongWidth =
         [1, 2].includes(halfAxisId) ? thingWidth :
         thingHeight
+
+
+
+    /**
+     * Is-relatable-for-current-drag flag.
+     * 
+     * Indicates whether the Relationship Cohort widget is a valid end target for
+     * an in-progress drag-relate operation. Is true if the ID of the
+     * Relationship Cohort's parent Thing isn't the same as that of the drag
+     * operation's source Thing, and either no Direction has been determined yet
+     * for the the to-be-created Relationship, or that Direction is the opposite
+     * of the Stem's Direction.
+     */
+    $: relatableForCurrentDrag =
+        (
+            $relationshipBeingCreatedInfoStore.sourceThingId !== cohort.parentThingId
+            && (
+                !$inferredRelationshipBeingCreatedDirection ||
+                $inferredRelationshipBeingCreatedDirection.id === cohort.direction.oppositeid
+            )
+        ) ? true :
+        false
+
+
 
     
     /* --------------- Supporting attributes. --------------- */

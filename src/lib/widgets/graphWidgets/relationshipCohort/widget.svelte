@@ -56,6 +56,7 @@
     let relationshipColor = "#000000"
     let halfAxisId: HalfAxisId = 0
     let sizeOfThingsAlongWidth = 0
+    let relatableForCurrentDrag = false
 
     // Attributes managed by sub-widgets.
     let thingIdOfHoveredRelationship: number | null = null
@@ -98,6 +99,7 @@
     bind:relationshipColor
     bind:halfAxisId
     bind:sizeOfThingsAlongWidth
+    bind:relatableForCurrentDrag
 />
 
 
@@ -157,14 +159,16 @@
             {#if cohort.indexOfGrandparentThing === null}
                 <RelationshipStemWidget
                     {cohort}
+                    bind:graph
+                    {graphWidgetStyle}
                     {thingIdOfHoveredRelationship}
                     bind:stemHovered
                     tweenedScale={$tweenedScale}
                     {midline}
                     {stemBottom}
                     {stemTop}
-                    bind:graph
                     {relationshipColor}
+                    {relatableForCurrentDrag}
                 />
             {/if}
 
@@ -189,6 +193,7 @@
                             {mirroring}
                             {rotation}
                             {direction}
+                            {relatableForCurrentDrag}
                         />
                     {/if}
                 {/each}

@@ -151,6 +151,8 @@
         }}
         on:mousedown={ event => {if (event.button === 0) {
             enableRelationshipBeingCreated(
+                graph,
+                graphWidgetStyle,
                 thingId,
                 1,
                 halfAxisId,

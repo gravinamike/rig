@@ -21,7 +21,6 @@
      * @param relationshipHovered - Whether any Relationship in this Stem widget's Direction is currently hovered.
      * @param thingHovered - Whether the destination Thing of any Relationship in this Stem widget's Direction is currently hovered.
      * @param isDragRelateSource - Whether the Stem widget is the source of an in-progress drag-relate operation.
-     * @param relatableForCurrentDrag - Whether the Stem widget is a valid end target for an in-progress drag-relate operation.
      * @param addThingForm - A method that adds a Thing Form widget to the Thing Cohort associated with the Stem widget.
      */
     export let cohort: ThingCohort
@@ -33,7 +32,6 @@
     export let relationshipHovered: boolean
     export let thingHovered: boolean
     export let isDragRelateSource: boolean
-    export let relatableForCurrentDrag: boolean
     export let addThingForm: () => void
 
 
@@ -91,24 +89,6 @@
      */
     $: isDragRelateSource =
         $relationshipBeingCreatedInfoStore.sourceThingId === cohort.parentThingId ? true :
-        false
-
-    /**
-     * Is-relatable-for-current-drag flag.
-     * 
-     * Indicates whether the Stem widget is a valid end target for an in-progress
-     * drag-relate operation. Is true if the ID of the Stem widget's parent Thing
-     * isn't the same as that of the drag operation's source Thing, and either
-     * no Direction has been determined yet for the the to-be-created
-     * Relationship, or that Direction is the opposite of the Stem's Direction.
-     */
-    $: relatableForCurrentDrag = (
-            $relationshipBeingCreatedInfoStore.sourceThingId !== cohort.parentThingId
-            && (
-                !$inferredRelationshipBeingCreatedDirection ||
-                $inferredRelationshipBeingCreatedDirection.id === cohort.direction.oppositeid
-            )
-        ) ? true :
         false
 
     /**

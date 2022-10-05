@@ -33,6 +33,7 @@
      * @param mirroring - Whether to flip the Relationship Cohort widget relative to the Graph centerline.
      * @param rotation - The rotation of the Relationship Cohort widget, based on the half-axis.
      * @param direction - The Direction of the Relationship.
+     * @param relatableForCurrentDrag - Whether the widget is a valid end target for an in-progress drag-relate operation.
      */
     export let cohortMemberWithIndex: { index: number, member: GenerationMember }
     export let cohort: ThingCohort
@@ -50,6 +51,7 @@
     export let mirroring: -1 | 1
     export let rotation: number
     export let direction: Direction | null = null
+    export let relatableForCurrentDrag = false
 
 
     // Attributes handled by the widget controller.
@@ -100,6 +102,7 @@
     {direction}
     {halfAxisId}
     {graphWidgetStyle}
+    {relatableForCurrentDrag}
 />
 
 <!-- Relationship fan segment widget -->
@@ -111,4 +114,5 @@
     leafGeometry={leafGeometry}
     cohortMemberWithIndex={cohortMemberWithIndex}
     {relationshipColor}
+    {relatableForCurrentDrag}
 />

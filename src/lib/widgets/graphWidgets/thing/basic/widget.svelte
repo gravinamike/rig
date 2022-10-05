@@ -139,6 +139,8 @@
             && !$relationshipBeingCreatedInfoStore.sourceThingId
         ) {
             enableRelationshipBeingCreated(
+                graph,
+                graphWidgetStyle,
                 thingId,
                 opacity,
                 halfAxisId,
@@ -155,14 +157,7 @@
     function handleBodyMouseUp() {
         dragStartPosition = null
     }
-
-
-
 </script>
-
-
-
-
 
 
 <ThingWidgetController

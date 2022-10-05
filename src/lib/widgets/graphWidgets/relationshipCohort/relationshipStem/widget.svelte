@@ -1,17 +1,20 @@
 <script lang="ts">
     // Import types.
+    import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
     import type { Graph, ThingCohort } from "$lib/models/constructModels"
 
     // Import stores.
     import {
         hoveredRelationshipTarget, enableRelationshipBeingCreated, setRelationshipBeingCreatedDestThingId
     } from "$lib/stores"
+    
 
     // Import widget controller.
     import RelationshipStemWidgetController from "./controller.svelte"
     
 
     export let cohort: ThingCohort
+    export let graphWidgetStyle: GraphWidgetStyle
     export let graph: Graph
 
     export let tweenedScale: number
@@ -22,6 +25,7 @@
     
     export let thingIdOfHoveredRelationship: number | null
     export let stemHovered: boolean
+    export let relatableForCurrentDrag: boolean
 
 
     // Attributes handled by widget controller.
@@ -31,7 +35,6 @@
     let relationshipHovered = false
     let thingHovered = false
     let isDragRelateSource = false
-    let relatableForCurrentDrag = false
     let addThingForm = async () => {}
 </script>
 
@@ -47,7 +50,6 @@
     bind:relationshipHovered
     bind:thingHovered
     bind:isDragRelateSource
-    bind:relatableForCurrentDrag
     bind:addThingForm
 />
 
@@ -79,6 +81,8 @@
         on:mousedown={ event => {
             stemClicked = true
             if (cohort.parentThingId) enableRelationshipBeingCreated(
+                graph,
+                graphWidgetStyle,
                 cohort.parentThingId,
                 1,
                 cohort.halfAxisId,

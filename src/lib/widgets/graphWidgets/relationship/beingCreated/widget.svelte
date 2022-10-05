@@ -27,13 +27,14 @@
     
 
 
+    let graph: Graph | null
+    let scale: number | null
+    let tweenedScale = tweened(1, {duration: 100, easing: cubicOut})
     let direction: Direction | null
     let halfAxisId: HalfAxisId | null
     let color: string
     let opacity: number
-    let graph: Graph | null
-    let scale: number | null
-    let tweenedScale = tweened(1, {duration: 100, easing: cubicOut})
+    
 
 
 
@@ -49,7 +50,6 @@
     $: destDirection = $relationshipBeingCreatedInfoStore.destDirection
     $: [startPositionX, startPositionY] = $relationshipBeingCreatedInfoStore.startPosition
     $: [endPositionX, endPositionY] = $relationshipBeingCreatedInfoStore.endPosition
-
 
 
 
@@ -149,6 +149,28 @@
     on:keyup={handleEscape}
 />
 
+
+{@html
+    `
+        graph ${$relationshipBeingCreatedInfoStore.graph}<br>
+        graphWidgetStyle ${$relationshipBeingCreatedInfoStore.graphWidgetStyle}<br>
+
+        sourceThingId ${$relationshipBeingCreatedInfoStore.sourceThingId}<br>
+        sourceThingOpacity ${$relationshipBeingCreatedInfoStore.sourceThingOpacity}<br>
+        sourceHalfAxisId ${$relationshipBeingCreatedInfoStore.sourceHalfAxisId}<br>
+        sourceDirection ${$relationshipBeingCreatedInfoStore.sourceDirection}<br>
+
+        startPosition ${$relationshipBeingCreatedInfoStore.startPosition}<br>
+        endPosition ${$relationshipBeingCreatedInfoStore.endPosition}<br>
+        trackingMouse ${$relationshipBeingCreatedInfoStore.trackingMouse}<br>
+
+        destThingId ${$relationshipBeingCreatedInfoStore.destThingId}<br>
+        destHalfAxisId ${$relationshipBeingCreatedInfoStore.destHalfAxisId}<br>
+        destDirection ${$relationshipBeingCreatedInfoStore.destDirection}<br>
+
+        selectedDirection ${$relationshipBeingCreatedInfoStore.selectedDirection}<br>
+    `
+}
 
 {#if (
     $relationshipBeingCreatedInfoStore.sourceThingId

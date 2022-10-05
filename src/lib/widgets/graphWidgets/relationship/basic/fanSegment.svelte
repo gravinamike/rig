@@ -13,6 +13,7 @@
     export let leafGeometry: { bottom: number, top: number, bottomMidline: number, topMidline: number }
     export let cohortMemberWithIndex: { index: number, member: GenerationMember }
     export let relationshipColor: string
+    export let relatableForCurrentDrag: boolean
 
 
     let fanSegmentHovered = false
@@ -103,7 +104,7 @@
     <line 
         class="
             fan-segment-image
-            {fanSegmentHovered || relationshipHovered || thingHovered ? "hovered" : ""}
+            {!($relationshipBeingCreatedInfoStore.sourceThingId && !relatableForCurrentDrag) && (fanSegmentHovered || relationshipHovered || thingHovered) ? "hovered" : ""}
             {fanSegmentClicked ? "clicked" : ""}
         "
         style="stroke-width: {3 / tweenedScale};"
@@ -114,7 +115,8 @@
     <!-- Delete button. -->
     {#if (
         // Show delete button if the Relationship is hovered, except those relating to Thing Forms.
-        relationshipHovered
+        !($relationshipBeingCreatedInfoStore.sourceThingId && !relatableForCurrentDrag)
+        && relationshipHovered
         && cohortMemberWithIndex.member
     )}
         <svg
@@ -139,7 +141,7 @@
     {/if}
 
     <!-- Will-be-deleted indicator -->
-    {#if willBeDeleted}
+    {#if !($relationshipBeingCreatedInfoStore.sourceThingId && !relatableForCurrentDrag) && willBeDeleted}
         <svg
             class="will-be-deleted-indicator"
             x={leafGeometry.bottomMidline}

@@ -1,7 +1,7 @@
 import type { Editor } from "@tiptap/core"
 import type { RemoteRelatingInfo, TextHyperlinkingInfo, ThingLinkingInfo } from "$lib/widgets/dialogWidgets"
-import type { Direction, Thing, ThingCohort } from "$lib/models/constructModels"
-import type { RelationshipBeingCreatedInfo } from "$lib/widgets/graphWidgets"
+import type { Direction, Graph, Thing, ThingCohort } from "$lib/models/constructModels"
+import type { GraphWidgetStyle, RelationshipBeingCreatedInfo } from "$lib/widgets/graphWidgets"
 
 import { writable, derived } from "svelte/store"
 import { nullRelationshipBeingCreatedInfo } from "$lib/widgets/graphWidgets"
@@ -30,6 +30,8 @@ export const relationshipBeingCreatedInfoStore = writable(
  * Enable the Relationship-being-created Widget.
  */
 export function enableRelationshipBeingCreated(
+    graph: Graph,
+    graphWidgetStyle: GraphWidgetStyle,
     sourceThingId: number,
     sourceThingOpacity: number,
     sourceHalfAxisId: HalfAxisId,
@@ -38,8 +40,8 @@ export function enableRelationshipBeingCreated(
 ): void {
     relationshipBeingCreatedInfoStore.set(
         {
-            graph: null,
-            graphWidgetStyle: null,
+            graph: graph,
+            graphWidgetStyle: graphWidgetStyle,
 
             sourceThingId: sourceThingId,
             sourceThingOpacity: sourceThingOpacity,
@@ -48,7 +50,7 @@ export function enableRelationshipBeingCreated(
 
             startPosition: position,
             endPosition: position,
-            trackingMouse: false,
+            trackingMouse: true,
 
             destThingId: null,
             destHalfAxisId: null,

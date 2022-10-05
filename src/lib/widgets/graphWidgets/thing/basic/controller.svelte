@@ -2,7 +2,7 @@
     import type { HalfAxisId } from "$lib/shared/constants"
     import type { Graph, Thing } from "$lib/models/constructModels"
 
-    //import { relationshipBeingCreatedInfoStore } from "$lib/stores"
+    import { relationshipBeingCreatedInfoStore } from "$lib/stores"
     import { ThingBaseWidgetController } from "../base"
     import type { GraphWidgetStyle } from "../../graph";
 
@@ -57,19 +57,16 @@
      * This attribute indicates whether the Thing is a valid target for relating
      * for the current drag-relate operation.
      */
-    $: relatableForCurrentDrag = false/*
+    $: relatableForCurrentDrag =
         // The flag is true if...
         (
             // ...there is a drag-relate in progress...
-            $relationshipBeingCreatedInfoStore.sourceWidgetModel
+            $relationshipBeingCreatedInfoStore.sourceThingId
             // ...and the source of the drag-relate is not *this* Thing.
-            && !(
-                $relationshipBeingCreatedInfoStore.sourceWidgetModel.kind === "thingWidgetModel"
-                && $relationshipBeingCreatedInfoStore.sourceWidgetModel.thingId === thingId
-            )
+            && $relationshipBeingCreatedInfoStore.sourceThingId !== thingId
         ) ?
             true :
-            false*/
+            false
 </script>
 
 
