@@ -196,7 +196,7 @@ export class Thing {
         }
 
         for (const directionId of this.relatedThingDirectionIds) {
-            if (!(onAxisDirectionIds.includes(directionId))) {
+            if (!(onAxisDirectionIds.includes(directionId)) && directionId in this.relatedThingIdsByDirectionId) {
                 offAxisRelatedThingIds.push(...this.relatedThingIdsByDirectionId[directionId])
             }
         }
