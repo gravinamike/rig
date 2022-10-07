@@ -150,27 +150,6 @@
 />
 
 
-{@html
-    `
-        graph ${$relationshipBeingCreatedInfoStore.graph}<br>
-        graphWidgetStyle ${$relationshipBeingCreatedInfoStore.graphWidgetStyle}<br>
-
-        sourceThingId ${$relationshipBeingCreatedInfoStore.sourceThingId}<br>
-        sourceThingOpacity ${$relationshipBeingCreatedInfoStore.sourceThingOpacity}<br>
-        sourceHalfAxisId ${$relationshipBeingCreatedInfoStore.sourceHalfAxisId}<br>
-        sourceDirection ${$relationshipBeingCreatedInfoStore.sourceDirection}<br>
-
-        startPosition ${$relationshipBeingCreatedInfoStore.startPosition}<br>
-        endPosition ${$relationshipBeingCreatedInfoStore.endPosition}<br>
-        trackingMouse ${$relationshipBeingCreatedInfoStore.trackingMouse}<br>
-
-        destThingId ${$relationshipBeingCreatedInfoStore.destThingId}<br>
-        destHalfAxisId ${$relationshipBeingCreatedInfoStore.destHalfAxisId}<br>
-        destDirection ${$relationshipBeingCreatedInfoStore.destDirection}<br>
-
-        selectedDirection ${$relationshipBeingCreatedInfoStore.selectedDirection}<br>
-    `
-}
 
 {#if (
     $relationshipBeingCreatedInfoStore.sourceThingId

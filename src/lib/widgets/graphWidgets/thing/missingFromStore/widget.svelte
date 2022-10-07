@@ -7,10 +7,10 @@
     export let graphWidgetStyle: GraphWidgetStyle
 
 
-    let planeId: number
-    let encapsulatingDepth: number
-    let xYElongation: {x: number, y: number}
-    let cohortSize: number
+    let planeId: number = 0
+    let encapsulatingDepth: number = 0
+    let xYElongation: {x: number, y: number} = {x: 0, y: 0}
+    let cohortSize: number = 0
 
 
     /* Variables dealing with encapsulation (Things containing other Things). */
