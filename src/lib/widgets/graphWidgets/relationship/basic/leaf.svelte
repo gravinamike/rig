@@ -28,7 +28,7 @@ import type { HalfAxisId } from "$lib/shared/constants";
     $: thing = cohortMemberWithIndex.member.thing as Thing
     let leafHovered = false
     $: thingHovered = thing.id === $hoveredThingIdStore
-    $: relationshipHovered = thing.id === thingIdOfHoveredRelationship
+    $: relationshipHovered = thing.id && thing.id === thingIdOfHoveredRelationship
     let leafClicked = false
 
     $: showDirection =

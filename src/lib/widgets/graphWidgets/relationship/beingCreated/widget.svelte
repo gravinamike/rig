@@ -106,7 +106,10 @@
     // Handling outside mouse releases.
 	function handleMouseUp() {
         setRelationshipBeingCreatedTrackingMouse(false)
-        if (sourceThingId) enableRemoteRelating(sourceThingId)
+        if (
+            sourceThingId
+            && Math.hypot(endPositionX - startPositionX, endPositionY - startPositionY) > 5
+        ) enableRemoteRelating(sourceThingId)
 	}
 
     function handleEscape(event: KeyboardEvent) {
@@ -148,7 +151,6 @@
     on:mouseup={handleMouseUp}
     on:keyup={handleEscape}
 />
-
 
 
 {#if (

@@ -19,7 +19,7 @@
     let fanSegmentHovered = false
     $: thing = cohortMemberWithIndex.member.thing as Thing
     $: thingHovered = thing.id === $hoveredThingIdStore
-    $: relationshipHovered = thing.id === thingIdOfHoveredRelationship
+    $: relationshipHovered = thing.id && thing.id === thingIdOfHoveredRelationship
     let fanSegmentClicked = false
 
     async function deleteRelationship() {

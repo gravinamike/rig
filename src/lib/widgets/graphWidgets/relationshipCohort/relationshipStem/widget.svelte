@@ -5,7 +5,8 @@
 
     // Import stores.
     import {
-        hoveredRelationshipTarget, enableRelationshipBeingCreated, setRelationshipBeingCreatedDestThingId
+        hoveredRelationshipTarget, enableRelationshipBeingCreated, setRelationshipBeingCreatedDestThingId,
+        disableRelationshipBeingCreated
     } from "$lib/stores"
     
 
@@ -92,7 +93,11 @@
         }}
         on:mouseup={ () => {
             stemClicked = false
-            if (relatableForCurrentDrag) setRelationshipBeingCreatedDestThingId(cohort.parentThingId)
+            if (relatableForCurrentDrag) {
+                setRelationshipBeingCreatedDestThingId(cohort.parentThingId)
+            } else {
+                disableRelationshipBeingCreated()
+            }
         } }
     />
 

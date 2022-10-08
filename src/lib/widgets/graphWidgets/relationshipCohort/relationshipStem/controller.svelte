@@ -87,8 +87,10 @@
      * Is true if the Stem widget is the source of an in-progress drag-relate
      * operation.
      */
-    $: isDragRelateSource =
-        $relationshipBeingCreatedInfoStore.sourceThingId === cohort.parentThingId ? true :
+    $: isDragRelateSource = (
+        $relationshipBeingCreatedInfoStore.sourceThingId === cohort.parentThingId
+        && $relationshipBeingCreatedInfoStore.sourceHalfAxisId === cohort.halfAxisId
+    ) ? true :
         false
 
     /**
