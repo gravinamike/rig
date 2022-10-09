@@ -5,7 +5,7 @@
     // Import stores.
     import { 
         hoveredThingIdStore, addGraphIdsNeedingViewerRefresh,
-        relationshipBeingCreatedInfoStore, inferredRelationshipBeingCreatedDirection
+        relationshipBeingCreatedInfoStore
     } from "$lib/stores"
 
     import { Graph, Thing, ThingCohort } from "$lib/models/constructModels"

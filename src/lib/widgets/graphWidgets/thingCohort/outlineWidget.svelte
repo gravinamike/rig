@@ -23,7 +23,7 @@
 >
     {#if !(thingCohort.members.length === 1 && indexOfGrandparentThing !== null && indexOfGrandparentThing !== -1)}<!-- Unless the ONLY descendent in a Half-Axis is a doubled-back parent Thing, -->
         {#each thingCohort.members as cohortMember}
-            {#if cohortMember.alreadyRendered}
+            {#if cohortMember.alreadyRendered && cohortMember.thingId}
                 <ThingOutlineAlreadyRenderedWidget
                     thingId={cohortMember.thingId}
                     cohortHalfAxisId={thingCohort.halfAxisId}

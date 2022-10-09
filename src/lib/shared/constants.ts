@@ -6,7 +6,6 @@ import type { Space, Direction, Thing, Relationship } from "$lib/models/construc
  */
 export const graphsBaseFolder = "C:/Rig/graphs"
 export const unigraphFolder = "C:/Users/mtgra/Desktop/LifeSeahorse_test/LifeGrid_graph"
-export const startingPThingIds = [6080]
 export const startingGraphDepth = 1
 export const zoomBase = 1.45
 
@@ -30,6 +29,7 @@ export interface WaitingIndicatorStates {
  */
 export interface GraphConfig {
     pinIds: number[]
+    perspectiveThingId: number
 }
 
 export type GraphConstruct = Direction | Space | Thing | Relationship

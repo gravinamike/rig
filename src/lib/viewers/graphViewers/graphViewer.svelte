@@ -7,7 +7,7 @@
     import { sleep } from "$lib/shared/utility"
 
     // Import stores.
-    import { addGraph, removeGraph, hoveredThingIdStore, openGraphStore, graphIdsNeedingViewerRefresh, addGraphIdsNeedingViewerRefresh, removeGraphIdsNeedingViewerRefresh } from "$lib/stores"
+    import { addGraph, removeGraph, hoveredThingIdStore, openGraphStore, graphIdsNeedingViewerRefresh, addGraphIdsNeedingViewerRefresh, removeGraphIdsNeedingViewerRefresh, perspectiveThingIdStore } from "$lib/stores"
 
     // Import layout elements.
     import { Collapser, TabBlock, TabFlap, TabFlaps, TabBody } from "$lib/widgets/layoutWidgets"
@@ -22,6 +22,7 @@
 
     // Import API functions.
     import { markThingsVisited } from "$lib/db/clientSide/makeChanges"
+    import { saveGraphConfig } from "$lib/shared/config";
     
 
     export let pThingIds: number[]
@@ -91,9 +92,11 @@
             allowZoomAndScrollToFit = true
             addGraphIdsNeedingViewerRefresh(graph.id)
 
-            // Update Thing-visit records in the database and History.
+            // Update Thing-visit records in the database, History, store and Graph configuration.
             await markThingsVisited(pThingIds)
             graph.history.addEntries([thingId])
+            perspectiveThingIdStore.set(thingId)
+            saveGraphConfig()
         }
     }
 

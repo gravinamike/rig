@@ -201,7 +201,7 @@
         const parentRectY = parentDomRect === null ? 0 : parentDomRect.y
 
         // Get position of the Relationship's destination Thing Widget.
-        const relatedRect = rectOfThingWidgetByThingId(graph.id, member.thingId)
+        const relatedRect = rectOfThingWidgetByThingId(graph.id, member.thingId as number)
         const relatedRectX = relatedRect === null ? 0 : relatedRect.x
         const relatedRectY = relatedRect === null ? 0 : relatedRect.y
 

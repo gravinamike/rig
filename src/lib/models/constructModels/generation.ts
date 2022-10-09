@@ -110,7 +110,7 @@ export class Generation {
                 const directionIdsForCohorts = [...new Set([
                     ...prevThing.relatedThingDirectionIds,
                     ...cartesianDirectionIds])
-                ]///////////////////////////////////////////////////// FIX THIS
+                ]
                 for (const directionId of directionIdsForCohorts) {
 
                     // Get the address for that half axis' Cohort.

@@ -127,7 +127,7 @@
 >
 
     {#if showCladeRootThing}
-        {#if rootThing}
+        {#if rootThing?.id}
             <ThingOutlineWidget
                 thingId={rootThing.id}
                 {graph}

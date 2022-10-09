@@ -58,6 +58,11 @@ export async function removeGraph(graph: Graph): Promise<void> {
 }
 
 
+// Perspective-Thing-ID Store.
+// Holds the ID of the Graph's Perspective Thing.
+export const perspectiveThingIdStore = writable( 1 as number )
+
+
 
 
 

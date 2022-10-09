@@ -20,7 +20,7 @@
     export let rePerspectToThingId: (thingId: number) => Promise<void>
 
 
-    $: parentThingId = parentThing.id
+    $: parentThingId = parentThing.id as number
 
 
     $: scale = zoomBase ** parentGraphWidgetStyle.zoom

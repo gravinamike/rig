@@ -281,7 +281,7 @@ export async function clearGraphDbModelStore(constructName: "Direction" | "Space
  * @param  {"Direction" | "Space" | "Thing"} constructName - The name of the construct type.
  * @param  {number | number[]} ids - The IDs of the constructs to retrieve from the stores.
  */
-export function getGraphConstructs<Type extends GraphConstruct>(/////////////////// REBUILD AS GET GRAPH CONSTRUCTS
+export function getGraphConstructs<Type extends GraphConstruct>(
     constructName: "Direction" | "Space" | "Thing",
     ids: number
 ): Type | null
