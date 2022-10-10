@@ -1,0 +1,1 @@
+export { default as RelationshipStemWidget } from "./widget.svelte"

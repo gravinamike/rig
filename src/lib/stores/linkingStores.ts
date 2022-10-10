@@ -1,22 +1,27 @@
 import type { Editor } from "@tiptap/core"
 import type { RemoteRelatingInfo, TextHyperlinkingInfo, ThingLinkingInfo } from "$lib/widgets/dialogWidgets"
-import type { Direction } from "$lib/models/graphModels"
-import type { ThingWidgetModel, RelationshipCohortWidgetModel } from "$lib/models/widgetModels"
-import type { RelationshipBeingCreatedInfo } from "$lib/widgets/graphWidgets"
+import type { Direction, Graph, Thing, ThingCohort } from "$lib/models/constructModels"
+import type { GraphWidgetStyle, RelationshipBeingCreatedInfo } from "$lib/widgets/graphWidgets"
 
 import { writable, derived } from "svelte/store"
 import { nullRelationshipBeingCreatedInfo } from "$lib/widgets/graphWidgets"
 import { nullRemoteRelatingInfo, nullTextHyperlinkingInfo, nullThingLinkingInfo } from "$lib/widgets/dialogWidgets"
-import { retrieveGraphConstructs } from "./graphConstructStores"
+import { getGraphConstructs } from "./graphConstructStores"
+import type { HalfAxisId } from "$lib/shared/constants"
 
 
 export const relationshipBeingCreatedInfoStore = writable(
     {
-        sourceWidgetModel: null,
-        destWidgetModel: null,
+        graph: null,
+        graphWidgetStyle: null,
+        sourceThingId: null,
+        sourceThingOpacity: null,
+        sourceHalfAxisId: null,
+        sourceDirection: null,
+        destThingId: null,
+        trackingMouse: false,
         startPosition: [0, 0],
         endPosition: [0, 0],
-        trackingMouse: false,
         selectedDirection: null
     } as RelationshipBeingCreatedInfo
 )
@@ -24,14 +29,33 @@ export const relationshipBeingCreatedInfoStore = writable(
 /**
  * Enable the Relationship-being-created Widget.
  */
-export function enableRelationshipBeingCreated(sourceWidgetModel: ThingWidgetModel | RelationshipCohortWidgetModel, position: [number, number]): void {
+export function enableRelationshipBeingCreated(
+    graph: Graph,
+    graphWidgetStyle: GraphWidgetStyle,
+    sourceThingId: number,
+    sourceThingOpacity: number,
+    sourceHalfAxisId: HalfAxisId,
+    sourceDirection: Direction,
+    position: [number, number]
+): void {
     relationshipBeingCreatedInfoStore.set(
         {
-            sourceWidgetModel: sourceWidgetModel,
-            destWidgetModel: null,
+            graph: graph,
+            graphWidgetStyle: graphWidgetStyle,
+
+            sourceThingId: sourceThingId,
+            sourceThingOpacity: sourceThingOpacity,
+            sourceHalfAxisId: sourceHalfAxisId,
+            sourceDirection: sourceDirection,
+
             startPosition: position,
             endPosition: position,
             trackingMouse: true,
+
+            destThingId: null,
+            destHalfAxisId: null,
+            destDirection: null,
+
             selectedDirection: null
         }
     )
@@ -47,9 +71,9 @@ export function updateRelationshipBeingCreatedEndpoint(position: [number, number
     } )
 }
 
-export function setRelationshipBeingCreatedDestWidgetModel(destWidgetModel: ThingWidgetModel | RelationshipCohortWidgetModel | null): void {
+export function setRelationshipBeingCreatedDestThingId(destThingId: number | null): void {
     relationshipBeingCreatedInfoStore.update( current => {
-        current.destWidgetModel = destWidgetModel
+        current.destThingId = destThingId
         return current
     } )
 }
@@ -70,27 +94,35 @@ export function disableRelationshipBeingCreated(): void {
 
 
 export const hoveredRelationshipTarget = writable(
-    null as (ThingWidgetModel | RelationshipCohortWidgetModel | null)
+    null as (Thing | ThingCohort | null)
 )
 
 export const inferredRelationshipBeingCreatedDirection = derived(
     relationshipBeingCreatedInfoStore,
     $relationshipBeingCreatedInfoStore => {
-        const sourceWidgetModel = $relationshipBeingCreatedInfoStore.sourceWidgetModel
-        const destWidgetModel = $relationshipBeingCreatedInfoStore.destWidgetModel
-        const selectedDirection = $relationshipBeingCreatedInfoStore.selectedDirection
-
         let direction: Direction | null
-        if (sourceWidgetModel && sourceWidgetModel.kind === "relationshipCohortWidgetModel") {
-            direction = sourceWidgetModel.direction
-        } else if (destWidgetModel && destWidgetModel.kind === "relationshipCohortWidgetModel") {
+
+        if (
+            $relationshipBeingCreatedInfoStore.sourceThingId
+            && $relationshipBeingCreatedInfoStore.sourceDirection
+        ) {
+            direction = $relationshipBeingCreatedInfoStore.sourceDirection
+
+        } else if (
+            $relationshipBeingCreatedInfoStore.destThingId
+            && $relationshipBeingCreatedInfoStore.destDirection
+        ) {
             direction = (
-                destWidgetModel.direction.oppositeid ?
-                    retrieveGraphConstructs("Direction", destWidgetModel.direction.oppositeid) :
+                $relationshipBeingCreatedInfoStore.destDirection.oppositeid ?
+                    getGraphConstructs(
+                        "Direction",
+                        $relationshipBeingCreatedInfoStore.destDirection.oppositeid
+                    ) :
                     null
             )
+
         } else {
-            direction = selectedDirection
+            direction = $relationshipBeingCreatedInfoStore.selectedDirection
         }
 
         return direction
@@ -104,14 +136,14 @@ export const inferredRelationshipBeingCreatedDirection = derived(
 
 export const remoteRelatingInfoStore = writable(
     {
-        sourceWidgetModel: null
+        sourceThingId: null
     } as RemoteRelatingInfo
 )
 
-export function enableRemoteRelating(sourceWidgetModel: ThingWidgetModel | RelationshipCohortWidgetModel): void {
+export function enableRemoteRelating(sourceThingId: number): void {
     remoteRelatingInfoStore.set(
         {
-            sourceWidgetModel: sourceWidgetModel
+            sourceThingId: sourceThingId
         }
     )
 }

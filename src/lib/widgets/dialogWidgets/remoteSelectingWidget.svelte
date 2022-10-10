@@ -1,48 +1,41 @@
 <script lang="ts">
-    import type { Graph } from "$lib/models/graphModels"
-    import type { ThingSearchListItem } from "$lib/models/graphModels"
+    // Import types.
+    import type { Graph, ThingSearchListItem } from "$lib/models/constructModels"
     import type { SearchOption } from "$lib/widgets/navWidgets/searchWidget"
+
+    // Import stores.
     import {
-        thingSearchListStore, addGraph, removeGraph, graphIdsNeedingViewerRefresh, addGraphIdsNeedingViewerRefresh, removeGraphIdsNeedingViewerRefresh
+        thingSearchListStore, addGraph, removeGraph,
+        graphIdsNeedingViewerRefresh, addGraphIdsNeedingViewerRefresh, removeGraphIdsNeedingViewerRefresh
     } from "$lib/stores"
-    import { GraphWidget } from "$lib/widgets/graphWidgets"
+
+    // Import related widgets.
+    import { defaultGraphWidgetStyle, GraphWidget, type GraphWidgetStyle } from "$lib/widgets/graphWidgets"
     import { SearchWidget } from "$lib/widgets/navWidgets"
 
-    export let graph: Graph | null = null
+
+    // The method to be executed when a Thing is selected.
     export let submitMethod: (selectedItem: SearchOption | null, matchedItems: SearchOption[]) => void
+    // The widget's internal Graph (distinct from the Graph in a regular Graph Viewer).
+    export let graph: Graph | null = null
 
 
-    
+    // Attributes related to the Graph configuration.
+    let graphWidgetStyle: GraphWidgetStyle = {...defaultGraphWidgetStyle}
     let thingIdToShowGraphFor: number | null = null
 
+    // Attributes related to scrolling and zooming.
+    let allowZoomAndScrollToFit = false
+    let allowScrollToThingId = false
+    let thingIdToScrollTo: number | null = null
+
+    // Set up creation of the "unfiltered array" (an array of ID/text pairs for
+    // each Thing Search List item in the store.
     let unfilteredArray: {id: number, name: string}[] = []
-    
-    async function buildUnfilteredArray(thingSearchList: ThingSearchListItem[]) {
-        unfilteredArray = []
-        for (const thingSearchListItem of thingSearchList) {
-            unfilteredArray.push({id: (thingSearchListItem.id as number), name: (thingSearchListItem.text as string)})
-        }
-    }
     $: buildUnfilteredArray($thingSearchListStore)
 
-    function focusMethod(focusedItem: SearchOption | null) {
-        if (focusedItem) thingIdToShowGraphFor = focusedItem.id
-    }
-
-    
-
-
-
-    async function createGraph(thingIdToShowGraphFor: number) {
-        // Close any existing Graph.
-        if (graph !== null) await removeGraph(graph)
-        // Open and build the new Graph.
-        graph = await addGraph([thingIdToShowGraphFor], 1)
-        graph.graphWidgetStyle.animateZoomAndScroll = false
-        await graph.build()
-        // Refresh the Graph viewers.
-        addGraphIdsNeedingViewerRefresh(graph.id)
-    }
+    // Set up Graph creation and removal in response to changes in the
+    // specified Perspective Thing ID.
     $: if (thingIdToShowGraphFor) {
         createGraph(thingIdToShowGraphFor)
     }
@@ -52,21 +45,64 @@
     }
 
     // Set up Graph refreshing.
-    $: if ( graph?.lifecycleStatus === "built" && $graphIdsNeedingViewerRefresh.includes(graph.id) ) {
+    $: if (
+        graph?.lifecycleStatus === "built"
+        && $graphIdsNeedingViewerRefresh.includes(graph.id)
+    ) {
         removeGraphIdsNeedingViewerRefresh(graph.id)
         graph = graph // Needed for reactivity.
-        graph.allowZoomAndScrollToFit = true
+        allowZoomAndScrollToFit = true
     }
 
 
+    /**
+     * Build-unfiltered-array method.
+     * 
+     * Builds an array of ID/text pairs for each Thing Search List item in the store.
+     * @param thingSearchList - A list of Thing Search Items to be processed into the output array.
+     */
+    async function buildUnfilteredArray(thingSearchList: ThingSearchListItem[]) {
+        unfilteredArray = []
+        for (const thingSearchListItem of thingSearchList) {
+            unfilteredArray.push({
+                id: (thingSearchListItem.id as number),
+                name: (thingSearchListItem.text as string)
+            })
+        }
+    }
+    
+    /**
+     * Create-Graph method.
+     * 
+     * Replaces any existing Graph in this widget with a new Graph.
+     * @param thingIdToShowGraphFor = The ID of the Perspective Thing of the to-be-created Graph.
+     */
+    async function createGraph(thingIdToShowGraphFor: number) {
+        // Close any existing Graph.
+        if (graph !== null) await removeGraph(graph)
+        // Open and build the new Graph.
+        graph = await addGraph([thingIdToShowGraphFor], 1)
+        graphWidgetStyle.animateZoomAndScroll = false
+        // Refresh the Graph viewer.
+        addGraphIdsNeedingViewerRefresh(graph.id)
+    }
 
-
-
-
+    /**
+     * Focus method.
+     * 
+     * When an option in the search dropdown is in focus, change the Graph to
+     * be Perspected on the associated Thing.
+     * @param focusedItem - The search option object that is focused (or null if none).
+     */
+    function focusMethod(focusedItem: SearchOption | null) {
+        if (focusedItem) thingIdToShowGraphFor = focusedItem.id
+    }
 </script>
 
+<!-- Remote-selecting widget. -->
 <div class="remote-selecting-widget">
 
+    <!-- Search widget. -->
     <div class="thing-searchbox-container">
         <SearchWidget
             {unfilteredArray}
@@ -77,13 +113,19 @@
         />
     </div>
 
+    <!-- Graph visualizer for Thing search. -->
     <div class="graph-container">
         {#if graph}
             <GraphWidget
                 bind:graph
+                {graphWidgetStyle}
+                bind:allowZoomAndScrollToFit
+                bind:allowScrollToThingId
+                bind:thingIdToScrollTo
                 rePerspectToThingId={async () => {}}
             />
         {/if}
+        <!-- The "glass pane" prevents direct interaction with the Graph Widget. -->
         <div class="glass-pane" />
     </div>
     

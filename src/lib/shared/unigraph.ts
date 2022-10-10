@@ -1,5 +1,5 @@
 import { storeGraphConfig, saveAppConfig } from "$lib/shared/config"
-import { storeGraphConstructs, clearGraphConstructs, storeThingSearchList, clearThingSearchList } from "$lib/stores"
+import { storeGraphDbModels, clearGraphDbModelStore, storeThingSearchList, clearThingSearchList } from "$lib/stores"
 import { getUnigraphFolder, setUnigraphFolder } from "$lib/db/clientSide"
 import { loadingState, openGraphStore } from "$lib/stores"
 
@@ -16,8 +16,8 @@ export async function openUnigraph(): Promise<boolean> {
 
         await storeGraphConfig()
 
-        await storeGraphConstructs("Direction")
-        await storeGraphConstructs("Space")
+        await storeGraphDbModels("Direction")
+        await storeGraphDbModels("Space")
         await storeThingSearchList()
 
         await saveAppConfig()
@@ -34,9 +34,9 @@ export async function openUnigraph(): Promise<boolean> {
 }
 
 export async function closeUnigraph(): Promise<void> {
-    await clearGraphConstructs("Direction")
-    await clearGraphConstructs("Space")
-    await clearGraphConstructs("Thing")
+    await clearGraphDbModelStore("Direction")
+    await clearGraphDbModelStore("Space")
+    await clearGraphDbModelStore("Thing")
     await clearThingSearchList()
 }
 

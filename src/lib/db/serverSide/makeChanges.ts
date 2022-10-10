@@ -13,7 +13,7 @@ import {
     NoteDbModel, getNewNoteInfo, NoteToThingDbModel,
     FolderDbModel, getNewFolderInfo, FolderToThingDbModel
 } from "$lib/models/dbModels"
-import { Thing } from "$lib/models/graphModels"
+import { Thing } from "$lib/models/constructModels"
 
 // Filesystem-related imports.
 import { createFolder } from "$lib/shared/fileSystem"

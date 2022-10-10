@@ -1,17 +1,17 @@
 <script lang="ts">
-    import { directionsStoreAsArray, directionIdsNotFoundStore } from "$lib/stores"
+    import { directionDbModelsStoreAsArray, directionIdsNotFoundStore } from "$lib/stores"
     import { DirectionDetailsWidget } from "$lib/widgets/detailsWidgets"
 </script>
 
 
 <main>
     <!-- List of Directions found. -->
-    {#if $directionsStoreAsArray.length}
-        <h4>{$directionsStoreAsArray.length} Directions found:</h4>
+    {#if $directionDbModelsStoreAsArray.length}
+        <h4>{$directionDbModelsStoreAsArray.length} Directions found:</h4>
 
-        {#each $directionsStoreAsArray as direction}
+        {#each $directionDbModelsStoreAsArray as directionDbModel}
             <DirectionDetailsWidget
-                {direction}
+                {directionDbModel}
             />
         {/each}
     {/if}

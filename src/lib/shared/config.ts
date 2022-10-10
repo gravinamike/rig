@@ -3,6 +3,7 @@ import { get } from "svelte/store"
 import { pinIdsStore } from "$lib/stores/pinStores"
 import { getAppConfig, getGraphConfig } from "$lib/db/clientSide/getInfo"
 import { setUnigraphFolder, saveAppConfig as apiSaveAppConfig, saveGraphConfig as apiSaveGraphConfig } from "$lib/db/clientSide/makeChanges"
+import { perspectiveThingIdStore } from "$lib/stores"
 
 
 // Load configuration-related values from the JSON config file.
@@ -23,6 +24,7 @@ export async function storeGraphConfig(): Promise<void> {
 
     // Set front-end stores.
     pinIdsStore.set(graphConfig.pinIds)
+    perspectiveThingIdStore.set(graphConfig.perspectiveThingId)
 }
 
 
@@ -34,9 +36,11 @@ export async function saveAppConfig(): Promise<void> {
 // Save configuration-related values to the JSON config file.
 export async function saveGraphConfig(): Promise<void> {
     const pinIdsStoreValue = get(pinIdsStore)
+    const lastPerspectiveThingId = get(perspectiveThingIdStore)
 
     const graphConfig = {
-        pinIds: pinIdsStoreValue
+        pinIds: pinIdsStoreValue,
+        perspectiveThingId: lastPerspectiveThingId
     }
 
     await apiSaveGraphConfig(graphConfig)

@@ -1,7 +1,7 @@
-import type { ThingSearchListItem } from "$lib/models/graphModels"
+import type { ThingSearchListItem } from "$lib/models/constructModels"
 
 import { writable } from "svelte/store"
-import { Graph, Space } from "$lib/models/graphModels"
+import { Graph, Space } from "$lib/models/constructModels"
 import { thingSearchListItems } from "$lib/db/clientSide"
 
 
@@ -25,6 +25,7 @@ export async function addGraph(pThingIds: number[], depth: number, parentGraph: 
     const newGraphId = allGraphIds.length ? Math.max(...allGraphIds) + 1 : 1
 
     const graph = new Graph(newGraphId, pThingIds, depth, parentGraph, offAxis, startingSpace)
+    await graph.build()
 
     graphsStore.update( current => {
         if (!current.includes(graph)) current.push(graph)
@@ -55,6 +56,11 @@ export async function removeGraph(graph: Graph): Promise<void> {
         return current
     } )
 }
+
+
+// Perspective-Thing-ID Store.
+// Holds the ID of the Graph's Perspective Thing.
+export const perspectiveThingIdStore = writable( 1 as number )
 
 
 

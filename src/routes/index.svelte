@@ -6,11 +6,11 @@
     import { onMount } from "svelte"
 
     // Import constants and configs.
-    import { startingPThingIds, startingGraphDepth, navHeight } from "$lib/shared/constants"
+    import { startingGraphDepth, navHeight } from "$lib/shared/constants"
     import { storeAppConfig } from "$lib/shared/config"
 
     // Import database/stores-related functions.
-    import { loadingState, openGraphStore, updateRelationshipBeingCreatedEndpoint } from "$lib/stores"
+    import { loadingState, openGraphStore, perspectiveThingIdStore, updateRelationshipBeingCreatedEndpoint } from "$lib/stores"
 
     // Import widgets.
     import {
@@ -75,7 +75,7 @@
         }
 	})
 
-    function handleMouseMove(event: MouseEvent): void {/////////////////// MOVE INTO THE WIDGET
+    function handleMouseMove(event: MouseEvent): void {
         updateRelationshipBeingCreatedEndpoint([event.clientX, event.clientY])
     }
 </script>
@@ -160,7 +160,7 @@
     <!-- Graph Portal. -->
     {#if $openGraphStore}
         <GraphViewer
-            pThingIds={startingPThingIds}
+            pThingIds={[$perspectiveThingIdStore]}
             depth={startingGraphDepth}
         />
     {:else}

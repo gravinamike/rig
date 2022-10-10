@@ -1,6 +1,6 @@
 <script lang="ts">
     /* Type imports. */
-    import type { Thing } from "$lib/models/graphModels"
+    import type { Thing } from "$lib/models/constructModels"
 
     /* Store-related imports. */
     import { hoveredThingIdStore, openContextCommandPalette, removePin } from "$lib/stores"

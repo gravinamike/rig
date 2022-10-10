@@ -54,7 +54,7 @@ export async function createNewGraphFile(folderName: string): Promise< void > {
     await fsPromises.mkdir(destFolderPath)
     await fsPromises.mkdir(destFoldersFolderPath)
     await fsPromises.copyFile(sourceGraphFilePath, destGraphFilePath)
-    await fsPromises.writeFile(destConfigFilePath, `{"pinIds":[1]}`, "utf8")
+    await fsPromises.writeFile(destConfigFilePath, `{"pinIds":[1],"perspectiveThingId":1}`, "utf8")
 
     await initializeNewGraph()
 }

@@ -1,6 +1,7 @@
 <script lang="ts">
-    import type { Thing } from "$lib/models/graphModels"
-    import { pinIdsStore, storeGraphConstructs, graphConstructInStore, retrieveGraphConstructs } from "$lib/stores"
+    import type { Thing } from "$lib/models/constructModels"
+    import type { ThingDbModel } from "$lib/models/dbModels";
+    import { pinIdsStore, storeGraphDbModels, graphDbModelInStore, getGraphConstructs } from "$lib/stores"
     import { PinWidget } from "$lib/widgets/navWidgets"
 
     export let rePerspectToThingId: (thingId: number) => Promise<void>
@@ -9,14 +10,14 @@
     let pins: { thingId: number, thing: Thing | null }[] = []
     async function storeAndGetPins(pinIds: number[]) {
         for (const pinId of pinIds) {
-            if (!graphConstructInStore("Thing", pinId)) await storeGraphConstructs<Thing>("Thing", pinId)
+            if (!graphDbModelInStore("Thing", pinId)) await storeGraphDbModels<ThingDbModel>("Thing", pinId)
         }
 
         pins = pinIds.map(
             (pinId) => {
                 return {
                     thingId: pinId,
-                    thing: graphConstructInStore("Thing", pinId) ? retrieveGraphConstructs("Thing", pinId) as Thing : null
+                    thing: graphDbModelInStore("Thing", pinId) ? getGraphConstructs("Thing", pinId) as Thing : null
                 }
             }
         )

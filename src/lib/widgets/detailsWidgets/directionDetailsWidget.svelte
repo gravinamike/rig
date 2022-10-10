@@ -1,15 +1,15 @@
 <script lang="ts">
-    import type { Direction } from "$lib/models/graphModels"
+    import type { DirectionDbModel } from "$lib/models/dbModels"
 
-    export let direction: Direction
+    export let directionDbModel: DirectionDbModel
 </script>
 
 
 <main>
     <div class="box">
-        <h4>Id: {`${direction.id}`} Opp: {`${direction.oppositeid}`}</h4>
-        <h4>Text: {`${direction.text}`}</h4>
-        <h4>Objects: {`${direction.nameforobjects}`}</h4>
+        <h4>Id: {`${directionDbModel.id}`} Opp: {`${directionDbModel.oppositeid}`}</h4>
+        <h4>Text: {`${directionDbModel.text}`}</h4>
+        <h4>Objects: {`${directionDbModel.nameforobjects}`}</h4>
     </div>
 </main>
 

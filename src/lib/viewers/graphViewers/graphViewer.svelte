@@ -1,12 +1,13 @@
 <script lang="ts">
     // Type imports.
-    import type { Graph } from "$lib/models/graphModels"
+    import type { Graph } from "$lib/models/constructModels"
+    import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
     
-    // Import basic framework functions.
+    // Import utility functions.
     import { sleep } from "$lib/shared/utility"
 
     // Import stores.
-    import { addGraph, removeGraph, hoveredThingIdStore, openGraphStore, graphIdsNeedingViewerRefresh, addGraphIdsNeedingViewerRefresh, removeGraphIdsNeedingViewerRefresh } from "$lib/stores"
+    import { addGraph, removeGraph, hoveredThingIdStore, openGraphStore, graphIdsNeedingViewerRefresh, addGraphIdsNeedingViewerRefresh, removeGraphIdsNeedingViewerRefresh, perspectiveThingIdStore } from "$lib/stores"
 
     // Import layout elements.
     import { Collapser, TabBlock, TabFlap, TabFlaps, TabBody } from "$lib/widgets/layoutWidgets"
@@ -17,181 +18,233 @@
     import { HistoryViewer, PinsViewer, ThingSearchboxViewer } from "$lib/viewers/navViewers"
     import { NotesViewer } from "$lib/viewers/notesViewers"
     import { FolderViewer } from "$lib/viewers/folderViewers"
-    import { GraphWidget } from "$lib/widgets/graphWidgets"
-    import { GraphOutlineWidget } from "$lib/widgets/graphWidgets"
+    import { defaultGraphWidgetStyle, GraphWidget, GraphOutlineWidget } from "$lib/widgets/graphWidgets"
 
-    // Import modification functions.
+    // Import API functions.
     import { markThingsVisited } from "$lib/db/clientSide/makeChanges"
+    import { saveGraphConfig } from "$lib/shared/config";
     
+
     export let pThingIds: number[]
     export let depth: number
 
 
-    // Initialize the Graph.
+    // Graph and Graph widget style object.
     let graph: Graph | null
-    
+    let graphWidgetStyle: GraphWidgetStyle = {...defaultGraphWidgetStyle}
 
-    // Set up Graph refreshing.
-    $: if ( graph && $graphIdsNeedingViewerRefresh.includes(graph.id) ) {
-        removeGraphIdsNeedingViewerRefresh(graph.id)
-        graph = graph // Needed for reactivity.
-        graph.allowZoomAndScrollToFit = true
-    }
+    // Show-Graph flag. This is a kludge, to ensure that the Graph widgets are
+    // completely replaced at each re-Perspect to prevent retention of state
+    // information.
+    let showGraph = false
 
+    // Attributes controlling zoom and scroll.
+    let allowZoomAndScrollToFit = false
+    let allowScrollToThingId = false
+    let thingIdToScrollTo: number | null = null  
+
+    /**
+     * Build-and-refresh method.
+     * Replaces any existing Graph with a new one, builds the new Graph, then
+     * refreshes the viewers.
+     */
     async function buildAndRefresh() {
         // Close any existing Graph.
-        if (graph) removeGraph(graph)
+        if (graph) {
+            removeGraph(graph)
+            graph = null
+        }
+
         // Open and build the new Graph.
         graph = await addGraph(pThingIds, depth)
-        await graph.build()
+        graphWidgetStyle = {...defaultGraphWidgetStyle}
         await markThingsVisited(pThingIds)
+
         // Refresh the Graph viewers.
+        showGraph = true
         addGraphIdsNeedingViewerRefresh(graph.id)
     }
 
-
-    $: {
-        openGraphStore
-
-        buildAndRefresh()
-    }
-
-    
-
     /**
-     * Re-Perspect the Graph to a given Thing ID.
+     * Re-Perspect-to-Thing-ID method.
+     * Re-builds the the Graph using the given Thing ID as the Perspective Thing.
+     * 
+     * @param thingId - The ID of the new Perspective Thing.
      */
     async function rePerspectToThingId(thingId: number) {
         if (graph) {
             // If the new Perspective Thing is already in the Graph, scroll to center it.
-            graph.allowScrollToThingId = true
-            graph.thingIdToScrollTo = thingId
-            await sleep(300) // Allow for scroll time (since there's no actual feedback from the Portal to `await`).
+            allowScrollToThingId = true
+            thingIdToScrollTo = thingId
+
+            // Allow for scroll time (since there's no actual feedback from the widget to `await`).
+            await sleep(300) 
 
             // Re-Perspect the Graph.
+            showGraph = false
             await graph.setPThingIds([thingId]) // Re-Perspect to this Thing.
-            hoveredThingIdStore.set(null) // Clear the hovered-Thing highlighting.
-            graph.allowZoomAndScrollToFit = true
-            addGraphIdsNeedingViewerRefresh(graph.id)
-            await markThingsVisited(pThingIds)
+            showGraph = true
 
-            // Add the new Perspective Thing to the History.
+            // Clear the hovered-Thing highlighting.
+            hoveredThingIdStore.set(null)
+
+            // Refresh, then scroll and zoom to the new Graph.
+            allowZoomAndScrollToFit = true
+            addGraphIdsNeedingViewerRefresh(graph.id)
+
+            // Update Thing-visit records in the database, History, store and Graph configuration.
+            await markThingsVisited(pThingIds)
             graph.history.addEntries([thingId])
+            perspectiveThingIdStore.set(thingId)
+            saveGraphConfig()
         }
+    }
+
+    // Set up viewer to refresh...
+    // ... when a Graph is opened...
+    $: {
+        $openGraphStore
+
+        buildAndRefresh()
+    }
+    // ... and whenever a refresh of the specific Graph ID is called for.
+    $: if ( graph && $graphIdsNeedingViewerRefresh.includes(graph.id) ) {
+        removeGraphIdsNeedingViewerRefresh(graph.id)
+        graph = graph // Needed for reactivity.
+        allowZoomAndScrollToFit = true
     }
 </script>
 
 
-{#if graph?.lifecycleStatus === "built"}
-    <div class="graph-viewer">
-        <!-- Graph-related viewers (Schematic and Settings) -->
-        <Collapser
-            headerText={"Graph"}
-            contentDirection={"left"}
-            expanded={false}
-        >
-            <div class="tabs-container">
-                <TabBlock>
-                    <TabFlaps>
-                        <TabFlap>Settings</TabFlap>
-                        <TabFlap>Schematic</TabFlap>
-                    </TabFlaps>
-                
-                    <!-- Graph Settings viewer -->
-                    <TabBody>
+<div class="graph-viewer">
+    <!-- Graph-related viewers (Schematic and Settings) -->
+    <Collapser
+        headerText={"Graph"}
+        contentDirection={"left"}
+        expanded={false}
+    >
+        <div class="tabs-container">
+            <TabBlock>
+                <TabFlaps>
+                    <TabFlap>Settings</TabFlap>
+                    <TabFlap>Schematic</TabFlap>
+                </TabFlaps>
+            
+                <!-- Graph Settings viewer -->
+                <TabBody>
+                    {#if graph}
                         <GraphSettingsViewer
                             bind:graph
+                            bind:graphWidgetStyle
+                            bind:allowZoomAndScrollToFit
                         />
-                    </TabBody>
+                    {/if}
+                </TabBody>
 
-                    <!-- Graph Schematic viewer -->
-                    <TabBody>
+                <!-- Graph Schematic viewer -->
+                <TabBody>
+                    {#if graph}
                         <GraphSchematicViewer
                             {graph}
                         />
-                    </TabBody>
-                </TabBlock>
+                    {/if}
+                </TabBody>
+            </TabBlock>
+        </div>
+    </Collapser>
+
+    <!-- Navigation-related viewers (Pins and History) -->
+    <Collapser
+        headerText={"Navigation"}
+        contentDirection={"left"}
+        expanded={true}
+    >
+        <div class="navigation-view">
+            <!-- Thing searchbox -->
+            <div class="pins-container">
+                <ThingSearchboxViewer
+                    {rePerspectToThingId}
+                />
             </div>
-        </Collapser>
 
-        <!-- Navigation-related viewers (Pins and History) -->
-        <Collapser
-            headerText={"Navigation"}
-            contentDirection={"left"}
-            expanded={true}
-        >
-            <div class="navigation-view">
-                <!-- Thing searchbox -->
-                <div class="pins-container">
-                    <ThingSearchboxViewer
-                        {rePerspectToThingId}
-                    />
-                </div>
+            <!-- Graph pins viewer -->
+            <div class="pins-container">
+                <PinsViewer
+                    {rePerspectToThingId}
+                />
+            </div>
 
-                <!-- Graph pins viewer -->
-                <div class="pins-container">
-                    <PinsViewer
-                        {rePerspectToThingId}
-                    />
-                </div>
-
-                <!-- Graph history viewer -->
+            <!-- Graph history viewer -->
+            {#if graph}
                 <div class="history-container">
                     <HistoryViewer
                         bind:graph
                         {rePerspectToThingId}
                     />
                 </div>
-            </div>
-        </Collapser>
+            {/if}
+        </div>
+    </Collapser>
 
-        <!-- Graph Widget -->
-        <div class="graph-widget-container">
+    <!-- Graph Widget -->
+    <div class="graph-widget-container">
+        {#if graph && showGraph}
             <GraphWidget
                 bind:graph
+                bind:graphWidgetStyle
+                bind:allowZoomAndScrollToFit
+                bind:allowScrollToThingId
+                bind:thingIdToScrollTo
                 {rePerspectToThingId}
             />
-        </div>
+        {/if}
+    </div>
 
-        <!-- Notes viewer -->
-        <Collapser headerText={"Content"} contentDirection={"right"} expanded={false}>
-            <div class="tabs-container wide">
-                <TabBlock>
-                    <TabFlaps>
-                        <TabFlap>Notes</TabFlap>
-                        <TabFlap>Outline</TabFlap>
-                        <TabFlap>Attachments</TabFlap>
-                    </TabFlaps>
-                
-                    <!-- Notes viewer -->
-                    <TabBody>
+    <!-- Notes viewer -->
+    <Collapser headerText={"Content"} contentDirection={"right"} expanded={false}>
+        <div class="tabs-container wide">
+            <TabBlock>
+                <TabFlaps>
+                    <TabFlap>Notes</TabFlap>
+                    <TabFlap>Outline</TabFlap>
+                    <TabFlap>Attachments</TabFlap>
+                </TabFlaps>
+            
+                <!-- Notes viewer -->
+                <TabBody>
+                    {#if graph}
                         <NotesViewer
                             {graph}
                             {rePerspectToThingId}
                         />
-                    </TabBody>
+                    {/if}
+                </TabBody>
 
-                    <!-- Outline viewer -->
-                    <TabBody>
-                        <div class="graph-outline-widget-container">
+                <!-- Outline viewer -->
+                <TabBody>
+                    <div class="graph-outline-widget-container">
+                        {#if graph && showGraph}
                             <GraphOutlineWidget
                                 bind:graph
+                                {graphWidgetStyle}
                                 {rePerspectToThingId}
                             />
-                        </div>
-                    </TabBody>
+                        {/if}
+                    </div>
+                </TabBody>
 
-                    <!-- Attachments viewer -->
-                    <TabBody>
+                <!-- Attachments viewer -->
+                <TabBody>
+                    {#if graph}
                         <FolderViewer
                             {graph}
                         />
-                    </TabBody>
-                </TabBlock>
-            </div>
-        </Collapser>
-    </div>
-{/if}
+                    {/if}
+                </TabBody>
+            </TabBlock>
+        </div>
+    </Collapser>
+</div>
 
 
 <style>
@@ -243,6 +296,7 @@
         outline-offset: -1px;
 
         position: relative;
+        background-color: #eef8ff;
     }
 
     .graph-outline-widget-container {

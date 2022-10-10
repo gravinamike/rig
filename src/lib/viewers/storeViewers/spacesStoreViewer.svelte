@@ -1,17 +1,17 @@
 <script lang="ts">
-    import { spacesStoreAsArray, spaceIdsNotFoundStore } from "$lib/stores/graphConstructStores"
+    import { spaceDbModelsStoreAsArray, spaceIdsNotFoundStore } from "$lib/stores/graphConstructStores"
     import { SpaceDetailsWidget } from "$lib/widgets/detailsWidgets"
 </script>
 
 
 <main>
     <!-- List of Spaces found. -->
-    {#if $spacesStoreAsArray.length}
-        <h4>{$spacesStoreAsArray.length} Spaces found:</h4>
+    {#if $spaceDbModelsStoreAsArray.length}
+        <h4>{$spaceDbModelsStoreAsArray.length} Spaces found:</h4>
 
-        {#each $spacesStoreAsArray as space}
+        {#each $spaceDbModelsStoreAsArray as spaceDbModel}
             <SpaceDetailsWidget
-                {space}
+                {spaceDbModel}
             />
         {/each}
     {/if}

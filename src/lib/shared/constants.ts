@@ -1,12 +1,11 @@
-import type { Direction, Space, Thing, Relationship } from "$lib/models/graphModels"
+import type { Space, Direction, Thing, Relationship } from "$lib/models/constructModels"
 
 
 /*
- * "Constants" that will eventually be moved into a mutable config file.
+ * "Constants" that will eventually be moved into an editable config file.
  */
 export const graphsBaseFolder = "C:/Rig/graphs"
 export const unigraphFolder = "C:/Users/mtgra/Desktop/LifeSeahorse_test/LifeGrid_graph"
-export const startingPThingIds = [6080]
 export const startingGraphDepth = 1
 export const zoomBase = 1.45
 
@@ -30,25 +29,10 @@ export interface WaitingIndicatorStates {
  */
 export interface GraphConfig {
     pinIds: number[]
+    perspectiveThingId: number
 }
 
 export type GraphConstruct = Direction | Space | Thing | Relationship
-
-export interface GraphWidgetStyle {
-    excludePerspectiveThing: boolean,
-    excludeCartesianAxes: boolean,
-    zoom: number,
-    zoomPadding: number,
-    animateZoomAndScroll: boolean,
-    relationDistance: number,
-    thingSize: number,
-    thingSpacingPercent: number,
-    betweenThingSpacing: number,
-    betweenThingGap: number,
-    betweenThingOverlap: number,
-    relationshipTextSize: number,
-    thingTextSize: number,
-}
 
 /*
  * Text parameters.
@@ -88,25 +72,6 @@ export type OddHalfAxisId = 1 | 3 | 5 | 7
 export const oddHalfAxisIds = [1, 3, 5, 7] as const
 export const cartesianHalfAxisIds = [1, 2, 3, 4] as const
 
-
-/*
- * Default Graph Widget Style.
- */
-export const defaultGraphWidgetStyle: GraphWidgetStyle = {
-    excludePerspectiveThing: false,
-    excludeCartesianAxes: false,
-    zoom: 0,
-    zoomPadding: 100,
-    animateZoomAndScroll: true,
-    relationDistance: 250,
-    thingSize: 100,
-    thingSpacingPercent: 10,
-    betweenThingSpacing: 0, // Reactively calculated.
-    betweenThingGap: 0, // Reactively calculated.
-    betweenThingOverlap: 0, // Reactively calculated.
-    relationshipTextSize: 16,
-    thingTextSize: 12
-}
 
 
 /*

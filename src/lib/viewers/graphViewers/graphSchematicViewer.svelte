@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { Graph, Generation } from "$lib/models/graphModels"
+    import type { Graph, Generation } from "$lib/models/constructModels"
     
     import { Collapser } from "$lib/widgets/layoutWidgets"
     import { ThingDetailsWidget } from "$lib/widgets/detailsWidgets"
@@ -24,13 +24,13 @@
             <Collapser headerText={`Generation ${id}`} expanded={true}>
                 <div class="related-things-list">
                     {#each generation.members as member}
-                        {#if "text" in member && member.thing}
+                        {#if member.thing?.dbModel}
                             <ThingDetailsWidget
-                                thing={member.thing}
+                                thingDbModel={member.thing.dbModel}
                             />
                         {:else}
                             <div class="box">
-                                ID: {member.thingId}
+                                ID: {member}
                             </div>
                         {/if}
                     {/each}

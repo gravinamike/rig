@@ -1,4 +1,4 @@
-import type { Thing } from "$lib/models/graphModels"
+import type { Thing } from "$lib/models/constructModels"
 import type { GraphConfig } from "$lib/shared/constants"
 
 

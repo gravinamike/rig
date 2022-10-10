@@ -1,4 +1,4 @@
-import { Thing } from "$lib/models/graphModels"
+import { Thing } from "$lib/models/constructModels"
 import { queryThingsByGuid } from "$lib/db/serverSide"
 
 
