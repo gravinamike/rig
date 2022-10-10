@@ -1,13 +1,18 @@
 <script context="module" lang="ts">
     import type { Direction, Thing, GenerationMember, Graph } from "$lib/models/constructModels"
-    import { hoveredThingIdStore, storeGraphDbModels, addGraphIdsNeedingViewerRefresh, relationshipBeingCreatedInfoStore } from "$lib/stores"
+    import {
+        hoveredThingIdStore, storeGraphDbModels, addGraphIdsNeedingViewerRefresh,
+        relationshipBeingCreatedInfoStore,
+        reorderingInfoStore, enableReordering, setReorderingTrackingMouse,
+        setReorderingDestInfo, disableReordering
+    } from "$lib/stores"
     import { DirectionWidget } from "$lib/widgets/graphWidgets"
     import { updateRelationships } from "$lib/db/clientSide"
 </script>
 
 <script lang="ts">
-import type { HalfAxisId } from "$lib/shared/constants";
-    import type { GraphWidgetStyle } from "../../graph";
+    import type { HalfAxisId } from "$lib/shared/constants"
+    import type { GraphWidgetStyle } from "../../graph"
     import type { ThingDbModel } from "$lib/models/dbModels";
 
 
@@ -58,7 +63,58 @@ import type { HalfAxisId } from "$lib/shared/constants";
 
         }
     }
+
+
+
+
+
+
+    let dragStartPosition: [number, number] | null = null
+
+    function handleMouseDown(event: MouseEvent) {
+        const position = [event.clientX, event.clientY] as [number, number]
+        dragStartPosition = position
+        setReorderingTrackingMouse(true)
+    }
+
+    function handleMouseDrag(event: MouseEvent) {
+        if (
+            dragStartPosition
+            && Math.hypot(event.clientX - dragStartPosition[0], event.clientX - dragStartPosition[0]) > 5
+            && !$reorderingInfoStore.sourceThingId
+        ) {
+            enableReordering(
+                cohortMemberWithIndex.member.thing?.parentCohort.parentThingId as number
+            )
+        }
+    }
+
+    function handleBodyMouseUp(event: MouseEvent) {
+        leafClicked = false
+        if (event.button === 0) {
+            dragStartPosition = null
+            disableReordering()
+        }
+    }
+
+
+
+
 </script>
+
+
+
+
+
+<svelte:body lang="ts"
+    on:mousemove={handleMouseDrag}
+    on:mouseup={handleBodyMouseUp}
+/>
+
+
+
+
+
 
 
 <!-- Relationship leaf. -->
@@ -83,7 +139,10 @@ import type { HalfAxisId } from "$lib/shared/constants";
         style="stroke-width: {8 / tweenedScale};"
         on:mouseenter={()=>{leafHovered = true}}
         on:mouseleave={()=>{leafHovered = false}}
-        on:mousedown={()=>{leafClicked = true}}
+        on:mousedown={ (event) => {
+            leafClicked = true
+            if (event.button === 0) handleMouseDown(event)
+        }}
         on:mouseup={()=>{leafClicked = false}}
     />
 
