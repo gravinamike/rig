@@ -1,22 +1,23 @@
 <script context="module" lang="ts">
-    import type { Direction, Thing, GenerationMember, Graph } from "$lib/models/constructModels"
+    import type { Direction, Thing, GenerationMember, Graph, ThingCohort } from "$lib/models/constructModels"
     import {
         hoveredThingIdStore, storeGraphDbModels, addGraphIdsNeedingViewerRefresh,
         relationshipBeingCreatedInfoStore,
         reorderingInfoStore, enableReordering, setReorderingTrackingMouse,
-        setReorderingDestInfo, disableReordering
+        setReorderingIndex, disableReordering
     } from "$lib/stores"
     import { DirectionWidget } from "$lib/widgets/graphWidgets"
-    import { updateRelationships } from "$lib/db/clientSide"
+    import { reorderRelationship, updateRelationships } from "$lib/db/clientSide"
 </script>
 
 <script lang="ts">
     import type { HalfAxisId } from "$lib/shared/constants"
     import type { GraphWidgetStyle } from "../../graph"
-    import type { ThingDbModel } from "$lib/models/dbModels";
+    import type { ThingDbModel } from "$lib/models/dbModels"
 
 
     export let graph: Graph
+    export let cohort: ThingCohort
     export let thingIdOfHoveredRelationship: number | null
     export let tweenedScale: number
 
@@ -68,8 +69,23 @@
 
 
 
-
+    $: betweenRelationshipLeafDistance = (
+        graphWidgetStyle.betweenThingSpacing
+        + graphWidgetStyle.thingSize
+    )
     let dragStartPosition: [number, number] | null = null
+    let deltaIndex: number | null = null
+    $: currentPlusDeltaIndex = cohortMemberWithIndex.index + (deltaIndex || 0)
+    // Clamp the value between the Relationships Cohort's beginning and end indices.
+    $: newIndex = currentPlusDeltaIndex < 0 ?
+        0 :
+        currentPlusDeltaIndex > cohort.members.length - 1 ?
+            cohort.members.length - 1 :
+            currentPlusDeltaIndex
+    $: console.log(newIndex)
+
+
+
 
     function handleMouseDown(event: MouseEvent) {
         const position = [event.clientX, event.clientY] as [number, number]
@@ -78,13 +94,30 @@
     }
 
     function handleMouseDrag(event: MouseEvent) {
+        const dragChangeX = dragStartPosition ? event.clientX - dragStartPosition[0] : null
+        const dragChangeY = dragStartPosition ? event.clientY - dragStartPosition[1] : null
         if (
-            dragStartPosition
-            && Math.hypot(event.clientX - dragStartPosition[0], event.clientX - dragStartPosition[0]) > 5
+            dragChangeX && dragChangeY
+            && Math.hypot(dragChangeX, dragChangeY) > 5
             && !$reorderingInfoStore.sourceThingId
+            && cohort.parentThingId
+            && cohort.address.directionId
+            && cohortMemberWithIndex.member.thingId
         ) {
             enableReordering(
-                cohortMemberWithIndex.member.thing?.parentCohort.parentThingId as number
+                cohort.parentThingId,
+                cohort.address.directionId,
+                cohortMemberWithIndex.member.thingId
+            )
+        }
+
+        if (dragChangeX && dragChangeY && $reorderingInfoStore.sourceThingId) {
+            deltaIndex = Math.floor(
+                (
+                    cohort.rowOrColumn() === "row" ?
+                        dragChangeX :
+                        dragChangeY
+                ) / (betweenRelationshipLeafDistance * tweenedScale)
             )
         }
     }
@@ -93,13 +126,28 @@
         leafClicked = false
         if (event.button === 0) {
             dragStartPosition = null
+            deltaIndex = null
             disableReordering()
         }
     }
 
 
 
-
+    $: if (
+        $reorderingInfoStore.sourceThingId
+        && $reorderingInfoStore.destThingDirectionId
+        && $reorderingInfoStore.destThingId
+        && $reorderingInfoStore.newIndex
+    ) {
+        console.log("REQUEST")
+        reorderRelationship(
+            $reorderingInfoStore.sourceThingId,
+            $reorderingInfoStore.destThingDirectionId,
+            $reorderingInfoStore.destThingId,
+            $reorderingInfoStore.newIndex
+        )
+        disableReordering()
+    }
 </script>
 
 

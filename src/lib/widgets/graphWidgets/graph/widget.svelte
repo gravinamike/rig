@@ -154,7 +154,11 @@
         justify-content: center;
         align-items: center;
 
-        cursor: all-scroll;
+        cursor: grab;
+    }
+
+    .graph-backfield:active {
+        cursor: grabbing;
     }
 
     .central-anchor {

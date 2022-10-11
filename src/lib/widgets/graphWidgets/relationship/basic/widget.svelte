@@ -92,6 +92,7 @@
 <!-- Relationship leaf widget. -->
 <RelationshipLeafWidget
     bind:graph
+    {cohort}
     bind:thingIdOfHoveredRelationship
     tweenedScale={$tweenedScale}
     leafGeometry={leafGeometry}

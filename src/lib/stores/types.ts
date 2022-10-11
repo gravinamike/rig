@@ -1,13 +1,15 @@
 export interface ReorderingInfo{
-    sourceThingId: number | null,
+    sourceThingId: number | null
+    destThingDirectionId: number | null
     destThingId: number | null
-    destThingIndex: number | null
+    newIndex: number | null
     trackingMouse: boolean
 }
 
 export const nullReorderingInfo: ReorderingInfo = {
     sourceThingId: null,
+    destThingDirectionId: null,
     destThingId: null,
-    destThingIndex: null,
+    newIndex: null,
     trackingMouse: false
 }

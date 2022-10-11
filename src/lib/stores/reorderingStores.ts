@@ -7,31 +7,33 @@ import { nullReorderingInfo } from "./types"
 export const reorderingInfoStore = writable(
     {
         sourceThingId: null,
+        destThingDirectionId: null,
         destThingId: null,
-        destThingIndex: null,
-        trackingMouse: true
+        newIndex: null,
+        trackingMouse: false
     } as ReorderingInfo
 )
 
-export function enableReordering(sourceThingId: number): void {
+export function enableReordering(
+    sourceThingId: number, destThingDirectionId: number, destThingId: number
+): void {
     reorderingInfoStore.set(
         {
             sourceThingId: sourceThingId,
-            destThingId: null,
-            destThingIndex: null,
+            destThingDirectionId: destThingDirectionId,
+            destThingId: destThingId,
+            newIndex: null,
             trackingMouse: true
         }
     )
 }
 
-export function setReorderingDestInfo(destThingId: number, destThingIndex: number | null): void {
+export function setReorderingIndex(newIndex: number | null): void {
     reorderingInfoStore.update( current => {
-        current.destThingId = destThingId
-        current.destThingIndex = destThingIndex
+        current.newIndex = newIndex
+
         return current
     } )
-    console.log(destThingIndex)
-    //disableReordering()
 }
 
 export function setReorderingTrackingMouse(trackingMouse: boolean): void {
@@ -45,5 +47,5 @@ export function setReorderingTrackingMouse(trackingMouse: boolean): void {
  * Disable the Relationship-reordering operation.
  */
 export function disableReordering(): void {
-    reorderingInfoStore.update( () => nullReorderingInfo )
+    reorderingInfoStore.update( () => {return {...nullReorderingInfo}} )
 }
