@@ -1,51 +1,94 @@
-import type { ReorderingInfo } from "./types"
+// Import types.
+import type { RelationshipReorderingInfo } from "./types"
+import type { ThingCohort } from "$lib/models/constructModels"
 
+// Import basic framework resources.
 import { writable } from "svelte/store"
-import { nullReorderingInfo } from "./types"
+
+// Import null values for stores.
+import { nullRelationshipReorderingInfo } from "./types"
 
 
+/**
+ * Reordering info store.
+ * Contains the info necessary to reorder Relationships.
+ */
 export const reorderingInfoStore = writable(
     {
-        sourceThingId: null,
-        destThingDirectionId: null,
+        dragStartPosition: null,
+        reorderInProgress: false,
+
+        thingCohort: null,
         destThingId: null,
-        newIndex: null,
-        trackingMouse: false
-    } as ReorderingInfo
+
+        startIndex: null,
+        newIndex: null
+        
+    } as RelationshipReorderingInfo
 )
 
-export function enableReordering(
-    sourceThingId: number, destThingDirectionId: number, destThingId: number
+/**
+ * Set-reordering-drag-start-position method.
+ * 
+ * Sets the start position for a reordering drag operation.
+ * @param dragStartPosition - An x/y coordinate array specifying the start position, or null.
+ */
+export function setReorderingDragStart(
+    dragStartPosition: [number, number] | null, thingCohort: ThingCohort, destThingId: number
 ): void {
-    reorderingInfoStore.set(
-        {
-            sourceThingId: sourceThingId,
-            destThingDirectionId: destThingDirectionId,
-            destThingId: destThingId,
-            newIndex: null,
-            trackingMouse: true
-        }
-    )
-}
-
-export function setReorderingIndex(newIndex: number | null): void {
     reorderingInfoStore.update( current => {
-        current.newIndex = newIndex
-
-        return current
-    } )
-}
-
-export function setReorderingTrackingMouse(trackingMouse: boolean): void {
-    reorderingInfoStore.update( current => {
-        current.trackingMouse = trackingMouse
+        current.dragStartPosition = dragStartPosition
+        current.thingCohort = thingCohort
+        current.destThingId = destThingId
         return current
     } )
 }
 
 /**
- * Disable the Relationship-reordering operation.
+ * Enable-reordering method.
+ * 
+ * Sets starting info for a Relationship-reordering operation.
+ * @param dragStartPosition - An x/y coordinate array specifying the start position, or null.
+ * @param thingCohort - The Thing Cohort associated with the Relationships that are being reordered.
+ * @param destThingStartIndex - The starting index of the Relationship that is being moved.
+ * @param destThingId - The ID of the destination Thing of the Relationship that is being moved.
+ */
+export function enableReordering(
+    dragStartPosition: [number, number], thingCohort: ThingCohort,
+    destThingStartIndex: number, destThingId: number
+): void {
+    reorderingInfoStore.set(
+        {
+            dragStartPosition: dragStartPosition,
+            reorderInProgress: true,
+
+            thingCohort: thingCohort,
+            destThingId: destThingId,
+
+            startIndex: destThingStartIndex,
+            newIndex: null
+        }
+    )
+}
+
+/**
+ * Set-reordering-index method.
+ * 
+ * Sets the new index of the Relationship that is being moved in a reordering operation.
+ * @param newIndex - The new index, or null.
+ */
+export function setReorderingIndex(newIndex: number | null): void {
+    reorderingInfoStore.update( current => {
+        current.newIndex = newIndex
+        return current
+    } )
+}
+
+/**
+ * Disable-reordering method.
+ * 
+ * Sets Relationship-reordering store to its null starting values.
  */
 export function disableReordering(): void {
-    reorderingInfoStore.update( () => {return {...nullReorderingInfo}} )
+    reorderingInfoStore.update( () => { return {...nullRelationshipReorderingInfo} } )
 }

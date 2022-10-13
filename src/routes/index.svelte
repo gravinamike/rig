@@ -10,7 +10,7 @@
     import { storeAppConfig } from "$lib/shared/config"
 
     // Import database/stores-related functions.
-    import { loadingState, openGraphStore, perspectiveThingIdStore, updateRelationshipBeingCreatedEndpoint } from "$lib/stores"
+    import { loadingState, openGraphStore, perspectiveThingIdStore, reorderingInfoStore, updateRelationshipBeingCreatedEndpoint } from "$lib/stores"
 
     // Import widgets.
     import {
@@ -84,6 +84,19 @@
 <svelte:head>
     <title>Rig{ $openGraphStore ? ` - ${$openGraphStore}` : "" }</title>
 </svelte:head>
+
+
+{
+    `
+        StartPos ${$reorderingInfoStore.dragStartPosition} 
+        InProg ${$reorderingInfoStore.reorderInProgress} 
+        Cohort ${$reorderingInfoStore.thingCohort}
+        DstThng ${$reorderingInfoStore.destThingId}
+        StartIdx ${$reorderingInfoStore.startIndex} 
+        NewIdx ${$reorderingInfoStore.newIndex} 
+
+    `
+}
 
 
 <main

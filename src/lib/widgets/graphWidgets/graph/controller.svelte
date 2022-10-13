@@ -125,7 +125,7 @@
             widget
             && trackingMouse
             && !$relationshipBeingCreatedInfoStore.trackingMouse
-            && !$reorderingInfoStore.trackingMouse
+            && !$reorderingInfoStore.dragStartPosition
             && prevMouseTrackingLocation.x
             && prevMouseTrackingLocation.y
         ) {

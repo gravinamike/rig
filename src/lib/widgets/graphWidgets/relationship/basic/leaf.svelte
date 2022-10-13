@@ -3,11 +3,11 @@
     import {
         hoveredThingIdStore, storeGraphDbModels, addGraphIdsNeedingViewerRefresh,
         relationshipBeingCreatedInfoStore,
-        reorderingInfoStore, enableReordering, setReorderingTrackingMouse,
-        setReorderingIndex, disableReordering
+        reorderingInfoStore, enableReordering,
+        setReorderingDragStart
     } from "$lib/stores"
     import { DirectionWidget } from "$lib/widgets/graphWidgets"
-    import { reorderRelationship, updateRelationships } from "$lib/db/clientSide"
+    import { updateRelationships } from "$lib/db/clientSide"
 </script>
 
 <script lang="ts">
@@ -69,85 +69,58 @@
 
 
 
-    $: betweenRelationshipLeafDistance = (
-        graphWidgetStyle.betweenThingSpacing
-        + graphWidgetStyle.thingSize
-    )
-    let dragStartPosition: [number, number] | null = null
-    let deltaIndex: number | null = null
-    $: currentPlusDeltaIndex = cohortMemberWithIndex.index + (deltaIndex || 0)
-    // Clamp the value between the Relationships Cohort's beginning and end indices.
-    $: newIndex = currentPlusDeltaIndex < 0 ?
-        0 :
-        currentPlusDeltaIndex > cohort.members.length - 1 ?
-            cohort.members.length - 1 :
-            currentPlusDeltaIndex
-    $: console.log(newIndex)
+    
 
+
+
+
+
+    
 
 
 
     function handleMouseDown(event: MouseEvent) {
         const position = [event.clientX, event.clientY] as [number, number]
-        dragStartPosition = position
-        setReorderingTrackingMouse(true)
+        setReorderingDragStart(position, cohort, cohortMemberWithIndex.member.thingId as number)
     }
 
     function handleMouseDrag(event: MouseEvent) {
-        const dragChangeX = dragStartPosition ? event.clientX - dragStartPosition[0] : null
-        const dragChangeY = dragStartPosition ? event.clientY - dragStartPosition[1] : null
+        const dragChangeX =
+            $reorderingInfoStore.dragStartPosition ? event.clientX - $reorderingInfoStore.dragStartPosition[0] :
+            null
+        const dragChangeY =
+            $reorderingInfoStore.dragStartPosition ? event.clientY - $reorderingInfoStore.dragStartPosition[1] :
+            null
+        // If...
         if (
-            dragChangeX && dragChangeY
+            // ...there is a drag being tracked for this Relationship...
+            $reorderingInfoStore.thingCohort === cohort
+            && $reorderingInfoStore.destThingId === cohortMemberWithIndex.member.thingId
+            // ...the drag has proceeded a certain distance...
+            && dragChangeX && dragChangeY
             && Math.hypot(dragChangeX, dragChangeY) > 5
-            && !$reorderingInfoStore.sourceThingId
+            // ...and there's not yet a reordering operation taking place...
+            && !$reorderingInfoStore.reorderInProgress
+
             && cohort.parentThingId
             && cohort.address.directionId
             && cohortMemberWithIndex.member.thingId
         ) {
             enableReordering(
-                cohort.parentThingId,
-                cohort.address.directionId,
+                $reorderingInfoStore.dragStartPosition as [number, number],
+                cohort,
+                cohortMemberWithIndex.index,
                 cohortMemberWithIndex.member.thingId
             )
         }
-
-        if (dragChangeX && dragChangeY && $reorderingInfoStore.sourceThingId) {
-            deltaIndex = Math.floor(
-                (
-                    cohort.rowOrColumn() === "row" ?
-                        dragChangeX :
-                        dragChangeY
-                ) / (betweenRelationshipLeafDistance * tweenedScale)
-            )
-        }
     }
+
 
     function handleBodyMouseUp(event: MouseEvent) {
         leafClicked = false
-        if (event.button === 0) {
-            dragStartPosition = null
-            deltaIndex = null
-            disableReordering()
-        }
     }
+    
 
-
-
-    $: if (
-        $reorderingInfoStore.sourceThingId
-        && $reorderingInfoStore.destThingDirectionId
-        && $reorderingInfoStore.destThingId
-        && $reorderingInfoStore.newIndex
-    ) {
-        console.log("REQUEST")
-        reorderRelationship(
-            $reorderingInfoStore.sourceThingId,
-            $reorderingInfoStore.destThingDirectionId,
-            $reorderingInfoStore.destThingId,
-            $reorderingInfoStore.newIndex
-        )
-        disableReordering()
-    }
 </script>
 
 

@@ -3,6 +3,10 @@
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
     import type { Graph, ThingCohort } from "$lib/models/constructModels"
 
+    import { reorderingInfoStore } from "$lib/stores"
+
+    import { changeIndexInArray } from "$lib/shared/utility"
+
     /* Import widget controller. */
     import ThingCohortWidgetController from "./controller.svelte"
 
@@ -30,6 +34,28 @@
     let offsetToGrandparentThingX: number = 0
     let offsetToGrandparentThingY: number = 0
     let showMembers = true
+
+
+
+
+    let reorderedCohortMembers = [...thingCohort.members]
+
+    $: if (
+        $reorderingInfoStore.thingCohort === thingCohort
+        && $reorderingInfoStore.thingCohort?.parentThingId
+        && $reorderingInfoStore.thingCohort?.direction.id
+        && $reorderingInfoStore.destThingId !== null
+        && $reorderingInfoStore.startIndex !== null
+        && $reorderingInfoStore.newIndex !== null
+    ) {
+        const reorderedMembers = changeIndexInArray(thingCohort.members, $reorderingInfoStore.startIndex, $reorderingInfoStore.newIndex)
+        if (reorderedMembers) {
+            reorderedCohortMembers = reorderedMembers
+        }
+    }
+
+
+
 </script>
 
 
@@ -67,7 +93,7 @@
     <!-- Member widgets (either Clade widgets or various Thing-placeholder widgets). -->
     {#if showMembers}
 
-        {#each thingCohort.members as member}
+        {#each reorderedCohortMembers as member}
 
             <!-- If no Thing was found in the store for the Thing ID, show a Thing Missing From Store Widget. -->
             {#if member.thingId && member.thing === null}

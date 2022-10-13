@@ -9,12 +9,17 @@
     import { tweened } from "svelte/motion"
     import { cubicOut } from "svelte/easing"
 
+    import { disableReordering, reorderingInfoStore, setReorderingIndex } from "$lib/stores"
+
     // Import related widgets.
     import { DirectionWidget, RelationshipWidget } from "$lib/widgets/graphWidgets"
     import { RelationshipStemWidget } from "./relationshipStem"
 
     // Import widget controller.
     import RelationshipCohortWidgetController from "./controller.svelte"
+
+    import { reorderRelationship } from "$lib/db/clientSide"
+    import { changeIndexInArray } from "$lib/shared/utility";
     
 
     /**
@@ -29,7 +34,6 @@
     export let graphWidgetStyle: GraphWidgetStyle
     export let thingWidth: number
     export let thingHeight: number
-
 
     // Attributes managed by widget controller.
     let widgetOffsetX = 0
@@ -61,6 +65,99 @@
     // Attributes managed by sub-widgets.
     let thingIdOfHoveredRelationship: number | null = null
     let stemHovered = false
+
+
+
+
+
+
+
+
+
+
+
+    
+    $: betweenRelationshipLeafDistance =
+        graphWidgetStyle.betweenThingSpacing + graphWidgetStyle.thingSize
+
+    /* Derive the new index. */
+    let deltaIndex: number | null = null
+    $: currentPlusDeltaIndex =
+        $reorderingInfoStore.startIndex === null ? null :
+        $reorderingInfoStore.startIndex + (deltaIndex || 0)
+    // Clamp the value between the Relationships Cohort's beginning and end indices.
+    $: newIndex =
+        currentPlusDeltaIndex === null ? null :
+        currentPlusDeltaIndex < 0 ? 0 :
+        currentPlusDeltaIndex > cohort.members.length - 1 ? cohort.members.length - 1 :
+        currentPlusDeltaIndex
+
+
+    $: if (
+        $reorderingInfoStore.thingCohort === cohort
+        && newIndex !== null
+    ) {
+        setReorderingIndex(newIndex)
+    }
+
+
+
+    function handleMouseDrag(event: MouseEvent) {
+        const dragChangeX =
+            $reorderingInfoStore.dragStartPosition ? event.clientX - $reorderingInfoStore.dragStartPosition[0] :
+            null
+        const dragChangeY =
+            $reorderingInfoStore.dragStartPosition ? event.clientY - $reorderingInfoStore.dragStartPosition[1] :
+            null
+        if (
+            dragChangeX && dragChangeY
+            && $reorderingInfoStore.thingCohort === cohort
+        ) {
+            deltaIndex = Math.floor(
+                (
+                    cohort.rowOrColumn() === "row" ? dragChangeX :
+                    dragChangeY
+                )
+                / (betweenRelationshipLeafDistance * $tweenedScale)
+            )
+        }
+    }
+
+
+    function handleBodyMouseUp(event: MouseEvent) {
+        if (event.button === 0) {
+            deltaIndex = null
+            disableReordering()
+        }
+    }
+
+
+
+    let reorderedCohortMembers = [...cohort.members]
+
+    $: if (
+        $reorderingInfoStore.thingCohort === cohort
+        && $reorderingInfoStore.thingCohort?.parentThingId
+        && $reorderingInfoStore.thingCohort?.direction.id
+        && $reorderingInfoStore.destThingId !== null
+        && $reorderingInfoStore.startIndex !== null
+        && $reorderingInfoStore.newIndex !== null
+    ) {
+        const reorderedMembers = changeIndexInArray(cohort.members, $reorderingInfoStore.startIndex, $reorderingInfoStore.newIndex)
+        if (reorderedMembers) {
+            reorderedCohortMembers = reorderedMembers
+        }
+        // Next, only do the below when the mouse is released, then refresh the view(?).
+        /*reorderRelationship(
+            $reorderingInfoStore.thingCohort?.parentThingId,
+            $reorderingInfoStore.thingCohort?.direction.id,
+            $reorderingInfoStore.destThingId,
+            $reorderingInfoStore.newIndex
+        )*/
+        // Once done with that, update highlighting rules to keep the dragged Thing and Relationship highlighted.
+    }
+
+
 </script>
 
 
@@ -100,6 +197,12 @@
     bind:halfAxisId
     bind:sizeOfThingsAlongWidth
     bind:relatableForCurrentDrag
+/>
+
+
+<svelte:body lang="ts"
+    on:mousemove={handleMouseDrag}
+    on:mouseup={handleBodyMouseUp}
 />
 
 
@@ -147,9 +250,9 @@
             </div>
         {/if}
 
-        <!-- Relationship image. -->
+        <!-- Relationship images. -->
         <div
-            class="relationship-image"
+            class="relationship-images"
             style="
                 width: {relationshipsWidth}px;
                 height: {relationshipsLength}px;
@@ -174,7 +277,7 @@
 
             <!-- Relationship image. -->    
             {#if showRelationships}
-                {#each Array.from(cohort.members.entries()) as [index, member]}
+                {#each Array.from(reorderedCohortMembers.entries()) as [index, member]}
                     {#if cohort.indexOfGrandparentThing !== index}<!-- Don't re-draw the existing Relationship to a parent Thing. -->                
                         <RelationshipWidget
                             cohortMemberWithIndex={ {index: index, member: member} }
@@ -222,7 +325,7 @@
         align-items: center;
     }
 
-    .relationship-image {
+    .relationship-images {
         position: absolute;
 
         overflow: visible;

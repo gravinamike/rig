@@ -1,15 +1,30 @@
-export interface ReorderingInfo{
-    sourceThingId: number | null
-    destThingDirectionId: number | null
+import type { ThingCohort } from "$lib/models/constructModels"
+
+/**
+ * Information needed to reorder Relationships.
+ */
+export interface RelationshipReorderingInfo {
+    dragStartPosition: [number, number] | null
+    reorderInProgress: boolean
+
+    thingCohort: ThingCohort | null
     destThingId: number | null
+
+    startIndex: number | null
     newIndex: number | null
-    trackingMouse: boolean
 }
 
-export const nullReorderingInfo: ReorderingInfo = {
-    sourceThingId: null,
-    destThingDirectionId: null,
+/**
+ * The null (starting) values for information needed to reorder Relationships.
+ */
+export const nullRelationshipReorderingInfo: RelationshipReorderingInfo = {
+    dragStartPosition: null,
+    reorderInProgress: false,
+
+    thingCohort: null,
     destThingId: null,
-    newIndex: null,
-    trackingMouse: false
+
+    startIndex: null,
+    newIndex: null
+    
 }
