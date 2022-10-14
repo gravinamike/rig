@@ -330,6 +330,7 @@ export async function reorderRelationship(
     destThingId: number,
     newIndex: number
 ): Promise< boolean > {
+    console.log("CALLING REORDER METHOD, CLIENT-SIDE")
     // Post to the reorder-Relationship API.
     const res = await fetch(
         `api/db/graphManipulation/reorderRelationship`,

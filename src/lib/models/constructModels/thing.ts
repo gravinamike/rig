@@ -72,7 +72,6 @@ export class Thing {
         }
     }
 
-
     setGraph(graph: Graph): void {
         this.graph = graph
     }

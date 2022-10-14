@@ -442,6 +442,7 @@ export async function updateRelationshipOrders(relationshipInfos: {sourceThingId
 
     // Report on the response.
     .then(function() {
+        console.log("FINISHING REORDERING TRANSACTION-----------")
         console.log('Transaction complete.')
     })
     .catch(function(err: Error) {
@@ -457,13 +458,21 @@ interface UpdateRelationshipOrderInfo {
     newOrder: number
 }
 
+
+/**
+ * Reorder-Relationship method.
+ * @param sourceThingId - The ID of the source Thing of the Relationship to be reordered.
+ * @param destThingDirectionId - The ID of the Direction of the destination Thing of the Relationship to be reordered.
+ * @param destThingId - The ID of the destination Thing of the Relationship to be reordered.
+ * @param newIndex - The new index of the Relationship to be reordered.
+ */
 export async function reorderRelationship(
     sourceThingId: number,
     destThingDirectionId: number,
     destThingId: number,
     newIndex: number
 ): Promise<void> {
-
+    console.log("CALLING REORDER METHOD, SERVER-SIDE")
     console.log(sourceThingId, destThingDirectionId, destThingId, newIndex)
 
     // Get info on the Relationships in the Cohort.
@@ -474,6 +483,7 @@ export async function reorderRelationship(
         .where("thingaid", sourceThingId)
         .where("direction", destThingDirectionId)
 
+    // Create an array of objects containing ordering info for each Relationship.
     const relationshipOrderingInfos: { destThingId: number, order: number | null }[] = []
     queriedARelationships.forEach( model => {
         relationshipOrderingInfos.push(
@@ -491,10 +501,10 @@ export async function reorderRelationship(
             }
         )
     } )
-
     // Order the Relationship infos according to their order attributes.
     const orderedRelationshipOrderingInfos = relationshipOrderingInfos
         .sort((a, b) => (a.order ? a.order : 0) - (b.order ? b.order : 0))
+    console.log("BEFORE", orderedRelationshipOrderingInfos)
 
 
     // Move the to-be-reordered Relationship to the specified new index.
@@ -503,8 +513,8 @@ export async function reorderRelationship(
         changeIndexInArray(orderedRelationshipOrderingInfos, currentIndex, newIndex) as
             {destThingId: number, order: number | null}[]
     )
-
-
+    console.log("AFTER", reOrderedRelationshipOrderingInfos)
+    // Construct an output array of Relationship order information objects.
     const updateRelationshipOrderInfos: UpdateRelationshipOrderInfo[] = []
     reOrderedRelationshipOrderingInfos.forEach( (info, i) => {
         updateRelationshipOrderInfos.push(
@@ -517,5 +527,6 @@ export async function reorderRelationship(
         )
     } )
 
-    updateRelationshipOrders(updateRelationshipOrderInfos)////// BACK UP GRAPH, THEN TEST.
+    // Update the orders of the Relationships using the above array.
+    await updateRelationshipOrders(updateRelationshipOrderInfos)
 }

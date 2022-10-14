@@ -2,14 +2,13 @@
     // Import types.
     import type { Tweened } from "svelte/motion"
     import type { HalfAxisId } from "$lib/shared/constants"
-    import type { Graph, Direction, ThingCohort } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
     // Import basic framework resources.
     import { tweened } from "svelte/motion"
     import { cubicOut } from "svelte/easing"
 
-    import { disableReordering, reorderingInfoStore, setReorderingIndex } from "$lib/stores"
+    import { addGraphIdsNeedingViewerRefresh, disableReordering, graphIdsNeedingViewerRefresh, reorderingInfoStore, setReorderingIndex, storeGraphDbModels } from "$lib/stores"
 
     // Import related widgets.
     import { DirectionWidget, RelationshipWidget } from "$lib/widgets/graphWidgets"
@@ -20,6 +19,8 @@
 
     import { reorderRelationship } from "$lib/db/clientSide"
     import { changeIndexInArray } from "$lib/shared/utility";
+    import type { ThingDbModel } from "$lib/models/dbModels";
+    import type { Direction, Graph, ThingCohort } from "$lib/models/constructModels";
     
 
     /**
@@ -123,11 +124,40 @@
         }
     }
 
+    async function handleBodyMouseUp(event: MouseEvent) {
+        if ($reorderingInfoStore.thingCohort === cohort && event.button === 0) {
+            // Copy info in store before disabling the interaction.
+            const copiedReorderingInfoStore = {...$reorderingInfoStore}
 
-    function handleBodyMouseUp(event: MouseEvent) {
-        if (event.button === 0) {
             deltaIndex = null
             disableReordering()
+
+            if (
+                copiedReorderingInfoStore.thingCohort === cohort
+                && copiedReorderingInfoStore.thingCohort?.parentThingId
+                && copiedReorderingInfoStore.thingCohort?.direction.id
+                && copiedReorderingInfoStore.destThingId !== null
+                && copiedReorderingInfoStore.startIndex !== null
+                && copiedReorderingInfoStore.newIndex !== null
+            ) {
+                await reorderRelationship(
+                    copiedReorderingInfoStore.thingCohort.parentThingId,
+                    copiedReorderingInfoStore.thingCohort.direction.id,
+                    copiedReorderingInfoStore.destThingId,
+                    copiedReorderingInfoStore.newIndex
+                )
+                const associatedThingIds =
+                    [ cohort.parentThingId ].concat( cohort.members.map(member => member.thingId) ) as number[]
+                console.log(associatedThingIds)
+                await storeGraphDbModels<ThingDbModel>("Thing", associatedThingIds, true)
+                
+                const reorderedMembers = changeIndexInArray(cohort.members, copiedReorderingInfoStore.startIndex, copiedReorderingInfoStore.newIndex)
+                if (reorderedMembers) {
+                    cohort.members = reorderedMembers
+                }
+                // Once done with that, clean up the view and terminals and refactor all changed files.
+                // Once done with that, update highlighting rules to keep the dragged Thing and Relationship highlighted.
+            }
         }
     }
 
@@ -147,14 +177,6 @@
         if (reorderedMembers) {
             reorderedCohortMembers = reorderedMembers
         }
-        // Next, only do the below when the mouse is released, then refresh the view(?).
-        /*reorderRelationship(
-            $reorderingInfoStore.thingCohort?.parentThingId,
-            $reorderingInfoStore.thingCohort?.direction.id,
-            $reorderingInfoStore.destThingId,
-            $reorderingInfoStore.newIndex
-        )*/
-        // Once done with that, update highlighting rules to keep the dragged Thing and Relationship highlighted.
     }
 
 
