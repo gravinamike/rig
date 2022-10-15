@@ -8,7 +8,7 @@
     import { tweened } from "svelte/motion"
     import { cubicOut } from "svelte/easing"
 
-    import { addGraphIdsNeedingViewerRefresh, disableReordering, graphIdsNeedingViewerRefresh, reorderingInfoStore, setReorderingIndex, storeGraphDbModels } from "$lib/stores"
+    import { reorderingInfoStore } from "$lib/stores"
 
     // Import related widgets.
     import { DirectionWidget, RelationshipWidget } from "$lib/widgets/graphWidgets"
@@ -17,10 +17,9 @@
     // Import widget controller.
     import RelationshipCohortWidgetController from "./controller.svelte"
 
-    import { reorderRelationship } from "$lib/db/clientSide"
-    import { changeIndexInArray } from "$lib/shared/utility";
-    import type { ThingDbModel } from "$lib/models/dbModels";
-    import type { Direction, Graph, ThingCohort } from "$lib/models/constructModels";
+    
+    import { changeIndexInArray } from "$lib/shared/utility"
+    import type { Direction, Graph, ThingCohort } from "$lib/models/constructModels"
     
 
     /**
@@ -77,107 +76,32 @@
 
 
 
-    
-    $: betweenRelationshipLeafDistance =
-        graphWidgetStyle.betweenThingSpacing + graphWidgetStyle.thingSize
+    // The array of Thing Cohort members that have Relationships displayed for
+    // them starts as the inputted Thing Cohort prop's members, but may change
+    // because of Relationship-reordering operations.
+    let cohortMembersToDisplay = [...cohort.members]
 
-    /* Derive the new index. */
-    let deltaIndex: number | null = null
-    $: currentPlusDeltaIndex =
-        $reorderingInfoStore.startIndex === null ? null :
-        $reorderingInfoStore.startIndex + (deltaIndex || 0)
-    // Clamp the value between the Relationships Cohort's beginning and end indices.
-    $: newIndex =
-        currentPlusDeltaIndex === null ? null :
-        currentPlusDeltaIndex < 0 ? 0 :
-        currentPlusDeltaIndex > cohort.members.length - 1 ? cohort.members.length - 1 :
-        currentPlusDeltaIndex
-
-
+    // If a Relationship-reorder operation is in progress for this Relationship
+    // Cohort and a new index has been specified for the target Relationship,
     $: if (
         $reorderingInfoStore.thingCohort === cohort
-        && newIndex !== null
-    ) {
-        setReorderingIndex(newIndex)
-    }
-
-
-
-    function handleMouseDrag(event: MouseEvent) {
-        const dragChangeX =
-            $reorderingInfoStore.dragStartPosition ? event.clientX - $reorderingInfoStore.dragStartPosition[0] :
-            null
-        const dragChangeY =
-            $reorderingInfoStore.dragStartPosition ? event.clientY - $reorderingInfoStore.dragStartPosition[1] :
-            null
-        if (
-            dragChangeX && dragChangeY
-            && $reorderingInfoStore.thingCohort === cohort
-        ) {
-            deltaIndex = Math.floor(
-                (
-                    cohort.rowOrColumn() === "row" ? dragChangeX :
-                    dragChangeY
-                )
-                / (betweenRelationshipLeafDistance * $tweenedScale)
-            )
-        }
-    }
-
-    async function handleBodyMouseUp(event: MouseEvent) {
-        if ($reorderingInfoStore.thingCohort === cohort && event.button === 0) {
-            // Copy info in store before disabling the interaction.
-            const copiedReorderingInfoStore = {...$reorderingInfoStore}
-
-            deltaIndex = null
-            disableReordering()
-
-            if (
-                copiedReorderingInfoStore.thingCohort === cohort
-                && copiedReorderingInfoStore.thingCohort?.parentThingId
-                && copiedReorderingInfoStore.thingCohort?.direction.id
-                && copiedReorderingInfoStore.destThingId !== null
-                && copiedReorderingInfoStore.startIndex !== null
-                && copiedReorderingInfoStore.newIndex !== null
-            ) {
-                await reorderRelationship(
-                    copiedReorderingInfoStore.thingCohort.parentThingId,
-                    copiedReorderingInfoStore.thingCohort.direction.id,
-                    copiedReorderingInfoStore.destThingId,
-                    copiedReorderingInfoStore.newIndex
-                )
-                const associatedThingIds =
-                    [ cohort.parentThingId ].concat( cohort.members.map(member => member.thingId) ) as number[]
-                console.log(associatedThingIds)
-                await storeGraphDbModels<ThingDbModel>("Thing", associatedThingIds, true)
-                
-                const reorderedMembers = changeIndexInArray(cohort.members, copiedReorderingInfoStore.startIndex, copiedReorderingInfoStore.newIndex)
-                if (reorderedMembers) {
-                    cohort.members = reorderedMembers
-                }
-                // Once done with that, clean up the view and terminals and refactor all changed files.
-                // Once done with that, update highlighting rules to keep the dragged Thing and Relationship highlighted.
-            }
-        }
-    }
-
-
-
-    let reorderedCohortMembers = [...cohort.members]
-
-    $: if (
-        $reorderingInfoStore.thingCohort === cohort
-        && $reorderingInfoStore.thingCohort?.parentThingId
-        && $reorderingInfoStore.thingCohort?.direction.id
-        && $reorderingInfoStore.destThingId !== null
-        && $reorderingInfoStore.startIndex !== null
         && $reorderingInfoStore.newIndex !== null
     ) {
-        const reorderedMembers = changeIndexInArray(cohort.members, $reorderingInfoStore.startIndex, $reorderingInfoStore.newIndex)
-        if (reorderedMembers) {
-            reorderedCohortMembers = reorderedMembers
-        }
+        // Reorder the array of Thing Cohort members on which this Relationship
+        // Cohort is based.
+        const reorderedMembers = changeIndexInArray(///////// Change this function to produce an error instead of void.
+            cohort.members,
+            $reorderingInfoStore.startIndex as number,
+            $reorderingInfoStore.newIndex
+        )
+        if (reorderedMembers) cohortMembersToDisplay = reorderedMembers
     }
+
+
+
+
+
+
 
 
 </script>
@@ -219,12 +143,6 @@
     bind:halfAxisId
     bind:sizeOfThingsAlongWidth
     bind:relatableForCurrentDrag
-/>
-
-
-<svelte:body lang="ts"
-    on:mousemove={handleMouseDrag}
-    on:mouseup={handleBodyMouseUp}
 />
 
 
@@ -299,7 +217,7 @@
 
             <!-- Relationship image. -->    
             {#if showRelationships}
-                {#each Array.from(reorderedCohortMembers.entries()) as [index, member]}
+                {#each Array.from(cohortMembersToDisplay.entries()) as [index, member]}
                     {#if cohort.indexOfGrandparentThing !== index}<!-- Don't re-draw the existing Relationship to a parent Thing. -->                
                         <RelationshipWidget
                             cohortMemberWithIndex={ {index: index, member: member} }

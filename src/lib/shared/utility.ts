@@ -69,3 +69,13 @@ export function changeIndexInArray<Type>(array: Type[], currentIndex: number, ne
     newArray.splice(newIndex, 0, extractedElement)
     return newArray
 }
+
+
+
+export function clampNumber(inputValue: number, lowerBound: number, upperBound: number): number {
+    const clampedNumber = 
+        inputValue < lowerBound ? lowerBound :
+        inputValue > upperBound ? upperBound :
+        inputValue
+    return clampedNumber
+}

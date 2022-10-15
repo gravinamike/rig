@@ -10,13 +10,16 @@
     import { storeAppConfig } from "$lib/shared/config"
 
     // Import database/stores-related functions.
-    import { loadingState, openGraphStore, perspectiveThingIdStore, reorderingInfoStore, updateRelationshipBeingCreatedEndpoint } from "$lib/stores"
+    import { loadingState, openGraphStore, perspectiveThingIdStore, updateRelationshipBeingCreatedEndpoint } from "$lib/stores"
 
     // Import widgets.
     import {
         ContextCommandPalette, Collapser, TabBlock, TabFlap, TabFlaps, TabBody, WaitingIndicator
     } from "$lib/widgets/layoutWidgets"
-    import { NewFileWidget, RemoteRelatingWidget, ThingLinkingWidget, TextHyperlinkingWidget } from "$lib/widgets/dialogWidgets"
+    import { 
+        NewFileWidget, RemoteRelatingWidget, ThingLinkingWidget, TextHyperlinkingWidget,
+        RelationshipReorderController
+    } from "$lib/widgets/dialogWidgets"
 
     // Import viewers.
     import FileViewer from "$lib/viewers/settingsViewers/fileViewer.svelte"
@@ -86,19 +89,6 @@
 </svelte:head>
 
 
-{
-    `
-        StartPos ${$reorderingInfoStore.dragStartPosition} 
-        InProg ${$reorderingInfoStore.reorderInProgress} 
-        Cohort ${$reorderingInfoStore.thingCohort}
-        DstThng ${$reorderingInfoStore.destThingId}
-        StartIdx ${$reorderingInfoStore.startIndex} 
-        NewIdx ${$reorderingInfoStore.newIndex} 
-
-    `
-}
-
-
 <main
     style="height: calc( 100% - {navHeight} )"
     on:mousemove={handleMouseMove}
@@ -119,6 +109,9 @@
     <!-- Front panes for Thing-linking and text-hyperlinking Widgets. -->
     <ThingLinkingWidget />
     <TextHyperlinkingWidget />
+
+    <!-- Controller for Relationship-reorder operations. -->
+    <RelationshipReorderController />
 
     <!-- File viewer. -->
     <Collapser headerText={`File${ $openGraphStore ? `&nbsp;&nbsp;-&nbsp;&nbsp;${$openGraphStore}` : "" }`} contentDirection={"left"}>

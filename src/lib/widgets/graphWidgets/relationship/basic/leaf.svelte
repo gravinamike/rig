@@ -78,19 +78,38 @@
     
 
 
-
+    /**
+     * Handle-mouse-down method.
+     * 
+     * Handles tasks that should be executed when the mouse button is pressed
+     * down on the Leaf (including recording the start od a drag).
+     * @param event - The MouseEvent that triggered this method.
+     */
     function handleMouseDown(event: MouseEvent) {
-        const position = [event.clientX, event.clientY] as [number, number]
-        setReorderingDragStart(position, cohort, cohortMemberWithIndex.member.thingId as number)
+        // Record the start of a drag operation to the Relationship-reordering
+        // store.
+        setReorderingDragStart(
+            [event.clientX, event.clientY] as [number, number],
+            graphWidgetStyle,
+            cohort,
+            cohortMemberWithIndex.member.thingId as number)
     }
 
-    function handleMouseDrag(event: MouseEvent) {
+    /**
+     * Handle-body-mouse-move method.
+     * 
+     * Handles tasks that should be executed when the mouse is moved over the
+     * page body (including Relationship-reordering drags).
+     * @param event - The MouseEvent that triggered this method.
+     */
+    function handleBodyMouseMove(event: MouseEvent) {
         const dragChangeX =
             $reorderingInfoStore.dragStartPosition ? event.clientX - $reorderingInfoStore.dragStartPosition[0] :
             null
         const dragChangeY =
             $reorderingInfoStore.dragStartPosition ? event.clientY - $reorderingInfoStore.dragStartPosition[1] :
             null
+        
         // If...
         if (
             // ...there is a drag being tracked for this Relationship...
@@ -101,21 +120,25 @@
             && Math.hypot(dragChangeX, dragChangeY) > 5
             // ...and there's not yet a reordering operation taking place...
             && !$reorderingInfoStore.reorderInProgress
-
-            && cohort.parentThingId
-            && cohort.address.directionId
-            && cohortMemberWithIndex.member.thingId
         ) {
             enableReordering(
                 $reorderingInfoStore.dragStartPosition as [number, number],
+                graphWidgetStyle,
                 cohort,
                 cohortMemberWithIndex.index,
-                cohortMemberWithIndex.member.thingId
+                cohortMemberWithIndex.member.thingId as number
             )
         }
     }
 
 
+    /**
+     * Handle-body-mouse-up method.
+     * 
+     * Handles tasks that should be executed when the mouse button is released
+     * over the page body (including disabling the leaf-clicked flag).
+     * @param event - The MouseEvent that triggered this method.
+     */
     function handleBodyMouseUp(event: MouseEvent) {
         leafClicked = false
     }
@@ -128,7 +151,7 @@
 
 
 <svelte:body lang="ts"
-    on:mousemove={handleMouseDrag}
+    on:mousemove={handleBodyMouseMove}
     on:mouseup={handleBodyMouseUp}
 />
 
@@ -155,9 +178,12 @@
     <!-- Hoverable zone of leaf. -->
     <line
         class="leaf-hover-zone"
+
         x1="{leafGeometry.bottomMidline}" y1="{leafGeometry.bottom}"
         x2="{leafGeometry.topMidline}" y2="{leafGeometry.top}"
+        
         style="stroke-width: {8 / tweenedScale};"
+
         on:mouseenter={()=>{leafHovered = true}}
         on:mouseleave={()=>{leafHovered = false}}
         on:mousedown={ (event) => {

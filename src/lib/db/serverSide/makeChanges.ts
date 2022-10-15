@@ -206,10 +206,7 @@ export async function deleteThing(thingId: number): Promise<void> {
 /*
  * Create a new Relationship
  */
-export async function createNewRelationship(sourceThingId: number, destThingId: number, directionId: number): Promise<void> {
-
-    //console.log(sourceThingId, destThingId, directionId)
-    
+export async function createNewRelationship(sourceThingId: number, destThingId: number, directionId: number): Promise<void> {    
     // Verify the Relationship does not yet exist.
     const queriedARelationships = await RelationshipDbModel.query()
         .where("thingaid", destThingId)
@@ -442,7 +439,6 @@ export async function updateRelationshipOrders(relationshipInfos: {sourceThingId
 
     // Report on the response.
     .then(function() {
-        console.log("FINISHING REORDERING TRANSACTION-----------")
         console.log('Transaction complete.')
     })
     .catch(function(err: Error) {
@@ -472,9 +468,6 @@ export async function reorderRelationship(
     destThingId: number,
     newIndex: number
 ): Promise<void> {
-    console.log("CALLING REORDER METHOD, SERVER-SIDE")
-    console.log(sourceThingId, destThingDirectionId, destThingId, newIndex)
-
     // Get info on the Relationships in the Cohort.
     const queriedARelationships = await RelationshipDbModel.query()
         .where("thingbid", sourceThingId)
@@ -504,7 +497,6 @@ export async function reorderRelationship(
     // Order the Relationship infos according to their order attributes.
     const orderedRelationshipOrderingInfos = relationshipOrderingInfos
         .sort((a, b) => (a.order ? a.order : 0) - (b.order ? b.order : 0))
-    console.log("BEFORE", orderedRelationshipOrderingInfos)
 
 
     // Move the to-be-reordered Relationship to the specified new index.
@@ -513,7 +505,6 @@ export async function reorderRelationship(
         changeIndexInArray(orderedRelationshipOrderingInfos, currentIndex, newIndex) as
             {destThingId: number, order: number | null}[]
     )
-    console.log("AFTER", reOrderedRelationshipOrderingInfos)
     // Construct an output array of Relationship order information objects.
     const updateRelationshipOrderInfos: UpdateRelationshipOrderInfo[] = []
     reOrderedRelationshipOrderingInfos.forEach( (info, i) => {

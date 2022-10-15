@@ -7,6 +7,7 @@ import { writable } from "svelte/store"
 
 // Import null values for stores.
 import { nullRelationshipReorderingInfo } from "./types"
+import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
 
 /**
@@ -18,6 +19,7 @@ export const reorderingInfoStore = writable(
         dragStartPosition: null,
         reorderInProgress: false,
 
+        graphWidgetStyle: null,
         thingCohort: null,
         destThingId: null,
 
@@ -34,10 +36,14 @@ export const reorderingInfoStore = writable(
  * @param dragStartPosition - An x/y coordinate array specifying the start position, or null.
  */
 export function setReorderingDragStart(
-    dragStartPosition: [number, number] | null, thingCohort: ThingCohort, destThingId: number
+    dragStartPosition: [number, number] | null,
+    graphWidgetStyle: GraphWidgetStyle,
+    thingCohort: ThingCohort,
+    destThingId: number
 ): void {
     reorderingInfoStore.update( current => {
         current.dragStartPosition = dragStartPosition
+        current.graphWidgetStyle = graphWidgetStyle
         current.thingCohort = thingCohort
         current.destThingId = destThingId
         return current
@@ -54,7 +60,7 @@ export function setReorderingDragStart(
  * @param destThingId - The ID of the destination Thing of the Relationship that is being moved.
  */
 export function enableReordering(
-    dragStartPosition: [number, number], thingCohort: ThingCohort,
+    dragStartPosition: [number, number], graphWidgetStyle: GraphWidgetStyle, thingCohort: ThingCohort,
     destThingStartIndex: number, destThingId: number
 ): void {
     reorderingInfoStore.set(
@@ -62,6 +68,7 @@ export function enableReordering(
             dragStartPosition: dragStartPosition,
             reorderInProgress: true,
 
+            graphWidgetStyle: graphWidgetStyle,
             thingCohort: thingCohort,
             destThingId: destThingId,
 

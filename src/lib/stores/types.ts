@@ -1,4 +1,5 @@
 import type { ThingCohort } from "$lib/models/constructModels"
+import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
 /**
  * Information needed to reorder Relationships.
@@ -7,6 +8,7 @@ export interface RelationshipReorderingInfo {
     dragStartPosition: [number, number] | null
     reorderInProgress: boolean
 
+    graphWidgetStyle: GraphWidgetStyle | null
     thingCohort: ThingCohort | null
     destThingId: number | null
 
@@ -21,10 +23,10 @@ export const nullRelationshipReorderingInfo: RelationshipReorderingInfo = {
     dragStartPosition: null,
     reorderInProgress: false,
 
+    graphWidgetStyle: null,
     thingCohort: null,
     destThingId: null,
 
     startIndex: null,
     newIndex: null
-    
 }
