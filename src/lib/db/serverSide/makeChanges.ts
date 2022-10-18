@@ -415,6 +415,7 @@ export async function markNotesModified(noteIds: number[]): Promise<void> {
  * Update the Orders of a set of Relationships.
  */
 export async function updateRelationshipOrders(relationshipInfos: {sourceThingId: number, destThingId: number, directionId: number, newOrder: number}[]): Promise<void> {
+    console.log(relationshipInfos)
     // Get parameters for SQL query.
     const whenModded = (new Date()).toISOString()
 
@@ -428,13 +429,18 @@ export async function updateRelationshipOrders(relationshipInfos: {sourceThingId
                 .where('direction', info.directionId)
                 .transacting(transaction)
 
-            await RelationshipDbModel.query()
+            /*await RelationshipDbModel.query()
                 .patch({ relationshiporder: info.newOrder, whenmodded: whenModded })
                 .where('thingaid', info.destThingId)
                 .where('thingbid', info.sourceThingId)
                 .where('direction', info.directionId)
-                .transacting(transaction)
+                .transacting(transaction)*/
         }
+        const test = await RelationshipDbModel.query()
+            .where('thingaid', 6080)
+            .where('thingbid', 6081)
+            .where('direction', 6)
+        console.log("............", test)
     })
 
     // Report on the response.
@@ -444,6 +450,11 @@ export async function updateRelationshipOrders(relationshipInfos: {sourceThingId
     .catch(function(err: Error) {
         console.error(err)
     })
+    const test = await RelationshipDbModel.query()
+        .where('thingaid', 6080)
+        .where('thingbid', 6081)
+        .where('direction', 6)
+    console.log("............", test)
 }
 
 
@@ -469,23 +480,12 @@ export async function reorderRelationship(
     newIndex: number
 ): Promise<void> {
     // Get info on the Relationships in the Cohort.
-    const queriedARelationships = await RelationshipDbModel.query()
-        .where("thingbid", sourceThingId)
-        .where("direction", destThingDirectionId)
     const queriedBRelationships = await RelationshipDbModel.query()
         .where("thingaid", sourceThingId)
         .where("direction", destThingDirectionId)
 
     // Create an array of objects containing ordering info for each Relationship.
     const relationshipOrderingInfos: { destThingId: number, order: number | null }[] = []
-    queriedARelationships.forEach( model => {
-        relationshipOrderingInfos.push(
-            {
-                destThingId: model.thingaid as number,
-                order: model.relationshiporder,
-            }
-        )
-    } )
     queriedBRelationships.forEach( model => {
         relationshipOrderingInfos.push(
             {

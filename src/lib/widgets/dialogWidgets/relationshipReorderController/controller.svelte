@@ -58,7 +58,7 @@
         const dragChangeX = event.clientX - $reorderingInfoStore.dragStartPosition[0]
         const dragChangeY = event.clientY - $reorderingInfoStore.dragStartPosition[1]
         // The change in index is...
-            deltaIndex = Math.floor(////////////// TWEAK THE LEFT-RIGHT BOUNDS HERE!
+            deltaIndex = Math.floor(
                 // ...the component of the drag parallel to the Relationship Cohort's long axis...
                 (
                     ($reorderingInfoStore.thingCohort as ThingCohort).rowOrColumn() === "row" ? dragChangeX :
@@ -114,7 +114,7 @@
 
             
             if (copiedReorderingInfo !== null) {
-                // Reorder the Relationship and Thing widgets accordingly.
+                // Reorder the Relationship and Thing widgets accordingly. 
                 const reorderedMembers = changeIndexInArray(
                     copiedReorderingInfo.thingCohort.members,
                     copiedReorderingInfo.startIndex as number,
@@ -127,7 +127,7 @@
                 // Reorder the Relationships in the db accordingly.
                 await reorderRelationship(
                     copiedReorderingInfo.thingCohort?.parentThingId as number,
-                    copiedReorderingInfo.thingCohort?.direction.id as number,
+                    copiedReorderingInfo.thingCohort?.address.directionId as number,
                     copiedReorderingInfo.destThingId as number,
                     copiedReorderingInfo.newIndex
                 )
@@ -146,8 +146,7 @@
     }
 
 
-
-    // Once done with that, bugshoot the issue with reordering the right side of the cohort.
+    // Once done with that, adjust the left-right bounds of the drag operation (Math.floor)
     // Once done with that, update highlighting rules to keep the dragged Thing and Relationship highlighted.
     // Once done with that, clean up the view and terminals and refactor all changed files (including Relationship Cohort and Thing Cohort widgets).
 
