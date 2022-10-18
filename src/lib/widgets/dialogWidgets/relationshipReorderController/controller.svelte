@@ -59,12 +59,13 @@
         const dragChangeY = event.clientY - $reorderingInfoStore.dragStartPosition[1]
         // The change in index is...
             deltaIndex = Math.floor(
-                // ...the component of the drag parallel to the Relationship Cohort's long axis...
+                // ...the component of the drag parallel to the Relationship
+                // Cohort's long axis...
                 (
                     ($reorderingInfoStore.thingCohort as ThingCohort).rowOrColumn() === "row" ? dragChangeX :
                     dragChangeY
                 )
-                // ...divided by the distance between Relationship Leaves.
+                // ...divided by the distance between Relationship Leaves...
                 / 
                 (
                     (
@@ -73,6 +74,10 @@
                     )
                     * $tweenedScale
                 )
+                // ...plus 0.5. (This is to shift the "zones" for each possible
+                // destination position left so that, instead of extending off to
+                // the right of the position, they are centered on it.)
+                + 0.5
             )
     }
 
@@ -145,8 +150,9 @@
         }
     }
 
-
-    // Once done with that, adjust the left-right bounds of the drag operation (Math.floor)
+    
+    // Once done with that, refactor the highlighting rules.
+    // Once done with that, update highlighting rules to prevent other interactions from interfering.
     // Once done with that, update highlighting rules to keep the dragged Thing and Relationship highlighted.
     // Once done with that, clean up the view and terminals and refactor all changed files (including Relationship Cohort and Thing Cohort widgets).
 
