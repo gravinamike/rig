@@ -37,12 +37,19 @@
     $: relationshipHovered = thing.id && thing.id === thingIdOfHoveredRelationship
     let leafClicked = false
 
+
+
+
     $: showDirection =
         (
             !($relationshipBeingCreatedInfoStore.sourceThingId && !relatableForCurrentDrag)
+            && !$reorderingInfoStore.reorderInProgress
             && (leafHovered || relationshipHovered)
         ) ? true :
         false
+
+
+
 
     async function changeRelationshipDirection(directionId: number) {
         const sourceThingId = thing.parentThing?.id || null
@@ -65,17 +72,6 @@
         }
     }
 
-
-
-
-
-    
-
-
-
-
-
-    
 
 
     /**
@@ -144,6 +140,49 @@
     }
     
 
+
+
+
+
+
+
+
+
+
+    $: highlightLevel =
+        // If... 
+        (
+            // ...the widget is clicked...  
+            leafClicked && !$reorderingInfoStore.reorderInProgress
+            // ...or the Relationship is being reordered...
+            || $reorderingInfoStore.destThingId === cohortMemberWithIndex.member.thingId
+        // The highlight is hard.
+        ) ? "hard-highlight" :
+
+        // Else, if...
+        (
+            // ...the widget, its parent Relationship widget, or the associated Thing are hovered...
+            (leafHovered || relationshipHovered || thingHovered)
+            // ...and the highlight is not being suppressed to indicate that this widget is
+            // not relatable for a current drag-relate operation...
+            && !(
+                $relationshipBeingCreatedInfoStore.sourceThingId
+                && !relatableForCurrentDrag
+            )
+        // The highlight is soft.
+
+        ) ? "soft-highlight" :
+        // Otherwise, the widget isn't highlighted.
+        "no-highlight"
+
+
+
+
+
+
+
+
+
 </script>
 
 
@@ -164,6 +203,7 @@
 <!-- Relationship leaf. -->
 <div
     class="relationship-leaf"
+
     on:mouseenter={()=>{thingIdOfHoveredRelationship = thing.id || null}}
     on:mouseleave={()=>{thingIdOfHoveredRelationship = null}}
 >
@@ -178,10 +218,11 @@
     <!-- Hoverable zone of leaf. -->
     <line
         class="leaf-hover-zone"
+        class:rowCohort={ cohort?.rowOrColumn() === "row" }
+        class:columnCohort={ cohort?.rowOrColumn() === "column" }
 
         x1="{leafGeometry.bottomMidline}" y1="{leafGeometry.bottom}"
         x2="{leafGeometry.topMidline}" y2="{leafGeometry.top}"
-        
         style="stroke-width: {8 / tweenedScale};"
 
         on:mouseenter={()=>{leafHovered = true}}
@@ -195,14 +236,13 @@
 
     <!-- Visual image of leaf. -->
     <line
-        class="
-            leaf-image
-            {!($relationshipBeingCreatedInfoStore.sourceThingId && !relatableForCurrentDrag) && (leafHovered || relationshipHovered || thingHovered) ? "hovered" : ""}
-            {leafClicked ? "clicked" : ""}
-        "
-        style="stroke-width: {3 / tweenedScale};"
+        class="leaf-image"
+        class:soft-highlight={ highlightLevel === "soft-highlight" }
+        class:hard-highlight={ highlightLevel === "hard-highlight" }
+        
         x1="{leafGeometry.bottomMidline}" y1="{leafGeometry.bottom}"
         x2="{leafGeometry.topMidline}" y2="{leafGeometry.top}"
+        style="stroke-width: {3 / tweenedScale};"
     />
 
     </svg>
@@ -263,18 +303,25 @@
         opacity: 0;
 
         pointer-events: auto;
-        cursor: pointer;
+    }
+
+    .leaf-hover-zone.rowCohort {
+        cursor: col-resize;
+    }
+
+    .leaf-hover-zone.columnCohort {
+        cursor: row-resize;
     }
 
     .leaf-image {
         opacity: 0.25;
     }
 
-    .leaf-image.hovered {
+    .leaf-image.soft-highlight {
         opacity: 0.5;
     }
 
-    .leaf-image.clicked {
+    .leaf-image.hard-highlight {
         opacity: 1;
     }
 

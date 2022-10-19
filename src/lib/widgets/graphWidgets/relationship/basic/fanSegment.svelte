@@ -1,6 +1,6 @@
 <script context="module" lang="ts">
     import type { Thing, GenerationMember, ThingCohort } from "$lib/models/constructModels"
-    import { getGraphConstructs, addGraphIdsNeedingViewerRefresh, relationshipBeingCreatedInfoStore, hoveredThingIdStore, hoveredRelationshipTarget } from "$lib/stores"
+    import { getGraphConstructs, addGraphIdsNeedingViewerRefresh, relationshipBeingCreatedInfoStore, hoveredThingIdStore, hoveredRelationshipTarget, reorderingInfoStore } from "$lib/stores"
     import { XButton } from "$lib/widgets/layoutWidgets"
 </script>
 
@@ -72,6 +72,51 @@
     ) ?
         true :
         false
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+    
+    $: highlightLevel =
+        // If... 
+        (
+            // ...the widget is clicked...  
+            fanSegmentClicked
+            // ...or the Relationship is being reordered...
+            || $reorderingInfoStore.destThingId === cohortMemberWithIndex.member.thingId
+        // The highlight is hard.
+        ) ? "hard-highlight" :
+
+        // Else, if...
+        (
+            // ...the widget, its parent Relationship widget, or the associated Thing are hovered...
+            (fanSegmentHovered || relationshipHovered || thingHovered)
+            // ...and the highlight is not being suppressed to indicate that this widget is
+            // not relatable for a current drag-relate operation...
+            && !(
+                $relationshipBeingCreatedInfoStore.sourceThingId
+                && !relatableForCurrentDrag
+            )
+        // The highlight is soft.
+        ) ? "soft-highlight" :
+
+        // Otherwise, the widget isn't highlighted.
+        "no-highlight"
+
+
+
+
+
 </script>
 
 
@@ -94,6 +139,7 @@
         x1="{midline}" y1="{stemTop}"
         x2="{leafGeometry.bottomMidline}" y2="{leafGeometry.bottom}"
         style="stroke-width: {8 / tweenedScale};"
+        
         on:mouseenter={()=>{fanSegmentHovered = true}}
         on:mouseleave={()=>{fanSegmentHovered = false}}
         on:mousedown={()=>{fanSegmentClicked = true}}
@@ -102,11 +148,10 @@
 
     <!-- Visual image of fan segment. -->
     <line 
-        class="
-            fan-segment-image
-            {!($relationshipBeingCreatedInfoStore.sourceThingId && !relatableForCurrentDrag) && (fanSegmentHovered || relationshipHovered || thingHovered) ? "hovered" : ""}
-            {fanSegmentClicked ? "clicked" : ""}
-        "
+        class="fan-segment-image"
+        class:soft-highlight={ highlightLevel === "soft-highlight" }
+        class:hard-highlight={ highlightLevel === "hard-highlight" }
+
         style="stroke-width: {3 / tweenedScale};"
         x1="{midline}" y1="{stemTop}"
         x2="{leafGeometry.bottomMidline}" y2="{leafGeometry.bottom}"
@@ -116,17 +161,15 @@
     {#if (
         // Show delete button if the Relationship is hovered, except those relating to Thing Forms.
         !($relationshipBeingCreatedInfoStore.sourceThingId && !relatableForCurrentDrag)
+        && !$reorderingInfoStore.reorderInProgress
         && relationshipHovered
         && cohortMemberWithIndex.member
     )}
         <svg
             class="delete-button-container"
-            style="
-                transform: translate(-10px, -10px);
-                pointer-events: auto;
-            "
             x={leafGeometry.bottomMidline}
             y={leafGeometry.bottom}
+
             on:mouseenter={()=>{
                 fanSegmentHovered = true
                 thingIdOfHoveredRelationship = thing.id || null
@@ -174,12 +217,18 @@
         opacity: 0.05;
     }
 
-    .fan-segment-image.hovered {
+    .fan-segment-image.soft-highlight {
         opacity: 0.1;
     }
 
-    .fan-segment-image.clicked {
+    .fan-segment-image.hard-highlight {
         opacity: 0.25;
+    }
+
+    .delete-button-container {
+        transform: translate(-10px, -10px);
+
+        pointer-events: auto;
     }
 
     .will-be-deleted-indicator {

@@ -10,7 +10,7 @@
     import { storeAppConfig } from "$lib/shared/config"
 
     // Import database/stores-related functions.
-    import { loadingState, openGraphStore, perspectiveThingIdStore, updateRelationshipBeingCreatedEndpoint } from "$lib/stores"
+    import { loadingState, openGraphStore, perspectiveThingIdStore, reorderingInfoStore, updateRelationshipBeingCreatedEndpoint } from "$lib/stores"
 
     // Import widgets.
     import {
@@ -90,7 +90,16 @@
 
 
 <main
+    class:reorderRow={
+        $reorderingInfoStore.dragStartPosition !== null
+        && $reorderingInfoStore.thingCohort?.rowOrColumn() === "row"
+    }
+    class:reorderColumn={
+        $reorderingInfoStore.dragStartPosition !== null
+        && $reorderingInfoStore.thingCohort?.rowOrColumn() === "column"
+    }
     style="height: calc( 100% - {navHeight} )"
+
     on:mousemove={handleMouseMove}
 >
 
@@ -185,6 +194,14 @@
         flex-direction: row;
 
         overflow: hidden;
+    }
+
+    :global(main.reorderRow *) {
+        cursor: col-resize;
+    }
+
+    :global(main.reorderColumn *) {
+        cursor: row-resize;
     }
 
     .tabs-container {

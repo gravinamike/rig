@@ -35,6 +35,7 @@
     export let thingWidth: number
     export let thingHeight: number
 
+    
     // Attributes managed by widget controller.
     let widgetOffsetX = 0
     let widgetOffsetY = 0

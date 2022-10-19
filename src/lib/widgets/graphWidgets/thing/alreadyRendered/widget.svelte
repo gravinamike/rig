@@ -4,7 +4,7 @@
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
     // Import stores.
-    import { hoveredThingIdStore } from "$lib/stores"
+    import { hoveredThingIdStore, reorderingInfoStore } from "$lib/stores"
 
     // Import widget controller.
     import ThingAlreadyRenderedWidgetController from "./controller.svelte"
@@ -52,7 +52,7 @@
     style="
         border-radius: {10 + 4 * encapsulatingDepth}px;
         {
-            isHoveredThing ? `border: solid 1px ${relationshipColor}; border-style: dashed; ` :
+            isHoveredThing && !$reorderingInfoStore.reorderInProgress ? `border: solid 1px ${relationshipColor}; border-style: dashed; ` :
             ""
         }
         width: {thingWidth}px;

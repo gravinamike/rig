@@ -6,7 +6,8 @@
     // Import stores.
     import {
         hoveredRelationshipTarget, enableRelationshipBeingCreated, setRelationshipBeingCreatedDestThingId,
-        disableRelationshipBeingCreated
+        disableRelationshipBeingCreated,
+        reorderingInfoStore
     } from "$lib/stores"
     
 
@@ -106,7 +107,7 @@
         class="
             stem-image
             {relationshipsExist || ofPerspectiveThing || (relatableForCurrentDrag && stemHovered) || isDragRelateSource ? "" : "hidden"}
-            {stemHovered || relationshipHovered || thingHovered ? "hovered" : ""}
+            {!$reorderingInfoStore.reorderInProgress && (stemHovered || relationshipHovered || thingHovered) ? "hovered" : ""}
             {stemClicked || isDragRelateSource ? "clicked" : ""}
         "
     >

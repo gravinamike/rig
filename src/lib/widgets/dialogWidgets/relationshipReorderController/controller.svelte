@@ -151,9 +151,6 @@
     }
 
     
-    // Once done with that, refactor the highlighting rules.
-    // Once done with that, update highlighting rules to prevent other interactions from interfering.
-    // Once done with that, update highlighting rules to keep the dragged Thing and Relationship highlighted.
     // Once done with that, clean up the view and terminals and refactor all changed files (including Relationship Cohort and Thing Cohort widgets).
 
 
@@ -166,17 +163,3 @@
     on:mousemove={handleBodyMouseMove}
     on:mouseup={handleBodyMouseUp}
 />
-
-
-{
-    @html
-    `
-        StartPos ${$reorderingInfoStore.dragStartPosition} <br>
-        InProg ${$reorderingInfoStore.reorderInProgress} <br>
-        Cohort ${$reorderingInfoStore.thingCohort} <br>
-        DstThng ${$reorderingInfoStore.destThingId} <br>
-        StartIdx ${$reorderingInfoStore.startIndex} <br>
-        NewIdx ${$reorderingInfoStore.newIndex} <br>
-
-    `
-}
