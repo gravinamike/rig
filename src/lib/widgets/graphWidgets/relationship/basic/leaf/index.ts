@@ -1,0 +1,1 @@
+export { default as RelationshipLeafWidget } from "./widget.svelte"

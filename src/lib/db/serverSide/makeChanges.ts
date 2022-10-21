@@ -204,7 +204,7 @@ export async function deleteThing(thingId: number): Promise<void> {
 
 
 /*
- * Create a new Relationship
+ * Create a new Relationship.
  */
 export async function createNewRelationship(sourceThingId: number, destThingId: number, directionId: number): Promise<void> {    
     // Verify the Relationship does not yet exist.
@@ -405,17 +405,10 @@ export async function markNotesModified(noteIds: number[]): Promise<void> {
 }
 
 
-
-
-
-
-
-
 /*
  * Update the Orders of a set of Relationships.
  */
 export async function updateRelationshipOrders(relationshipInfos: {sourceThingId: number, destThingId: number, directionId: number, newOrder: number}[]): Promise<void> {
-    console.log(relationshipInfos)
     // Get parameters for SQL query.
     const whenModded = (new Date()).toISOString()
 
@@ -428,19 +421,7 @@ export async function updateRelationshipOrders(relationshipInfos: {sourceThingId
                 .where('thingbid', info.destThingId)
                 .where('direction', info.directionId)
                 .transacting(transaction)
-
-            /*await RelationshipDbModel.query()
-                .patch({ relationshiporder: info.newOrder, whenmodded: whenModded })
-                .where('thingaid', info.destThingId)
-                .where('thingbid', info.sourceThingId)
-                .where('direction', info.directionId)
-                .transacting(transaction)*/
         }
-        const test = await RelationshipDbModel.query()
-            .where('thingaid', 6080)
-            .where('thingbid', 6081)
-            .where('direction', 6)
-        console.log("............", test)
     })
 
     // Report on the response.
@@ -450,11 +431,6 @@ export async function updateRelationshipOrders(relationshipInfos: {sourceThingId
     .catch(function(err: Error) {
         console.error(err)
     })
-    const test = await RelationshipDbModel.query()
-        .where('thingaid', 6080)
-        .where('thingbid', 6081)
-        .where('direction', 6)
-    console.log("............", test)
 }
 
 

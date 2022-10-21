@@ -12,8 +12,8 @@
     import RelationshipWidgetController from "./controller.svelte"
 
     // Import related widgets.
-    import RelationshipFanSegmentWidget from "./fanSegment.svelte"
-    import RelationshipLeafWidget from "./leaf.svelte"
+    import { RelationshipFanSegmentWidget } from "./fanSegment"
+    import { RelationshipLeafWidget } from "./leaf"
     
 
     /**
