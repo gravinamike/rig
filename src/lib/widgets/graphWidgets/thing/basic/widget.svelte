@@ -11,7 +11,8 @@
         setRelationshipBeingCreatedDestThingId, setRelationshipBeingCreatedTrackingMouse,
         disableRelationshipBeingCreated,
         pinIdsStore, openContextCommandPalette, addPin, removePin,
-        removeIdsFromThingSearchListStore
+        removeIdsFromThingSearchListStore,
+        reorderingInfoStore
     } from "$lib/stores"
 
     // Utility imports.
@@ -70,7 +71,7 @@
     let isHoveredWidget = false
     $: isHoveredThing = thingId === $hoveredThingIdStore
     $: relationshipBeingCreated = $relationshipBeingCreatedInfoStore.sourceThingId ? true : false
-    $: highlighted = isHoveredThing && !(relationshipBeingCreated && !relatableForCurrentDrag) ? true : false
+    $: highlighted = isHoveredThing && !(relationshipBeingCreated && !relatableForCurrentDrag) && !$reorderingInfoStore.reorderInProgress ? true : false
 
     /* Variables dealing with visual formatting of the Thing's text. */
     let textFontSize = encapsulatingDepth >= 0 ?
@@ -206,7 +207,7 @@
         class="box thing-widget" class:highlighted
         style="
             border-radius: {10 + 4 * encapsulatingDepth}px;
-            {isHoveredThing && !(relationshipBeingCreated && !relatableForCurrentDrag) ? 
+            {isHoveredThing && !(relationshipBeingCreated && !relatableForCurrentDrag) && !$reorderingInfoStore.reorderInProgress ? 
                 `box-shadow: 5px 5px 10px 10px ${hexToRgba(shadowColor, 0.15)};` :
                 `box-shadow: 5px 5px 10px 2px ${hexToRgba(shadowColor, 0.15)};`
             }
@@ -273,7 +274,7 @@
         {/if}
 
         <!-- Delete button and confirm delete dialog. -->
-        {#if isHoveredWidget && !confirmDeleteBoxOpen}
+        {#if isHoveredWidget && !$reorderingInfoStore.reorderInProgress && !confirmDeleteBoxOpen}
             <div class="delete-button-container">
                 <XButton
                     buttonFunction={startDelete}

@@ -1,0 +1,1 @@
+export { default as RelationshipFanSegmentWidget } from "./widget.svelte"

@@ -8,7 +8,7 @@
 
     // Constant and utility imports.
     import { zoomBase } from "$lib/shared/constants"
-    import { addGraph, removeGraph, graphIdsNeedingViewerRefresh, addGraphIdsNeedingViewerRefresh, removeGraphIdsNeedingViewerRefresh } from "$lib/stores"
+    import { addGraph, removeGraph, graphIdsNeedingViewerRefresh, addGraphIdsNeedingViewerRefresh, removeGraphIdsNeedingViewerRefresh, reorderingInfoStore } from "$lib/stores"
 
     // Import widgets.
     import { GraphOutlineWidget } from "$lib/widgets/graphWidgets"
@@ -69,7 +69,7 @@
     on:mouseleave={()=>{toggleHovered = false}}
     on:click={() => {if (numberOfRelations) expanded = !expanded}}
 >
-    {#if (toggleHovered || expanded)}
+    {#if ((!$reorderingInfoStore.reorderInProgress && toggleHovered) || expanded)}
         <svg
             class="relationship-image"
             style="width: {size}px; height: {size}px;"

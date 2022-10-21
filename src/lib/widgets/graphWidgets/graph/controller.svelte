@@ -14,7 +14,7 @@
     import { sleep, Rectangle, descendantElements, elementGroupEdges } from "$lib/shared/utility"
 
     // Import stores.
-    import { relationshipBeingCreatedInfoStore } from "$lib/stores"
+    import { relationshipBeingCreatedInfoStore, reorderingInfoStore } from "$lib/stores"
 
 
     /**
@@ -125,6 +125,7 @@
             widget
             && trackingMouse
             && !$relationshipBeingCreatedInfoStore.trackingMouse
+            && !$reorderingInfoStore.dragStartPosition
             && prevMouseTrackingLocation.x
             && prevMouseTrackingLocation.y
         ) {

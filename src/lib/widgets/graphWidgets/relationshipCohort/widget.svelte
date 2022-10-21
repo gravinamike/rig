@@ -2,12 +2,13 @@
     // Import types.
     import type { Tweened } from "svelte/motion"
     import type { HalfAxisId } from "$lib/shared/constants"
-    import type { Graph, Direction, ThingCohort } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
     // Import basic framework resources.
     import { tweened } from "svelte/motion"
     import { cubicOut } from "svelte/easing"
+
+    import { reorderingInfoStore } from "$lib/stores"
 
     // Import related widgets.
     import { DirectionWidget, RelationshipWidget } from "$lib/widgets/graphWidgets"
@@ -15,6 +16,10 @@
 
     // Import widget controller.
     import RelationshipCohortWidgetController from "./controller.svelte"
+
+    
+    import { changeIndexInArray } from "$lib/shared/utility"
+    import type { Direction, Graph, ThingCohort } from "$lib/models/constructModels"
     
 
     /**
@@ -30,7 +35,7 @@
     export let thingWidth: number
     export let thingHeight: number
 
-
+    
     // Attributes managed by widget controller.
     let widgetOffsetX = 0
     let widgetOffsetY = 0
@@ -61,6 +66,45 @@
     // Attributes managed by sub-widgets.
     let thingIdOfHoveredRelationship: number | null = null
     let stemHovered = false
+
+
+
+
+
+
+
+
+
+
+
+    // The array of Thing Cohort members that have Relationships displayed for
+    // them starts as the inputted Thing Cohort prop's members, but may change
+    // because of Relationship-reordering operations.
+    let cohortMembersToDisplay = [...cohort.members]
+
+    // If a Relationship-reorder operation is in progress for this Relationship
+    // Cohort and a new index has been specified for the target Relationship,
+    $: if (
+        $reorderingInfoStore.thingCohort === cohort
+        && $reorderingInfoStore.newIndex !== null
+    ) {
+        // Reorder the array of Thing Cohort members on which this Relationship
+        // Cohort is based.
+        const reorderedMembers = changeIndexInArray(///////// Change this function to produce an error instead of void.
+            cohort.members,
+            $reorderingInfoStore.startIndex as number,
+            $reorderingInfoStore.newIndex
+        )
+        if (reorderedMembers) cohortMembersToDisplay = reorderedMembers
+    }
+
+
+
+
+
+
+
+
 </script>
 
 
@@ -147,9 +191,9 @@
             </div>
         {/if}
 
-        <!-- Relationship image. -->
+        <!-- Relationship images. -->
         <div
-            class="relationship-image"
+            class="relationship-images"
             style="
                 width: {relationshipsWidth}px;
                 height: {relationshipsLength}px;
@@ -174,7 +218,7 @@
 
             <!-- Relationship image. -->    
             {#if showRelationships}
-                {#each Array.from(cohort.members.entries()) as [index, member]}
+                {#each Array.from(cohortMembersToDisplay.entries()) as [index, member]}
                     {#if cohort.indexOfGrandparentThing !== index}<!-- Don't re-draw the existing Relationship to a parent Thing. -->                
                         <RelationshipWidget
                             cohortMemberWithIndex={ {index: index, member: member} }
@@ -222,7 +266,7 @@
         align-items: center;
     }
 
-    .relationship-image {
+    .relationship-images {
         position: absolute;
 
         overflow: visible;

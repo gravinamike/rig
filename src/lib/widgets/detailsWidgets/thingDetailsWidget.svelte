@@ -27,14 +27,14 @@
             <div class="related-things-list">
 
                 <strong>A-relations:</strong>
-                {#each thingDbModel.a_relationships as { id, direction, thingaid, thingbid }}
-                    <p>Id: {id} Dir: {direction}</p>
+                {#each thingDbModel.a_relationships as { id, direction, thingaid, thingbid, relationshiporder }}
+                    <p>Id: {id} Dir: {direction} Ord: {relationshiporder}</p>
                     <p>Id A: {thingaid} Id B: {thingbid}</p>
                 {/each}
 
                 <strong>B-relations:</strong>
-                {#each thingDbModel.b_relationships as { id, direction, thingaid, thingbid }}
-                    <p>Id: {id} Dir: {direction}</p>
+                {#each thingDbModel.b_relationships as { id, direction, thingaid, thingbid, relationshiporder }}
+                    <p>Id: {id} Dir: {direction} Ord: {relationshiporder}</p>
                     <p>Id A: {thingaid} Id B: {thingbid}</p>
                 {/each}
 

@@ -65,7 +65,6 @@ export const thingIdsNotFoundStore = writable( [] as number[] )
 function updateDbModelStore<Type extends GraphDbModel>( models: Type | Type[] ): void {
     // If necessary, pack a single supplied model in an array for processing.
     if (!("length" in models)) models = [models]
-    
     // Determine which store to update based on construct type.
     let store: Writable<{ [id: number]: GraphDbModel }>
     if ( models.length && isDirectionDbModel(models[0]) ) {

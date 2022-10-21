@@ -18,6 +18,8 @@ import { Thing } from "$lib/models/constructModels"
 // Filesystem-related imports.
 import { createFolder } from "$lib/shared/fileSystem"
 
+import { changeIndexInArray } from "$lib/shared/utility"
+
 
 /*
  * From a starting Thing, create a related Thing.
@@ -202,12 +204,9 @@ export async function deleteThing(thingId: number): Promise<void> {
 
 
 /*
- * Create a new Relationship
+ * Create a new Relationship.
  */
-export async function createNewRelationship(sourceThingId: number, destThingId: number, directionId: number): Promise<void> {
-
-    //console.log(sourceThingId, destThingId, directionId)
-    
+export async function createNewRelationship(sourceThingId: number, destThingId: number, directionId: number): Promise<void> {    
     // Verify the Relationship does not yet exist.
     const queriedARelationships = await RelationshipDbModel.query()
         .where("thingaid", destThingId)
@@ -403,4 +402,98 @@ export async function markNotesModified(noteIds: number[]): Promise<void> {
     .catch(function(err: Error) {
         console.error(err)
     })
+}
+
+
+/*
+ * Update the Orders of a set of Relationships.
+ */
+export async function updateRelationshipOrders(relationshipInfos: {sourceThingId: number, destThingId: number, directionId: number, newOrder: number}[]): Promise<void> {
+    // Get parameters for SQL query.
+    const whenModded = (new Date()).toISOString()
+
+    const knex = Model.knex()
+    await knex.transaction(async (transaction: Knex.Transaction) => {
+        for (const info of relationshipInfos) {
+            await RelationshipDbModel.query()
+                .patch({ relationshiporder: info.newOrder, whenmodded: whenModded })
+                .where('thingaid', info.sourceThingId)
+                .where('thingbid', info.destThingId)
+                .where('direction', info.directionId)
+                .transacting(transaction)
+        }
+    })
+
+    // Report on the response.
+    .then(function() {
+        console.log('Transaction complete.')
+    })
+    .catch(function(err: Error) {
+        console.error(err)
+    })
+}
+
+
+interface UpdateRelationshipOrderInfo {
+    sourceThingId: number,
+    destThingId: number,
+    directionId: number,
+    newOrder: number
+}
+
+
+/**
+ * Reorder-Relationship method.
+ * @param sourceThingId - The ID of the source Thing of the Relationship to be reordered.
+ * @param destThingDirectionId - The ID of the Direction of the destination Thing of the Relationship to be reordered.
+ * @param destThingId - The ID of the destination Thing of the Relationship to be reordered.
+ * @param newIndex - The new index of the Relationship to be reordered.
+ */
+export async function reorderRelationship(
+    sourceThingId: number,
+    destThingDirectionId: number,
+    destThingId: number,
+    newIndex: number
+): Promise<void> {
+    // Get info on the Relationships in the Cohort.
+    const queriedBRelationships = await RelationshipDbModel.query()
+        .where("thingaid", sourceThingId)
+        .where("direction", destThingDirectionId)
+
+    // Create an array of objects containing ordering info for each Relationship.
+    const relationshipOrderingInfos: { destThingId: number, order: number | null }[] = []
+    queriedBRelationships.forEach( model => {
+        relationshipOrderingInfos.push(
+            {
+                destThingId: model.thingbid as number,
+                order: model.relationshiporder,
+            }
+        )
+    } )
+    // Order the Relationship infos according to their order attributes.
+    const orderedRelationshipOrderingInfos = relationshipOrderingInfos
+        .sort((a, b) => (a.order ? a.order : 0) - (b.order ? b.order : 0))
+
+
+    // Move the to-be-reordered Relationship to the specified new index.
+    const currentIndex = orderedRelationshipOrderingInfos.findIndex(info => info.destThingId === destThingId)
+    const reOrderedRelationshipOrderingInfos = (
+        changeIndexInArray(orderedRelationshipOrderingInfos, currentIndex, newIndex) as
+            {destThingId: number, order: number | null}[]
+    )
+    // Construct an output array of Relationship order information objects.
+    const updateRelationshipOrderInfos: UpdateRelationshipOrderInfo[] = []
+    reOrderedRelationshipOrderingInfos.forEach( (info, i) => {
+        updateRelationshipOrderInfos.push(
+            {
+                sourceThingId: sourceThingId,
+                destThingId: info.destThingId,
+                directionId: destThingDirectionId,
+                newOrder: i
+            }
+        )
+    } )
+
+    // Update the orders of the Relationships using the above array.
+    await updateRelationshipOrders(updateRelationshipOrderInfos)
 }

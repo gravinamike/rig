@@ -1,4 +1,5 @@
 export * from "./newFileWidget"
+export * from "./relationshipReorderController"
 export * from "./remoteRelatingWidget"
 export * from "./textHyperlinkingWidget"
 export * from "./thingLinkingWidget"
