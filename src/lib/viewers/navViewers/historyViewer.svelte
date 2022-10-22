@@ -72,7 +72,7 @@
 </script>
 
 
-<main>
+<div class="history-viewer">
     <h4>History</h4>
 
     <div class="unique-toggle {useUniqueHistory ? "toggled": ""}">
@@ -89,9 +89,9 @@
                     { entryOrDivider.thingId === hoveredThingIdStoreValue ? "hovered-thing" : "" }
                     { entryOrDivider.thing ? "" : "id-not-found" }
                 "
-                on:mouseenter={()=>{ if (entryOrDivider) hoveredThingIdStore.set(entryOrDivider.thingId) }}
+                on:mouseenter={()=>{ if (entryOrDivider && "thingId" in entryOrDivider) hoveredThingIdStore.set(entryOrDivider.thingId) }}
                 on:mouseleave={()=>{hoveredThingIdStore.set(null)}}
-                on:click={ () => { if (entryOrDivider && entryOrDivider.thing) rePerspectToThingId(entryOrDivider.thingId)}
+                on:click={ () => { if (entryOrDivider && "thingId" in entryOrDivider && entryOrDivider.thing) rePerspectToThingId(entryOrDivider.thingId)}
             }>
                 { entryOrDivider.thing?.text || `(THING ${entryOrDivider.thingId} NOT FOUND IN STORE)` }
             </div>
@@ -104,11 +104,11 @@
         
         
     {/each}
-</main>
+</div>
 
 
 <style>
-    main {
+    .history-viewer {
         outline: solid 1px lightgrey;
         outline-offset: -1px;
 
