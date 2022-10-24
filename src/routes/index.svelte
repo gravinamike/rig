@@ -10,7 +10,7 @@
     import { storeAppConfig } from "$lib/shared/config"
 
     // Import database/stores-related functions.
-    import { loadingState, openGraphStore, perspectiveThingIdStore, reorderingInfoStore, updateRelationshipBeingCreatedEndpoint } from "$lib/stores"
+    import { loadingState, openGraphStore, perspectiveThingIdStore, reorderingInfoStore, updateMousePosition, updateRelationshipBeingCreatedEndpoint } from "$lib/stores"
 
     // Import widgets.
     import {
@@ -79,6 +79,7 @@
 	})
 
     function handleMouseMove(event: MouseEvent): void {
+        updateMousePosition([event.clientX, event.clientY])
         updateRelationshipBeingCreatedEndpoint([event.clientX, event.clientY])
     }
 </script>

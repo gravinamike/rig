@@ -1,36 +1,43 @@
 <script lang="ts">
+    // Import types.
     import type { HalfAxisId } from "$lib/shared/constants"
-    import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
     import type { Graph, Space } from "$lib/models/constructModels"
+    import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
+    // Import constants and utility functions.
     import { relationshipColorByHalfAxisId } from "$lib/shared/constants"
     import { sleep } from "$lib/shared/utility"
-    import { copiedSpace, alteredSpace } from "$lib/models/constructModels"
-    import { DirectionWidget } from "$lib/widgets/graphWidgets"
-    import { addGraphIdsNeedingViewerRefresh } from "$lib/stores"
+    
+    // Import stores.
+    import { addGraphIdsNeedingViewerRefresh, mouseSpeed } from "$lib/stores"
 
+    // Imort Space-manipulation functions.
+    import { copiedSpace, alteredSpace } from "$lib/models/constructModels"
+
+    // Import related widgets.
+    import { DirectionWidget } from "$lib/widgets/graphWidgets"
+
+
+    /**
+     * @param graph - The Graph whose Space is being controlled by this widget.
+     * @param graphWidgetStyle - Controls the visual styling of the Graph.
+     * @param currentSpace - The Space in which the Graph is currently being rendered.
+     */
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
     export let currentSpace: Space | null
 
 
+    // The "original Space" keeps track of the first Space the Graph is set to.
     let originalSpace: Space | null
+    // If the original Space hasn't yet been set, set it to the current Space.
     let originalSpaceSet = false
     $: if (currentSpace !== null && !originalSpaceSet) {
         originalSpace = copiedSpace(currentSpace)
         originalSpaceSet = true
     }
 
-    const shape: "rectangle" | "circle" = "rectangle"
-    const borderThickness = 20
-
-    let borderWidth: number | undefined
-    let borderHeight: number | undefined
-    $: borderCenterX = borderWidth ? borderWidth / 2 : 0
-    $: borderCenterY = borderHeight ? borderHeight / 2 : 0
-    $: borderRadius = Math.min(borderCenterX, borderCenterY)
-    $: widthToHeightRatio = borderWidth && borderHeight ? borderWidth / borderHeight : 0
-
+    // Array of objects with information to set up each arrow.
     $: arrowInfos = [
         {
             rotation: 0,
@@ -62,17 +69,44 @@
         }
     ]
 
+    // Attributes that configure appearance of widget border.
+    const shape: "rectangle" | "circle" = "rectangle"
+    const borderThickness = 20
+
+    let borderWidth: number | undefined
+    let borderHeight: number | undefined
+    $: borderCenterX = borderWidth ? borderWidth / 2 : 0
+    $: borderCenterY = borderHeight ? borderHeight / 2 : 0
+    $: borderRadius = Math.min(borderCenterX, borderCenterY)
+    $: widthToHeightRatio = borderWidth && borderHeight ? borderWidth / borderHeight : 0
+
+    // Attributes that detemine when the widget border is active.
     let borderHovered = false
-    let lastBorderHoveredChangeSignal = false
-    
-    async function delayedSetBorderHovered(hovered: boolean, delay: number) {
-        lastBorderHoveredChangeSignal = hovered
-        if (hovered) {
-            borderHovered = true
-        } else {
-            await sleep(delay)
-            if (!lastBorderHoveredChangeSignal) borderHovered = false
-        }
+    let spaceFrameActive = false
+
+    /**
+     * Set-Space-Frame-active-if-slow method.
+     * 
+     * If the mouse is hovering over the border while it is moving slowly, set
+     * the SpaceFrame to active (visible and interactible). This prevents the
+     * border from activating inappropriately when the user is just passing over
+     * it.
+     */
+    async function setSpaceFrameActiveIfSlow() {
+        if (borderHovered === true && mouseSpeed() < 50) spaceFrameActive = true
+    }
+
+    /**
+     * Delayed-set-Space-Frame-inactive method.
+     * 
+     * Sets the Space Frame to inactive (invisible and not interactible) one
+     * second after the mouse exits. This delay allows the user to quickly pass
+     * from one part of the Space Frame to another without deactivating during
+     * short spans outside of the widget.
+     */
+    async function delayedSetSpaceFrameInactive() {
+        await sleep(1000)
+        if (borderHovered === false) spaceFrameActive = false
     }
 </script>
 
@@ -80,18 +114,30 @@
 <!-- Space frame. -->
 <div
     class="space-frame"
-    style={ borderHovered ? "" : "visibility: hidden;" }
+    style={ spaceFrameActive ? "" : "visibility: hidden;" }
     bind:clientWidth={borderWidth} bind:clientHeight={borderHeight}
 >
+
     <svg>
+
+        <!-- Border(s). -->
         <g class="borders">
             {#if shape === "rectangle"}
                 <rect
                     class="inner-border"
                     x={borderThickness / 2 - 50} y={borderThickness / 2 - 50} width={2 * (borderCenterX + 50) - borderThickness} height={2 * (borderCenterY + 50) - borderThickness} rx=75
                     style="stroke-width: {borderThickness + 100}px;"
-                    on:mouseenter={() => {delayedSetBorderHovered(true, 0)}}
-                    on:mouseleave={() => {delayedSetBorderHovered(false, 1000)}}
+                    on:mouseenter={() => {
+                        borderHovered = true
+                        setSpaceFrameActiveIfSlow()
+                    }}
+                    on:mousemove={() => {
+                        setSpaceFrameActiveIfSlow()
+                    }}
+                    on:mouseleave={() => {
+                        borderHovered = false
+                        delayedSetSpaceFrameInactive()
+                    }}
                 />
             {:else}
                 <circle
@@ -102,12 +148,22 @@
                     class="inner-border"
                     cx={borderCenterX} cy={borderCenterY} r={borderRadius}
                     style="stroke-width: {borderThickness}px;"
-                    on:mouseenter={() => {delayedSetBorderHovered(true, 0)}}
-                    on:mouseleave={() => {delayedSetBorderHovered(false, 1000)}}
+                    on:mouseenter={() => {
+                        borderHovered = true
+                        setSpaceFrameActiveIfSlow()
+                    }}
+                    on:mousemove={() => {
+                        setSpaceFrameActiveIfSlow()
+                    }}
+                    on:mouseleave={() => {
+                        borderHovered = false
+                        delayedSetSpaceFrameInactive()
+                    }}
                 />
             {/if}
         </g>
         
+        <!-- Direction arrows. -->
         <g
             class="arrows"
             style="
@@ -130,17 +186,28 @@
                     style="
                         transform-origin: {borderCenterX}px {borderCenterY}px;
                         transform: rotate({arrowInfo.rotation}deg);
-                        { borderHovered ? "pointer-events: all;" : "" }
+                        { spaceFrameActive ? "pointer-events: all;" : "" }
                         stroke: {arrowInfo.color};
                         fill: {arrowInfo.color};
                     "
-                    on:mouseenter={() => {delayedSetBorderHovered(true, 0)}}
-                    on:mouseleave={() => {delayedSetBorderHovered(false, 1000)}}
+                    on:mouseenter={() => {
+                        borderHovered = true
+                        setSpaceFrameActiveIfSlow()
+                    }}
+                    on:mousemove={() => {
+                        setSpaceFrameActiveIfSlow()
+                    }}
+                    on:mouseleave={() => {
+                        borderHovered = false
+                        delayedSetSpaceFrameInactive()
+                    }}
                 />
             {/each}
         </g>
+
     </svg>
 
+    <!-- Direction widgets. -->
     {#each arrowInfos as arrowInfo}
         <div
             class="direction-widget-container"
@@ -148,10 +215,19 @@
                 left: {borderCenterX + ((borderHeight ? borderHeight : 0) * 0.275) * widthToHeightRatio * arrowInfo.directionSigns[0]}px;
                 top: {borderCenterY + ((borderHeight ? borderHeight : 0) * 0.275) * arrowInfo.directionSigns[1]}px;
             "
-            on:mouseenter={() => {delayedSetBorderHovered(true, 0)}}
-            on:mouseleave={() => {delayedSetBorderHovered(false, 750)}}
+            on:mouseenter={() => {
+                borderHovered = true
+                setSpaceFrameActiveIfSlow()
+            }}
+            on:mousemove={() => {
+                setSpaceFrameActiveIfSlow()
+            }}
+            on:mouseleave={() => {
+                borderHovered = false
+                delayedSetSpaceFrameInactive()
+            }}
         >
-            {#if borderHovered}
+            {#if spaceFrameActive}
                 <DirectionWidget
                     direction={arrowInfo.direction}
                     halfAxisId={arrowInfo.halfAxisId}
