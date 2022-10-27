@@ -1,29 +1,36 @@
+import type { ThingDbModel, ThingSearchListItemDbModel } from "$lib/models/dbModels/clientSide"
 import {
-    DirectionDbModel, SpaceDbModel,
-    ThingDbModel, RelationshipDbModel,
-    NoteDbModel, NoteToThingDbModel, FolderDbModel, FolderToThingDbModel,
-    ThingSearchListItemDbModel
-} from "$lib/models/dbModels"
+    RawDirectionDbModel, RawSpaceDbModel,
+    RawThingDbModel, RawRelationshipDbModel,
+    RawNoteDbModel, RawNoteToThingDbModel, RawFolderDbModel, RawFolderToThingDbModel, RawThingSearchListItemDbModel,
+    stripThingDbModels,
+    stripRelationshipDbModels,
+    stripNoteDbModels,
+    stripNoteToThingDbModels,
+    stripFolderDbModels,
+    stripFolderToThingDbModels,
+    stripThingSearchListItemDbModels,
+} from "$lib/models/dbModels/serverSide"
 
 
 /*
  * Query Directions from the database.
  */
-export async function queryDirections( directionIds: number ): Promise<null | DirectionDbModel>;
-export async function queryDirections( directionIds: number[] ): Promise<DirectionDbModel[]>;
-export async function queryDirections( directionIds: null, idsToExclude?: number[] ): Promise<DirectionDbModel[]>;
-export async function queryDirections( directionIds: number | number[] | null, idsToExclude?: number[] ): Promise<null | DirectionDbModel | DirectionDbModel[]> {
+export async function queryDirections( directionIds: number ): Promise<null | RawDirectionDbModel>;
+export async function queryDirections( directionIds: number[] ): Promise<RawDirectionDbModel[]>;
+export async function queryDirections( directionIds: null, idsToExclude?: number[] ): Promise<RawDirectionDbModel[]>;
+export async function queryDirections( directionIds: number | number[] | null, idsToExclude?: number[] ): Promise<null | RawDirectionDbModel | RawDirectionDbModel[]> {
     
     // If a null ID is supplied,
     if (directionIds === null) {
         // If no IDs to exclude are supplied, query all Directions.
         if (!idsToExclude) {
-            const queriedDirectionDbModels = await DirectionDbModel.query()
+            const queriedDirectionDbModels = await RawDirectionDbModel.query()
                 .orderBy('id')
             return queriedDirectionDbModels
         // If IDs to exclude are supplied, query all Directions not matching those IDs.
         } else {
-            const queriedDirectionDbModels = await DirectionDbModel.query()
+            const queriedDirectionDbModels = await RawDirectionDbModel.query()
                 .where(
                     (builder) => builder.whereNotIn('id', idsToExclude)
                 )
@@ -33,14 +40,14 @@ export async function queryDirections( directionIds: number | number[] | null, i
 
     // If a single ID is supplied, query based on match to that ID (or return null if nothing is found).
     } else if (typeof directionIds === "number") {
-        const queriedDirectionDbModels = await DirectionDbModel.query()
+        const queriedDirectionDbModels = await RawDirectionDbModel.query()
             .where("id", directionIds)
             .orderBy('id')
         return queriedDirectionDbModels.length ? queriedDirectionDbModels[0] : null
 
     // If multiple IDs are supplied, query based on match to those IDs.
     } else if (directionIds.length) {
-        const queriedDirectionDbModels = await DirectionDbModel.query()
+        const queriedDirectionDbModels = await RawDirectionDbModel.query()
             .where(
                 (builder) => builder.whereIn('id', directionIds)
             )
@@ -57,23 +64,23 @@ export async function queryDirections( directionIds: number | number[] | null, i
 /*
  * Query Spaces from the database.
  */
-export async function querySpaces( spaceIds: number ): Promise<null | SpaceDbModel>;
-export async function querySpaces( spaceIds: number[] ): Promise<SpaceDbModel[]>;
-export async function querySpaces( spaceIds: null, idsToExclude?: number[] ): Promise<SpaceDbModel[]>;
-export async function querySpaces( spaceIds: number | number[] | null, idsToExclude?: number[] ): Promise<null | SpaceDbModel | SpaceDbModel[]> {
+export async function querySpaces( spaceIds: number ): Promise<null | RawSpaceDbModel>;
+export async function querySpaces( spaceIds: number[] ): Promise<RawSpaceDbModel[]>;
+export async function querySpaces( spaceIds: null, idsToExclude?: number[] ): Promise<RawSpaceDbModel[]>;
+export async function querySpaces( spaceIds: number | number[] | null, idsToExclude?: number[] ): Promise<null | RawSpaceDbModel | RawSpaceDbModel[]> {
     
     // If a null ID is supplied,
     if (spaceIds === null) {
         // If no IDs to exclude are supplied, query all Spaces.
         if (!idsToExclude) {
-            const queriedSpaceDbModels = await SpaceDbModel.query()
+            const queriedSpaceDbModels = await RawSpaceDbModel.query()
                 .allowGraph('directions')
                 .withGraphFetched('directions')
                 .orderBy('id')
             return queriedSpaceDbModels
         // If IDs to exclude are supplied, query all Spaces not matching those IDs.
         } else {
-            const queriedSpaceDbModels = await SpaceDbModel.query()
+            const queriedSpaceDbModels = await RawSpaceDbModel.query()
                 .where(
                     (builder) => builder.whereNotIn('id', idsToExclude)
                 )
@@ -85,7 +92,7 @@ export async function querySpaces( spaceIds: number | number[] | null, idsToExcl
 
     // If a single ID is supplied, query based on match to that ID (or return null if nothing is found).
     } else if (typeof spaceIds === "number") {
-        const queriedSpaceDbModels = await SpaceDbModel.query()
+        const queriedSpaceDbModels = await RawSpaceDbModel.query()
             .where("id", spaceIds)
             .allowGraph('directions')
             .withGraphFetched('directions')
@@ -94,7 +101,7 @@ export async function querySpaces( spaceIds: number | number[] | null, idsToExcl
 
     // If multiple IDs are supplied, query based on match to those IDs.
     } else if (spaceIds.length) {
-        const queriedSpaceDbModels = await SpaceDbModel.query()
+        const queriedSpaceDbModels = await RawSpaceDbModel.query()
             .where(
                 (builder) => builder.whereIn('id', spaceIds)
             )
@@ -112,13 +119,13 @@ export async function querySpaces( spaceIds: number | number[] | null, idsToExcl
 /*
  * Query Things from the database.
  */
-export async function queryThings(thingIds: number): Promise<null | ThingDbModel>;
-export async function queryThings(thingIds: number[]): Promise<ThingDbModel[]>;
-export async function queryThings(thingIds: number | number[]): Promise<null | ThingDbModel | ThingDbModel[]> {
+export async function queryThings(thingIds: number): Promise<null | RawThingDbModel>;
+export async function queryThings(thingIds: number[]): Promise<RawThingDbModel[]>;
+export async function queryThings(thingIds: number | number[]): Promise<null | RawThingDbModel | RawThingDbModel[]> {
 
     // If a single ID is supplied, query based on match to that ID (or return null if nothing is found).
     if (typeof thingIds === "number") {
-        const queriedThingDbModels = await ThingDbModel.query()
+        const queriedThingDbModels = await RawThingDbModel.query()
             .where("id", thingIds)
             .allowGraph('[a_relationships, b_relationships, note]')
             .withGraphFetched('[a_relationships, b_relationships, note, folder]')
@@ -129,7 +136,7 @@ export async function queryThings(thingIds: number | number[]): Promise<null | T
 
     // If multiple IDs are supplied, query based on match to those IDs.
     } else {
-        const queriedThingDbModels = await ThingDbModel.query()
+        const queriedThingDbModels = await RawThingDbModel.query()
             .where(
                 (builder) => builder.whereIn('id', thingIds)
             )
@@ -149,25 +156,25 @@ export async function queryThingsByGuid(thingGuids: string | string[]): Promise<
 
     // If a single GUID is supplied, query based on match to that ID (or return null if nothing is found).
     if (typeof thingGuids === "string") {
-        const queriedThingDbModels = await ThingDbModel.query()
+        const queriedThingDbModels = await RawThingDbModel.query()
             .where("guid", thingGuids)
             .allowGraph('[a_relationships, b_relationships, note]')
             .withGraphFetched('[a_relationships, b_relationships, note, folder]')
             .orderBy('id')
         return queriedThingDbModels.length ?
-            queriedThingDbModels[0] :
+            stripThingDbModels(queriedThingDbModels)[0] :
             null
 
     // If multiple IDs are supplied, query based on match to those IDs.
     } else {
-        const queriedThingDbModels = await ThingDbModel.query()
+        const queriedThingDbModels = await RawThingDbModel.query()
             .where(
                 (builder) => builder.whereIn('guid', thingGuids)
             )
             .allowGraph('[a_relationships, b_relationships, note, folder]')
             .withGraphFetched('[a_relationships, b_relationships, note, folder]')
             .orderBy('id')
-        return queriedThingDbModels
+        return stripThingDbModels(queriedThingDbModels)
     }
 }
 
@@ -176,13 +183,14 @@ export async function queryThingsByGuid(thingGuids: string | string[]): Promise<
  */
 export async function queryThingSearchList( thingIds: number[] | null ): Promise<ThingSearchListItemDbModel[]> {
     const queriedThingSearchListDbModels = thingIds === null ?
-        await ThingSearchListItemDbModel.query().orderBy('id') :
-        await ThingSearchListItemDbModel.query()
+        await RawThingSearchListItemDbModel.query().orderBy('id') :
+        await RawThingSearchListItemDbModel.query()
             .where(
                 (builder) => builder.whereIn('id', thingIds)
             )
             .orderBy('id')
-    return queriedThingSearchListDbModels
+
+    return stripThingSearchListItemDbModels(queriedThingSearchListDbModels)
 }
 
 /*
@@ -198,25 +206,31 @@ export interface LatestConstructInfos {
 }
 export async function getLatestConstructs(): Promise<LatestConstructInfos> {
     // Get latest Things.
-    const queriedThings = await ThingDbModel.query().orderBy("id", "desc").limit(10)
+    const rawQueriedThings = await RawThingDbModel.query().orderBy("id", "desc").limit(10)
+    const queriedThings = stripThingDbModels(rawQueriedThings)
     // Get latest Relationships.
-    const queriedRelationships = await RelationshipDbModel.query().orderBy("id", "desc").limit(10)
+    const rawQueriedRelationships = await RawRelationshipDbModel.query().orderBy("id", "desc").limit(10)
+    const queriedRelationships = stripRelationshipDbModels(rawQueriedRelationships)
     // Get latest Notes.
-    const queriedNotes = await NoteDbModel.query().orderBy("id", "desc").limit(10)
+    const rawQueriedNotes = await RawNoteDbModel.query().orderBy("id", "desc").limit(10)
+    const queriedNotes = stripNoteDbModels(rawQueriedNotes)
     // Get latest NoteToThings.
-    const queriedNoteToThings = await NoteToThingDbModel.query().orderBy("id", "desc").limit(10)
+    const rawQueriedNoteToThings = await RawNoteToThingDbModel.query().orderBy("id", "desc").limit(10)
+    const queriedNoteToThings = stripNoteToThingDbModels(rawQueriedNoteToThings)
     // Get latest Folders.
-    const queriedFolders = await FolderDbModel.query().orderBy("id", "desc").limit(10)
+    const rawQueriedFolders = await RawFolderDbModel.query().orderBy("id", "desc").limit(10)
+    const queriedFolders = stripFolderDbModels(rawQueriedFolders)
     // Get latest FolderToThings.
-    const queriedFolderToThings = await FolderToThingDbModel.query().orderBy("id", "desc").limit(10)
+    const rawQueriedFolderToThings = await RawFolderToThingDbModel.query().orderBy("id", "desc").limit(10)
+    const queriedFolderToThings = stripFolderToThingDbModels(rawQueriedFolderToThings)
 
     // Return an object containing all the above.
     return {
         things: queriedThings.map(x => {return {id: x.id, text: x.text}}),
         relationships: queriedRelationships.map(x => {return {id: x.id, thingaid: x.thingaid, thingbid: x.thingbid}}),
-        notes: queriedNotes.map(x => {return {id: x.id}}),
-        noteToThings: queriedNoteToThings.map(x => {return {id: x.id, noteid: x.noteid, thingid: x.thingid}}),
-        folders: queriedFolders.map(x => {return {id: x.id}}),
-        folderToThings: queriedFolderToThings.map(x => {return {id: x.id, folderid: x.folderid, thingid: x.thingid}})
+        notes: queriedNotes.map(x => {return {id: x?.id || "NULL"}}),
+        noteToThings: queriedNoteToThings.map(x => {return {id: x?.id || "NULL", noteid: x?.noteid || 0, thingid: x?.thingid || 0}}),
+        folders: queriedFolders.map(x => {return {id: x?.id || "NULL"}}),
+        folderToThings: queriedFolderToThings.map(x => {return {id: x?.id || "NULL", folderid: x?.folderid || 0, thingid: x?.thingid || 0}})
     }
 }

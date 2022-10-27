@@ -1,6 +1,5 @@
 <script lang="ts">
     // Import types.
-    import type { ThingDbModel } from "$lib/models/dbModels"
     import type { Graph, GenerationMember, ThingCohort, Thing } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
@@ -13,6 +12,7 @@
 
     // Import API methods.
     import { updateRelationships } from "$lib/db/clientSide"
+    import type { ThingDbModel } from "$lib/models/dbModels/clientSide";
     
     
     /**

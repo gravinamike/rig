@@ -9,7 +9,7 @@ import { unique } from "$lib/shared/utility"
 
 // Model imports.
 import { Graph, Generation } from "$lib/models/constructModels"
-import type { ThingDbModel } from "$lib/models/dbModels"
+import type { ThingDbModel } from "$lib/models/dbModels/clientSide"
 
 
 /** Class representing the set of Generations belonging to a Graph. */

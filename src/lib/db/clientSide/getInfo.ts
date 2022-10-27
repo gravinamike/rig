@@ -1,7 +1,8 @@
 import type { AppConfig, GraphConfig } from "$lib/shared/constants"
 import type { LatestConstructInfos } from "$lib/db/serverSide/getInfo"
-import type { GraphDbModel, ThingDbModel, ThingSearchListItemDbModel } from "$lib/models/dbModels"
+import type { RawThingDbModel } from "$lib/models/dbModels/serverSide"
 import { Thing, ThingSearchListItem } from "$lib/models/constructModels"
+import type { GraphDbModel, ThingSearchListItemDbModel } from "$lib/models/dbModels/clientSide"
 
 
 
@@ -13,7 +14,7 @@ export async function graphDbModels<Type extends GraphDbModel>(
     ids?: number[]
 ): Promise<Type[]> {
     let res: Response
-
+    
     // If no IDs were provided, fetch all instances of this construct.
     if (typeof ids === "undefined") {
         res = await fetch(`api/db/graphConstructs/${ constructName.toLowerCase() }s-all`)
@@ -52,7 +53,7 @@ export async function thingsByGuid( guids: string[] ): Promise<Thing[]> {
     // If the response is ok,
     if (res.ok) {
         // Unpack the response JSON as an array of instances.
-        const queriedInstances = await res.json() as ThingDbModel[]
+        const queriedInstances = await res.json() as RawThingDbModel[]
         const things: Thing[] = []
         for (const model of queriedInstances) {
             things.push( new Thing(model) )

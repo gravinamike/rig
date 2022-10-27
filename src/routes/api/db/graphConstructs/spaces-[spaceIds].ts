@@ -1,5 +1,6 @@
-import type { SpaceDbModel } from "$lib/models/dbModels"
+import { stripSpaceDbModels } from "$lib/models/dbModels/serverSide"
 import { querySpaces } from "$lib/db/serverSide"
+import type { SpaceDbModel } from "$lib/models/dbModels/clientSide"
 
 
 let spaceIds: string | number[]
@@ -12,9 +13,11 @@ export async function get(
 }> {
     try {
         ({ spaceIds } = params)
-        const spaces = spaceIds === "all" ?
+        const rawSpaces = spaceIds === "all" ?
             await querySpaces(null) :
             await querySpaces(spaceIds.split(",").map(x => Number(x)))
+
+        const spaces = stripSpaceDbModels(rawSpaces)
 
         return {
             status: 200,

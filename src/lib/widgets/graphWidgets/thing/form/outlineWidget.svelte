@@ -9,7 +9,7 @@
     import { createNewRelatedThing } from "$lib/db/clientSide"
     import { storeGraphDbModels, addGraphIdsNeedingViewerRefresh } from "$lib/stores"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
-    import type { ThingDbModel } from "$lib/models/dbModels";
+    import type { ThingDbModel } from "$lib/models/dbModels/clientSide";
 
     export let thing: Thing
     export let graph: Graph

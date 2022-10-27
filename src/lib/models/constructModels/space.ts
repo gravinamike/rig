@@ -1,9 +1,9 @@
 import type { GraphConstruct, HalfAxisId, OddHalfAxisId } from "$lib/shared/constants"
-import type { SpaceDbModel } from "$lib/models/dbModels"
 import { Direction } from "$lib/models/constructModels"
 
 import { oddHalfAxisIds, halfAxisOppositeIds } from "$lib/shared/constants"
 import { getGraphConstructs } from "$lib/stores"
+import type { SpaceDbModel } from "../dbModels/clientSide"
 
 
 

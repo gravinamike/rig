@@ -1,7 +1,6 @@
 // Import types.
 import type { Writable } from "svelte/store"
 import type { GraphConstruct } from "$lib/shared/constants"
-import type { DirectionDbModel, SpaceDbModel, ThingDbModel, GraphDbModel } from "$lib/models/dbModels"
 
 // Import framework tools.
 import { writable, derived } from "svelte/store"
@@ -9,12 +8,11 @@ import { writable, derived } from "svelte/store"
 // Import constants.
 import { maxThingsToStore } from "$lib/shared/constants"
 
-// Import Graph constructs.
-import { isDirectionDbModel, isSpaceDbModel, isThingDbModel } from "$lib/models/dbModels"
 
 // Import API methods.
 import { graphDbModels } from "$lib/db/clientSide"
 import { Direction, Space, Thing } from "$lib/models/constructModels"
+import { isDirectionDbModel, isSpaceDbModel, isThingDbModel, type DirectionDbModel, type GraphDbModel, type SpaceDbModel, type ThingDbModel } from "$lib/models/dbModels/clientSide"
 
 
 

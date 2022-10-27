@@ -1,7 +1,6 @@
 <script lang="ts">
     // Import types.
     import type { HalfAxisId } from "$lib/shared/constants"
-    import type { ThingDbModel } from "$lib/models/dbModels"
     import type { Direction, Graph } from "$lib/models/constructModels"
 
     // Import basic framework resources.
@@ -24,6 +23,7 @@
 
     // Import API methods.
     import { createNewRelationship } from "$lib/db/clientSide/makeChanges"
+    import type { ThingDbModel } from "$lib/models/dbModels/clientSide";
     
 
 

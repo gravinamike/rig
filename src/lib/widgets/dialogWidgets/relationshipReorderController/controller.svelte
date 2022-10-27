@@ -1,5 +1,4 @@
 <script lang="ts">
-    import type { ThingDbModel } from "$lib/models/dbModels"
     import { reorderingInfoStore, disableReordering, setReorderingIndex, storeGraphDbModels } from "$lib/stores"
     import { changeIndexInArray, clampNumber } from "$lib/shared/utility"
     import { reorderRelationship } from "$lib/db/clientSide"
@@ -8,6 +7,7 @@
     import { tweened } from "svelte/motion";
     import { cubicOut } from "svelte/easing";
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets";
+    import type { ThingDbModel } from "$lib/models/dbModels/clientSide";
 
 
 

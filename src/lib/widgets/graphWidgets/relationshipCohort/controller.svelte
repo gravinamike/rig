@@ -24,7 +24,7 @@
 
     // Import API functions.
     import { updateRelationships } from "$lib/db/clientSide"
-    import type { ThingDbModel } from "$lib/models/dbModels";
+    import type { ThingDbModel } from "$lib/models/dbModels/clientSide";
     
 
     /**

@@ -1,4 +1,4 @@
-import type { NoteDbModel, NoteToThingDbModel } from "$lib/models/dbModels"
+import type { NoteDbModel, NoteToThingDbModel } from "../dbModels/clientSide"
 
 
 /*

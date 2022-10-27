@@ -1,5 +1,6 @@
-import type { ThingDbModel } from "$lib/models/dbModels"
+import { stripThingDbModels } from "$lib/models/dbModels/serverSide"
 import { queryThings } from "$lib/db/serverSide"
+import type { ThingDbModel } from "$lib/models/dbModels/clientSide"
 
 
 export async function get(
@@ -12,7 +13,9 @@ export async function get(
 
     try {
         ({ thingIds } = params)
-        const things = await queryThings(thingIds.split(",").map(x => Number(x)))
+        const rawThings = await queryThings(thingIds.split(",").map(x => Number(x)))
+
+        const things = stripThingDbModels(rawThings)
 
         return {
             status: 200,

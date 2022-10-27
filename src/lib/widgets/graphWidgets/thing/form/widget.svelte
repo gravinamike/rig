@@ -9,7 +9,7 @@
 
     import { thingSearchListItems, createNewRelatedThing } from "$lib/db/clientSide"
     import { storeGraphDbModels, addGraphIdsNeedingViewerRefresh, updateThingSearchListStore } from "$lib/stores"
-    import type { ThingDbModel } from "$lib/models/dbModels";
+    import type { ThingDbModel } from "$lib/models/dbModels/clientSide";
 
 
     export let thing: Thing

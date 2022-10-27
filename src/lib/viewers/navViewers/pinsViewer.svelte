@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { Thing } from "$lib/models/constructModels"
-    import type { ThingDbModel } from "$lib/models/dbModels";
+    import type { ThingDbModel } from "$lib/models/dbModels/clientSide";
     import { pinIdsStore, storeGraphDbModels, graphDbModelInStore, getGraphConstructs } from "$lib/stores"
     import { PinWidget } from "$lib/widgets/navWidgets"
 

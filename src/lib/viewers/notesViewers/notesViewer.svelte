@@ -4,7 +4,7 @@
     import NotesEditor from "./notesEditor.svelte"
     import { addNoteToThing, markNotesModified, thingsByGuid, updateNote } from "$lib/db/clientSide"
     import { hyperlinkProtocols } from "$lib/shared/constants"
-    import type { ThingDbModel } from "$lib/models/dbModels";
+    import type { ThingDbModel } from "$lib/models/dbModels/clientSide";
 
     export let graph: Graph
     export let rePerspectToThingId: (thingId: number) => Promise<void>

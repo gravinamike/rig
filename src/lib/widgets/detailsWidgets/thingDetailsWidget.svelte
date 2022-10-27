@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { ThingDbModel } from "$lib/models/dbModels"
+    import type { ThingDbModel } from "$lib/models/dbModels/clientSide";
     import { hoveredThingIdStore } from "$lib/stores/appStores"
     import { Collapser } from "$lib/widgets/layoutWidgets"
 

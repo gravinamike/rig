@@ -1,5 +1,5 @@
-import type { ThingSearchListItemDbModel } from "$lib/models/dbModels"
 import { queryThingSearchList } from "$lib/db/serverSide"
+import type { ThingSearchListItemDbModel } from "$lib/models/dbModels/clientSide";
 
 export async function get(
     { params }: { params: { thingIds: string } }

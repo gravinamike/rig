@@ -1,5 +1,6 @@
-import type { DirectionDbModel } from "$lib/models/dbModels"
+import { stripDirectionDbModels } from "$lib/models/dbModels/serverSide"
 import { queryDirections } from "$lib/db/serverSide"
+import type { DirectionDbModel } from "$lib/models/dbModels/clientSide"
 
 
 let directionIds: string | number[]
@@ -12,9 +13,11 @@ export async function get(
 }> {
     try {
         ({ directionIds } = params)
-        const directions = directionIds === "all" ?
+        const rawDirections = directionIds === "all" ?
             await queryDirections(null) :
             await queryDirections(directionIds.split(",").map(x => Number(x)))
+        
+        const directions = stripDirectionDbModels(rawDirections)
 
         return {
             status: 200,

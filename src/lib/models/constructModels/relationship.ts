@@ -1,4 +1,4 @@
-import type { RelationshipDbModel } from "$lib/models/dbModels"
+import type { RelationshipDbModel } from "../dbModels/clientSide"
 
 
 /*

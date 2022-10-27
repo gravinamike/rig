@@ -1,9 +1,9 @@
 import type { GraphConstruct } from "$lib/shared/constants"
-import type { ThingDbModel, ThingSearchListItemDbModel } from "$lib/models/dbModels"
 import type { HalfAxisId } from "$lib/shared/constants"
 import { oddHalfAxisIds } from "$lib/shared/constants"
 import { graphDbModelInStore, getGraphConstructs } from "$lib/stores"
 import { Graph, Space, Note, Folder, Relationship, NoteToThing, FolderToThing, ThingCohort } from "$lib/models/constructModels"
+import type { ThingDbModel, ThingSearchListItemDbModel } from "../dbModels/clientSide"
 
 
 type ThingAddress = {
@@ -272,7 +272,7 @@ export function isThing(construct: GraphConstruct): construct is Thing {
 export class ThingSearchListItem {
     dbModel: ThingSearchListItemDbModel | null
 
-    id: number | null
+    id: number
     guid: string | null
     text: string | null
 

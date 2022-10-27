@@ -1,6 +1,6 @@
 import type Knex from "knex"
 import { Model } from "objection"
-import { ThingDbModel, RelationshipDbModel, NoteDbModel, NoteToThingDbModel, FolderDbModel, FolderToThingDbModel } from "$lib/models/dbModels"
+import { RawThingDbModel, RawRelationshipDbModel, RawNoteDbModel, RawNoteToThingDbModel, RawFolderDbModel, RawFolderToThingDbModel } from "$lib/models/dbModels/serverSide"
 
 
 // H2 doesn't mesh with Objection's PostgreSQL syntax naturally. This function is a
@@ -11,7 +11,7 @@ export async function alterQuerystringForH2AndRun(
     transaction: Knex.Transaction,
     whenCreated: string,
     constructName: "Thing" | "Relationship" | "Note" | "NoteToThing" | "Folder" | "FolderToThing"
-): Promise< ThingDbModel | RelationshipDbModel | NoteDbModel | NoteToThingDbModel | FolderDbModel | FolderToThingDbModel > {
+): Promise< RawThingDbModel | RawRelationshipDbModel | RawNoteDbModel | RawNoteToThingDbModel | RawFolderDbModel | RawFolderToThingDbModel > {
     // Remove the "returning" clause in the query string.
     querystring = querystring.replace(/ returning "\w+"/, "")
 
@@ -22,25 +22,25 @@ export async function alterQuerystringForH2AndRun(
     // Return the last-created construct of the specified type (which should
     // be the construct created by this transaction).
     if (constructName === "Thing") {
-        const latestConstructResults = await ThingDbModel.query().select("id").where({whencreated: whenCreated})
+        const latestConstructResults = await RawThingDbModel.query().select("id").where({whencreated: whenCreated})
             .allowGraph('[a_relationships, b_relationships, note, folder]')
             .withGraphFetched('[a_relationships, b_relationships, note, folder]')
             .transacting(transaction)
         return latestConstructResults[0]
     } else if (constructName === "Relationship") {
-        const latestConstructResults = await RelationshipDbModel.query().select("id").where({whencreated: whenCreated}).transacting(transaction)
+        const latestConstructResults = await RawRelationshipDbModel.query().select("id").where({whencreated: whenCreated}).transacting(transaction)
         return latestConstructResults[0]
     } else if (constructName === "Note") {
-        const latestConstructResults = await NoteDbModel.query().select("id").where({whencreated: whenCreated}).transacting(transaction)
+        const latestConstructResults = await RawNoteDbModel.query().select("id").where({whencreated: whenCreated}).transacting(transaction)
         return latestConstructResults[0]
     } else if (constructName === "NoteToThing") {
-        const latestConstructResults = await NoteToThingDbModel.query().select("id").transacting(transaction)
+        const latestConstructResults = await RawNoteToThingDbModel.query().select("id").transacting(transaction)
         return latestConstructResults[0]
     } else if (constructName === "Folder") {
-        const latestConstructResults = await FolderDbModel.query().select("id").where({whencreated: whenCreated}).transacting(transaction)
+        const latestConstructResults = await RawFolderDbModel.query().select("id").where({whencreated: whenCreated}).transacting(transaction)
         return latestConstructResults[0]
     } else {
-        const latestConstructResults = await FolderToThingDbModel.query().select("id").transacting(transaction)
+        const latestConstructResults = await RawFolderToThingDbModel.query().select("id").transacting(transaction)
         return latestConstructResults[0]
     }
 }
