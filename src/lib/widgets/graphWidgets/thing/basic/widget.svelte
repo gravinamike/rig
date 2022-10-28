@@ -49,19 +49,12 @@
     let thingWidgetId: string
     let isEncapsulating: boolean
     let relatableForCurrentDrag: boolean
+    let distanceFromFocalPlane: number
 
 
 
 
 
-
-
-
-
-
-
-
-    $: distanceFromFocalPlane = planeId - graph.planes.focalPlaneId
     
     /* Variables dealing with visual formatting of the Thing itself (color, opacity, outline, etc.). */
     $: opacity = [7, 8].includes(halfAxisId) ?
@@ -180,6 +173,7 @@
     bind:elongationCategory
     bind:isEncapsulating
     bind:relatableForCurrentDrag
+    bind:distanceFromFocalPlane
 />
 
 

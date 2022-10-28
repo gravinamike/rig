@@ -99,6 +99,7 @@
             {#if member.thingId && member.thing === null}
                 <ThingMissingFromStoreWidget
                     thingId={member.thingId}
+                    {graph}
                     {graphWidgetStyle}
                 />
 
@@ -107,6 +108,7 @@
                 <ThingAlreadyRenderedWidget
                     thingId={member.thingId}
                     cohortHalfAxisId={thingCohort.halfAxisId}
+                    {graph}
                     {graphWidgetStyle}
                 />
 

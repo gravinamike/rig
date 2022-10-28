@@ -1,131 +1,103 @@
 <script lang="ts">
-    // Type imports.
-    import type { Graph, Space, Thing } from "$lib/models/constructModels"
+    // Import types.
+    import type { Graph, Thing } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
-    // Graph widget imports.
-    import { planePadding } from "$lib/shared/constants"
+    // Import widget controller.
+    import ThingFormWidgetController from "./controller.svelte"
+
+    // Import related widgets.
     import { XButton } from "$lib/widgets/layoutWidgets"
+    
 
-    import { thingSearchListItems, createNewRelatedThing } from "$lib/db/clientSide"
-    import { storeGraphDbModels, addGraphIdsNeedingViewerRefresh, updateThingSearchListStore } from "$lib/stores"
-    import type { ThingDbModel } from "$lib/models/dbModels/clientSide";
-
-
+    /**
+     * @param thing - The Thing that the widget is based on.
+     * @param graph - The Graph that the Thing is part of.
+     * @param graphWidgetStyle - Controls the visual style of the Graph.
+     */
     export let thing: Thing
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
 
 
+    // Attributes handled by widget controller.
     let textField: HTMLTextAreaElement
-
-    // Variables situating the Thing in its spatial context (Half-Axis, Plane)
-    $: halfAxisId = thing?.parentCohort.halfAxisId || 0
-    $: planeId = [7, 8].includes(halfAxisId) ?
-        thing?.parentCohort.parentThing?.parentCohort.plane?.id || 0 :
-        thing?.parentCohort.plane?.id || 0
-    $: distanceFromFocalPlane = planeId - graph.planes.focalPlaneId
-    
-    // Variables dealing with encapsulation (Things containing other Things).
-    $: encapsulatingDepth = thing?.parentCohort.encapsulatingDepth || 0
-    $: encapsulatingPadding = encapsulatingDepth >= 0 ? 40 : 20
-
-    /* Variables dealing with Thing sizing. */
-    $: elongation = thing?.parentCohort.axialElongation || 1
-    $: elongationCategory = (
-        [1, 2, 3, 4].includes(halfAxisId) ?
-        ( [1, 2].includes(halfAxisId) ? "vertical" : "horizontal" ) :
-        "neutral"
-    ) as ("vertical" | "horizontal" | "neutral")
-    let XYElongation: {x: number, y: number}
-    $: switch (elongationCategory) {
-        case "vertical": 
-            XYElongation = {x: 1, y: elongation}; break
-        case "horizontal":
-            XYElongation = {x: elongation, y: 1}; break
-        case "neutral":
-            XYElongation = {x: elongation, y: elongation}; break
-    }
-
-    // Variables dealing with Thing sizing.
-    $: cohortSize = thing?.parentCohort.members.length || 1
-    $: thingSize = graphWidgetStyle.thingSize + planePadding * planeId + encapsulatingPadding * encapsulatingDepth
-    $: thingWidth = thingSize * XYElongation.x
-    $: thingHeight = encapsulatingDepth >= 0 ? thingSize * XYElongation.y : thingSize * XYElongation.y / cohortSize - 2
-    
-
-    async function submit() {
-        const parentThingId = (thing.parentThing?.id as number)
-        const space = (thing.parentCohort.parentThing as Thing).space as Space
-        const directionId = space.directionIdByHalfAxisId[halfAxisId] as number
-        const text = textField.value
-
-        const newRelatedThing = await createNewRelatedThing(parentThingId, directionId, text)
-        if (newRelatedThing && newRelatedThing.id) {
-            await storeGraphDbModels<ThingDbModel>("Thing", parentThingId, true)
-            await graph.build()
-            addGraphIdsNeedingViewerRefresh(graph.id)
-
-            const queriedThingSearchListItems = await thingSearchListItems([newRelatedThing.id])
-            if (queriedThingSearchListItems) updateThingSearchListStore(queriedThingSearchListItems)
-        }
-    }
-
-    async function cancel() {
-        thing.parentCohort.removeMemberById(thing.id as number)
-        graph.formActive = false
-        addGraphIdsNeedingViewerRefresh(graph.id)
-    }    
+    let encapsulatingDepth: number
+    let thingWidth: number
+    let thingHeight: number
+    let distanceFromFocalPlane: number
+    let submit: () => {}
+    let cancel: () => {}
 </script>
+
+
+<!-- Widget controller. -->
+<ThingFormWidgetController
+    {thing}
+    {graph}
+    {graphWidgetStyle}
+    {textField}
+
+    bind:encapsulatingDepth
+    bind:thingWidth
+    bind:thingHeight
+    bind:distanceFromFocalPlane
+    bind:submit
+    bind:cancel
+/>
 
 
 <!-- Thing Widget. -->
 <div
-    class="box thing-form-widget"
+    class="thing-form-widget"
     style="
         border-radius: {10 + 4 * encapsulatingDepth}px;
         width: {thingWidth}px; height: {thingHeight}px;
         pointer-events: {distanceFromFocalPlane === 0 ? "auto" : "none"};
     "
-    on:keypress={(event) => {if (event.key === "Enter") submit()}}
->    
+    
+    on:keypress={(event) => {
+        if (event.key === "Enter") submit()
+    }}
+>
+    <!-- Cancel button. -->
     <div class="cancel-button-container">
         <XButton
             buttonFunction={cancel}
         />
     </div>
 
-    <!-- Thing text -->
+    <!-- Thing text field. -->
     <textarea
         id="thing-form-text-field"
         bind:this={textField}
+        
         class="text-input"
         rows=3
         placeholder="Enter text"
+
         on:mousemove|stopPropagation
     />
 </div>
 
 
 <style>
-    .box {
+    .thing-form-widget {
         outline: dotted 2px lightgrey;
         outline-offset: -1px;
 
         box-sizing: border-box;
         height: max-content;
         background-color: white;
-
-        cursor: default;
-    }
-
-    .thing-form-widget {
+        
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
         padding: 1rem;
         gap: 1rem;
+
+        cursor: default;
     }
 
     .cancel-button-container {

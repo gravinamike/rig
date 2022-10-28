@@ -24,6 +24,7 @@
     export let thing: Thing | null = null
     export let halfAxisId: HalfAxisId | null = null
     export let elongationCategory: "vertical" | "horizontal" | "neutral" = "neutral"
+    export let distanceFromFocalPlane: number = 0
 
     export let thingWidgetId: string = ""
     export let isEncapsulating = false
@@ -70,9 +71,9 @@
 </script>
 
 
-
 <ThingBaseWidgetController
     {thingId}
+    {graph}
     {graphWidgetStyle}
 
     bind:planeId
@@ -82,6 +83,7 @@
     bind:thingHeight
     bind:xYElongation
     bind:cohortSize
+    bind:distanceFromFocalPlane
 
     bind:thing
     bind:halfAxisId

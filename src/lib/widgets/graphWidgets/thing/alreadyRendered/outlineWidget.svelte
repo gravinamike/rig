@@ -5,10 +5,12 @@
 
     // Import widget controller.
     import ThingAlreadyRenderedWidgetController from "./controller.svelte"
+    import type { Graph } from "$lib/models/constructModels";
     
 
     export let thingId: number
     export let cohortHalfAxisId: HalfAxisId | 0
+    export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
 
 
@@ -31,6 +33,7 @@
 <ThingAlreadyRenderedWidgetController
     {thingId}
     {cohortHalfAxisId}
+    {graph}
     {graphWidgetStyle}
 
     bind:encapsulatingDepth

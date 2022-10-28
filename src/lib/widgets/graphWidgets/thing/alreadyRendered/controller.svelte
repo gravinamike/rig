@@ -1,7 +1,7 @@
 <script lang="ts">
     // Import types.
     import type { HalfAxisId } from "$lib/shared/constants"
-    import type { Thing } from "$lib/models/constructModels"
+    import type { Graph, Thing } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
     // Import constants.
@@ -28,6 +28,7 @@
      */
     export let thingId: number
     export let cohortHalfAxisId: HalfAxisId
+    export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
 
     export let encapsulatingDepth: number
@@ -114,6 +115,7 @@
 <!-- Base Thing widget controller. -->
 <ThingBaseWidgetController
     {thingId}
+    {graph}
     {graphWidgetStyle}
 
     bind:encapsulatingDepth

@@ -27,6 +27,7 @@
                 <ThingOutlineAlreadyRenderedWidget
                     thingId={cohortMember.thingId}
                     cohortHalfAxisId={thingCohort.halfAxisId}
+                    {graph}
                     {graphWidgetStyle}
                 />
             {:else if cohortMember.thing}

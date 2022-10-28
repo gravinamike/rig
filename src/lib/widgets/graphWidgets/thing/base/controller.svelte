@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { HalfAxisId } from "$lib/shared/constants"
-    import type { Thing } from "$lib/models/constructModels"
+    import type { Graph, Thing } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets" 
 
     import { planePadding } from "$lib/shared/constants"
@@ -12,6 +12,7 @@
      * @param {GraphWidgetModel} graphWidgetModel - The model of the Graph that the widget is in.
      */
     export let thingId: number | null
+    export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
 
     export let planeId: number | null = null
@@ -26,6 +27,7 @@
     export let halfAxisId: HalfAxisId | null = null
     export let elongationCategory: "vertical" | "horizontal" | "neutral" = "neutral"
     export let encapsulatingPadding: number = 0
+    export let distanceFromFocalPlane: number = 0
 
     
     /* --------------- Output attributes. --------------- */
@@ -117,7 +119,7 @@
      * If a Thing ID is specified, the Thing is retrieved from the store.
      * Otherwise, the default is null.
      */
-     $: thing = typeof thingId === "number" ? getGraphConstructs<Thing>("Thing", thingId) : null
+    $: thing = typeof thingId === "number" ? getGraphConstructs<Thing>("Thing", thingId) : null
 
     /**
      * Half-axis ID.
@@ -159,4 +161,6 @@
      * (no elongation).
      */
     $: elongation = thing?.parentCohort?.axialElongation || 1
+
+    $: distanceFromFocalPlane = planeId ? planeId - graph.planes.focalPlaneId : 0
 </script>
