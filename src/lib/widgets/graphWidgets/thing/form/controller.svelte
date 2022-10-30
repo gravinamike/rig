@@ -17,6 +17,7 @@
      * @param thing - The Thing that the widget is based on.
      * @param graph - The Graph that the Thing is part of.
      * @param graphWidgetStyle - Controls the visual style of the Graph.
+     * @param textField - The HTML element of the Thing's text field.
      * @param encapsulatingDepth - How many levels of encapsulation separate the Thing from the Perspective Thing.
      * @param thingWidth - The width of a Thing in this Graph.
      * @param thingHeight - The height of a Thing in this Graph.
@@ -33,24 +34,34 @@
     export let thingWidth: number
     export let thingHeight: number
     export let distanceFromFocalPlane: number
-    
     export let submit: () => {}
     export let cancel: () => {}
 
 
+    // Attributes handled by base widget controller.
     let planeId: number
     let halfAxisId: HalfAxisId
 
 
     /* --------------- Output attributes. --------------- */
 
+    /**
+     * Submit method.
+     * 
+     * Submits the Thing form, calling for the creation of a new Thing with the
+     * text in the input field.
+    */
     submit = async () => {
+        // Get information needed to create the new Thing.
         const parentThingId = (thing.parentThing?.id as number)
         const space = (thing.parentCohort.parentThing as Thing).space as Space
         const directionId = space.directionIdByHalfAxisId[halfAxisId] as number
         const text = textField.value
 
+        // Create the new Thing.
         const newRelatedThing = await createNewRelatedThing(parentThingId, directionId, text)
+
+        // Refresh stores, graph, and search lists.
         if (newRelatedThing && newRelatedThing.id) {
             await storeGraphDbModels<ThingDbModel>("Thing", parentThingId, true)
             await graph.build()
@@ -61,12 +72,17 @@
         }
     }
 
+    /**
+     * Cancel method.
+     * 
+     * Cancels the create-Thing operation, clearing out the Thing form and
+     * associated flags and refreshing the Graph.
+    */
     cancel = async () => {
         thing.parentCohort.removeMemberById(thing.id as number)
         graph.formActive = false
         addGraphIdsNeedingViewerRefresh(graph.id)
     }
-        
 </script>
 
 

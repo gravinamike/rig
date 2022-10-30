@@ -6,9 +6,8 @@
     /* Store imports. */
     import {
         hoveredThingIdStore, hoveredRelationshipTarget,
-        relationshipBeingCreatedInfoStore,
-        setRelationshipBeingCreatedDestThingId,
-        disableRelationshipBeingCreated,
+        relationshipBeingCreatedInfoStore, setRelationshipBeingCreatedDestThingId,
+        disableRelationshipBeingCreated
     } from "$lib/stores"
 
     // Utility imports.
