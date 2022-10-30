@@ -1,13 +1,12 @@
 <script lang="ts">
     /* Type imports. */
     import type { Graph, Thing } from "$lib/models/constructModels"
-    import type { HalfAxisId } from "$lib/shared/constants"
 
     /* Store imports. */
     import {
         graphDbModelInStore, unstoreGraphDbModels,
         hoveredThingIdStore, hoveredRelationshipTarget,
-        relationshipBeingCreatedInfoStore, enableRelationshipBeingCreated,
+        relationshipBeingCreatedInfoStore,
         setRelationshipBeingCreatedDestThingId, disableRelationshipBeingCreated,
         pinIdsStore, openContextCommandPalette, addPin, removePin,
     } from "$lib/stores"
@@ -31,21 +30,21 @@
     export let rePerspectToThingId: (id: number) => Promise<void>
 
 
-    let planeId: number
     let encapsulatingDepth: number = 0
-    let thingSize: number
-    let xYElongation: {x: number, y: number}
-    let cohortSize: number = 0
     let thing: Thing
-    let halfAxisId: HalfAxisId
     let elongationCategory: "vertical" | "horizontal" | "neutral"
     let thingWidgetId: string
     let isEncapsulating: boolean
     let relatableForCurrentDrag: boolean
     let thingWidth: number
-    let thingHeight: number 
-
-
+    let thingHeight: number
+    let textFontSize: number
+    let handleMouseDown: (event: MouseEvent) => void
+    let handleMouseDrag: (event: MouseEvent) => void
+    let onBodyMouseUp: (event: MouseEvent) => void
+    let openCommandPalette: (event: MouseEvent) => void
+    let startDelete: () => void
+    let completeDelete: () => void
     
 
 
@@ -56,11 +55,6 @@
     $: relationshipBeingCreated = false/*$relationshipBeingCreatedInfoStore.sourceWidgetModel ? true : false*/
     $: highlighted = isHoveredThing && !(relationshipBeingCreated && !relatableForCurrentDrag) ? true : false
 
-    /* Variables dealing with visual formatting of the Thing's text. */
-    let textFontSize = encapsulatingDepth >= 0 ?
-        graphWidgetStyle.thingTextSize :
-        graphWidgetStyle.thingTextSize / Math.log2(cohortSize)
-
     /* Variables dealing with associated components. */
     const showContent = false // Content is in development - so `showContent` will eventually be a variable.
     let confirmDeleteBoxOpen = false
@@ -69,14 +63,14 @@
     /**
      * Initiate a delete operation (which needs to be confirmed to finish).
      */
-    async function startDelete() {
+    startDelete = async () => {
         confirmDeleteBoxOpen = true
     }
 
     /**
      * Complete a delete operation after it has been confirmed.
      */
-     async function completeDelete() {
+    completeDelete = async () => {
         await graph.deleteThingById(thingId)
         await unstoreGraphDbModels("Thing", thingId)
 
@@ -94,7 +88,7 @@
      * 
      * @param  {MouseEvent} event - The right-click mouse event that triggered the context command palette.
      */
-    function openCommandPalette(event: MouseEvent) {
+    openCommandPalette = (event: MouseEvent) => {
         const position = [event.clientX, event.clientY] as [number, number]
         const buttonInfos = $pinIdsStore.includes(thingId) ?
             [{ text: "Remove Thing from Pins", iconName: "no-pin", iconHtml: null, isActive: false, onClick: () => {removePin(thingId)} }] :
@@ -111,21 +105,26 @@
     {thingId}
     {graph}
     {graphWidgetStyle}
+    {isHoveredWidget}
+    {rePerspectToThingId}
 
-    bind:planeId
     bind:encapsulatingDepth
-    bind:thingSize
     bind:thingWidth
     bind:thingHeight
-    bind:xYElongation
-    bind:cohortSize
 
     bind:thingWidgetId
     bind:thing
-    bind:halfAxisId
+    bind:textFontSize
     bind:elongationCategory
     bind:isEncapsulating
     bind:relatableForCurrentDrag
+
+    bind:handleMouseDown
+    bind:handleMouseDrag
+    bind:onBodyMouseUp
+    bind:openCommandPalette
+    bind:startDelete
+    bind:completeDelete
 />
 
 
@@ -149,17 +148,7 @@
             isHoveredWidget = false
             confirmDeleteBoxOpen = false, hoveredRelationshipTarget.set(null)
         }}
-        on:mousedown={ event => {if (event.button === 0) {
-            enableRelationshipBeingCreated(
-                graph,
-                graphWidgetStyle,
-                thingId,
-                1,
-                halfAxisId,
-                thing.parentCohort.direction,
-                [event.clientX, event.clientY]
-            )
-        }}}
+        on:mousedown={ event => {if (event.button === 0) {}}}
         on:click={ () => {if ($relationshipBeingCreatedInfoStore.sourceThingId === null) rePerspectToThingId(thingId) } }
         on:mouseup={ () => {
             if (relatableForCurrentDrag) {

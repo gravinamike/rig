@@ -80,6 +80,5 @@
     bind:thingWidth
     bind:thingHeight
     bind:distanceFromFocalPlane
-
     bind:halfAxisId
 />
