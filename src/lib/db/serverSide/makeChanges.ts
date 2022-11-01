@@ -37,14 +37,36 @@ export async function createNewRelatedThing(thingIdToRelateFrom: number, directi
             const querystring1 = RawThingDbModel.query().insert(newThingInfo).toKnexQuery().toString()
             const newRelatedThingDbModel = await alterQuerystringForH2AndRun(querystring1, transaction, whenCreated, "Thing") as RawThingDbModel
             
+            // Determine order for new Relationship.
+            const queriedRelationshipsInSameCohort = await RawRelationshipDbModel.query()
+                .where("thingaid", thingIdToRelateFrom)
+                .where("direction", directionId)
+            const orders = queriedRelationshipsInSameCohort.map( model => {
+                return model.relationshiporder ? model.relationshiporder : 0
+            } )
+            const maxOrder = Math.max(...orders)
+            const newOrder = maxOrder + 1
+
             // Get Direction info.
             const direction = (await RawDirectionDbModel.query().where("id", directionId))[0]
             const oppositeDirectionId = direction.oppositeid as number
 
             // Create new Relationship.
-            const newARelationshipInfo = getNewRelationshipInfo(thingIdToRelateFrom, Number(newRelatedThingDbModel.id), whenCreated, directionId)
+            const newARelationshipInfo = getNewRelationshipInfo(
+                thingIdToRelateFrom,
+                Number(newRelatedThingDbModel.id),
+                whenCreated,
+                directionId,
+                newOrder
+            )
             const querystring2 = RawRelationshipDbModel.query().insert(newARelationshipInfo).toKnexQuery().toString()
-            const newBRelationshipInfo = getNewRelationshipInfo(Number(newRelatedThingDbModel.id), thingIdToRelateFrom, whenCreated, oppositeDirectionId)
+            const newBRelationshipInfo = getNewRelationshipInfo(
+                Number(newRelatedThingDbModel.id),
+                thingIdToRelateFrom,
+                whenCreated,
+                oppositeDirectionId,
+                null
+            )
             const querystring3 = RawRelationshipDbModel.query().insert(newBRelationshipInfo).toKnexQuery().toString()
             await Promise.all([
                 alterQuerystringForH2AndRun(querystring2, transaction, whenCreated, "Relationship"),

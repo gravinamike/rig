@@ -51,10 +51,10 @@ interface NewRelationshipInfo {
     whencreated: string,
     whenmodded: null,
     direction: number,
-    relationshiporder: null
+    relationshiporder: number | null
 }
 
-export function getNewRelationshipInfo(thingAId: number, thingBId: number, whenCreated: string, direction: number): NewRelationshipInfo {
+export function getNewRelationshipInfo(thingAId: number, thingBId: number, whenCreated: string, direction: number, relationshipOrder: number | null = null): NewRelationshipInfo {
     const newRelationshipInfo = {
         guid: uuidv4(),
         thingaid: thingAId,
@@ -62,7 +62,7 @@ export function getNewRelationshipInfo(thingAId: number, thingBId: number, whenC
         whencreated: whenCreated,
         whenmodded: null,
         direction: direction,
-        relationshiporder: null
+        relationshiporder: relationshipOrder
     }
 
     return newRelationshipInfo
