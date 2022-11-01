@@ -54,6 +54,13 @@
         }
     }
 
+    // If a new member has been added to the Thing Cohort, update reorderedMembers to reflect it.
+    $: {
+        graph.formActive
+
+        reorderedCohortMembers = [...thingCohort.members]
+    }
+
 
 
 </script>

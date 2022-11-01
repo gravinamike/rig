@@ -28,7 +28,6 @@
 
 
 <ThingMissingFromStoreWidgetController
-    {thingId}
     {graph}
     {graphWidgetStyle}
 

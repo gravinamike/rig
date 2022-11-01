@@ -3,7 +3,6 @@
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets";
     import { ThingBaseWidgetController } from "../base"
 
-    export let thingId: number
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
 
@@ -18,7 +17,7 @@
 
 
 <ThingBaseWidgetController
-    {thingId}
+    thing={null}
     {graph}
     {graphWidgetStyle}
 

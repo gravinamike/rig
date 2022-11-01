@@ -95,6 +95,7 @@ export class Graph {
         this.rootCohort = null
         this.generations.reset()
         this.planes.reset()
+        this.formActive = false
         this.lifecycleStatus = "cleared"
 
         // Adjust (build) the Generations to the Graph's specified Depth.

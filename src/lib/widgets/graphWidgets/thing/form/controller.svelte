@@ -55,6 +55,7 @@
         // Get information needed to create the new Thing.
         const parentThingId = (thing.parentThing?.id as number)
         const space = (thing.parentCohort.parentThing as Thing).space as Space
+        console.log(halfAxisId)
         const directionId = space.directionIdByHalfAxisId[halfAxisId] as number
         const text = textField.value
 
@@ -87,7 +88,7 @@
 
 
 <ThingBaseWidgetController
-    thingId={null}
+    {thing}
     {graph}
     {graphWidgetStyle}
 

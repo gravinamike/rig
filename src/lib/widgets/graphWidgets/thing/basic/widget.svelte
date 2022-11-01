@@ -25,6 +25,7 @@
      * @param rePerspectToThingId - A function that re-perspects the Graph to a given Thing ID.
      */
     export let thingId: number
+    export let thing: Thing | null = null
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
     export let rePerspectToThingId: (id: number) => Promise<void>
@@ -40,7 +41,6 @@
     let opacity: number
     let showPointer: boolean
     let isHoveredWidget = false
-    let thing: Thing
     let confirmDeleteBoxOpen: boolean
     let relatableForCurrentDrag: boolean
     const showContent = false // Content is in development - so `showContent` will eventually be a variable.
@@ -60,6 +60,7 @@
 <!-- Widget controller. -->
 <ThingWidgetController
     {thingId}
+    {thing}
     {graph}
     {graphWidgetStyle}
     {isHoveredWidget}
@@ -73,7 +74,6 @@
     bind:thingHeight
     bind:opacity
     bind:showPointer
-    bind:thing
     bind:confirmDeleteBoxOpen
     bind:relatableForCurrentDrag
     bind:elongationCategory

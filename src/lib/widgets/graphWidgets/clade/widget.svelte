@@ -54,6 +54,7 @@
     {#if rootThing?.id}
         <ThingWidget
             thingId={rootThing.id}
+            thing={rootThing}
             bind:graph
             {graphWidgetStyle}
             {rePerspectToThingId}

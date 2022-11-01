@@ -114,7 +114,7 @@
 
 <!-- Base Thing widget controller. -->
 <ThingBaseWidgetController
-    {thingId}
+    {thing}
     {graph}
     {graphWidgetStyle}
 
@@ -122,5 +122,4 @@
     bind:thingWidth
     bind:thingHeight
     bind:halfAxisId
-    bind:thing
 />

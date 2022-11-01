@@ -22,6 +22,7 @@
      * @param {number} thingId - The ID of the Thing that the widget is based on.
      */
     export let thingId: number
+    export let thing: Thing | null = null
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
     export let isHoveredWidget: boolean
@@ -35,7 +36,6 @@
     export let thingHeight: number = 0
     export let opacity = 1
     export let showPointer = true
-    export let thing: Thing | null = null
     export let confirmDeleteBoxOpen = false
     export let relatableForCurrentDrag = false
     export let elongationCategory: "vertical" | "horizontal" | "neutral" = "neutral"
@@ -306,7 +306,7 @@
 
 <!-- Base widget controller. -->
 <ThingBaseWidgetController
-    {thingId}
+    {thing}
     {graph}
     {graphWidgetStyle}
 
@@ -316,6 +316,5 @@
     bind:thingHeight
     bind:cohortSize
     bind:distanceFromFocalPlane
-    bind:thing
     bind:elongationCategory
 />
