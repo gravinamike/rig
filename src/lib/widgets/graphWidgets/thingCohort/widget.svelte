@@ -1,11 +1,7 @@
 <script lang="ts">
     /* Import types. */
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
-    import type { Graph, ThingCohort } from "$lib/models/constructModels"
-
-    import { reorderingInfoStore } from "$lib/stores"
-
-    import { changeIndexInArray } from "$lib/shared/utility"
+    import type { GenerationMember, Graph, ThingCohort } from "$lib/models/constructModels"
 
     /* Import widget controller. */
     import ThingCohortWidgetController from "./controller.svelte"
@@ -21,6 +17,7 @@
      * @param {(thingId: number) => Promise<void>} rePerspectToThingId - A function that re-perspects the Graph to a given Thing ID.
      */
     export let thingCohort: ThingCohort
+    export let cohortMembersToDisplay: GenerationMember[]
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
     export let rePerspectToThingId: (thingId: number) => Promise<void>
@@ -37,20 +34,6 @@
 
 
 
-
-    let reorderedCohortMembers = [...thingCohort.members]
-
-    $: if (
-        $reorderingInfoStore.thingCohort === thingCohort
-        && $reorderingInfoStore.newIndex !== null
-    ) {
-        const reorderedMembers = changeIndexInArray(
-            thingCohort.members,
-            $reorderingInfoStore.startIndex as number,
-            $reorderingInfoStore.newIndex
-        )
-        if (reorderedMembers) reorderedCohortMembers = reorderedMembers
-    }
 </script>
 
 
@@ -88,7 +71,7 @@
     <!-- Member widgets (either Clade widgets or various Thing-placeholder widgets). -->
     {#if showMembers}
 
-        {#each reorderedCohortMembers as member}
+        {#each cohortMembersToDisplay as member}
 
             <!-- If no Thing was found in the store for the Thing ID, show a Thing Missing From Store Widget. -->
             {#if member.thingId && member.thing === null}

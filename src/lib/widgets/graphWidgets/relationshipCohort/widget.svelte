@@ -8,18 +8,14 @@
     import { tweened } from "svelte/motion"
     import { cubicOut } from "svelte/easing"
 
-    import { reorderingInfoStore } from "$lib/stores"
-
     // Import related widgets.
     import { DirectionWidget, RelationshipWidget } from "$lib/widgets/graphWidgets"
     import { RelationshipStemWidget } from "./relationshipStem"
 
     // Import widget controller.
     import RelationshipCohortWidgetController from "./controller.svelte"
-
     
-    import { changeIndexInArray } from "$lib/shared/utility"
-    import type { Direction, Graph, ThingCohort } from "$lib/models/constructModels"
+    import type { Direction, GenerationMember, Graph, ThingCohort } from "$lib/models/constructModels"
     
 
     /**
@@ -30,6 +26,7 @@
      * @param thingHeight - The height of a Thing widget.
      */
     export let cohort: ThingCohort
+    export let cohortMembersToDisplay: GenerationMember[]
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
     export let thingWidth: number
@@ -69,34 +66,6 @@
 
 
 
-
-
-
-
-
-
-
-
-    // The array of Thing Cohort members that have Relationships displayed for
-    // them starts as the inputted Thing Cohort prop's members, but may change
-    // because of Relationship-reordering operations.
-    let cohortMembersToDisplay = [...cohort.members]
-
-    // If a Relationship-reorder operation is in progress for this Relationship
-    // Cohort and a new index has been specified for the target Relationship,
-    $: if (
-        $reorderingInfoStore.thingCohort === cohort
-        && $reorderingInfoStore.newIndex !== null
-    ) {
-        // Reorder the array of Thing Cohort members on which this Relationship
-        // Cohort is based.
-        const reorderedMembers = changeIndexInArray(///////// Change this function to produce an error instead of void.
-            cohort.members,
-            $reorderingInfoStore.startIndex as number,
-            $reorderingInfoStore.newIndex
-        )
-        if (reorderedMembers) cohortMembersToDisplay = reorderedMembers
-    }
 </script>
 
 

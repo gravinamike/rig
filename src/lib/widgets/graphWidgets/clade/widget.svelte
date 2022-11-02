@@ -9,7 +9,7 @@
     // Import related widgets.
     import {
         ThingWidget, ThingFormWidget,
-        RelationshipCohortWidget, ThingCohortWidget,
+        HalfAxisWidget,
         OffAxisRelationsWidget
     } from "$lib/widgets/graphWidgets"
     
@@ -72,28 +72,15 @@
 
     <!-- The Thing's child Thing and Relationship Cohorts. -->
     {#each rootThing.childThingCohorts as thingCohort (thingCohort.address)}
-
-        <!-- Relationship Cohort Widgets (only for Cartesian axes). -->
-        {#if [1, 2, 3, 4].includes(thingCohort.halfAxisId)}
-            <RelationshipCohortWidget
-                cohort={thingCohort}
-                bind:graph
-                {graphWidgetStyle}
-                thingWidth={rootThingWidth}
-                thingHeight={rootThingHeight}
-            />
-        {/if}
-
-        <!-- Thing Cohort Widgets. -->
-        {#if [1, 2, 3, 4, 5, 6, 7, 8].includes(thingCohort.halfAxisId)}
-            <ThingCohortWidget
-                {thingCohort}
-                bind:graph
-                {graphWidgetStyle}
-                {rePerspectToThingId}
-            />
-        {/if}
-
+        <!-- Half-axis widget. -->
+        <HalfAxisWidget
+            {thingCohort}
+            bind:graph
+            {graphWidgetStyle}
+            {rootThingWidth}
+            {rootThingHeight}
+            {rePerspectToThingId}
+        />
     {/each}
 
     <!--- Off-axis relations widget. -->
