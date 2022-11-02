@@ -97,21 +97,6 @@
         )
         if (reorderedMembers) cohortMembersToDisplay = reorderedMembers
     }
-
-    // If a new member has been added to the Thing Cohort, update cohortMembersToDisplay to reflect it.
-    $: {
-        graph.formActive
-
-        cohortMembersToDisplay = [...cohort.members]
-    }
-
-
-
-
-
-
-
-
 </script>
 
 

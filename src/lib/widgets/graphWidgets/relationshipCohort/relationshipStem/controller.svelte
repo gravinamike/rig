@@ -101,10 +101,10 @@
      */
     addThingForm = async () => {
         // If there is not yet a Thing Form in the Graph, add one.
-        if (!graph.formActive) {
+        if (graph.formActive === false) {
             const newThing = new Thing(null)
             cohort.addMember({thingId: null, thing: newThing, alreadyRendered: false})
-            graph.formActive = true
+            graph.formActive = false
         }
         // Refresh the view.
         addGraphIdsNeedingViewerRefresh(graph.id)

@@ -42,27 +42,15 @@
 
     $: if (
         $reorderingInfoStore.thingCohort === thingCohort
-        && $reorderingInfoStore.thingCohort?.parentThingId
-        && $reorderingInfoStore.thingCohort?.direction.id
-        && $reorderingInfoStore.destThingId !== null
-        && $reorderingInfoStore.startIndex !== null
         && $reorderingInfoStore.newIndex !== null
     ) {
-        const reorderedMembers = changeIndexInArray(thingCohort.members, $reorderingInfoStore.startIndex, $reorderingInfoStore.newIndex)
-        if (reorderedMembers) {
-            reorderedCohortMembers = reorderedMembers
-        }
+        const reorderedMembers = changeIndexInArray(
+            thingCohort.members,
+            $reorderingInfoStore.startIndex as number,
+            $reorderingInfoStore.newIndex
+        )
+        if (reorderedMembers) reorderedCohortMembers = reorderedMembers
     }
-
-    // If a new member has been added to the Thing Cohort, update reorderedMembers to reflect it.
-    $: {
-        graph.formActive
-
-        reorderedCohortMembers = [...thingCohort.members]
-    }
-
-
-
 </script>
 
 
