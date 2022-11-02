@@ -1,6 +1,6 @@
 <script lang="ts">
     // Import types.
-    import type { Graph, Thing } from "$lib/models/constructModels"
+    import type { GenerationMember, Graph, Thing } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
     
     // Import widget controller.
@@ -23,6 +23,7 @@
     export let rootThing: Thing
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
+    export let cohortMembersToDisplay: GenerationMember[]
     export let rePerspectToThingId: (id: number) => Promise<void>
 
 
@@ -67,6 +68,7 @@
             thing={rootThing}
             bind:graph
             {graphWidgetStyle}
+            {cohortMembersToDisplay}
         />
     {/if}
 

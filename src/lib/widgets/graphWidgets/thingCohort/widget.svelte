@@ -96,6 +96,7 @@
                     rootThing={member.thing}
                     bind:graph
                     {graphWidgetStyle}
+                    {cohortMembersToDisplay}
                     {rePerspectToThingId}
                 />
             {/if}

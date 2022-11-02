@@ -1,6 +1,6 @@
 <script lang="ts">
     // Import types.
-    import type { Graph, Thing } from "$lib/models/constructModels"
+    import type { GenerationMember, Graph, Thing } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
     // Import widget controller.
@@ -18,6 +18,7 @@
     export let thing: Thing
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
+    export let cohortMembersToDisplay: GenerationMember[]
 
 
     // Attributes handled by widget controller.
@@ -37,6 +38,7 @@
     {graph}
     {graphWidgetStyle}
     {textField}
+    {cohortMembersToDisplay}
 
     bind:encapsulatingDepth
     bind:thingWidth

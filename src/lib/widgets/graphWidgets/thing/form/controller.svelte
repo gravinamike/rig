@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { ThingDbModel } from "$lib/models/dbModels/clientSide"
-    import type { Graph, Space, Thing } from "$lib/models/constructModels"
+    import type { GenerationMember, Graph, Space, Thing } from "$lib/models/constructModels"
 
     // Import constants and stores.
     import type { HalfAxisId } from "$lib/shared/constants"
@@ -29,6 +29,7 @@
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
     export let textField: HTMLTextAreaElement
+    export let cohortMembersToDisplay: GenerationMember[]
 
     export let encapsulatingDepth: number
     export let thingWidth: number
@@ -81,6 +82,7 @@
     */
     cancel = async () => {
         thing.parentCohort.removeMemberById(thing.id as number)
+        cohortMembersToDisplay.pop()
         graph.formActive = false
         addGraphIdsNeedingViewerRefresh(graph.id)
     }

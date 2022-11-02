@@ -164,6 +164,7 @@
             {#if cohort.indexOfGrandparentThing === null}
                 <RelationshipStemWidget
                     {cohort}
+                    {cohortMembersToDisplay}
                     bind:graph
                     {graphWidgetStyle}
                     {thingIdOfHoveredRelationship}
