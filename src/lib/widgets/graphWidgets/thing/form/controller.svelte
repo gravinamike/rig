@@ -28,13 +28,13 @@
     export let thing: Thing
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
-    export let textField: HTMLTextAreaElement
+    export let textField: HTMLTextAreaElement | null
     export let cohortMembersToDisplay: GenerationMember[]
 
-    export let encapsulatingDepth: number
-    export let thingWidth: number
-    export let thingHeight: number
-    export let distanceFromFocalPlane: number
+    export let encapsulatingDepth = 0
+    export let thingWidth = 0
+    export let thingHeight = 0
+    export let distanceFromFocalPlane = 0
     export let submit: () => {}
     export let cancel: () => {}
 
@@ -56,9 +56,8 @@
         // Get information needed to create the new Thing.
         const parentThingId = (thing.parentThing?.id as number)
         const space = (thing.parentCohort.parentThing as Thing).space as Space
-        console.log(halfAxisId)
         const directionId = space.directionIdByHalfAxisId[halfAxisId] as number
-        const text = textField.value
+        const text = textField?.value || ""
 
         // Create the new Thing.
         const newRelatedThing = await createNewRelatedThing(parentThingId, directionId, text)

@@ -7,7 +7,7 @@
     import ThingFormWidgetController from "./controller.svelte"
 
     // Import related widgets.
-    import { XButton } from "$lib/widgets/layoutWidgets"
+    import { ThingFormTextWidget } from "../subWidgets"
     
 
     /**
@@ -22,7 +22,7 @@
 
 
     // Attributes handled by widget controller.
-    let textField: HTMLTextAreaElement
+    let textField: HTMLTextAreaElement | null = null
     let encapsulatingDepth: number
     let thingWidth: number
     let thingHeight: number
@@ -57,28 +57,11 @@
         width: {thingWidth}px; height: {thingHeight}px;
         pointer-events: {distanceFromFocalPlane === 0 ? "auto" : "none"};
     "
-    
-    on:keypress={(event) => {
-        if (event.key === "Enter") submit()
-    }}
 >
-    <!-- Cancel button. -->
-    <div class="cancel-button-container">
-        <XButton
-            buttonFunction={cancel}
-        />
-    </div>
-
-    <!-- Thing text field. -->
-    <textarea
-        id="thing-form-text-field"
-        bind:this={textField}
-        
-        class="text-input"
-        rows=3
-        placeholder="Enter text"
-
-        on:mousemove|stopPropagation
+    <ThingFormTextWidget
+        bind:textField
+        {submit}
+        {cancel}
     />
 </div>
 
@@ -100,27 +83,5 @@
         gap: 1rem;
 
         cursor: default;
-    }
-
-    .cancel-button-container {
-        position: absolute;
-        top: 2px;
-        right: 2px;
-    }
-
-    textarea {
-        outline: none;
-        border: solid 1px lightgrey;
-
-        width: 100% !important;
-
-        font-family: Arial;
-        font-size: 10px;   
-
-        resize: none;
-    }
-
-    textarea:focus {
-        border: solid 1px grey;
     }
 </style>
