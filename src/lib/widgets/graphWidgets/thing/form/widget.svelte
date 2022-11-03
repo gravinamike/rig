@@ -7,7 +7,7 @@
     import ThingFormWidgetController from "./controller.svelte"
 
     // Import related widgets.
-    import { ThingFormTextWidget } from "../subWidgets"
+    import { ThingTextFormWidget } from "../subWidgets"
     
 
     /**
@@ -58,7 +58,7 @@
         pointer-events: {distanceFromFocalPlane === 0 ? "auto" : "none"};
     "
 >
-    <ThingFormTextWidget
+    <ThingTextFormWidget
         bind:textField
         {submit}
         {cancel}

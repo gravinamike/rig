@@ -14,6 +14,7 @@
     import { hexToRgba } from "$lib/shared/utility"
 
     /* Widget imports. */
+    import { ThingTextWidget } from "../subWidgets"
     import { ThingDetailsWidget } from "$lib/widgets/detailsWidgets"
     import { XButton, ConfirmDeleteBox } from "$lib/widgets/layoutWidgets"
     import ThingWidgetController from "./controller.svelte"
@@ -144,27 +145,13 @@
         on:contextmenu|preventDefault={openCommandPalette}
     >
         <!-- Thing text. -->
-        <div
-            class="text-container"
-            class:horizontal={showContent && elongationCategory === "horizontal"}
-            class:sideways={showContent && elongationCategory !== "horizontal"}
-
-            style="
-                width: { Math.min(thingWidth, thingHeight) }px;
-                height: { Math.min(thingWidth, thingHeight) }px;
-            "
-        >
-            <div
-                class="thing-text"
-                class:encapsulating={isEncapsulating}
-                class:show-content={showContent}
-                class:hide-content={!showContent}
-                
-                style="font-size: {textFontSize}px;"
-            >
-                {thing.text}
-            </div>
-        </div>
+        <ThingTextWidget
+            sidewaysText={showContent && elongationCategory === "horizontal"}
+            {isEncapsulating}
+            {showContent}
+            fontSize={textFontSize}
+            text={thing.text || ""}
+        />
 
         <!-- Content box. -->
         {#if showContent && thing.dbModel}
@@ -180,7 +167,7 @@
             </div>
         {/if}
 
-        <!-- Delete button and confirm delete dialog. -->
+        <!-- Delete button and confirm delete dialog.                  MAKE THESE A WIDGET NEXT -->
         {#if showDeleteButton}
             <div class="delete-button-container">
                 <XButton
@@ -218,40 +205,6 @@
     .highlighted {
         outline: solid 2px black;
         outline-offset: -2px;
-    }
-
-    .text-container {
-        left: 0;
-        
-        text-align: center;
-    }
-
-    .text-container.sideways {
-        transform: rotate(-90deg);
-    }
-
-    .thing-text {
-        font-weight: 600;
-    }
-
-    .thing-text.encapsulating {
-        position: absolute;
-        transform: translate(0%, -50%);
-
-        white-space: nowrap;
-    }
-
-    .thing-text.show-content {
-        text-align: center;
-    }
-
-    .thing-text.hide-content {
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        
-        overflow-wrap: break-word;
     }
 
     .delete-button-container {

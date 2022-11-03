@@ -1,1 +1,2 @@
-export { default as ThingFormTextWidget } from "./thingFormTextWidget.svelte"
+export { default as ThingTextFormWidget } from "./thingTextFormWidget.svelte"
+export { default as ThingTextWidget } from "./thingTextWidget.svelte"
