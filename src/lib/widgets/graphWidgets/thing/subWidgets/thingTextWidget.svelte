@@ -1,4 +1,6 @@
 <script lang="ts">
+    export let thingWidth: number
+    export let thingHeight: number
     export let sidewaysText: boolean
     export let isEncapsulating: boolean
     export let showContent: boolean
@@ -11,6 +13,8 @@
     class="text-container"
     class:horizontal={!sidewaysText}
     class:sideways={sidewaysText}
+
+    style="width: {thingWidth}px; height: {thingHeight}px;"
 >
     <div
         class="thing-text"
@@ -28,8 +32,6 @@
 <style>
     .text-container {
         left: 0;
-        width: 100%;
-        height: 100%;
         
         text-align: center;
     }

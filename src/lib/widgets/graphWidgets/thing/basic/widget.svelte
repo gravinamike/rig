@@ -14,9 +14,8 @@
     import { hexToRgba } from "$lib/shared/utility"
 
     /* Widget imports. */
-    import { ThingTextWidget } from "../subWidgets"
+    import { ThingTextWidget, DeleteThingWidget } from "../subWidgets"
     import { ThingDetailsWidget } from "$lib/widgets/detailsWidgets"
-    import { XButton, ConfirmDeleteBox } from "$lib/widgets/layoutWidgets"
     import ThingWidgetController from "./controller.svelte"
 
 
@@ -146,11 +145,25 @@
     >
         <!-- Thing text. -->
         <ThingTextWidget
+            {thingWidth}
+            {thingHeight}
             sidewaysText={showContent && elongationCategory === "horizontal"}
             {isEncapsulating}
             {showContent}
             fontSize={textFontSize}
             text={thing.text || ""}
+        />
+
+        <!-- Delete controls. -->
+        <DeleteThingWidget
+            {showDeleteButton}
+            {confirmDeleteBoxOpen}
+            {thingWidth}
+            {thingHeight}
+            {encapsulatingDepth}
+            {elongationCategory}
+            {startDelete}
+            {completeDelete}
         />
 
         <!-- Content box. -->
@@ -165,24 +178,6 @@
                     freestanding={false}
                 />
             </div>
-        {/if}
-
-        <!-- Delete button and confirm delete dialog.                  MAKE THESE A WIDGET NEXT -->
-        {#if showDeleteButton}
-            <div class="delete-button-container">
-                <XButton
-                    buttonFunction={startDelete}
-                />
-            </div>
-        {/if}
-        {#if confirmDeleteBoxOpen}
-            <ConfirmDeleteBox
-                {thingWidth}
-                {thingHeight}
-                {encapsulatingDepth}
-                {elongationCategory}
-                confirmDeleteFunction={completeDelete}
-            />
         {/if}
     </div>
 {/if}
@@ -205,13 +200,6 @@
     .highlighted {
         outline: solid 2px black;
         outline-offset: -2px;
-    }
-
-    .delete-button-container {
-        position: absolute;
-        top: 3px;
-        right: 3px;
-        z-index: 1;
     }
 
     .content-box {
