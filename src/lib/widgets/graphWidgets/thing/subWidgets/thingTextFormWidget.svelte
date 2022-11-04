@@ -2,7 +2,7 @@
     // Import related widgets.
     import { XButton } from "$lib/widgets/layoutWidgets"
 
-    export let id = "thing-change-text-field"
+    export let id: string
     export let text: string
     export let submit: () => void
     export let cancel: () => void

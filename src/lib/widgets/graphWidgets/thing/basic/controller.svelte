@@ -2,6 +2,9 @@
     import { relationshipColorByHalfAxisId, type HalfAxisId } from "$lib/shared/constants"
     import type { Graph, Thing } from "$lib/models/constructModels"
 
+    // Import utility functions.
+    import { sleep } from "$lib/shared/utility"
+
     /* Store imports. */
     import {
         graphDbModelInStore, unstoreGraphDbModels,
@@ -42,12 +45,16 @@
     export let isEncapsulating = false
     export let textFontSize = 10
     export let showDeleteButton = false
+    export let editingText = false
+    export let textBeingEdited = thing?.text || ""
     export let handleMouseDown: (event: MouseEvent) => void
     export let handleMouseDrag: (event: MouseEvent) => void
     export let onBodyMouseUp: (event: MouseEvent) => void
     export let openCommandPalette: (event: MouseEvent) => void
     export let startDelete: () => void
     export let completeDelete: () => void
+    export let submitEditedText: () => void = () => {}
+    export let cancelEditingText: () => void = () => {}
 
 
     // Attributes handled by the base widget controller.
@@ -236,9 +243,39 @@
      */
      openCommandPalette = (event: MouseEvent) => {
         const position = [event.clientX, event.clientY] as [number, number]
-        const buttonInfos = $pinIdsStore.includes(thingId) ?
-            [{ text: "Remove Thing from Pins", iconName: "no-pin", iconHtml: null, isActive: false, onClick: () => {removePin(thingId)} }] :
-            [{ text: "Add Thing to Pins", iconName: "pin", iconHtml: null, isActive: false, onClick: () => {addPin(thingId)} }]
+        const buttonInfos =
+            $pinIdsStore.includes(thingId) ? [
+                {
+                    text: "Change Thing text",
+                    iconName: "edit-text",
+                    iconHtml: null,
+                    isActive: false,
+                    onClick: () => {beginEditingText()}
+                },
+                {
+                    text: "Remove Thing from Pins",
+                    iconName: "no-pin",
+                    iconHtml: null,
+                    isActive: false,
+                    onClick: () => {removePin(thingId)}
+                }
+            ] :
+            [
+                {
+                    text: "Change Thing text",
+                    iconName: "edit-text",
+                    iconHtml: null,
+                    isActive: false,
+                    onClick: () => {beginEditingText()}
+                },
+                {
+                    text: "Add Thing to Pins",
+                    iconName: "pin",
+                    iconHtml: null,
+                    isActive: false,
+                    onClick: () => {addPin(thingId)}
+                }
+            ]
         openContextCommandPalette(position, buttonInfos)
     }
     
@@ -276,6 +313,14 @@
         await removeIdsFromThingSearchListStore(thingId)
     }
 
+    submitEditedText = () => {
+        console.log(textBeingEdited)
+    }
+
+    cancelEditingText = () => {
+        editingText = false
+    }
+
 
     /* --------------- Output attributes. --------------- */
 
@@ -301,6 +346,14 @@
      * The starting point of an in-progress drag operation (or null).
      */
     let dragStartPosition: [number, number] | null = null
+
+    async function beginEditingText() {
+        editingText = true
+        // Allow the edit-text field to render.
+        await sleep(50)
+        const thingFormTextField = document.getElementById(`${thingWidgetId}-thing-change-text-field`)
+        thingFormTextField?.focus()
+    }
 </script>
 
 

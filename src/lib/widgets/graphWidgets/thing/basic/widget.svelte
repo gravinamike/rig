@@ -48,17 +48,16 @@
     let isEncapsulating: boolean
     let textFontSize: number
     let showDeleteButton: boolean
+    let editingText: boolean
+    let textBeingEdited: string
     let handleMouseDown: (event: MouseEvent) => void
     let handleMouseDrag: (event: MouseEvent) => void
     let onBodyMouseUp: (event: MouseEvent) => void
     let openCommandPalette: (event: MouseEvent) => void
     let startDelete: () => void
     let completeDelete: () => void
-
-    let editingText = true
-    let textBeingEdited = thing?.text || ""
-    let submit: () => void = () => {console.log(textBeingEdited)}
-    let cancel: () => void = () => {editingText = false}
+    let submitEditedText: () => void
+    let cancelEditingText: () => void
 </script>
 
 
@@ -85,12 +84,16 @@
     bind:isEncapsulating
     bind:textFontSize
     bind:showDeleteButton
+    bind:editingText
+    bind:textBeingEdited
     bind:handleMouseDown
     bind:handleMouseDrag
     bind:onBodyMouseUp
     bind:openCommandPalette
     bind:startDelete
     bind:completeDelete
+    bind:submitEditedText
+    bind:cancelEditingText
 />
 
 
@@ -155,9 +158,10 @@
 
             <!-- Thing text form. -->
             <ThingTextFormWidget
+                id={`${thingWidgetId}-thing-change-text-field`}
                 bind:text={textBeingEdited}
-                {submit}
-                {cancel}
+                submit={submitEditedText}
+                cancel={cancelEditingText}
             />
 
         {:else}
