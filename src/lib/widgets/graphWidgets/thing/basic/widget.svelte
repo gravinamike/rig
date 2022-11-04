@@ -14,7 +14,7 @@
     import { hexToRgba } from "$lib/shared/utility"
 
     /* Widget imports. */
-    import { ThingTextWidget, DeleteThingWidget } from "../subWidgets"
+    import { ThingTextWidget, DeleteThingWidget, ThingTextFormWidget } from "../subWidgets"
     import { ThingDetailsWidget } from "$lib/widgets/detailsWidgets"
     import ThingWidgetController from "./controller.svelte"
 
@@ -30,7 +30,7 @@
     export let graphWidgetStyle: GraphWidgetStyle
     export let rePerspectToThingId: (id: number) => Promise<void>
     export let thingWidth: number
-    export let thingHeight: number 
+    export let thingHeight: number
 
 
     // Attributes handled by the widget controller.
@@ -54,6 +54,11 @@
     let openCommandPalette: (event: MouseEvent) => void
     let startDelete: () => void
     let completeDelete: () => void
+
+    let editingText = true
+    let textBeingEdited = thing?.text || ""
+    let submit: () => void = () => {console.log(textBeingEdited)}
+    let cancel: () => void = () => {editingText = false}
 </script>
 
 
@@ -132,7 +137,10 @@
             }
         } }
         on:click={ () => {
-            if ($relationshipBeingCreatedInfoStore.sourceThingId === null) rePerspectToThingId(thingId)
+            if (
+                !editingText
+                && $relationshipBeingCreatedInfoStore.sourceThingId === null
+            ) rePerspectToThingId(thingId)
         } }
         on:mouseup={ () => {
             if (relatableForCurrentDrag) {
@@ -143,28 +151,42 @@
         } }
         on:contextmenu|preventDefault={openCommandPalette}
     >
-        <!-- Thing text. -->
-        <ThingTextWidget
-            {thingWidth}
-            {thingHeight}
-            sidewaysText={showContent && elongationCategory === "horizontal"}
-            {isEncapsulating}
-            {showContent}
-            fontSize={textFontSize}
-            text={thing.text || ""}
-        />
+        {#if editingText}
 
-        <!-- Delete controls. -->
-        <DeleteThingWidget
-            {showDeleteButton}
-            {confirmDeleteBoxOpen}
-            {thingWidth}
-            {thingHeight}
-            {encapsulatingDepth}
-            {elongationCategory}
-            {startDelete}
-            {completeDelete}
-        />
+            <!-- Thing text form. -->
+            <ThingTextFormWidget
+                bind:text={textBeingEdited}
+                {submit}
+                {cancel}
+            />
+
+        {:else}
+
+            <!-- Thing text. -->
+            <ThingTextWidget
+                {thingWidth}
+                {thingHeight}
+                sidewaysText={showContent && elongationCategory === "horizontal"}
+                {isEncapsulating}
+                {showContent}
+                fontSize={textFontSize}
+                text={thing.text || ""}
+            />
+
+            <!-- Delete controls. -->
+            <DeleteThingWidget
+                {showDeleteButton}
+                {confirmDeleteBoxOpen}
+                {thingWidth}
+                {thingHeight}
+                {encapsulatingDepth}
+                {elongationCategory}
+                {startDelete}
+                {completeDelete}
+            />
+
+        {/if}
+        
 
         <!-- Content box. -->
         {#if showContent && thing.dbModel}

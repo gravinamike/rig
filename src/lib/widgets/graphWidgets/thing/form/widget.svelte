@@ -22,13 +22,13 @@
 
 
     // Attributes handled by widget controller.
-    let textField: HTMLTextAreaElement | null = null
+    let text: string = ""
     let encapsulatingDepth: number
     let thingWidth: number
     let thingHeight: number
     let distanceFromFocalPlane: number
-    let submit: () => {}
-    let cancel: () => {}
+    let submit: () => void
+    let cancel: () => void
 </script>
 
 
@@ -37,7 +37,7 @@
     {thing}
     {graph}
     {graphWidgetStyle}
-    {textField}
+    {text}
     {cohortMembersToDisplay}
 
     bind:encapsulatingDepth
@@ -59,7 +59,8 @@
     "
 >
     <ThingTextFormWidget
-        bind:textField
+        id={"thing-form-text-field"}
+        bind:text
         {submit}
         {cancel}
     />
@@ -71,16 +72,10 @@
         outline: dotted 2px lightgrey;
         outline-offset: -1px;
 
+        position: relative;
         box-sizing: border-box;
         height: max-content;
         background-color: white;
-        
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        padding: 1rem;
-        gap: 1rem;
 
         cursor: default;
     }

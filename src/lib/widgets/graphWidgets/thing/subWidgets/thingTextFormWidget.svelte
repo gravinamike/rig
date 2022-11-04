@@ -2,9 +2,10 @@
     // Import related widgets.
     import { XButton } from "$lib/widgets/layoutWidgets"
 
-    export let textField: HTMLTextAreaElement | null
-    export let submit: () => {}
-    export let cancel: () => {}
+    export let id = "thing-change-text-field"
+    export let text: string
+    export let submit: () => void
+    export let cancel: () => void
 </script>
 
 
@@ -24,8 +25,8 @@
 
     <!-- Thing text field. -->
     <textarea
-        id="thing-form-text-field"
-        bind:this={textField}
+        id={id}
+        bind:value={text}
         
         class="text-input"
         rows=3
@@ -39,8 +40,7 @@
 
 <style>
     .thing-form-text-widget {
-        width: 100%;
-        height: 100%;
+        padding: 1rem;
     }
 
     .cancel-button-container {

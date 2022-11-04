@@ -28,15 +28,15 @@
     export let thing: Thing
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
-    export let textField: HTMLTextAreaElement | null
+    export let text: string
     export let cohortMembersToDisplay: GenerationMember[]
 
     export let encapsulatingDepth = 0
     export let thingWidth = 0
     export let thingHeight = 0
     export let distanceFromFocalPlane = 0
-    export let submit: () => {}
-    export let cancel: () => {}
+    export let submit: () => void
+    export let cancel: () => void
 
 
     // Attributes handled by base widget controller.
@@ -57,7 +57,6 @@
         const parentThingId = (thing.parentThing?.id as number)
         const space = (thing.parentCohort.parentThing as Thing).space as Space
         const directionId = space.directionIdByHalfAxisId[halfAxisId] as number
-        const text = textField?.value || ""
 
         // Create the new Thing.
         const newRelatedThing = await createNewRelatedThing(parentThingId, directionId, text)
