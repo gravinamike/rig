@@ -2,8 +2,10 @@
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
     import { planePadding } from "$lib/shared/constants"
     import ThingMissingFromStoreWidgetController from "./controller.svelte"
+    import type { Graph } from "$lib/models/constructModels";
 
     export let thingId: number
+    export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
 
 
@@ -26,7 +28,7 @@
 
 
 <ThingMissingFromStoreWidgetController
-    {thingId}
+    {graph}
     {graphWidgetStyle}
 
     bind:planeId

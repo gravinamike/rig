@@ -105,6 +105,7 @@
             {#if graph.rootCohort && graph.lifecycleStatus === "built"}
                 <ThingCohortWidget
                     thingCohort={graph.rootCohort}
+                    cohortMembersToDisplay={graph.rootCohort.members}
                     bind:graph
                     {graphWidgetStyle}
                     {rePerspectToThingId}

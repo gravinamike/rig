@@ -8,7 +8,7 @@
         relationshipBeingCreatedInfoStore
     } from "$lib/stores"
 
-    import { Graph, Thing, ThingCohort } from "$lib/models/constructModels"
+    import { Graph, Thing, ThingCohort, type GenerationMember } from "$lib/models/constructModels"
     
 
     /**
@@ -26,6 +26,7 @@
     export let cohort: ThingCohort
     export let graph: Graph
     export let thingIdOfHoveredRelationship: number | null
+    export let cohortMembersToDisplay: GenerationMember[]
 
     export let ofPerspectiveThing: boolean
     export let relationshipsExist: boolean
@@ -101,9 +102,14 @@
      */
     addThingForm = async () => {
         // If there is not yet a Thing Form in the Graph, add one.
-        if (!graph.formActive) {
+        if (graph.formActive === false) {
             const newThing = new Thing(null)
             cohort.addMember({thingId: null, thing: newThing, alreadyRendered: false})
+            cohortMembersToDisplay.push({
+                thingId: null,
+                thing: newThing,
+                alreadyRendered: false
+            })
             graph.formActive = true
         }
         // Refresh the view.

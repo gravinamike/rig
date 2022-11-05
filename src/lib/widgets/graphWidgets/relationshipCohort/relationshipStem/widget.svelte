@@ -1,7 +1,7 @@
 <script lang="ts">
     // Import types.
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
-    import type { Graph, ThingCohort } from "$lib/models/constructModels"
+    import type { GenerationMember, Graph, ThingCohort } from "$lib/models/constructModels"
 
     // Import stores.
     import {
@@ -16,6 +16,7 @@
     
 
     export let cohort: ThingCohort
+    export let cohortMembersToDisplay: GenerationMember[]
     export let graphWidgetStyle: GraphWidgetStyle
     export let graph: Graph
 
@@ -46,6 +47,7 @@
     {cohort}
     {graph}
     {thingIdOfHoveredRelationship}
+    {cohortMembersToDisplay}
 
     bind:ofPerspectiveThing
     bind:relationshipsExist

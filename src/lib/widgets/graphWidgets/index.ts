@@ -1,5 +1,6 @@
 export * from "./clade"
 export *  from "./graph"
+export * from "./halfAxis"
 export * from "./relationship"
 export * from "./relationshipCohort"
 export * from "./thing"

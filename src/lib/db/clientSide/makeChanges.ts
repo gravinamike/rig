@@ -33,6 +33,34 @@ export async function createNewRelatedThing(
 }
 
 /*
+ * Update a Thing's text.
+ */
+export async function updateThingText(
+    thingId: number, text: string
+): Promise<boolean> {
+    // Post to the update-Thing-text API.
+    const res = await fetch(
+        `api/db/graphManipulation/updateThingText`,
+        {
+            method: "POST",
+
+            body: JSON.stringify({
+                thingId: thingId,
+                text: text
+            })
+        }
+    )
+
+    // Report on the response.
+    if (res.ok) {
+        return true
+    } else {
+        res.text().then(text => {throw Error(text)})
+        return false
+    }
+}
+
+/*
  * Add a Note to a Thing.
  */
 export async function addNoteToThing( thingId: number ): Promise<boolean> {

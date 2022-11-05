@@ -1,17 +1,17 @@
 <script lang="ts">
     import type { HalfAxisId } from "$lib/shared/constants"
-    import type { Thing } from "$lib/models/constructModels"
+    import type { Graph, Thing } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets" 
 
     import { planePadding } from "$lib/shared/constants"
-    import { getGraphConstructs } from "$lib/stores"
 
     /**
      * Create a Thing Base Widget Model.
      * @param {number | null} thingId - The ID of the Thing the widget is based on
      * @param {GraphWidgetModel} graphWidgetModel - The model of the Graph that the widget is in.
      */
-    export let thingId: number | null
+    export let thing: Thing | null = null
+    export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
 
     export let planeId: number | null = null
@@ -22,10 +22,10 @@
     export let xYElongation: {x: number, y: number} = {x: 1, y: 1}
     export let cohortSize: number = 0
 
-    export let thing: Thing | null = null
     export let halfAxisId: HalfAxisId | null = null
     export let elongationCategory: "vertical" | "horizontal" | "neutral" = "neutral"
     export let encapsulatingPadding: number = 0
+    export let distanceFromFocalPlane: number = 0
 
     
     /* --------------- Output attributes. --------------- */
@@ -117,7 +117,7 @@
      * If a Thing ID is specified, the Thing is retrieved from the store.
      * Otherwise, the default is null.
      */
-     $: thing = typeof thingId === "number" ? getGraphConstructs<Thing>("Thing", thingId) : null
+    //$: thing = typeof thingId === "number" ? getGraphConstructs<Thing>("Thing", thingId) : null
 
     /**
      * Half-axis ID.
@@ -159,4 +159,6 @@
      * (no elongation).
      */
     $: elongation = thing?.parentCohort?.axialElongation || 1
+
+    $: distanceFromFocalPlane = planeId ? planeId - graph.planes.focalPlaneId : 0
 </script>

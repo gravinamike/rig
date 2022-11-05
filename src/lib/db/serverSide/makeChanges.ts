@@ -37,14 +37,36 @@ export async function createNewRelatedThing(thingIdToRelateFrom: number, directi
             const querystring1 = RawThingDbModel.query().insert(newThingInfo).toKnexQuery().toString()
             const newRelatedThingDbModel = await alterQuerystringForH2AndRun(querystring1, transaction, whenCreated, "Thing") as RawThingDbModel
             
+            // Determine order for new Relationship.
+            const queriedRelationshipsInSameCohort = await RawRelationshipDbModel.query()
+                .where("thingaid", thingIdToRelateFrom)
+                .where("direction", directionId)
+            const orders = queriedRelationshipsInSameCohort.map( model => {
+                return model.relationshiporder ? model.relationshiporder : 0
+            } )
+            const maxOrder = Math.max(...orders)
+            const newOrder = maxOrder + 1
+
             // Get Direction info.
             const direction = (await RawDirectionDbModel.query().where("id", directionId))[0]
             const oppositeDirectionId = direction.oppositeid as number
 
             // Create new Relationship.
-            const newARelationshipInfo = getNewRelationshipInfo(thingIdToRelateFrom, Number(newRelatedThingDbModel.id), whenCreated, directionId)
+            const newARelationshipInfo = getNewRelationshipInfo(
+                thingIdToRelateFrom,
+                Number(newRelatedThingDbModel.id),
+                whenCreated,
+                directionId,
+                newOrder
+            )
             const querystring2 = RawRelationshipDbModel.query().insert(newARelationshipInfo).toKnexQuery().toString()
-            const newBRelationshipInfo = getNewRelationshipInfo(Number(newRelatedThingDbModel.id), thingIdToRelateFrom, whenCreated, oppositeDirectionId)
+            const newBRelationshipInfo = getNewRelationshipInfo(
+                Number(newRelatedThingDbModel.id),
+                thingIdToRelateFrom,
+                whenCreated,
+                oppositeDirectionId,
+                null
+            )
             const querystring3 = RawRelationshipDbModel.query().insert(newBRelationshipInfo).toKnexQuery().toString()
             await Promise.all([
                 alterQuerystringForH2AndRun(querystring2, transaction, whenCreated, "Relationship"),
@@ -57,6 +79,34 @@ export async function createNewRelatedThing(thingIdToRelateFrom: number, directi
         })
 
         return newRelatedThing as Thing
+
+    } catch(err) {
+        console.error(err)
+        return false
+    }
+}
+
+/*
+ * Update a Thing's text.
+ */
+export async function updateThingText(thingId: number, text: string): Promise<boolean> {
+    try { 
+        // Get parameters for SQL query.
+        const whenModded = (new Date()).toISOString()
+
+        // Construct and run SQL query.
+        const knex = Model.knex()
+        await knex.transaction(async (transaction: Knex.Transaction) => {
+            // Update the Note.
+            await RawThingDbModel.query()
+                .patch({ text: text, whenmodded: whenModded })
+                .where('id', thingId)
+                .transacting(transaction)
+            
+            return
+        })
+        
+        return true
 
     } catch(err) {
         console.error(err)
