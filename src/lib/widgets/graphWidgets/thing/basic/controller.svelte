@@ -13,12 +13,15 @@
         setRelationshipBeingCreatedTrackingMouse,
         pinIdsStore, openContextCommandPalette, addPin, removePin,
         removeIdsFromThingSearchListStore,
-        reorderingInfoStore
+        reorderingInfoStore,
+        storeGraphDbModels
 
     } from "$lib/stores"
 
     import { ThingBaseWidgetController } from "../base"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
+    import { updateThingText } from "$lib/db/clientSide";
+    import type { ThingDbModel } from "$lib/models/dbModels/clientSide";
 
     /**
      * Create a Thing Widget Model.
@@ -32,6 +35,7 @@
     export let rePerspectToThingId: (id: number) => Promise<void>
         
     export let thingWidgetId: string = ""
+    export let text = thing?.text || ""
     export let highlighted = false
     export let shadowColor = "#000000"
     export let encapsulatingDepth: number = 0
@@ -53,6 +57,7 @@
     export let openCommandPalette: (event: MouseEvent) => void
     export let startDelete: () => void
     export let completeDelete: () => void
+    export let beginEditingText: () => void = () => {}
     export let submitEditedText: () => void = () => {}
     export let cancelEditingText: () => void = () => {}
 
@@ -313,8 +318,21 @@
         await removeIdsFromThingSearchListStore(thingId)
     }
 
-    submitEditedText = () => {
-        console.log(textBeingEdited)
+    beginEditingText = async () => {
+        editingText = true
+        // Allow the edit-text field to render.
+        await sleep(50)
+        const thingFormTextField = document.getElementById(`${thingWidgetId}-thing-change-text-field`) as HTMLInputElement | null
+        thingFormTextField?.focus()
+        thingFormTextField?.select()
+    }
+
+    submitEditedText = async () => {
+        await updateThingText(thingId, textBeingEdited)
+        text = textBeingEdited
+        // Refresh Thing ID in the ThingDBModel store.
+        await storeGraphDbModels<ThingDbModel>("Thing", thingId, true)
+        editingText = false
     }
 
     cancelEditingText = () => {
@@ -346,14 +364,6 @@
      * The starting point of an in-progress drag operation (or null).
      */
     let dragStartPosition: [number, number] | null = null
-
-    async function beginEditingText() {
-        editingText = true
-        // Allow the edit-text field to render.
-        await sleep(50)
-        const thingFormTextField = document.getElementById(`${thingWidgetId}-thing-change-text-field`)
-        thingFormTextField?.focus()
-    }
 </script>
 
 

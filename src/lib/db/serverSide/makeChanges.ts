@@ -87,6 +87,34 @@ export async function createNewRelatedThing(thingIdToRelateFrom: number, directi
 }
 
 /*
+ * Update a Thing's text.
+ */
+export async function updateThingText(thingId: number, text: string): Promise<boolean> {
+    try { 
+        // Get parameters for SQL query.
+        const whenModded = (new Date()).toISOString()
+
+        // Construct and run SQL query.
+        const knex = Model.knex()
+        await knex.transaction(async (transaction: Knex.Transaction) => {
+            // Update the Note.
+            await RawThingDbModel.query()
+                .patch({ text: text, whenmodded: whenModded })
+                .where('id', thingId)
+                .transacting(transaction)
+            
+            return
+        })
+        
+        return true
+
+    } catch(err) {
+        console.error(err)
+        return false
+    }
+}
+
+/*
  * Add a Note to a Thing.
  */
 export async function addNoteToThing(thingId: number): Promise<void> {

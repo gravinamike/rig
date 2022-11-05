@@ -35,6 +35,7 @@
 
     // Attributes handled by the widget controller.
     let thingWidgetId: string
+    let text: string
     let highlighted: boolean
     let shadowColor ="#000000"
     let encapsulatingDepth: number = 0
@@ -56,6 +57,7 @@
     let openCommandPalette: (event: MouseEvent) => void
     let startDelete: () => void
     let completeDelete: () => void
+    let beginEditingText: () => void
     let submitEditedText: () => void
     let cancelEditingText: () => void
 </script>
@@ -71,6 +73,7 @@
     {rePerspectToThingId}
 
     bind:thingWidgetId
+    bind:text
     bind:highlighted
     bind:shadowColor
     bind:encapsulatingDepth
@@ -92,6 +95,7 @@
     bind:openCommandPalette
     bind:startDelete
     bind:completeDelete
+    bind:beginEditingText
     bind:submitEditedText
     bind:cancelEditingText
 />
@@ -139,11 +143,17 @@
                 handleMouseDown(event)
             }
         } }
-        on:click={ () => {
+        on:click={ event => {
             if (
                 !editingText
                 && $relationshipBeingCreatedInfoStore.sourceThingId === null
-            ) rePerspectToThingId(thingId)
+            ) {
+                if (event.button === 0 && event.ctrlKey) {
+                    beginEditingText()
+                } else {
+                    rePerspectToThingId(thingId)
+                }
+            }
         } }
         on:mouseup={ () => {
             if (relatableForCurrentDrag) {
@@ -174,7 +184,7 @@
                 {isEncapsulating}
                 {showContent}
                 fontSize={textFontSize}
-                text={thing.text || ""}
+                {text}
             />
 
             <!-- Delete controls. -->
