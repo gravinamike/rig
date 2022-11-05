@@ -161,27 +161,29 @@
     >
         <div class="navigation-view">
             <!-- Thing searchbox -->
-            <div class="pins-container">
+            <div class="search-container">
                 <ThingSearchboxViewer
                     {rePerspectToThingId}
                 />
             </div>
 
-            <!-- Graph history viewer -->
-            {#if graph}
-                <div class="history-container">
-                    <HistoryViewer
-                        bind:graph
+            <div class="history-pins-container">
+                <!-- Graph history viewer -->
+                {#if graph}
+                    <div class="history-container">
+                        <HistoryViewer
+                            bind:graph
+                            {rePerspectToThingId}
+                        />
+                    </div>
+                {/if}
+
+                <!-- Graph pins viewer -->
+                <div class="pins-container">
+                    <PinsViewer
                         {rePerspectToThingId}
                     />
                 </div>
-            {/if}
-
-            <!-- Graph pins viewer -->
-            <div class="pins-container">
-                <PinsViewer
-                    {rePerspectToThingId}
-                />
             </div>
         </div>
     </Collapser>
@@ -277,15 +279,36 @@
         flex-direction: column;
 
         overflow-x: hidden;
-        overflow-y: auto;
+        overflow-y: hidden;
     }
 
-    .pins-container {
+    .search-container {
         flex: 0 0 auto;
+    }
+
+    .history-pins-container {
+        flex: 1 1 auto;
+
+        position: relative;
+
+        display: flex;
+        flex-direction: column;
+
+        overflow:hidden;
     }
 
     .history-container {
         flex: 1 1 auto;
+        max-height: 66%;
+
+        overflow: hidden;
+    }
+
+    .pins-container {
+        flex: 1 1 auto;
+        max-height: 66%;
+
+        overflow: hidden;
     }
 
     .graph-widget-container {
