@@ -160,6 +160,13 @@
         expanded={true}
     >
         <div class="navigation-view">
+            <!-- Thing searchbox -->
+            <div class="pins-container">
+                <ThingSearchboxViewer
+                    {rePerspectToThingId}
+                />
+            </div>
+
             <!-- Graph history viewer -->
             {#if graph}
                 <div class="history-container">
@@ -173,13 +180,6 @@
             <!-- Graph pins viewer -->
             <div class="pins-container">
                 <PinsViewer
-                    {rePerspectToThingId}
-                />
-            </div>
-
-            <!-- Thing searchbox -->
-            <div class="pins-container">
-                <ThingSearchboxViewer
                     {rePerspectToThingId}
                 />
             </div>
