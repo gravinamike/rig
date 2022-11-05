@@ -34,6 +34,7 @@
         placeholderText={"Search Things..." }
         focusMethod={() => {}}
         {submitMethod}
+        maxHeight={500}
     />
 
 </div>

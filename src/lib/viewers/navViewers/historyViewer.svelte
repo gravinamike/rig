@@ -154,7 +154,7 @@
         
         display: flex;
         flex-direction: column;
-        padding: 1rem;
+        padding: 0.33rem;
         gap: 10px;
 
         font-size: 0.65rem;
