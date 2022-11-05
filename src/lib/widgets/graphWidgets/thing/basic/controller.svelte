@@ -35,7 +35,7 @@
     export let rePerspectToThingId: (id: number) => Promise<void>
         
     export let thingWidgetId: string = ""
-    export let text = thing?.text || ""
+    export let text = ""
     export let highlighted = false
     export let shadowColor = "#000000"
     export let encapsulatingDepth: number = 0
@@ -78,6 +78,8 @@
      * Thing ID.
      */
     $: thingWidgetId = `graph#${ graph.id }-thing#${ thingId }`
+
+    $: text = thing?.text || ""
 
     /**
      * Highlighted flag.

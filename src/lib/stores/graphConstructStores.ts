@@ -189,7 +189,6 @@ export async function storeGraphDbModels<Type extends GraphDbModel>(
         if (allowUpdating) {
             // If updating is allowed, use the full array of supplied IDs.
             idsToQuery = ids
-            console.log("UPDATING", ids)
         } else {
             // If updating is not allowed, filter any IDs that are already stored out of the supplied array.
             const idsNotToQuery = Object.keys(storeValue).map(x => Number(x))

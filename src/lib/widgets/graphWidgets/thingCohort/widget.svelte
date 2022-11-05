@@ -31,9 +31,6 @@
     let offsetToGrandparentThingX: number = 0
     let offsetToGrandparentThingY: number = 0
     let showMembers = true
-
-
-
 </script>
 
 
