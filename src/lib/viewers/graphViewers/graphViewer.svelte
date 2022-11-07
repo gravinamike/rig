@@ -290,7 +290,7 @@
     }
 
     .tabs-container {
-        width: 300px;
+        width: 400px;
         height: 100%;
         
         overflow: hidden;
@@ -353,6 +353,8 @@
 
     .spaces-container {
         width: 50%;
+
+        scrollbar-width: thin;
     }
 
     .graph-widget-container {

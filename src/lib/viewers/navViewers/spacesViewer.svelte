@@ -3,7 +3,7 @@
 </script>
 
 
-<div class="history-viewer">
+<div class="spaces-viewer">
     <h4>Spaces</h4>
 
     <div
@@ -15,7 +15,7 @@
 
 
 <style>
-    .history-viewer {
+    .spaces-viewer {
         outline: solid 1px lightgrey;
         outline-offset: -1px;
 
@@ -32,6 +32,8 @@
         gap: 0.75rem;
         
         text-align: center;
+
+        scrollbar-width: thin;
     }
 
     h4 {
