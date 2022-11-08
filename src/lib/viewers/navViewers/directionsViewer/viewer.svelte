@@ -10,7 +10,7 @@
     {#each $directionDbModelsStoreAsArray as model}
         <DirectionWidget
             {model}
-        />    
+        />
     {/each}
 </div>
 

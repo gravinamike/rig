@@ -1,16 +1,21 @@
 <script lang="ts">
-    
+    import { spaceDbModelsStoreAsArray } from "$lib/stores/graphConstructStores"
+    import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets";
+    import SpaceWidget from "./spaceWidget.svelte"
+
+    export let graphWidgetStyle: GraphWidgetStyle
 </script>
 
 
 <div class="spaces-viewer">
     <h4>Spaces</h4>
 
-    <div
-        class="box"
-    >
-        TEST
-    </div>
+    {#each $spaceDbModelsStoreAsArray as model}
+        <SpaceWidget
+            {model}
+            {graphWidgetStyle}
+        />
+    {/each}
 </div>
 
 
@@ -38,27 +43,5 @@
 
     h4 {
         margin: 0;
-    }
-
-    .box {
-        border-radius: 10px;
-        box-shadow: 5px 5px 10px 2px lightgray;
-
-        height: max-content;
-        background-color: white;
-        
-        display: flex;
-        flex-direction: column;
-        padding: 0.33rem;
-        gap: 10px;
-
-        font-size: 0.65rem;
-        text-align: left;
-
-        cursor: default;
-    }
-
-    .box:hover {
-        box-shadow: 5px 5px 10px 10px lightgray;
     }
   </style>

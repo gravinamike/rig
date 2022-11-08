@@ -209,6 +209,7 @@
                         <!-- Spaces viewer -->
                         <div class="spaces-container">
                             <SpacesViewer
+                                {graphWidgetStyle}
                             />
                         </div>
                     </div>
@@ -290,7 +291,7 @@
     }
 
     .tabs-container {
-        width: 400px;
+        width: 415px;
         height: 100%;
         
         overflow: hidden;
@@ -352,7 +353,7 @@
     }
 
     .spaces-container {
-        width: 50%;
+        width: 55%;
 
         scrollbar-width: thin;
     }

@@ -18,11 +18,13 @@
     let oppositeObjectNameInput: HTMLInputElement
 
     let isHovered = false
-    let interactionMode: "display" | "editing" | "create" = "create"
+    let interactionMode: "display" | "editing" | "create" = "display"
 
-    $: oppositeDisplayMode =//full, small, none
+
+    $: oppositeDisplayMode =
         interactionMode === "editing" || interactionMode === "create" ? "full" :
-        "small"
+        isHovered ? "small" :
+        "none"
 
     const directionHeight = 20
     const directionColor = "#000000"
@@ -44,6 +46,11 @@
 </script>
 
 
+<svelte:body
+    on:keyup={(event) => {
+        if (event.key === "Escape") interactionMode = "display"
+    } }
+/>
 
 
 <div
@@ -52,6 +59,7 @@
 
     on:mouseenter={() => {isHovered = true}}
     on:mouseleave={() => {isHovered = false}}
+    on:dblclick={() => { if (interactionMode = "display") handleButton() }}  
 >
 
     <div class="container vertical">
@@ -74,6 +82,7 @@
                     {:else}
                         <input
                             type="text"
+                            placeholder="Direction"
                             bind:this={directionNameInput}
                         />
                     {/if}
@@ -92,6 +101,7 @@
                     {:else}
                         <input
                             type="text"
+                            placeholder="Object"
                             bind:this={objectNameInput}
                         />
                     {/if}
@@ -119,6 +129,7 @@
                             {:else}
                                 <input
                                     type="text"
+                                    placeholder="Opp object"
                                     bind:this={oppositeObjectNameInput}
                                 />
                             {/if}
@@ -140,6 +151,7 @@
                             {:else}
                                 <input
                                     type="text"
+                                    placeholder="Opp Direction"
                                     bind:this={oppositeDirectionNameInput}
                                 />
                             {/if}
@@ -208,9 +220,10 @@
     }
 
     .direction-id {
-        padding: 0.25rem 0.25rem 0.25rem 0;
+        width: 10px;
 
         flex: 1 1 0;
+        padding: 0.25rem 0.25rem 0.25rem 0;
 
         font-size: 1rem;
         font-weight: 600;

@@ -1,0 +1,1 @@
+export { default as SpacesViewer } from "./viewer.svelte"

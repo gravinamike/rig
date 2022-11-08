@@ -45,7 +45,7 @@
 
 <style>
     .arrow {
-        opacity: 0.25;
+        opacity: 0.10;
     }
 
     polygon {
