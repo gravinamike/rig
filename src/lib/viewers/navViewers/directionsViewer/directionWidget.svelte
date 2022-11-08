@@ -1,15 +1,14 @@
 <script lang="ts">
-    import type { DirectionDbModel } from "$lib/models/dbModels/clientSide"
     import type { Direction } from "$lib/models/constructModels"
     import { getGraphConstructs } from "$lib/stores"
     import Arrow from "./arrow.svelte"
     import { sleep } from "$lib/shared/utility";
 
-    export let model: DirectionDbModel
+    export let direction: Direction
 
 
     $: oppositeDirection =
-        model.oppositeid ? getGraphConstructs("Direction", model.oppositeid) as Direction | null :
+        direction.oppositeid ? getGraphConstructs("Direction", direction.oppositeid) as Direction | null :
         null
 
     let directionNameInput: HTMLInputElement
@@ -34,14 +33,25 @@
     const oppositeDirectionColor = "#000000"
 
 
-    const handleButton = async () => {
+    async function handleButton() {
         if (interactionMode === "display") {
             interactionMode = "editing"
             await sleep(50) // Allow the fields to finish rendering.
             directionNameInput.focus()
         } else {
+            validate()
             interactionMode = "display"
         }
+    }
+
+    function validate() {
+        return (
+            directionNameInput.value !== ""
+            && objectNameInput.value !== ""
+            && oppositeDirectionNameInput.value !== ""
+            && oppositeObjectNameInput.value !== ""
+        ) ? true :
+        false
     }
 </script>
 
@@ -67,7 +77,7 @@
         <!-- Direction. -->
         <div class="container horizontal">
             <div class="container direction-id">
-                {model.id}
+                {direction.id}
             </div>
 
             <div class="container">
@@ -78,7 +88,7 @@
                 />
                 <div class="floating-text">
                     {#if interactionMode === "display"}
-                        {model.text}
+                        {direction.text}
                     {:else}
                         <input
                             type="text"
@@ -97,7 +107,7 @@
                 
                 <div class="floating-text">
                     {#if interactionMode === "display"}
-                        {model.nameforobjects}
+                        {direction.nameforobjects}
                     {:else}
                         <input
                             type="text"

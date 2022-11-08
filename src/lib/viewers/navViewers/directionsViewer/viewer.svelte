@@ -1,15 +1,19 @@
 <script lang="ts">
-    import { directionDbModelsStoreAsArray } from "$lib/stores"
+    import type { Direction } from "$lib/models/constructModels";
+    import { directionDbModelsStoreAsArray, getGraphConstructs } from "$lib/stores"
     import DirectionWidget from "./directionWidget.svelte"
+
+    $: directionIds = $directionDbModelsStoreAsArray.map(model => Number(model.id))
+    $: directions = getGraphConstructs("Direction", directionIds) as Direction[]
 </script>
 
 
 <div class="directions-viewer">
     <h4>Directions</h4>
 
-    {#each $directionDbModelsStoreAsArray as model}
+    {#each directions as direction}
         <DirectionWidget
-            {model}
+            {direction}
         />
     {/each}
 </div>

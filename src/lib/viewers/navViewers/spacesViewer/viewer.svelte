@@ -1,18 +1,23 @@
 <script lang="ts">
-    import { spaceDbModelsStoreAsArray } from "$lib/stores/graphConstructStores"
-    import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets";
+    import type { Space } from "$lib/models/constructModels"
+    import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
+    import { spaceDbModelsStoreAsArray, getGraphConstructs } from "$lib/stores/graphConstructStores"
     import SpaceWidget from "./spaceWidget.svelte"
 
     export let graphWidgetStyle: GraphWidgetStyle
+
+
+    $: spaceIds = $spaceDbModelsStoreAsArray.map(model => Number(model.id))
+    $: spaces = getGraphConstructs("Space", spaceIds) as Space[]
 </script>
 
 
 <div class="spaces-viewer">
     <h4>Spaces</h4>
 
-    {#each $spaceDbModelsStoreAsArray as model}
+    {#each spaces as space}
         <SpaceWidget
-            {model}
+            {space}
             {graphWidgetStyle}
         />
     {/each}

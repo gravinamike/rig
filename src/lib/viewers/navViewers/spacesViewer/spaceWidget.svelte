@@ -1,10 +1,11 @@
 <script lang="ts">
-    import type { SpaceDbModel } from "$lib/models/dbModels/clientSide"
+    import type { Space } from "$lib/models/constructModels"
     import DirectionWidget from "../directionsViewer/directionWidget.svelte"
     import { DirectionWidget as DirectionDropdownWidget, type GraphWidgetStyle } from "$lib/widgets/graphWidgets"
     import { sleep } from "$lib/shared/utility"
+    import type { HalfAxisId } from "$lib/shared/constants";
 
-    export let model: SpaceDbModel
+    export let space: Space
     export let graphWidgetStyle: GraphWidgetStyle
 
 
@@ -16,6 +17,25 @@
     
     let isHovered = false
     let interactionMode: "display" | "editing" | "create" = "display"
+
+    $: halfAxisInfos = [
+        {
+            halfAxisId: 1 as HalfAxisId,
+            direction: space.directions.length >= 1 ? space.directions[0] : null
+        },
+        {
+            halfAxisId: 3 as HalfAxisId,
+            direction: space.directions.length >= 2 ? space.directions[1] : null
+        },
+        {
+            halfAxisId: 5 as HalfAxisId,
+            direction: space.directions.length >= 3 ? space.directions[2] : null
+        },
+        {
+            halfAxisId: 7 as HalfAxisId,
+            direction: space.directions.length >= 4 ? space.directions[3] : null
+        },
+    ]
 
     const handleButton = async () => {
         if (interactionMode === "display") {
@@ -46,12 +66,12 @@
 >
     <div class="space-name">
         <div class="space-id">
-            {model.id}
+            {space.id}
         </div>
 
         <div>
             {#if interactionMode === "display"}
-                {model.text}
+                {space.text}
             {:else}
                 <input
                     type="text"
@@ -65,34 +85,26 @@
     <div
         style="display: flex; flex-direction: column; gap: 0.25rem;"
     >
-        {#each model.directions as directionModel}
+        {#each halfAxisInfos as info}
             {#if interactionMode === "display"}
-                <DirectionWidget
-                    model={directionModel}
-                />
+                {#if info.direction}
+                    <DirectionWidget
+                        direction={info.direction}
+                    />
+                {/if}
             {:else}
-                <!-- Make the models Directions, and feed them in here. ################### -->
                 <!-- Make 4 of these and feed in halfAxisId. -->
                 <DirectionDropdownWidget
-                    direction={null}
-                    halfAxisId={null}
+                    direction={info.direction}
+                    halfAxisId={info.halfAxisId}
                     {graphWidgetStyle}
                     optionClickedFunction={(direction, _, option) => {
                         console.log(direction, option)
 
                     }}
-                    optionHoveredFunction={async (_, option) => {
-                        /*if (currentSpace) {
-                            const newSpace = alteredSpace(currentSpace, option, arrowInfo.halfAxisId)
-                            graph.startingSpace = newSpace
-                            await graph.build()
-                            addGraphIdsNeedingViewerRefresh(graph.id)
-                        }*/
+                    optionHoveredFunction={async () => {
                     }}
                     exitOptionHoveredFunction={async () => {
-                        /*graph.startingSpace = originalSpace
-                        await graph.build()
-                        addGraphIdsNeedingViewerRefresh(graph.id)*/
                     }}
                 />
             {/if}
