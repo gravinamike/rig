@@ -1,6 +1,6 @@
 <script lang="ts">
     // Type imports.
-    import type { Graph } from "$lib/models/constructModels"
+    import type { Graph, Space } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
     
     // Import utility functions.
@@ -97,6 +97,15 @@
             graph.history.addEntries([thingId])
             perspectiveThingIdStore.set(thingId)
             saveGraphConfig()
+        }
+    }
+
+    async function setGraphSpace(space: Space) {
+        if (graph) {
+            
+            await graph.setSpace(space)
+            
+            addGraphIdsNeedingViewerRefresh(graph.id)
         }
     }
 
@@ -210,6 +219,7 @@
                         <div class="spaces-container">
                             <SpacesViewer
                                 {graphWidgetStyle}
+                                {setGraphSpace}
                             />
                         </div>
                     </div>

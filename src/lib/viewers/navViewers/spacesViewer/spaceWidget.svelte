@@ -7,6 +7,7 @@
 
     export let space: Space
     export let graphWidgetStyle: GraphWidgetStyle
+    export let setGraphSpace: (space: Space) => void
 
 
     let spaceNameInput: HTMLInputElement
@@ -37,7 +38,11 @@
         },
     ]
 
-    const handleButton = async () => {
+    function handleClick() {
+        setGraphSpace(space)
+    }
+
+    async function handleButton() {
         if (interactionMode === "display") {
             interactionMode = "editing"
             await sleep(50) // Allow the fields to finish rendering.
@@ -62,6 +67,7 @@
 
     on:mouseenter={() => {isHovered = true}}
     on:mouseleave={() => {isHovered = false}}
+    on:click={handleClick}
     on:dblclick={() => { if (interactionMode = "display") handleButton() }}     
 >
     <div class="space-name">
@@ -153,6 +159,19 @@
         text-align: left;
 
         cursor: default;
+    }
+
+    .space-widget:hover {
+        outline: solid 1px lightgrey;
+        background-color: gainsboro;
+    }
+
+    .space-widget:active {
+        background-color: lightgrey;
+    }
+
+    .space-widget:active {
+        background-color: lightgrey;
     }
 
     .space-id {

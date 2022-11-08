@@ -5,6 +5,7 @@
     import SpaceWidget from "./spaceWidget.svelte"
 
     export let graphWidgetStyle: GraphWidgetStyle
+    export let setGraphSpace: (space: Space) => void
 
 
     $: spaceIds = $spaceDbModelsStoreAsArray.map(model => Number(model.id))
@@ -19,6 +20,7 @@
         <SpaceWidget
             {space}
             {graphWidgetStyle}
+            {setGraphSpace}
         />
     {/each}
 </div>

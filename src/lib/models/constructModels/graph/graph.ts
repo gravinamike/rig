@@ -76,6 +76,11 @@ export class Graph {
         await this.build()
     }
 
+     async setSpace(space: Space): Promise<void> {
+        this.startingSpace = space
+        await this.build()
+    }
+
     /**
      * Set the Graph's Depth.
      * @param  {number} depth - An array of the new Depth to be set.
