@@ -115,6 +115,34 @@ export async function updateThingText(thingId: number, text: string): Promise<bo
 }
 
 /*
+ * Update a Thing's default Space.
+ */
+export async function updateThingDefaultSpace(thingId: number, spaceId: number): Promise<boolean> {
+    try { 
+        // Get parameters for SQL query.
+        const whenModded = (new Date()).toISOString()
+
+        // Construct and run SQL query.
+        const knex = Model.knex()
+        await knex.transaction(async (transaction: Knex.Transaction) => {
+            // Update the Note.
+            await RawThingDbModel.query()
+                .patch({ defaultplane: spaceId, whenmodded: whenModded })
+                .where('id', thingId)
+                .transacting(transaction)
+            
+            return
+        })
+        
+        return true
+
+    } catch(err) {
+        console.error(err)
+        return false
+    }
+}
+
+/*
  * Add a Note to a Thing.
  */
 export async function addNoteToThing(thingId: number): Promise<void> {

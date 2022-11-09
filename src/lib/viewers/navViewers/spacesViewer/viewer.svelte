@@ -1,9 +1,10 @@
 <script lang="ts">
-    import type { Space } from "$lib/models/constructModels"
+    import type { Graph, Space } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
     import { spaceDbModelsStoreAsArray, getGraphConstructs } from "$lib/stores/graphConstructStores"
     import SpaceWidget from "./spaceWidget.svelte"
 
+    export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
     export let setGraphSpace: (space: Space) => void
 
@@ -19,6 +20,7 @@
     {#each spaces as space}
         <SpaceWidget
             {space}
+            {graph}
             {graphWidgetStyle}
             {setGraphSpace}
         />

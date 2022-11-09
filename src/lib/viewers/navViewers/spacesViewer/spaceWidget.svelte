@@ -1,14 +1,23 @@
 <script lang="ts">
-    import type { Space } from "$lib/models/constructModels"
+    import type { Graph, Space } from "$lib/models/constructModels"
+    import type { HalfAxisId } from "$lib/shared/constants"
+    import type { ThingDbModel } from "$lib/models/dbModels/clientSide"
     import DirectionWidget from "../directionsViewer/directionWidget.svelte"
     import { DirectionWidget as DirectionDropdownWidget, type GraphWidgetStyle } from "$lib/widgets/graphWidgets"
     import { sleep } from "$lib/shared/utility"
-    import type { HalfAxisId } from "$lib/shared/constants";
+    import { updateThingDefaultSpace } from "$lib/db/clientSide"
+    import { addGraphIdsNeedingViewerRefresh, storeGraphDbModels } from "$lib/stores"
+
 
     export let space: Space
+    export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
     export let setGraphSpace: (space: Space) => void
 
+
+    $: defaultPerspectiveSpace = 
+        graph.pThing?.defaultSpaceId
+        && space.id === graph.pThing.defaultSpaceId
 
     let spaceNameInput: HTMLInputElement
     /*let directionNameInput1: HTMLInputElement
@@ -49,6 +58,16 @@
             spaceNameInput.focus()
         } else {
             interactionMode = "display"
+        }
+    }
+
+    async function setPerspectiveThingDefaultSpace() {
+        if (graph.pThing?.id && space.id) {
+            await updateThingDefaultSpace(graph.pThing?.id, space.id)
+            // Refresh Thing ID in the ThingDBModel store.
+            await storeGraphDbModels<ThingDbModel>("Thing", graph.pThing.id, true)
+            await graph.setSpace(space)
+            addGraphIdsNeedingViewerRefresh(graph.id)
         }
     }
 </script>
@@ -140,6 +159,19 @@
             </div>
         </div>
     {/if}
+
+    {#if defaultPerspectiveSpace || isHovered}
+        <div
+            class="perspective-space-button"
+            style="color: {defaultPerspectiveSpace ? "black" : "lightgrey"}"
+
+            on:click|stopPropagation={setPerspectiveThingDefaultSpace}
+        >
+            <div>
+                ★
+            </div>
+        </div>
+    {/if}
 </div>
 
 
@@ -147,6 +179,7 @@
     .space-widget {
         border-radius: 7px;
 
+        position: relative;
         height: max-content;
         background-color: #e0e0e0;
         
@@ -273,5 +306,32 @@
     .button.create:active {
         outline-color: #fa8072;
         background-color: #fa8072;
+    }
+
+    .perspective-space-button {
+        border-radius: 10px;
+
+        position: absolute;
+        top: 5px;
+        left: 5px;
+        width: 20px;
+        height: 20px;
+        background-color: white;
+
+        vertical-align: 15px;
+        font-size: 1.5rem;
+    }
+
+    .perspective-space-button:hover {
+        background-color: rgb(235, 235, 235);
+    }
+
+    .perspective-space-button:active {
+        background-color: rgb(225, 225, 225);
+    }
+
+    .perspective-space-button div {
+        position: relative;
+        top: -8.5px;
     }
 </style>

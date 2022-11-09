@@ -209,19 +209,22 @@
                 <!-- Space-related viewers. -->
                 <TabBody>
                     <div class="directions-spaces-container">
-                        <!-- Directions viewer -->
-                        <div class="directions-container">
-                            <DirectionsViewer
-                            />
-                        </div>
-        
-                        <!-- Spaces viewer -->
-                        <div class="spaces-container">
-                            <SpacesViewer
-                                {graphWidgetStyle}
-                                {setGraphSpace}
-                            />
-                        </div>
+                        {#if graph}
+                            <!-- Directions viewer -->
+                            <div class="directions-container">
+                                <DirectionsViewer
+                                />
+                            </div>
+            
+                            <!-- Spaces viewer -->
+                            <div class="spaces-container">
+                                <SpacesViewer
+                                    {graph}
+                                    {graphWidgetStyle}
+                                    {setGraphSpace}
+                                />
+                            </div>
+                        {/if}
                     </div>
                 </TabBody>
             </TabBlock>

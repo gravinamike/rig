@@ -21,6 +21,7 @@ export class Graph {
     history: PerspectiveHistory
     lifecycleStatus: "new" | "building" | "built" | "cleared" = "new"
     startingSpace: Space | null
+    originalStartingSpace: Space | null
     offAxis: boolean
     formActive: boolean
 
@@ -39,6 +40,7 @@ export class Graph {
         this.planes = new Planes(this)
         this.history = new PerspectiveHistory(this)
         this.startingSpace = startingSpace
+        this.originalStartingSpace = startingSpace
         this.offAxis = offAxis
         this.formActive = false
     }
@@ -73,10 +75,10 @@ export class Graph {
      */
     async setPThingIds(pThingIds: number[]): Promise<void> {
         this._pThingIds = pThingIds
-        await this.build()
+        await this.build(false)
     }
 
-     async setSpace(space: Space): Promise<void> {
+    async setSpace(space: Space): Promise<void> {
         this.startingSpace = space
         await this.build()
     }
@@ -95,11 +97,12 @@ export class Graph {
     /**
      * Reset the Graph and build Generations up to its specified Depth.
      */
-    async build(): Promise<void> {
+    async build(keepCurrentSpace=true): Promise<void> {
         // Set (or reset) build attributes to their starting values.
         this.rootCohort = null
         this.generations.reset()
         this.planes.reset()
+        if (!keepCurrentSpace) this.startingSpace = this.originalStartingSpace
         this.formActive = false
         this.lifecycleStatus = "cleared"
 
