@@ -61,6 +61,34 @@ export async function updateThingText(
 }
 
 /*
+ * Update a Thing's default Space.
+ */
+export async function updateThingDefaultSpace(
+    thingId: number, spaceId: number
+): Promise<boolean> {
+    // Post to the update-Thing-default-Space API.
+    const res = await fetch(
+        `api/db/graphManipulation/updateThingDefaultSpace`,
+        {
+            method: "POST",
+
+            body: JSON.stringify({
+                thingId: thingId,
+                spaceId: spaceId
+            })
+        }
+    )
+
+    // Report on the response.
+    if (res.ok) {
+        return true
+    } else {
+        res.text().then(text => {throw Error(text)})
+        return false
+    }
+}
+
+/*
  * Add a Note to a Thing.
  */
 export async function addNoteToThing( thingId: number ): Promise<boolean> {

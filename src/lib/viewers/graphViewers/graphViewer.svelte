@@ -1,6 +1,6 @@
 <script lang="ts">
     // Type imports.
-    import type { Graph } from "$lib/models/constructModels"
+    import type { Graph, Space } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
     
     // Import utility functions.
@@ -15,7 +15,7 @@
     // Import viewers.
     import { GraphSettingsViewer } from "$lib/viewers/settingsViewers"
     import { GraphSchematicViewer } from "$lib/viewers/graphViewers"
-    import { HistoryViewer, PinsViewer, ThingSearchboxViewer } from "$lib/viewers/navViewers"
+    import { ThingSearchboxViewer, HistoryViewer, PinsViewer, DirectionsViewer, SpacesViewer } from "$lib/viewers/navViewers"
     import { NotesViewer } from "$lib/viewers/notesViewers"
     import { FolderViewer } from "$lib/viewers/folderViewers"
     import { defaultGraphWidgetStyle, GraphWidget, GraphOutlineWidget } from "$lib/widgets/graphWidgets"
@@ -100,6 +100,15 @@
         }
     }
 
+    async function setGraphSpace(space: Space) {
+        if (graph) {
+            
+            await graph.setSpace(space)
+            
+            addGraphIdsNeedingViewerRefresh(graph.id)
+        }
+    }
+
     // Set up viewer to refresh...
     // ... when a Graph is opened...
     $: {
@@ -117,7 +126,7 @@
 
 
 <div class="graph-viewer">
-    <!-- Graph-related viewers (Schematic and Settings) -->
+    <!-- Graph-related viewers (Schematic and Settings). -->
     <Collapser
         headerText={"Graph"}
         contentDirection={"left"}
@@ -130,7 +139,7 @@
                     <TabFlap>Schematic</TabFlap>
                 </TabFlaps>
             
-                <!-- Graph Settings viewer -->
+                <!-- Graph Settings viewer. -->
                 <TabBody>
                     {#if graph}
                         <GraphSettingsViewer
@@ -141,7 +150,7 @@
                     {/if}
                 </TabBody>
 
-                <!-- Graph Schematic viewer -->
+                <!-- Graph Schematic viewer. -->
                 <TabBody>
                     {#if graph}
                         <GraphSchematicViewer
@@ -153,38 +162,72 @@
         </div>
     </Collapser>
 
-    <!-- Navigation-related viewers (Pins and History) -->
+    <!-- Perspective-related viewers (Navigation and Space). -->
     <Collapser
-        headerText={"Navigation"}
+        headerText={"Perspective"}
         contentDirection={"left"}
         expanded={true}
     >
-        <div class="navigation-view">
-            <!-- Thing searchbox -->
-            <div class="search-container">
-                <ThingSearchboxViewer
-                    {rePerspectToThingId}
-                />
-            </div>
-
-            <div class="history-pins-container">
-                <!-- Graph history viewer -->
-                {#if graph}
-                    <div class="history-container">
-                        <HistoryViewer
-                            bind:graph
-                            {rePerspectToThingId}
-                        />
+        <div class="tabs-container">
+            <TabBlock>
+                <TabFlaps>
+                    <TabFlap>Navigation</TabFlap>
+                    <TabFlap>Space</TabFlap>
+                </TabFlaps>
+            
+                <!-- Navigation-related viewers (Search, History and Pins). -->
+                <TabBody>
+                    <div class="navigation-view">
+                        <!-- Thing searchbox -->
+                        <div class="search-container">
+                            <ThingSearchboxViewer
+                                {rePerspectToThingId}
+                            />
+                        </div>
+            
+                        <div class="history-pins-container">
+                            <!-- Graph history viewer -->
+                            {#if graph}
+                                <div class="history-container">
+                                    <HistoryViewer
+                                        bind:graph
+                                        {rePerspectToThingId}
+                                    />
+                                </div>
+                            {/if}
+            
+                            <!-- Graph pins viewer -->
+                            <div class="pins-container">
+                                <PinsViewer
+                                    {rePerspectToThingId}
+                                />
+                            </div>
+                        </div>
                     </div>
-                {/if}
+                </TabBody>
 
-                <!-- Graph pins viewer -->
-                <div class="pins-container">
-                    <PinsViewer
-                        {rePerspectToThingId}
-                    />
-                </div>
-            </div>
+                <!-- Space-related viewers. -->
+                <TabBody>
+                    <div class="directions-spaces-container">
+                        {#if graph}
+                            <!-- Directions viewer -->
+                            <div class="directions-container">
+                                <DirectionsViewer
+                                />
+                            </div>
+            
+                            <!-- Spaces viewer -->
+                            <div class="spaces-container">
+                                <SpacesViewer
+                                    {graph}
+                                    {graphWidgetStyle}
+                                    {setGraphSpace}
+                                />
+                            </div>
+                        {/if}
+                    </div>
+                </TabBody>
+            </TabBlock>
         </div>
     </Collapser>
 
@@ -261,7 +304,7 @@
     }
 
     .tabs-container {
-        width: 200px;
+        width: 415px;
         height: 100%;
         
         overflow: hidden;
@@ -272,7 +315,6 @@
     }
 
     .navigation-view {
-        width: 150px;
         height: 100%;
 
         display: flex;
@@ -309,6 +351,24 @@
         max-height: 66%;
 
         overflow: hidden;
+    }
+
+    .directions-spaces-container {
+        position: relative;
+        height: 100%;
+
+        display: flex;
+        flex-direction: row;
+    }
+
+    .directions-container {
+        width: 50%;
+    }
+
+    .spaces-container {
+        width: 55%;
+
+        scrollbar-width: thin;
     }
 
     .graph-widget-container {
