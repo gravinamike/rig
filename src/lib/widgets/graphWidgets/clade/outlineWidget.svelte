@@ -1,35 +1,83 @@
 <script lang="ts">    
-    // Constant imports.
-    import { relationshipColorByHalfAxisId } from "$lib/shared/constants"
-
-    // Utility imports.
-    import { hexToRgba } from "$lib/shared/utility"
-
-    // Graph widget imports.
-    import { ThingOutlineWidget, ThingFormOutlineWidget, RelationshipCohortOutlineWidget, ThingCohortOutlineWidget } from "$lib/widgets/graphWidgets"
+    // Import types.
+    import type { Graph, ThingCohort, Thing } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
+
+    // Import constants and utility functions.
+    import { relationshipColorByHalfAxisId } from "$lib/shared/constants"
+    import { hexToRgba } from "$lib/shared/utility"
 
     // Import widget controller.
     import CladeWidgetController from "./controller.svelte"
-    import type { Graph, Thing, ThingCohort } from "$lib/models/constructModels";
 
+    // Import related widgets.
+    import { RelationshipCohortOutlineWidget, ThingCohortOutlineWidget, ThingOutlineWidget, ThingFormOutlineWidget } from "$lib/widgets/graphWidgets"
+    
 
+    /**
+     * @param {Thing} rootThing - The Thing that forms the root of the Clade.
+     * @param {Graph} graph - The Graph that the Clade is in.
+     * @param {GraphWidgetStyle} graphWidgetStyle - Controls the style of the Graph widget.
+     * @param {(thingId: number) => Promise<void>} rePerspectToThingId - A function that re-perspects the Graph to a given Thing ID.
+     */
     export let rootThing: Thing
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
     export let rePerspectToThingId: (id: number) => Promise<void>
     
+    
+    // Thing-Cohort-related variables.
+    $: thingCohorts = rootThing.childThingCohorts
+
+    /**
+     * Expanded flag.
+     * 
+     * Determines whether the Clade is collapsed to hide children or expanded to
+     * show them.
+     */
+    $: expanded = (
+        thingCohorts.length
+        && thingCohorts[0].generation
+        && !thingCohorts[0].generation.isRelationshipsOnly
+    ) ?
+        true :
+        false
+
+    /**
+     * Show-Clade-root-Thing flag.
+     * 
+     * Determines whether the full Clade, including the root Thing, should be
+     * shown, or only the children Things.
+     */
+    $: showCladeRootThing = (
+        rootThing.address.generationId === 0
+        && graphWidgetStyle.excludePerspectiveThing
+    ) ?
+        false :
+        true
+
+    /**
+     * Shadow color.
+     * 
+     * Matches the color of the Thing Cohort's half-axis.
+     */
+    $: shadowColor =
+        rootThing.parentCohort.halfAxisId ? relationshipColorByHalfAxisId[rootThing.parentCohort.halfAxisId] :
+        "#000000"
 
     // The desired order of half-axes in the outline.
     const orderedHalfAxisIds = [2, 1, 4, 3, 5, 6, 8, 7]
     
-    // Cohort-related variables.
-    $: thingCohorts = rootThing.childThingCohorts
 
-    // Thing Cohorts are ordered in a specific way:
-    // 1. First those on the "Cartesian" half-axes, from top to bottom and left to right,
-    // 2. Then those on the other half-axes,
-    // 3. Then all those not on a half-axis.
+    /**
+     * Ordering Thing Cohorts.
+     * 
+     * Thing Cohorts are ordered in a specific way:
+     * 1. First those on the "Cartesian" half-axes, from top to bottom and left
+     *    to right,
+     * 2. Then those on the other half-axes,
+     * 3. Then all those not on a half-axis.
+     */
     function getOrderedThingCohorts(
         thing: Thing,
         excludeHalfAxes=graphWidgetStyle.excludeCartesianAxes
@@ -75,47 +123,14 @@
     }
     let orderedThingCohorts: ThingCohort[] = []
     $: orderedThingCohorts = getOrderedThingCohorts(rootThing)
-    
-
-
-
-    $: expanded = (
-        thingCohorts.length
-        && thingCohorts[0].generation
-        && !thingCohorts[0].generation.isRelationshipsOnly
-    ) ?
-        true :
-        false
-
-    $: shadowColor = rootThing.parentCohort.halfAxisId ?
-        relationshipColorByHalfAxisId[rootThing.parentCohort.halfAxisId] :
-        "#000000"
-
-
-    $: showCladeRootThing = (
-        rootThing.address.generationId === 0
-        && graphWidgetStyle.excludePerspectiveThing
-    ) ?
-        false :
-        true
-
-
-
-    // Attributes managed by the widget controller.
-    let overlapMarginStyleText: string
 </script>
-
 
 
 <!-- Widget controller. -->
 <CladeWidgetController
     {rootThing}
     {graphWidgetStyle}
-
-    bind:overlapMarginStyleText
 />
-
-
 
 
 <!-- Clade widget.-->
@@ -123,17 +138,22 @@
     class="clade-outline-widget"
     class:expanded
     class:has-children={thingCohorts.length}
+    
     style="box-shadow: 5px 5px 10px 2px {hexToRgba(shadowColor, 0.333)};"
 >
 
+    <!-- Root Thing. -->
     {#if showCladeRootThing}
+        <!-- If the root Thing is specified, show a Thing Widget. -->
         {#if rootThing?.id}
             <ThingOutlineWidget
                 thingId={rootThing.id}
+                thing={rootThing}
                 {graph}
                 {graphWidgetStyle}
                 {rePerspectToThingId}
             />
+        <!-- Otherwise, show a Thing-Form Widget. -->
         {:else}
             <ThingFormOutlineWidget
                 thing={rootThing}
@@ -143,32 +163,24 @@
         {/if}
     {/if}
 
-    <!-- The Thing's Relationships and child Cohorts (outer container). -->
+    <!-- The Thing's Relationships and child Cohorts (outer containers). -->
     {#each orderedThingCohorts as thingCohort (thingCohort.address)}  
-        <div
-            class="relationships-and-child-cohorts-outer-container"
-            style="
-                position: relative;
-                background-color: white;
-            "
-        >
+        <div class="relationships-and-child-cohorts-outer-container">
+
             <!-- Relationship color field. -->
             <div
-                style="
-                    border-top: dotted 1px grey;
-                    box-sizing: border-box;
-                    position: absolute; width: 100%; height: 100%;
-                    background-color: {relationshipColorByHalfAxisId[thingCohort.halfAxisId]};
-                    opacity: 0.25;
-                "
+                class="relationship-color-field"
+
+                style="background-color: {relationshipColorByHalfAxisId[thingCohort.halfAxisId]};"
             />
 
             <!-- The Thing's Relationships and child Cohorts (inner container). -->
             <div
                 class="relationships-and-child-cohorts-inner-container"
+                
                 style="flex-direction: { expanded ? "row" : "column" };"    
             >
-                <!-- Relationships Widget. -->
+                <!-- Relationship Cohort Widget. -->
                 {#if thingCohort.halfAxisId}
                     <div
                         class="relationships-outline-widget-container"
@@ -183,7 +195,7 @@
                     </div>
                 {/if}
 
-                <!-- Cohort Widget. -->
+                <!-- Thing Cohort Widget. -->
                 {#if (
                     thingCohort.members.length
                     && thingCohort.generation
@@ -231,10 +243,23 @@
         display: flex;
         flex-direction: column;
     }
-    
+
+    .relationships-and-child-cohorts-outer-container:hover {
+        position: relative;
+        background-color: white;
+    }
 
     .relationships-and-child-cohorts-outer-container:hover {
         min-height: 1.05rem;
+    }
+
+    .relationship-color-field {
+        border-top: dotted 1px grey;
+        box-sizing: border-box;
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        opacity: 0.25;
     }
 
     .relationships-and-child-cohorts-inner-container {

@@ -1,8 +1,10 @@
 <script lang="ts">
     import type { Graph, ThingCohort } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
+
     import { CladeOutlineWidget, ThingOutlineAlreadyRenderedWidget } from "$lib/widgets/graphWidgets"
 
+    
     /**
      * @param  {ThingCohort} thingCohort - The Thing Cohort used to set up this Widget.
      * @param  {Graph} graph - The Graph that the Cohort is in.
@@ -21,7 +23,9 @@
 <div
     class="cohort-outline-widget"
 >
-    {#if !(thingCohort.members.length === 1 && indexOfGrandparentThing !== null && indexOfGrandparentThing !== -1)}<!-- Unless the ONLY descendent in a Half-Axis is a doubled-back parent Thing, -->
+    {#if !(
+        thingCohort.members.length === 1 && indexOfGrandparentThing !== null && indexOfGrandparentThing !== -1
+    )}<!-- Unless the ONLY descendent in a Half-Axis is a doubled-back parent Thing, -->
         {#each thingCohort.members as cohortMember}
             {#if cohortMember.alreadyRendered && cohortMember.thingId}
                 <ThingOutlineAlreadyRenderedWidget
@@ -39,6 +43,7 @@
                 />
             {/if}
         {/each}
+
     {/if}
 </div>
 

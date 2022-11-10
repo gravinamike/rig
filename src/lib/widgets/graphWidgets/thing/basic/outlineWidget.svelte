@@ -25,13 +25,13 @@
      * @param  {(thingId: number) => Promise<void>} rePerspectToThingId - A function that re-perspects the Graph to a given Thing ID.
      */
     export let thingId: number
+    export let thing: Thing | null = null
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
     export let rePerspectToThingId: (id: number) => Promise<void>
 
 
     let encapsulatingDepth: number = 0
-    let thing: Thing
     let elongationCategory: "vertical" | "horizontal" | "neutral"
     let thingWidgetId: string
     let isEncapsulating: boolean

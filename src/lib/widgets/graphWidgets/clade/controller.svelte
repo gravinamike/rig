@@ -11,7 +11,7 @@
     export let rootThing: Thing
     export let graphWidgetStyle: GraphWidgetStyle
     
-    export let overlapMarginStyleText: string
+    export let overlapMarginStyleText: string = ""
 
 
     /* --------------- Output attributes. --------------- */
