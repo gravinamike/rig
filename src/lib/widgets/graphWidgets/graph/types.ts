@@ -30,5 +30,5 @@ export const defaultGraphWidgetStyle: GraphWidgetStyle = {
     betweenThingGap: 0, // Reactively calculated.
     betweenThingOverlap: 0, // Reactively calculated.
     relationshipTextSize: 16,
-    thingTextSize: 12
+    thingTextSize: 20
 }
