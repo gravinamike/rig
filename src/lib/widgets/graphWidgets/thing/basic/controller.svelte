@@ -213,7 +213,6 @@
      * @param event - The mouse-move event that triggered the method.
      */
     handleMouseDrag = (event: MouseEvent) => {
-        console.log("DRAGGED")
         if (
             dragStartPosition
             && Math.hypot(event.clientX - dragStartPosition[0], event.clientX - dragStartPosition[0]) > 5

@@ -1,4 +1,7 @@
 <script lang="ts">
+    import { tweened } from "svelte/motion"
+    import { cubicOut } from "svelte/easing"
+
     /* Type imports. */
     import type { Graph, Thing } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
@@ -11,7 +14,7 @@
     } from "$lib/stores"
 
     // Utility imports.
-    import { hexToRgba } from "$lib/shared/utility"
+    import { hexToRgba, sleep } from "$lib/shared/utility"
 
     /* Widget imports. */
     import { ThingTextWidget, DeleteThingWidget, ThingTextFormWidget } from "../subWidgets"
@@ -60,6 +63,23 @@
     let beginEditingText: () => void
     let submitEditedText: () => void
     let cancelEditingText: () => void
+
+
+    let sliderOpen = false
+    const sliderPosition = tweened( 0, { duration: 150, easing: cubicOut } )
+    $: if (!sliderOpen) sliderPosition.set(0)
+    $: if (sliderOpen) sliderPosition.set(100)
+    $: sliderPercentage = 0.87 * $sliderPosition
+
+    let showText = true
+
+    async function toggleSlider() {
+        console.log("foo")
+        showText = false
+        sliderOpen = !sliderOpen
+        await sleep(150)
+        showText = true
+    }
 </script>
 
 
@@ -164,40 +184,63 @@
         } }
         on:contextmenu|preventDefault={openCommandPalette}
     >
-        {#if editingText}
+        <div
+            class="slider-backfield"
 
-            <!-- Thing text form. -->
-            <ThingTextFormWidget
-                id={`${thingWidgetId}-thing-change-text-field`}
-                bind:text={textBeingEdited}
-                submit={submitEditedText}
-                cancel={cancelEditingText}
-            />
+            style="
+                width: {sliderPercentage}%;
+            "
+        />
+        
+        <div
+            class="slider-toggle"
 
-        {:else}
+            style="
+                border-radius: {Math.floor(thingHeight * 0.04)}px;
+                left: {sliderPercentage + 3}%;
+            "
 
-            <!-- Thing text. -->
-            <ThingTextWidget
-                {thingWidth}
-                {thingHeight}
-                sidewaysText={showContent && elongationCategory === "horizontal"}
-                {isEncapsulating}
-                {showContent}
-                fontSize={textFontSize}
-                {text}
-            />
+            on:click|stopPropagation={toggleSlider}
+        />
 
-            <!-- Delete controls. -->
-            <DeleteThingWidget
-                {showDeleteButton}
-                {confirmDeleteBoxOpen}
-                {thingWidth}
-                {thingHeight}
-                {encapsulatingDepth}
-                {elongationCategory}
-                {startDelete}
-                {completeDelete}
-            />
+        {#if showText}
+
+            {#if editingText}
+
+                <!-- Thing text form. -->
+                <ThingTextFormWidget
+                    id={`${thingWidgetId}-thing-change-text-field`}
+                    bind:text={textBeingEdited}
+                    submit={submitEditedText}
+                    cancel={cancelEditingText}
+                />
+
+            {:else}
+
+                <!-- Thing text. -->
+                <ThingTextWidget
+                    {thingWidth}
+                    {thingHeight}
+                    sidewaysText={showContent && elongationCategory === "horizontal"}
+                    {isEncapsulating}
+                    {showContent}
+                    fontSize={textFontSize}
+                    {text}
+                />
+
+                <!-- Delete controls. -->
+                <DeleteThingWidget
+                    {showDeleteButton}
+                    {confirmDeleteBoxOpen}
+                    {thingWidth}
+                    {thingHeight}
+                    {encapsulatingDepth}
+                    {elongationCategory}
+                    {startDelete}
+                    {completeDelete}
+                />
+
+            {/if}
 
         {/if}
         
@@ -236,6 +279,34 @@
     .highlighted {
         outline: solid 2px black;
         outline-offset: -2px;
+    }
+
+    .slider-backfield {
+        border-width: 0.25px;
+        outline-offset: -0.25px;
+        border-style: inset;
+        border-color: #fcfcfc;
+        
+        position: absolute;
+        left: 6%;
+        top: 6%;
+        height: 86%;
+        background-color: #fbfbfb;
+    }
+
+    .slider-toggle {
+        outline: solid 0.25px #ececec;
+        outline-offset: -0.25px;
+        box-shadow: 1px 1px 2px 1px #ececec;
+        
+
+        position: absolute;
+        top: 5%;
+        width: 6%;
+        height: 89%;
+        background-color: white;
+
+        cursor: pointer;
     }
 
     .content-box {
