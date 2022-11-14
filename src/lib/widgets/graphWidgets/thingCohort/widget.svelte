@@ -20,6 +20,7 @@
     export let cohortMembersToDisplay: GenerationMember[]
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
+    export let perspectiveTexts: {[thingId: string]: string}
     export let rePerspectToThingId: (thingId: number) => Promise<void>
         
     
@@ -93,6 +94,7 @@
                     rootThing={member.thing}
                     bind:graph
                     {graphWidgetStyle}
+                    {perspectiveTexts}
                     {cohortMembersToDisplay}
                     {rePerspectToThingId}
                 />

@@ -23,6 +23,7 @@
     export let rootThing: Thing
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
+    export let perspectiveTexts: {[thingId: string]: string}
     export let cohortMembersToDisplay: GenerationMember[]
     export let rePerspectToThingId: (id: number) => Promise<void>
 
@@ -58,6 +59,7 @@
             thing={rootThing}
             bind:graph
             {graphWidgetStyle}
+            {perspectiveTexts}
             {rePerspectToThingId}
             bind:thingWidth={rootThingWidth}
             bind:thingHeight={rootThingHeight}
@@ -68,6 +70,7 @@
             thing={rootThing}
             bind:graph
             {graphWidgetStyle}
+            {perspectiveTexts}
             {cohortMembersToDisplay}
         />
     {/if}
@@ -79,6 +82,7 @@
             {thingCohort}
             bind:graph
             {graphWidgetStyle}
+            {perspectiveTexts}
             {rootThingWidth}
             {rootThingHeight}
             {rePerspectToThingId}

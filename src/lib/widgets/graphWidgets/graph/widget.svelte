@@ -42,6 +42,42 @@
     let widget: HTMLElement | null = null
     let centralAnchor: Element | null = null
     let zoomBoundsDiv: Element | null = null
+
+
+
+
+
+
+
+
+
+    $: perspectiveTexts = legacyJsonParse(graph.pThing?.perspectivetexts || "{}")
+    $: console.log(perspectiveTexts)
+
+    // Function includes a fallback for case where keys are
+    // numbers, for legacy support.
+    function legacyJsonParse(jsonString: string) {
+        let output: {[thingId: string]: string} = {}
+
+        try {
+
+            output = JSON.parse(jsonString)
+
+        } catch {
+            
+            jsonString = jsonString.substring(1, jsonString.length - 1)
+            const split = jsonString.split(",")
+            for (const s of split) {
+                const split2 = s.split(": ")
+                const key = split2[0]
+                const value = split2[1].substring(1, split2[1].length - 1)
+                output[key] = value
+            }
+
+        }    
+        
+        return output
+    }
 </script>
 
 
@@ -108,6 +144,7 @@
                     cohortMembersToDisplay={graph.rootCohort.members}
                     bind:graph
                     {graphWidgetStyle}
+                    {perspectiveTexts}
                     {rePerspectToThingId}
                 />
             {/if}

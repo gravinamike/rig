@@ -28,6 +28,7 @@
     export let thing: Thing
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
+    export const perspectiveTexts: {[thingId: string]: string} = {}//////////
     export let text: string
     export let cohortMembersToDisplay: GenerationMember[]
 
@@ -35,6 +36,7 @@
     export let thingWidth = 0
     export let thingHeight = 0
     export let distanceFromFocalPlane = 0
+    export const usePerspectiveText: boolean = false///////////
     export let submit: () => void
     export let cancel: () => void
 

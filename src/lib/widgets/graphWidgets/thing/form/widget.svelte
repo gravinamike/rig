@@ -18,6 +18,7 @@
     export let thing: Thing
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
+    export let perspectiveTexts: {[thingId: string]: string}
     export let cohortMembersToDisplay: GenerationMember[]
 
 
@@ -27,6 +28,7 @@
     let thingWidth: number
     let thingHeight: number
     let distanceFromFocalPlane: number
+    let usePerspectiveText: boolean
     let submit: () => void
     let cancel: () => void
 </script>
@@ -37,6 +39,7 @@
     {thing}
     {graph}
     {graphWidgetStyle}
+    {perspectiveTexts}
     {text}
     {cohortMembersToDisplay}
 
@@ -44,6 +47,7 @@
     bind:thingWidth
     bind:thingHeight
     bind:distanceFromFocalPlane
+    bind:usePerspectiveText
     bind:submit
     bind:cancel
 />

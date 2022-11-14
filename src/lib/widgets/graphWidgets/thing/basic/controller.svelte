@@ -31,11 +31,14 @@
     export let thing: Thing | null = null
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
+    export let perspectiveTexts: {[thingId: string]: string} = {}
+    export let usePerspectiveText = false
     export let isHoveredWidget: boolean
     export let rePerspectToThingId: (id: number) => Promise<void>
         
     export let thingWidgetId: string = ""
     export let text = ""
+    export let hasPerspectiveText = false
     export let highlighted = false
     export let shadowColor = "#000000"
     export let encapsulatingDepth: number = 0
@@ -79,7 +82,15 @@
      */
     $: thingWidgetId = `graph#${ graph.id }-thing#${ thingId }`
 
-    $: text = thing?.text || ""
+    $: perspectiveText =
+        String(thingId) in perspectiveTexts ? perspectiveTexts[String(thingId)] :
+        null
+
+    $: hasPerspectiveText = !!perspectiveText
+
+    $: text =
+        usePerspectiveText && perspectiveText ? perspectiveText :
+        thing?.text || ""
 
     /**
      * Highlighted flag.

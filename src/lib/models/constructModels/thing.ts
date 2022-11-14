@@ -57,7 +57,7 @@ export class Thing {
             this.whenvisited = dbModel.whenvisited ? new Date(dbModel.whenvisited): null
             this.defaultSpaceId = dbModel.defaultplane
             this.perspectivedepths = dbModel.perspectivedepths
-            this.perspectivetexts = dbModel.perspectivedepths
+            this.perspectivetexts = dbModel.perspectivetexts
 
             this.note = dbModel.note ? new Note(dbModel.note) : null
             this.folder = dbModel.folder ? new Folder(dbModel.folder) : null     

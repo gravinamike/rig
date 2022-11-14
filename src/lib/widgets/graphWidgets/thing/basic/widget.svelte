@@ -31,6 +31,7 @@
     export let thing: Thing | null = null
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
+    export let perspectiveTexts: {[thingId: string]: string}
     export let rePerspectToThingId: (id: number) => Promise<void>
     export let thingWidth: number
     export let thingHeight: number
@@ -39,6 +40,7 @@
     // Attributes handled by the widget controller.
     let thingWidgetId: string
     let text: string
+    let hasPerspectiveText: boolean
     let highlighted: boolean
     let shadowColor ="#000000"
     let encapsulatingDepth: number = 0
@@ -54,6 +56,7 @@
     let showDeleteButton: boolean
     let editingText: boolean
     let textBeingEdited: string
+    let usePerspectiveText: boolean
     let handleMouseDown: (event: MouseEvent) => void
     let handleMouseDrag: (event: MouseEvent) => void
     let onBodyMouseUp: (event: MouseEvent) => void
@@ -65,7 +68,11 @@
     let cancelEditingText: () => void
 
 
+
+    
     let sliderOpen = false
+    $: usePerspectiveText = !sliderOpen
+
     const sliderPosition = tweened( 0, { duration: 150, easing: cubicOut } )
     $: if (!sliderOpen) sliderPosition.set(0)
     $: if (sliderOpen) sliderPosition.set(100)
@@ -89,11 +96,14 @@
     {thing}
     {graph}
     {graphWidgetStyle}
+    {perspectiveTexts}
+    {usePerspectiveText}
     {isHoveredWidget}
     {rePerspectToThingId}
 
     bind:thingWidgetId
     bind:text
+    bind:hasPerspectiveText
     bind:highlighted
     bind:shadowColor
     bind:encapsulatingDepth
@@ -184,24 +194,27 @@
         } }
         on:contextmenu|preventDefault={openCommandPalette}
     >
-        <div
-            class="slider-backfield"
+        <!-- Perspective-text slider. -->
+        {#if hasPerspectiveText}
+            <div
+                class="slider-backfield"
 
-            style="
-                width: {sliderPercentage}%;
-            "
-        />
-        
-        <div
-            class="slider-toggle"
+                style="
+                    width: {sliderPercentage}%;
+                "
+            />
 
-            style="
-                border-radius: {Math.floor(thingHeight * 0.04)}px;
-                left: {sliderPercentage + 3}%;
-            "
+            <div
+                class="slider-toggle"
 
-            on:click|stopPropagation={toggleSlider}
-        />
+                style="
+                    border-radius: {Math.floor(thingHeight * 0.04)}px;
+                    left: {sliderPercentage + 3}%;
+                "
+
+                on:click|stopPropagation={toggleSlider}
+            />
+        {/if}
 
         {#if showText}
 
