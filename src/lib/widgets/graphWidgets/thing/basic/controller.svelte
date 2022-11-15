@@ -344,6 +344,7 @@
     submitEditedText = async () => {
         await updateThingText(thingId, textBeingEdited)
         text = textBeingEdited
+        perspectiveText = perspectiveTextBeingEdited
         // Refresh Thing ID in the ThingDBModel store.
         await storeGraphDbModels<ThingDbModel>("Thing", thingId, true)
         editingText = false

@@ -79,3 +79,29 @@ export function clampNumber(inputValue: number, lowerBound: number, upperBound: 
         inputValue
     return clampedNumber
 }
+
+
+// Function includes a fallback for case where keys are
+// numbers, for legacy support.
+export function legacyPerspectiveThingsParse(jsonString: string): {[thingId: string]: string} {
+    let output: {[thingId: string]: string} = {}
+
+    try {
+
+        output = JSON.parse(jsonString)
+
+    } catch {
+        
+        jsonString = jsonString.substring(1, jsonString.length - 1)
+        const split = jsonString.split(",")
+        for (const s of split) {
+            const split2 = s.split(": ")
+            const key = split2[0]
+            const value = split2[1].substring(1, split2[1].length - 1)
+            output[key] = value
+        }
+
+    }    
+    
+    return output
+}

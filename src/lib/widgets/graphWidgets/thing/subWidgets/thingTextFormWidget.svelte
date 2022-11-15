@@ -33,7 +33,7 @@
             
             class="text-input"
             rows=3
-            placeholder="Enter text"
+            placeholder="Enter Perspective text"
 
             on:mousemove|stopPropagation
         />
@@ -44,7 +44,7 @@
             
             class="text-input"
             rows=3
-            placeholder="Enter Perspective text"
+            placeholder="Enter text"
 
             on:mousemove|stopPropagation
         />

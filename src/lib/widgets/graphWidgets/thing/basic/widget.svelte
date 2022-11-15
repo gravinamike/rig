@@ -197,7 +197,7 @@
         on:contextmenu|preventDefault={openCommandPalette}
     >
         <!-- Perspective-text slider. -->
-        {#if hasPerspectiveText}
+        {#if hasPerspectiveText || editingText}
             <div
                 class="slider-backfield"
 
