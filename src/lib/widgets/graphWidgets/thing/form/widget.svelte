@@ -23,7 +23,8 @@
 
 
     // Attributes handled by widget controller.
-    let text: string = ""
+    let baseText: string
+    let perspectiveText: string
     let encapsulatingDepth: number
     let thingWidth: number
     let thingHeight: number
@@ -31,6 +32,10 @@
     let usePerspectiveText: boolean
     let submit: () => void
     let cancel: () => void
+
+    
+
+
 </script>
 
 
@@ -40,14 +45,14 @@
     {graph}
     {graphWidgetStyle}
     {perspectiveTexts}
-    {text}
     {cohortMembersToDisplay}
 
+    bind:baseText
+    bind:perspectiveText
     bind:encapsulatingDepth
     bind:thingWidth
     bind:thingHeight
     bind:distanceFromFocalPlane
-    bind:usePerspectiveText
     bind:submit
     bind:cancel
 />
@@ -64,7 +69,9 @@
 >
     <ThingTextFormWidget
         id={"thing-form-text-field"}
-        bind:text
+        bind:text={baseText}
+        bind:perspectiveText
+        {usePerspectiveText}
         {submit}
         {cancel}
     />

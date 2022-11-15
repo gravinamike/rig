@@ -28,15 +28,15 @@
     export let thing: Thing
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
-    export const perspectiveTexts: {[thingId: string]: string} = {}//////////
-    export let text: string
+    export let perspectiveTexts: {[thingId: string]: string}
     export let cohortMembersToDisplay: GenerationMember[]
 
+    export let baseText = ""
+    export let perspectiveText: string | null = null
     export let encapsulatingDepth = 0
     export let thingWidth = 0
     export let thingHeight = 0
     export let distanceFromFocalPlane = 0
-    export const usePerspectiveText: boolean = false///////////
     export let submit: () => void
     export let cancel: () => void
 
@@ -47,6 +47,13 @@
 
 
     /* --------------- Output attributes. --------------- */
+
+
+    $: baseText = thing?.text || ""
+    
+    $: perspectiveText =
+        String(thing.id) in perspectiveTexts ? perspectiveTexts[String(thing.id)] :
+        null
 
     /**
      * Submit method.
@@ -61,7 +68,7 @@
         const directionId = space.directionIdByHalfAxisId[halfAxisId] as number
 
         // Create the new Thing.
-        const newRelatedThing = await createNewRelatedThing(parentThingId, directionId, text)
+        const newRelatedThing = await createNewRelatedThing(parentThingId, directionId, baseText)
 
         // Refresh stores, graph, and search lists.
         if (newRelatedThing && newRelatedThing.id) {

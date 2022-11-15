@@ -54,6 +54,7 @@
     export let showDeleteButton = false
     export let editingText = false
     export let textBeingEdited = thing?.text || ""
+    export let perspectiveTextBeingEdited = String(thingId) in perspectiveTexts ? perspectiveTexts[String(thingId)] : null
     export let handleMouseDown: (event: MouseEvent) => void
     export let handleMouseDrag: (event: MouseEvent) => void
     export let onBodyMouseUp: (event: MouseEvent) => void

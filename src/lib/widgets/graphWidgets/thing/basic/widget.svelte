@@ -56,6 +56,7 @@
     let showDeleteButton: boolean
     let editingText: boolean
     let textBeingEdited: string
+    let perspectiveTextBeingEdited: string
     let usePerspectiveText: boolean
     let handleMouseDown: (event: MouseEvent) => void
     let handleMouseDrag: (event: MouseEvent) => void
@@ -119,6 +120,7 @@
     bind:showDeleteButton
     bind:editingText
     bind:textBeingEdited
+    bind:perspectiveTextBeingEdited
     bind:handleMouseDown
     bind:handleMouseDrag
     bind:onBodyMouseUp
@@ -224,6 +226,8 @@
                 <ThingTextFormWidget
                     id={`${thingWidgetId}-thing-change-text-field`}
                     bind:text={textBeingEdited}
+                    bind:perspectiveText={perspectiveTextBeingEdited}
+                    {usePerspectiveText}
                     submit={submitEditedText}
                     cancel={cancelEditingText}
                 />
@@ -317,6 +321,7 @@
         top: 5%;
         width: 6%;
         height: 89%;
+        z-index: 2;
         background-color: white;
 
         cursor: pointer;
