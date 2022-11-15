@@ -18,17 +18,24 @@
     export let thing: Thing
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
+    export let perspectiveTexts: {[thingId: string]: string}
     export let cohortMembersToDisplay: GenerationMember[]
 
 
     // Attributes handled by widget controller.
-    let text: string = ""
+    let baseText: string
+    let perspectiveText: string
     let encapsulatingDepth: number
     let thingWidth: number
     let thingHeight: number
     let distanceFromFocalPlane: number
+    let usePerspectiveText: boolean
     let submit: () => void
     let cancel: () => void
+
+    
+
+
 </script>
 
 
@@ -37,9 +44,11 @@
     {thing}
     {graph}
     {graphWidgetStyle}
-    {text}
+    {perspectiveTexts}
     {cohortMembersToDisplay}
 
+    bind:baseText
+    bind:perspectiveText
     bind:encapsulatingDepth
     bind:thingWidth
     bind:thingHeight
@@ -60,7 +69,9 @@
 >
     <ThingTextFormWidget
         id={"thing-form-text-field"}
-        bind:text
+        bind:text={baseText}
+        bind:perspectiveText
+        {usePerspectiveText}
         {submit}
         {cancel}
     />

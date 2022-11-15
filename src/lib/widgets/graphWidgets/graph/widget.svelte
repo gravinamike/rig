@@ -6,7 +6,7 @@
 
     // Import constants and utility functions.
     import { tweened } from "svelte/motion"
-    import { Rectangle } from "$lib/shared/utility"
+    import { legacyPerspectiveThingsParse, Rectangle } from "$lib/shared/utility"
 
     // Import stores.
     import { relationshipBeingCreatedInfoStore } from "$lib/stores"
@@ -42,6 +42,19 @@
     let widget: HTMLElement | null = null
     let centralAnchor: Element | null = null
     let zoomBoundsDiv: Element | null = null
+
+
+
+
+
+
+
+
+
+    $: perspectiveTexts = legacyPerspectiveThingsParse(graph.pThing?.perspectivetexts || "{}")
+    $: console.log(perspectiveTexts)
+
+    
 </script>
 
 
@@ -108,6 +121,7 @@
                     cohortMembersToDisplay={graph.rootCohort.members}
                     bind:graph
                     {graphWidgetStyle}
+                    {perspectiveTexts}
                     {rePerspectToThingId}
                 />
             {/if}

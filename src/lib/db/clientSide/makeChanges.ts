@@ -61,6 +61,37 @@ export async function updateThingText(
 }
 
 /*
+ * Update a Thing's Perspective text.
+ */
+export async function updateThingPerspectiveText(
+    pThingId: number,
+    thingId: number,
+    text: string
+): Promise<boolean> {
+    // Post to the update-Thing-Perspective-text API.
+    const res = await fetch(
+        `api/db/graphManipulation/updateThingPerspectiveText`,
+        {
+            method: "POST",
+
+            body: JSON.stringify({
+                pThingId: pThingId,
+                thingId: thingId,
+                text: text
+            })
+        }
+    )
+
+    // Report on the response.
+    if (res.ok) {
+        return true
+    } else {
+        res.text().then(text => {throw Error(text)})
+        return false
+    }
+}
+
+/*
  * Update a Thing's default Space.
  */
 export async function updateThingDefaultSpace(

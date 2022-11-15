@@ -18,7 +18,7 @@ import { Thing } from "$lib/models/constructModels"
 // Filesystem-related imports.
 import { createFolder } from "$lib/shared/fileSystem"
 
-import { changeIndexInArray } from "$lib/shared/utility"
+import { changeIndexInArray, legacyPerspectiveThingsParse } from "$lib/shared/utility"
 
 
 /*
@@ -107,6 +107,52 @@ export async function updateThingText(thingId: number, text: string): Promise<bo
         })
         
         return true
+
+    } catch(err) {
+        console.error(err)
+        return false
+    }
+}
+
+/*
+ * Update a Thing's Perspective text.
+ */
+export async function updateThingPerspectiveText(
+    pThingId: number,
+    thingId: number,
+    text: string
+): Promise<boolean> {
+    try { 
+        // Get parameters for SQL query.
+        const whenModded = (new Date()).toISOString()
+
+        const queriedPThings = await RawThingDbModel.query().where("id", pThingId)
+        if (!queriedPThings.length) {
+
+            return false
+
+        } else {
+
+            const perspectiveTextsString = queriedPThings[0].perspectivetexts
+            const perspectiveTexts = legacyPerspectiveThingsParse(perspectiveTextsString)
+            perspectiveTexts[String(thingId)] = text
+            const newPerspectiveTextsString = String(perspectiveTexts)
+
+            // Construct and run SQL query.
+            const knex = Model.knex()
+            await knex.transaction(async (transaction: Knex.Transaction) => {
+                // Update the Note.
+                await RawThingDbModel.query()
+                    .patch({ perspectivetexts: newPerspectiveTextsString, whenmodded: whenModded })
+                    .where('id', thingId)
+                    .transacting(transaction)
+                
+                return
+            })
+            
+            return true
+
+        }
 
     } catch(err) {
         console.error(err)

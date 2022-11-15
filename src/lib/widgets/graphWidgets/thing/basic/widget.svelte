@@ -1,4 +1,7 @@
 <script lang="ts">
+    import { tweened } from "svelte/motion"
+    import { cubicOut } from "svelte/easing"
+
     /* Type imports. */
     import type { Graph, Thing } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
@@ -11,7 +14,7 @@
     } from "$lib/stores"
 
     // Utility imports.
-    import { hexToRgba } from "$lib/shared/utility"
+    import { hexToRgba, sleep } from "$lib/shared/utility"
 
     /* Widget imports. */
     import { ThingTextWidget, DeleteThingWidget, ThingTextFormWidget } from "../subWidgets"
@@ -28,6 +31,7 @@
     export let thing: Thing | null = null
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
+    export let perspectiveTexts: {[thingId: string]: string}
     export let rePerspectToThingId: (id: number) => Promise<void>
     export let thingWidth: number
     export let thingHeight: number
@@ -36,6 +40,7 @@
     // Attributes handled by the widget controller.
     let thingWidgetId: string
     let text: string
+    let hasPerspectiveText: boolean
     let highlighted: boolean
     let shadowColor ="#000000"
     let encapsulatingDepth: number = 0
@@ -51,6 +56,8 @@
     let showDeleteButton: boolean
     let editingText: boolean
     let textBeingEdited: string
+    let perspectiveTextBeingEdited: string
+    let usePerspectiveText: boolean
     let handleMouseDown: (event: MouseEvent) => void
     let handleMouseDrag: (event: MouseEvent) => void
     let onBodyMouseUp: (event: MouseEvent) => void
@@ -60,6 +67,27 @@
     let beginEditingText: () => void
     let submitEditedText: () => void
     let cancelEditingText: () => void
+
+
+
+    
+    let sliderOpen = false
+    $: usePerspectiveText = !sliderOpen
+
+    const sliderPosition = tweened( 0, { duration: 150, easing: cubicOut } )
+    $: if (!sliderOpen) sliderPosition.set(0)
+    $: if (sliderOpen) sliderPosition.set(100)
+    $: sliderPercentage = 0.87 * $sliderPosition
+
+    let showText = true
+
+    async function toggleSlider() {
+        console.log("foo")
+        showText = false
+        sliderOpen = !sliderOpen
+        await sleep(150)
+        showText = true
+    }
 </script>
 
 
@@ -69,11 +97,14 @@
     {thing}
     {graph}
     {graphWidgetStyle}
+    {perspectiveTexts}
+    {usePerspectiveText}
     {isHoveredWidget}
     {rePerspectToThingId}
 
     bind:thingWidgetId
     bind:text
+    bind:hasPerspectiveText
     bind:highlighted
     bind:shadowColor
     bind:encapsulatingDepth
@@ -89,6 +120,7 @@
     bind:showDeleteButton
     bind:editingText
     bind:textBeingEdited
+    bind:perspectiveTextBeingEdited
     bind:handleMouseDown
     bind:handleMouseDrag
     bind:onBodyMouseUp
@@ -164,40 +196,68 @@
         } }
         on:contextmenu|preventDefault={openCommandPalette}
     >
-        {#if editingText}
+        <!-- Perspective-text slider. -->
+        {#if hasPerspectiveText || editingText}
+            <div
+                class="slider-backfield"
 
-            <!-- Thing text form. -->
-            <ThingTextFormWidget
-                id={`${thingWidgetId}-thing-change-text-field`}
-                bind:text={textBeingEdited}
-                submit={submitEditedText}
-                cancel={cancelEditingText}
+                style="
+                    width: {sliderPercentage}%;
+                "
             />
 
-        {:else}
+            <div
+                class="slider-toggle"
 
-            <!-- Thing text. -->
-            <ThingTextWidget
-                {thingWidth}
-                {thingHeight}
-                sidewaysText={showContent && elongationCategory === "horizontal"}
-                {isEncapsulating}
-                {showContent}
-                fontSize={textFontSize}
-                {text}
-            />
+                style="
+                    border-radius: {Math.floor(thingHeight * 0.04)}px;
+                    left: {sliderPercentage + 3}%;
+                "
 
-            <!-- Delete controls. -->
-            <DeleteThingWidget
-                {showDeleteButton}
-                {confirmDeleteBoxOpen}
-                {thingWidth}
-                {thingHeight}
-                {encapsulatingDepth}
-                {elongationCategory}
-                {startDelete}
-                {completeDelete}
+                on:click|stopPropagation={toggleSlider}
             />
+        {/if}
+
+        {#if showText}
+
+            {#if editingText}
+
+                <!-- Thing text form. -->
+                <ThingTextFormWidget
+                    id={`${thingWidgetId}-thing-change-text-field`}
+                    bind:text={textBeingEdited}
+                    bind:perspectiveText={perspectiveTextBeingEdited}
+                    {usePerspectiveText}
+                    submit={submitEditedText}
+                    cancel={cancelEditingText}
+                />
+
+            {:else}
+
+                <!-- Thing text. -->
+                <ThingTextWidget
+                    {thingWidth}
+                    {thingHeight}
+                    sidewaysText={showContent && elongationCategory === "horizontal"}
+                    {isEncapsulating}
+                    {showContent}
+                    fontSize={textFontSize}
+                    {text}
+                />
+
+                <!-- Delete controls. -->
+                <DeleteThingWidget
+                    {showDeleteButton}
+                    {confirmDeleteBoxOpen}
+                    {thingWidth}
+                    {thingHeight}
+                    {encapsulatingDepth}
+                    {elongationCategory}
+                    {startDelete}
+                    {completeDelete}
+                />
+
+            {/if}
 
         {/if}
         
@@ -236,6 +296,35 @@
     .highlighted {
         outline: solid 2px black;
         outline-offset: -2px;
+    }
+
+    .slider-backfield {
+        border-width: 0.25px;
+        outline-offset: -0.25px;
+        border-style: inset;
+        border-color: #fcfcfc;
+        
+        position: absolute;
+        left: 6%;
+        top: 6%;
+        height: 86%;
+        background-color: #fbfbfb;
+    }
+
+    .slider-toggle {
+        outline: solid 0.25px #ececec;
+        outline-offset: -0.25px;
+        box-shadow: 1px 1px 2px 1px #ececec;
+        
+
+        position: absolute;
+        top: 5%;
+        width: 6%;
+        height: 89%;
+        z-index: 2;
+        background-color: white;
+
+        cursor: pointer;
     }
 
     .content-box {

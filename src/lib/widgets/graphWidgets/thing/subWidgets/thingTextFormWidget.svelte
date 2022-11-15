@@ -4,6 +4,8 @@
 
     export let id: string
     export let text: string
+    export let perspectiveText: string
+    export let usePerspectiveText: boolean
     export let submit: () => void
     export let cancel: () => void
 </script>
@@ -24,22 +26,38 @@
     </div>
 
     <!-- Thing text field. -->
-    <textarea
-        id={id}
-        bind:value={text}
-        
-        class="text-input"
-        rows=3
-        placeholder="Enter text"
+    {#if usePerspectiveText}
+        <textarea
+            id={id}
+            bind:value={perspectiveText}
+            
+            class="text-input"
+            rows=3
+            placeholder="Enter Perspective text"
 
-        on:mousemove|stopPropagation
-    />
+            on:mousemove|stopPropagation
+        />
+    {:else}
+        <textarea
+            id={id}
+            bind:value={text}
+            
+            class="text-input"
+            rows=3
+            placeholder="Enter text"
+
+            on:mousemove|stopPropagation
+        />
+    {/if}
 </div>
 
 
 
 <style>
     .thing-form-text-widget {
+        position: relative;
+        z-index: 1;
+
         padding: 1rem;
     }
 

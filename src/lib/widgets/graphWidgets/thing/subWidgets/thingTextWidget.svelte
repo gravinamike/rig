@@ -31,9 +31,13 @@
 
 <style>
     .text-container {
+        position: relative;
         left: 0;
+        z-index: 2;
         
         text-align: center;
+        
+        pointer-events: none;
     }
 
     .text-container.sideways {

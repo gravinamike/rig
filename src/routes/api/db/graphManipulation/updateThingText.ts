@@ -10,7 +10,7 @@ export async function post(
         
         return {
             status: 200,
-            body: "Note updated successfully."
+            body: "Thing text updated successfully."
         }
 
     } catch(err) {

@@ -31,11 +31,14 @@
     export let thing: Thing | null = null
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
+    export let perspectiveTexts: {[thingId: string]: string} = {}
+    export let usePerspectiveText = false
     export let isHoveredWidget: boolean
     export let rePerspectToThingId: (id: number) => Promise<void>
         
     export let thingWidgetId: string = ""
     export let text = ""
+    export let hasPerspectiveText = false
     export let highlighted = false
     export let shadowColor = "#000000"
     export let encapsulatingDepth: number = 0
@@ -51,6 +54,7 @@
     export let showDeleteButton = false
     export let editingText = false
     export let textBeingEdited = thing?.text || ""
+    export let perspectiveTextBeingEdited = String(thingId) in perspectiveTexts ? perspectiveTexts[String(thingId)] : null
     export let handleMouseDown: (event: MouseEvent) => void
     export let handleMouseDrag: (event: MouseEvent) => void
     export let onBodyMouseUp: (event: MouseEvent) => void
@@ -79,7 +83,15 @@
      */
     $: thingWidgetId = `graph#${ graph.id }-thing#${ thingId }`
 
-    $: text = thing?.text || ""
+    $: perspectiveText =
+        String(thingId) in perspectiveTexts ? perspectiveTexts[String(thingId)] :
+        null
+
+    $: hasPerspectiveText = !!perspectiveText
+
+    $: text =
+        usePerspectiveText && perspectiveText ? perspectiveText :
+        thing?.text || ""
 
     /**
      * Highlighted flag.
@@ -213,7 +225,6 @@
      * @param event - The mouse-move event that triggered the method.
      */
     handleMouseDrag = (event: MouseEvent) => {
-        console.log("DRAGGED")
         if (
             dragStartPosition
             && Math.hypot(event.clientX - dragStartPosition[0], event.clientX - dragStartPosition[0]) > 5
@@ -333,6 +344,7 @@
     submitEditedText = async () => {
         await updateThingText(thingId, textBeingEdited)
         text = textBeingEdited
+        perspectiveText = perspectiveTextBeingEdited
         // Refresh Thing ID in the ThingDBModel store.
         await storeGraphDbModels<ThingDbModel>("Thing", thingId, true)
         editingText = false
