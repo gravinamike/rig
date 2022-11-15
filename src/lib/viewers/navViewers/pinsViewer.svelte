@@ -26,21 +26,25 @@
 </script>
 
 
-<main>
-    <h4>Pins</h4>
+<div class="pins-viewer">
+    <div class="title">
+        <h4>Pins</h4>
+    </div>
 
-    {#each pins as pin (pin.thingId)}
-        <PinWidget
-            thingId={pin.thingId}
-            thing={pin.thing}
-            {rePerspectToThingId}
-        />
-    {/each}
-</main>
+    <div class="content">
+        {#each pins as pin (pin.thingId)}
+            <PinWidget
+                thingId={pin.thingId}
+                thing={pin.thing}
+                {rePerspectToThingId}
+            />
+        {/each}
+    </div>
+</div>
 
 
 <style>
-    main {
+    .pins-viewer {
         outline: solid 1px lightgrey;
         outline-offset: -1px;
 
@@ -48,18 +52,33 @@
         height: 100%;
         background-color: #fafafa;
 
-        overflow-x: hidden;
-        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        padding: 0.75rem 0 0.75rem 0;
+        gap: 0.75rem;
+        
+        text-align: center;
+
+        overflow: hidden;
+    }
+
+    .title {
+        height: 20px;
+    }
+
+    h4 {
+        margin: 0;
+    }
+
+    .content {
+        flex: 1 1 0;
 
         display: flex;
         flex-direction: column;
         padding: 0.75rem;
         gap: 0.75rem;
-        
-        text-align: center;
-    }
 
-    h4 {
-        margin: 0;
+        overflow-y: auto;
+        scrollbar-width: thin;
     }
   </style>

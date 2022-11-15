@@ -73,7 +73,9 @@
 
 
 <div class="history-viewer">
-    <h4>History</h4>
+    <div class="title">
+        <h4>History</h4>
+    </div>
 
     <div class="unique-toggle {useUniqueHistory ? "toggled": ""}">
         Unique
@@ -82,28 +84,34 @@
         />
     </div>
 
-    {#each reverseHistoryWithDateDividers as entryOrDivider}
-        {#if "thingId" in entryOrDivider}
-            <div
-                class="box
-                    { entryOrDivider.thingId === hoveredThingIdStoreValue ? "hovered-thing" : "" }
-                    { entryOrDivider.thing ? "" : "id-not-found" }
-                "
-                on:mouseenter={()=>{ if (entryOrDivider && "thingId" in entryOrDivider) hoveredThingIdStore.set(entryOrDivider.thingId) }}
-                on:mouseleave={()=>{hoveredThingIdStore.set(null)}}
-                on:click={ () => { if (entryOrDivider && "thingId" in entryOrDivider && entryOrDivider.thing) rePerspectToThingId(entryOrDivider.thingId)}
-            }>
-                { entryOrDivider.thing?.text || `(THING ${entryOrDivider.thingId} NOT FOUND IN STORE)` }
-            </div>
-        {:else}
-            <div class="date-divider">
-                {entryOrDivider.timestamp.toLocaleDateString("en-US", dateDividerOptions)}
-                <hr>
-            </div>
-        {/if}
-        
-        
-    {/each}
+    <div class="content">
+        {#each reverseHistoryWithDateDividers as entryOrDivider}
+
+            {#if "thingId" in entryOrDivider}
+
+                <div
+                    class="box
+                        { entryOrDivider.thingId === hoveredThingIdStoreValue ? "hovered-thing" : "" }
+                        { entryOrDivider.thing ? "" : "id-not-found" }
+                    "
+                    on:mouseenter={()=>{ if (entryOrDivider && "thingId" in entryOrDivider) hoveredThingIdStore.set(entryOrDivider.thingId) }}
+                    on:mouseleave={()=>{hoveredThingIdStore.set(null)}}
+                    on:click={ () => { if (entryOrDivider && "thingId" in entryOrDivider && entryOrDivider.thing) rePerspectToThingId(entryOrDivider.thingId)}
+                }>
+                    { entryOrDivider.thing?.text || `(THING ${entryOrDivider.thingId} NOT FOUND IN STORE)` }
+                </div>
+
+            {:else}
+
+                <div class="date-divider">
+                    {entryOrDivider.timestamp.toLocaleDateString("en-US", dateDividerOptions)}
+                    <hr>
+                </div>
+
+            {/if}
+            
+        {/each}
+    </div>
 </div>
 
 
@@ -116,15 +124,18 @@
         height: 100%;
         background-color: #fafafa;
 
-        overflow-x: hidden;
-        overflow-y: auto;
-
         display: flex;
         flex-direction: column;
-        padding: 0.75rem;
+        padding: 0.75rem 0 0.75rem 0;
         gap: 0.75rem;
         
         text-align: center;
+
+        overflow: hidden;
+    }
+
+    .title {
+        height: 20px;
     }
 
     h4 {
@@ -132,6 +143,10 @@
     }
 
     .unique-toggle {
+        position: absolute;
+        right: 5px;
+        top: 16px;
+
         display: flex;
         flex-direction: row;
         justify-content: flex-end;
@@ -145,6 +160,18 @@
         color: darkgrey;
     }
 
+    .content {
+        flex: 1 1 0;
+
+        display: flex;
+        flex-direction: column;
+        padding: 0.75rem;
+        gap: 0.75rem;
+
+        overflow-y: auto;
+        scrollbar-width: thin;
+    }
+
     .box {
         border-radius: 10px;
         box-shadow: 5px 5px 10px 2px lightgray;
@@ -154,10 +181,10 @@
         
         display: flex;
         flex-direction: column;
-        padding: 0.33rem;
+        padding: 0.5rem;
         gap: 10px;
 
-        font-size: 0.65rem;
+        font-size: 0.75rem;
         text-align: left;
 
         cursor: default;
@@ -176,9 +203,11 @@
     }
 
     .date-divider {
-        margin-top: 1rem;
-
         text-align: left;
         font-size: 0.85rem;
+    }
+
+    .date-divider:not(:first-child) {
+        margin-top: 1rem;
     }
   </style>

@@ -185,7 +185,14 @@
                             />
                         </div>
             
-                        <div class="history-pins-container">
+                        <div class="history-pins-container">        
+                            <!-- Graph pins viewer -->
+                            <div class="pins-container">
+                                <PinsViewer
+                                    {rePerspectToThingId}
+                                />
+                            </div>
+
                             <!-- Graph history viewer -->
                             {#if graph}
                                 <div class="history-container">
@@ -195,13 +202,6 @@
                                     />
                                 </div>
                             {/if}
-            
-                            <!-- Graph pins viewer -->
-                            <div class="pins-container">
-                                <PinsViewer
-                                    {rePerspectToThingId}
-                                />
-                            </div>
                         </div>
                     </div>
                 </TabBody>
@@ -334,21 +334,19 @@
         position: relative;
 
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
 
         overflow:hidden;
     }
 
     .history-container {
         flex: 1 1 auto;
-        max-height: 66%;
 
         overflow: hidden;
     }
 
     .pins-container {
         flex: 1 1 auto;
-        max-height: 66%;
 
         overflow: hidden;
     }
