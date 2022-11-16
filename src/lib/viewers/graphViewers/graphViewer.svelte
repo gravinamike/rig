@@ -339,14 +339,14 @@
         overflow:hidden;
     }
 
-    .history-container {
-        flex: 1 1 auto;
+    .pins-container {
+        width: 45%;
 
         overflow: hidden;
     }
 
-    .pins-container {
-        flex: 1 1 auto;
+    .history-container {
+        width: 55%;
 
         overflow: hidden;
     }

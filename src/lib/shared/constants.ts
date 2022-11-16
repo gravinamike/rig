@@ -157,3 +157,10 @@ export const hyperlinkProtocols = [
 
 
 export const maxThingsToStore = 500
+
+export const dateDividerOptions = {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    weekday: "short"
+} as const
