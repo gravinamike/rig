@@ -27,16 +27,6 @@
 
     let useUniqueHistory = true
 
-    /*$: uniqueHistory = graph.history._entries.filter(
-        (element, index, array) => {
-            const historyThingIds = array.map(visitedThing => visitedThing.thingId)
-            const firstIndexOfId = historyThingIds.indexOf(element.thingId)
-            return firstIndexOfId === index
-        }
-    )
-    $: historyToUse = useUniqueHistory ? uniqueHistory : graph.history._entries*/
-
-
 
     // Construct the history Thing list.
     $: historyWithThings = graph.history._entries.map(
@@ -160,6 +150,7 @@
         outline: solid 1px lightgrey;
         outline-offset: -1px;
 
+        position: relative;
         box-sizing: border-box;
         height: 100%;
         background-color: #fafafa;

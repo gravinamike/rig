@@ -109,6 +109,16 @@
         }
     }
 
+    async function handleWheel(event: WheelEvent) {
+        if (event.ctrlKey) {
+            if (event.deltaY > 0) {
+                console.log("FORWARD")
+            } else {
+                console.log("BACK")
+            }
+        }
+    }
+
     // Set up viewer to refresh...
     // ... when a Graph is opened...
     $: {
@@ -122,7 +132,17 @@
         graph = graph // Needed for reactivity.
         allowZoomAndScrollToFit = true
     }
+
+
+
+
 </script>
+
+
+<svelte:body lang="ts"
+    on:wheel={handleWheel}
+/>
+
 
 
 <div class="graph-viewer">
@@ -179,10 +199,18 @@
                 <TabBody>
                     <div class="navigation-view">
                         <!-- Thing searchbox -->
-                        <div class="search-container">
-                            <ThingSearchboxViewer
-                                {rePerspectToThingId}
-                            />
+                        <div class="search-back-and-forth-buttons-container">
+                            <div class="search-container">
+                                <ThingSearchboxViewer
+                                    {rePerspectToThingId}
+                                />
+                            </div>
+
+                            <!-- Back and forth buttons. -->
+                            <div class="back-and-forth-buttons">
+                                <button>◄</button>
+                                <button>►</button>
+                            </div>
                         </div>
             
                         <div class="history-pins-container">        
@@ -324,8 +352,28 @@
         overflow-y: hidden;
     }
 
+    .search-back-and-forth-buttons-container {
+        outline: solid 1px lightgrey;
+        outline-offset: -1px;
+
+        background-color: #fafafa;
+
+        display: flex;
+    }
+
     .search-container {
-        flex: 0 0 auto;
+        flex: 1 1 0;
+    }
+
+    .back-and-forth-buttons {
+        display: flex;
+        flex-direction: row;
+        padding: 5px;
+        gap: 5px;
+    }
+
+    button {
+        font-size: 1.25rem;
     }
 
     .history-pins-container {
