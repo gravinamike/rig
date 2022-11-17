@@ -1,17 +1,13 @@
 <script lang="ts">
     // Import types.
     import type { Graph } from "$lib/models/constructModels"
-    import type { HistoryEntryWithThing, DateDivider } from "./utility"
 
 
     // Import constants.
     import { dateDividerOptions } from "$lib/shared/constants"
 
     // Import stores.
-    import { graphDbModelInStore, getGraphConstructs, hoveredThingIdStore } from "$lib/stores"
-
-    // Import utility functions.
-    import { getDatesBetweenTwoDates } from "./utility"
+    import { hoveredThingIdStore } from "$lib/stores"
 
     // Import related widgets.
     import { Toggle } from "$lib/widgets/layoutWidgets"
@@ -27,57 +23,7 @@
 
     let useUniqueHistory = true
 
-
-    // Construct the history Thing list.
-    $: historyWithThings = graph.history._entries.map(
-        (entry) => {
-            return {
-                timestamp: entry.timestamp,
-                thingId: entry.thingId,
-                thing: graphDbModelInStore("Thing", entry.thingId) ? getGraphConstructs("Thing", entry.thingId) : null
-            }
-        }
-    )
-
-    // Construct a list of date dividers for all dates in the history.
-    $: datesInHistory =
-        historyWithThings.length ? getDatesBetweenTwoDates(
-            historyWithThings[0].timestamp,
-            historyWithThings[historyWithThings.length - 1].timestamp
-        ) :
-        []
-    $: dateDividers = datesInHistory.map((date) => {return {timestamp: date}})
-
-    // Add the date divider list to the end of the history Thing list.
-    $: historyWithDateDividers =
-        (historyWithThings as (HistoryEntryWithThing | DateDivider)[]).concat(dateDividers)
-    
-    // Sort the history Thing/date divider list in reverse order.
-    $: reverseHistoryWithDateDividers =
-        historyWithDateDividers.sort(
-            (a, b) => b.timestamp.getTime() - a.timestamp.getTime()
-        )
-
-    $: uniqueReverseHistoryWithDateDividers = 
-        reverseHistoryWithDateDividers.filter(
-            (element, index, array) => {
-
-                if ("thingId" in element) {
-                    const historyThingIds = array.map(
-                        visitedThing => "thingId" in visitedThing ? visitedThing.thingId : "divider"
-                    )
-                    const firstIndexOfId = historyThingIds.indexOf(element.thingId)
-                    return firstIndexOfId === index
-                } else {
-                    return true
-                }
-                
-            }
-        )
-    
-    $: historyToUse =
-        useUniqueHistory ? uniqueReverseHistoryWithDateDividers :
-        reverseHistoryWithDateDividers
+    $: historyToUse = graph.history.historyForViewer(useUniqueHistory)
 </script>
 
 
