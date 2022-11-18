@@ -161,7 +161,7 @@ export class PerspectiveHistory {
         }
     }
 
-    get entryWithThingAtPosition(): HistoryEntryWithThing | DateDivider {
+    get entryWithThingAtPosition(): HistoryEntryWithThing {
         if (this._useUniqueHistory) {
             return this.uniqueHistoryWithThings[this.position]
         } else {

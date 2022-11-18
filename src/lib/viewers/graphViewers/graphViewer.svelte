@@ -71,7 +71,7 @@
      * 
      * @param thingId - The ID of the new Perspective Thing.
      */
-    async function rePerspectToThingId(thingId: number) {
+    async function rePerspectToThingId(thingId: number, updateHistory=true, zoomAndScroll=true) {
         if (graph) {
             // If the new Perspective Thing is already in the Graph, scroll to center it.
             allowScrollToThingId = true
@@ -82,19 +82,18 @@
 
             // Re-Perspect the Graph.
             showGraph = false
-            await graph.setPThingIds([thingId]) // Re-Perspect to this Thing.
+            await graph.setPThingIds([thingId], updateHistory) // Re-Perspect to this Thing.
             showGraph = true
 
             // Clear the hovered-Thing highlighting.
             hoveredThingIdStore.set(null)
 
             // Refresh, then scroll and zoom to the new Graph.
-            allowZoomAndScrollToFit = true
+            if (zoomAndScroll) allowZoomAndScrollToFit = true
             addGraphIdsNeedingViewerRefresh(graph.id)
 
             // Update Thing-visit records in the database, History, store and Graph configuration.
             await markThingsVisited(pThingIds)
-            graph.history.addEntries([thingId])
             perspectiveThingIdStore.set(thingId)
             saveGraphConfig()
         }
@@ -141,7 +140,7 @@
 
     async function handleWheel(event: WheelEvent) {
         if (event.shiftKey) {
-            if (event.deltaY < 0) {
+            if (event.deltaY > 0) {
                 back()
             } else {
                 forward()
@@ -149,7 +148,10 @@
         }
     }
 
-    $: if (graph) console.log(graph.history.position)
+    $: if (graph) {
+        const selectedHistoryThingId = graph.history.entryWithThingAtPosition.thingId
+        if (selectedHistoryThingId !== graph._pThingIds[0]) rePerspectToThingId(selectedHistoryThingId, false, false)
+    }
 </script>
 
 
