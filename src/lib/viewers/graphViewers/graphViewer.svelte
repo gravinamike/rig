@@ -109,16 +109,6 @@
         }
     }
 
-    async function handleWheel(event: WheelEvent) {
-        if (event.ctrlKey) {
-            if (event.deltaY > 0) {
-                console.log("FORWARD")
-            } else {
-                console.log("BACK")
-            }
-        }
-    }
-
     // Set up viewer to refresh...
     // ... when a Graph is opened...
     $: {
@@ -135,7 +125,31 @@
 
 
 
+    function back() {
+        if (graph) {
+            graph.history.incrementPosition(-1)
+            graph.history.position = graph.history.position // Needed for reactivity.
+        }
+    }
 
+    function forward() {
+        if (graph) {
+            graph.history.incrementPosition(1)
+            graph.history.position = graph.history.position // Needed for reactivity.
+        }
+    }
+
+    async function handleWheel(event: WheelEvent) {
+        if (event.shiftKey) {
+            if (event.deltaY < 0) {
+                back()
+            } else {
+                forward()
+            }
+        }
+    }
+
+    $: if (graph) console.log(graph.history.position)
 </script>
 
 
@@ -208,8 +222,16 @@
 
                             <!-- Back and forth buttons. -->
                             <div class="back-and-forth-buttons">
-                                <button>◄</button>
-                                <button>►</button>
+                                <button
+                                    on:click={back}
+                                >
+                                    ◄
+                                </button>
+                                <button
+                                    on:click={forward}
+                                >
+                                    ►
+                                </button>
                             </div>
                         </div>
             

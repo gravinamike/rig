@@ -1,5 +1,6 @@
 // Type imports.
 import type { Graph } from "$lib/models/constructModels"
+import { clampNumber } from "$lib/shared/utility"
 import { getGraphConstructs, graphDbModelInStore } from "$lib/stores"
 import { getDatesBetweenTwoDates, type DateDivider, type HistoryEntryWithThing } from "./historyUtility"
 
@@ -9,8 +10,15 @@ import { getDatesBetweenTwoDates, type DateDivider, type HistoryEntryWithThing }
 export class PerspectiveHistory {
     _graph: Graph
     _entries: { timestamp: Date, thingId: number }[] = []
-    historyWithThings: (HistoryEntryWithThing | DateDivider)[] = []
-    uniqueHistoryWithThings: (HistoryEntryWithThing | DateDivider)[] = []
+    _useUniqueHistory = true
+    fullHistoryWithThings: HistoryEntryWithThing[] = []
+    uniqueHistoryWithThings: HistoryEntryWithThing[] = []
+    historyWithThings: HistoryEntryWithThing[] = []
+    reverseHistoryWithDateDividers: (HistoryEntryWithThing | DateDivider)[] = []
+
+    fullPosition = 0
+    uniquePosition = 0
+    position = 0
 
     /**
      * Create the Perspective History of the Graph.
@@ -31,13 +39,16 @@ export class PerspectiveHistory {
             (thingId) => { return { timestamp: timestamp, thingId: thingId } }
         )
         this._entries.push(...entries)
-        this.buildHistoryWithThings()
-        this.buildUniqueHistoryWithThings()
+
+        this.build()
+
+        this.fullPosition = this.fullHistoryWithThings.length - 1
+        this.uniquePosition = this.uniqueHistoryWithThings.length - 1
+        this.position = this._useUniqueHistory ? this.uniquePosition : this.fullPosition
     }
 
-    buildHistoryWithThings(): void {
-        // Construct the history Thing list.
-        const historyWithThings = this._entries.map(
+    buildFullHistoryWithThings(): void {
+        const fullHistoryWithThings: HistoryEntryWithThing[] = this._entries.map(
             (entry) => {
                 return {
                     timestamp: entry.timestamp,
@@ -46,7 +57,34 @@ export class PerspectiveHistory {
                 }
             }
         )
+        
+        this.fullHistoryWithThings = fullHistoryWithThings
+    }
 
+    buildUniqueHistoryWithThings(): void {
+        const uniqueHistoryWithThings = 
+            this.fullHistoryWithThings.filter(
+                (element, index, array) => {
+
+                    if ("thingId" in element) {
+                        const historyThingIds = array.map(
+                            visitedThing => "thingId" in visitedThing ? visitedThing.thingId : "divider"
+                        )
+                        const lastIndexOfId = historyThingIds.lastIndexOf(element.thingId)
+                        return lastIndexOfId === index
+                    } else {
+                        return true
+                    }
+                    
+                }
+            )
+        
+        this.uniqueHistoryWithThings = uniqueHistoryWithThings
+    }
+
+
+
+    reverseAndAddDateDividers(historyWithThings: HistoryEntryWithThing[]): (HistoryEntryWithThing | DateDivider)[] {
         // Construct a list of date dividers for all dates in the history.
         const datesInHistory =
             historyWithThings.length ? getDatesBetweenTwoDates(
@@ -59,42 +97,75 @@ export class PerspectiveHistory {
         // Add the date divider list to the end of the history Thing list.
         const historyWithDateDividers =
             (historyWithThings as (HistoryEntryWithThing | DateDivider)[]).concat(dateDividers)
-        
+
         // Sort the history Thing/date divider list in reverse order.
         const reverseHistoryWithDateDividers =
             historyWithDateDividers.sort(
                 (a, b) => b.timestamp.getTime() - a.timestamp.getTime()
             )
-        
-        this.historyWithThings = reverseHistoryWithDateDividers
+
+        return reverseHistoryWithDateDividers
     }
 
-    buildUniqueHistoryWithThings(): void {
-        const uniqueHistoryWithThings = 
-            this.historyWithThings.filter(
-                (element, index, array) => {
 
-                    if ("thingId" in element) {
-                        const historyThingIds = array.map(
-                            visitedThing => "thingId" in visitedThing ? visitedThing.thingId : "divider"
-                        )
-                        const firstIndexOfId = historyThingIds.indexOf(element.thingId)
-                        return firstIndexOfId === index
-                    } else {
-                        return true
-                    }
-                    
-                }
-            )
-        
-        this.uniqueHistoryWithThings = uniqueHistoryWithThings
+    build(): void {
+        this.buildFullHistoryWithThings()
+        this.buildUniqueHistoryWithThings()
+        this.historyWithThings =
+            this._useUniqueHistory ? this.uniqueHistoryWithThings :
+            this.fullHistoryWithThings
+        this.reverseHistoryWithDateDividers = this.reverseAndAddDateDividers(this.historyWithThings)
+
+        this.position = this._useUniqueHistory ? this.uniquePosition : this.fullPosition
     }
 
-    historyForViewer(useUniqueHistory: boolean): (HistoryEntryWithThing | DateDivider)[] {
-        const historyToUse =
-            useUniqueHistory ? this.uniqueHistoryWithThings :
-            this.historyWithThings
 
-        return historyToUse
+    setUnique(unique: boolean): void {
+        this._useUniqueHistory = unique
+        this.build()
+    }
+
+
+
+
+    /////////////////// THEN MAKE POSITION OPERATE ON THE RAW ENTRIES, NOT THE DATE DIVIDERS.
+
+
+    incrementFullPosition(delta: -1 | 1): void {
+        const oldFullPosition = this.fullPosition
+        const newFullPosition = clampNumber(this.fullPosition + delta, 0, this.fullHistoryWithThings.length - 1)
+
+        if (newFullPosition !== oldFullPosition) {
+            this.fullPosition = newFullPosition
+            this.position = this.fullPosition
+            this.uniquePosition = this.uniqueHistoryWithThings.length - 1
+        }
+    }
+
+    incrementUniquePosition(delta: -1 | 1): void {
+        const oldUniquePosition = this.uniquePosition
+        const newUniquePosition = clampNumber(this.uniquePosition + delta, 0, this.uniqueHistoryWithThings.length - 1)
+
+        if (newUniquePosition !== oldUniquePosition) {
+            this.uniquePosition = newUniquePosition
+            this.position = this.uniquePosition
+            this.fullPosition = this.fullHistoryWithThings.length - 1
+        }
+    }
+
+    incrementPosition(delta: -1 | 1): void {     
+        if (this._useUniqueHistory) {
+            this.incrementUniquePosition(delta)
+        } else {
+            this.incrementFullPosition(delta)
+        }
+    }
+
+    get entryWithThingAtPosition(): HistoryEntryWithThing | DateDivider {
+        if (this._useUniqueHistory) {
+            return this.uniqueHistoryWithThings[this.position]
+        } else {
+            return this.fullHistoryWithThings[this.position]
+        }
     }
 }

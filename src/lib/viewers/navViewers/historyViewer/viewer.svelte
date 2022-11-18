@@ -22,10 +22,15 @@
 
 
     let useUniqueHistory = true
+    $: graph.history.setUnique(useUniqueHistory)
 
-    $: historyToUse = graph.history.historyForViewer(useUniqueHistory)
+    let historyToUse = graph.history.reverseHistoryWithDateDividers
+    $: {
+        useUniqueHistory
+
+        historyToUse = graph.history.reverseHistoryWithDateDividers
+    }
 </script>
-
 
 <!-- History viewer. -->
 <div class="history-viewer">
