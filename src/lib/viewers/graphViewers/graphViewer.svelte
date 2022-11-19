@@ -65,6 +65,9 @@
         addGraphIdsNeedingViewerRefresh(graph.id)
     }
 
+    // This indicates whether a re-Perspect operation is in progress but not yet completed.
+    let rePerspectInProgressThingId: number | null = null
+
     /**
      * Re-Perspect-to-Thing-ID method.
      * Re-builds the the Graph using the given Thing ID as the Perspective Thing.
@@ -73,6 +76,9 @@
      */
     async function rePerspectToThingId(thingId: number, updateHistory=true, zoomAndScroll=true) {
         if (graph) {
+            // Record that this re-Perspect operation is in progress.
+            rePerspectInProgressThingId = thingId
+            
             // If the new Perspective Thing is already in the Graph, scroll to center it.
             allowScrollToThingId = true
             thingIdToScrollTo = thingId
@@ -96,14 +102,16 @@
             await markThingsVisited(pThingIds)
             perspectiveThingIdStore.set(thingId)
             saveGraphConfig()
+
+            // Record that the re-Perspect operation is finished.
+            rePerspectInProgressThingId = null
         }
     }
 
     async function setGraphSpace(space: Space) {
         if (graph) {
-            
             await graph.setSpace(space)
-            
+
             addGraphIdsNeedingViewerRefresh(graph.id)
         }
     }
@@ -150,7 +158,10 @@
 
     $: if (graph) {
         const selectedHistoryThingId = graph.history.entryWithThingAtPosition.thingId
-        if (selectedHistoryThingId !== graph._pThingIds[0]) rePerspectToThingId(selectedHistoryThingId, false, false)
+        if (
+            !rePerspectInProgressThingId
+            && selectedHistoryThingId !== graph._pThingIds[0]
+        ) rePerspectToThingId(selectedHistoryThingId, false, false)
     }
 </script>
 

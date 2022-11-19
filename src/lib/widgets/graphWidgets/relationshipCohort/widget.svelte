@@ -63,9 +63,6 @@
     // Attributes managed by sub-widgets.
     let thingIdOfHoveredRelationship: number | null = null
     let stemHovered = false
-
-
-
 </script>
 
 
@@ -169,7 +166,7 @@
                     {graphWidgetStyle}
                     {thingIdOfHoveredRelationship}
                     bind:stemHovered
-                    tweenedScale={$tweenedScale}
+                    tweenedScale={$tweenedScale || 1}
                     {midline}
                     {stemBottom}
                     {stemTop}
