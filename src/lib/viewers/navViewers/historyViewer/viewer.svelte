@@ -10,7 +10,7 @@
     import { hoveredThingIdStore } from "$lib/stores"
 
     // Import related widgets.
-    import { Toggle } from "$lib/widgets/layoutWidgets"
+    import { Toggle, LogoIcon } from "$lib/widgets/layoutWidgets"
 
 
     /**
@@ -78,6 +78,13 @@
                     }
                 }>
                     { entryOrDivider.thing?.text || `(THING ${entryOrDivider.thingId} NOT FOUND IN STORE)` }
+                    {#if entryOrDivider.thingId === graph.history.selectedThingId}
+                        <div class="logo-icon-container">
+                            <LogoIcon
+                                scale={0.24}
+                            />
+                        </div>
+                    {/if}
                 </div>
 
             <!-- Date divider. -->
@@ -158,11 +165,10 @@
         border-radius: 10px;
         box-shadow: 5px 5px 10px 2px lightgray;
 
+        position: relative;
         height: max-content;
         background-color: white;
         
-        display: flex;
-        flex-direction: column;
         padding: 0.5rem;
         gap: 10px;
 
@@ -182,6 +188,12 @@
 
     .id-not-found {
         outline: dashed 1px black;
+    }
+
+    .logo-icon-container {
+        position: absolute;
+        top: 4px;
+        right: 4px;
     }
 
     .date-divider {

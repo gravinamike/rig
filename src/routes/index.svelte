@@ -29,8 +29,6 @@
     import { RelationshipBeingCreatedWidget } from "$lib/widgets/graphWidgets"
 
     import { openUnigraph } from "$lib/shared/unigraph"
-
-    import { LogoIcon } from "$lib/widgets/layoutWidgets"
     
 
     openGraphStore.set(null)
@@ -88,7 +86,7 @@
 
 
 <svelte:head>
-    <title>Rig{ $openGraphStore ? ` - ${$openGraphStore}` : "" }</title>
+    <title>{ $openGraphStore ? $openGraphStore : "Rig" }</title>
 </svelte:head>
 
 
@@ -105,7 +103,7 @@
 
     on:mousemove={handleMouseMove}
 >
-    <div style="position: absolute; z-index: 5;"><LogoIcon /></div>
+    
     <!-- Front pane for context menus and command palettes. -->
     <ContextCommandPalette />
 

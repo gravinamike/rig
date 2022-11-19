@@ -19,6 +19,7 @@ export class PerspectiveHistory {
     fullPosition = 0
     uniquePosition = 0
     position = 0
+    selectedThingId: number | null = null
 
     /**
      * Create the Perspective History of the Graph.
@@ -45,6 +46,7 @@ export class PerspectiveHistory {
         this.fullPosition = this.fullHistoryWithThings.length - 1
         this.uniquePosition = this.uniqueHistoryWithThings.length - 1
         this.position = this._useUniqueHistory ? this.uniquePosition : this.fullPosition
+        this.selectedThingId = this.entryWithThingAtPosition.thingId
     }
 
     buildFullHistoryWithThings(): void {
@@ -117,6 +119,7 @@ export class PerspectiveHistory {
         this.reverseHistoryWithDateDividers = this.reverseAndAddDateDividers(this.historyWithThings)
 
         this.position = this._useUniqueHistory ? this.uniquePosition : this.fullPosition
+        this.selectedThingId = this.entryWithThingAtPosition.thingId
     }
 
 
@@ -124,11 +127,6 @@ export class PerspectiveHistory {
         this._useUniqueHistory = unique
         this.build()
     }
-
-
-
-
-    /////////////////// THEN MAKE POSITION OPERATE ON THE RAW ENTRIES, NOT THE DATE DIVIDERS.
 
 
     incrementFullPosition(delta: -1 | 1): void {
@@ -139,6 +137,7 @@ export class PerspectiveHistory {
             this.fullPosition = newFullPosition
             this.position = this.fullPosition
             this.uniquePosition = this.uniqueHistoryWithThings.length - 1
+            this.selectedThingId = this.entryWithThingAtPosition.thingId
         }
     }
 
@@ -150,6 +149,7 @@ export class PerspectiveHistory {
             this.uniquePosition = newUniquePosition
             this.position = this.uniquePosition
             this.fullPosition = this.fullHistoryWithThings.length - 1
+            this.selectedThingId = this.entryWithThingAtPosition.thingId
         }
     }
 

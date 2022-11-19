@@ -175,6 +175,8 @@
 
 <style>
     .logo-icon {
+        position: relative;
+
         pointer-events: none;
     }
 
