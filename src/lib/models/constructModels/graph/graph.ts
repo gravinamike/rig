@@ -73,9 +73,9 @@ export class Graph {
      * Set the Graph's Perspective Thing IDs.
      * @param  {number[]} pThingIds - An array of the new Perspective Thing IDs to be set.
      */
-    async setPThingIds(pThingIds: number[]): Promise<void> {
+    async setPThingIds(pThingIds: number[], updateHistory=true): Promise<void> {
         this._pThingIds = pThingIds
-        await this.build(false)
+        await this.build(false, updateHistory)
     }
 
     async setSpace(space: Space): Promise<void> {
@@ -97,7 +97,7 @@ export class Graph {
     /**
      * Reset the Graph and build Generations up to its specified Depth.
      */
-    async build(keepCurrentSpace=true): Promise<void> {
+    async build(keepCurrentSpace=true, updateHistory=true): Promise<void> {
         // Set (or reset) build attributes to their starting values.
         this.rootCohort = null
         this.generations.reset()
@@ -111,7 +111,7 @@ export class Graph {
         await this.generations.adjustToDepth(this._depth)
 
         // Add the starting Perspective Thing IDs to History.
-        this.history.addEntries(this._pThingIds)
+        if (updateHistory) this.history.addEntries(this._pThingIds)
         
         this.lifecycleStatus = "built"
     }

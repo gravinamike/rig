@@ -72,11 +72,11 @@
         
         display: flex;
         flex-direction: column;
-        padding: 0.33rem;
+        padding: 0.5rem;
         gap: 10px;
 
         text-align: left;
-        font-size: 0.65rem;
+        font-size: 1rem;
 
         cursor: default;
     }

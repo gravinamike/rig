@@ -65,14 +65,20 @@
         addGraphIdsNeedingViewerRefresh(graph.id)
     }
 
+    // This indicates whether a re-Perspect operation is in progress but not yet completed.
+    let rePerspectInProgressThingId: number | null = null
+
     /**
      * Re-Perspect-to-Thing-ID method.
      * Re-builds the the Graph using the given Thing ID as the Perspective Thing.
      * 
      * @param thingId - The ID of the new Perspective Thing.
      */
-    async function rePerspectToThingId(thingId: number) {
+    async function rePerspectToThingId(thingId: number, updateHistory=true, zoomAndScroll=true) {
         if (graph) {
+            // Record that this re-Perspect operation is in progress.
+            rePerspectInProgressThingId = thingId
+            
             // If the new Perspective Thing is already in the Graph, scroll to center it.
             allowScrollToThingId = true
             thingIdToScrollTo = thingId
@@ -82,29 +88,30 @@
 
             // Re-Perspect the Graph.
             showGraph = false
-            await graph.setPThingIds([thingId]) // Re-Perspect to this Thing.
+            await graph.setPThingIds([thingId], updateHistory) // Re-Perspect to this Thing.
             showGraph = true
 
             // Clear the hovered-Thing highlighting.
             hoveredThingIdStore.set(null)
 
             // Refresh, then scroll and zoom to the new Graph.
-            allowZoomAndScrollToFit = true
+            if (zoomAndScroll) allowZoomAndScrollToFit = true
             addGraphIdsNeedingViewerRefresh(graph.id)
 
             // Update Thing-visit records in the database, History, store and Graph configuration.
             await markThingsVisited(pThingIds)
-            graph.history.addEntries([thingId])
             perspectiveThingIdStore.set(thingId)
             saveGraphConfig()
+
+            // Record that the re-Perspect operation is finished.
+            rePerspectInProgressThingId = null
         }
     }
 
     async function setGraphSpace(space: Space) {
         if (graph) {
-            
             await graph.setSpace(space)
-            
+
             addGraphIdsNeedingViewerRefresh(graph.id)
         }
     }
@@ -122,7 +129,47 @@
         graph = graph // Needed for reactivity.
         allowZoomAndScrollToFit = true
     }
+
+
+
+    function back() {
+        if (graph) {
+            graph.history.incrementPosition(-1)
+            graph.history.position = graph.history.position // Needed for reactivity.
+        }
+    }
+
+    function forward() {
+        if (graph) {
+            graph.history.incrementPosition(1)
+            graph.history.position = graph.history.position // Needed for reactivity.
+        }
+    }
+
+    async function handleWheel(event: WheelEvent) {
+        if (event.shiftKey) {
+            if (event.deltaY > 0) {
+                back()
+            } else {
+                forward()
+            }
+        }
+    }
+
+    $: if (graph) {
+        const selectedHistoryThingId = graph.history.entryWithThingAtPosition.thingId
+        if (
+            !rePerspectInProgressThingId
+            && selectedHistoryThingId !== graph._pThingIds[0]
+        ) rePerspectToThingId(selectedHistoryThingId, false, false)
+    }
 </script>
+
+
+<svelte:body lang="ts"
+    on:wheel={handleWheel}
+/>
+
 
 
 <div class="graph-viewer">
@@ -179,13 +226,36 @@
                 <TabBody>
                     <div class="navigation-view">
                         <!-- Thing searchbox -->
-                        <div class="search-container">
-                            <ThingSearchboxViewer
-                                {rePerspectToThingId}
-                            />
+                        <div class="search-back-and-forth-buttons-container">
+                            <div class="search-container">
+                                <ThingSearchboxViewer
+                                    {rePerspectToThingId}
+                                />
+                            </div>
+
+                            <!-- Back and forth buttons. -->
+                            <div class="back-and-forth-buttons">
+                                <button
+                                    on:click={back}
+                                >
+                                    ◄
+                                </button>
+                                <button
+                                    on:click={forward}
+                                >
+                                    ►
+                                </button>
+                            </div>
                         </div>
             
-                        <div class="history-pins-container">
+                        <div class="history-pins-container">        
+                            <!-- Graph pins viewer -->
+                            <div class="pins-container">
+                                <PinsViewer
+                                    {rePerspectToThingId}
+                                />
+                            </div>
+
                             <!-- Graph history viewer -->
                             {#if graph}
                                 <div class="history-container">
@@ -195,13 +265,6 @@
                                     />
                                 </div>
                             {/if}
-            
-                            <!-- Graph pins viewer -->
-                            <div class="pins-container">
-                                <PinsViewer
-                                    {rePerspectToThingId}
-                                />
-                            </div>
                         </div>
                     </div>
                 </TabBody>
@@ -324,8 +387,28 @@
         overflow-y: hidden;
     }
 
+    .search-back-and-forth-buttons-container {
+        outline: solid 1px lightgrey;
+        outline-offset: -1px;
+
+        background-color: #fafafa;
+
+        display: flex;
+    }
+
     .search-container {
-        flex: 0 0 auto;
+        flex: 1 1 0;
+    }
+
+    .back-and-forth-buttons {
+        display: flex;
+        flex-direction: row;
+        padding: 5px;
+        gap: 5px;
+    }
+
+    button {
+        font-size: 1.25rem;
     }
 
     .history-pins-container {
@@ -334,21 +417,19 @@
         position: relative;
 
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
 
         overflow:hidden;
     }
 
-    .history-container {
-        flex: 1 1 auto;
-        max-height: 66%;
+    .pins-container {
+        width: 45%;
 
         overflow: hidden;
     }
 
-    .pins-container {
-        flex: 1 1 auto;
-        max-height: 66%;
+    .history-container {
+        width: 55%;
 
         overflow: hidden;
     }

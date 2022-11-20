@@ -43,18 +43,7 @@
     let centralAnchor: Element | null = null
     let zoomBoundsDiv: Element | null = null
 
-
-
-
-
-
-
-
-
     $: perspectiveTexts = legacyPerspectiveThingsParse(graph.pThing?.perspectivetexts || "{}")
-    $: console.log(perspectiveTexts)
-
-    
 </script>
 
 

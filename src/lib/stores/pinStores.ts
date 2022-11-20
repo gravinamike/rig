@@ -40,3 +40,10 @@ export async function removePin( thingId: number ): Promise<void> {
     // Update the Graph config to reflect the change.
     await saveGraphConfig()
 }
+
+export async function setPins( thingIds: number[] ): Promise<void> {
+    pinIdsStore.set(thingIds)
+
+    // Update the Graph config to reflect the change.
+    await saveGraphConfig()
+}

@@ -91,15 +91,21 @@ export function legacyPerspectiveThingsParse(jsonString: string): {[thingId: str
         output = JSON.parse(jsonString)
 
     } catch {
-        
-        jsonString = jsonString.substring(1, jsonString.length - 1)
-        const split = jsonString.split(",")
-        for (const s of split) {
-            const split2 = s.split(": ")
-            const key = split2[0]
-            const value = split2[1].substring(1, split2[1].length - 1)
-            output[key] = value
-        }
+
+        const modifiedJsonString =
+            jsonString
+                // Convert `{N: ` to `{"N": `.
+                .replace( /{\d+:\s/g, (match) => {return `{"${match.substring(1, match.length - 2)}": `} )
+                // Convert `, N: ` to `, "N": `.
+                .replace(/,\s\d+:\s/g, (match) => {return `, "${match.substring(2, match.length - 2)}": `})
+                // Convert `": '` to `": "`.
+                .replace(/":\s'/g, `": "`)
+                // Convert `', "` to `", "`.
+                .replace(/',\s"/g, `", "`)
+                // Convert final `'}` to `"}`.
+                .replace(/'}$/g, `"}`)
+
+        output = JSON.parse(modifiedJsonString)
 
     }    
     

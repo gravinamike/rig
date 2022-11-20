@@ -7,6 +7,7 @@
     import { sleep } from "$lib/shared/utility"
     import { updateThingDefaultSpace } from "$lib/db/clientSide"
     import { addGraphIdsNeedingViewerRefresh, storeGraphDbModels } from "$lib/stores"
+    import { LogoIcon } from "$lib/widgets/layoutWidgets"
 
 
     export let space: Space
@@ -90,10 +91,6 @@
     on:dblclick={() => { if (interactionMode = "display") handleButton() }}     
 >
     <div class="space-name">
-        <div class="space-id">
-            {space.id}
-        </div>
-
         <div>
             {#if interactionMode === "display"}
                 {space.text}
@@ -118,7 +115,6 @@
                     />
                 {/if}
             {:else}
-                <!-- Make 4 of these and feed in halfAxisId. -->
                 <DirectionDropdownWidget
                     direction={info.direction}
                     halfAxisId={info.halfAxisId}
@@ -163,13 +159,15 @@
     {#if defaultPerspectiveSpace || isHovered}
         <div
             class="perspective-space-button"
-            style="color: {defaultPerspectiveSpace ? "black" : "lightgrey"}"
 
             on:click|stopPropagation={setPerspectiveThingDefaultSpace}
         >
-            <div>
-                ★
-            </div>
+            <LogoIcon
+                scale={0.24}
+                outlineColor={ defaultPerspectiveSpace ? "black" : "whitesmoke" }
+                backgroundColor={"whitesmoke"}
+                imageColor={ defaultPerspectiveSpace ? "dimgrey" : "lightgrey" }
+            />
         </div>
     {/if}
 </div>
@@ -205,13 +203,6 @@
 
     .space-widget:active {
         background-color: lightgrey;
-    }
-
-    .space-id {
-        padding: 0 0.25rem 0 0.25rem;
-
-        font-size: 1rem;
-        font-weight: 600;
     }
 
     .space-name {
@@ -309,29 +300,10 @@
     }
 
     .perspective-space-button {
-        border-radius: 10px;
-
         position: absolute;
-        top: 5px;
-        left: 5px;
-        width: 20px;
-        height: 20px;
-        background-color: white;
+        top: 4px;
+        right: 4px;
 
-        vertical-align: 15px;
-        font-size: 1.5rem;
-    }
-
-    .perspective-space-button:hover {
-        background-color: rgb(235, 235, 235);
-    }
-
-    .perspective-space-button:active {
-        background-color: rgb(225, 225, 225);
-    }
-
-    .perspective-space-button div {
-        position: relative;
-        top: -8.5px;
+        cursor: pointer;
     }
 </style>

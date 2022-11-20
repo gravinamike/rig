@@ -86,7 +86,7 @@
 
 
 <svelte:head>
-    <title>Rig{ $openGraphStore ? ` - ${$openGraphStore}` : "" }</title>
+    <title>{ $openGraphStore ? $openGraphStore : "Rig" }</title>
 </svelte:head>
 
 
@@ -103,7 +103,7 @@
 
     on:mousemove={handleMouseMove}
 >
-
+    
     <!-- Front pane for context menus and command palettes. -->
     <ContextCommandPalette />
 
