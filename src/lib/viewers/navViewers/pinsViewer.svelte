@@ -3,7 +3,7 @@
     import type { ThingDbModel } from "$lib/models/dbModels/clientSide";
     
     import { flip } from "svelte/animate"
-    import { pinIdsStore, storeGraphDbModels, graphDbModelInStore, getGraphConstructs } from "$lib/stores"
+    import { pinIdsStore, storeGraphDbModels, graphDbModelInStore, getGraphConstructs, setPins } from "$lib/stores"
     import { PinWidget } from "$lib/widgets/navWidgets"
 
     export let rePerspectToThingId: (thingId: number) => Promise<void>
@@ -41,6 +41,8 @@
             }
 
             pins = reorderedPins
+            // Update the store and the config file.
+            setPins( pins.map(pin => pin.thingId) )
         }
     }
   
