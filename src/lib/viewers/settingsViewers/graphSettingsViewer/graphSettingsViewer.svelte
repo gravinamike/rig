@@ -2,7 +2,7 @@
     import type { Graph } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
     import { addGraphIdsNeedingViewerRefresh } from "$lib/stores"
-    import { SettingWidget } from "$lib/widgets/layoutWidgets"
+    import SettingWidget from "./settingWidget.svelte"
 
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
