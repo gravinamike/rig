@@ -20,6 +20,8 @@
 
 
     function setContent(content: string) {
+        if (noteChanged) return
+
         editor?.destroy()
         editor = new Editor({
             element: textField,
@@ -44,6 +46,7 @@
             onUpdate: () => {
                 noteChanged = true
                 editorContent = editor.getHTML()
+                noteText = editorContent
             }
         })
         editor.commands.setContent(content)

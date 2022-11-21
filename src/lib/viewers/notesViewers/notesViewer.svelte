@@ -40,11 +40,6 @@
     let noteChanged = false
     // It is set to true whenever an edit is made, and is reset to false whenever the Note
     // text changes with the Perspective.
-    $: {
-        noteText
-
-        noteChanged = false
-    }
     // When it changes to True, save the changes to the stores and back-end.
     $: if (noteChanged && !updatingTextAfterRePerspect) handleNoteEdited()
 
@@ -67,15 +62,14 @@
     // Get Note text.
     let noteText = ""
     let noteTextForDisplay = "" // Post-processing is needed to make empty paragraphs and line breaks render correctly in the display.
-    $: if (pThing) {
+    
+    function setTextFromPThing(pThing: Thing) {
         updatingTextAfterRePerspect = true
         noteText = pThing?.note?.text || ""
         noteTextForDisplay = textForDisplay(noteText)
         updatingTextAfterRePerspect = false
     }
-
-
-    
+    $: if (pThing) setTextFromPThing(pThing)    
 
 
     /**
@@ -125,13 +119,14 @@
             // Re-store the Thing and re-build the Graph (in order to update
             // the Note ID).
             await storeGraphDbModels<ThingDbModel>("Thing", pThing.id, true)
-            graph.build()
+            await graph.build()
+            pThing = graph.pThing as Thing
         }
         // Update the Note and mark the Thing as modified.
         await updateNote(noteId, editorContent)
         await markNotesModified(noteId)
         // Re-store the Thing (in order to update its linker to the created/updated Note).
-        await storeGraphDbModels<ThingDbModel>("Thing", pThing.id, true)
+        await storeGraphDbModels<ThingDbModel>("Thing", pThing.id as number, true)
         noteChanged = false
         noteTextForDisplay = textForDisplay(editorContent)
     }
@@ -211,7 +206,7 @@
         <!-- Note editor. -->
         {#if editable}
             <NotesEditor
-                {noteText}
+                bind:noteText
                 bind:noteChanged
                 bind:editorContent
             />
