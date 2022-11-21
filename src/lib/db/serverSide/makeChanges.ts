@@ -44,7 +44,7 @@ export async function createNewRelatedThing(thingIdToRelateFrom: number, directi
             const orders = queriedRelationshipsInSameCohort.map( model => {
                 return model.relationshiporder ? model.relationshiporder : 0
             } )
-            const maxOrder = Math.max(...orders)
+            const maxOrder = orders.length ? Math.max(...orders) : -1
             const newOrder = maxOrder + 1
 
             // Get Direction info.
