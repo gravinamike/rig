@@ -6,11 +6,11 @@ export async function post(
 ): Promise<{status: number, body: string | {error: string}}> {
     try {
         const body = await request.json()
-        await addNoteToThing(body.thingId)
+        const newNoteId = await addNoteToThing(body.thingId)
         
         return {
             status: 200,
-            body: "New Note added to Thing successfully."
+            body: JSON.stringify(newNoteId)
         }
 
     } catch(err) {

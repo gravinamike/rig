@@ -191,7 +191,9 @@ export async function updateThingDefaultSpace(thingId: number, spaceId: number):
 /*
  * Add a Note to a Thing.
  */
-export async function addNoteToThing(thingId: number): Promise<void> {
+export async function addNoteToThing(thingId: number): Promise<number | false> {
+    let newNoteId: number | false = false
+
     // Get parameters for SQL query.
     const whenCreated = (new Date()).toISOString()
 
@@ -208,16 +210,19 @@ export async function addNoteToThing(thingId: number): Promise<void> {
         const querystring2 = thingToAddNoteTo.$relatedQuery('note').relate(newAddedNote.id).toKnexQuery().toString()
         await alterQuerystringForH2AndRun(querystring2, transaction, whenCreated, "NoteToThing") as RawNoteToThingDbModel
 
-        return
+        return Number(newAddedNote.id)
     })
 
     // Report on the response.
-    .then(function() {
+    .then(function(noteId) {
         console.log('Transaction complete.')
+        newNoteId = noteId
     })
     .catch(function(err: Error) {
         console.error(err)
     })
+
+    return newNoteId
 }
 
 /*

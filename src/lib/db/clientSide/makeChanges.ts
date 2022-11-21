@@ -122,7 +122,9 @@ export async function updateThingDefaultSpace(
 /*
  * Add a Note to a Thing.
  */
-export async function addNoteToThing( thingId: number ): Promise<boolean> {
+export async function addNoteToThing( thingId: number ): Promise<number | false> {
+    let newNoteId: number | false = false
+
     // Post to the add-Note-to-Thing API.
     const res = await fetch(
         `api/db/graphManipulation/addNoteToThing`,
@@ -136,11 +138,12 @@ export async function addNoteToThing( thingId: number ): Promise<boolean> {
 
     // Report on the response.
     if (res.ok) {
-        return true
+        newNoteId = await res.json()
     } else {
         res.text().then(text => {throw Error(text)})
-        return false
     }
+
+    return newNoteId
 }
 
 /*

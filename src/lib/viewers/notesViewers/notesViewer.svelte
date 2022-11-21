@@ -1,49 +1,90 @@
 <script lang="ts">
+    // Import types.
     import type { Thing, Graph } from "$lib/models/constructModels"
-    import { thingDbModelsStore, storeGraphDbModels, getGraphConstructs, graphDbModelInStore } from "$lib/stores/graphConstructStores"
-    import NotesEditor from "./notesEditor.svelte"
-    import { addNoteToThing, markNotesModified, thingsByGuid, updateNote } from "$lib/db/clientSide"
-    import { hyperlinkProtocols } from "$lib/shared/constants"
-    import type { ThingDbModel } from "$lib/models/dbModels/clientSide";
+    import type { ThingDbModel } from "$lib/models/dbModels/clientSide"
 
+    // Import constants and stores.
+    import { hyperlinkProtocols } from "$lib/shared/constants"
+    import { storeGraphDbModels } from "$lib/stores/graphConstructStores"
+
+    // Import related widgets.
+    import NotesEditor from "./notesEditor.svelte"
+
+    // Import API methods.
+    import { addNoteToThing, markNotesModified, thingsByGuid, updateNote } from "$lib/db/clientSide"
+
+
+    /**
+     * @param graph - The Graph that this widget is displaying Notes for.
+     * @param rePerspectToThingId - Method to re-Perspect the Graph to a given Thing ID.
+     */
     export let graph: Graph
     export let rePerspectToThingId: (thingId: number) => Promise<void>
 
     
+    
     let notesContainer: Element
+
+    // Editable flag indicates whether Notes are displayed as plain HTML or as an editable interface.
     let editable = false
+
+    // The current text content of the editor.
+    let editorContent = ""
+
+    // Updating-text-after-re-Perspect flag indicates whether the text is
+    // currently in the process of being updated after the Graph was
+    // re-Perspected.
+    let updatingTextAfterRePerspect = false
+
+    // Note-changed flag indicates whether the Note text has changed in the editor.
     let noteChanged = false
-    let editorContent: string
-
-    // Get Perspective Thing.
-    let pThing: Thing | null = null
-    $: {
-        const pThingIds = graph.pThingIds
-        const pThingId = pThingIds && pThingIds.length ? pThingIds[0] : null
-        pThing = pThingId && $thingDbModelsStore && graphDbModelInStore("Thing", pThingId) ?
-            getGraphConstructs<Thing>("Thing", pThingId) :
-            null
-    }
-
-    // Get Note title and text.
-    $: title = pThing ? pThing.text : "THING NOT FOUND IN STORE"
-    $: noteId = pThing?.note?.id || null
-    let noteText = ""
-    let noteTextForDisplay = "" // Post-processing is needed to make empty paragraphs and line breaks render correctly in the display.
-    $: if (!editable) {
-        noteText = pThing?.note?.text || "" // Don't reset the text if the text editor is open.
-        noteTextForDisplay = noteText
-            .replace(/<br><\/p><\/li>/gi, "<br><br></p></li>")
-            .replace(/<p><\/p>/gi, "<p>&nbsp;</p>")
-    }
-
-    // When Perspective changes, reset Note-changed flag.
+    // It is set to true whenever an edit is made, and is reset to false whenever the Note
+    // text changes with the Perspective.
     $: {
         noteText
+
         noteChanged = false
     }
+    // When it changes to True, save the changes to the stores and back-end.
+    $: if (noteChanged && !updatingTextAfterRePerspect) handleNoteEdited()
 
-    // Handling outside clicks and escape key to stop editing.
+    // Set up custom hyperlink handling for Thing-links.
+    document.addEventListener("click", handleHyperlinkClick)
+
+
+
+    // Determine Perspective Thing.
+    let pThing: Thing | null = null
+    $: {
+        graph.pThingIds
+        
+        pThing = graph.pThing
+    }
+
+    // Get Note title (Thing text).
+    $: title = pThing ? pThing.text : "THING NOT FOUND IN STORE"
+
+    // Get Note text.
+    let noteText = ""
+    let noteTextForDisplay = "" // Post-processing is needed to make empty paragraphs and line breaks render correctly in the display.
+    $: if (pThing) {
+        updatingTextAfterRePerspect = true
+        noteText = pThing?.note?.text || ""
+        noteTextForDisplay = textForDisplay(noteText)
+        updatingTextAfterRePerspect = false
+    }
+
+
+    
+
+
+    /**
+     * Handle-possible-outside-click method.
+     * 
+     * Checks whether a mouse click happened outside of the editor, and if so,
+     * disables editing.
+     * @param event - The mouse click that activated the method.
+     */
 	function handlePossibleOutsideClick(event: MouseEvent) {
 		if (
             event.target !== notesContainer
@@ -52,91 +93,119 @@
 			editable = false
 		}
 	}
+
+    /**
+     * Handle-escape method.
+     * 
+     * Checks whether the escape key was pressed, and if so, disables editing.
+     * @param event - The key event that activated the method.
+     */
     function handleEscape(event: KeyboardEvent) {
         if (event.key === "Escape") editable = false
     }
 
 
-    /* Set up triggers to either create and save, or just save, note as needed. */
-    async function handleNoteChanged() {
+    /**
+     * Handle-note-changed method.
+     * 
+     * Checks whether the escape key was pressed, and if so, disables editing.
+     */
+    async function handleNoteEdited() {
+        // If there's no Perspective Thing, abort.
+        if (!pThing || !pThing.id) return
 
-        if (!pThing || !pThing.id) {
+        let noteId = pThing?.note?.id || null
 
-            return
-
-        } else if (noteId === null) {
-
-            await addNoteToThing(pThing.id)
-            // Re-store the Thing (in order to update its linker to the new Note).
+        // If there's not yet a Note for this Perspective Thing, create one.
+        if (noteId === null) {
+            // Create a new Note.
+            const newNoteId = await addNoteToThing(pThing.id)
+            if (!newNoteId) return
+            noteId = newNoteId
+            // Re-store the Thing and re-build the Graph (in order to update
+            // the Note ID).
             await storeGraphDbModels<ThingDbModel>("Thing", pThing.id, true)
-            noteChanged = false
-
-        } else {
-            await updateNote(noteId, editorContent)
-            await markNotesModified(noteId)
-            // Re-store the Thing (in order to update its linker to the updated Note).
-            await storeGraphDbModels<ThingDbModel>("Thing", pThing.id, true)
-            noteChanged = false
-
+            graph.build()
         }
+        // Update the Note and mark the Thing as modified.
+        await updateNote(noteId, editorContent)
+        await markNotesModified(noteId)
+        // Re-store the Thing (in order to update its linker to the created/updated Note).
+        await storeGraphDbModels<ThingDbModel>("Thing", pThing.id, true)
+        noteChanged = false
+        noteTextForDisplay = textForDisplay(editorContent)
     }
-    $: if (noteChanged) handleNoteChanged()
+
+
+    function textForDisplay(text: string) {
+        return text
+            .replace(/<br><\/p><\/li>/gi, "<br><br></p></li>")
+            .replace(/<p><\/p>/gi, "<p>&nbsp;</p>")
+    }
     
+    /**
+     * Handle-hyperlink-clicked method.
+     * 
+     * Implements custom hyperlink behavior to allow for Thing-links (hyperlinks
+     * that lead to Things in the Graph instead of external URLs).
+     * @param event - The mouse click that activated the method.
+     */
+    async function handleHyperlinkClick(event: MouseEvent) {
+        // Get the hyperlink <a> element.
+        const hyperlink = event.target ? (event.target as Element).closest("a") : null
+        if (!hyperlink) return
 
+        // Determine if the hyperlink is regular (or follows a special Thing-link
+        // protocol).
+        let isRegularHyperlink = false
+        for (const protocol of hyperlinkProtocols) {
+            if (hyperlink.href.startsWith(`${protocol}://`)) isRegularHyperlink = true
+        }
 
+        // If the hyperlink follows a special Thing-link protocol,
+        if (!isRegularHyperlink) {
+            // Prevent the default handler.
+            event.preventDefault()
 
-    // Set up custom hyperlink handling for Thing-links.
-    document.addEventListener("click", async event => {
-        if (event.target) {
-            const originElement = event.target as Element
-            const hyperlink = originElement.closest("a")
-            if (hyperlink) {
+            // Get the Graph ID.
+            const notesViewer = hyperlink.closest(".notes-viewer")
+            if (!notesViewer) return
+            const classes = (notesViewer as HTMLDivElement).classList
+            const graphId = Number(classes[1][classes[1].length - 1])
 
-                let isRegularHyperlink = false
-                for (const protocol of hyperlinkProtocols) {
-                    if (hyperlink.href.startsWith(`${protocol}://`)) isRegularHyperlink = true
-                }
+            // Get the linked Thing's GUID.
+            const guid = hyperlink.href.split("//")[1]
 
-                if (!isRegularHyperlink) {
+            // Get the Thing ID that corresponds to that GUID.
+            const thingsForGuid = await thingsByGuid([guid])
+            const thingId = thingsForGuid.length ? thingsForGuid[0].id : null
 
-                    event.preventDefault()
-                    const notesViewer = hyperlink.closest(".notes-viewer")
-                    if (notesViewer) {
-                        const classes = (notesViewer as HTMLDivElement).classList
-                        const graphId = Number(classes[1][classes[1].length - 1])
-
-                        console.log(`You clicked ${hyperlink.href} for viewer ${graphId}`)
-
-                        const guid = hyperlink.href.split("//")[1]
-
-                        const thingsForGuid = await thingsByGuid([guid])
-                        const thingId = thingsForGuid.length ? thingsForGuid[0].id : null
-
-                        if (graph.id === graphId && thingId) {
-                            rePerspectToThingId(thingId)
-                        }
-                    }
-
-                }
+            // Re-Perspect to that Thing ID.
+            if (graph.id === graphId && thingId) {
+                rePerspectToThingId(thingId)
             }
         }
-    })
+    }
 </script>
 
 
+<!-- Page body click and escape handlers. -->
 <svelte:body
     on:click={handlePossibleOutsideClick}
     on:keyup={handleEscape}
 />
 
-
+<!-- Notes viewer. -->
 <div class="notes-viewer graph-{graph.id}">
+
+    <!-- Title. -->
     <h4>{title}</h4>
 
     <!-- Container to hold either Note display or Note editor. -->
     <div
         class="notes-container"
         bind:this={notesContainer}
+        
         on:dblclick={() => {editable = true}}
     >
         <!-- Note editor. -->
@@ -146,6 +215,7 @@
                 bind:noteChanged
                 bind:editorContent
             />
+
         <!-- Note display. -->
         {:else}
             <div class="notes-display">
