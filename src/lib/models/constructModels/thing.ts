@@ -279,7 +279,7 @@ export class ThingSearchListItem {
     constructor(dbModel: ThingSearchListItemDbModel) {
         this.dbModel = dbModel
 
-        this.id = dbModel.id
+        this.id = Number(dbModel.id)
         this.guid = dbModel.guid
         this.text = dbModel.text
     }

@@ -128,7 +128,6 @@ export class Generations {
      * @return {number} - The IDs of all the Things for the to-be-built Generation.
      */
     newGenerationThingIds(): number[] {
-
         return this.idToBuild === 0 ?
             // For generation 0, start from the Perspective Thing IDs.
             this._graph.pThingIds :

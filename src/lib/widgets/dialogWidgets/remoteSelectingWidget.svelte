@@ -65,7 +65,7 @@
         unfilteredArray = []
         for (const thingSearchListItem of thingSearchList) {
             unfilteredArray.push({
-                id: (thingSearchListItem.id as number),
+                id: (thingSearchListItem.id),
                 name: (thingSearchListItem.text as string)
             })
         }

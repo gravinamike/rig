@@ -79,7 +79,6 @@ export class Generation {
                 const thing =
                     graphDbModelInStore("Thing", memberId) ? getGraphConstructs<Thing>("Thing", memberId) :
                     null
-
                 const alreadyRendered = this.graph.thingIdsAlreadyInGraph.includes(memberId)
                 
                 const member: GenerationMember = {
@@ -87,7 +86,6 @@ export class Generation {
                     thing: thing,
                     alreadyRendered: alreadyRendered
                 }
-                
                 this.graph.rootCohort.addMember(member)
             }
 
