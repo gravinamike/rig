@@ -300,6 +300,25 @@ export async function deleteRelationship( sourceThingId: number, destThingId: nu
 
 
 /*
+ * Set the database listening port.
+ */
+export async function setDbPort(): Promise<void> {
+    await fetch("/api/db/dbPort", {
+        method: "POST"
+    })
+}
+
+/*
+ * Set the base Graphs folder.
+ */
+export async function setGraphsBaseFolder(): Promise<void> {
+    await fetch("/api/file/graphsBaseFolder", {
+        method: "POST"
+    })
+}
+
+
+/*
  * Set the Unigraph folder.
  */
 export async function setUnigraphFolder(folderName: string): Promise<void> {

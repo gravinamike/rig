@@ -1,8 +1,10 @@
 import path from "path"
 import fs from "fs"
 const fsPromises = fs.promises
-import { graphsBaseFolder, unigraphFolder } from "$lib/shared/constants"
+import { unigraphFolder } from "$lib/shared/constants"
 import { initializeNewGraph } from "$lib/db/serverSide"
+import { get } from "svelte/store"
+import { graphsBaseFolderStore } from "$lib/stores"
 
 
 export async function listAttachmentsFolder(folderGuid: string): Promise<string[]> {
@@ -23,6 +25,7 @@ export async function createFolder(folderGuid: string): Promise<void> {
 
 
 export async function listGraphsFolder(): Promise<string[]> {
+    const graphsBaseFolder = get(graphsBaseFolderStore)
     const folderPath = path.join(graphsBaseFolder)
 
     const folderContents = fs.readdirSync(folderPath, { withFileTypes: true })
@@ -45,6 +48,7 @@ export async function listGraphsFolder(): Promise<string[]> {
 
 
 export async function createNewGraphFile(folderName: string): Promise< void > {
+    const graphsBaseFolder = get(graphsBaseFolderStore)
     const sourceGraphFilePath = "./static/templates/empty.mv.db"
     const destFolderPath = path.join(graphsBaseFolder, folderName)
     const destGraphFilePath = path.join(destFolderPath, "graph.mv.db")

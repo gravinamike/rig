@@ -5,6 +5,16 @@ import { nullNewFileCreationInfo } from "$lib/widgets/dialogWidgets"
 
 
 
+// Database listening port store.
+// Holds the port number that the database listens on.
+export const dbPortStore = writable( 3000 )
+
+
+// Base Graphs Folder Store.
+// Holds the folder path where the app finds Graph files.
+export const graphsBaseFolderStore = writable( "" )
+
+
 // Graph Folders Store.
 // Holds a list of folder paths for each Graph in the Graphs directory.
 export const graphFoldersStore = writable( [] as string[] )

@@ -1,9 +1,15 @@
-
-
 REM Change to the directory of the repo.
 
 cd /D "%~dp0"
 cd ../../
+
+
+REM Load the port number from the serverconfig file.
+
+for /f "tokens=1,2 delims=:{}, " %%A in (static/config/serverconfig.json) do (
+    If "%%~A"=="serverPort" set /A port=%%~B
+    If "%%~A"=="dbPort" set /A dbport=%%~B
+)
 
 
 REM Start H2 server for Rig back-end.
@@ -13,7 +19,7 @@ if %errorlevel% == 0 (
     echo H2 server already running - aborting new server.
 ) else (
     echo Starting H2 server.
-    START /min "Rig back-end server" java -cp "static/app/h2-1.4.197.jar" org.h2.tools.Server -pg
+    START /min "Rig back-end server" java -cp "static/app/h2-1.4.197.jar" org.h2.tools.Server -pg -pgPort %dbport%
 )
 
 
@@ -24,6 +30,7 @@ if %errorlevel% == 0 (
     echo Rig server already running - aborting new server.
 ) else (
     echo Starting Rig server.
+    set PORT = %port%
     START /min "Rig front-end server" node build/index.js
 )
 
@@ -31,4 +38,5 @@ if %errorlevel% == 0 (
 REM Open app in default browser.
 
 echo Opening app in default browser.
-START "" http://localhost:3000/
+set url=http://localhost:%port%/
+START "" %url%

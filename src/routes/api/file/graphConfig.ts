@@ -1,9 +1,8 @@
 import path from "path"
 import fs from "fs"
 import type { GraphConfig } from "$lib/shared/constants"
-import { unigraphFolderStore } from "$lib/stores"
+import { graphsBaseFolderStore, unigraphFolderStore } from "$lib/stores"
 import { get as getStore } from "svelte/store"
-import { graphsBaseFolder } from "$lib/shared/constants"
 
 
 export async function get(): Promise<{
@@ -11,7 +10,7 @@ export async function get(): Promise<{
     body: GraphConfig | { error: string }
 }> {
     try {
-
+        const graphsBaseFolder = getStore(graphsBaseFolderStore)
         const unigraphFolderStoreValue = getStore(unigraphFolderStore)
 
         const graphConfigPath = unigraphFolderStoreValue ?
@@ -57,6 +56,7 @@ export async function post(
     body: { message: string } | { error: string }
 }> {
     try {
+        const graphsBaseFolder = getStore(graphsBaseFolderStore)
         const body = await request.json()
         const graphConfigPath = `${graphsBaseFolder}/${getStore(unigraphFolderStore)}/config.json`
         fs.writeFile(graphConfigPath, JSON.stringify(body), function (err) {

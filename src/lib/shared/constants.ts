@@ -4,7 +4,6 @@ import type { Space, Direction, Thing, Relationship } from "$lib/models/construc
 /*
  * "Constants" that will eventually be moved into an editable config file.
  */
-export const graphsBaseFolder = "C:/Rig/graphs"
 export const unigraphFolder = "C:/Users/mtgra/Desktop/LifeSeahorse_test/LifeGrid_graph"
 export const startingGraphDepth = 1
 export const zoomBase = 1.45
@@ -13,6 +12,12 @@ export const zoomBase = 1.45
 /*
  * App-level interfaces and types.
  */
+export interface ServerConfig {
+    serverPort: number
+    dbPort: number
+    graphsFolder: string
+}
+
 export interface AppConfig {
     unigraphFolder: string | null
 }

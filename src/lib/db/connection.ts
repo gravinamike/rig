@@ -1,9 +1,8 @@
 import path from "path"
-import { graphsBaseFolder } from "$lib/shared/constants"
 import Knex from "knex"
 import pkg from "objection"
 const { Model, knexSnakeCaseMappers } = pkg
-import { unigraphFolderStore } from "$lib/stores"
+import { dbPortStore, graphsBaseFolderStore, unigraphFolderStore } from "$lib/stores"
 import { get } from "svelte/store"
 
 
@@ -23,6 +22,8 @@ const cached = global.h2
  * Get a connection to the database.
  */
 export async function getDatabaseConnection( newGraphName: (string | null) = null ): Promise<typeof Model> {
+    const dbPort = get(dbPortStore)
+    const graphsBaseFolder = get(graphsBaseFolderStore)
     const unigraphFolderName = newGraphName ?
         newGraphName :
         get(unigraphFolderStore)
@@ -40,7 +41,7 @@ export async function getDatabaseConnection( newGraphName: (string | null) = nul
             database: `${unigraphFolderPath}/graph;MODE=PostgreSQL;`,// PostgreSQL compatibility mode, for original database file.
             //database: `${unigraphPath}/graph;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH`,// PostgreSQL compatibility mode. Use this version for subsequent new database files.
             password: 'goodguess',
-            port: 5435,
+            port: dbPort,
         },
         ...knexSnakeCaseMappers({ upperCase: true })
     }

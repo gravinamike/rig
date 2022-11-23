@@ -2,7 +2,7 @@ import type { AppConfig, GraphConfig } from "$lib/shared/constants"
 import { get } from "svelte/store"
 import { pinIdsStore } from "$lib/stores/pinStores"
 import { getAppConfig, getGraphConfig } from "$lib/db/clientSide/getInfo"
-import { setUnigraphFolder, saveAppConfig as apiSaveAppConfig, saveGraphConfig as apiSaveGraphConfig } from "$lib/db/clientSide/makeChanges"
+import { setDbPort, setGraphsBaseFolder, setUnigraphFolder, saveAppConfig as apiSaveAppConfig, saveGraphConfig as apiSaveGraphConfig } from "$lib/db/clientSide/makeChanges"
 import { perspectiveThingIdStore } from "$lib/stores"
 
 
@@ -11,6 +11,8 @@ export async function storeAppConfig(): Promise<AppConfig> {
     const appConfig = await getAppConfig() as AppConfig
 
     // Set the back-end stores.
+    await setDbPort()
+    await setGraphsBaseFolder()
     if (appConfig.unigraphFolder) {
         await setUnigraphFolder(appConfig.unigraphFolder)
     }
