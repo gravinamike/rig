@@ -63,7 +63,6 @@ export const headerLevels = [ 1, 2, 3, 4, 5, 6, null ] as const
 /*
  * Layout parameters.
  */
-export const navHeight = "3rem"
 export const planePadding = 20
 
 

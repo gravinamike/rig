@@ -17,7 +17,7 @@
     }
 </script>
 
-<main>
+<div class="about-menu">
     <h1>ABOUT</h1>
 
     <hr />
@@ -29,16 +29,14 @@
     <div class="secret" on:click={displaySecret}>
         ?
     </div>
-</main>
+</div>
   
 <style>
-    main {
-        border-radius: 5px;
-        box-shadow: 5px 5px 10px 10px lightgray;
+    .about-menu {
+        position: relative;
+        height: 100%;
 
-        margin: 5rem;
-
-        padding: 2rem;
+        padding: 1rem;
 
         font-size: 1rem;
     }

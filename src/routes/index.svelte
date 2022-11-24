@@ -6,7 +6,7 @@
     import { onMount } from "svelte"
 
     // Import constants and configs.
-    import { startingGraphDepth, navHeight } from "$lib/shared/constants"
+    import { startingGraphDepth } from "$lib/shared/constants"
     import { storeAppConfig } from "$lib/shared/config"
 
     // Import database/stores-related functions.
@@ -23,6 +23,7 @@
 
     // Import viewers.
     import FileViewer from "$lib/viewers/settingsViewers/fileViewer.svelte"
+    import AboutMenu from "$lib/viewers/about.svelte"
     import { DirectionsStoreViewer, SpacesStoreViewer, ThingsStoreViewer } from "$lib/viewers/storeViewers"
     import { DbLatestViewer } from "$lib/viewers/dbViewers"
     import { GraphViewer } from "$lib/viewers/graphViewers"
@@ -99,7 +100,6 @@
         $reorderingInfoStore.dragStartPosition !== null
         && $reorderingInfoStore.thingCohort?.rowOrColumn() === "column"
     }
-    style="height: calc( 100% - {navHeight} )"
 
     on:mousemove={handleMouseMove}
 >
@@ -150,6 +150,11 @@
     <!-- File viewer. -->
     <Collapser headerText={`File${ $openGraphStore ? `&nbsp;&nbsp;-&nbsp;&nbsp;${$openGraphStore}` : "" }`} contentDirection={"left"}>
         <FileViewer />
+    </Collapser>
+
+    <!-- About menu. -->
+    <Collapser headerText={"About"} contentDirection={"left"}>
+        <AboutMenu />
     </Collapser>
     
     <!-- Stores/database viewers. -->
@@ -215,6 +220,8 @@
 
 <style>
     main {
+        height: 100%;
+        
         display: flex;
         flex-direction: row;
 
