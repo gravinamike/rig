@@ -14,7 +14,7 @@
 
     // Import widgets.
     import {
-        ContextCommandPalette, Collapser, TabBlock, TabFlap, TabFlaps, TabBody, WaitingIndicator
+        ContextCommandPalette, SideMenu, Collapser, TabBlock, TabFlap, TabFlaps, TabBody, WaitingIndicator
     } from "$lib/widgets/layoutWidgets"
     import { 
         NewFileWidget, RemoteRelatingWidget, ThingLinkingWidget, TextHyperlinkingWidget,
@@ -122,6 +122,30 @@
 
     <!-- Controller for Relationship-reorder operations. -->
     <RelationshipReorderController />
+
+
+
+
+
+
+
+    <SideMenu
+        openWidth={200}
+        overlapPage={false}
+    >
+        <div
+            style="position: relative; width: 200px; height: 100%;
+            background-color: lightgrey; overflow: hidden;"
+        >
+            CONTENT
+        </div>
+    </SideMenu>
+    
+
+
+
+
+
 
     <!-- File viewer. -->
     <Collapser headerText={`File${ $openGraphStore ? `&nbsp;&nbsp;-&nbsp;&nbsp;${$openGraphStore}` : "" }`} contentDirection={"left"}>
