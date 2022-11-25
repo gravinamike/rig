@@ -4,7 +4,7 @@
 </script>
 
 
-<main>
+<div class="spaces-store-viewer">
     <!-- List of Spaces found. -->
     {#if $spaceDbModelsStoreAsArray.length}
         <h4>{$spaceDbModelsStoreAsArray.length} Spaces found:</h4>
@@ -26,11 +26,11 @@
             </div>
         {/each}
     {/if}
-</main>
+</div>
 
 
 <style>
-    main {
+    .spaces-store-viewer {
         outline: solid 1px lightgrey;
         outline-offset: -1px;
 
@@ -46,7 +46,9 @@
         padding: 0.75rem;
         gap: 0.75rem;
         
-        text-align: center; 
+        text-align: center;
+
+        scrollbar-width: thin;
     }
 
     h4 {

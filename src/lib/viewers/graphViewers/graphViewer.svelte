@@ -13,25 +13,27 @@
     import { Collapser, TabBlock, TabFlap, TabFlaps, TabBody } from "$lib/widgets/layoutWidgets"
 
     // Import viewers.
-    import { GraphSettingsViewer } from "$lib/viewers/settingsViewers"
-    import { GraphSchematicViewer } from "$lib/viewers/graphViewers"
-    import { ThingSearchboxViewer, HistoryViewer, PinsViewer, DirectionsViewer, SpacesViewer } from "$lib/viewers/navViewers"
     import { NotesViewer } from "$lib/viewers/notesViewers"
     import { FolderViewer } from "$lib/viewers/folderViewers"
     import { defaultGraphWidgetStyle, GraphWidget, GraphOutlineWidget } from "$lib/widgets/graphWidgets"
 
     // Import API functions.
     import { markThingsVisited } from "$lib/db/clientSide/makeChanges"
-    import { saveGraphConfig } from "$lib/shared/config";
+    import { saveGraphConfig } from "$lib/shared/config"
     
 
     export let pThingIds: number[]
     export let depth: number
 
 
-    // Graph and Graph widget style object.
-    let graph: Graph | null
-    let graphWidgetStyle: GraphWidgetStyle = {...defaultGraphWidgetStyle}
+
+    export let graph: Graph | null = null
+    export let graphWidgetStyle: GraphWidgetStyle = {...defaultGraphWidgetStyle}
+    export let allowZoomAndScrollToFit = false
+    export let rePerspectToThingId: (thingId: number, updateHistory?: boolean, zoomAndScroll?: boolean) => Promise<void>
+    export let back: () => void
+    export let forward: () => void
+    export let setGraphSpace: (space: Space) => void
 
     // Show-Graph flag. This is a kludge, to ensure that the Graph widgets are
     // completely replaced at each re-Perspect to prevent retention of state
@@ -39,7 +41,6 @@
     let showGraph = false
 
     // Attributes controlling zoom and scroll.
-    let allowZoomAndScrollToFit = false
     let allowScrollToThingId = false
     let thingIdToScrollTo: number | null = null  
 
@@ -74,7 +75,7 @@
      * 
      * @param thingId - The ID of the new Perspective Thing.
      */
-    async function rePerspectToThingId(thingId: number, updateHistory=true, zoomAndScroll=true) {
+    rePerspectToThingId = async (thingId: number, updateHistory=true, zoomAndScroll=true) => {
         if (graph) {
             // Record that this re-Perspect operation is in progress.
             rePerspectInProgressThingId = thingId
@@ -108,7 +109,7 @@
         }
     }
 
-    async function setGraphSpace(space: Space) {
+    setGraphSpace = async (space: Space) => {
         if (graph) {
             await graph.setSpace(space)
 
@@ -132,14 +133,14 @@
 
 
 
-    function back() {
+    back = () => {
         if (graph) {
             graph.history.incrementPosition(-1)
             graph.history.position = graph.history.position // Needed for reactivity.
         }
     }
 
-    function forward() {
+    forward = () => {
         if (graph) {
             graph.history.incrementPosition(1)
             graph.history.position = graph.history.position // Needed for reactivity.
@@ -173,128 +174,7 @@
 
 
 <div class="graph-viewer">
-    <!-- Graph-related viewers (Schematic and Settings). -->
-    <Collapser
-        headerText={"Graph"}
-        contentDirection={"left"}
-        expanded={false}
-    >
-        <div class="tabs-container">
-            <TabBlock>
-                <TabFlaps>
-                    <TabFlap>Settings</TabFlap>
-                    <TabFlap>Schematic</TabFlap>
-                </TabFlaps>
-            
-                <!-- Graph Settings viewer. -->
-                <TabBody>
-                    {#if graph}
-                        <GraphSettingsViewer
-                            bind:graph
-                            bind:graphWidgetStyle
-                            bind:allowZoomAndScrollToFit
-                        />
-                    {/if}
-                </TabBody>
-
-                <!-- Graph Schematic viewer. -->
-                <TabBody>
-                    {#if graph}
-                        <GraphSchematicViewer
-                            {graph}
-                        />
-                    {/if}
-                </TabBody>
-            </TabBlock>
-        </div>
-    </Collapser>
-
-    <!-- Perspective-related viewers (Navigation and Space). -->
-    <Collapser
-        headerText={"Perspective"}
-        contentDirection={"left"}
-        expanded={true}
-    >
-        <div class="tabs-container">
-            <TabBlock>
-                <TabFlaps>
-                    <TabFlap>Navigation</TabFlap>
-                    <TabFlap>Space</TabFlap>
-                </TabFlaps>
-            
-                <!-- Navigation-related viewers (Search, History and Pins). -->
-                <TabBody>
-                    <div class="navigation-view">
-                        <!-- Thing searchbox -->
-                        <div class="search-back-and-forth-buttons-container">
-                            <div class="search-container">
-                                <ThingSearchboxViewer
-                                    {rePerspectToThingId}
-                                />
-                            </div>
-
-                            <!-- Back and forth buttons. -->
-                            <div class="back-and-forth-buttons">
-                                <button
-                                    on:click={back}
-                                >
-                                    ◄
-                                </button>
-                                <button
-                                    on:click={forward}
-                                >
-                                    ►
-                                </button>
-                            </div>
-                        </div>
-            
-                        <div class="history-pins-container">        
-                            <!-- Graph pins viewer -->
-                            <div class="pins-container">
-                                <PinsViewer
-                                    {rePerspectToThingId}
-                                />
-                            </div>
-
-                            <!-- Graph history viewer -->
-                            {#if graph}
-                                <div class="history-container">
-                                    <HistoryViewer
-                                        bind:graph
-                                        {rePerspectToThingId}
-                                    />
-                                </div>
-                            {/if}
-                        </div>
-                    </div>
-                </TabBody>
-
-                <!-- Space-related viewers. -->
-                <TabBody>
-                    <div class="directions-spaces-container">
-                        {#if graph}
-                            <!-- Directions viewer -->
-                            <div class="directions-container">
-                                <DirectionsViewer
-                                />
-                            </div>
-            
-                            <!-- Spaces viewer -->
-                            <div class="spaces-container">
-                                <SpacesViewer
-                                    {graph}
-                                    {graphWidgetStyle}
-                                    {setGraphSpace}
-                                />
-                            </div>
-                        {/if}
-                    </div>
-                </TabBody>
-            </TabBlock>
-        </div>
-    </Collapser>
-
-    <!-- Graph Widget -->
+        <!-- Graph Widget -->
     <div class="graph-widget-container">
         {#if graph && showGraph}
             <GraphWidget
@@ -309,7 +189,7 @@
     </div>
 
     <!-- Notes viewer -->
-    <Collapser headerText={"Content"} contentDirection={"right"} expanded={true}>
+    <Collapser headerText={"Content"} contentDirection={"right"} expanded={false}>
         <div class="tabs-container wide">
             <TabBlock>
                 <TabFlaps>
@@ -357,7 +237,7 @@
 
 <style>
     .graph-viewer {
-        flex: 1 1 auto;
+        flex: 1 0 0;
         min-width: 0;
 
         position: relative;
@@ -375,81 +255,6 @@
 
     .tabs-container.wide {
         width: auto;
-    }
-
-    .navigation-view {
-        height: 100%;
-
-        display: flex;
-        flex-direction: column;
-
-        overflow-x: hidden;
-        overflow-y: hidden;
-    }
-
-    .search-back-and-forth-buttons-container {
-        outline: solid 1px lightgrey;
-        outline-offset: -1px;
-
-        background-color: #fafafa;
-
-        display: flex;
-    }
-
-    .search-container {
-        flex: 1 1 0;
-    }
-
-    .back-and-forth-buttons {
-        display: flex;
-        flex-direction: row;
-        padding: 5px;
-        gap: 5px;
-    }
-
-    button {
-        font-size: 1.25rem;
-    }
-
-    .history-pins-container {
-        flex: 1 1 auto;
-
-        position: relative;
-
-        display: flex;
-        flex-direction: row;
-
-        overflow:hidden;
-    }
-
-    .pins-container {
-        width: 45%;
-
-        overflow: hidden;
-    }
-
-    .history-container {
-        width: 55%;
-
-        overflow: hidden;
-    }
-
-    .directions-spaces-container {
-        position: relative;
-        height: 100%;
-
-        display: flex;
-        flex-direction: row;
-    }
-
-    .directions-container {
-        width: 50%;
-    }
-
-    .spaces-container {
-        width: 55%;
-
-        scrollbar-width: thin;
     }
 
     .graph-widget-container {

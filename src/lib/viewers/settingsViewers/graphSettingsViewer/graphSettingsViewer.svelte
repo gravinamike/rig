@@ -21,7 +21,7 @@
 </script>
 
 
-<main>
+<div class="graph-settings-viewer">
     <h4>Graph settings</h4>
 
     <SettingWidget
@@ -82,11 +82,11 @@
         maxValue={10}
         onChangeFunction={updateGraphFormat}
     />
-</main>
+</div>
 
 
 <style>
-    main {
+    .graph-settings-viewer {
         outline: solid 1px lightgrey;
         outline-offset: -1px;
         
@@ -103,6 +103,8 @@
         gap: 1.25rem;
         
         text-align: center;
+
+        scrollbar-width: thin;
     }
 
     h4 {

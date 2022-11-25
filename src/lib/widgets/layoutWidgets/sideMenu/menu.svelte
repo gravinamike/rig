@@ -1,19 +1,28 @@
 <script lang="ts">
     import { tweened } from "svelte/motion"
     import { cubicOut } from "svelte/easing"
+    import { sleep } from "$lib/shared/utility"
 
-
+    
+    export let sideMenuNames: string[]
+    export let openedSideMenu: string | null
     export let openWidth = 200
+    export let openTime = 200
     export let overlapPage = false
     export let slideDirection: "right" | "left" = "right"
 
 
-    let open = false
 
-    const percentOpen = tweened( 0.0, { duration: 200, easing: cubicOut } )
+    let open = !!openedSideMenu
+
+    const percentOpen = tweened( 0.0, { duration: openTime, easing: cubicOut } )
     $: percentOpen.set( open ? 1.0 : 0.0 )
-
     $: width = openWidth * $percentOpen
+
+
+
+
+
 </script>
 
 
@@ -38,20 +47,54 @@
         </div>
     {/if}
 
+    <!-- Menu buttons. -->
+    <div class="side-menu-buttons">
 
-    <button
-        style="
-            position: absolute;
-            left: 100%;
-            top: 0;
-            z-index: 1;
-        "
-        on:click={() => {open = !open}}
-    >MENU</button>
+        {#each sideMenuNames as sideMenuName}
+            <button
+                class="side-menu-button"
+                
+                on:click={ async () => {
+                    if (openedSideMenu !== null && openedSideMenu !== sideMenuName) {
+                        openedSideMenu = sideMenuName
+                    } else if (openedSideMenu === null) {
+                        openedSideMenu = sideMenuName
+                        open = true
+                    } else {
+                        open = false
+                        await sleep(openTime)
+                        openedSideMenu = null
+                    }
+                } }
+            >
+                {sideMenuName}
+            </button>
+        {/each}
+
+    </div>
+
 </div>
 
 
 <style>
+    .side-menu-buttons {
+        position: absolute;
+        left: 100%;
+        bottom: 0;
+        z-index: 1;
+
+        display: flex;
+        flex-direction: column;
+        padding: 10px;
+        gap: 10px;
+    }
+
+
+
+
+
+
+
     .side-menu {
         position: relative;
         height: 100%;
@@ -69,6 +112,8 @@
     .content {
         position: absolute;
         height: 100%;
+        background-color: #fafafa;
+
         overflow: hidden;
     }
 

@@ -18,9 +18,7 @@
 </script>
 
 <div class="about-menu">
-    <h1>ABOUT</h1>
-
-    <hr />
+    <h4>About</h4>
     
     <div>
         This is Mike Gravina's attempt at building a domain-general, high-dimensional semantic medium.
@@ -33,12 +31,27 @@
   
 <style>
     .about-menu {
-        position: relative;
+        outline: solid 1px lightgrey;
+        outline-offset: -1px;
+
+        box-sizing: border-box;
         height: 100%;
+        background-color: #fafafa;
 
-        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        padding: 0.75rem;
+        gap: 1.25rem;
 
-        font-size: 1rem;
+        overflow-x: hidden;
+        overflow-y: auto;
+        scrollbar-width: thin;
+    }
+
+    h4 {
+        margin: 0;
+
+        text-align: center;
     }
 
     .secret {

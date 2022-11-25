@@ -13,7 +13,7 @@
 </script>
 
 
-<main>
+<div class="graph-schematic-viewer">
     {#if generationsWithIds.length}
         <h4>{generationsWithIds.length} Generations:</h4>
     {/if}
@@ -39,11 +39,11 @@
         </div>
 
     {/each}
-</main>
+</div>
 
 
 <style>
-    main {
+    .graph-schematic-viewer {
         outline: solid 1px lightgrey;
         outline-offset: -1px;
 
@@ -60,6 +60,8 @@
         gap: 0.75rem;
         
         text-align: center;
+
+        scrollbar-width: thin;
     }
 
     h4 {

@@ -4,7 +4,7 @@
 </script>
 
 
-<main>
+<div class="directions-store-viewer">
     <!-- List of Directions found. -->
     {#if $directionDbModelsStoreAsArray.length}
         <h4>{$directionDbModelsStoreAsArray.length} Directions found:</h4>
@@ -26,11 +26,11 @@
             </div>
         {/each}
     {/if}
-</main>
+</div>
 
 
 <style>
-    main {
+    .directions-store-viewer {
         outline: solid 1px lightgrey;
         outline-offset: -1px;
 
@@ -47,6 +47,8 @@
         gap: 0.75rem;
         
         text-align: center;
+
+        scrollbar-width: thin;
     }
 
     h4 {
