@@ -10,7 +10,7 @@
     import { addGraph, removeGraph, hoveredThingIdStore, openGraphStore, graphIdsNeedingViewerRefresh, addGraphIdsNeedingViewerRefresh, removeGraphIdsNeedingViewerRefresh, perspectiveThingIdStore } from "$lib/stores"
 
     // Import layout elements.
-    import { Collapser, TabBlock, TabFlap, TabFlaps, TabBody } from "$lib/widgets/layoutWidgets"
+    import { SideMenu } from "$lib/widgets/layoutWidgets"
 
     // Import viewers.
     import { NotesViewer } from "$lib/viewers/notesViewers"
@@ -164,6 +164,14 @@
             && selectedHistoryThingId !== graph._pThingIds[0]
         ) rePerspectToThingId(selectedHistoryThingId, false, false)
     }
+
+
+
+
+
+
+    let sideMenuNames = [ "Notes", "Outline", "Attachments" ]
+    let openedSideMenu: string | null = "Notes"
 </script>
 
 
@@ -188,56 +196,71 @@
         {/if}
     </div>
 
-    <!-- Notes viewer -->
-    <Collapser headerText={"Content"} contentDirection={"right"} expanded={false}>
-        <div class="tabs-container wide">
-            <TabBlock>
-                <TabFlaps>
-                    <TabFlap>Notes</TabFlap>
-                    <TabFlap>Outline</TabFlap>
-                    <TabFlap>Attachments</TabFlap>
-                </TabFlaps>
-            
-                <!-- Notes viewer -->
-                <TabBody>
-                    {#if graph}
-                        <NotesViewer
-                            {graph}
-                            {rePerspectToThingId}
-                        />
-                    {/if}
-                </TabBody>
+    
 
-                <!-- Outline viewer -->
-                <TabBody>
-                    <div class="graph-outline-widget-container">
-                        {#if graph && showGraph}
-                            <GraphOutlineWidget
-                                bind:graph
-                                {graphWidgetStyle}
-                                {rePerspectToThingId}
-                            />
-                        {/if}
-                    </div>
-                </TabBody>
 
-                <!-- Attachments viewer -->
-                <TabBody>
-                    {#if graph}
-                        <FolderViewer
-                            {graph}
-                        />
-                    {/if}
-                </TabBody>
-            </TabBlock>
-        </div>
-    </Collapser>
+
+
+
+
+
+
+
+
+
+
+
+    <SideMenu
+        {sideMenuNames}
+        bind:openedSideMenu
+        openWidth={500}
+        openTime={250}
+        overlapPage={false}
+        slideDirection={"left"}
+    >
+        {#if openedSideMenu === "Notes"}
+            {#if graph}
+                <NotesViewer
+                    {graph}
+                    {rePerspectToThingId}
+                />
+            {/if}
+        {:else if openedSideMenu === "Outline"}
+            <div class="graph-outline-widget-container">
+                {#if graph && showGraph}
+                    <GraphOutlineWidget
+                        bind:graph
+                        {graphWidgetStyle}
+                        {rePerspectToThingId}
+                    />
+                {/if}
+            </div>
+        {:else if openedSideMenu === "Attachments"}
+            {#if graph}
+                <FolderViewer
+                    {graph}
+                />
+            {/if}
+        {/if}
+    </SideMenu>
+
+
+
+
+
+
+
+
+
+
+
+
 </div>
 
 
 <style>
     .graph-viewer {
-        flex: 1 0 0;
+        flex: 1 1 0;
         min-width: 0;
 
         position: relative;
@@ -246,19 +269,8 @@
         flex-direction: row;
     }
 
-    .tabs-container {
-        width: 415px;
-        height: 100%;
-        
-        overflow: hidden;
-    }
-
-    .tabs-container.wide {
-        width: auto;
-    }
-
     .graph-widget-container {
-        flex: 1 1 auto;
+        flex: 1 1 0;
         min-width: 0;
 
         outline: solid 1px lightgrey;

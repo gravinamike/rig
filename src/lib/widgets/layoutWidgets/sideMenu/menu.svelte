@@ -36,19 +36,28 @@
 >
     
     <!-- Menu content. -->
-    {#if width > 0}
-        <div
-            class="content"
-            class:overlap-page={overlapPage}
+    <div style="position: relative; width: 100%; height: 100%; overflow: hidden;">
+        {#if width > 0}
+            <div
+                class="content"
+                class:overlap-page={overlapPage}
+                class:slide-right={slideDirection === "right"}
+                class:slide-left={slideDirection === "left"}
 
-            style="width: {openWidth}px;"
-        >
-            <slot />
-        </div>
-    {/if}
+                style="width: {openWidth}px;"
+            >
+                <slot />
+            </div>
+        {/if}
+    </div>
+    
 
     <!-- Menu buttons. -->
-    <div class="side-menu-buttons">
+    <div
+        class="side-menu-buttons"
+        class:slide-right={slideDirection === "right"}
+        class:slide-left={slideDirection === "left"}
+    >
 
         {#each sideMenuNames as sideMenuName}
             <button
@@ -77,24 +86,6 @@
 
 
 <style>
-    .side-menu-buttons {
-        position: absolute;
-        left: 100%;
-        bottom: 0;
-        z-index: 1;
-
-        display: flex;
-        flex-direction: column;
-        padding: 10px;
-        gap: 10px;
-    }
-
-
-
-
-
-
-
     .side-menu {
         position: relative;
         height: 100%;
@@ -117,7 +108,34 @@
         overflow: hidden;
     }
 
-    .content.overlap-page {
+    .content:not(.overlap-page).slide-left {
+        right: 0;
+    }
+
+    .content.overlap-page.slide-right {
         right: 0px;
+    }
+
+    .content.overlap-page.slide-left {
+        left: 0px;
+    }
+
+    .side-menu-buttons {
+        position: absolute;
+        bottom: 0;
+        z-index: 1;
+
+        display: flex;
+        flex-direction: column;
+        padding: 10px;
+        gap: 10px;
+    }
+
+    .side-menu-buttons.slide-right {
+        left: 100%;
+    }
+
+    .side-menu-buttons.slide-left {
+        right: 100%;
     }
 </style>
