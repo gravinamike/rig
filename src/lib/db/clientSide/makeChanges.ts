@@ -299,6 +299,7 @@ export async function deleteRelationship( sourceThingId: number, destThingId: nu
 }
 
 
+
 /*
  * Set the database listening port.
  */

@@ -57,6 +57,8 @@
         class="side-menu-buttons"
         class:slide-right={slideDirection === "right"}
         class:slide-left={slideDirection === "left"}
+
+        style="border-radius: {buttonSize / 2}px;"
     >
 
         {#each sideMenuInfos as info}
@@ -99,6 +101,7 @@
 
 		box-sizing: border-box;
 		background-color: white;
+        opacity: 0.1;
 
 		display: flex;
 		justify-content: center;
@@ -108,7 +111,14 @@
 		cursor: default;
 	}
 
-	.button:hover, .button.opened-menu {
+	.button.opened-menu {
+        outline: solid 1px grey;
+        opacity: 0.75;
+
+        background-color: white;
+    }
+
+    .button:hover {
         outline: solid 1px grey;
 
         background-color: gainsboro;
@@ -161,19 +171,15 @@
     }
 
     .side-menu-buttons {
+        margin: 5px;
+
         position: absolute;
         bottom: 0;
         z-index: 1;
-        opacity: 0.5;
 
         display: flex;
         flex-direction: column;
-        padding: 5px;
         gap: 5px;
-    }
-
-    .side-menu-buttons:hover {
-        opacity: 0.75;
     }
 
     .side-menu-buttons.slide-right {
@@ -182,5 +188,9 @@
 
     .side-menu-buttons.slide-left {
         right: 100%;
+    }
+
+    .side-menu-buttons:hover .button {
+        opacity: 0.75;
     }
 </style>

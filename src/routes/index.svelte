@@ -10,7 +10,7 @@
     import { storeAppConfig } from "$lib/shared/config"
 
     // Import database/stores-related functions.
-    import { loadingState, openGraphStore, perspectiveThingIdStore, reorderingInfoStore, updateMousePosition, updateRelationshipBeingCreatedEndpoint } from "$lib/stores"
+    import { devMode, loadingState, openGraphStore, perspectiveThingIdStore, reorderingInfoStore, updateMousePosition, updateRelationshipBeingCreatedEndpoint } from "$lib/stores"
 
     // Import widgets.
     import {
@@ -81,6 +81,8 @@
     onMount(async () => {
         // Store configuration.
         $loadingState = "configLoading"
+        // Set the front-end stores.
+        devMode.set(import.meta.env.MODE === "development")
         const appConfig = await storeAppConfig()
         $loadingState = "configLoaded"
 
@@ -126,15 +128,17 @@
             name: "File",
             icon: "file"
         },
-        {
-            name: "Dev",
-            icon: "dev"
-        },
+        $devMode ?
+            {
+                name: "Dev",
+                icon: "dev"
+            } :
+            null,
         {
             name: "About",
             icon: "about"
         },
-    ]
+    ].filter(info => info !== null) as { name: string, icon: string }[]
     let openedSideMenuName: string | null = "Thing"
 
     // Attributes handled by the Graph Viewer.

@@ -7,7 +7,7 @@
     import { sleep } from "$lib/shared/utility"
 
     // Import stores.
-    import { addGraph, removeGraph, hoveredThingIdStore, openGraphStore, graphIdsNeedingViewerRefresh, addGraphIdsNeedingViewerRefresh, removeGraphIdsNeedingViewerRefresh, perspectiveThingIdStore } from "$lib/stores"
+    import { devMode, addGraph, removeGraph, hoveredThingIdStore, openGraphStore, graphIdsNeedingViewerRefresh, addGraphIdsNeedingViewerRefresh, removeGraphIdsNeedingViewerRefresh, perspectiveThingIdStore } from "$lib/stores"
 
     // Import layout elements.
     import { SideMenu } from "$lib/widgets/layoutWidgets"
@@ -171,19 +171,23 @@
 
 
     let sideMenuInfos = [
+        $devMode ?
+            {
+                name: "Outline",
+                icon: "outline"
+            } :
+            null,
         {
             name: "Notes",
             icon: "notes"
         },
-        {
-            name: "Outline",
-            icon: "outline"
-        },
-        {
-            name: "Attachments",
-            icon: "attachment"
-        }
-    ]
+        $devMode ?
+            {
+                name: "Attachments",
+                icon: "attachment"
+            } :
+            null
+    ].filter(info => info !== null) as { name: string, icon: string }[]
     let openedSideMenuName: string | null = "Notes"
 </script>
 
@@ -231,14 +235,7 @@
         overlapPage={false}
         slideDirection={"left"}
     >
-        {#if openedSideMenuName === "Notes"}
-            {#if graph}
-                <NotesViewer
-                    {graph}
-                    {rePerspectToThingId}
-                />
-            {/if}
-        {:else if openedSideMenuName === "Outline"}
+        {#if openedSideMenuName === "Outline"}
             <div class="graph-outline-widget-container">
                 {#if graph && showGraph}
                     <GraphOutlineWidget
@@ -248,6 +245,13 @@
                     />
                 {/if}
             </div>
+        {:else if openedSideMenuName === "Notes"}
+            {#if graph}
+                <NotesViewer
+                    {graph}
+                    {rePerspectToThingId}
+                />
+            {/if}
         {:else if openedSideMenuName === "Attachments"}
             {#if graph}
                 <FolderViewer
