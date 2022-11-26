@@ -170,8 +170,21 @@
 
 
 
-    let sideMenuNames = [ "Notes", "Outline", "Attachments" ]
-    let openedSideMenu: string | null = "Notes"
+    let sideMenuInfos = [
+        {
+            name: "Notes",
+            icon: "notes"
+        },
+        {
+            name: "Outline",
+            icon: "outline"
+        },
+        {
+            name: "Attachments",
+            icon: "attachment"
+        }
+    ]
+    let openedSideMenuName: string | null = "Notes"
 </script>
 
 
@@ -211,21 +224,21 @@
 
 
     <SideMenu
-        {sideMenuNames}
-        bind:openedSideMenu
+        {sideMenuInfos}
+        bind:openedSideMenuName
         openWidth={500}
         openTime={250}
         overlapPage={false}
         slideDirection={"left"}
     >
-        {#if openedSideMenu === "Notes"}
+        {#if openedSideMenuName === "Notes"}
             {#if graph}
                 <NotesViewer
                     {graph}
                     {rePerspectToThingId}
                 />
             {/if}
-        {:else if openedSideMenu === "Outline"}
+        {:else if openedSideMenuName === "Outline"}
             <div class="graph-outline-widget-container">
                 {#if graph && showGraph}
                     <GraphOutlineWidget
@@ -235,7 +248,7 @@
                     />
                 {/if}
             </div>
-        {:else if openedSideMenu === "Attachments"}
+        {:else if openedSideMenuName === "Attachments"}
             {#if graph}
                 <FolderViewer
                     {graph}

@@ -108,8 +108,34 @@
 
 
 
-    let sideMenuNames = [ "Thing", "Space", "Settings", "File", "Dev", "About" ]
-    let openedSideMenu: string | null = "Thing"
+
+    let sideMenuInfos = [
+        {
+            name: "Thing",
+            icon: "thing"
+        },
+        {
+            name: "Space",
+            icon: "space"
+        },
+        {
+            name: "Settings",
+            icon: "settings"
+        },
+        {
+            name: "File",
+            icon: "file"
+        },
+        {
+            name: "Dev",
+            icon: "dev"
+        },
+        {
+            name: "About",
+            icon: "about"
+        },
+    ]
+    let openedSideMenuName: string | null = "Thing"
 
     // Attributes handled by the Graph Viewer.
     let graph: Graph | null
@@ -166,15 +192,15 @@
 
 
     <SideMenu
-        {sideMenuNames}
-        bind:openedSideMenu
+        {sideMenuInfos}
+        bind:openedSideMenuName
         openWidth={400}
         openTime={250}
         overlapPage={false}
     >
-        {#if openedSideMenu === "File"}
+        {#if openedSideMenuName === "File"}
             <FileViewer />
-        {:else if openedSideMenu === "Settings"}
+        {:else if openedSideMenuName === "Settings"}
             {#if graph}
                 <GraphSettingsViewer
                     bind:graph
@@ -182,7 +208,7 @@
                     bind:allowZoomAndScrollToFit
                 />
             {/if}
-        {:else if openedSideMenu === "Dev"}
+        {:else if openedSideMenuName === "Dev"}
             <div class="tabs-container">
 
                 <TabBlock>
@@ -234,9 +260,9 @@
                 </TabBlock>
                 
             </div>
-        {:else if openedSideMenu === "About"}
+        {:else if openedSideMenuName === "About"}
             <AboutMenu />
-        {:else if openedSideMenu === "Thing"}
+        {:else if openedSideMenuName === "Thing"}
             <div class="navigation-view">
                 <!-- Thing searchbox -->
                 <div class="search-back-and-forth-buttons-container">
@@ -280,7 +306,7 @@
                     {/if}
                 </div>
             </div>
-        {:else if openedSideMenu === "Space"}
+        {:else if openedSideMenuName === "Space"}
             <div class="directions-spaces-container">
                 {#if graph}
                     <!-- Directions viewer -->

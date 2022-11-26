@@ -10,7 +10,7 @@
     import { hoveredThingIdStore } from "$lib/stores"
 
     // Import related widgets.
-    import { Toggle, LogoIcon } from "$lib/widgets/layoutWidgets"
+    import { Toggle } from "$lib/widgets/layoutWidgets"
 
 
     /**
@@ -80,9 +80,13 @@
                     { entryOrDivider.thing?.text || `(THING ${entryOrDivider.thingId} NOT FOUND IN STORE)` }
                     {#if entryOrDivider.thingId === graph.history.selectedThingId}
                         <div class="logo-icon-container">
-                            <LogoIcon
-                                scale={0.24}
-                            />
+                            <img
+                                src="./icons/perspective.png"
+                                alt="Perspective indicator"
+                                width="22px"
+                                height="22px"
+                                style="opacity: 75%;"
+                            >
                         </div>
                     {/if}
                 </div>
@@ -194,6 +198,7 @@
         position: absolute;
         top: 4px;
         right: 4px;
+        background-color: white;
     }
 
     .date-divider {

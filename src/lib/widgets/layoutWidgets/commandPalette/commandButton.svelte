@@ -53,10 +53,6 @@
 		cursor: pointer;
 	}
 
-	.command-button.active {
-        background-color: lightgrey;
-    }
-
 	.command-button:hover {
         outline: solid 1px black;
     }

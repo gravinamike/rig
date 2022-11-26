@@ -4,8 +4,8 @@
     import { sleep } from "$lib/shared/utility"
 
     
-    export let sideMenuNames: string[]
-    export let openedSideMenu: string | null
+    export let sideMenuInfos: { name: string, icon: string }[]
+    export let openedSideMenuName: string | null
     export let openWidth = 200
     export let openTime = 200
     export let overlapPage = false
@@ -13,14 +13,14 @@
 
 
 
-    let open = !!openedSideMenu
+    let open = !!openedSideMenuName
 
     const percentOpen = tweened( 0.0, { duration: openTime, easing: cubicOut } )
     $: percentOpen.set( open ? 1.0 : 0.0 )
     $: width = openWidth * $percentOpen
 
 
-
+    const buttonSize = 30
 
 
 </script>
@@ -59,25 +59,31 @@
         class:slide-left={slideDirection === "left"}
     >
 
-        {#each sideMenuNames as sideMenuName}
-            <button
-                class="side-menu-button"
-                
+        {#each sideMenuInfos as info}
+            <div
+                class="button"
+                class:opened-menu={openedSideMenuName !== null && openedSideMenuName === info.name}
+
                 on:click={ async () => {
-                    if (openedSideMenu !== null && openedSideMenu !== sideMenuName) {
-                        openedSideMenu = sideMenuName
-                    } else if (openedSideMenu === null) {
-                        openedSideMenu = sideMenuName
+                    if (openedSideMenuName !== null && openedSideMenuName !== info.name) {
+                        openedSideMenuName = info.name
+                    } else if (openedSideMenuName === null) {
+                        openedSideMenuName = info.name
                         open = true
                     } else {
                         open = false
                         await sleep(openTime)
-                        openedSideMenu = null
+                        openedSideMenuName = null
                     }
                 } }
             >
-                {sideMenuName}
-            </button>
+                <img
+                    src="./icons/{info.icon}.png"
+                    alt={info.name}
+                    width="{buttonSize}px"
+                    height="{buttonSize}px"
+                >
+            </div>
         {/each}
 
     </div>
@@ -86,6 +92,40 @@
 
 
 <style>
+    .button {
+		outline: solid 1px lightgrey;
+		outline-offset: -1px;
+		border-radius: 50%;
+
+		box-sizing: border-box;
+		background-color: white;
+
+		display: flex;
+		justify-content: center;
+		align-items: center;
+        padding: 5px;
+
+		cursor: default;
+	}
+
+	.button:hover, .button.opened-menu {
+        outline: solid 1px grey;
+
+        background-color: gainsboro;
+    }
+
+    .button:active {
+        background-color: lightgrey;
+    }
+
+
+
+
+
+
+
+
+
     .side-menu {
         position: relative;
         height: 100%;
@@ -124,11 +164,16 @@
         position: absolute;
         bottom: 0;
         z-index: 1;
+        opacity: 0.5;
 
         display: flex;
         flex-direction: column;
-        padding: 10px;
-        gap: 10px;
+        padding: 5px;
+        gap: 5px;
+    }
+
+    .side-menu-buttons:hover {
+        opacity: 0.75;
     }
 
     .side-menu-buttons.slide-right {
