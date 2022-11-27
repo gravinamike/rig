@@ -171,7 +171,7 @@
                 
                 <div class="container button-container">
                     {#if isHovered || interactionMode === "editing" || interactionMode === "create"}
-                        <div
+                        <button
                             class="button"
                             class:editing={interactionMode === "editing"}
                             class:create={interactionMode === "create"}
@@ -189,7 +189,7 @@
                             {:else}
                                 +
                             {/if}
-                        </div>
+                        </button>
                     {/if}
                 </div>
             </div>

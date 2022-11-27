@@ -89,11 +89,13 @@
         class="disabled-background"
         on:click|stopPropagation={cancel}
         on:wheel|preventDefault
+        on:keydown={()=>{}}
     />
 
     <div
         class="remote-relating-widget"
         on:click|stopPropagation
+        on:keydown={()=>{}}
     >
         <!-- Remote-Thing-selecting widget. -->
         <RemoteSelectingWidget

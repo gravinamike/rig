@@ -66,6 +66,7 @@
             disableNewFileCreation()
         }}
         on:wheel|preventDefault
+        on:keydown={()=>{}}
     />
 
     <div

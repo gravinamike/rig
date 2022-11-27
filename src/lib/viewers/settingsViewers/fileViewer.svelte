@@ -22,6 +22,7 @@
             <div
                 class="button graph-folder-button { folder === $openGraphStore ? "opened" : "" }"
                 on:click={() => {openUnigraphFolder(folder)}}
+                on:keydown={()=>{}}
             >
                 {folder}
             </div>
@@ -31,6 +32,7 @@
             class="button new-graph-button"
             style={ $graphFoldersStore.length ? "margin-top: 25px;" : ""}
             on:click={enableNewFileCreation}
+            on:keydown={()=>{}}
         >
             New Graph
         </div>

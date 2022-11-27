@@ -22,6 +22,7 @@
 <div 
   class="context-menu-option {disabled ? "disabled" : ""}"
   on:click|stopPropagation={handleClick}
+  on:keydown={()=>{}}
 >
 	{#if text}
 		{text}

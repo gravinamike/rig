@@ -87,7 +87,8 @@
     on:mouseenter={() => {isHovered = true}}
     on:mouseleave={() => {isHovered = false}}
     on:click={handleClick}
-    on:dblclick={() => { if (interactionMode = "display") handleButton() }}     
+    on:dblclick={() => { if (interactionMode = "display") handleButton() }}
+    on:keydown={()=>{}}
 >
     <div class="space-name">
         <div>
@@ -133,7 +134,7 @@
 
     {#if isHovered || interactionMode === "editing" || interactionMode === "create"}
         <div class="container button-container">
-            <div
+            <button
                 class="button"
                 class:editing={interactionMode === "editing"}
                 class:create={interactionMode === "create"}
@@ -151,7 +152,7 @@
                 {:else}
                     +
                 {/if}
-            </div>
+            </button>
         </div>
     {/if}
 
@@ -161,6 +162,7 @@
             class:is-default-perspective={defaultPerspectiveSpace}
 
             on:click|stopPropagation={setPerspectiveThingDefaultSpace}
+            on:keydown={()=>{}}
         >
             <img
                 src="./icons/perspective.png"

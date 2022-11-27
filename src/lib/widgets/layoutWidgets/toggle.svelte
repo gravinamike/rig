@@ -3,7 +3,7 @@
 </script>
 
 
-<div class="toggle {toggled ? "toggled" : ""}" on:click={() => {toggled = !toggled}}>
+<div class="toggle {toggled ? "toggled" : ""}" on:click={() => {toggled = !toggled}} on:keydown={()=>{}}>
     <div class="slider {toggled ? "toggled" : ""}" />
 </div>
 

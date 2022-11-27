@@ -187,6 +187,7 @@
                         inputText = selectedItem.text
                         submit()
                     }}
+                    on:keydown={()=>{}}
                 >
                     {@html filteredItem.highlightedText}
                 </div>

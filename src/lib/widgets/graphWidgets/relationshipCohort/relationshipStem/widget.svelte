@@ -65,6 +65,7 @@
         fill: {relationshipColor};
     "
     on:click={addThingForm}
+    on:keydown={()=>{}}
 >
 
     <!-- Hoverable zone of stem. -->

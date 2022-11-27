@@ -109,6 +109,7 @@
                 class:opened-menu={openedSubMenuName !== null && openedSubMenuName === info.name}
 
                 on:click={ () => { handleButtonClick(info.name) } }
+                on:keydown={()=>{}}
             >
                 <img
                     src="./icons/{info.icon}.png"

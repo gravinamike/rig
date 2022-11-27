@@ -41,6 +41,7 @@
 
     <div
         on:click={addFolder}
+        on:keydown={()=>{}}
     >
         ADD FOLDER
     </div>

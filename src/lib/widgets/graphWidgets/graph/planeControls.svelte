@@ -61,21 +61,22 @@
                     class="square {planeId === 0 ? "plane-0" : ""}"
                     style="width: {25 + 6/Math.max(planeDepth, 1) * planeId}px; height: {25 + 6/Math.max(planeDepth, 1) * planeId}px; left: calc({offsets[0]/graphOffsetMultiplier/Math.max(planeDepth, 1) * planeId}px + 50%); top: calc({offsets[1]/graphOffsetMultiplier/Math.max(planeDepth, 1) * planeId}px + 50%); opacity: {planeId === focalPlaneId ? 60 : 25}%;"
                     on:click={() => {if (planeId === 0) resetOffsets()}}
+                    on:keydown={()=>{}}
                 ></div>
             {/each}
         </div>
     </div>
 
     <div class="plane-focus-controls">
-        <div class="tab top" on:click={() => changeFocalPlaneId(-1)}>
+        <div class="tab top" on:click={() => changeFocalPlaneId(-1) } on:keydown={()=>{}}>
             <h2>-</h2>
         </div>
 
-        <div class="tab middle" on:click={() => changeFocalPlaneId(0)}>
+        <div class="tab middle" on:click={() => changeFocalPlaneId(0)} on:keydown={()=>{}}>
             <h4>●</h4>
         </div>
 
-        <div class="tab bottom" on:click={() => changeFocalPlaneId(1)}>
+        <div class="tab bottom" on:click={() => changeFocalPlaneId(1)} on:keydown={()=>{}}>
             <h2>+</h2>
         </div>
     </div>

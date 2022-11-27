@@ -75,8 +75,9 @@
                             && "thingId" in entryOrDivider
                             && entryOrDivider.thing
                         ) rePerspectToThingId(entryOrDivider.thingId)
-                    }
-                }>
+                    } }
+                    on:keydown={()=>{}}
+                >
                     { entryOrDivider.thing?.text || `(THING ${entryOrDivider.thingId} NOT FOUND IN STORE)` }
                     {#if entryOrDivider.thingId === graph.history.selectedThingId}
                         <div class="logo-icon-container">

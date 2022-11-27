@@ -8,6 +8,7 @@
 <svg
     class="x-button {caution ? "caution" : ""}"
     on:click|stopPropagation={buttonFunction}
+    on:keydown={()=>{}}
     style="width: {size}px; height: {size}px; stroke-width: {size * 0.1};"
 >
     <circle cx={size * 0.5} cy={size * 0.5} r={size * 0.45} />

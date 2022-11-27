@@ -187,6 +187,7 @@
                 }
             }
         } }
+        on:keydown={()=>{}}
         on:mouseup={ () => {
             if (relatableForCurrentDrag) {
                 setRelationshipBeingCreatedDestThingId(thingId)
@@ -215,6 +216,7 @@
                 "
 
                 on:click|stopPropagation={toggleSlider}
+                on:keydown={()=>{}}
             />
         {/if}
 

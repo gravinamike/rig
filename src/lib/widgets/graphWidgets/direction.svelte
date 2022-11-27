@@ -1,3 +1,5 @@
+<!-- svelte-ignore a11y-click-events-have-key-events -->
+
 <script lang="ts">
     // Type imports.
     import type { HalfAxisId } from "$lib/shared/constants"
@@ -59,6 +61,7 @@
             color: {relationshipColor};
         "
         on:click={() => {showOptions = !showOptions}}
+        on:keypress={()=>{}}
     >
         {direction ? direction.text : "Choose Direction..."}
     </div>
@@ -84,6 +87,7 @@
                         direction = getGraphConstructs("Direction", Number(option.id))
                         if (direction) optionHoveredFunction(Number(optionId), direction)
                     }}
+                    on:keypress={()=>{}}
                 >
                     {option.text}
                 </div>

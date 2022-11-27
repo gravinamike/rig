@@ -12,6 +12,7 @@
 <div
 	class="tab-flap { $activeTabFlap === tabFlap ? "active" : "" }"
 	on:click={ () => activateTabFlap(tabFlap) }
+	on:keydown={()=>{}}
 >
 	<slot />
 </div>

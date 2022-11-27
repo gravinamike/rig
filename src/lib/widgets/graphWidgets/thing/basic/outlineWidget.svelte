@@ -150,6 +150,7 @@
         }}
         on:mousedown={ event => {if (event.button === 0) {}}}
         on:click={ () => {if ($relationshipBeingCreatedInfoStore.sourceThingId === null) rePerspectToThingId(thingId) } }
+        on:keydown={()=>{}}
         on:mouseup={ () => {
             if (relatableForCurrentDrag) {
                 setRelationshipBeingCreatedDestThingId(thingId)

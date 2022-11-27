@@ -7,6 +7,7 @@
     import { FontSize } from "./extension-font-size"
     import { Color } from "@tiptap/extension-color"
     import Underline from "@tiptap/extension-underline"
+    import TextAlign from "@tiptap/extension-text-align"
     import Link from "@tiptap/extension-link"
     import NotesToolbar from "./notesToolbar.svelte"
 
@@ -32,6 +33,9 @@
                 FontSize,
                 Color,
                 Underline,
+                TextAlign.configure({
+                    types: ['heading', 'paragraph'],
+                }),
                 Link.configure({
                     autolink: false,
                     openOnClick: false,
@@ -75,6 +79,7 @@
         class="text-field"
         bind:this={textField}
         on:click|preventDefault={focusEditor}
+        on:keydown={()=>{}}
     >
     </div>
 

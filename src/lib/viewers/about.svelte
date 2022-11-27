@@ -24,7 +24,7 @@
         This is Mike Gravina's attempt at building a domain-general, high-dimensional semantic medium.
     </div>
 
-    <div class="secret" on:click={displaySecret}>
+    <div class="secret" on:click={displaySecret} on:keydown={()=>{}}>
         ?
     </div>
 </div>

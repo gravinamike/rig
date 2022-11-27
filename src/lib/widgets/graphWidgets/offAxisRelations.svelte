@@ -68,6 +68,7 @@
     on:mouseenter={()=>{toggleHovered = true}}
     on:mouseleave={()=>{toggleHovered = false}}
     on:click={() => {if (numberOfRelations) expanded = !expanded}}
+    on:keydown={()=>{}}
 >
     {#if ((!$reorderingInfoStore.reorderInProgress && toggleHovered) || expanded)}
         <svg

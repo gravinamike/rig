@@ -111,6 +111,36 @@
             onClick: () => editor.chain().focus().toggleStrike().run()
         },
 
+        // Text alignment.
+        {
+            text: "Align left",
+            iconName: "left-align",
+            iconHtml: null,
+            isActive: editor.isActive({ textAlign: 'left' }),
+            onClick: () => editor.chain().focus().setTextAlign('left').run()
+        },
+        {
+            text: "Center",
+            iconName: "center-align",
+            iconHtml: null,
+            isActive: editor.isActive({ textAlign: 'center' }),
+            onClick: () => editor.chain().focus().setTextAlign('center').run()
+        },
+        {
+            text: "Align right",
+            iconName: "right-align",
+            iconHtml: null,
+            isActive: editor.isActive({ textAlign: 'right' }),
+            onClick: () => editor.chain().focus().setTextAlign('right').run()
+        },
+        {
+            text: "Justify",
+            iconName: "justify",
+            iconHtml: null,
+            isActive: editor.isActive({ textAlign: 'justify' }),
+            onClick: () => editor.chain().focus().setTextAlign('justify').run()
+        },
+
         // Lists.
         {
             text: "Bullet list",
@@ -303,6 +333,7 @@
         <CommandPalette
             {commandButtonInfos}
             buttonSize={20}
+            maxRowLength={18}
         />
     </div>
 {/if}

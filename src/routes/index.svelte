@@ -210,11 +210,13 @@
                     <div class="back-and-forth-buttons">
                         <button
                             on:click={back}
+                            on:keydown={()=>{}}
                         >
                             ◄
                         </button>
                         <button
                             on:click={forward}
+                            on:keydown={()=>{}}
                         >
                             ►
                         </button>

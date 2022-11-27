@@ -55,6 +55,7 @@
     on:mouseleave={()=>{hoveredThingIdStore.set(null)}}
 
     on:click={ () => { if (thing) rePerspectToThingId(thingId) } }
+    on:keydown={()=>{}}
     on:contextmenu|preventDefault={ openPinContextCommandPalette }
 >
     {thingText}

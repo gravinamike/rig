@@ -42,6 +42,7 @@
             disableTextHyperlinking()
         }}
         on:wheel|preventDefault
+        on:keydown={()=>{}}
     />
 
     <div

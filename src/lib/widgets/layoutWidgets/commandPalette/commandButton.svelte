@@ -23,6 +23,7 @@
 	on:mouseenter={() => {hoverMethod(text)}}
 	on:mouseleave={() => {hoverMethod("")}}
 	on:click={handleClick}
+	on:keydown={()=>{}}
 >
 	{#if iconName}
 		<img src="./icons/{iconName}.png" alt={text} width="{buttonSize * 0.8}px" height="{buttonSize * 0.8}px">
@@ -57,7 +58,7 @@
         outline: solid 1px black;
     }
 
-    .command-button:active {
+    .command-button:active, .command-button.active {
         background-color: lightgrey;
     }
 </style>
