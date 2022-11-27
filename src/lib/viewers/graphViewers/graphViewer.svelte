@@ -199,7 +199,7 @@
 
 
 <div class="graph-viewer">
-        <!-- Graph Widget -->
+    <!-- Graph Widget -->
     <div class="graph-widget-container">
         {#if graph && showGraph}
             <GraphWidget

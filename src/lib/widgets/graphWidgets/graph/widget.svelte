@@ -44,6 +44,32 @@
     let zoomBoundsDiv: Element | null = null
 
     $: perspectiveTexts = legacyPerspectiveThingsParse(graph.pThing?.perspectivetexts || "{}")
+
+
+
+    // Auto-center the current focal point after resizing the Graph.
+    let widgetWidth: number
+    let widgetHeight: number
+    let lastWidgetWidth: number | null = null
+    let lastWidgetHeight: number | null = null
+    let widgetWidthChange = 0
+    let widgetHeightChange = 0
+
+    async function processWidgetResize(widgetWidth: number, widgetHeight: number) {
+        if (lastWidgetWidth) widgetWidthChange = widgetWidth - lastWidgetWidth
+        if (lastWidgetHeight) widgetHeightChange = widgetHeight - lastWidgetHeight
+
+        const xAdjustment = -widgetWidthChange / 2
+        const yAdjustment = -widgetHeightChange / 2
+        widget?.scrollBy(xAdjustment, yAdjustment)
+
+        lastWidgetWidth = widgetWidth
+        lastWidgetHeight = widgetHeight
+    }
+
+    $: processWidgetResize(widgetWidth, widgetHeight)
+        
+
 </script>
 
 
@@ -72,6 +98,8 @@
 <div
     class="graph-widget"
     bind:this={widget}
+    bind:clientWidth={widgetWidth}
+    bind:clientHeight={widgetHeight}
 
     on:mousedown={() => {
         if (!$relationshipBeingCreatedInfoStore.sourceThingId) trackingMouse = true
