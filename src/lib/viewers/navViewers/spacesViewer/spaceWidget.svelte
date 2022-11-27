@@ -7,7 +7,6 @@
     import { sleep } from "$lib/shared/utility"
     import { updateThingDefaultSpace } from "$lib/db/clientSide"
     import { addGraphIdsNeedingViewerRefresh, storeGraphDbModels } from "$lib/stores"
-    import { LogoIcon } from "$lib/widgets/layoutWidgets"
 
 
     export let space: Space
@@ -159,15 +158,17 @@
     {#if defaultPerspectiveSpace || isHovered}
         <div
             class="perspective-space-button"
+            class:is-default-perspective={defaultPerspectiveSpace}
 
             on:click|stopPropagation={setPerspectiveThingDefaultSpace}
         >
-            <LogoIcon
-                scale={0.24}
-                outlineColor={ defaultPerspectiveSpace ? "black" : "whitesmoke" }
-                backgroundColor={"whitesmoke"}
-                imageColor={ defaultPerspectiveSpace ? "dimgrey" : "lightgrey" }
-            />
+            <img
+                src="./icons/perspective.png"
+                alt="Perspective indicator"
+                width="25px"
+                height="25px"
+                style={`opacity: ${ defaultPerspectiveSpace ? 75 : 25 }%;`}
+            >
         </div>
     {/if}
 </div>
@@ -300,10 +301,31 @@
     }
 
     .perspective-space-button {
+        border-radius: 50%;
+
         position: absolute;
+        width: 26px;
+        height: 26px;
         top: 4px;
         right: 4px;
+        background-color: rgb(230, 230, 230);
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
 
         cursor: pointer;
+    }
+
+    .perspective-space-button:hover {
+        outline: solid 1px lightgrey;
+
+        background-color: whitesmoke;
+    }
+
+    .perspective-space-button.is-default-perspective {
+        outline: solid 1px rgb(175, 175, 175);
+
+        background-color: white;
     }
 </style>

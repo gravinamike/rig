@@ -14,7 +14,7 @@
 </script>
 
 
-<main>
+<div class="file-viewer">
     <h4>Open file:</h4>
 
     <div class="graph-folder-buttons">
@@ -35,11 +35,11 @@
             New Graph
         </div>
     </div>
-</main>
+</div>
 
 
 <style>
-    main {
+    .file-viewer {
         outline: solid 1px lightgrey;
         outline-offset: -1px;
         
@@ -56,6 +56,8 @@
         gap: 1.25rem;
         
         text-align: center;
+
+        scrollbar-width: thin;
     }
 
     h4 {

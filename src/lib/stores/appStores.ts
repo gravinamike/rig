@@ -1,6 +1,13 @@
 import { writable } from "svelte/store"
 
 
+
+// Dev-mode flag store.
+// Holds a boolean specifying whether the app is running in dev mode.
+export const devMode = writable( false )
+
+
+
 // Loading State Store.
 // Holds a string specifying the current loading state of the app.
 export const loadingState = writable(

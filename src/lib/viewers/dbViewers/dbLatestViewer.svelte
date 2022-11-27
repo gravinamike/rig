@@ -97,6 +97,8 @@
         gap: 0.75rem;
 
         text-align: center;
+
+        scrollbar-width: thin;
     }
 
     h4 {
