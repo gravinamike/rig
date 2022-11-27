@@ -1,5 +1,5 @@
 <script lang="ts">
-    // Type imports.
+    // Import types.
     import type { Graph, Space } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
     
@@ -22,10 +22,19 @@
     import { saveGraphConfig } from "$lib/shared/config"
     
 
+    /**
+     * @param pThingIds - The IDs of the Graph's Perspective Things.
+     * @param depth - The number of "steps" (related Things) to take when rendering the Graph.
+     * @param graph - The Graph that the viewer is displaying.
+     * @param graphWidgetStyle - Controls the visual style of the Graph.
+     * @param allowZoomAndScrollToFit - Whether or not to allow reactive zooming and scrolling after a re-Perspect.
+     * @param rePerspectToThingId - Method to rebuild the Graph around a new Perspective Thing.
+     * @param back - Method to navigate a step backwards in the Perspective history.
+     * @param forward - Method to navigate a step forwards in the Perspective history.
+     * @param setGraphSpace - Method to rebuild the Graph in a new Space.
+     */
     export let pThingIds: number[]
     export let depth: number
-
-
 
     export let graph: Graph | null = null
     export let graphWidgetStyle: GraphWidgetStyle = {...defaultGraphWidgetStyle}
@@ -42,7 +51,54 @@
 
     // Attributes controlling zoom and scroll.
     let allowScrollToThingId = false
-    let thingIdToScrollTo: number | null = null  
+    let thingIdToScrollTo: number | null = null
+
+    // Side-menu configuration.
+    $: subMenuInfos = [
+        $devMode ?
+            {
+                name: "Outline",
+                icon: "outline"
+            } :
+            null,
+        {
+            name: "Notes",
+            icon: "notes"
+        },
+        $devMode ?
+            {
+                name: "Attachments",
+                icon: "attachment"
+            } :
+            null
+    ].filter(info => info !== null) as { name: string, icon: string }[]
+    let openedSubMenuName: string | null = "Notes"
+
+
+    // Refresh the viewer whenever...
+    // ...a Graph is opened...
+    $: {
+        $openGraphStore
+
+        buildAndRefresh()
+    }
+    // ...or a refresh of the specific Graph ID is called for.
+    $: if ( graph && $graphIdsNeedingViewerRefresh.includes(graph.id) ) {
+        removeGraphIdsNeedingViewerRefresh(graph.id)
+        graph = graph // Needed for reactivity.
+        allowZoomAndScrollToFit = true
+    }
+
+    // If the position in the Perspective History has changed, re-Perspect the Graph.
+    $: if (graph) {
+        const selectedHistoryThingId = graph.history.entryWithThingAtPosition.thingId
+
+        if (
+            !rePerspectInProgressThingId
+            && selectedHistoryThingId !== graph._pThingIds[0]
+        ) rePerspectToThingId(selectedHistoryThingId, false, false)
+    }
+
 
     /**
      * Build-and-refresh method.
@@ -71,8 +127,8 @@
 
     /**
      * Re-Perspect-to-Thing-ID method.
-     * Re-builds the the Graph using the given Thing ID as the Perspective Thing.
      * 
+     * Re-builds the the Graph using the given Thing ID as the Perspective Thing.
      * @param thingId - The ID of the new Perspective Thing.
      */
     rePerspectToThingId = async (thingId: number, updateHistory=true, zoomAndScroll=true) => {
@@ -109,30 +165,11 @@
         }
     }
 
-    setGraphSpace = async (space: Space) => {
-        if (graph) {
-            await graph.setSpace(space)
-
-            addGraphIdsNeedingViewerRefresh(graph.id)
-        }
-    }
-
-    // Set up viewer to refresh...
-    // ... when a Graph is opened...
-    $: {
-        $openGraphStore
-
-        buildAndRefresh()
-    }
-    // ... and whenever a refresh of the specific Graph ID is called for.
-    $: if ( graph && $graphIdsNeedingViewerRefresh.includes(graph.id) ) {
-        removeGraphIdsNeedingViewerRefresh(graph.id)
-        graph = graph // Needed for reactivity.
-        allowZoomAndScrollToFit = true
-    }
-
-
-
+    /**
+     * Back method.
+     * 
+     * Navigates backwards one step in the Perspective history.
+     */
     back = () => {
         if (graph) {
             graph.history.incrementPosition(-1)
@@ -140,6 +177,11 @@
         }
     }
 
+    /**
+     * Forward method.
+     * 
+     * Navigates backwards one step in the Perspective history.
+     */
     forward = () => {
         if (graph) {
             graph.history.incrementPosition(1)
@@ -147,7 +189,13 @@
         }
     }
 
-    async function handleWheel(event: WheelEvent) {
+    /**
+     * Handle-mouse-wheel method.
+     * 
+     * Allows for shift-scrolling the Perspective history.
+     * @param event - The mouse-wheel event that triggered the method.
+     */
+     async function handleWheel(event: WheelEvent) {
         if (event.shiftKey) {
             if (event.deltaY > 0) {
                 back()
@@ -157,85 +205,56 @@
         }
     }
 
-    $: if (graph) {
-        const selectedHistoryThingId = graph.history.entryWithThingAtPosition.thingId
-        if (
-            !rePerspectInProgressThingId
-            && selectedHistoryThingId !== graph._pThingIds[0]
-        ) rePerspectToThingId(selectedHistoryThingId, false, false)
+    /**
+     * Set-Graph-Space method.
+     * 
+     * Re-builds the the Graph in a new Space.
+     * @param space - The Space in which to rebuild the Graph.
+     */
+    setGraphSpace = async (space: Space) => {
+        if (graph) {
+            await graph.setSpace(space)
+
+            addGraphIdsNeedingViewerRefresh(graph.id)
+        }
     }
-
-
-
-
-
-
-    let sideMenuInfos = [
-        $devMode ?
-            {
-                name: "Outline",
-                icon: "outline"
-            } :
-            null,
-        {
-            name: "Notes",
-            icon: "notes"
-        },
-        $devMode ?
-            {
-                name: "Attachments",
-                icon: "attachment"
-            } :
-            null
-    ].filter(info => info !== null) as { name: string, icon: string }[]
-    let openedSideMenuName: string | null = "Notes"
 </script>
 
 
+<!-- Handle mouse-wheel events over the page body. -->
 <svelte:body lang="ts"
     on:wheel={handleWheel}
 />
 
 
-
+<!-- Graph viewer. -->
 <div class="graph-viewer">
+
     <!-- Graph Widget -->
     <div class="graph-widget-container">
         {#if graph && showGraph}
             <GraphWidget
                 bind:graph
                 bind:graphWidgetStyle
+                {rePerspectToThingId}
                 bind:allowZoomAndScrollToFit
                 bind:allowScrollToThingId
                 bind:thingIdToScrollTo
-                {rePerspectToThingId}
             />
         {/if}
     </div>
 
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
+    <!-- Content side-menu. -->
     <SideMenu
-        {sideMenuInfos}
-        bind:openedSideMenuName
+        {subMenuInfos}
+        bind:openedSubMenuName
         openWidth={500}
         openTime={250}
         overlapPage={false}
         slideDirection={"left"}
     >
-        {#if openedSideMenuName === "Outline"}
+        <!-- Outline viewer. -->
+        {#if openedSubMenuName === "Outline"}
             <div class="graph-outline-widget-container">
                 {#if graph && showGraph}
                     <GraphOutlineWidget
@@ -245,14 +264,18 @@
                     />
                 {/if}
             </div>
-        {:else if openedSideMenuName === "Notes"}
+
+        <!-- Notes viewer. -->
+        {:else if openedSubMenuName === "Notes"}
             {#if graph}
                 <NotesViewer
                     {graph}
                     {rePerspectToThingId}
                 />
             {/if}
-        {:else if openedSideMenuName === "Attachments"}
+
+        <!-- Attachments viewer. -->
+        {:else if openedSubMenuName === "Attachments"}
             {#if graph}
                 <FolderViewer
                     {graph}
@@ -260,17 +283,6 @@
             {/if}
         {/if}
     </SideMenu>
-
-
-
-
-
-
-
-
-
-
-
 
 </div>
 

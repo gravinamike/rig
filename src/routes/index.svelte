@@ -1,6 +1,8 @@
 <script lang="ts">
     // Type imports.
     import type { WaitingIndicatorStates } from "$lib/shared/constants"
+    import type { Graph, Space } from "$lib/models/constructModels"
+    import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
     // Import basic framework functions.
     import { onMount } from "svelte"
@@ -22,31 +24,23 @@
     } from "$lib/widgets/dialogWidgets"
 
     // Import viewers.
+    import { ThingSearchboxViewer, HistoryViewer, PinsViewer, DirectionsViewer, SpacesViewer } from "$lib/viewers/navViewers"
+    import { GraphSettingsViewer } from "$lib/viewers/settingsViewers"
     import FileViewer from "$lib/viewers/settingsViewers/fileViewer.svelte"
-    import AboutMenu from "$lib/viewers/about.svelte"
+    import { GraphSchematicViewer } from "$lib/viewers/graphViewers"
     import { DirectionsStoreViewer, SpacesStoreViewer, ThingsStoreViewer } from "$lib/viewers/storeViewers"
-    import { DbLatestViewer } from "$lib/viewers/dbViewers"
+    import { DbLatestViewer } from "$lib/viewers/dbViewers"    
+    import AboutMenu from "$lib/viewers/about.svelte"
     import { GraphViewer } from "$lib/viewers/graphViewers"
-    import { defaultGraphWidgetStyle, RelationshipBeingCreatedWidget, type GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
+    // Import related widgets.
+    import { defaultGraphWidgetStyle, RelationshipBeingCreatedWidget } from "$lib/widgets/graphWidgets"
+
+    // Import API methods.
     import { openUnigraph } from "$lib/shared/unigraph"
 
 
-
-
-
-    // Import viewers.
-    import { GraphSettingsViewer } from "$lib/viewers/settingsViewers"
-    import { GraphSchematicViewer } from "$lib/viewers/graphViewers"
-    import { ThingSearchboxViewer, HistoryViewer, PinsViewer, DirectionsViewer, SpacesViewer } from "$lib/viewers/navViewers"
-    import type { Graph, Space } from "$lib/models/constructModels";
-
-
-
-
-    
-
-    openGraphStore.set(null)
+    // Initialize states for waiting indicator.
     const graphIndicatorStates: WaitingIndicatorStates = {
         start: {
             text: "Configuration not loaded yet.",
@@ -74,44 +68,8 @@
         }
     }
 
-
-
-
-    // At app initialization,
-    onMount(async () => {
-        // Store configuration.
-        $loadingState = "configLoading"
-        // Set the front-end stores.
-        devMode.set(import.meta.env.MODE === "development")
-        const appConfig = await storeAppConfig()
-        $loadingState = "configLoaded"
-
-        if (appConfig.unigraphFolder) {
-            $loadingState = "graphLoading"
-            // Open the Unigraph currently specified in the store.
-            await openUnigraph()
-            openGraphStore.set(appConfig.unigraphFolder)
-            $loadingState = "graphLoaded"
-        }
-	})
-
-    function handleMouseMove(event: MouseEvent): void {
-        updateMousePosition([event.clientX, event.clientY])
-        updateRelationshipBeingCreatedEndpoint([event.clientX, event.clientY])
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-    let sideMenuInfos = [
+    // Initialize side-menu configuration.
+    $: subMenuInfos = [
         {
             name: "Thing",
             icon: "thing"
@@ -139,7 +97,11 @@
             icon: "about"
         },
     ].filter(info => info !== null) as { name: string, icon: string }[]
-    let openedSideMenuName: string | null = "Thing"
+    let openedSubMenuName: string | null = "Thing"
+
+
+    // Initialize open-Graph store and which side menu to open.
+    openGraphStore.set(null)
 
     // Attributes handled by the Graph Viewer.
     let graph: Graph | null
@@ -149,9 +111,44 @@
     let back: () => void
     let forward: () => void
     let setGraphSpace: (space: Space) => void
+
+    
+    /**
+     * Handle-mouse-move method.
+     * 
+     * Updates the mouse-position tracker and the endpoint for any in-progress
+     * Relationship-creation operation.
+     */
+    function handleMouseMove( event: MouseEvent ): void {
+        updateMousePosition( [event.clientX, event.clientY] )
+        updateRelationshipBeingCreatedEndpoint( [event.clientX, event.clientY] )
+    } 
+
+
+    // At app initialization,
+    onMount(async () => {
+        $loadingState = "configLoading"
+
+        // Set the front-end stores.
+        devMode.set(import.meta.env.MODE === "development")
+        const appConfig = await storeAppConfig()
+
+        $loadingState = "configLoaded"
+
+        // Open the Unigraph currently specified in the store.
+        if (appConfig.unigraphFolder) {
+            $loadingState = "graphLoading"
+
+            await openUnigraph()
+            openGraphStore.set(appConfig.unigraphFolder)
+
+            $loadingState = "graphLoaded"
+        }
+	})
 </script>
 
 
+<!-- Set page title based on open Graph. -->
 <svelte:head>
     <title>{ $openGraphStore ? $openGraphStore : "Rig" }</title>
 </svelte:head>
@@ -190,93 +187,26 @@
     <RelationshipReorderController />
 
 
-
-
-
-
-
+    <!-- Side-menu. -->
     <SideMenu
-        {sideMenuInfos}
-        bind:openedSideMenuName
+        {subMenuInfos}
+        bind:openedSubMenuName
         openWidth={400}
         openTime={250}
         overlapPage={false}
     >
-        {#if openedSideMenuName === "File"}
-            <FileViewer />
-        {:else if openedSideMenuName === "Settings"}
-            {#if graph}
-                <GraphSettingsViewer
-                    bind:graph
-                    bind:graphWidgetStyle
-                    bind:allowZoomAndScrollToFit
-                />
-            {/if}
-        {:else if openedSideMenuName === "Dev"}
-            <div class="tabs-container">
-
-                <TabBlock>
-                    <TabFlaps>
-                        <TabFlap>Schematic</TabFlap>
-                        <TabFlap>Stores</TabFlap>
-                        <TabFlap>Database</TabFlap>
-                    </TabFlaps>
-
-                    <!-- Graph Schematic tab. -->
-                    <TabBody>
-                        {#if graph}
-                            <GraphSchematicViewer
-                                {graph}
-                            />
-                        {/if}
-                    </TabBody>
-                
-                    <!-- Stores tab --> 
-                    <TabBody>
-                        <TabBlock>
-                            <TabFlaps>
-                                <TabFlap>Directions</TabFlap>
-                                <TabFlap>Spaces</TabFlap>
-                                <TabFlap>Things</TabFlap>
-                            </TabFlaps>
-                        
-                            <!-- Directions Store view --> 
-                            <TabBody>
-                                <DirectionsStoreViewer />
-                            </TabBody>
-                        
-                            <!-- Spaces Store view --> 
-                            <TabBody>
-                                <SpacesStoreViewer />
-                            </TabBody>
-                        
-                            <!-- Things Store view --> 
-                            <TabBody>
-                                <ThingsStoreViewer />
-                            </TabBody>
-                        </TabBlock>
-                    </TabBody>
-                
-                    <!-- Database tab --> 
-                    <TabBody>
-                        <DbLatestViewer />
-                    </TabBody>
-                </TabBlock>
-                
-            </div>
-        {:else if openedSideMenuName === "About"}
-            <AboutMenu />
-        {:else if openedSideMenuName === "Thing"}
+        <!-- Thing menu. -->
+        {#if openedSubMenuName === "Thing"}
             <div class="navigation-view">
-                <!-- Thing searchbox -->
                 <div class="search-back-and-forth-buttons-container">
+                    <!-- Thing searchbox. -->
                     <div class="search-container">
                         <ThingSearchboxViewer
                             {rePerspectToThingId}
                         />
                     </div>
 
-                    <!-- Back and forth buttons. -->
+                    <!-- Navigate back and forth buttons. -->
                     <div class="back-and-forth-buttons">
                         <button
                             on:click={back}
@@ -291,7 +221,7 @@
                     </div>
                 </div>
 
-                <div class="history-pins-container">        
+                <div class="pins-history-container">        
                     <!-- Graph pins viewer -->
                     <div class="pins-container">
                         <PinsViewer
@@ -310,16 +240,18 @@
                     {/if}
                 </div>
             </div>
-        {:else if openedSideMenuName === "Space"}
+
+        <!-- Space menu. -->
+        {:else if openedSubMenuName === "Space"}
             <div class="directions-spaces-container">
                 {#if graph}
-                    <!-- Directions viewer -->
+                    <!-- Directions viewer. -->
                     <div class="directions-container">
                         <DirectionsViewer
                         />
                     </div>
 
-                    <!-- Spaces viewer -->
+                    <!-- Spaces viewer. -->
                     <div class="spaces-container">
                         <SpacesViewer
                             {graph}
@@ -329,32 +261,80 @@
                     </div>
                 {/if}
             </div>
+
+        <!-- Graph settings viewer. -->
+        {:else if openedSubMenuName === "Settings"}
+            {#if graph}
+                <GraphSettingsViewer
+                    bind:graph
+                    bind:graphWidgetStyle
+                    bind:allowZoomAndScrollToFit
+                />
+            {/if}
+
+        <!-- File viewer. -->
+        {:else if openedSubMenuName === "File"}
+            <FileViewer />
+
+        <!-- Developer menu. -->
+        {:else if openedSubMenuName === "Dev"}
+            <div class="tabs-container">
+
+                <TabBlock>
+                    <TabFlaps>
+                        <TabFlap>Schematic</TabFlap>
+                        <TabFlap>Stores</TabFlap>
+                        <TabFlap>Database</TabFlap>
+                    </TabFlaps>
+
+                    <!-- Graph Schematic tab. -->
+                    <TabBody>
+                        {#if graph}
+                            <GraphSchematicViewer
+                                {graph}
+                            />
+                        {/if}
+                    </TabBody>
+                
+                    <!-- Stores tab. --> 
+                    <TabBody>
+                        <TabBlock>
+                            <TabFlaps>
+                                <TabFlap>Directions</TabFlap>
+                                <TabFlap>Spaces</TabFlap>
+                                <TabFlap>Things</TabFlap>
+                            </TabFlaps>
+                        
+                            <!-- Directions Store view. --> 
+                            <TabBody>
+                                <DirectionsStoreViewer />
+                            </TabBody>
+                        
+                            <!-- Spaces Store view. --> 
+                            <TabBody>
+                                <SpacesStoreViewer />
+                            </TabBody>
+                        
+                            <!-- Things Store view. --> 
+                            <TabBody>
+                                <ThingsStoreViewer />
+                            </TabBody>
+                        </TabBlock>
+                    </TabBody>
+                
+                    <!-- Database tab. --> 
+                    <TabBody>
+                        <DbLatestViewer />
+                    </TabBody>
+                </TabBlock>
+                
+            </div>
+
+        <!-- About menu. -->
+        {:else if openedSubMenuName === "About"}
+            <AboutMenu />
         {/if}
     </SideMenu>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-    
-    
 
 
     <!-- Graph Portal. -->
@@ -370,6 +350,8 @@
             bind:forward
             bind:setGraphSpace
         />
+
+    <!-- Waiting indicator. -->
     {:else}
         <WaitingIndicator
             states={graphIndicatorStates}
@@ -381,6 +363,28 @@
 
 
 <style>
+    main {
+        flex-grow: 1;
+
+        height: 100%;
+        max-height: 100%;
+
+        display: flex;
+        flex-direction: row;
+
+        overflow: hidden;
+
+        font-family: Arial;
+    }
+
+    :global(main.reorderRow *) {
+        cursor: col-resize;
+    }
+
+    :global(main.reorderColumn *) {
+        cursor: row-resize;
+    }
+
     .navigation-view {
         height: 100%;
 
@@ -415,7 +419,7 @@
         font-size: 1.25rem;
     }
 
-    .history-pins-container {
+    .pins-history-container {
         flex: 1 1 auto;
 
         position: relative;
@@ -454,40 +458,6 @@
         width: 55%;
 
         scrollbar-width: thin;
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    main {
-        height: 100%;
-
-        display: flex;
-        flex-direction: row;
-
-        overflow: hidden;
-    }
-
-    :global(main.reorderRow *) {
-        cursor: col-resize;
-    }
-
-    :global(main.reorderColumn *) {
-        cursor: row-resize;
     }
 
     .tabs-container {
