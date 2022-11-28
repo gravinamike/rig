@@ -12,7 +12,7 @@
     import { storeAppConfig } from "$lib/shared/config"
 
     // Import database/stores-related functions.
-    import { devMode, loadingState, openGraphStore, perspectiveThingIdStore, reorderingInfoStore, updateMousePosition, updateRelationshipBeingCreatedEndpoint } from "$lib/stores"
+    import { devMode, fontNames, loadingState, openGraphStore, perspectiveThingIdStore, reorderingInfoStore, updateMousePosition, updateRelationshipBeingCreatedEndpoint } from "$lib/stores"
 
     // Import widgets.
     import {
@@ -38,6 +38,7 @@
 
     // Import API methods.
     import { openUnigraph } from "$lib/shared/unigraph"
+    import { getFontNames } from "$lib/db/clientSide/getInfo"
 
 
     // Initialize states for waiting indicator.
@@ -129,8 +130,10 @@
     onMount(async () => {
         $loadingState = "configLoading"
 
-        // Set the front-end stores.
+        // Set the stores.
         devMode.set(import.meta.env.MODE === "development")
+        const apiFontNames = await getFontNames()
+        if (apiFontNames) fontNames.set(apiFontNames)
         const appConfig = await storeAppConfig()
 
         $loadingState = "configLoaded"

@@ -172,3 +172,22 @@ export async function getGraphConfig(): Promise<GraphConfig | false> {
         return false
     }
 }
+
+
+/*
+ * Get list of font names.
+ */
+export async function getFontNames(): Promise<string[] | false> {
+    const res = await fetch("/api/file/fontNames")
+
+    // If the response is ok,
+    if (res.ok) {
+        const fontNames = await res.json() as string[]
+        return fontNames
+
+    // Handle errors if needed.
+    } else {
+        res.text().then(text => {throw Error(text)})
+        return false
+    }
+}

@@ -20,7 +20,6 @@
 				commandButtonInfos.length
 		)	
 	const rowsTall = Math.ceil(commandButtonInfos.length / rowLength)
-	$: console.log(rowLength, rowsTall)
 
 	let hoveredCommandText = ""
 	function setHoveredCommandText(text: string) { hoveredCommandText = text }

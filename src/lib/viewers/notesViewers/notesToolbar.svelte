@@ -1,8 +1,9 @@
 <script lang="ts">
     import type { Editor } from "@tiptap/core"
-    import { fontNames, fontSizes, headerLevels } from "$lib/shared/constants"
-    import { enableThingLinking, enableTextHyperlinking } from "$lib/stores"
+    import { fontSizes, headerLevels } from "$lib/shared/constants"
+    import { enableThingLinking, enableTextHyperlinking, fontNames } from "$lib/stores"
     import CommandPalette from "$lib/widgets/layoutWidgets/commandPalette/commandPalette.svelte"
+
 
     export let editor: Editor
     export let focusEditorMethod: () => void
@@ -278,7 +279,7 @@
             <select
                 value={currentSelectionFontFamily ? currentSelectionFontFamily : "Arial"}
             >
-                {#each fontNames as fontName}
+                {#each $fontNames as fontName}
                     <option
                         value={fontName}
                         on:click={() => editor.chain().focus().setFontFamily(fontName).run()}
