@@ -6,7 +6,8 @@
     import { DirectionWidget as DirectionDropdownWidget, type GraphWidgetStyle } from "$lib/widgets/graphWidgets"
     import { sleep } from "$lib/shared/utility"
     import { updateThingDefaultSpace } from "$lib/db/clientSide"
-    import { addGraphIdsNeedingViewerRefresh, inferredRelationshipBeingCreatedDirection, storeGraphDbModels } from "$lib/stores"
+    import { addGraphIdsNeedingViewerRefresh, storeGraphDbModels } from "$lib/stores"
+    import DeleteWidget from "$lib/widgets/layoutWidgets/deleteWidget.svelte"
 
 
     export let space: Space
@@ -24,11 +25,45 @@
     let directionNameInput2: HTMLInputElement
     let directionNameInput3: HTMLInputElement
     let directionNameInput4: HTMLInputElement*/
-    let directionNameInputDirections: (Direction | null)[] = []
-    for (const direction of space.directions) directionNameInputDirections.push(direction)
+    
     
     let isHovered = false
     let interactionMode: "display" | "editing" | "create" = "display"
+
+
+
+
+    let directionNameInputDirections: (Direction | null)[] = []
+    function resetDirectionNameInputDirections() {
+        for (const direction of space.directions) directionNameInputDirections.push(direction)
+        directionNameInputDirections = directionNameInputDirections // Needed for reactivity.
+    }
+    resetDirectionNameInputDirections()
+
+    let halfAxisInfos: { halfAxisId: HalfAxisId, direction: Direction | null }[] = []
+    function buildHalfAxisInfos(directionNameInputDirections: (Direction | null)[]) {
+        const newHalfAxisInfos: { halfAxisId: HalfAxisId, direction: Direction | null }[] = [
+            { halfAxisId: 1, direction: null },
+            { halfAxisId: 3, direction: null },
+            { halfAxisId: 5, direction: null },
+            { halfAxisId: 7, direction: null }
+        ]
+        for (const [index, direction] of directionNameInputDirections.entries()) {
+            newHalfAxisInfos.splice(
+                index,
+                1,
+                {
+                    halfAxisId: (2 * index + 1) as HalfAxisId,
+                    direction: direction
+                }
+            )
+        }
+        return newHalfAxisInfos
+    }
+    $: halfAxisInfos = buildHalfAxisInfos(directionNameInputDirections)
+
+
+
 
     $: halfAxisInfos = [
         {
@@ -77,8 +112,15 @@
 
     function submit() {
         console.log(
+            "SUBMITTING",
             directionNameInputDirections
         )
+        resetDirectionNameInputDirections()
+    }
+
+    function removeDirectionByIndex(index: number) {
+        directionNameInputDirections.splice(index, 1)
+        directionNameInputDirections = directionNameInputDirections // Needed for reactivity.
     }
 </script>
 
@@ -126,19 +168,37 @@
                     />
                 {/if}
             {:else}
-                {#if info.direction || directionNameInputDirections[index - 1]}
-                    <DirectionDropdownWidget
-                        direction={info.direction}
-                        halfAxisId={info.halfAxisId}
-                        {graphWidgetStyle}
-                        optionClickedFunction={(direction, _, __) => {
-                            directionNameInputDirections[index] = direction
-                        }}
-                        optionHoveredFunction={async () => {
-                        }}
-                        exitOptionHoveredFunction={async () => {
-                        }}
-                    />
+                {#if directionNameInputDirections[index] || directionNameInputDirections[index - 1]}
+                    <div
+                        class="direction-dropdown-container"
+                        style="z-index: {4 - index};"
+                    >
+                        <DirectionDropdownWidget
+                            direction={info.direction}
+                            halfAxisId={info.halfAxisId}
+                            {graphWidgetStyle}
+                            optionClickedFunction={(direction, _, __) => {
+                                directionNameInputDirections[index] = direction
+                            }}
+                            optionHoveredFunction={async () => {
+                            }}
+                            exitOptionHoveredFunction={async () => {
+                            }}
+                        />
+
+                        {#if info.direction}
+                            <DeleteWidget
+                                showDeleteButton={true}
+                                confirmDeleteBoxOpen={false}
+                                thingWidth={50}
+                                thingHeight={50}
+                                encapsulatingDepth={0}
+                                elongationCategory="neutral"
+                                startDelete={() => {removeDirectionByIndex(index)}}
+                                completeDelete={()=>{}}
+                            />
+                        {/if}
+                    </div>
                 {/if}
             {/if}
         {/each}
@@ -237,6 +297,10 @@
         text-align: center;
 
         font-size: 1rem;
+    }
+
+    .direction-dropdown-container {
+        position: relative;
     }
 
     .button-container {
