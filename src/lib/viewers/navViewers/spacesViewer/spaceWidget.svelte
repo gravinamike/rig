@@ -6,7 +6,7 @@
     import { DirectionWidget as DirectionDropdownWidget, type GraphWidgetStyle } from "$lib/widgets/graphWidgets"
     import { sleep } from "$lib/shared/utility"
     import { updateThingDefaultSpace } from "$lib/db/clientSide"
-    import { addGraphIdsNeedingViewerRefresh, storeGraphDbModels } from "$lib/stores"
+    import { addGraphIdsNeedingViewerRefresh, inferredRelationshipBeingCreatedDirection, storeGraphDbModels } from "$lib/stores"
 
 
     export let space: Space
@@ -126,18 +126,20 @@
                     />
                 {/if}
             {:else}
-                <DirectionDropdownWidget
-                    direction={info.direction}
-                    halfAxisId={info.halfAxisId}
-                    {graphWidgetStyle}
-                    optionClickedFunction={(direction, _, __) => {
-                        directionNameInputDirections[index] = direction
-                    }}
-                    optionHoveredFunction={async () => {
-                    }}
-                    exitOptionHoveredFunction={async () => {
-                    }}
-                />
+                {#if info.direction || directionNameInputDirections[index - 1]}
+                    <DirectionDropdownWidget
+                        direction={info.direction}
+                        halfAxisId={info.halfAxisId}
+                        {graphWidgetStyle}
+                        optionClickedFunction={(direction, _, __) => {
+                            directionNameInputDirections[index] = direction
+                        }}
+                        optionHoveredFunction={async () => {
+                        }}
+                        exitOptionHoveredFunction={async () => {
+                        }}
+                    />
+                {/if}
             {/if}
         {/each}
     </div>
