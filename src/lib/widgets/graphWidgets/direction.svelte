@@ -101,8 +101,8 @@
     .direction-widget {
         border-radius: 8px;
 
-        position: relative;
         box-sizing: border-box;
+        position: relative;
         background-color: white;
 
         padding: 0.25rem;
@@ -123,8 +123,9 @@
 
         position: absolute;
         box-sizing: border-box;
-        top: 100% - 1px;
         left: 0%;
+        top: 100% - 1px;
+        z-index: 1;
         min-width: 100%;
         max-height: 100px;
         background-color: white;

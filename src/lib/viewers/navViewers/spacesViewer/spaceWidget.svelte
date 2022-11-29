@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { Graph, Space } from "$lib/models/constructModels"
+    import type { Graph, Direction, Space } from "$lib/models/constructModels"
     import type { HalfAxisId } from "$lib/shared/constants"
     import type { ThingDbModel } from "$lib/models/dbModels/clientSide"
     import DirectionWidget from "../directionsViewer/directionWidget.svelte"
@@ -24,6 +24,8 @@
     let directionNameInput2: HTMLInputElement
     let directionNameInput3: HTMLInputElement
     let directionNameInput4: HTMLInputElement*/
+    let directionNameInputDirections: (Direction | null)[] = []
+    for (const direction of space.directions) directionNameInputDirections.push(direction)
     
     let isHovered = false
     let interactionMode: "display" | "editing" | "create" = "display"
@@ -55,8 +57,10 @@
         if (interactionMode === "display") {
             interactionMode = "editing"
             await sleep(50) // Allow the fields to finish rendering.
+            spaceNameInput.value = space.text || ""
             spaceNameInput.focus()
         } else {
+            submit()
             interactionMode = "display"
         }
     }
@@ -69,6 +73,12 @@
             await graph.setSpace(space)
             addGraphIdsNeedingViewerRefresh(graph.id)
         }
+    }
+
+    function submit() {
+        console.log(
+            directionNameInputDirections
+        )
     }
 </script>
 
@@ -107,11 +117,12 @@
     <div
         style="display: flex; flex-direction: column; gap: 0.25rem;"
     >
-        {#each halfAxisInfos as info}
+        {#each halfAxisInfos as info, index}
             {#if interactionMode === "display"}
                 {#if info.direction}
                     <DirectionWidget
                         direction={info.direction}
+                        editable={false}
                     />
                 {/if}
             {:else}
@@ -119,9 +130,8 @@
                     direction={info.direction}
                     halfAxisId={info.halfAxisId}
                     {graphWidgetStyle}
-                    optionClickedFunction={(direction, _, option) => {
-                        console.log(direction, option)
-
+                    optionClickedFunction={(direction, _, __) => {
+                        directionNameInputDirections[index] = direction
                     }}
                     optionHoveredFunction={async () => {
                     }}
@@ -237,8 +247,7 @@
     }
 
     .button {
-        outline: solid 1px lightgrey;
-        outline-offset: -1px;
+        border: none;
         border-radius: 5px;
         box-shadow: 1px 1px 2px 1px grey;
         
@@ -286,6 +295,7 @@
 
     .button.create {
         outline-color: #fac3ae;
+
         background-color: #fac3ae;
 
         font-size: 1rem;

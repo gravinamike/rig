@@ -1,10 +1,12 @@
 <script lang="ts">
     import type { Direction } from "$lib/models/constructModels"
     import { getGraphConstructs } from "$lib/stores"
+    import { sleep } from "$lib/shared/utility"
     import Arrow from "./arrow.svelte"
-    import { sleep } from "$lib/shared/utility";
+
 
     export let direction: Direction
+    export let editable = true
 
 
     $: oppositeDirection =
@@ -37,9 +39,13 @@
         if (interactionMode === "display") {
             interactionMode = "editing"
             await sleep(50) // Allow the fields to finish rendering.
+            directionNameInput.value = direction.text || ""
+            objectNameInput.value = direction.nameforobjects || ""
+            oppositeDirectionNameInput.value = oppositeDirection?.text || ""
+            oppositeObjectNameInput.value = oppositeDirection?.nameforobjects || ""
             directionNameInput.focus()
         } else {
-            validate()
+            submit()
             interactionMode = "display"
         }
     }
@@ -52,6 +58,18 @@
             && oppositeObjectNameInput.value !== ""
         ) ? true :
         false
+    }
+
+    function submit() {
+        const validInputs = validate()
+        if (!validInputs) return
+
+        console.log(
+            directionNameInput.value,
+            objectNameInput.value,
+            oppositeDirectionNameInput.value,
+            oppositeObjectNameInput.value
+        )
     }
 </script>
 
@@ -69,17 +87,13 @@
 
     on:mouseenter={() => {isHovered = true}}
     on:mouseleave={() => {isHovered = false}}
-    on:dblclick={() => { if (interactionMode = "display") handleButton() }}  
+    on:dblclick={() => { if (interactionMode === "display" && editable) handleButton() }}  
 >
 
     <div class="container vertical">
 
         <!-- Direction. -->
         <div class="container horizontal">
-            <div class="container direction-id">
-                {direction.id}
-            </div>
-
             <div class="container">
                 <Arrow
                     svgLength={85}
@@ -170,17 +184,15 @@
 
                 
                 <div class="container button-container">
-                    {#if isHovered || interactionMode === "editing" || interactionMode === "create"}
+                    {#if editable && (isHovered || interactionMode === "editing" || interactionMode === "create")}
                         <button
                             class="button"
                             class:editing={interactionMode === "editing"}
                             class:create={interactionMode === "create"}
                             tabindex=0
 
-                            on:click={handleButton}
-                            on:keypress={(event) => {
-                                if (event.key === "Enter") handleButton()
-                            }}
+                            on:click|stopPropagation={handleButton}
+                            
                         >
                             {#if interactionMode === "display"}
                                 <img src="./icons/edit-text.png" alt="edit direction" width=15px height=15px />
@@ -229,16 +241,6 @@
         flex-direction: column;
     }
 
-    .direction-id {
-        width: 10px;
-
-        flex: 1 1 0;
-        padding: 0.25rem 0.25rem 0.25rem 0;
-
-        font-size: 1rem;
-        font-weight: 600;
-    }
-
     .floating-text {
         position: absolute;
         width: 100%;
@@ -273,8 +275,7 @@
     }
 
     .button {
-        outline: solid 1px lightgrey;
-        outline-offset: -1px;
+        border: none;
         border-radius: 5px;
         box-shadow: 1px 1px 2px 1px grey;
         
