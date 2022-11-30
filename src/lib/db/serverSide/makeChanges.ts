@@ -11,9 +11,9 @@ import {
     RawDirectionDbModel, RawThingDbModel, getNewThingInfo,
     RawRelationshipDbModel, getNewRelationshipInfo,
     RawNoteDbModel, getNewNoteInfo, RawNoteToThingDbModel,
-    RawFolderDbModel, getNewFolderInfo, RawFolderToThingDbModel
+    RawFolderDbModel, getNewFolderInfo, RawFolderToThingDbModel, RawSpaceDbModel
 } from "$lib/models/dbModels/serverSide"
-import { Thing } from "$lib/models/constructModels"
+import { Direction, Thing } from "$lib/models/constructModels"
 
 // Filesystem-related imports.
 import { createFolder } from "$lib/shared/fileSystem"
@@ -34,7 +34,7 @@ export async function updateDirection(
         // Construct and run SQL query.
         const knex = Model.knex()
         await knex.transaction(async (transaction: Knex.Transaction) => {
-            // Update the Note.
+            // Update the Direction.
             await RawDirectionDbModel.query()
                 .patch({
                     text: directionText,
@@ -46,6 +46,54 @@ export async function updateDirection(
             
             return
         })
+        
+        return true
+
+    } catch(err) {
+        console.error(err)
+        return false
+    }
+}
+
+/*
+ * Update a Space.
+ */
+export async function updateSpace(
+    spaceId: number,
+    spaceText: string,
+    directions: (Direction | null)[]
+): Promise<boolean> {
+    try {
+
+
+        // Construct the info here.
+        console.log(
+            spaceId,
+            spaceText,
+            directions
+        )
+
+        // Determine which of the supplied Directions are already linked, using a query.
+        // Construct a list of Directions to delete, and Directions to create.
+        // How is order handled? Do they ALL need deletion and recreation, to avoid unwanted order?
+        // Verify ids are auto-incrementing and never returning to old numbers.
+
+
+        // Construct and run SQL query.
+        /*const knex = Model.knex()
+        await knex.transaction(async (transaction: Knex.Transaction) => {
+            // Update the Note.
+            await RawSpaceDbModel.query()
+                .patch({
+                    text: spaceText
+                })
+                .where('id', spaceId)
+                .transacting(transaction)
+            
+            return
+
+            /////////////////////////////////////// Add here the query about Directions.
+        })*/
         
         return true
 

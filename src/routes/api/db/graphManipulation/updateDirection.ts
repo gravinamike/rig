@@ -15,7 +15,7 @@ export async function post(
         
         return {
             status: 200,
-            body: "Thing text updated successfully."
+            body: "Direction updated successfully."
         }
 
     } catch(err) {

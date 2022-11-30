@@ -8,6 +8,7 @@
     import { updateThingDefaultSpace } from "$lib/db/clientSide"
     import { addGraphIdsNeedingViewerRefresh, storeGraphDbModels } from "$lib/stores"
     import DeleteWidget from "$lib/widgets/layoutWidgets/deleteWidget.svelte"
+    import { updateSpace } from "$lib/db/clientSide"
 
 
     export let space: Space
@@ -35,6 +36,7 @@
 
     let directionNameInputDirections: (Direction | null)[] = []
     function resetDirectionNameInputDirections() {
+        directionNameInputDirections = []
         for (const direction of space.directions) directionNameInputDirections.push(direction)
         directionNameInputDirections = directionNameInputDirections // Needed for reactivity.
     }
@@ -110,17 +112,34 @@
         }
     }
 
-    function submit() {
-        console.log(
-            "SUBMITTING",
-            directionNameInputDirections
-        )
-        resetDirectionNameInputDirections()
-    }
-
     function removeDirectionByIndex(index: number) {
         directionNameInputDirections.splice(index, 1)
         directionNameInputDirections = directionNameInputDirections // Needed for reactivity.
+    }
+
+
+    function validate() {
+        return (
+            spaceNameInput.value !== ""
+        ) ? true :
+        false
+    }
+
+    async function submit() {
+        const validInputs = validate()
+        if (!validInputs || !space.id) return
+
+        console.log(
+            "SUBMITTING",
+            space.id,
+            spaceNameInput.value,
+            directionNameInputDirections
+        )
+        updateSpace(space.id, spaceNameInput.value, directionNameInputDirections)
+        resetDirectionNameInputDirections()
+        await storeGraphDbModels("Space")
+        await graph.build()
+        addGraphIdsNeedingViewerRefresh(graph.id)
     }
 </script>
 

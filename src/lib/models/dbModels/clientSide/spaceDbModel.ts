@@ -6,3 +6,10 @@ export interface SpaceDbModel {
     text: string | null
     directions: DirectionDbModel[]
 }
+
+
+export interface DirectionToSpaceDbModel {
+    id: string | number | null
+    directionid: string | number | null
+    spaceid: string | number | null
+}

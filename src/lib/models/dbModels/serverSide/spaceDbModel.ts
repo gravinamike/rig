@@ -1,5 +1,5 @@
 import type { RelationMappings, RelationMappingsThunk } from "objection"
-import type { SpaceDbModel } from "../clientSide"
+import type { DirectionToSpaceDbModel, SpaceDbModel } from "../clientSide"
 
 import { Model } from "objection"
 import { RawDirectionDbModel } from "$lib/models/dbModels/serverSide"
@@ -46,7 +46,38 @@ export function stripSpaceDbModels(models: RawSpaceDbModel[]): SpaceDbModel[] {
             {
                 id: model.id,
                 text: model.text,
-                directions: stripDirectionDbModels(model.directions)
+                directions: model.directions ? stripDirectionDbModels(model.directions) : []
+            }
+        )
+    }
+
+    return stripped
+}
+
+
+
+/*
+ * DirectionToSpace model.
+ */
+export class RawDirectionToSpaceDbModel extends Model {
+    static tableName = "directiontospace" as const
+
+    id!: string | number | null
+    directionid!: string | number | null
+    spaceid!: string | number | null
+}
+
+
+// Necessary to strip out the server-only Objection.js model parts before sending client-side.
+export function stripDirectionToSpaceDbModels(models: RawDirectionToSpaceDbModel[]): DirectionToSpaceDbModel[] {
+    const stripped = []
+    
+    for (const model of models) {
+        stripped.push(
+            {
+                id: model.id,
+                directionid: model.directionid,
+                spaceid: model.spaceid
             }
         )
     }

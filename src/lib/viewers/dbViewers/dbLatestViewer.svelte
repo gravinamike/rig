@@ -19,6 +19,37 @@
 
     {#if latestConstructs}
         <div class="construct-container">
+            <h4>Directions:</h4>
+            <br>
+            {#each latestConstructs.directions as info}
+                <strong>ID</strong> {info.id}&nbsp;&nbsp;
+                <strong>OPP. ID</strong> {info.oppositeid}&nbsp;&nbsp;
+                <strong>TEXT</strong> {info.text}&nbsp;&nbsp;
+                <strong>OBJ.</strong> {info.nameforobjects}&nbsp;&nbsp;
+                <br>
+            {/each}
+            <br>
+
+            <h4>Spaces:</h4>
+            <br>
+            {#each latestConstructs.spaces as info}
+                <strong>ID</strong> {info.id}&nbsp;&nbsp;
+                <strong>TEXT</strong> {info.text}&nbsp;&nbsp;
+                <br>
+            {/each}
+            <br>
+
+            <h4>DirectionToSpace:</h4>
+            <br>
+            {#each latestConstructs.directionToSpaces as info}
+                <strong>ID</strong> {info.id}&nbsp;&nbsp;
+                <strong>DIR ID</strong> {info.directionid}&nbsp;&nbsp;
+                <strong>SPACE ID</strong> {info.spaceid}&nbsp;&nbsp;
+                <br>
+            {/each}
+            <br>
+
+
             <h4>Things:</h4>
             <br>
             {#each latestConstructs.things as info}

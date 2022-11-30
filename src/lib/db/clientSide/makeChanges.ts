@@ -1,4 +1,4 @@
-import type { Thing } from "$lib/models/constructModels"
+import type { Direction, Thing } from "$lib/models/constructModels"
 import type { GraphConfig } from "$lib/shared/constants"
 
 
@@ -22,6 +22,37 @@ export async function updateDirection(
                 directionText: directionText,
                 nameForObjects: nameForObjects,
                 oppositeId: oppositeId
+            })
+        }
+    )
+
+    // Report on the response.
+    if (res.ok) {
+        return true
+    } else {
+        res.text().then(text => {throw Error(text)})
+        return false
+    }
+}
+
+/*
+ * Update an existing Space.
+ */
+export async function updateSpace(
+    spaceId: number,
+    spaceText: string,
+    directions: (Direction | null)[]
+): Promise<boolean> {
+    // Post to the update-Space API.
+    const res = await fetch(
+        `api/db/graphManipulation/updateSpace`,
+        {
+            method: "POST",
+
+            body: JSON.stringify({
+                spaceId: spaceId,
+                spaceText: spaceText,
+                directions: directions
             })
         }
     )

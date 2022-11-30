@@ -10,6 +10,10 @@ import {
     stripFolderDbModels,
     stripFolderToThingDbModels,
     stripThingSearchListItemDbModels,
+    stripDirectionDbModels,
+    stripSpaceDbModels,
+    RawDirectionToSpaceDbModel,
+    stripDirectionToSpaceDbModels,
 } from "$lib/models/dbModels/serverSide"
 
 
@@ -197,6 +201,9 @@ export async function queryThingSearchList( thingIds: number[] | null ): Promise
  * Get the latest Graph constructs that were added to the database.
  */
 export interface LatestConstructInfos {
+    directions: {id: string | number, oppositeid: string | number | null, text: string | null, nameforobjects: string | null}[],
+    spaces: {id: string | number | null, text: string | null}[],
+    directionToSpaces: {id: string | number | null, directionid: string | number | null, spaceid: string | number | null}[],
     things: {id: string | number, text: string}[],
     relationships: {id: string | number, thingaid: number | null, thingbid: number | null}[],
     notes: {id: string | number}[],
@@ -205,6 +212,15 @@ export interface LatestConstructInfos {
     folderToThings: {id: string | number, folderid: number, thingid: number}[]
 }
 export async function getLatestConstructs(): Promise<LatestConstructInfos> {
+    // Get latest Directions.
+    const rawQueriedDirections = await RawDirectionDbModel.query().orderBy("id", "desc").limit(10)
+    const queriedDirections = stripDirectionDbModels(rawQueriedDirections)
+    // Get latest Spaces.
+    const rawQueriedSpaces = await RawSpaceDbModel.query().orderBy("id", "desc").limit(10)
+    const queriedSpaces = stripSpaceDbModels(rawQueriedSpaces)
+    // Get latest DirectionToSpaces.
+    const rawQueriedDirectionToSpaces = await RawDirectionToSpaceDbModel.query().orderBy("id", "desc").limit(10)
+    const queriedDirectionToSpaces = stripDirectionToSpaceDbModels(rawQueriedDirectionToSpaces)
     // Get latest Things.
     const rawQueriedThings = await RawThingDbModel.query().orderBy("id", "desc").limit(10)
     const queriedThings = stripThingDbModels(rawQueriedThings)
@@ -226,6 +242,9 @@ export async function getLatestConstructs(): Promise<LatestConstructInfos> {
 
     // Return an object containing all the above.
     return {
+        directions: queriedDirections.map(x => {return {id: x.id, oppositeid: x.oppositeid, text: x.text, nameforobjects: x.nameforobjects}}),
+        spaces: queriedSpaces.map(x => {return {id: x.id, text: x.text}}),
+        directionToSpaces: queriedDirectionToSpaces.map(x => {return {id: x.id, directionid: x.directionid, spaceid: x.spaceid}}),
         things: queriedThings.map(x => {return {id: x.id, text: x.text}}),
         relationships: queriedRelationships.map(x => {return {id: x.id, thingaid: x.thingaid, thingbid: x.thingbid}}),
         notes: queriedNotes.map(x => {return {id: x?.id || "NULL"}}),
