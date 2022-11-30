@@ -22,6 +22,41 @@ import { changeIndexInArray, legacyPerspectiveThingsParse } from "$lib/shared/ut
 
 
 /*
+ * Update a Direction.
+ */
+export async function updateDirection(
+    directionId: number,
+    directionText: string,
+    nameForObjects: string,
+    oppositeId: number | null
+): Promise<boolean> {
+    try {
+        // Construct and run SQL query.
+        const knex = Model.knex()
+        await knex.transaction(async (transaction: Knex.Transaction) => {
+            // Update the Note.
+            await RawDirectionDbModel.query()
+                .patch({
+                    text: directionText,
+                    nameforobjects: nameForObjects,
+                    oppositeid: oppositeId
+                })
+                .where('id', directionId)
+                .transacting(transaction)
+            
+            return
+        })
+        
+        return true
+
+    } catch(err) {
+        console.error(err)
+        return false
+    }
+}
+
+
+/*
  * From a starting Thing, create a related Thing.
  */
 export async function createNewRelatedThing(thingIdToRelateFrom: number, directionId: number, text: string): Promise<Thing | false> {

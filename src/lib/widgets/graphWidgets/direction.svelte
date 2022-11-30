@@ -21,6 +21,7 @@
     export let halfAxisId: HalfAxisId | null
     export let graphWidgetStyle: GraphWidgetStyle
     export let askingForDirection = false
+    export let fontSize: number | null = null
     export let optionClickedFunction: (direction: Direction | null, optionId: number, option: Direction) => void = (_: Direction | null, __: number, option: Direction) => {console.log(option.text)}
     export let optionHoveredFunction: (optionId: number, option: Direction) => void = () => {}
     export let exitOptionHoveredFunction: () => void = () => {}
@@ -56,7 +57,7 @@
     <!-- Direction text. -->
     <div
         style="
-            font-size: {graphWidgetStyle.relationshipTextSize}px;
+            font-size: {fontSize ? fontSize : graphWidgetStyle.relationshipTextSize}px;
             {direction ? "" : "font-style: italic;"}
             color: {relationshipColor};
         "

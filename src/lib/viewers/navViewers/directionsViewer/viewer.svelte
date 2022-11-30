@@ -1,7 +1,13 @@
 <script lang="ts">
-    import type { Direction } from "$lib/models/constructModels";
+    import type { Direction, Graph } from "$lib/models/constructModels";
     import { directionDbModelsStoreAsArray, getGraphConstructs } from "$lib/stores"
+    import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets";
     import DirectionWidget from "./directionWidget.svelte"
+
+
+    export let graph: Graph
+    export let graphWidgetStyle: GraphWidgetStyle
+
 
     $: directionIds = $directionDbModelsStoreAsArray.map(model => Number(model.id))
     $: directions = getGraphConstructs("Direction", directionIds) as Direction[]
@@ -14,6 +20,8 @@
     {#each directions as direction}
         <DirectionWidget
             {direction}
+            {graph}
+            {graphWidgetStyle}
         />
     {/each}
 </div>

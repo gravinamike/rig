@@ -165,6 +165,8 @@
                     <DirectionWidget
                         direction={info.direction}
                         editable={false}
+                        {graph}
+                        {graphWidgetStyle}
                     />
                 {/if}
             {:else}

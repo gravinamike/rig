@@ -3,6 +3,40 @@ import type { GraphConfig } from "$lib/shared/constants"
 
 
 /*
+ * Update an existing Direction.
+ */
+export async function updateDirection(
+    directionId: number,
+    directionText: string,
+    nameForObjects: string,
+    oppositeId: number | null
+): Promise<boolean> {
+    // Post to the update-Direction API.
+    const res = await fetch(
+        `api/db/graphManipulation/updateDirection`,
+        {
+            method: "POST",
+
+            body: JSON.stringify({
+                directionId: directionId,
+                directionText: directionText,
+                nameForObjects: nameForObjects,
+                oppositeId: oppositeId
+            })
+        }
+    )
+
+    // Report on the response.
+    if (res.ok) {
+        return true
+    } else {
+        res.text().then(text => {throw Error(text)})
+        return false
+    }
+}
+
+
+/*
  * From a starting Thing, create a related Thing.
  */
 export async function createNewRelatedThing(

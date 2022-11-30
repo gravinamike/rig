@@ -253,6 +253,8 @@
                     <!-- Directions viewer. -->
                     <div class="directions-container">
                         <DirectionsViewer
+                            {graph}
+                            {graphWidgetStyle}
                         />
                     </div>
 
