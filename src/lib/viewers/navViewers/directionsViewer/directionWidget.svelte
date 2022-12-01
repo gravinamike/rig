@@ -1,10 +1,16 @@
 <script lang="ts">
-    import type { Direction } from "$lib/models/constructModels"
-    import { getGraphConstructs } from "$lib/stores"
+    import type { Direction, Graph } from "$lib/models/constructModels"
+    import { addGraphIdsNeedingViewerRefresh, getGraphConstructs, storeGraphDbModels } from "$lib/stores"
+    import { sleep } from "$lib/shared/utility"
     import Arrow from "./arrow.svelte"
-    import { sleep } from "$lib/shared/utility";
+    import { DirectionWidget as DirectionDropdownWidget, type GraphWidgetStyle } from "$lib/widgets/graphWidgets"
+    import { updateDirection } from "$lib/db/clientSide"
+
 
     export let direction: Direction
+    export let editable = true
+    export let graph: Graph
+    export let graphWidgetStyle: GraphWidgetStyle
 
 
     $: oppositeDirection =
@@ -13,8 +19,14 @@
 
     let directionNameInput: HTMLInputElement
     let objectNameInput: HTMLInputElement
-    let oppositeDirectionNameInput: HTMLInputElement
-    let oppositeObjectNameInput: HTMLInputElement
+
+
+
+    $: oppositeDirectionInForm = oppositeDirection
+
+
+
+
 
     let isHovered = false
     let interactionMode: "display" | "editing" | "create" = "display"
@@ -37,9 +49,11 @@
         if (interactionMode === "display") {
             interactionMode = "editing"
             await sleep(50) // Allow the fields to finish rendering.
+            directionNameInput.value = direction.text || ""
+            objectNameInput.value = direction.nameforobjects || ""
             directionNameInput.focus()
         } else {
-            validate()
+            submit()
             interactionMode = "display"
         }
     }
@@ -48,10 +62,25 @@
         return (
             directionNameInput.value !== ""
             && objectNameInput.value !== ""
-            && oppositeDirectionNameInput.value !== ""
-            && oppositeObjectNameInput.value !== ""
         ) ? true :
         false
+    }
+
+    async function submit() {
+        const validInputs = validate()
+        if (!validInputs || !direction.id) return
+
+        await updateDirection(
+            direction.id,
+            directionNameInput.value,
+            objectNameInput.value,
+            oppositeDirectionInForm?.id || null
+        )
+
+        await storeGraphDbModels("Direction")
+        await storeGraphDbModels("Space")
+        await graph.build()
+        addGraphIdsNeedingViewerRefresh(graph.id)
     }
 </script>
 
@@ -69,17 +98,13 @@
 
     on:mouseenter={() => {isHovered = true}}
     on:mouseleave={() => {isHovered = false}}
-    on:dblclick={() => { if (interactionMode = "display") handleButton() }}  
+    on:dblclick={() => { if (interactionMode === "display" && editable) handleButton() }}  
 >
 
     <div class="container vertical">
 
         <!-- Direction. -->
         <div class="container horizontal">
-            <div class="container direction-id">
-                {direction.id}
-            </div>
-
             <div class="container">
                 <Arrow
                     svgLength={85}
@@ -125,7 +150,7 @@
                 class="container horizontal"
                 style="
                     opacity: {oppositeDisplayMode === "small" ? 0.5 : 1};
-                    font-size: {oppositeDisplayMode === "small" ? 0.5 : 1}rem;
+                    font-size: 0.5rem;
                 "
             >
                 <div class="container">
@@ -133,15 +158,13 @@
                         class="object"
                         style="width: 50px; height: {oppositeDirectionHeight}px;"
                     >
-                        <div class="floating-text">
+                        <div
+                            class="floating-text"
+                        >
                             {#if interactionMode === "display"}
                                 {oppositeDirection.nameforobjects}
                             {:else}
-                                <input
-                                    type="text"
-                                    placeholder="Opp object"
-                                    bind:this={oppositeObjectNameInput}
-                                />
+                                {oppositeDirectionInForm?.nameforobjects || ""}
                             {/if}
                         </div>
                     </div>
@@ -157,30 +180,38 @@
 
                     <div class="floating-text">
                         {#if interactionMode === "display"}
-                                {oppositeDirection.text}
-                            {:else}
-                                <input
-                                    type="text"
-                                    placeholder="Opp Direction"
-                                    bind:this={oppositeDirectionNameInput}
-                                />
-                            {/if}
+                            {oppositeDirection.text}
+                        {:else}
+                            <DirectionDropdownWidget
+                                direction={oppositeDirectionInForm}
+                                halfAxisId={0}
+                                {graphWidgetStyle}
+                                fontSize={10}
+                                optionClickedFunction={ (option) => {
+                                    oppositeDirectionInForm = option
+                                } }
+                                optionHoveredFunction={ async (_, option) => {
+                                    oppositeDirectionInForm = option
+                                } }
+                                exitOptionHoveredFunction={ async () => {
+                                    oppositeDirectionInForm = oppositeDirection
+                                } }
+                            />
+                        {/if}
                     </div>
                 </div>
 
                 
                 <div class="container button-container">
-                    {#if isHovered || interactionMode === "editing" || interactionMode === "create"}
+                    {#if editable && (isHovered || interactionMode === "editing" || interactionMode === "create")}
                         <button
                             class="button"
                             class:editing={interactionMode === "editing"}
                             class:create={interactionMode === "create"}
                             tabindex=0
 
-                            on:click={handleButton}
-                            on:keypress={(event) => {
-                                if (event.key === "Enter") handleButton()
-                            }}
+                            on:click|stopPropagation={handleButton}
+                            
                         >
                             {#if interactionMode === "display"}
                                 <img src="./icons/edit-text.png" alt="edit direction" width=15px height=15px />
@@ -229,16 +260,6 @@
         flex-direction: column;
     }
 
-    .direction-id {
-        width: 10px;
-
-        flex: 1 1 0;
-        padding: 0.25rem 0.25rem 0.25rem 0;
-
-        font-size: 1rem;
-        font-weight: 600;
-    }
-
     .floating-text {
         position: absolute;
         width: 100%;
@@ -273,8 +294,7 @@
     }
 
     .button {
-        outline: solid 1px lightgrey;
-        outline-offset: -1px;
+        border: none;
         border-radius: 5px;
         box-shadow: 1px 1px 2px 1px grey;
         

@@ -17,7 +17,8 @@
     import { hexToRgba, sleep } from "$lib/shared/utility"
 
     /* Widget imports. */
-    import { ThingTextWidget, DeleteThingWidget, ThingTextFormWidget } from "../subWidgets"
+    import { ThingTextWidget, ThingTextFormWidget } from "../subWidgets"
+    import DeleteWidget from "$lib/widgets/layoutWidgets/deleteWidget.svelte"
     import { ThingDetailsWidget } from "$lib/widgets/detailsWidgets"
     import ThingWidgetController from "./controller.svelte"
 
@@ -248,7 +249,7 @@
                 />
 
                 <!-- Delete controls. -->
-                <DeleteThingWidget
+                <DeleteWidget
                     {showDeleteButton}
                     {confirmDeleteBoxOpen}
                     {thingWidth}

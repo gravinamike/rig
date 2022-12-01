@@ -98,7 +98,7 @@
             icon: "about"
         },
     ].filter(info => info !== null) as { name: string, icon: string }[]
-    let openedSubMenuName: string | null = "Thing"
+    let openedSubMenuName: string | null = "Space"
 
 
     // Initialize open-Graph store and which side menu to open.
@@ -253,6 +253,8 @@
                     <!-- Directions viewer. -->
                     <div class="directions-container">
                         <DirectionsViewer
+                            {graph}
+                            {graphWidgetStyle}
                         />
                     </div>
 

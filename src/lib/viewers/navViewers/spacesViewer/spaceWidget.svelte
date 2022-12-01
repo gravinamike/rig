@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { Graph, Space } from "$lib/models/constructModels"
+    import type { Graph, Direction, Space } from "$lib/models/constructModels"
     import type { HalfAxisId } from "$lib/shared/constants"
     import type { ThingDbModel } from "$lib/models/dbModels/clientSide"
     import DirectionWidget from "../directionsViewer/directionWidget.svelte"
@@ -7,6 +7,8 @@
     import { sleep } from "$lib/shared/utility"
     import { updateThingDefaultSpace } from "$lib/db/clientSide"
     import { addGraphIdsNeedingViewerRefresh, storeGraphDbModels } from "$lib/stores"
+    import DeleteWidget from "$lib/widgets/layoutWidgets/deleteWidget.svelte"
+    import { updateSpace } from "$lib/db/clientSide"
 
 
     export let space: Space
@@ -25,8 +27,45 @@
     let directionNameInput3: HTMLInputElement
     let directionNameInput4: HTMLInputElement*/
     
+    
     let isHovered = false
     let interactionMode: "display" | "editing" | "create" = "display"
+
+
+
+
+    let directionNameInputDirections: (Direction | null)[] = []
+    function resetDirectionNameInputDirections() {
+        directionNameInputDirections = []
+        for (const direction of space.directions) directionNameInputDirections.push(direction)
+        directionNameInputDirections = directionNameInputDirections // Needed for reactivity.
+    }
+    resetDirectionNameInputDirections()
+
+    let halfAxisInfos: { halfAxisId: HalfAxisId, direction: Direction | null }[] = []
+    function buildHalfAxisInfos(directionNameInputDirections: (Direction | null)[]) {
+        const newHalfAxisInfos: { halfAxisId: HalfAxisId, direction: Direction | null }[] = [
+            { halfAxisId: 1, direction: null },
+            { halfAxisId: 3, direction: null },
+            { halfAxisId: 5, direction: null },
+            { halfAxisId: 7, direction: null }
+        ]
+        for (const [index, direction] of directionNameInputDirections.entries()) {
+            newHalfAxisInfos.splice(
+                index,
+                1,
+                {
+                    halfAxisId: (2 * index + 1) as HalfAxisId,
+                    direction: direction
+                }
+            )
+        }
+        return newHalfAxisInfos
+    }
+    $: halfAxisInfos = buildHalfAxisInfos(directionNameInputDirections)
+
+
+
 
     $: halfAxisInfos = [
         {
@@ -55,8 +94,10 @@
         if (interactionMode === "display") {
             interactionMode = "editing"
             await sleep(50) // Allow the fields to finish rendering.
+            spaceNameInput.value = space.text || ""
             spaceNameInput.focus()
         } else {
+            submit()
             interactionMode = "display"
         }
     }
@@ -69,6 +110,30 @@
             await graph.setSpace(space)
             addGraphIdsNeedingViewerRefresh(graph.id)
         }
+    }
+
+    function removeDirectionByIndex(index: number) {
+        directionNameInputDirections.splice(index, 1)
+        directionNameInputDirections = directionNameInputDirections // Needed for reactivity.
+    }
+
+
+    function validate() {
+        return (
+            spaceNameInput.value !== ""
+        ) ? true :
+        false
+    }
+
+    async function submit() {
+        const validInputs = validate()
+        if (!validInputs || !space.id) return
+
+        await updateSpace(space.id, spaceNameInput.value, directionNameInputDirections)
+        resetDirectionNameInputDirections()
+        await storeGraphDbModels("Space")
+        await graph.build()
+        addGraphIdsNeedingViewerRefresh(graph.id)
     }
 </script>
 
@@ -107,27 +172,49 @@
     <div
         style="display: flex; flex-direction: column; gap: 0.25rem;"
     >
-        {#each halfAxisInfos as info}
+        {#each halfAxisInfos as info, index}
             {#if interactionMode === "display"}
                 {#if info.direction}
                     <DirectionWidget
                         direction={info.direction}
+                        editable={false}
+                        {graph}
+                        {graphWidgetStyle}
                     />
                 {/if}
             {:else}
-                <DirectionDropdownWidget
-                    direction={info.direction}
-                    halfAxisId={info.halfAxisId}
-                    {graphWidgetStyle}
-                    optionClickedFunction={(direction, _, option) => {
-                        console.log(direction, option)
+                {#if directionNameInputDirections[index] || directionNameInputDirections[index - 1]}
+                    <div
+                        class="direction-dropdown-container"
+                        style="z-index: {4 - index};"
+                    >
+                        <DirectionDropdownWidget
+                            direction={info.direction}
+                            halfAxisId={info.halfAxisId}
+                            {graphWidgetStyle}
+                            optionClickedFunction={(direction, _, __) => {
+                                directionNameInputDirections[index] = direction
+                            }}
+                            optionHoveredFunction={async () => {
+                            }}
+                            exitOptionHoveredFunction={async () => {
+                            }}
+                        />
 
-                    }}
-                    optionHoveredFunction={async () => {
-                    }}
-                    exitOptionHoveredFunction={async () => {
-                    }}
-                />
+                        {#if info.direction}
+                            <DeleteWidget
+                                showDeleteButton={true}
+                                confirmDeleteBoxOpen={false}
+                                thingWidth={50}
+                                thingHeight={50}
+                                encapsulatingDepth={0}
+                                elongationCategory="neutral"
+                                startDelete={() => {removeDirectionByIndex(index)}}
+                                completeDelete={()=>{}}
+                            />
+                        {/if}
+                    </div>
+                {/if}
             {/if}
         {/each}
     </div>
@@ -227,6 +314,10 @@
         font-size: 1rem;
     }
 
+    .direction-dropdown-container {
+        position: relative;
+    }
+
     .button-container {
         width: 100%;
         height: 15px;
@@ -237,8 +328,7 @@
     }
 
     .button {
-        outline: solid 1px lightgrey;
-        outline-offset: -1px;
+        border: none;
         border-radius: 5px;
         box-shadow: 1px 1px 2px 1px grey;
         
@@ -286,6 +376,7 @@
 
     .button.create {
         outline-color: #fac3ae;
+
         background-color: #fac3ae;
 
         font-size: 1rem;

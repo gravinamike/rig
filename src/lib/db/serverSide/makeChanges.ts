@@ -11,14 +11,90 @@ import {
     RawDirectionDbModel, RawThingDbModel, getNewThingInfo,
     RawRelationshipDbModel, getNewRelationshipInfo,
     RawNoteDbModel, getNewNoteInfo, RawNoteToThingDbModel,
-    RawFolderDbModel, getNewFolderInfo, RawFolderToThingDbModel
+    RawFolderDbModel, getNewFolderInfo, RawFolderToThingDbModel, RawSpaceDbModel
 } from "$lib/models/dbModels/serverSide"
-import { Thing } from "$lib/models/constructModels"
+import { Direction, Thing } from "$lib/models/constructModels"
 
 // Filesystem-related imports.
 import { createFolder } from "$lib/shared/fileSystem"
 
 import { changeIndexInArray, legacyPerspectiveThingsParse } from "$lib/shared/utility"
+
+
+/*
+ * Update a Direction.
+ */
+export async function updateDirection(
+    directionId: number,
+    directionText: string,
+    nameForObjects: string,
+    oppositeId: number | null
+): Promise<boolean> {
+    try {
+        // Construct and run SQL query.
+        const knex = Model.knex()
+        await knex.transaction(async (transaction: Knex.Transaction) => {
+            // Update the Direction.
+            await RawDirectionDbModel.query()
+                .patch({
+                    text: directionText,
+                    nameforobjects: nameForObjects,
+                    oppositeid: oppositeId
+                })
+                .where('id', directionId)
+                .transacting(transaction)
+            
+            return
+        })
+        
+        return true
+
+    } catch(err) {
+        console.error(err)
+        return false
+    }
+}
+
+/*
+ * Update a Space.
+ */
+export async function updateSpace(
+    spaceId: number,
+    spaceText: string,
+    directions: (Direction | null)[]
+): Promise<boolean> {
+    try {
+        // Construct and run SQL query.
+        const knex = Model.knex()
+        await knex.transaction(async (transaction: Knex.Transaction) => {
+            // Update the Space text.
+            await RawSpaceDbModel.query()
+                .patch({
+                    text: spaceText
+                })
+                .where('id', spaceId)
+                .transacting(transaction)
+
+            // Delete existing Direction linkers.
+            await RawSpaceDbModel.relatedQuery('directionToSpaces').for([spaceId]).delete().transacting(transaction)
+
+            // Create new Direction linkers.
+            const spaceToAddDirectionsTo = await RawSpaceDbModel.query().findById(spaceId)
+            for (const direction of directions) if (direction?.id) {
+                const querystring = spaceToAddDirectionsTo.$relatedQuery('directions').relate(direction.id).toKnexQuery().toString()
+                await alterQuerystringForH2AndRun(querystring, transaction, "", "DirectionToSpace")
+            }
+
+            return
+        })
+        
+        return true
+
+    } catch(err) {
+        console.error(err)
+        return false
+    }
+}
 
 
 /*

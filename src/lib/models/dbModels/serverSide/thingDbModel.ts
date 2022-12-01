@@ -99,7 +99,6 @@ export class RawThingDbModel extends Model {
 // Necessary to strip out the server-only Objection.js model parts before sending client-side.
 export function stripThingDbModels(models: RawThingDbModel[]): ThingDbModel[] {
     const stripped: ThingDbModel[] = []
-
     for (const model of models) {
         stripped.push(
             {
@@ -115,8 +114,8 @@ export function stripThingDbModels(models: RawThingDbModel[]): ThingDbModel[] {
 
                 note: stripNoteDbModels([model.note])[0],
                 folder: stripFolderDbModels([model.folder])[0],
-                a_relationships: stripRelationshipDbModels(model.a_relationships),
-                b_relationships: stripRelationshipDbModels(model.b_relationships),
+                a_relationships: model.a_relationships ? stripRelationshipDbModels(model.a_relationships) : [],
+                b_relationships: model.b_relationships ? stripRelationshipDbModels(model.b_relationships) : [],
                 noteToThing: stripNoteToThingDbModels([model.noteToThing])[0],
                 folderToThing: stripFolderToThingDbModels([model.folderToThing])[0]
             }
