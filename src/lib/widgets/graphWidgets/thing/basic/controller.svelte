@@ -20,7 +20,7 @@
 
     import { ThingBaseWidgetController } from "../base"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
-    import { updateThingText } from "$lib/db/clientSide";
+    import { updateThingPerspectiveText, updateThingText } from "$lib/db/clientSide";
     import type { ThingDbModel } from "$lib/models/dbModels/clientSide";
 
     /**
@@ -342,11 +342,13 @@
     }
 
     submitEditedText = async () => {
+        const pThingId = graph.pThing?.id as number
         await updateThingText(thingId, textBeingEdited)
+        await updateThingPerspectiveText(pThingId, thingId, perspectiveTextBeingEdited || "")
         text = textBeingEdited
         perspectiveText = perspectiveTextBeingEdited
-        // Refresh Thing ID in the ThingDBModel store.
-        await storeGraphDbModels<ThingDbModel>("Thing", thingId, true)
+        // Refresh Thing IDs in the ThingDBModel store.
+        await storeGraphDbModels<ThingDbModel>("Thing", [pThingId, thingId], true)
         editingText = false
     }
 

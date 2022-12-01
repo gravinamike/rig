@@ -83,7 +83,6 @@
     let showText = true
 
     async function toggleSlider() {
-        console.log("foo")
         showText = false
         sliderOpen = !sliderOpen
         await sleep(150)

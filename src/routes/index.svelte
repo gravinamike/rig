@@ -98,7 +98,7 @@
             icon: "about"
         },
     ].filter(info => info !== null) as { name: string, icon: string }[]
-    let openedSubMenuName: string | null = "Space"
+    let openedSubMenuName: string | null = "Thing"
 
 
     // Initialize open-Graph store and which side menu to open.

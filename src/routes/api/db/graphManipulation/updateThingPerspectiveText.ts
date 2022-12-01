@@ -6,7 +6,7 @@ export async function post(
 ): Promise<{status: number, body: string | {error: string}}> {
     try {
         const body = await request.json()
-        await updateThingPerspectiveText(body.thingId, body.thingId, body.text)
+        await updateThingPerspectiveText(body.pThingId, body.thingId, body.text)
         
         return {
             status: 200,

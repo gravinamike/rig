@@ -208,11 +208,16 @@ export async function updateThingPerspectiveText(
             return false
 
         } else {
-
             const perspectiveTextsString = queriedPThings[0].perspectivetexts
             const perspectiveTexts = legacyPerspectiveThingsParse(perspectiveTextsString)
-            perspectiveTexts[String(thingId)] = text
-            const newPerspectiveTextsString = String(perspectiveTexts)
+
+            if (text === "") {
+                delete perspectiveTexts[String(thingId)]
+            } else {
+                perspectiveTexts[String(thingId)] = text
+            }
+
+            const newPerspectiveTextsString = JSON.stringify(perspectiveTexts)
 
             // Construct and run SQL query.
             const knex = Model.knex()
@@ -220,7 +225,7 @@ export async function updateThingPerspectiveText(
                 // Update the Note.
                 await RawThingDbModel.query()
                     .patch({ perspectivetexts: newPerspectiveTextsString, whenmodded: whenModded })
-                    .where('id', thingId)
+                    .where('id', pThingId)
                     .transacting(transaction)
                 
                 return

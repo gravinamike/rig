@@ -15,7 +15,10 @@
     class="thing-form-text-widget"
     
     on:keypress={(event) => {
-        if (event.key === "Enter") submit()
+        if (event.key === "Enter") {
+            event.preventDefault() // Prevent carriage-return from being included in entered text.
+            submit()
+        }
     }}
 >
     <!-- Cancel button. -->
