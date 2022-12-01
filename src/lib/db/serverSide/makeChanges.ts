@@ -64,36 +64,29 @@ export async function updateSpace(
     directions: (Direction | null)[]
 ): Promise<boolean> {
     try {
-
-
-        // Construct the info here.
-        console.log(
-            spaceId,
-            spaceText,
-            directions
-        )
-
-        // Determine which of the supplied Directions are already linked, using a query.
-        // Construct a list of Directions to delete, and Directions to create.
-        // How is order handled? Do they ALL need deletion and recreation, to avoid unwanted order?
-        // Verify ids are auto-incrementing and never returning to old numbers.
-
-
         // Construct and run SQL query.
-        /*const knex = Model.knex()
+        const knex = Model.knex()
         await knex.transaction(async (transaction: Knex.Transaction) => {
-            // Update the Note.
+            // Update the Space text.
             await RawSpaceDbModel.query()
                 .patch({
                     text: spaceText
                 })
                 .where('id', spaceId)
                 .transacting(transaction)
-            
-            return
 
-            /////////////////////////////////////// Add here the query about Directions.
-        })*/
+            // Delete existing Direction linkers.
+            await RawSpaceDbModel.relatedQuery('directionToSpaces').for([spaceId]).delete().transacting(transaction)
+
+            // Create new Direction linkers.
+            const spaceToAddDirectionsTo = await RawSpaceDbModel.query().findById(spaceId)
+            for (const direction of directions) if (direction?.id) {
+                const querystring = spaceToAddDirectionsTo.$relatedQuery('directions').relate(direction.id).toKnexQuery().toString()
+                await alterQuerystringForH2AndRun(querystring, transaction, "", "DirectionToSpace")
+            }
+
+            return
+        })
         
         return true
 

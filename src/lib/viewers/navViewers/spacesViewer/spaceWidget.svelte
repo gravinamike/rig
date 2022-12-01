@@ -129,13 +129,7 @@
         const validInputs = validate()
         if (!validInputs || !space.id) return
 
-        console.log(
-            "SUBMITTING",
-            space.id,
-            spaceNameInput.value,
-            directionNameInputDirections
-        )
-        updateSpace(space.id, spaceNameInput.value, directionNameInputDirections)
+        await updateSpace(space.id, spaceNameInput.value, directionNameInputDirections)
         resetDirectionNameInputDirections()
         await storeGraphDbModels("Space")
         await graph.build()

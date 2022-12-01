@@ -17,6 +17,8 @@ export class RawSpaceDbModel extends Model {
     text!: string | null
     directions!: RawDirectionDbModel[]
 
+    directionToSpaces!: RawDirectionToSpaceDbModel[]
+
 
     static get relationMappings(): RelationMappings | RelationMappingsThunk {
         return {
@@ -30,6 +32,15 @@ export class RawSpaceDbModel extends Model {
                         to: 'directiontospace.directionid'
                     },
                     to: 'directions.id'
+                }
+            },
+
+            directionToSpaces: {
+                relation: Model.HasManyRelation,
+                modelClass: RawDirectionToSpaceDbModel,
+                join: {
+                    from: 'spaces.id',
+                    to: 'directiontospace.spaceid'
                 }
             }
         }

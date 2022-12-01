@@ -10,8 +10,8 @@ export async function alterQuerystringForH2AndRun(
     querystring: string,
     transaction: Knex.Transaction,
     whenCreated: string,
-    constructName: "Thing" | "Relationship" | "Note" | "NoteToThing" | "Folder" | "FolderToThing"
-): Promise< RawThingDbModel | RawRelationshipDbModel | RawNoteDbModel | RawNoteToThingDbModel | RawFolderDbModel | RawFolderToThingDbModel > {
+    constructName: "Direction" | "Space" | "DirectionToSpace" | "Thing" | "Relationship" | "Note" | "NoteToThing" | "Folder" | "FolderToThing"
+): Promise< RawThingDbModel | RawRelationshipDbModel | RawNoteDbModel | RawNoteToThingDbModel | RawFolderDbModel | RawFolderToThingDbModel | null > {
     // Remove the "returning" clause in the query string.
     querystring = querystring.replace(/ returning "\w+"/, "")
 
@@ -39,8 +39,10 @@ export async function alterQuerystringForH2AndRun(
     } else if (constructName === "Folder") {
         const latestConstructResults = await RawFolderDbModel.query().select("id").where({whencreated: whenCreated}).transacting(transaction)
         return latestConstructResults[0]
-    } else {
+    } else if (constructName === "FolderToThing") {
         const latestConstructResults = await RawFolderToThingDbModel.query().select("id").transacting(transaction)
         return latestConstructResults[0]
+    } else {
+        return null
     }
 }
