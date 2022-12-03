@@ -4,7 +4,14 @@
 	<head>
 		<meta charset="utf-8" />
 		<link rel="icon" href="/favicon.png" />
-		<link rel='stylesheet' href='%sveltekit.assets%/customizable/notes-style.css'>
+
+		<!-- Load Notes CSS dynamically each time to prevent cacheing. -->
+		<link id="notesStyle" rel='stylesheet'>
+		<script type="text/javascript">
+			let notesStylePath = '%sveltekit.assets%/customizable/notes-style.css';
+			document.getElementById('notesStyle').href = notesStylePath + '?v=' + Date.now();
+		</script>
+
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		%sveltekit.head%
 	</head>
