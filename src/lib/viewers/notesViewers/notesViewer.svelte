@@ -213,7 +213,7 @@
 
         <!-- Note display. -->
         {:else}
-            <div class="notes-display">
+            <div class="notes-display"><!-- FIX IT HERE AS WELL? -->
                 {@html noteTextForDisplay}
             </div>
         {/if}
@@ -268,6 +268,7 @@
         overflow-y: auto;
 
         text-align: left;
+        white-space: pre;
     }
 
     :global(.notes-display li > p) {

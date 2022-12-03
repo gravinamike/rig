@@ -53,7 +53,13 @@
                 noteText = editorContent
             }
         })
-        editor.commands.setContent(content)
+        editor.commands.setContent(
+            content,
+            false,
+            {
+                preserveWhitespace: "full"
+            }
+        )
         editorContent = content
     }
     $: setContent(noteText)
