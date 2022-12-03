@@ -268,7 +268,7 @@
         overflow-y: auto;
 
         text-align: left;
-        white-space: pre;
+        white-space: pre-wrap;
     }
 
     :global(.notes-display li > p) {
