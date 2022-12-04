@@ -10,7 +10,8 @@ export async function post(
         const newRelatedThing = await createNewRelatedThing(
             body.thingIdToRelateFrom,
             body.directionId,
-            body.text
+            body.text,
+            body.defaultSpace
         ) as Thing
         
         return {

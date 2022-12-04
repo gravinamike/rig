@@ -71,17 +71,11 @@
 
     // Initialize side-menu configuration.
     $: subMenuInfos = [
+        
+        
         {
-            name: "Thing",
-            icon: "thing"
-        },
-        {
-            name: "Space",
-            icon: "space"
-        },
-        {
-            name: "Settings",
-            icon: "settings"
+            name: "About",
+            icon: "about"
         },
         {
             name: "File",
@@ -94,9 +88,17 @@
             } :
             null,
         {
-            name: "About",
-            icon: "about"
+            name: "Settings",
+            icon: "settings"
         },
+        {
+            name: "Space",
+            icon: "space"
+        },
+        {
+            name: "Thing",
+            icon: "thing"
+        }
     ].filter(info => info !== null) as { name: string, icon: string }[]
     let openedSubMenuName: string | null = "Thing"
 

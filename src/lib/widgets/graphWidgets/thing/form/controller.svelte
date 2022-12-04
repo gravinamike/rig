@@ -68,7 +68,7 @@
         const directionId = space.directionIdByHalfAxisId[halfAxisId] as number
 
         // Create the new Thing.
-        const newRelatedThing = await createNewRelatedThing(parentThingId, directionId, baseText)
+        const newRelatedThing = await createNewRelatedThing(parentThingId, directionId, baseText, space)
 
         // Refresh stores, graph, and search lists.
         if (newRelatedThing && newRelatedThing.id) {

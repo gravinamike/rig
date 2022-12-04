@@ -1,4 +1,4 @@
-import type { Direction, Thing } from "$lib/models/constructModels"
+import type { Direction, Space, Thing } from "$lib/models/constructModels"
 import type { GraphConfig } from "$lib/shared/constants"
 
 
@@ -71,7 +71,7 @@ export async function updateSpace(
  * From a starting Thing, create a related Thing.
  */
 export async function createNewRelatedThing(
-    thingIdToRelateFrom: number, directionId: number, text: string
+    thingIdToRelateFrom: number, directionId: number, text: string, defaultSpace: Space
 ): Promise<Thing | false> {
     // Post to the create-new-related-Thing API.
     const res = await fetch(
@@ -82,7 +82,8 @@ export async function createNewRelatedThing(
             body: JSON.stringify({
                 thingIdToRelateFrom: thingIdToRelateFrom,
                 directionId: directionId,
-                text: text
+                text: text,
+                defaultSpace: defaultSpace
             })
         }
     )

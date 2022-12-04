@@ -13,7 +13,7 @@ import {
     RawNoteDbModel, getNewNoteInfo, RawNoteToThingDbModel,
     RawFolderDbModel, getNewFolderInfo, RawFolderToThingDbModel, RawSpaceDbModel
 } from "$lib/models/dbModels/serverSide"
-import { Direction, Thing } from "$lib/models/constructModels"
+import { Direction, Space, Thing } from "$lib/models/constructModels"
 
 // Filesystem-related imports.
 import { createFolder } from "$lib/shared/fileSystem"
@@ -100,7 +100,12 @@ export async function updateSpace(
 /*
  * From a starting Thing, create a related Thing.
  */
-export async function createNewRelatedThing(thingIdToRelateFrom: number, directionId: number, text: string): Promise<Thing | false> {
+export async function createNewRelatedThing(
+    thingIdToRelateFrom: number,
+    directionId: number,
+    text: string,
+    defaultSpace: Space
+): Promise<Thing | false> {
     try {    
         // Get parameters for SQL query.
         const whenCreated = (new Date()).toISOString()
@@ -109,7 +114,7 @@ export async function createNewRelatedThing(thingIdToRelateFrom: number, directi
         const knex = Model.knex()
         const newRelatedThing = await knex.transaction(async (transaction: Knex.Transaction) => {
             // Create new Thing.
-            const newThingInfo = getNewThingInfo(text, whenCreated, 2)
+            const newThingInfo = getNewThingInfo(text, whenCreated, defaultSpace.id as number)
             const querystring1 = RawThingDbModel.query().insert(newThingInfo).toKnexQuery().toString()
             const newRelatedThingDbModel = await alterQuerystringForH2AndRun(querystring1, transaction, whenCreated, "Thing") as RawThingDbModel
             
