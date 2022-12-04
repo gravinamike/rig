@@ -242,7 +242,7 @@
     changeRelationshipsDirection = async (directionId: number) => {
         // Get the IDs of the source Thing and all the destination Things.
         const sourceThingId = parentThing.id as number
-        const destThingIds = cohort.members.map(member => member.thingId)
+        const destThingIds = cohort.members.map(member => member.thingId).filter(id => id !== null) as number[]
 
         // Construct an array containing informational objects for each Relationship.
         const relationshipInfos: {
@@ -250,7 +250,7 @@
             destThingId: number,
             directionId: number
         }[] = []
-        for (const destThingId of destThingIds) if (destThingId) relationshipInfos.push({
+        for (const destThingId of destThingIds) relationshipInfos.push({
             sourceThingId: sourceThingId,
             destThingId: destThingId,
             directionId: directionId
@@ -262,7 +262,7 @@
         // Update the Graph to reflect the updated Relationships.
         if (relationshipsUpdated) {
             // Re-store the source Thing (so that its related Things will be updated).
-            await storeGraphDbModels<ThingDbModel>("Thing", sourceThingId, true)
+            await storeGraphDbModels<ThingDbModel>("Thing", [sourceThingId].concat(destThingIds), true)
             // Re-build and refresh the Graph.
             await graph.build()
             addGraphIdsNeedingViewerRefresh(graph.id)
