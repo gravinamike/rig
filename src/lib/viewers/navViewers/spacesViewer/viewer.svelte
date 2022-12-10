@@ -1,30 +1,49 @@
 <script lang="ts">
+    // Import types.
     import type { Graph, Space } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
-    import { spaceDbModelsStoreAsArray, getGraphConstructs } from "$lib/stores/graphConstructStores"
-    import SpaceWidget from "./spaceWidget.svelte"
 
+    // Import stores.
+    import { spaceDbModelsStoreAsArray, getGraphConstructs } from "$lib/stores/graphConstructStores"
+
+    // Import related widgets.
+    import { SpaceWidget } from "$lib/widgets/spaceWidgets"
+
+
+    /**
+     * @param graph - The Graph that the Directions are part of.
+     * @param graphWidgetStyle - Controls the visual style of the Graph.
+     * @param setGraphSpace - Method to set the Graph's current Space.
+     */
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
     export let setGraphSpace: (space: Space) => void
 
 
+    // Get array of Spaces.
     $: spaceIds = $spaceDbModelsStoreAsArray.map(model => Number(model.id))
     $: spaces = getGraphConstructs("Space", spaceIds) as Space[]
 </script>
 
 
+<!-- Spaces viewer. -->
 <div class="spaces-viewer">
-    <h4>Spaces</h4>
+    <!-- Title. -->
+    <div class="title">
+        <h4>Spaces</h4>
+    </div>
 
-    {#each spaces as space}
-        <SpaceWidget
-            {space}
-            {graph}
-            {graphWidgetStyle}
-            {setGraphSpace}
-        />
-    {/each}
+    <!-- List of Spaces. -->
+    <div class="scrollable">
+        {#each spaces as space}
+            <SpaceWidget
+                {space}
+                {graph}
+                {graphWidgetStyle}
+                {setGraphSpace}
+            />
+        {/each}
+    </div>
 </div>
 
 
@@ -37,20 +56,32 @@
         height: 100%;
         background-color: #fafafa;
 
-        overflow-x: hidden;
-        overflow-y: auto;
-
         display: flex;
         flex-direction: column;
-        padding: 0.75rem;
-        gap: 0.75rem;
         
         text-align: center;
+    }
 
-        scrollbar-width: thin;
+    .title {
+        display: flex;
+        flex-direction: column;
+        padding: 1rem 0 0.5rem 0;
+        gap: 1rem;
     }
 
     h4 {
         margin: 0;
+    }
+
+    .scrollable {
+        display: flex;
+        flex-direction: column;
+        padding: 0.5rem;
+        gap: 1rem;
+
+        overflow-x: hidden;
+        overflow-y: auto;
+
+        scrollbar-width: thin;
     }
   </style>

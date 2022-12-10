@@ -19,7 +19,7 @@
 
     // Import associated widgets.
     import { XButton } from "$lib/widgets/layoutWidgets"
-    import { DirectionWidget } from "$lib/widgets/graphWidgets"
+    import { DirectionDropdownWidget } from "$lib/widgets/spaceWidgets"
 
     // Import API methods.
     import { createNewRelationship } from "$lib/db/clientSide/makeChanges"
@@ -208,7 +208,7 @@
                 "
                 on:wheel|preventDefault
             >
-                <DirectionWidget
+                <DirectionDropdownWidget
                     {direction}
                     {halfAxisId}
                     {askingForDirection}

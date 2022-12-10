@@ -9,7 +9,8 @@
     import { cubicOut } from "svelte/easing"
 
     // Import related widgets.
-    import { DirectionWidget, RelationshipWidget } from "$lib/widgets/graphWidgets"
+    import { DirectionDropdownWidget } from "$lib/widgets/spaceWidgets"
+    import { RelationshipWidget } from "$lib/widgets/graphWidgets"
     import { RelationshipStemWidget } from "./relationshipStem"
 
     // Import widget controller.
@@ -138,7 +139,7 @@
                         rotate({directionWidgetRotation}deg);
                 "
             >
-                <DirectionWidget
+                <DirectionDropdownWidget
                     {direction}
                     halfAxisId={cohort.halfAxisId}
                     {graphWidgetStyle}

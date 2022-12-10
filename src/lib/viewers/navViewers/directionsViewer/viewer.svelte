@@ -1,29 +1,46 @@
 <script lang="ts">
-    import type { Direction, Graph } from "$lib/models/constructModels";
+    // Import types.
+    import type { Direction, Graph } from "$lib/models/constructModels"
+    import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
+
+    // Import stores.
     import { directionDbModelsStoreAsArray, getGraphConstructs } from "$lib/stores"
-    import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets";
-    import DirectionWidget from "./directionWidget.svelte"
+
+    // Import related widgets.
+    import { DirectionWidget } from "$lib/widgets/spaceWidgets"
 
 
+    /**
+     * @param graph - The Graph that the Directions are part of.
+     * @param graphWidgetStyle - Controls the visual style of the Graph.
+     */
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
 
 
+    // Get array of Directions.
     $: directionIds = $directionDbModelsStoreAsArray.map(model => Number(model.id))
     $: directions = getGraphConstructs("Direction", directionIds) as Direction[]
 </script>
 
 
+<!-- Directions viewer. -->
 <div class="directions-viewer">
-    <h4>Directions</h4>
+    <!-- Title. -->
+    <div class="title">
+        <h4>Directions</h4>
+    </div>
 
-    {#each directions as direction}
-        <DirectionWidget
-            {direction}
-            {graph}
-            {graphWidgetStyle}
-        />
-    {/each}
+    <!-- List of Directions. -->
+    <div class="scrollable">
+        {#each directions as direction}
+            <DirectionWidget
+                {direction}
+                {graph}
+                {graphWidgetStyle}
+            />
+        {/each}
+    </div>
 </div>
 
 
@@ -36,20 +53,32 @@
         height: 100%;
         background-color: #fafafa;
 
-        overflow-x: hidden;
-        overflow-y: auto;
-
         display: flex;
         flex-direction: column;
-        padding: 0.5rem;
-        gap: 1rem;
         
         text-align: center;
+    }
 
-        scrollbar-width: thin;
+    .title {
+        display: flex;
+        flex-direction: column;
+        padding: 1rem 0 0.5rem 0;
+        gap: 1rem;
     }
 
     h4 {
         margin: 0;
+    }
+
+    .scrollable {
+        display: flex;
+        flex-direction: column;
+        padding: 0.5rem;
+        gap: 1rem;
+
+        overflow-x: hidden;
+        overflow-y: auto;
+
+        scrollbar-width: thin;
     }
   </style>
