@@ -219,6 +219,7 @@
                     <DirectionWidget
                         direction={info.direction}
                         editable={false}
+                        forceExpanded={!!isHovered}
                         {graph}
                         {graphWidgetStyle}
                     />

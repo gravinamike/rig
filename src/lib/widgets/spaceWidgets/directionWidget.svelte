@@ -23,6 +23,7 @@
      */
     export let direction: Direction
     export let editable = true
+    export let forceExpanded = false
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
 
@@ -51,7 +52,7 @@
     let isHovered = false
     let interactionMode: "display" | "editing" | "create" = "display"
     $: oppositeDisplayMode =
-        ( interactionMode === "editing" || interactionMode === "create" ) ? "full" :
+        ( interactionMode === "editing" || interactionMode === "create" || forceExpanded ) ? "full" :
         isHovered ? "small" :
         "none"
 
