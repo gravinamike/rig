@@ -6,12 +6,12 @@
     // Import framework functions.
     import { flip } from "svelte/animate"
 
-    // Import stores.
+    // Import stores and utility functions.
     import { directionDbModelsStoreAsArray, getGraphConstructs } from "$lib/stores"
+    import { changeIndexInArray } from "$lib/shared/utility"
 
     // Import related widgets.
     import { DirectionWidget } from "$lib/widgets/spaceWidgets"
-    import { changeIndexInArray } from "$lib/shared/utility";
 
 
     /**
