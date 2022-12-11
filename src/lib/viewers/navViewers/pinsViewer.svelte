@@ -1,20 +1,34 @@
 <script lang="ts">
+    // Import types.
+    import type { ThingDbModel } from "$lib/models/dbModels/clientSide"
     import type { Thing } from "$lib/models/constructModels"
-    import type { ThingDbModel } from "$lib/models/dbModels/clientSide";
     
+    // Import framework functions.
     import { flip } from "svelte/animate"
-    import { pinIdsStore, storeGraphDbModels, graphDbModelInStore, getGraphConstructs, setPins } from "$lib/stores"
-    import { PinWidget } from "$lib/widgets/navWidgets"
 
+    // Import stores.
+    import { pinIdsStore, storeGraphDbModels, graphDbModelInStore, getGraphConstructs, setPins } from "$lib/stores"
+
+    // Import related widgets.
+    import { PinWidget } from "$lib/widgets/navWidgets"
+    import { changeIndexInArray } from "$lib/shared/utility";
+
+
+    /**
+     * @param rePerspectToThingId - Method to set the Graph's Perspective Thing by ID.
+     */
     export let rePerspectToThingId: (thingId: number) => Promise<void>
 
 
+    // Pin information objects include IDs and associated Things.
     let pins: { thingId: number, thing: Thing | null }[] = []
     async function storeAndGetPins(pinIds: number[]) {
+        // Store the Pins based on a database query.
         for (const pinId of pinIds) {
             if (!graphDbModelInStore("Thing", pinId)) await storeGraphDbModels<ThingDbModel>("Thing", pinId)
         }
 
+        // Retrieve the Pins from the store.
         pins = pinIds.map(
             (pinId) => {
                 return {
@@ -25,34 +39,49 @@
         )
     }
     $: storeAndGetPins($pinIdsStore)
-
-    const drop = (event: DragEvent, destIndex: number) => {
-        if (event.dataTransfer) {
-            event.dataTransfer.dropEffect = "move"
-            const reorderedPins = pins
-
-            const sourceIndex = parseInt(event.dataTransfer.getData("text/plain"))
-            if ( sourceIndex < destIndex ) {
-                reorderedPins.splice(destIndex + 1, 0, reorderedPins[sourceIndex])
-                reorderedPins.splice(sourceIndex, 1);
-            } else {
-                reorderedPins.splice(destIndex, 0, reorderedPins[sourceIndex])
-                reorderedPins.splice(sourceIndex + 1, 1)
-            }
-
-            pins = reorderedPins
-            // Update the store and the config file.
-            setPins( pins.map(pin => pin.thingId) )
-        }
-    }
   
-    const startDrag = (event: DragEvent, sourceIndex: number) => {
-        if (event.dataTransfer) {
-            event.dataTransfer.effectAllowed = "move"
-            event.dataTransfer.dropEffect = "move"
 
-            event.dataTransfer.setData("text/plain", String(sourceIndex))
-        }
+    /**
+     * Start-drag method.
+     * 
+     * Handles mouse-drag operations for reordering Pins.
+     * @param event - The mouse-drag event that triggered this method.
+     * @param sourceIndex - The index of the Pin that is being dragged.
+     */
+    const startDragPin = (event: DragEvent, sourceIndex: number) => {
+        // If the event isn't transferring data, abort.
+        if (!event.dataTransfer) return
+
+        // Otherwise, set the specified Pin's starting index as the payload.
+        event.dataTransfer.effectAllowed = "move"
+        event.dataTransfer.dropEffect = "move"
+        event.dataTransfer.setData("text/plain", String(sourceIndex))
+    }
+
+    /**
+     * Drop-Pin method.
+     * 
+     * Handles drag-release operations for reordering Pins.
+     * @param event - The drag-release event that triggered this method.
+     * @param destIndex - The index of the Pin that is being hovered over, which will be swapped with the dragged Thing.
+     */
+    const dropPin = (event: DragEvent, destIndex: number) => {
+        // If the event isn't transferring data, abort.
+        if (!event.dataTransfer) return
+
+        // Retrieve the specified Pin's starting index from the event.
+        event.dataTransfer.dropEffect = "move"
+        const sourceIndex = parseInt(event.dataTransfer.getData("text/plain"))
+
+        // Reorder the Pins array to move the specified Pin from the source to
+        // the destination index.
+        let reorderedPins = (
+            changeIndexInArray(pins, sourceIndex, destIndex) as { thingId: number, thing: Thing | null }[]
+        )
+        pins = reorderedPins
+
+        // Update the store and the config file.
+        setPins( pins.map(pin => pin.thingId) )
     }
 </script>
 
@@ -68,9 +97,9 @@
                 draggable=true
                 animate:flip={{ duration: 250 }}
 
-                on:dragstart={ (event) => startDrag(event, index) }
+                on:dragstart={ (event) => startDragPin(event, index) }
                 on:dragover|preventDefault
-                on:drop|preventDefault={ (event) => drop(event, index) }
+                on:drop|preventDefault={ (event) => dropPin(event, index) }
             >
                 <PinWidget
                     thingId={pin.thingId}
