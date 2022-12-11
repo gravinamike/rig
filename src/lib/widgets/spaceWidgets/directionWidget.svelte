@@ -151,7 +151,7 @@
 
     on:mouseenter={() => {isHovered = true}}
     on:mouseleave={() => {isHovered = false}}
-    on:dblclick={() => { if (interactionMode === "display" && editable) handleButton() }}  
+    on:dblclick={() => { if (interactionMode === "display" && editable) handleButton() }}
 >
 
     <div class="container vertical">

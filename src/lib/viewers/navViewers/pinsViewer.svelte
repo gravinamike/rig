@@ -14,9 +14,6 @@
     import { changeIndexInArray } from "$lib/shared/utility";
 
 
-    /**
-     * @param rePerspectToThingId - Method to set the Graph's Perspective Thing by ID.
-     */
     export let rePerspectToThingId: (thingId: number) => Promise<void>
 
 
@@ -42,7 +39,7 @@
   
 
     /**
-     * Start-drag method.
+     * Start-drag-Pin method.
      * 
      * Handles mouse-drag operations for reordering Pins.
      * @param event - The mouse-drag event that triggered this method.
@@ -63,7 +60,7 @@
      * 
      * Handles drag-release operations for reordering Pins.
      * @param event - The drag-release event that triggered this method.
-     * @param destIndex - The index of the Pin that is being hovered over, which will be swapped with the dragged Thing.
+     * @param destIndex - The index of the Pin that is being hovered over, which will be swapped with the dragged Pin.
      */
     const dropPin = (event: DragEvent, destIndex: number) => {
         // If the event isn't transferring data, abort.

@@ -3,11 +3,15 @@
     import type { Direction, Graph } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
+    // Import framework functions.
+    import { flip } from "svelte/animate"
+
     // Import stores.
     import { directionDbModelsStoreAsArray, getGraphConstructs } from "$lib/stores"
 
     // Import related widgets.
     import { DirectionWidget } from "$lib/widgets/spaceWidgets"
+    import { changeIndexInArray } from "$lib/shared/utility";
 
 
     /**
@@ -21,6 +25,58 @@
     // Get array of Directions.
     $: directionIds = $directionDbModelsStoreAsArray.map(model => Number(model.id))
     $: directions = getGraphConstructs("Direction", directionIds) as Direction[]
+
+
+
+
+
+
+
+
+    /**
+     * Start-drag-Direction method.
+     * 
+     * Handles mouse-drag operations for reordering Directions.
+     * @param event - The mouse-drag event that triggered this method.
+     * @param sourceIndex - The index of the Direction that is being dragged.
+     */
+     const startDragDirection = (event: DragEvent, sourceIndex: number) => {
+        // If the event isn't transferring data, abort.
+        if (!event.dataTransfer) return
+
+        // Otherwise, set the specified Direction's starting index as the payload.
+        event.dataTransfer.effectAllowed = "move"
+        event.dataTransfer.dropEffect = "move"
+        event.dataTransfer.setData("text/plain", String(sourceIndex))
+    }
+
+    /**
+     * Drop-Direction method.
+     * 
+     * Handles drag-release operations for reordering Directions.
+     * @param event - The drag-release event that triggered this method.
+     * @param destIndex - The index of the Direction that is being hovered over, which will be swapped with the dragged Direction.
+     */
+    const dropDirection = (event: DragEvent, destIndex: number) => {
+        // If the event isn't transferring data, abort.
+        if (!event.dataTransfer) return
+
+        // Retrieve the specified Direction's starting index from the event.
+        event.dataTransfer.dropEffect = "move"
+        const sourceIndex = parseInt(event.dataTransfer.getData("text/plain"))
+
+        // Reorder the Direction IDs array to move the specified Direction ID from the source to
+        // the destination index.
+        let reorderedDirectionIds = (
+            changeIndexInArray(directionIds, sourceIndex, destIndex) as number[]
+        )
+        directionIds = reorderedDirectionIds
+
+        // Update the store and the config file.
+        /////////////////////////// CREATE A SETDIRECTIONSORDER METHOD HERE.
+    }
+
+
 </script>
 
 
@@ -33,12 +89,21 @@
 
     <!-- List of Directions. -->
     <div class="scrollable">
-        {#each directions as direction}
-            <DirectionWidget
-                {direction}
-                {graph}
-                {graphWidgetStyle}
-            />
+        {#each directions as direction, index (direction.id)}
+            <div
+                draggable=true
+                animate:flip={{ duration: 250 }}
+
+                on:dragstart={ (event) => startDragDirection(event, index) }
+                on:dragover|preventDefault
+                on:drop|preventDefault={ (event) => dropDirection(event, index) }
+            >
+                <DirectionWidget
+                    {direction}
+                    {graph}
+                    {graphWidgetStyle}
+                />
+            </div>
         {/each}
     </div>
 </div>
