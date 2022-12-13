@@ -1,21 +1,23 @@
 import { v4 as uuidv4 } from "uuid"
 
 
-type DbInfoFieldValue = string | number | null
+export type DbInfoFieldValue = string | number | null
 
-interface DbInfo {
-    [ tableName: string ]: {
-        "fields": {
-            [ fieldName: string ]: string
-        },
-        "constraints": {
-            [ fieldName: string ]: string
-        },
-        "defaultValues": {
-            [ fieldName: string ]: DbInfoFieldValue
-        },
-        'entries': DbInfoFieldValue[][]
-    }
+export interface TableInfo {
+    "fields": {
+        [ fieldName: string ]: string
+    },
+    "constraints": {
+        [ fieldName: string ]: string
+    },
+    "defaultValues": {
+        [ fieldName: string ]: DbInfoFieldValue
+    },
+    'entries': DbInfoFieldValue[][]
+}
+
+export interface DbInfo {
+    [ tableName: string ]: TableInfo
 }
 
 export function getDbInfo(): DbInfo {
