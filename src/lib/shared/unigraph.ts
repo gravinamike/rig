@@ -2,6 +2,7 @@ import { storeGraphConfig, saveAppConfig } from "$lib/shared/config"
 import { storeGraphDbModels, clearGraphDbModelStore, storeThingSearchList, clearThingSearchList } from "$lib/stores"
 import { getUnigraphFolder, setUnigraphFolder } from "$lib/db/clientSide"
 import { loadingState, openGraphStore } from "$lib/stores"
+import { graphIsUpdated, updateGraph } from "$lib/db/clientSide/graphFile"
 
 export async function openUnigraph(): Promise<boolean> {
     const unigraphFolder = await getUnigraphFolder()
@@ -13,6 +14,18 @@ export async function openUnigraph(): Promise<boolean> {
         return false
 
     } else if (unigraphFolder !== "null") {
+
+        const isUpdated = await graphIsUpdated()
+        console.log("UPDATED:", isUpdated)
+        // Give user the option to abort before updating the Graph.
+        if (!isUpdated) {
+            if (confirm(`This Graph is missing database tables or fields. The app will now attempt to update the Graph. It's a good idea to have a backup copy of the Graph in case something goes wrong. Do you want to continue?`)) {
+                //updateGraph()
+            } else {
+                console.log(`Canceled updating and opening Graph.`)
+                return false
+            }
+        }
 
         await storeGraphConfig()
 

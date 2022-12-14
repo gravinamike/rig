@@ -9,20 +9,54 @@ import { getDbInfo } from "./dbInfo"
 import { addFieldsToTable, createTable } from "./utility"
 
 
+
+export async function graphIsUpdated(): Promise<boolean> {
+
+    let graphIsUpdated = true
+
+    // Get object specifying default database setup.
+    const dbInfo = getDbInfo()
+
+    // For each table specified in the setup object, check whether the table
+    // and all its fields exist.
+    const knex = Model.knex()
+    for (const [tableName, tableInfo] of Object.entries(dbInfo)) {
+        
+        // Check if the table exists and if any fields are missing.
+        const tableExists = await knex.schema.hasTable(tableName.toUpperCase())// DO VWE NEED TO APPEND PUBLIC?
+        const missingFieldNames: string[] = []
+        if (tableExists) {
+            for (const fieldName of Object.keys(tableInfo.fields)) {
+                const tableHasField = await knex.schema.hasColumn(tableName.toUpperCase(), fieldName.toUpperCase())
+                if (!tableHasField) missingFieldNames.push(fieldName)
+            }
+        }
+
+        if (!tableExists || missingFieldNames.length) {
+            console.log(tableName, missingFieldNames)
+            graphIsUpdated = false
+        }
+
+    }
+
+    return graphIsUpdated
+
+}
+
+
+
+
 /**
  * Initialize-or-update-Graph function.
  * 
  * Takes an existing Graph database file (or a blank template) and adds tables
  * and records to match a database info object.
  */
-export async function initializeOrUpdateGraph(confirmUpdate=false): Promise<void> {
+export async function initializeOrUpdateGraph(): Promise<void> {
 
     // Within a Knex database transaction,
     const knex = Model.knex()
     await knex.transaction(async (transaction: Knex.Transaction) => {
-
-        // Initialize user-has-confirmed-update flag.
-        let userHasConfirmedUpdate = false
 
         // Get object specifying default database setup.
         const dbInfo = getDbInfo()
@@ -41,24 +75,19 @@ export async function initializeOrUpdateGraph(confirmUpdate=false): Promise<void
                 }
             }
 
-            // Give user the option to abort before updating the Graph.
-            if (confirmUpdate && !userHasConfirmedUpdate && (!tableExists || missingFieldNames.length)) {
-                if (confirm(`This Graph is missing database tables or fields. The app will now attempt to update the Graph. It's a good idea to have a backup copy of the Graph in case something goes wrong. Do you want to continue?`)) {
-                    userHasConfirmedUpdate = true
-                } else {
-                    return
+            console.log("NOT CHANGING STUFF")
+            const go = false
+            if (go) {
+                // If the table doesn't exist, create it.
+                if (!tableExists) {
+                    await createTable(tableName, tableInfo, knex, transaction)            
+
+                // Else, if the table is missing fields, add those fields.
+                } else if (missingFieldNames.length) {
+                    await addFieldsToTable(tableName, tableInfo, missingFieldNames, knex, transaction)
                 }
             }
 
-            // If the table doesn't exist, create it.
-            if (!tableExists) {
-                await createTable(tableName, tableInfo, knex, transaction)            
-
-            // Else, if the table is missing fields, add those fields.
-            } else if (missingFieldNames.length) {
-                await addFieldsToTable(tableName, tableInfo, missingFieldNames, knex, transaction)
-            }
-            console.log("END INITIALIZE")
         }
         return null
     })
