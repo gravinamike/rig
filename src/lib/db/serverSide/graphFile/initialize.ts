@@ -23,7 +23,7 @@ export async function graphIsUpdated(): Promise<boolean> {
     for (const [tableName, tableInfo] of Object.entries(dbInfo)) {
         
         // Check if the table exists and if any fields are missing.
-        const tableExists = await knex.schema.hasTable(tableName.toUpperCase())// DO VWE NEED TO APPEND PUBLIC?
+        const tableExists = await knex.schema.hasTable(tableName.toUpperCase())
         const missingFieldNames: string[] = []
         if (tableExists) {
             for (const fieldName of Object.keys(tableInfo.fields)) {
@@ -33,7 +33,6 @@ export async function graphIsUpdated(): Promise<boolean> {
         }
 
         if (!tableExists || missingFieldNames.length) {
-            console.log(tableName, missingFieldNames)
             graphIsUpdated = false
         }
 
@@ -66,26 +65,22 @@ export async function initializeOrUpdateGraph(): Promise<void> {
         for (const [tableName, tableInfo] of Object.entries(dbInfo)) {
 
             // Check if the table exists and if any fields are missing.
-            const tableExists = await knex.schema.hasTable(tableName)
+            const tableExists = await knex.schema.hasTable(tableName.toUpperCase())
             const missingFieldNames: string[] = []
             if (tableExists) {
                 for (const fieldName of Object.keys(tableInfo.fields)) {
-                    const tableHasField = await knex.schema.hasColumn(tableName, fieldName)
-                    if (tableHasField) missingFieldNames.push(fieldName)
+                    const tableHasField = await knex.schema.hasColumn(tableName.toUpperCase(), fieldName.toUpperCase())
+                    if (!tableHasField) missingFieldNames.push(fieldName)
                 }
             }
 
-            console.log("NOT CHANGING STUFF")
-            const go = false
-            if (go) {
-                // If the table doesn't exist, create it.
-                if (!tableExists) {
-                    await createTable(tableName, tableInfo, knex, transaction)            
+            // If the table doesn't exist, create it.
+            if (!tableExists) {
+                await createTable(tableName, tableInfo, knex, transaction)            
 
-                // Else, if the table is missing fields, add those fields.
-                } else if (missingFieldNames.length) {
-                    await addFieldsToTable(tableName, tableInfo, missingFieldNames, knex, transaction)
-                }
+            // Else, if the table is missing fields, add those fields.
+            } else if (missingFieldNames.length) {
+                await addFieldsToTable(tableName, tableInfo, missingFieldNames, knex, transaction)
             }
 
         }

@@ -91,7 +91,7 @@ export async function addFieldsToTable(
 
             // Start the substring with field name and datatype text.
             let queryLine = `ALTER TABLE ${ tableName } ADD COLUMN IF NOT EXISTS ${ fieldName } ${ dataType }`
-
+            
             // Add constraint text if needed.
             const constraintText =
                 fieldName in tableInfo.constraints ? tableInfo.constraints[fieldName] :
@@ -110,7 +110,7 @@ export async function addFieldsToTable(
         }
 
     }
-
+    
     // Run queries to create the fields.
     for (const queryLine of fieldQuerystrings) {
         await knex.raw(queryLine).transacting(transaction)

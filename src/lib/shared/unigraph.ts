@@ -19,8 +19,8 @@ export async function openUnigraph(): Promise<boolean> {
         console.log("UPDATED:", isUpdated)
         // Give user the option to abort before updating the Graph.
         if (!isUpdated) {
-            if (confirm(`This Graph is missing database tables or fields. The app will now attempt to update the Graph. It's a good idea to have a backup copy of the Graph in case something goes wrong. Do you want to continue?`)) {
-                //updateGraph()
+            if (confirm(`This Graph's database needs to be updated to work with this version of Rig. Do you want to update it now? (It's a good idea to make a backup copy of the Graph first.`)) {
+                updateGraph()
             } else {
                 console.log(`Canceled updating and opening Graph.`)
                 return false
