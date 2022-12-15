@@ -24,7 +24,10 @@
 
     // Get array of Directions.
     $: directionIds = $directionDbModelsStoreAsArray.map(model => Number(model.id))
-    $: directions = getGraphConstructs("Direction", directionIds) as Direction[]
+    $: unsortedDirections = getGraphConstructs("Direction", directionIds) as Direction[]
+    $: directions = unsortedDirections.sort(
+        (a, b) => (a.directionorder ? a.directionorder : 0) - (b.directionorder ? b.directionorder : 0)
+    )
 
 
 

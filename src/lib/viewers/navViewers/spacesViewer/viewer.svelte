@@ -26,7 +26,10 @@
 
     // Get array of Spaces.
     $: spaceIds = $spaceDbModelsStoreAsArray.map(model => Number(model.id))
-    $: spaces = getGraphConstructs("Space", spaceIds) as Space[]
+    $: unsortedSpaces = getGraphConstructs("Space", spaceIds) as Space[]
+    $: spaces = unsortedSpaces.sort(
+        (a, b) => (a.spaceorder ? a.spaceorder : 0) - (b.spaceorder ? b.spaceorder : 0)
+    )
 
 
 

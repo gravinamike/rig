@@ -15,6 +15,7 @@ export class RawSpaceDbModel extends Model {
 
     id!: string | number | null
     text!: string | null
+    spaceorder!: number | null
     directions!: RawDirectionDbModel[]
 
     directionToSpaces!: RawDirectionToSpaceDbModel[]
@@ -57,6 +58,7 @@ export function stripSpaceDbModels(models: RawSpaceDbModel[]): SpaceDbModel[] {
             {
                 id: model.id,
                 text: model.text,
+                spaceorder: model.spaceorder,
                 directions: model.directions ? stripDirectionDbModels(model.directions) : []
             }
         )

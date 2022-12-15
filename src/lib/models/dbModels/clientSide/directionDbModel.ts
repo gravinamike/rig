@@ -3,4 +3,5 @@ export interface DirectionDbModel {
     oppositeid: number | null
     text: string | null
     nameforobjects: string | null
+    directionorder: number | null
 }

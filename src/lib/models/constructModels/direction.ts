@@ -13,6 +13,7 @@ export class Direction {
     oppositeid: number | null
     text: string | null
     nameforobjects!: string | null
+    directionorder!: number | null
 
     constructor(dbModel: DirectionDbModel) {
         this.dbModel = dbModel
@@ -21,6 +22,7 @@ export class Direction {
         this.oppositeid = dbModel.oppositeid
         this.text = dbModel.text
         this.nameforobjects = dbModel.nameforobjects
+        this.directionorder = dbModel.directionorder
     }
 }
 
