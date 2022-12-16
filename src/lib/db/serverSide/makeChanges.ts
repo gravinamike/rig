@@ -176,6 +176,86 @@ export async function updateSpace(
 }
 
 
+
+/*
+ * Update the Orders of a set of Spaces.
+ */
+export async function updateSpaceOrders(spaceInfos: {spaceId: number, newOrder: number}[]): Promise<void> {
+    const knex = Model.knex()
+    await knex.transaction(async (transaction: Knex.Transaction) => {
+        for (const info of spaceInfos) {
+            await RawSpaceDbModel.query()
+                .patch({ spaceorder: info.newOrder })
+                .where('id', info.spaceId)
+                .transacting(transaction)
+        }
+    })
+
+    // Report on the response.
+    .then(function() {
+        console.log('Transaction complete.')
+    })
+    .catch(function(err: Error) {
+        console.error(err)
+    })
+}
+
+interface UpdateSpaceOrderInfo {
+    spaceId: number,
+    newOrder: number
+}
+
+/**
+ * Reorder-Space method.
+ * @param spaceId - The ID of the Space reordered.
+ * @param newIndex - The new index of the Space to be reordered.
+ */
+export async function reorderSpace(
+    spaceId: number,
+    newIndex: number
+): Promise<void> {
+    // Get info on all Spaces.
+    const queriedSpaces = await RawSpaceDbModel.query()
+
+    // Create an array of objects containing ordering info for each Space.
+    const spaceOrderingInfos: { spaceId: number, order: number | null }[] = []
+    queriedSpaces.forEach( model => {
+        spaceOrderingInfos.push(
+            {
+                spaceId: model.id as number,
+                order: model.spaceorder,
+            }
+        )
+    } )
+    // Order the Space infos according to their order attributes.
+    const orderedSpaceOrderingInfos = spaceOrderingInfos
+        .sort((a, b) => (a.order ? a.order : 0) - (b.order ? b.order : 0))
+
+
+    // Move the to-be-reordered Space to the specified new index.
+    const currentIndex = orderedSpaceOrderingInfos.findIndex(info => info.spaceId === spaceId)
+    const reOrderedSpaceOrderingInfos = (
+        changeIndexInArray(orderedSpaceOrderingInfos, currentIndex, newIndex) as
+            {spaceId: number, order: number | null}[]
+    )
+    // Construct an output array of Space order information objects.
+    const updateSpaceOrderInfos: UpdateSpaceOrderInfo[] = []
+    reOrderedSpaceOrderingInfos.forEach( (info, i) => {
+        updateSpaceOrderInfos.push(
+            {
+                spaceId: info.spaceId,
+                newOrder: i
+            }
+        )
+    } )
+
+    // Update the orders of the Spaces using the above array.
+    await updateSpaceOrders(updateSpaceOrderInfos)
+}
+
+
+
+
 /*
  * From a starting Thing, create a related Thing.
  */

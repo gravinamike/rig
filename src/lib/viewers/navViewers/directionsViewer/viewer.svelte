@@ -2,6 +2,7 @@
     // Import types.
     import type { Direction, Graph } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
+    import type { DirectionDbModel } from "$lib/models/dbModels/clientSide"
 
     // Import framework functions.
     import { flip } from "svelte/animate"
@@ -12,8 +13,9 @@
 
     // Import related widgets.
     import { DirectionWidget } from "$lib/widgets/spaceWidgets"
-    import { reorderDirection } from "$lib/db/clientSide";
-    import type { DirectionDbModel } from "$lib/models/dbModels/clientSide";
+
+    // Import API methods.
+    import { reorderDirection } from "$lib/db/clientSide"
 
 
     /**
@@ -83,7 +85,6 @@
             changeIndexInArray(directions, sourceIndex, destIndex) as Direction[]
         )
         directions = reorderedDirections
-        console.log(directionIds)
 
         // Update the database and the store.
         await reorderDirection(directionId, destIndex)

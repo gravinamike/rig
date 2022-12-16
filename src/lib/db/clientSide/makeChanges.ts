@@ -93,6 +93,31 @@ export async function updateSpace(
     }
 }
 
+export async function reorderSpace(
+    spaceId: number,
+    newIndex: number
+): Promise< boolean > {
+    // Post to the reorder-Space API.
+    const res = await fetch(
+        `api/db/graphManipulation/reorderSpace`,
+        {
+            method: "POST",
+            body: JSON.stringify({
+                spaceId: spaceId,
+                newIndex: newIndex
+            })
+        }
+    )
+    
+    // Report on the response.
+    if (res.ok) {
+        return true
+    } else {
+        res.text().then(text => {throw Error(text)})
+        return false
+    }
+}
+
 
 /*
  * From a starting Thing, create a related Thing.

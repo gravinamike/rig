@@ -2,16 +2,20 @@
     // Import types.
     import type { Graph, Space } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
+    import type { SpaceDbModel } from "$lib/models/dbModels/clientSide"
 
     // Import framework functions.
     import { flip } from "svelte/animate"
 
     // Import stores and utility functions.
-    import { spaceDbModelsStoreAsArray, getGraphConstructs } from "$lib/stores/graphConstructStores"
+    import { spaceDbModelsStoreAsArray, getGraphConstructs, storeGraphDbModels } from "$lib/stores/graphConstructStores"
     import { changeIndexInArray } from "$lib/shared/utility"
 
     // Import related widgets.
     import { SpaceWidget } from "$lib/widgets/spaceWidgets"
+
+    // Import API methods.
+    import { reorderSpace } from "$lib/db/clientSide"
 
 
     /**
@@ -25,12 +29,18 @@
 
 
     // Get array of Spaces.
-    $: spaceIds = $spaceDbModelsStoreAsArray.map(model => Number(model.id))
-    $: unsortedSpaces = getGraphConstructs("Space", spaceIds) as Space[]
-    $: spaces = unsortedSpaces.sort(
-        (a, b) => (a.spaceorder ? a.spaceorder : 0) - (b.spaceorder ? b.spaceorder : 0)
-    )
-
+    let unsortedSpaceIds: number[] = []
+    let spaceIds: number[] = []
+    let spaces: Space[] = []
+    function getSpaceIdsFromDbModels(dbModels: SpaceDbModel[]) {
+        unsortedSpaceIds = dbModels.map(model => Number(model.id))
+        const unsortedSpaces = getGraphConstructs("Space", unsortedSpaceIds) as Space[]
+        spaces = unsortedSpaces.sort(
+            (a, b) => (a.spaceorder ? a.spaceorder : 0) - (b.spaceorder ? b.spaceorder : 0)
+        )
+        spaceIds = spaces.map(space => Number(space.id))
+    }
+    getSpaceIdsFromDbModels($spaceDbModelsStoreAsArray)
 
 
 
@@ -61,7 +71,7 @@
      * @param event - The drag-release event that triggered this method.
      * @param destIndex - The index of the Space that is being hovered over, which will be swapped with the dragged Space.
      */
-    const dropSpace = (event: DragEvent, destIndex: number) => {
+    const dropSpace = async (event: DragEvent, destIndex: number) => {
         // If the event isn't transferring data, abort.
         if (!event.dataTransfer) return
 
@@ -69,15 +79,23 @@
         event.dataTransfer.dropEffect = "move"
         const sourceIndex = parseInt(event.dataTransfer.getData("text/plain"))
 
-        // Reorder the Space IDs array to move the specified Spacen ID from the source to
+        // Get the ID of the specified Space.
+        const spaceId = spaceIds[sourceIndex]
+
+        // Reorder the Space IDs array to move the specified Space ID from the source to
         // the destination index.
-        let reorderedSpaceIds = (
+        let reorderedDirectionIds = (
             changeIndexInArray(spaceIds, sourceIndex, destIndex) as number[]
         )
-        spaceIds = reorderedSpaceIds
+        spaceIds = reorderedDirectionIds
+        let reorderedDirections = (
+            changeIndexInArray(spaces, sourceIndex, destIndex) as Space[]
+        )
+        spaces = reorderedDirections
 
-        // Update the store and the config file.
-        /////////////////////////// CREATE A SETSPACESORDER METHOD HERE.
+        // Update the database and the store.
+        await reorderSpace(spaceId, destIndex)
+        await storeGraphDbModels("Space")
     }
 
 
