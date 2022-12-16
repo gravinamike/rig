@@ -7,11 +7,13 @@
     import { flip } from "svelte/animate"
 
     // Import stores and utility functions.
-    import { directionDbModelsStoreAsArray, getGraphConstructs } from "$lib/stores"
+    import { directionDbModelsStoreAsArray, getGraphConstructs, storeGraphDbModels } from "$lib/stores"
     import { changeIndexInArray } from "$lib/shared/utility"
 
     // Import related widgets.
     import { DirectionWidget } from "$lib/widgets/spaceWidgets"
+    import { reorderDirection } from "$lib/db/clientSide";
+    import type { DirectionDbModel } from "$lib/models/dbModels/clientSide";
 
 
     /**
@@ -21,19 +23,19 @@
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
 
-
     // Get array of Directions.
-    $: directionIds = $directionDbModelsStoreAsArray.map(model => Number(model.id))
-    $: unsortedDirections = getGraphConstructs("Direction", directionIds) as Direction[]
-    $: directions = unsortedDirections.sort(
-        (a, b) => (a.directionorder ? a.directionorder : 0) - (b.directionorder ? b.directionorder : 0)
-    )
-
-
-
-
-
-
+    let unsortedDirectionIds: number[] = []
+    let directionIds: number[] = []
+    let directions: Direction[] = []
+    function getDirectionIdsFromDbModels(dbModels: DirectionDbModel[]) {
+        unsortedDirectionIds = dbModels.map(model => Number(model.id))
+        const unsortedDirections = getGraphConstructs("Direction", unsortedDirectionIds) as Direction[]
+        directions = unsortedDirections.sort(
+            (a, b) => (a.directionorder ? a.directionorder : 0) - (b.directionorder ? b.directionorder : 0)
+        )
+        directionIds = directions.map(direction => Number(direction.id))
+    }
+    getDirectionIdsFromDbModels($directionDbModelsStoreAsArray)
 
 
     /**
@@ -60,7 +62,7 @@
      * @param event - The drag-release event that triggered this method.
      * @param destIndex - The index of the Direction that is being hovered over, which will be swapped with the dragged Direction.
      */
-    const dropDirection = (event: DragEvent, destIndex: number) => {
+    const dropDirection = async (event: DragEvent, destIndex: number) => {
         // If the event isn't transferring data, abort.
         if (!event.dataTransfer) return
 
@@ -68,15 +70,24 @@
         event.dataTransfer.dropEffect = "move"
         const sourceIndex = parseInt(event.dataTransfer.getData("text/plain"))
 
-        // Reorder the Direction IDs array to move the specified Direction ID from the source to
+        // Get the ID of the specified Direction.
+        const directionId = directionIds[sourceIndex]
+
+        // Reorder the Direction arrays to move the specified Direction from the source to
         // the destination index.
         let reorderedDirectionIds = (
             changeIndexInArray(directionIds, sourceIndex, destIndex) as number[]
         )
         directionIds = reorderedDirectionIds
+        let reorderedDirections = (
+            changeIndexInArray(directions, sourceIndex, destIndex) as Direction[]
+        )
+        directions = reorderedDirections
+        console.log(directionIds)
 
-        // Update the store and the config file.
-        /////////////////////////// CREATE A SETDIRECTIONSORDER METHOD HERE.
+        // Update the database and the store.
+        await reorderDirection(directionId, destIndex)
+        await storeGraphDbModels("Direction")
     }
 
 

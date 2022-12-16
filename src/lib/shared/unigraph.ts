@@ -16,10 +16,10 @@ export async function openUnigraph(): Promise<boolean> {
     } else if (unigraphFolder !== "null") {
 
         const isUpdated = await graphIsUpdated()
-        console.log("UPDATED:", isUpdated)
+
         // Give user the option to abort before updating the Graph.
         if (!isUpdated) {
-            if (confirm(`This Graph's database needs to be updated to work with this version of Rig. Do you want to update it now? (It's a good idea to make a backup copy of the Graph first.`)) {
+            if (confirm(`This Graph's database needs to be updated to work with this version of Rig. Do you want to update it now? (It's a good idea to make a backup copy of the Graph first.)`)) {
                 updateGraph()
             } else {
                 console.log(`Canceled updating and opening Graph.`)

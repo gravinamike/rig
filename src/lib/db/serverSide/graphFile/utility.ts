@@ -37,6 +37,9 @@ export async function createTable(
             null
         if (defaultValueText) queryLine = `${queryLine} DEFAULT ${defaultValueText}`
 
+        // Add final semicolon.
+        queryLine = `${queryLine};`
+
         // Add the substring to the array.
         fieldStrings.push(queryLine)
     }
@@ -104,8 +107,17 @@ export async function addFieldsToTable(
                 null
             if (defaultValueText) queryLine = `${queryLine} DEFAULT ${defaultValueText}`
 
+            // Add final semicolon.
+            queryLine = `${queryLine};`
+
             // Add the substring to the array.
             fieldQuerystrings.push(queryLine)
+
+
+            if (defaultValueText !== null) {
+                const backfillDefaultsQueryLine = `UPDATE ${ tableName } SET ${ fieldName } = ${ defaultValueText };`
+                fieldQuerystrings.push(backfillDefaultsQueryLine)
+            }
 
         }
 

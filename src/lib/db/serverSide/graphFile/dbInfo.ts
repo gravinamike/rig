@@ -44,7 +44,8 @@ export function getDbInfo(): DbInfo {
                 "text": "''(NONE)''",
                 "nameforobjects": noneText,
                 "whencreated": "NULL",
-                "whenmodded": "NULL"
+                "whenmodded": "NULL",
+                "directionorder": 0
             },
             "entries": [
                 [1, 1, "is related to", "relations", dateTimeStamp, dateTimeStamp, 1],
@@ -77,7 +78,8 @@ export function getDbInfo(): DbInfo {
             "defaultValues": {
                 "text": noneText,
                 "whencreated": "NULL",
-                "whenmodded": "NULL"
+                "whenmodded": "NULL",
+                "spaceorder": 0
             },
             "constraints": {
                 "id": "PRIMARY KEY"
