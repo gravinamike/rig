@@ -1,143 +1,180 @@
 <script lang="ts">
+    // Import types.
+    import type { OddHalfAxisId } from "$lib/shared/constants"
     import type { Graph, Direction, Space } from "$lib/models/constructModels"
-    import type { HalfAxisId } from "$lib/shared/constants"
+    import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
     import type { ThingDbModel } from "$lib/models/dbModels/clientSide"
-    import DirectionWidget from "../directionsViewer/directionWidget.svelte"
-    import { DirectionWidget as DirectionDropdownWidget, type GraphWidgetStyle } from "$lib/widgets/graphWidgets"
-    import { sleep } from "$lib/shared/utility"
-    import { updateThingDefaultSpace } from "$lib/db/clientSide"
+
+    // Import stores and utilty functions.
     import { addGraphIdsNeedingViewerRefresh, storeGraphDbModels } from "$lib/stores"
+    import { sleep } from "$lib/shared/utility"
+
+    // Import related widgets.
+    import DirectionWidget from "./directionWidget.svelte"
+    import { DirectionDropdownWidget } from "$lib/widgets/spaceWidgets"
     import DeleteWidget from "$lib/widgets/layoutWidgets/deleteWidget.svelte"
-    import { updateSpace } from "$lib/db/clientSide"
+    
+    // Import API functions.
+    import { updateSpace, updateThingDefaultSpace } from "$lib/db/clientSide"
 
 
+    /**
+     * @param space - The Space which this widget represents.
+     * @param graph - The Graph that the Directions are part of.
+     * @param graphWidgetStyle - Controls the visual style of the Graph.
+     * @param setGraphSpace - Method to set the Graph's current Space.
+     */
     export let space: Space
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
     export let setGraphSpace: (space: Space) => void
 
 
+    // Object handle for name input field.
+    let spaceNameInput: HTMLInputElement
+
+    // Flags describing interaction state.
+    let isHovered = false
+    let interactionMode: "display" | "editing" | "create" = "display"
+
+    // Whether the Space is the default Space for the current Perspective Thing.
     $: defaultPerspectiveSpace = 
         graph.pThing?.defaultSpaceId
         && space.id === graph.pThing.defaultSpaceId
 
-    let spaceNameInput: HTMLInputElement
-    /*let directionNameInput1: HTMLInputElement
-    let directionNameInput2: HTMLInputElement
-    let directionNameInput3: HTMLInputElement
-    let directionNameInput4: HTMLInputElement*/
-    
-    
-    let isHovered = false
-    let interactionMode: "display" | "editing" | "create" = "display"
-
-
-
-
-    let directionNameInputDirections: (Direction | null)[] = []
-    function resetDirectionNameInputDirections() {
-        directionNameInputDirections = []
-        for (const direction of space.directions) directionNameInputDirections.push(direction)
-        directionNameInputDirections = directionNameInputDirections // Needed for reactivity.
-    }
-    resetDirectionNameInputDirections()
-
-    let halfAxisInfos: { halfAxisId: HalfAxisId, direction: Direction | null }[] = []
-    function buildHalfAxisInfos(directionNameInputDirections: (Direction | null)[]) {
-        const newHalfAxisInfos: { halfAxisId: HalfAxisId, direction: Direction | null }[] = [
-            { halfAxisId: 1, direction: null },
-            { halfAxisId: 3, direction: null },
-            { halfAxisId: 5, direction: null },
-            { halfAxisId: 7, direction: null }
-        ]
-        for (const [index, direction] of directionNameInputDirections.entries()) {
-            newHalfAxisInfos.splice(
-                index,
-                1,
+    // Array of objects defining the half-axes, including which Direction is
+    // assigned to each.
+    let directionListInfos: { direction: Direction | null, halfAxisId: OddHalfAxisId }[] = []
+    function buildDirectionListInfos() {
+        const newDirectionListInfos: { direction: Direction | null, halfAxisId: OddHalfAxisId, }[] = []
+        for (const [index, direction] of space.directions.entries()) {
+            newDirectionListInfos.push(
                 {
-                    halfAxisId: (2 * index + 1) as HalfAxisId,
-                    direction: direction
+                    direction: direction,
+                    halfAxisId: (2 * index + 1) as OddHalfAxisId
                 }
             )
         }
-        return newHalfAxisInfos
+        return newDirectionListInfos
     }
-    $: halfAxisInfos = buildHalfAxisInfos(directionNameInputDirections)
+    $: directionListInfos = buildDirectionListInfos()
+
+    // Array of the Directions currently specified in the Direction name input
+    // fields, since these may differ from the Space's starting Directions.
+    let directionDropdownContents: (Direction | null)[] = []
+    function resetDirectionDropdownContents() {
+        directionDropdownContents = []
+        for (const direction of space.directions) directionDropdownContents.push(direction)
+        directionDropdownContents = directionDropdownContents // Needed for reactivity.
+    }
+    resetDirectionDropdownContents()
 
 
-
-
-    $: halfAxisInfos = [
-        {
-            halfAxisId: 1 as HalfAxisId,
-            direction: space.directions.length >= 1 ? space.directions[0] : null
-        },
-        {
-            halfAxisId: 3 as HalfAxisId,
-            direction: space.directions.length >= 2 ? space.directions[1] : null
-        },
-        {
-            halfAxisId: 5 as HalfAxisId,
-            direction: space.directions.length >= 3 ? space.directions[2] : null
-        },
-        {
-            halfAxisId: 7 as HalfAxisId,
-            direction: space.directions.length >= 4 ? space.directions[3] : null
-        },
-    ]
-
+    /**
+     * Handle-click method.
+     * 
+     * When Space widget is clicked, sets the Graph's Space to the Space
+     * represented by the widget.
+     */
     function handleClick() {
-        setGraphSpace(space)
+        if (interactionMode === "display") setGraphSpace(space)
     }
 
+    /**
+     * Handle-button method.
+     * 
+     * Activates editing mode or submits edited Space information.
+     */
     async function handleButton() {
+        // If the widget is in display mode,
         if (interactionMode === "display") {
+            // Set widget to editing mode.
             interactionMode = "editing"
             await sleep(50) // Allow the fields to finish rendering.
+
+            // Populate the fields and focus the Space name field.
+            resetDirectionDropdownContents()
             spaceNameInput.value = space.text || ""
             spaceNameInput.focus()
+
+        // If the widget is in editing mode,
         } else {
-            submit()
+            // Submit the edited Space information.
+            await submit()
+            // Set widget back to display mode.
             interactionMode = "display"
         }
     }
 
+    /**
+     * Set-Perspective-Thing-default-Space method.
+     * 
+     * Sets the Space which the widget represents as the Perspective Thing's
+     * default Space.
+     */
     async function setPerspectiveThingDefaultSpace() {
-        if (graph.pThing?.id && space.id) {
-            await updateThingDefaultSpace(graph.pThing?.id, space.id)
-            // Refresh Thing ID in the ThingDBModel store.
-            await storeGraphDbModels<ThingDbModel>("Thing", graph.pThing.id, true)
+        // If any necessary information is null or undefined, abort.
+        if (!graph.pThing?.id || !space.id) return
+
+        // Set the Perspective Thing's default Space to this Space.
+        await updateThingDefaultSpace(graph.pThing?.id, space.id)
+
+        // Refresh Thing in the store, set the Graph's Space to this space, and
+        // refresh the Graph.
+        await storeGraphDbModels<ThingDbModel>("Thing", graph.pThing.id, true)
+        await graph.setSpace(space)
+        addGraphIdsNeedingViewerRefresh(graph.id)
+    }
+
+    /**
+     * Remove-Direction-by-Index method.
+     * 
+     * Remove a Direction from the Directions list dropdowns by its index.
+     */
+    function removeDirectionByIndex(index: number) {
+        directionDropdownContents.splice(index, 1)
+        directionDropdownContents = directionDropdownContents // Needed for reactivity.
+    }
+
+    /**
+     * Validate method.
+     * 
+     * Determine whether the edited Space information is valid before submitting.
+     */
+    function validate() {
+        const valid =
+            spaceNameInput.value !== "" ? true :
+            false
+        return valid
+    }
+
+    /**
+     * Submit method.
+     * 
+     * Submit edited Space info to change the Space.
+     */
+    async function submit() {
+        // If the edited Space information isn't valid, abort.
+        const validInputs = validate()
+        if ( !validInputs || !space.id ) return
+
+        // Update the Space in the database and store.
+        await updateSpace(space.id, spaceNameInput.value, directionDropdownContents)
+        await storeGraphDbModels("Space")
+
+        // If the Graph is displayed in this Space, rebuild and refresh the
+        // Graph to reflect the changes
+        if (graph.pThing?.space?.id === space.id)
             await graph.setSpace(space)
             addGraphIdsNeedingViewerRefresh(graph.id)
-        }
-    }
 
-    function removeDirectionByIndex(index: number) {
-        directionNameInputDirections.splice(index, 1)
-        directionNameInputDirections = directionNameInputDirections // Needed for reactivity.
-    }
-
-
-    function validate() {
-        return (
-            spaceNameInput.value !== ""
-        ) ? true :
-        false
-    }
-
-    async function submit() {
-        const validInputs = validate()
-        if (!validInputs || !space.id) return
-
-        await updateSpace(space.id, spaceNameInput.value, directionNameInputDirections)
-        resetDirectionNameInputDirections()
-        await storeGraphDbModels("Space")
-        await graph.build()
-        addGraphIdsNeedingViewerRefresh(graph.id)
+        // Rebuild the widget's Direction list.
+        directionListInfos = buildDirectionListInfos()
     }
 </script>
 
 
+<!-- Escape key on page body disables interaction mode. -->
 <svelte:body
     on:keyup={(event) => {
         if (event.key === "Escape") interactionMode = "display"
@@ -145,9 +182,11 @@
 />
 
 
+<!-- Space widget. -->
 <div
     class="space-widget"
-    style={interactionMode === "editing" || interactionMode === "create" ? "outline: solid 1px grey;" : ""}
+    class:editing={interactionMode === "editing"}
+    class:create={interactionMode === "create"}
 
     on:mouseenter={() => {isHovered = true}}
     on:mouseleave={() => {isHovered = false}}
@@ -155,6 +194,7 @@
     on:dblclick={() => { if (interactionMode = "display") handleButton() }}
     on:keydown={()=>{}}
 >
+    <!-- Space name or name-input field. -->
     <div class="space-name">
         <div>
             {#if interactionMode === "display"}
@@ -169,21 +209,25 @@
         </div>
     </div>
 
-    <div
-        style="display: flex; flex-direction: column; gap: 0.25rem;"
-    >
-        {#each halfAxisInfos as info, index}
+    <!-- List of Direction widgets or Direction-selecting dropdowns. -->
+    <div class="direction-list">
+        {#each directionListInfos as info, index}
+
+            <!-- Direction name. -->
             {#if interactionMode === "display"}
                 {#if info.direction}
                     <DirectionWidget
                         direction={info.direction}
                         editable={false}
+                        forceExpanded={!!isHovered}
                         {graph}
                         {graphWidgetStyle}
                     />
                 {/if}
+
+            <!-- Direction-selecting dropdown. -->
             {:else}
-                {#if directionNameInputDirections[index] || directionNameInputDirections[index - 1]}
+                {#if directionDropdownContents[index] || directionDropdownContents[index - 1]}
                     <div
                         class="direction-dropdown-container"
                         style="z-index: {4 - index};"
@@ -193,7 +237,7 @@
                             halfAxisId={info.halfAxisId}
                             {graphWidgetStyle}
                             optionClickedFunction={(direction, _, __) => {
-                                directionNameInputDirections[index] = direction
+                                directionDropdownContents[index] = direction
                             }}
                             optionHoveredFunction={async () => {
                             }}
@@ -219,6 +263,26 @@
         {/each}
     </div>
 
+    <!-- Perspective-Space button. -->
+    {#if defaultPerspectiveSpace || isHovered}
+        <div
+            class="perspective-space-button"
+            class:is-default-perspective={defaultPerspectiveSpace}
+
+            on:click|stopPropagation={setPerspectiveThingDefaultSpace}
+            on:keydown={()=>{}}
+        >
+            <img
+                src="./icons/perspective.png"
+                alt="Perspective indicator"
+                width="25px"
+                height="25px"
+                style={`opacity: ${ defaultPerspectiveSpace ? 75 : 25 }%;`}
+            >
+        </div>
+    {/if}
+
+    <!-- Mode button. -->
     {#if isHovered || interactionMode === "editing" || interactionMode === "create"}
         <div class="container button-container">
             <button
@@ -240,24 +304,6 @@
                     +
                 {/if}
             </button>
-        </div>
-    {/if}
-
-    {#if defaultPerspectiveSpace || isHovered}
-        <div
-            class="perspective-space-button"
-            class:is-default-perspective={defaultPerspectiveSpace}
-
-            on:click|stopPropagation={setPerspectiveThingDefaultSpace}
-            on:keydown={()=>{}}
-        >
-            <img
-                src="./icons/perspective.png"
-                alt="Perspective indicator"
-                width="25px"
-                height="25px"
-                style={`opacity: ${ defaultPerspectiveSpace ? 75 : 25 }%;`}
-            >
         </div>
     {/if}
 </div>
@@ -282,6 +328,10 @@
         cursor: default;
     }
 
+    .space-widget.editing, .space-widget.create {
+        outline: solid 1px grey;
+    }
+
     .space-widget:hover {
         outline: solid 1px lightgrey;
         background-color: gainsboro;
@@ -301,6 +351,12 @@
         gap: 5px;
 
         font-size: 1rem;
+    }
+
+    .direction-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
     }
 
     input {

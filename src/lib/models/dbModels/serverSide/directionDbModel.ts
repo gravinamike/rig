@@ -12,6 +12,7 @@ export class RawDirectionDbModel extends Model {
     oppositeid!: number | null
     text!: string | null
     nameforobjects!: string | null
+    directionorder!: number | null
 }
 
 
@@ -25,7 +26,8 @@ export function stripDirectionDbModels(models: RawDirectionDbModel[]): Direction
                 id: model.id,
                 oppositeid: model.oppositeid,
                 text: model.text,
-                nameforobjects: model.nameforobjects
+                nameforobjects: model.nameforobjects,
+                directionorder: model.directionorder
             }
         )
     }

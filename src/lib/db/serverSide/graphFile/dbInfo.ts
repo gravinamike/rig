@@ -1,21 +1,23 @@
 import { v4 as uuidv4 } from "uuid"
 
 
-type DbInfoFieldValue = string | number | null
+export type DbInfoFieldValue = string | number | null
 
-interface DbInfo {
-    [ tableName: string ]: {
-        "fields": {
-            [ fieldName: string ]: string
-        },
-        "constraints": {
-            [ fieldName: string ]: string
-        },
-        "defaultValues": {
-            [ fieldName: string ]: DbInfoFieldValue
-        },
-        'entries': DbInfoFieldValue[][]
-    }
+export interface TableInfo {
+    "fields": {
+        [ fieldName: string ]: string
+    },
+    "constraints": {
+        [ fieldName: string ]: string
+    },
+    "defaultValues": {
+        [ fieldName: string ]: DbInfoFieldValue
+    },
+    'entries': DbInfoFieldValue[][]
+}
+
+export interface DbInfo {
+    [ tableName: string ]: TableInfo
 }
 
 export function getDbInfo(): DbInfo {
@@ -32,7 +34,8 @@ export function getDbInfo(): DbInfo {
                 "text": "varchar(255)",
                 "nameforobjects": "varchar(255)",
                 "whencreated": "timestamp",
-                "whenmodded": "timestamp"
+                "whenmodded": "timestamp",
+                "directionorder": "integer"
             },
             "constraints": {
                 "id": "PRIMARY KEY"
@@ -41,25 +44,26 @@ export function getDbInfo(): DbInfo {
                 "text": "''(NONE)''",
                 "nameforobjects": noneText,
                 "whencreated": "NULL",
-                "whenmodded": "NULL"
+                "whenmodded": "NULL",
+                "directionorder": 0
             },
             "entries": [
-                [1, 1, "is related to", "relations", dateTimeStamp, dateTimeStamp],
-                [2, 2, "is idiomatic synonym of", "idiomatic synonyms", dateTimeStamp, dateTimeStamp],
-                [3, 3, "is analogous to", "analogues", dateTimeStamp, dateTimeStamp],
-                [4, 4, "is opposite of", "opposites", dateTimeStamp, dateTimeStamp],
-                [5, 6, "is exemplar of", "categories", dateTimeStamp, dateTimeStamp],
-                [6, 5, "is category of", "examples", dateTimeStamp, dateTimeStamp],
-                [7, 8, "constitutes", "products", dateTimeStamp, dateTimeStamp],
-                [8, 7, "comprises", "constituents", dateTimeStamp, dateTimeStamp],
-                [9, 10, "is set for category", "categories for set", dateTimeStamp, dateTimeStamp],
-                [10, 9, "is category for set", "sets for category", dateTimeStamp, dateTimeStamp],
-                [11, 12, "is means of", "ends", dateTimeStamp, dateTimeStamp],
-                [12, 11, "is end of", "means", dateTimeStamp, dateTimeStamp],
-                [13, 14, "describes", "model subjects", dateTimeStamp, dateTimeStamp],
-                [14, 13, "is described by", "models", dateTimeStamp, dateTimeStamp],
-                [15, 16, "elaborates", "abstractions", dateTimeStamp, dateTimeStamp],
-                [16, 15, "abstracts", "elaborations", dateTimeStamp, dateTimeStamp]
+                [1, 1, "is related to", "relations", dateTimeStamp, dateTimeStamp, 1],
+                [2, 2, "is idiomatic synonym of", "idiomatic synonyms", dateTimeStamp, dateTimeStamp, 2],
+                [3, 3, "is analogous to", "analogues", dateTimeStamp, dateTimeStamp, 3],
+                [4, 4, "is opposite of", "opposites", dateTimeStamp, dateTimeStamp, 4],
+                [5, 6, "is exemplar of", "categories", dateTimeStamp, dateTimeStamp, 5],
+                [6, 5, "is category of", "examples", dateTimeStamp, dateTimeStamp, 6],
+                [7, 8, "constitutes", "products", dateTimeStamp, dateTimeStamp, 7],
+                [8, 7, "comprises", "constituents", dateTimeStamp, dateTimeStamp, 8],
+                [9, 10, "is set for category", "categories for set", dateTimeStamp, dateTimeStamp, 9],
+                [10, 9, "is category for set", "sets for category", dateTimeStamp, dateTimeStamp, 10],
+                [11, 12, "is means of", "ends", dateTimeStamp, dateTimeStamp, 11],
+                [12, 11, "is end of", "means", dateTimeStamp, dateTimeStamp, 12],
+                [13, 14, "describes", "model subjects", dateTimeStamp, dateTimeStamp, 13],
+                [14, 13, "is described by", "models", dateTimeStamp, dateTimeStamp, 14],
+                [15, 16, "elaborates", "abstractions", dateTimeStamp, dateTimeStamp, 15],
+                [16, 15, "abstracts", "elaborations", dateTimeStamp, dateTimeStamp, 16]
             ]
         },
 
@@ -68,23 +72,25 @@ export function getDbInfo(): DbInfo {
                 "id": "bigint",
                 "text": "varchar(255)",
                 "whencreated": "timestamp",
-                "whenmodded": "timestamp"
+                "whenmodded": "timestamp",
+                "spaceorder": "integer"
             },
             "defaultValues": {
                 "text": noneText,
                 "whencreated": "NULL",
-                "whenmodded": "NULL"
+                "whenmodded": "NULL",
+                "spaceorder": 0
             },
             "constraints": {
                 "id": "PRIMARY KEY"
             },
             'entries': [
-                [1, 'Constitution/Category', dateTimeStamp, dateTimeStamp],
-                [2, 'Service/Representation', dateTimeStamp, dateTimeStamp],
-                [3, 'Representation/Abstraction', dateTimeStamp, dateTimeStamp],
-                [4, 'Service/Constitution', dateTimeStamp, dateTimeStamp],
-                [5, 'Service/Category', dateTimeStamp, dateTimeStamp],
-                [6, 'Service/Constitution/Category', dateTimeStamp, dateTimeStamp]
+                [1, 'Constitution/Category', dateTimeStamp, dateTimeStamp, 1],
+                [2, 'Service/Representation', dateTimeStamp, dateTimeStamp, 2],
+                [3, 'Representation/Abstraction', dateTimeStamp, dateTimeStamp, 3],
+                [4, 'Service/Constitution', dateTimeStamp, dateTimeStamp, 4],
+                [5, 'Service/Category', dateTimeStamp, dateTimeStamp, 5],
+                [6, 'Service/Constitution/Category', dateTimeStamp, dateTimeStamp, 6]
             ]
         },
 

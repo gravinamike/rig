@@ -2,7 +2,7 @@ import path from "path"
 import fs from "fs"
 const fsPromises = fs.promises
 import { unigraphFolder } from "$lib/shared/constants"
-import { initializeNewGraph } from "$lib/db/serverSide"
+import { initializeOrUpdateGraph } from "$lib/db/serverSide"
 import { get } from "svelte/store"
 import { graphsBaseFolderStore } from "$lib/stores"
 
@@ -60,5 +60,5 @@ export async function createNewGraphFile(folderName: string): Promise< void > {
     await fsPromises.copyFile(sourceGraphFilePath, destGraphFilePath)
     await fsPromises.writeFile(destConfigFilePath, `{"pinIds":[1],"perspectiveThingId":1}`, "utf8")
 
-    await initializeNewGraph()
+    await initializeOrUpdateGraph()
 }

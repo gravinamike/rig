@@ -8,7 +8,7 @@
     import RelationshipCohortWidgetController from "./controller.svelte"
 
     // Import related widgets.
-    import { DirectionWidget } from "$lib/widgets/graphWidgets"
+    import { DirectionDropdownWidget } from "$lib/widgets/spaceWidgets"
 
 
     export let thingCohort: ThingCohort
@@ -40,7 +40,7 @@
 
 <!-- Direction text. -->
 <div class="direction-widget-container">
-    <DirectionWidget
+    <DirectionDropdownWidget
         {direction}
         {halfAxisId}
         {graphWidgetStyle}

@@ -16,12 +16,14 @@ export class Space {
     id: number | null
     text: string | null
     directions: Direction[] = []
+    spaceorder: number | null
 
     constructor(dbModel: SpaceDbModel) {
         this.dbModel = dbModel
 
         this.id = Number(dbModel.id)
         this.text = dbModel.text
+        this.spaceorder = dbModel.spaceorder
 
         for (const directionDbModel of dbModel.directions) {
             this.directions.push( new Direction(directionDbModel) )

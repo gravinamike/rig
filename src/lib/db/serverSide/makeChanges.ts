@@ -55,6 +55,85 @@ export async function updateDirection(
     }
 }
 
+
+
+/*
+ * Update the Orders of a set of Directions.
+ */
+export async function updateDirectionOrders(directionInfos: {directionId: number, newOrder: number}[]): Promise<void> {
+    const knex = Model.knex()
+    await knex.transaction(async (transaction: Knex.Transaction) => {
+        for (const info of directionInfos) {
+            await RawDirectionDbModel.query()
+                .patch({ directionorder: info.newOrder })
+                .where('id', info.directionId)
+                .transacting(transaction)
+        }
+    })
+
+    // Report on the response.
+    .then(function() {
+        console.log('Transaction complete.')
+    })
+    .catch(function(err: Error) {
+        console.error(err)
+    })
+}
+
+interface UpdateDirectionOrderInfo {
+    directionId: number,
+    newOrder: number
+}
+
+/**
+ * Reorder-Direction method.
+ * @param directionId - The ID of the Direction reordered.
+ * @param newIndex - The new index of the Direction to be reordered.
+ */
+export async function reorderDirection(
+    directionId: number,
+    newIndex: number
+): Promise<void> {
+    // Get info on all Directions.
+    const queriedDirections = await RawDirectionDbModel.query()
+
+    // Create an array of objects containing ordering info for each Direction.
+    const directionOrderingInfos: { directionId: number, order: number | null }[] = []
+    queriedDirections.forEach( model => {
+        directionOrderingInfos.push(
+            {
+                directionId: model.id as number,
+                order: model.directionorder,
+            }
+        )
+    } )
+    // Order the Direction infos according to their order attributes.
+    const orderedDirectionOrderingInfos = directionOrderingInfos
+        .sort((a, b) => (a.order ? a.order : 0) - (b.order ? b.order : 0))
+
+
+    // Move the to-be-reordered Direction to the specified new index.
+    const currentIndex = orderedDirectionOrderingInfos.findIndex(info => info.directionId === directionId)
+    const reOrderedDirectionOrderingInfos = (
+        changeIndexInArray(orderedDirectionOrderingInfos, currentIndex, newIndex) as
+            {directionId: number, order: number | null}[]
+    )
+    // Construct an output array of Direction order information objects.
+    const updateDirectionOrderInfos: UpdateDirectionOrderInfo[] = []
+    reOrderedDirectionOrderingInfos.forEach( (info, i) => {
+        updateDirectionOrderInfos.push(
+            {
+                directionId: info.directionId,
+                newOrder: i
+            }
+        )
+    } )
+
+    // Update the orders of the Directions using the above array.
+    await updateDirectionOrders(updateDirectionOrderInfos)
+}
+
+
 /*
  * Update a Space.
  */
@@ -95,6 +174,86 @@ export async function updateSpace(
         return false
     }
 }
+
+
+
+/*
+ * Update the Orders of a set of Spaces.
+ */
+export async function updateSpaceOrders(spaceInfos: {spaceId: number, newOrder: number}[]): Promise<void> {
+    const knex = Model.knex()
+    await knex.transaction(async (transaction: Knex.Transaction) => {
+        for (const info of spaceInfos) {
+            await RawSpaceDbModel.query()
+                .patch({ spaceorder: info.newOrder })
+                .where('id', info.spaceId)
+                .transacting(transaction)
+        }
+    })
+
+    // Report on the response.
+    .then(function() {
+        console.log('Transaction complete.')
+    })
+    .catch(function(err: Error) {
+        console.error(err)
+    })
+}
+
+interface UpdateSpaceOrderInfo {
+    spaceId: number,
+    newOrder: number
+}
+
+/**
+ * Reorder-Space method.
+ * @param spaceId - The ID of the Space reordered.
+ * @param newIndex - The new index of the Space to be reordered.
+ */
+export async function reorderSpace(
+    spaceId: number,
+    newIndex: number
+): Promise<void> {
+    // Get info on all Spaces.
+    const queriedSpaces = await RawSpaceDbModel.query()
+
+    // Create an array of objects containing ordering info for each Space.
+    const spaceOrderingInfos: { spaceId: number, order: number | null }[] = []
+    queriedSpaces.forEach( model => {
+        spaceOrderingInfos.push(
+            {
+                spaceId: model.id as number,
+                order: model.spaceorder,
+            }
+        )
+    } )
+    // Order the Space infos according to their order attributes.
+    const orderedSpaceOrderingInfos = spaceOrderingInfos
+        .sort((a, b) => (a.order ? a.order : 0) - (b.order ? b.order : 0))
+
+
+    // Move the to-be-reordered Space to the specified new index.
+    const currentIndex = orderedSpaceOrderingInfos.findIndex(info => info.spaceId === spaceId)
+    const reOrderedSpaceOrderingInfos = (
+        changeIndexInArray(orderedSpaceOrderingInfos, currentIndex, newIndex) as
+            {spaceId: number, order: number | null}[]
+    )
+    // Construct an output array of Space order information objects.
+    const updateSpaceOrderInfos: UpdateSpaceOrderInfo[] = []
+    reOrderedSpaceOrderingInfos.forEach( (info, i) => {
+        updateSpaceOrderInfos.push(
+            {
+                spaceId: info.spaceId,
+                newOrder: i
+            }
+        )
+    } )
+
+    // Update the orders of the Spaces using the above array.
+    await updateSpaceOrders(updateSpaceOrderInfos)
+}
+
+
 
 
 /*

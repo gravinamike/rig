@@ -35,6 +35,33 @@ export async function updateDirection(
     }
 }
 
+
+export async function reorderDirection(
+    directionId: number,
+    newIndex: number
+): Promise< boolean > {
+    // Post to the reorder-Direction API.
+    const res = await fetch(
+        `api/db/graphManipulation/reorderDirection`,
+        {
+            method: "POST",
+            body: JSON.stringify({
+                directionId: directionId,
+                newIndex: newIndex
+            })
+        }
+    )
+    
+    // Report on the response.
+    if (res.ok) {
+        return true
+    } else {
+        res.text().then(text => {throw Error(text)})
+        return false
+    }
+}
+
+
 /*
  * Update an existing Space.
  */
@@ -57,6 +84,31 @@ export async function updateSpace(
         }
     )
 
+    // Report on the response.
+    if (res.ok) {
+        return true
+    } else {
+        res.text().then(text => {throw Error(text)})
+        return false
+    }
+}
+
+export async function reorderSpace(
+    spaceId: number,
+    newIndex: number
+): Promise< boolean > {
+    // Post to the reorder-Space API.
+    const res = await fetch(
+        `api/db/graphManipulation/reorderSpace`,
+        {
+            method: "POST",
+            body: JSON.stringify({
+                spaceId: spaceId,
+                newIndex: newIndex
+            })
+        }
+    )
+    
     // Report on the response.
     if (res.ok) {
         return true

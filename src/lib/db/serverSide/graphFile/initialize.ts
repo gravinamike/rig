@@ -1,60 +1,90 @@
-// Type imports.
+// Import types.
 import type Knex from "knex"
 
-// Database-related imports.
+// Import database-framework-related classes.
 import { Model } from "objection"
 
+// Import database-related methods.
 import { getDbInfo } from "./dbInfo"
+import { addFieldsToTable, createTable } from "./utility"
 
 
-function convertValueForQuery(info: string | number | null): string | number {
-    if (typeof info === "string") {
-        return `'${info}'`
-    } else if (info === null) {
-        return "NULL"
-    } else {
-        return info
+
+export async function graphIsUpdated(): Promise<boolean> {
+
+    let graphIsUpdated = true
+
+    // Get object specifying default database setup.
+    const dbInfo = getDbInfo()
+
+    // For each table specified in the setup object, check whether the table
+    // and all its fields exist.
+    const knex = Model.knex()
+    for (const [tableName, tableInfo] of Object.entries(dbInfo)) {
+        
+        // Check if the table exists and if any fields are missing.
+        const tableExists = await knex.schema.hasTable(tableName.toUpperCase())
+        const missingFieldNames: string[] = []
+        if (tableExists) {
+            for (const fieldName of Object.keys(tableInfo.fields)) {
+                const tableHasField = await knex.schema.hasColumn(tableName.toUpperCase(), fieldName.toUpperCase())
+                if (!tableHasField) missingFieldNames.push(fieldName)
+            }
+        }
+
+        if (!tableExists || missingFieldNames.length) {
+            graphIsUpdated = false
+        }
+
     }
+
+    return graphIsUpdated
+
 }
 
-export async function initializeNewGraph(): Promise<void> {
+
+
+
+/**
+ * Initialize-or-update-Graph function.
+ * 
+ * Takes an existing Graph database file (or a blank template) and adds tables
+ * and records to match a database info object.
+ */
+export async function initializeOrUpdateGraph(): Promise<void> {
+
+    // Within a Knex database transaction,
     const knex = Model.knex()
     await knex.transaction(async (transaction: Knex.Transaction) => {
 
+        // Get object specifying default database setup.
         const dbInfo = getDbInfo()
 
+        // For each table specified in the setup object, create the table and
+        // populate it with default starting records.
         for (const [tableName, tableInfo] of Object.entries(dbInfo)) {
-            const queryLines1: string[] = []
-            for (const [fieldName, dataType] of Object.entries(tableInfo.fields)) {
-                let queryLine = `${fieldName} ${dataType}`
-                const constraintText = fieldName in tableInfo.constraints ? tableInfo.constraints[fieldName] : null
-                const defaultValueText = fieldName in tableInfo.defaultValues ? convertValueForQuery(tableInfo.defaultValues[fieldName]) : null
 
-                if (constraintText) queryLine = `${queryLine} ${constraintText}`
-                if (defaultValueText) queryLine = `${queryLine} DEFAULT ${defaultValueText}`
-                queryLines1.push(queryLine)
+            // Check if the table exists and if any fields are missing.
+            const tableExists = await knex.schema.hasTable(tableName.toUpperCase())
+            const missingFieldNames: string[] = []
+            if (tableExists) {
+                for (const fieldName of Object.keys(tableInfo.fields)) {
+                    const tableHasField = await knex.schema.hasColumn(tableName.toUpperCase(), fieldName.toUpperCase())
+                    if (!tableHasField) missingFieldNames.push(fieldName)
+                }
             }
 
-            // Create the tables.
-            const querystring1 = `CREATE TABLE IF NOT EXISTS ${ tableName } (${ queryLines1.join(", ") });`
-            //console.log(querystring1)
-            await knex.raw(querystring1).transacting(transaction)
+            // If the table doesn't exist, create it.
+            if (!tableExists) {
+                await createTable(tableName, tableInfo, knex, transaction)            
 
-
-            // Create the starting entries.
-            const queryLines2: string[] = []
-            for (const entryValues of tableInfo.entries) {
-                const processedValues = entryValues.map(convertValueForQuery)
-                const queryLine = `INSERT INTO ${ tableName }(${ Object.keys(tableInfo.fields).join(", ") }) VALUES (${ processedValues.join(", ") });`
-                queryLines2.push(queryLine)
+            // Else, if the table is missing fields, add those fields.
+            } else if (missingFieldNames.length) {
+                await addFieldsToTable(tableName, tableInfo, missingFieldNames, knex, transaction)
             }
-            for (const queryLine of queryLines2) {
-                //console.log(queryLine)
-                await knex.raw(queryLine).transacting(transaction)
-            }
-
 
         }
         return null
     })
+    
 }
