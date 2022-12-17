@@ -7,14 +7,14 @@ export async function get(
     { params }: { params: {folderGuid: string} }
 ): Promise<{
     status: number,
-    body: string[] | { error: string }
+    body: { folderPath: string, folderContents: string[] } | { error: string }
 }> {
     try {
         ({ folderGuid } = params)
-        const folderListing = await listAttachmentsFolder(folderGuid)
+        const folderInfo = await listAttachmentsFolder(folderGuid)
         return {
             status: 200,
-            body: folderListing
+            body: folderInfo
         }
 
     } catch(err) {

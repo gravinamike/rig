@@ -19,11 +19,20 @@
         path.split("\\")[0] : // In the case of legacy paths which inlcude a filename, get only the folder.
         null
 
+    let folderPath = ""
     let folderContents: string[] = []
     $: if (folderGuid) {
         fetch(`api/file/attachmentsFolder-${folderGuid}`)
-        .then(response => {return (response.json() as unknown) as string[]})
-        .then(data => folderContents = data)
+        .then(response => {
+            return (response.json() as unknown) as {
+                folderPath: string,
+                folderContents: string[]
+            }
+        })
+        .then(data => {
+            folderPath = data.folderPath
+            folderContents = data.folderContents
+        })
     }
 
     async function addFolder() {///////////// This should only be called prior to opening or adding files to a Folder for a Thing that doesn't yet have a Folder.
@@ -36,18 +45,18 @@
 </script>
 
 
-<main>
+<div class="folder-viewer">
     <h4>Attachments</h4>
 
-    <div
-        on:click={addFolder}
-        on:keydown={()=>{}}
-    >
-        ADD FOLDER
-    </div>
-
     {#if folderGuid === null}
-        NO FOLDER YET
+        <div
+            on:click={addFolder}
+            on:keydown={()=>{}}
+        >
+            ADD FOLDER
+        </div>
+    {:else}
+        {folderPath}
     {/if}
 
     <div class="items-container">
@@ -57,11 +66,11 @@
             </div>
         {/each}
     </div>
-</main>
+</div>
 
 
 <style>
-    main {
+    .folder-viewer {
         outline: solid 1px lightgrey;
         outline-offset: -1px;
 

@@ -4,15 +4,28 @@ const fsPromises = fs.promises
 import { unigraphFolder } from "$lib/shared/constants"
 import { initializeOrUpdateGraph } from "$lib/db/serverSide"
 import { get } from "svelte/store"
-import { graphsBaseFolderStore } from "$lib/stores"
+import { graphsBaseFolderStore, unigraphFolderStore } from "$lib/stores"
 
 
-export async function listAttachmentsFolder(folderGuid: string): Promise<string[]> {
-    const folderPath = path.join(unigraphFolder, "Folders", folderGuid)
+export async function listAttachmentsFolder(
+    folderGuid: string
+): Promise<{ folderPath: string, folderContents: string[] }> {
+    const graphsBaseFolder = get(graphsBaseFolderStore)
+    const unigraphFolderName = get(unigraphFolderStore)
+    const unigraphFolderPath = unigraphFolderName ?
+        path.join(graphsBaseFolder, unigraphFolderName) :
+        null
+
+    if (unigraphFolderPath === null) return { folderPath: "NULL", folderContents: [] }
+
+    const folderPath = path.join(unigraphFolderPath, "Folders", folderGuid)
 
     const folderContents = fs.readdirSync(folderPath)
 
-    return folderContents
+    return {
+        folderPath: folderPath,
+        folderContents: folderContents
+    }
 }
 
 export async function createFolder(folderGuid: string): Promise<void> {
