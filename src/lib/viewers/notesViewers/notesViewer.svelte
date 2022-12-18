@@ -11,7 +11,7 @@
     import NotesEditor from "./notesEditor.svelte"
 
     // Import API methods.
-    import { addNoteToThing, markNotesModified, thingsByGuid, updateNote } from "$lib/db/clientSide"
+    import { thingsByGuid, addNoteToThing, updateNote, markNotesModified } from "$lib/db/clientSide"
 
 
     /**
@@ -22,54 +22,72 @@
     export let rePerspectToThingId: (thingId: number) => Promise<void>
 
     
-    
+    // Handles for HTML elements.
     let notesContainer: Element
-
-    // Editable flag indicates whether Notes are displayed as plain HTML or as an editable interface.
-    let editable = false
-
-    // The current text content of the editor.
-    let editorContent = ""
-
-    // Updating-text-after-re-Perspect flag indicates whether the text is
-    // currently in the process of being updated after the Graph was
-    // re-Perspected.
-    let updatingTextAfterRePerspect = false
-
-    // Note-changed flag indicates whether the Note text has changed in the editor.
-    let noteChanged = false
-    // It is set to true whenever an edit is made, and is reset to false whenever the Note
-    // text changes with the Perspective.
-    // When it changes to True, save the changes to the stores and back-end.
-    $: if (noteChanged && !updatingTextAfterRePerspect) handleNoteEdited()
 
     // Set up custom hyperlink handling for Thing-links.
     document.addEventListener("click", handleHyperlinkClick)
 
 
+    // "Editing" flag indicates whether Notes are displayed as plain HTML or as
+    // an editable interface.
+    let editing = false
 
-    // Determine Perspective Thing.
-    let pThing: Thing | null = null
-    $: {
-        graph.pThingIds
-        
-        pThing = graph.pThing
-    }
+    // "Updating-text-to-match-Perspective-Thing" flag indicates whether the text
+    // is currently in the process of being updated to match that of the
+    // Perspective Thing. (This happens after the Graph is re-Perspected.)
+    let updatingTextToMatchPThing = false
 
-    // Get Note title (Thing text).
-    $: title = pThing ? pThing.text : "THING NOT FOUND IN STORE"
-
-    // Get Note text.
-    let noteText = ""
-    let noteTextForDisplay = "" // Post-processing is needed to make empty paragraphs and line breaks render correctly in the display.
+    // "Notes-editor-text-changed" flag indicates whether the Note text has
+    // changed in the editor.
+    let editorTextContentChanged = false
     
-    function setTextFromPThing(pThing: Thing) {
-        updatingTextAfterRePerspect = true
-        noteText = pThing?.note?.text || ""
-        noteTextForDisplay = textForDisplay(noteText)
-        updatingTextAfterRePerspect = false
+
+    // Note ID.
+    $: pThingNoteId = graph.pThing?.note?.id || null
+
+    // Note title (Thing text).
+    $: title = graph.pThing ? graph.pThing.text : "THING NOT FOUND IN STORE"
+
+    // Raw Note text.
+    let pThingNoteText = ""
+
+    // Display Note text. (Post-processing is needed to make empty paragraphs and
+    // line breaks render correctly in the display.)
+    let noteTextForDisplay = ""
+
+    // The current text content of the editor.
+    let editorTextContent = ""
+    $: console.log(editorTextContent)
+
+
+
+
+
+
+
+
+    // When Perspective Thing changes, update the raw and display text to match.
+    function updateTextToMatchPThing(pThing: Thing) {
+        updatingTextToMatchPThing = true
+
+        pThingNoteText = pThing?.note?.text || ""
+        noteTextForDisplay = textForDisplay(pThingNoteText)
+
+        updatingTextToMatchPThing = false
     }
-    $: if (pThing) setTextFromPThing(pThing)    
+    $: if (graph.pThing) updateTextToMatchPThing(graph.pThing)    
+
+    // When the Notes editor text is changed (other than from when the
+    // Perspective Thing changes), call the handle-Note-edited method,
+    $: if (editorTextContentChanged && !updatingTextToMatchPThing) handleNoteEdited()
+
+
+
+
+    
+
+    
 
 
     /**
@@ -83,9 +101,7 @@
 		if (
             event.target !== notesContainer
             && !notesContainer.contains(event.target as Node)
-        ) {
-			editable = false
-		}
+        ) editing = false
 	}
 
     /**
@@ -95,43 +111,50 @@
      * @param event - The key event that activated the method.
      */
     function handleEscape(event: KeyboardEvent) {
-        if (event.key === "Escape") editable = false
+        if (event.key === "Escape") editing = false
     }
 
 
     /**
      * Handle-note-changed method.
      * 
-     * Checks whether the escape key was pressed, and if so, disables editing.
+     * Ch
      */
     async function handleNoteEdited() {
         // If there's no Perspective Thing, abort.
-        if (!pThing || !pThing.id) return
-
-        let noteId = pThing?.note?.id || null
+        if (!graph.pThing || !graph.pThing.id) return
 
         // If there's not yet a Note for this Perspective Thing, create one.
-        if (noteId === null) {
+        let createdNoteId: number | false = false
+        if (pThingNoteId === null) {
             // Create a new Note.
-            const newNoteId = await addNoteToThing(pThing.id)
-            if (!newNoteId) return
-            noteId = newNoteId
+            createdNoteId = await addNoteToThing(graph.pThing.id)
+            if (!createdNoteId) return
+
             // Re-store the Thing and re-build the Graph (in order to update
             // the Note ID).
-            await storeGraphDbModels<ThingDbModel>("Thing", pThing.id, true)
-            await graph.build()
-            pThing = graph.pThing as Thing
+            await graph.refreshPThing()
         }
+
         // Update the Note and mark the Thing as modified.
-        await updateNote(noteId, editorContent)
-        await markNotesModified(noteId)
+        let noteIdToUpdate = pThingNoteId ? pThingNoteId : createdNoteId as number
+        await updateNote(noteIdToUpdate, editorTextContent)
+        await markNotesModified(noteIdToUpdate)
+        
         // Re-store the Thing (in order to update its linker to the created/updated Note).
-        await storeGraphDbModels<ThingDbModel>("Thing", pThing.id as number, true)
-        noteChanged = false
-        noteTextForDisplay = textForDisplay(editorContent)
+        await storeGraphDbModels<ThingDbModel>("Thing", graph.pThing.id as number, true)
+        editorTextContentChanged = false
+        noteTextForDisplay = textForDisplay(editorTextContent)
     }
 
 
+    /**
+     * Text-for-display method.
+     * 
+     * Reformats Perspective Thing text to make it suitable for display mode
+     * (by replacing certain whitespace characters).
+     * @param text - The Perspective Thing text to be processed.
+     */
     function textForDisplay(text: string) {
         return text
             .replace(/<br><\/p><\/li>/gi, "<br><br></p></li>")
@@ -190,6 +213,7 @@
     on:keyup={handleEscape}
 />
 
+
 <!-- Notes viewer. -->
 <div class="notes-viewer graph-{graph.id}">
 
@@ -201,19 +225,19 @@
         class="notes-container"
         bind:this={notesContainer}
         
-        on:dblclick={() => {editable = true}}
+        on:dblclick={ () => {editing = true} }
     >
         <!-- Note editor. -->
-        {#if editable}
+        {#if editing}
             <NotesEditor
-                bind:noteText
-                bind:noteChanged
-                bind:editorContent
+                bind:pThingNoteText
+                bind:editorTextContentChanged
+                bind:editorTextContent
             />
 
         <!-- Note display. -->
         {:else}
-            <div class="notes-display"><!-- FIX IT HERE AS WELL? -->
+            <div class="notes-display">
                 {@html noteTextForDisplay}
             </div>
         {/if}

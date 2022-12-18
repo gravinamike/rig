@@ -1,5 +1,8 @@
 <script lang="ts">
+    // Import framework resources.
     import { onMount, onDestroy } from "svelte"
+
+    // Import Tiptap resources
     import { Editor } from "@tiptap/core"
     import StarterKit from "@tiptap/starter-kit"
     import TextStyle from '@tiptap/extension-text-style'
@@ -9,50 +12,80 @@
     import Underline from "@tiptap/extension-underline"
     import TextAlign from "@tiptap/extension-text-align"
     import Link from "@tiptap/extension-link"
+
+    // Import related widgets.
     import NotesToolbar from "./notesToolbar.svelte"
 
-    export let noteText: string
-    export let noteChanged: boolean
-    export let editorContent: string
+
+    /**
+     * @param pThingNoteText - The text of the Perspective Thing's Note.
+     * @param editorTextContentChanged - Indicates whether the editor's text content has been changed.
+     * @param editorTextContent - The editor's text content as a string.
+     */
+    export let pThingNoteText: string
+    export let editorTextContentChanged: boolean
+    export let editorTextContent: string
 
 
+    // HTML element handles.
     let textField: Element
     let editor: Editor
 
+    // When the editor component is created, set its text content based on the
+    // Perspective Thing's Note text.
+    onMount(() => {
+        setContent(pThingNoteText)
+    })
 
+    // When the Perspective Thing's Note text changes (usually because the Graph
+    // is re-Perspected), set the editor component's text content based on it.
+    $: setContent(pThingNoteText)
+
+    
+
+    const editorExtensions = [
+        StarterKit,
+        TextStyle,
+        FontFamily,
+        FontSize,
+        Color,
+        Underline,
+        TextAlign.configure({
+            types: ['heading', 'paragraph'],
+        }),
+        Link.configure({
+            autolink: false,
+            openOnClick: false,
+            linkOnPaste: false
+        })
+    ]
+
+    /**
+     * Set-content method.
+     * 
+     * Sets the text content of the editor component to a given string.
+     * @param content - The string which is to be the new content.
+     */
     function setContent(content: string) {
-        if (noteChanged) return
-
+        // If a Tiptap editor exists, destroy it.
         editor?.destroy()
+
+        // Create a new Tiptap editor.
         editor = new Editor({
             element: textField,
-            extensions: [
-                StarterKit,
-                TextStyle,
-                FontFamily,
-                FontSize,
-                Color,
-                Underline,
-                TextAlign.configure({
-                    types: ['heading', 'paragraph'],
-                }),
-                Link.configure({
-                    autolink: false,
-                    openOnClick: false,
-                    linkOnPaste: false
-                })
-            ],
+            extensions: editorExtensions,
             content: content,
             autofocus: true,
             onTransaction: () => {
                 editor = editor // Force re-render so `editor.isActive` works correctly.
             },
             onUpdate: () => {
-                noteChanged = true
-                editorContent = editor.getHTML()
-                noteText = editorContent
+                editorTextContentChanged = true
+                editorTextContent = editor.getHTML()
             }
         })
+
+        // Set the content of the Tiptap editor to the supplied string.
         editor.commands.setContent(
             content,
             false,
@@ -60,22 +93,28 @@
                 preserveWhitespace: "full"
             }
         )
-        editorContent = content
+
+        // Set the content of the content-tracking string to the supplied string.
+        editorTextContent = content
     }
-    $: setContent(noteText)
+    
 
-    onMount(() => {
-        setContent(noteText)
-    })
-
-    onDestroy(() => {
-        if (editor) editor.destroy()
-    })
-
+    
+    
+    /**
+     * Focus-editor method.
+     * 
+     * Gives the Tiptap editor keyboard focus.
+     */
     function focusEditor() {
         const editorElement = editor.view.dom as HTMLElement
         if (editorElement !== document.activeElement) editorElement.focus()
     }
+
+    // When the editor component is destroyed, also destroy the Tiptap editor.
+    onDestroy(() => {
+        if (editor) editor.destroy()
+    })
 </script>
 
 

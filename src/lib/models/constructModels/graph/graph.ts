@@ -1,6 +1,6 @@
 import type { Space, Thing, ThingCohort } from "$lib/models/constructModels"
 
-import { storeGraphDbModels, getGraphConstructs, unstoreGraphDbModels } from "$lib/stores"
+import { storeGraphDbModels, getGraphConstructs, unstoreGraphDbModels, graphDbModelInStore } from "$lib/stores"
 import { Generations } from "./generations"
 import { Planes } from "./planes"
 import { PerspectiveHistory } from "./history"
@@ -16,6 +16,7 @@ export class Graph {
     parentGraph: Graph | null
     childGraphs: Graph[] = []
     rootCohort: ThingCohort | null = null
+    pThing: Thing | null = null
     generations: Generations
     planes: Planes
     history: PerspectiveHistory
@@ -75,6 +76,7 @@ export class Graph {
      */
     async setPThingIds(pThingIds: number[], updateHistory=true): Promise<void> {
         this._pThingIds = pThingIds
+
         await this.build(false, updateHistory)
     }
 
@@ -109,13 +111,13 @@ export class Graph {
         // Adjust (build) the Generations to the Graph's specified Depth.
         this.lifecycleStatus = "building"
         await this.generations.adjustToDepth(this._depth)
+        this.pThing = (this.rootCohort as unknown as ThingCohort).members[0].thing
 
         // Add the starting Perspective Thing IDs to History.
         if (updateHistory) this.history.addEntries(this._pThingIds)
         
         this.lifecycleStatus = "built"
     }
-
 
     async deleteThingById(thingId: number): Promise<void> {
         // Get the to-be-deleted Thing from the Store.
@@ -152,9 +154,14 @@ export class Graph {
 
     }
 
-    get pThing(): Thing | null {
-        const pThing = (this.rootCohort?.members[0].thing as Thing) || null
-        return pThing
+    async refreshPThing(): Promise<void> {
+
+        const pThingCohortMember = this.rootCohort?.members[0]
+        if (!pThingCohortMember?.thingId) return
+
+        await storeGraphDbModels<ThingDbModel>("Thing", pThingCohortMember.thingId, true)
+        pThingCohortMember.thing = getGraphConstructs<Thing>("Thing", pThingCohortMember.thingId)
+
     }
 
     /**
