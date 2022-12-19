@@ -161,6 +161,7 @@ export class Graph {
 
         await storeGraphDbModels<ThingDbModel>("Thing", pThingCohortMember.thingId, true)
         pThingCohortMember.thing = getGraphConstructs<Thing>("Thing", pThingCohortMember.thingId)
+        this.pThing = pThingCohortMember.thing
 
     }
 

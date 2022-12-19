@@ -19,14 +19,16 @@
 
     /**
      * @param pThingNoteText - The text of the Perspective Thing's Note.
-     * @param editorTextContentChanged - Indicates whether the editor's text content has been changed.
+     * @param updatingTextToMatchPThing: Indicates whether the Notes Viewer's texts are currently being updated to match the Perspective Thing.
      * @param editorTextContent - The editor's text content as a string.
+     * @param editorTextContentEdited - Indicates whether the editor's text content has been changed (excluding complete replacement because of a re-Perspect).
      */
     export let pThingNoteText: string
-    export let editorTextContentChanged: boolean
+    export let updatingTextToMatchPThing: boolean
     export let editorTextContent: string
+    export let editorTextContentEdited: boolean
 
-
+    $: console.log("CHANGE TEXT", updatingTextToMatchPThing, pThingNoteText)
     // HTML element handles.
     let textField: Element
     let editor: Editor
@@ -67,6 +69,9 @@
      * @param content - The string which is to be the new content.
      */
     function setContent(content: string) {
+        if (updatingTextToMatchPThing) return
+
+        console.log("SETTING CONTENT-----------------------------", updatingTextToMatchPThing)
         // If a Tiptap editor exists, destroy it.
         editor?.destroy()
 
@@ -80,7 +85,8 @@
                 editor = editor // Force re-render so `editor.isActive` works correctly.
             },
             onUpdate: () => {
-                editorTextContentChanged = true
+                console.log(updatingTextToMatchPThing)
+                if (!updatingTextToMatchPThing) editorTextContentEdited = true
                 editorTextContent = editor.getHTML()
             }
         })
