@@ -38,7 +38,7 @@
     // When the editor component is created, set its text content based on the
     // Perspective Thing's Note text.
     onMount(() => {
-        if (currentPThingNoteText) setContent(currentPThingNoteText)
+        setContent(currentPThingNoteText || "")
     })
 
     const editorExtensions = [
@@ -155,10 +155,12 @@
     </div>
 
     <!-- Editor toolbar. -->
-    <NotesToolbar
-        {editor}
-        focusEditorMethod={focusEditor}
-    />
+    {#if editor}
+        <NotesToolbar
+            {editor}
+            focusEditorMethod={focusEditor}
+        />
+    {/if}
 </div>
 
 

@@ -45,12 +45,11 @@
 
     // Whether the Note text has been edited in the editor.
     let editorTextEditedButNotSynced = false
-
     
     $: if (!graph.pThing?.note?.text) {
         currentPThingNoteText = null
         viewerDisplayText = null
-        currentEditorTextContent = null
+        //currentEditorTextContent = null
     }
 
     // When Perspective Thing changes, update the raw and display text to match.
@@ -75,7 +74,7 @@
     }
 
 
-    $: if (currentEditorTextContent && editorTextEditedButNotSynced) {
+    $: if (currentEditorTextContent !== null && editorTextEditedButNotSynced) {
         updateTextsAndDbToMatchEditorContent(currentEditorTextContent)
     }
 
@@ -86,6 +85,7 @@
     }
 
     async function createAndUpdateNote(): Promise<void> {
+        const pThingNoteId = graph.pThing?.note?.id || null
         let noteIdToUpdate: number | null | false = pThingNoteId
         if (pThingNoteId === null) noteIdToUpdate = await createNoteIfNecessary()
         if (noteIdToUpdate) updateAndRefreshNote(noteIdToUpdate)
@@ -153,8 +153,6 @@
     
     
 
-    // Note ID.
-    $: pThingNoteId = graph.pThing?.note?.id || null
     
     // Note title (Thing text).
     $: title = graph.pThing ? graph.pThing.text : "THING NOT FOUND IN STORE"
