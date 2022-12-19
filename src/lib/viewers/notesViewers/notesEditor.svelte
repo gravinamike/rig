@@ -18,32 +18,28 @@
 
 
     /**
-     * @param pThingNoteText - The text of the Perspective Thing's Note.
-     * @param updatingTextToMatchPThing: Indicates whether the Notes Viewer's texts are currently being updated to match the Perspective Thing.
-     * @param editorTextContent - The editor's text content as a string.
-     * @param editorTextContentEdited - Indicates whether the editor's text content has been changed (excluding complete replacement because of a re-Perspect).
+     * @param currentPThingNoteText - The text of the Perspective Thing's Note.
+     * @param currentEditorTextContent - The editor's text content as a string.
+     * @param editorTextEditedButNotSynced - Indicates whether the editor's text content has been changed (excluding complete replacement because of a re-Perspect).
      */
-    export let pThingNoteText: string
-    export let updatingTextToMatchPThing: boolean
-    export let editorTextContent: string
-    export let editorTextContentEdited: boolean
+    export let currentPThingNoteText: string | null
+    export let currentEditorTextContent: string | null
+    export let editorTextEditedButNotSynced: boolean
 
-    $: console.log("CHANGE TEXT", updatingTextToMatchPThing, pThingNoteText)
     // HTML element handles.
     let textField: Element
     let editor: Editor
 
+
+
+
+
+
     // When the editor component is created, set its text content based on the
     // Perspective Thing's Note text.
     onMount(() => {
-        setContent(pThingNoteText)
+        if (currentPThingNoteText) setContent(currentPThingNoteText)
     })
-
-    // When the Perspective Thing's Note text changes (usually because the Graph
-    // is re-Perspected), set the editor component's text content based on it.
-    $: setContent(pThingNoteText)
-
-    
 
     const editorExtensions = [
         StarterKit,
@@ -69,9 +65,8 @@
      * @param content - The string which is to be the new content.
      */
     function setContent(content: string) {
-        if (updatingTextToMatchPThing) return
+        if (editorTextEditedButNotSynced) return
 
-        console.log("SETTING CONTENT-----------------------------", updatingTextToMatchPThing)
         // If a Tiptap editor exists, destroy it.
         editor?.destroy()
 
@@ -84,11 +79,7 @@
             onTransaction: () => {
                 editor = editor // Force re-render so `editor.isActive` works correctly.
             },
-            onUpdate: () => {
-                console.log(updatingTextToMatchPThing)
-                if (!updatingTextToMatchPThing) editorTextContentEdited = true
-                editorTextContent = editor.getHTML()
-            }
+            onUpdate: onContentEdited
         })
 
         // Set the content of the Tiptap editor to the supplied string.
@@ -101,11 +92,40 @@
         )
 
         // Set the content of the content-tracking string to the supplied string.
-        editorTextContent = content
+        currentEditorTextContent = content
     }
+
+    function onContentEdited() {
+        currentEditorTextContent = editor.getHTML()
+        editorTextEditedButNotSynced = true
+    }
+
+
+    $: if (currentPThingNoteText) setContent(currentPThingNoteText)
     
 
-    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     
     /**
      * Focus-editor method.

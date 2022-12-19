@@ -28,15 +28,129 @@
     document.addEventListener("click", handleHyperlinkClick)
 
 
-    // Whether Notes are displayed as plain HTML or as an editable interface.
-    let editing = false
 
-    // Whether the text is currently in the process of being updated to match
-    // that of the Perspective Thing.
-    let updatingTextToMatchPThing = false
+
+
+
+
+
+    // Raw Note text.
+    let currentPThingNoteText: string | null = null
+
+    // Note text formatted for display.
+    let viewerDisplayText: string | null = null
+
+    // The current text content of the editor.
+    let currentEditorTextContent: string | null = null
 
     // Whether the Note text has been edited in the editor.
-    let editorTextContentEdited = false
+    let editorTextEditedButNotSynced = false
+
+    
+    $: if (!graph.pThing?.note?.text) {
+        currentPThingNoteText = null
+        viewerDisplayText = null
+        currentEditorTextContent = null
+    }
+
+    // When Perspective Thing changes, update the raw and display text to match.
+    $: if (typeof graph.pThing?.note?.text === "string") updateTexts(graph.pThing.note.text)
+
+    async function updateTexts(text: string) {
+        currentPThingNoteText = text
+        viewerDisplayText = textForDisplay(text)
+    }
+
+    /**
+     * Text-for-display method.
+     * 
+     * Reformats Perspective Thing text to make it suitable for display mode
+     * (so empty paragraphs and line breaks render correctly).
+     * @param text - The Perspective Thing text to be processed.
+     */
+     function textForDisplay(text: string) {
+        return text
+            .replace(/<br><\/p><\/li>/gi, "<br><br></p></li>")
+            .replace(/<p><\/p>/gi, "<p>&nbsp;</p>")
+    }
+
+
+    $: if (currentEditorTextContent && editorTextEditedButNotSynced) {
+        updateTextsAndDbToMatchEditorContent(currentEditorTextContent)
+    }
+
+    async function updateTextsAndDbToMatchEditorContent(currentEditorTextContent: string) {
+        await updateTexts(currentEditorTextContent)
+        await createAndUpdateNote()
+        editorTextEditedButNotSynced = false
+    }
+
+    async function createAndUpdateNote(): Promise<void> {
+        let noteIdToUpdate: number | null | false = pThingNoteId
+        if (pThingNoteId === null) noteIdToUpdate = await createNoteIfNecessary()
+        if (noteIdToUpdate) updateAndRefreshNote(noteIdToUpdate)
+    }
+
+    /**
+     * Create-Note-if-necessary method.
+     * 
+     * Create Note if none exists for this Thing.
+     */
+    async function createNoteIfNecessary(): Promise<number | false> {
+        if (!graph.pThing?.id) return false
+
+        // Create a new Note.
+        const createdNoteId = await addNoteToThing(graph.pThing.id)
+        if (!createdNoteId) return false
+        
+        return createdNoteId
+    }
+
+    /**
+     * Update-Note method.
+     * 
+     * Update the Note in the database based on the edits that have been made in
+     * the editor, then refresh the front-end to show the new Note.
+     */
+    async function updateAndRefreshNote(noteId: number) {
+        if (!currentEditorTextContent) return
+
+        // Update the Note and mark the Thing as modified.
+        await updateNote(noteId, currentEditorTextContent)
+        await markNotesModified(noteId)
+
+        await graph.refreshPThing()
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // Whether Notes are displayed as plain HTML or as an editable interface.
+    let editing = false
+    
     
 
     // Note ID.
@@ -45,53 +159,6 @@
     // Note title (Thing text).
     $: title = graph.pThing ? graph.pThing.text : "THING NOT FOUND IN STORE"
 
-    // Raw Note text.
-    let pThingNoteText = ""
-
-    // Note text formatted for display.
-    let noteTextForDisplay = ""
-
-    // The current text content of the editor.
-    let editorTextContent = ""
-
-    
-    // When Perspective Thing changes, update the raw and display text to match.
-    $: if (typeof graph.pThing?.note?.text === "string") updateTextToMatchPThing(graph.pThing.note.text)    
-
-    // When the Notes editor text is changed (other than from when the
-    // Perspective Thing changes), create (if necessary) and update the Note.
-    $: if (editorTextContentEdited) createAndUpdateNote()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-    async function updateTextToMatchPThing(text: string) {
-        updatingTextToMatchPThing = true
-        console.log("INTERIOR1", updatingTextToMatchPThing)
-        pThingNoteText = text
-        console.log("INTERIOR2", updatingTextToMatchPThing)
-        noteTextForDisplay = textForDisplay(pThingNoteText)
-        updatingTextToMatchPThing = false
-        console.log("INTERIOR3")/////////////////////////////////////////// THIS IS ALL HAPPENING BEFORE NOTESEDITOR IS BEING REACTIVELY REFRESHED.
-    }
-
-
-
-
-    
 
 
     /**
@@ -118,82 +185,6 @@
         if (event.key === "Escape") editing = false
     }
 
-
-
-
-
-
-    async function createAndUpdateNote(): Promise<void> {
-        
-        let noteIdToUpdate: number | null | false = pThingNoteId
-        if (pThingNoteId === null) noteIdToUpdate = await createNoteIfNecessary()
-        if (noteIdToUpdate) updateAndRefreshNote(noteIdToUpdate)
-
-    }
-
-
-    /**
-     * Create-Note-if-necessary method.
-     * 
-     * Create Note if none exists for this Thing.
-     */
-    async function createNoteIfNecessary(): Promise<number | false> {
-        if (!graph.pThing?.id) return false
-
-        // Create a new Note.
-        const createdNoteId = await addNoteToThing(graph.pThing.id)
-        if (!createdNoteId) return false
-
-        // Refresh the Perspective Thing.
-        //await graph.refreshPThing()
-        //graph.pThing = graph.pThing // Needed for reactivity.
-        
-        return createdNoteId
-    }
-
-
-    /**
-     * Update-Note method.
-     * 
-     * Update the Note in the database based on the edits that have been made in
-     * the editor, then refresh the front-end to show the new Note.
-     */
-    async function updateAndRefreshNote(noteId: number) {
-        // Update the Note and mark the Thing as modified.
-        await updateNote(noteId, editorTextContent)
-        await markNotesModified(noteId)
-        
-        // Refresh the Perspective Thing.
-        console.log("NOW REFRESH", updatingTextToMatchPThing)
-        await graph.refreshPThing()
-        console.log("NOW REFRESH2", updatingTextToMatchPThing)
-        if (typeof graph.pThing?.note?.text === "string") updateTextToMatchPThing(graph.pThing.note.text)  
-
-        editorTextContentEdited = false
-    }
-
-
-
-
-
-
-
-
-
-
-
-    /**
-     * Text-for-display method.
-     * 
-     * Reformats Perspective Thing text to make it suitable for display mode
-     * (so empty paragraphs and line breaks render correctly).
-     * @param text - The Perspective Thing text to be processed.
-     */
-    function textForDisplay(text: string) {
-        return text
-            .replace(/<br><\/p><\/li>/gi, "<br><br></p></li>")
-            .replace(/<p><\/p>/gi, "<p>&nbsp;</p>")
-    }
     
     /**
      * Handle-hyperlink-clicked method.
@@ -264,16 +255,15 @@
         <!-- Note editor. -->
         {#if editing}
             <NotesEditor
-                {pThingNoteText}
-                bind:updatingTextToMatchPThing
-                bind:editorTextContent
-                bind:editorTextContentEdited
+                {currentPThingNoteText}
+                bind:currentEditorTextContent
+                bind:editorTextEditedButNotSynced
             />
 
         <!-- Note display. -->
         {:else}
             <div class="notes-display">
-                {@html noteTextForDisplay}
+                {@html viewerDisplayText}
             </div>
         {/if}
     </div>
