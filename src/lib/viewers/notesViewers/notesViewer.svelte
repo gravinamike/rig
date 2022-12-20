@@ -1,6 +1,6 @@
 <script lang="ts">
     // Import types.
-    import type { Thing, Graph } from "$lib/models/constructModels"
+    import type { Graph } from "$lib/models/constructModels"
 
     // Import constants and stores.
     import { hyperlinkProtocols } from "$lib/shared/constants"

@@ -150,6 +150,7 @@
         class="text-field"
         bind:this={textField}
         on:click|preventDefault={focusEditor}
+        on:wheel|stopPropagation
         on:keydown={()=>{}}
     >
     </div>
