@@ -10,7 +10,6 @@
 
     // Import API methods.
     import { thingsByGuid, addNoteToThing, updateNote, markNotesModified } from "$lib/db/clientSide"
-    import { tick } from "svelte";
 
 
     /**

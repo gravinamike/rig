@@ -1,6 +1,6 @@
 import type { Space, Thing, ThingCohort } from "$lib/models/constructModels"
 
-import { storeGraphDbModels, getGraphConstructs, unstoreGraphDbModels, graphDbModelInStore } from "$lib/stores"
+import { storeGraphDbModels, getGraphConstructs, unstoreGraphDbModels } from "$lib/stores"
 import { Generations } from "./generations"
 import { Planes } from "./planes"
 import { PerspectiveHistory } from "./history"
@@ -161,6 +161,8 @@ export class Graph {
 
         await storeGraphDbModels<ThingDbModel>("Thing", pThingCohortMember.thingId, true)
         pThingCohortMember.thing = getGraphConstructs<Thing>("Thing", pThingCohortMember.thingId)
+        this.rootCohort?.members.shift()
+        this.rootCohort?.addMember(pThingCohortMember)
         this.pThing = pThingCohortMember.thing
 
     }
