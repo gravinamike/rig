@@ -297,7 +297,7 @@
                 }}
             >
                 {#if interactionMode === "display"}
-                    <img src="./icons/edit-text.png" alt="edit direction" width=15px height=15px />
+                    <img src="./icons/edit.png" alt="Edit Space" width=15px height=15px />
                 {:else if interactionMode === "editing"}
                     ✓
                 {:else}

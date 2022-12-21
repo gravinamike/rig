@@ -22,6 +22,7 @@
     
     // Handles for HTML elements.
     let notesContainer: Element
+    let editButton: Element
 
     // Set up custom hyperlink handling for Thing-links.
     document.addEventListener("click", handleHyperlinkClick)
@@ -48,7 +49,6 @@
     $: if (!graph.pThing?.note?.text) {
         currentPThingNoteText = null
         viewerDisplayText = null
-        //currentEditorTextContent = null
     }
 
     // When Perspective Thing changes, update the raw and display text to match.
@@ -79,15 +79,15 @@
 
     async function updateTextsAndDbToMatchEditorContent(currentEditorTextContent: string) {
         await updateTexts(currentEditorTextContent)
-        await createAndUpdateNote()
+        await createAndUpdateNote(currentEditorTextContent)
         editorTextEditedButNotSynced = false
     }
 
-    async function createAndUpdateNote(): Promise<void> {
+    async function createAndUpdateNote(currentEditorTextContent: string): Promise<void> {
         const pThingNoteId = graph.pThing?.note?.id || null
         let noteIdToUpdate: number | null | false = pThingNoteId
         if (pThingNoteId === null) noteIdToUpdate = await createNoteIfNecessary()
-        if (noteIdToUpdate) updateAndRefreshNote(noteIdToUpdate)
+        if (noteIdToUpdate) updateAndRefreshNote(noteIdToUpdate, currentEditorTextContent)
     }
 
     /**
@@ -111,11 +111,9 @@
      * Update the Note in the database based on the edits that have been made in
      * the editor, then refresh the front-end to show the new Note.
      */
-    async function updateAndRefreshNote(noteId: number) {
-        if (!currentEditorTextContent) return
-
+    async function updateAndRefreshNote(noteId: number, newText: string) {
         // Update the Note and mark the Thing as modified.
-        await updateNote(noteId, currentEditorTextContent)
+        await updateNote(noteId, newText)
         await markNotesModified(noteId)
 
         await graph.refreshPThing()
@@ -149,6 +147,27 @@
 
     // Whether Notes are displayed as plain HTML or as an editable interface.
     let editing = false
+    let editingLocked = false
+    let editButtonHovered = false
+    let editingLockJustToggled = false
+
+    $: showEditingLockedIcon = (
+        (
+            editing
+            && !editingLocked
+            && (editButtonHovered && !editingLockJustToggled)
+        )
+        || (
+            editing
+            && editingLocked
+            && editingLockJustToggled
+        )
+        || (
+            editingLocked
+            && !editButtonHovered
+        )
+    ) ? true : false
+    
     
     
 
@@ -169,6 +188,9 @@
 		if (
             event.target !== notesContainer
             && !notesContainer.contains(event.target as Node)
+            && event.target !== editButton 
+            && !editButton.contains(event.target as Node)
+            && !editingLocked
         ) editing = false
 	}
 
@@ -179,7 +201,7 @@
      * @param event - The key event that activated the method.
      */
     function handleEscape(event: KeyboardEvent) {
-        if (event.key === "Escape") editing = false
+        if (event.key === "Escape" && !editingLocked) editing = false
     }
 
     
@@ -226,6 +248,15 @@
             }
         }
     }
+
+    function handleEditButton() {
+        if (editing === false) {
+            editing = true
+        } else {
+            editingLocked = !editingLocked
+            editingLockJustToggled = true
+        }
+    }
 </script>
 
 
@@ -240,7 +271,34 @@
 <div class="notes-viewer graph-{graph.id}">
 
     <!-- Title. -->
-    <h4>{title}</h4>
+    <div class="title">
+        <h3>{title}</h3>
+    </div>
+
+    <!-- Edit button. -->
+    <div
+        class="edit-button"
+        class:editing
+        class:editingLocked
+        bind:this={editButton}
+
+        on:mouseenter={() => {editButtonHovered = true}}
+        on:mouseleave={() => {
+            editButtonHovered = false
+            editingLockJustToggled = false
+        }}
+        on:click={handleEditButton}
+        on:keydown={()=>{}}
+    >
+        <img
+            src={
+                showEditingLockedIcon ? "./icons/lock-edit.png" : "./icons/edit.png" }
+            alt={
+                showEditingLockedIcon ? "Lock Notes in editing mode" : "Edit Notes" }
+            width=20px
+            height=20px
+        >
+    </div>
 
     <!-- Container to hold either Note display or Note editor. -->
     <div
@@ -274,6 +332,7 @@
         outline-offset: -1px;
 
         box-sizing: border-box;
+        position: relative;
         width: 500px;
         height: 100%;
         background-color: #fafafa;
@@ -286,9 +345,51 @@
         text-align: center;
     }
 
-    h4 {
-        flex: 0 0;
+    .edit-button {
+		border-radius: 5px;
 
+		box-sizing: border-box;
+        position: absolute;
+        top: 0.55rem;
+        left: 0.75rem;
+        opacity: 0.25;
+
+		display: flex;
+		justify-content: center;
+		align-items: center;
+        padding: 5px;
+
+		cursor: default;
+    }
+
+    .edit-button.editing {
+        outline: solid 1px lightgrey;
+		outline-offset: -1px;
+
+        background-color: white;
+        opacity: 1;
+    }
+
+    .edit-button:hover {
+        outline: solid 1px grey;
+
+        background-color: gainsboro;
+        opacity: 1;
+    }
+
+    .edit-button:active {
+        background-color: lightgrey;
+    }
+
+    .title {
+        height: 23px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    h3 {
         margin: 0;
     }
 
