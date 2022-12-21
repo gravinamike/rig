@@ -141,13 +141,23 @@
     onDestroy(() => {
         if (editor) editor.destroy()
     })
+
+
+    let ctrlKeyPressed = false
 </script>
+
+
+<svelte:body
+    on:keydown={ (event) => {if (event.key === "Control") ctrlKeyPressed = true} }
+    on:keyup={ (event) => {if (event.key === "Control") ctrlKeyPressed = false} }
+/>
 
 
 <div class="notes-editor">
     <!-- Editor text field. -->
     <div
         class="text-field"
+        class:ctrlKeyPressed
         bind:this={textField}
         on:click|preventDefault={focusEditor}
         on:wheel|stopPropagation
@@ -203,5 +213,9 @@
 
     :global(.ProseMirror:focus) {
         outline: none;
+    }
+
+    :global(.ctrlKeyPressed .ProseMirror a) {
+        cursor: pointer;
     }
 </style>

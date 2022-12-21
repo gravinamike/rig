@@ -216,6 +216,9 @@
         // Get the hyperlink <a> element.
         const hyperlink = event.target ? (event.target as Element).closest("a") : null
         if (!hyperlink) return
+        // When in editor mode, if the Control key modifier wasn't pressed when
+        // clicking, abort.
+        if (editing && !event.ctrlKey) return
 
         // Determine if the hyperlink is regular (or follows a special Thing-link
         // protocol).
@@ -425,4 +428,6 @@
         word-wrap: break-word;
         white-space: break-spaces;
     }
+
+    
 </style>
