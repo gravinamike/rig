@@ -3,4 +3,5 @@ node_modules
 /build
 /.svelte-kit
 /package
-/static/customizable/fonts
+/static/config/config.json
+/static/customizable
