@@ -266,7 +266,7 @@
             $pinIdsStore.includes(thingId) ? [
                 {
                     text: "Change Thing text",
-                    iconName: "edit-text",
+                    iconName: "edit",
                     iconHtml: null,
                     isActive: false,
                     onClick: () => {beginEditingText()}
@@ -282,7 +282,7 @@
             [
                 {
                     text: "Change Thing text",
-                    iconName: "edit-text",
+                    iconName: "edit",
                     iconHtml: null,
                     isActive: false,
                     onClick: () => {beginEditingText()}

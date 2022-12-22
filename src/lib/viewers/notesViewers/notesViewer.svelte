@@ -1,17 +1,15 @@
 <script lang="ts">
     // Import types.
-    import type { Thing, Graph } from "$lib/models/constructModels"
-    import type { ThingDbModel } from "$lib/models/dbModels/clientSide"
+    import type { Graph } from "$lib/models/constructModels"
 
     // Import constants and stores.
     import { hyperlinkProtocols } from "$lib/shared/constants"
-    import { storeGraphDbModels } from "$lib/stores/graphConstructStores"
 
     // Import related widgets.
     import NotesEditor from "./notesEditor.svelte"
 
     // Import API methods.
-    import { addNoteToThing, markNotesModified, thingsByGuid, updateNote } from "$lib/db/clientSide"
+    import { thingsByGuid, addNoteToThing, updateNote, markNotesModified } from "$lib/db/clientSide"
 
 
     /**
@@ -22,54 +20,130 @@
     export let rePerspectToThingId: (thingId: number) => Promise<void>
 
     
-    
+    // Handles for HTML elements.
     let notesContainer: Element
+    let editButton: Element
 
-    // Editable flag indicates whether Notes are displayed as plain HTML or as an editable interface.
-    let editable = false
+    // Whether Notes are displayed as plain HTML or as an editable interface.
+    let editing = false
+
+    // Whether the viewer is locked in editing mode.
+    let editingLocked = false
+
+    // Flags for interactions with the editing button.
+    let editButtonHovered = false
+    let editingLockJustToggled = false
+
+    // Raw Note text.
+    let currentPThingNoteText: string | null = null
+
+    // Note text formatted for display.
+    let viewerDisplayText: string | null = null
 
     // The current text content of the editor.
-    let editorContent = ""
+    let currentEditorTextContent: string | null = null
 
-    // Updating-text-after-re-Perspect flag indicates whether the text is
-    // currently in the process of being updated after the Graph was
-    // re-Perspected.
-    let updatingTextAfterRePerspect = false
+    // Whether the Note text has been edited in the editor.
+    let editorTextEditedButNotSynced = false
+    
+    $: if (!graph.pThing?.note?.text) {
+        currentPThingNoteText = null
+        viewerDisplayText = null
+    }
 
-    // Note-changed flag indicates whether the Note text has changed in the editor.
-    let noteChanged = false
-    // It is set to true whenever an edit is made, and is reset to false whenever the Note
-    // text changes with the Perspective.
-    // When it changes to True, save the changes to the stores and back-end.
-    $: if (noteChanged && !updatingTextAfterRePerspect) handleNoteEdited()
+    // When Perspective Thing changes, update the raw and display text to match.
+    $: if (typeof graph.pThing?.note?.text === "string") updateTexts(graph.pThing.note.text)
+
+    async function updateTexts(text: string) {
+        currentPThingNoteText = text
+        viewerDisplayText = textForDisplay(text)
+    }
+
+    /**
+     * Text-for-display method.
+     * 
+     * Reformats Perspective Thing text to make it suitable for display mode
+     * (so empty paragraphs and line breaks render correctly).
+     * @param text - The Perspective Thing text to be processed.
+     */
+     function textForDisplay(text: string) {
+        return text
+            .replace(/<br><\/p><\/li>/gi, "<br><br></p></li>")
+            .replace(/<p><\/p>/gi, "<p>&nbsp;</p>")
+    }
+
+
+    $: if (currentEditorTextContent !== null && editorTextEditedButNotSynced) {
+        updateTextsAndDbToMatchEditorContent(currentEditorTextContent)
+    }
+
+    async function updateTextsAndDbToMatchEditorContent(currentEditorTextContent: string) {
+        await updateTexts(currentEditorTextContent)
+        await createAndUpdateNote(currentEditorTextContent)
+        editorTextEditedButNotSynced = false
+    }
+
+    async function createAndUpdateNote(currentEditorTextContent: string): Promise<void> {
+        const pThingNoteId = graph.pThing?.note?.id || null
+        let noteIdToUpdate: number | null | false = pThingNoteId
+        if (pThingNoteId === null) noteIdToUpdate = await createNoteIfNecessary()
+        if (noteIdToUpdate) updateAndRefreshNote(noteIdToUpdate, currentEditorTextContent)
+    }
+
+    /**
+     * Create-Note-if-necessary method.
+     * 
+     * Create Note if none exists for this Thing.
+     */
+    async function createNoteIfNecessary(): Promise<number | false> {
+        if (!graph.pThing?.id) return false
+
+        // Create a new Note.
+        const createdNoteId = await addNoteToThing(graph.pThing.id)
+        if (!createdNoteId) return false
+        
+        return createdNoteId
+    }
+
+    /**
+     * Update-Note method.
+     * 
+     * Update the Note in the database based on the edits that have been made in
+     * the editor, then refresh the front-end to show the new Note.
+     */
+    async function updateAndRefreshNote(noteId: number, newText: string) {
+        // Update the Note and mark the Thing as modified.
+        await updateNote(noteId, newText)
+        await markNotesModified(noteId)
+
+        await graph.refreshPThing()
+    }
 
     // Set up custom hyperlink handling for Thing-links.
     document.addEventListener("click", handleHyperlinkClick)
-
-
-
-    // Determine Perspective Thing.
-    let pThing: Thing | null = null
-    $: {
-        graph.pThingIds
-        
-        pThing = graph.pThing
-    }
-
-    // Get Note title (Thing text).
-    $: title = pThing ? pThing.text : "THING NOT FOUND IN STORE"
-
-    // Get Note text.
-    let noteText = ""
-    let noteTextForDisplay = "" // Post-processing is needed to make empty paragraphs and line breaks render correctly in the display.
     
-    function setTextFromPThing(pThing: Thing) {
-        updatingTextAfterRePerspect = true
-        noteText = pThing?.note?.text || ""
-        noteTextForDisplay = textForDisplay(noteText)
-        updatingTextAfterRePerspect = false
-    }
-    $: if (pThing) setTextFromPThing(pThing)    
+    
+    // Note title (Thing text).
+    $: title = graph.pThing ? graph.pThing.text : "THING NOT FOUND IN STORE"
+
+    // Whether to show the edit-lock icon in the edit button.
+    $: showEditingLockedIcon = (
+        (
+            editing
+            && !editingLocked
+            && (editButtonHovered && !editingLockJustToggled)
+        )
+        || (
+            editing
+            && editingLocked
+            && editingLockJustToggled
+        )
+        || (
+            editingLocked
+            && !editButtonHovered
+        )
+    ) ? true : false
+
 
 
     /**
@@ -83,9 +157,10 @@
 		if (
             event.target !== notesContainer
             && !notesContainer.contains(event.target as Node)
-        ) {
-			editable = false
-		}
+            && event.target !== editButton 
+            && !editButton.contains(event.target as Node)
+            && !editingLocked
+        ) editing = false
 	}
 
     /**
@@ -95,48 +170,9 @@
      * @param event - The key event that activated the method.
      */
     function handleEscape(event: KeyboardEvent) {
-        if (event.key === "Escape") editable = false
+        if (event.key === "Escape" && !editingLocked) editing = false
     }
 
-
-    /**
-     * Handle-note-changed method.
-     * 
-     * Checks whether the escape key was pressed, and if so, disables editing.
-     */
-    async function handleNoteEdited() {
-        // If there's no Perspective Thing, abort.
-        if (!pThing || !pThing.id) return
-
-        let noteId = pThing?.note?.id || null
-
-        // If there's not yet a Note for this Perspective Thing, create one.
-        if (noteId === null) {
-            // Create a new Note.
-            const newNoteId = await addNoteToThing(pThing.id)
-            if (!newNoteId) return
-            noteId = newNoteId
-            // Re-store the Thing and re-build the Graph (in order to update
-            // the Note ID).
-            await storeGraphDbModels<ThingDbModel>("Thing", pThing.id, true)
-            await graph.build()
-            pThing = graph.pThing as Thing
-        }
-        // Update the Note and mark the Thing as modified.
-        await updateNote(noteId, editorContent)
-        await markNotesModified(noteId)
-        // Re-store the Thing (in order to update its linker to the created/updated Note).
-        await storeGraphDbModels<ThingDbModel>("Thing", pThing.id as number, true)
-        noteChanged = false
-        noteTextForDisplay = textForDisplay(editorContent)
-    }
-
-
-    function textForDisplay(text: string) {
-        return text
-            .replace(/<br><\/p><\/li>/gi, "<br><br></p></li>")
-            .replace(/<p><\/p>/gi, "<p>&nbsp;</p>")
-    }
     
     /**
      * Handle-hyperlink-clicked method.
@@ -149,6 +185,9 @@
         // Get the hyperlink <a> element.
         const hyperlink = event.target ? (event.target as Element).closest("a") : null
         if (!hyperlink) return
+        // When in editor mode, if the Control key modifier wasn't pressed when
+        // clicking, abort.
+        if (editing && !event.ctrlKey) return
 
         // Determine if the hyperlink is regular (or follows a special Thing-link
         // protocol).
@@ -157,8 +196,13 @@
             if (hyperlink.href.startsWith(`${protocol}://`)) isRegularHyperlink = true
         }
 
-        // If the hyperlink follows a special Thing-link protocol,
-        if (!isRegularHyperlink) {
+        // If the hyperlink follows a normal protocol,
+        if (isRegularHyperlink) {
+            // For editing mode, reimplement normal opening of hyperlinks.
+            if (editing) window.open(hyperlink.href, hyperlink.target)
+        
+        // Else, if the hyperlink follows a special Thing-link protocol,
+        } else {
             // Prevent the default handler.
             event.preventDefault()
 
@@ -181,6 +225,15 @@
             }
         }
     }
+
+    function handleEditButton() {
+        if (editing === false) {
+            editing = true
+        } else {
+            editingLocked = !editingLocked
+            editingLockJustToggled = true
+        }
+    }
 </script>
 
 
@@ -190,31 +243,59 @@
     on:keyup={handleEscape}
 />
 
+
 <!-- Notes viewer. -->
 <div class="notes-viewer graph-{graph.id}">
 
     <!-- Title. -->
-    <h4>{title}</h4>
+    <div class="title">
+        <h3>{title}</h3>
+    </div>
+
+    <!-- Edit button. -->
+    <div
+        class="edit-button"
+        class:editing
+        class:editingLocked
+        bind:this={editButton}
+
+        on:mouseenter={() => {editButtonHovered = true}}
+        on:mouseleave={() => {
+            editButtonHovered = false
+            editingLockJustToggled = false
+        }}
+        on:click={handleEditButton}
+        on:keydown={()=>{}}
+    >
+        <img
+            src={
+                showEditingLockedIcon ? "./icons/lock-edit.png" : "./icons/edit.png" }
+            alt={
+                showEditingLockedIcon ? "Lock Notes in editing mode" : "Edit Notes" }
+            width=20px
+            height=20px
+        >
+    </div>
 
     <!-- Container to hold either Note display or Note editor. -->
     <div
         class="notes-container"
         bind:this={notesContainer}
         
-        on:dblclick={() => {editable = true}}
+        on:dblclick={ () => {editing = true} }
     >
         <!-- Note editor. -->
-        {#if editable}
+        {#if editing}
             <NotesEditor
-                bind:noteText
-                bind:noteChanged
-                bind:editorContent
+                {currentPThingNoteText}
+                bind:currentEditorTextContent
+                bind:editorTextEditedButNotSynced
             />
 
         <!-- Note display. -->
         {:else}
-            <div class="notes-display"><!-- FIX IT HERE AS WELL? -->
-                {@html noteTextForDisplay}
+            <div class="notes-display">
+                {@html viewerDisplayText}
             </div>
         {/if}
     </div>
@@ -228,6 +309,7 @@
         outline-offset: -1px;
 
         box-sizing: border-box;
+        position: relative;
         width: 500px;
         height: 100%;
         background-color: #fafafa;
@@ -240,9 +322,51 @@
         text-align: center;
     }
 
-    h4 {
-        flex: 0 0;
+    .edit-button {
+		border-radius: 5px;
 
+		box-sizing: border-box;
+        position: absolute;
+        top: 0.55rem;
+        left: 0.75rem;
+        opacity: 0.25;
+
+		display: flex;
+		justify-content: center;
+		align-items: center;
+        padding: 5px;
+
+		cursor: default;
+    }
+
+    .edit-button.editing {
+        outline: solid 1px lightgrey;
+		outline-offset: -1px;
+
+        background-color: white;
+        opacity: 1;
+    }
+
+    .edit-button:hover {
+        outline: solid 1px grey;
+
+        background-color: gainsboro;
+        opacity: 1;
+    }
+
+    .edit-button:active {
+        background-color: lightgrey;
+    }
+
+    .title {
+        height: 23px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    h3 {
         margin: 0;
     }
 
@@ -278,4 +402,6 @@
         word-wrap: break-word;
         white-space: break-spaces;
     }
+
+    
 </style>
