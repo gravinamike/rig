@@ -24,15 +24,15 @@
     let notesContainer: Element
     let editButton: Element
 
-    // Set up custom hyperlink handling for Thing-links.
-    document.addEventListener("click", handleHyperlinkClick)
+    // Whether Notes are displayed as plain HTML or as an editable interface.
+    let editing = false
 
+    // Whether the viewer is locked in editing mode.
+    let editingLocked = false
 
-
-
-
-
-
+    // Flags for interactions with the editing button.
+    let editButtonHovered = false
+    let editingLockJustToggled = false
 
     // Raw Note text.
     let currentPThingNoteText: string | null = null
@@ -119,38 +119,14 @@
         await graph.refreshPThing()
     }
 
+    // Set up custom hyperlink handling for Thing-links.
+    document.addEventListener("click", handleHyperlinkClick)
+    
+    
+    // Note title (Thing text).
+    $: title = graph.pThing ? graph.pThing.text : "THING NOT FOUND IN STORE"
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // Whether Notes are displayed as plain HTML or as an editable interface.
-    let editing = false
-    let editingLocked = false
-    let editButtonHovered = false
-    let editingLockJustToggled = false
-
+    // Whether to show the edit-lock icon in the edit button.
     $: showEditingLockedIcon = (
         (
             editing
@@ -167,13 +143,6 @@
             && !editButtonHovered
         )
     ) ? true : false
-    
-    
-    
-
-    
-    // Note title (Thing text).
-    $: title = graph.pThing ? graph.pThing.text : "THING NOT FOUND IN STORE"
 
 
 
@@ -227,8 +196,13 @@
             if (hyperlink.href.startsWith(`${protocol}://`)) isRegularHyperlink = true
         }
 
-        // If the hyperlink follows a special Thing-link protocol,
-        if (!isRegularHyperlink) {
+        // If the hyperlink follows a normal protocol,
+        if (isRegularHyperlink) {
+            // For editing mode, reimplement normal opening of hyperlinks.
+            if (editing) window.open(hyperlink.href, hyperlink.target)
+        
+        // Else, if the hyperlink follows a special Thing-link protocol,
+        } else {
             // Prevent the default handler.
             event.preventDefault()
 
