@@ -50,7 +50,7 @@
 
     <!-- History list. -->
     <div class="content">
-        {#each historyToUse as entryOrDivider}
+        {#each historyToUse as entryOrDivider, index}
 
             <!-- History entry. -->
             {#if "thingId" in entryOrDivider}
@@ -79,7 +79,10 @@
                     on:keydown={()=>{}}
                 >
                     { entryOrDivider.thing?.text || `(THING ${entryOrDivider.thingId} NOT FOUND IN STORE)` }
-                    {#if entryOrDivider.thingId === graph.history.selectedThingId}
+                    {#if (
+                        (useUniqueHistory && entryOrDivider.thingId === graph.history.selectedThingId)
+                        || (!useUniqueHistory && ((historyToUse.length - 1) - index) === graph.history.position)
+                    )}
                         <div class="logo-icon-container">
                             <img
                                 src="./icons/perspective.png"
