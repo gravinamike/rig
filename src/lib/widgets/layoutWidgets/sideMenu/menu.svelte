@@ -9,6 +9,7 @@
     
     /**
      * @param subMenuInfos - Array of objects configuring the sub-menus.
+     * @param defaultOpenSubMenuName - The name of the sub-menu that is opened when the menu is opened.
      * @param openedSubMenuName - The name of the currently opened sub-menu.
      * @param openWidth - The width of the side menu when it is open.
      * @param openTime - The time (in milliseconds) it takes for the side-menu to open/close.
@@ -16,7 +17,9 @@
      * @param slideDirection - Whether the side-menu slides open towards the right or the left.
      */
     export let subMenuInfos: { name: string, icon: string }[]
+    export let defaultOpenSubMenuName: string
     export let openedSubMenuName: string | null
+    export let open: boolean = false
     export let openWidth = 200
     export let openTime = 200
     export let overlapPage = false
@@ -26,8 +29,7 @@
     // Size of the menu buttons.
     const buttonSize = 30
 
-    // Initialize the "open" flag based on whether any sub-menu is open.
-    let open = !!openedSubMenuName
+    openedSubMenuName = defaultOpenSubMenuName
 
     // The "width" attribute is derived from the base width and the tweened
     // "percentOpen" value.
@@ -71,10 +73,12 @@
 
     function handleMouseEnter() {
         open = true
+        openedSubMenuName = defaultOpenSubMenuName
     }
 
     function handleMouseLeave() {
         open = false
+        openedSubMenuName = defaultOpenSubMenuName
     }
 </script>
 
@@ -139,6 +143,7 @@
                 class="button"
                 class:opened-menu={openedSubMenuName !== null && openedSubMenuName === info.name}
 
+                on:mouseenter={ () => { openedSubMenuName = info.name } }
                 on:click={ () => { handleButtonClick(info.name) } }
                 on:keydown={()=>{}}
             >

@@ -72,7 +72,8 @@
             } :
             null
     ].filter(info => info !== null) as { name: string, icon: string }[]
-    let openedSubMenuName: string | null = "Notes"
+    let openedSubMenuName: string | null
+    const defaultOpenSubMenuName = "Notes"
 
 
     // Refresh the viewer whenever...
@@ -247,7 +248,9 @@
     <!-- Content side-menu. -->
     <SideMenu
         {subMenuInfos}
+        {defaultOpenSubMenuName}
         bind:openedSubMenuName
+        open={true}
         openWidth={500}
         openTime={250}
         overlapPage={false}

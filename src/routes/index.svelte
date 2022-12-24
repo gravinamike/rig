@@ -100,7 +100,8 @@
             icon: "thing"
         }
     ].filter(info => info !== null) as { name: string, icon: string }[]
-    let openedSubMenuName: string | null = "Thing"
+    let openedSubMenuName: string | null
+    const defaultOpenSubMenuName = "Thing"
 
 
     // Initialize open-Graph store and which side menu to open.
@@ -195,6 +196,7 @@
     <!-- Side-menu. -->
     <SideMenu
         {subMenuInfos}
+        {defaultOpenSubMenuName}
         bind:openedSubMenuName
         openWidth={400}
         openTime={250}
