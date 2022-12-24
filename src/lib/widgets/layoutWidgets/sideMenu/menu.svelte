@@ -63,7 +63,26 @@
             openedSubMenuName = null
         }
     }
+
+
+
+    let mousePressed = false
+    let lockedOpen = true
+
+    function handleMouseEnter() {
+        open = true
+    }
+
+    function handleMouseLeave() {
+        open = false
+    }
 </script>
+
+
+<svelte:body
+    on:mousedown={() => {mousePressed = true}}
+    on:mouseup={() => {mousePressed = false}}
+/>
 
 
 <!-- Side menu. -->
@@ -73,6 +92,9 @@
     class:slide-left={slideDirection === "left"}
 
     style="width: {width}px;"
+
+    on:mouseenter={handleMouseEnter}
+    on:mouseleave={handleMouseLeave}
 >
     
     <!-- Menu content. -->
@@ -90,7 +112,16 @@
             </div>
         {/if}
     </div>
-    
+
+    <!-- Hover-open strip. -->
+    <div
+        class="hover-open-strip"
+        class:slide-right={slideDirection === "right"}
+        class:slide-left={slideDirection === "left"}
+        class:no-pointer-events={lockedOpen && mousePressed}
+
+        style="width: {buttonSize + 20}px;"
+    />
 
     <!-- Menu buttons. -->
     <div
@@ -159,6 +190,25 @@
 
     .content.overlap-page.slide-left {
         left: 0px;
+    }
+
+    .hover-open-strip {
+        position: absolute;
+        top: 0;
+        z-index: 1;
+        height: 100%;
+    }
+
+    .hover-open-strip.slide-right {
+        left: 100%;
+    }
+
+    .hover-open-strip.slide-left {
+        right: 100%;
+    }
+
+    .hover-open-strip.no-pointer-events {
+        pointer-events: none;
     }
 
     .side-menu-buttons {
