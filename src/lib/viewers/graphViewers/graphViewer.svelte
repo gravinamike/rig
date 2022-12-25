@@ -251,6 +251,7 @@
         {defaultOpenSubMenuName}
         bind:openedSubMenuName
         open={true}
+        lockedOpen={true}
         openWidth={500}
         openTime={250}
         overlapPage={false}

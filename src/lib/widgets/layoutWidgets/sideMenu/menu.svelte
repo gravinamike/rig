@@ -3,9 +3,6 @@
     import { tweened } from "svelte/motion"
     import { cubicOut } from "svelte/easing"
 
-    // Import utility functions.
-    import { sleep } from "$lib/shared/utility"
-
     
     /**
      * @param subMenuInfos - Array of objects configuring the sub-menus.
@@ -20,6 +17,7 @@
     export let defaultOpenSubMenuName: string
     export let openedSubMenuName: string | null
     export let open: boolean = false
+    export let lockedOpen = false
     export let openWidth = 200
     export let openTime = 200
     export let overlapPage = false
@@ -46,9 +44,16 @@
      * @param name - Name of the menu button that was clicked.
      */
     async function handleButtonClick(name: string) {
+        if (defaultOpenSubMenuName !== name) {
+            defaultOpenSubMenuName = name
+        } else {
+            lockedOpen = !lockedOpen
+        }
+        
+        /////////////////////////////////////////////////////////////////////// BEFORE DELETING, MAKE SURE THINGS WORK PROPERLY ON THE OVERLAP-PAGE VERSION TOO.
         // If there is a sub-menu currently open and a different sub-menu was
         // specified, switch to the new sub-menu.
-        if (openedSubMenuName !== null && openedSubMenuName !== name) {
+        /*if (openedSubMenuName !== null && openedSubMenuName !== name) {
             openedSubMenuName = name
 
         // Else, if there is currently no sub-menu open, open the specified sub-
@@ -63,13 +68,12 @@
             open = false
             await sleep(openTime) // Wait for the menu to close fully before hiding the content.
             openedSubMenuName = null
-        }
+        }*/
     }
 
 
 
     let mousePressed = false
-    let lockedOpen = true
 
     function handleMouseEnter() {
         open = true
@@ -77,7 +81,9 @@
     }
 
     function handleMouseLeave() {
-        open = false
+        if (!lockedOpen) {
+            open = false
+        }
         openedSubMenuName = defaultOpenSubMenuName
     }
 </script>
@@ -142,6 +148,7 @@
             <div
                 class="button"
                 class:opened-menu={openedSubMenuName !== null && openedSubMenuName === info.name}
+                class:locked-menu={lockedOpen && defaultOpenSubMenuName === info.name}
 
                 on:mouseenter={ () => { openedSubMenuName = info.name } }
                 on:click={ () => { handleButtonClick(info.name) } }
@@ -256,6 +263,13 @@
 
 		cursor: default;
 	}
+
+    .button.locked-menu {
+        outline: solid 1px grey;
+        opacity: 0.33;
+
+        background-color: white;
+    }
 
 	.button.opened-menu {
         outline: solid 1px grey;
