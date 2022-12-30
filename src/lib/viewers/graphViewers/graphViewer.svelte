@@ -231,7 +231,9 @@
 
 
 <!-- Graph viewer. -->
-<div class="graph-viewer">
+<div
+    class="graph-viewer"
+>
 
     <!-- Graph Widget -->
     <div class="graph-widget-container">
@@ -254,7 +256,7 @@
         bind:openedSubMenuName
         open={false}
         lockedOpen={false}
-        openWidth={500}
+        openWidth={(window.innerWidth - 250) * 0.5}
         openTime={500}
         overlapPage={false}
         slideDirection={"left"}
@@ -316,7 +318,7 @@
     }
 
     .graph-outline-widget-container {
-        width: 750px;
+        width: 100%;
         height: 100%;
         background-color: #fafafa;
     }

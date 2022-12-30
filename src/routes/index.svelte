@@ -201,8 +201,6 @@
         {subMenuInfos}
         {defaultOpenSubMenuName}
         bind:openedSubMenuName
-        openWidth={250}
-        openTime={500}
         overlapPage={false}
     >
         <!-- Thing menu. -->

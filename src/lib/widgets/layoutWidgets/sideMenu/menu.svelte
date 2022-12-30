@@ -18,8 +18,8 @@
     export let openedSubMenuName: string | null
     export let open: boolean = false
     export let lockedOpen = false
-    export let openWidth = 200
-    export let openTime = 200
+    export let openWidth = 250
+    export let openTime = 500
     export let overlapPage = false
     export let slideDirection: "right" | "left" = "right"
 
@@ -285,8 +285,6 @@
     .button.locked-menu {
         outline: solid 1px grey;
         opacity: 0.33;
-
-        background-color: white;
     }
 
 	.button.opened-menu {
@@ -294,6 +292,10 @@
         opacity: 0.75;
 
         background-color: white;
+    }
+
+    .button.locked-menu {
+        background-color: #F8F8F8;
     }
 
     .button:hover {
