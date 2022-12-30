@@ -71,35 +71,38 @@
 
     // Initialize side-menu configuration.
     $: subMenuInfos = [
-        
-        
-        {
-            name: "About",
-            icon: "about"
-        },
-        {
-            name: "File",
-            icon: "file"
-        },
-        $devMode ?
+        [
             {
-                name: "Dev",
-                icon: "dev"
-            } :
-            null,
-        {
-            name: "Settings",
-            icon: "settings"
-        },
-        {
-            name: "Space",
-            icon: "space"
-        },
-        {
-            name: "Thing",
-            icon: "thing"
-        }
-    ].filter(info => info !== null) as { name: string, icon: string }[]
+                name: "About",
+                icon: "about"
+            },
+            {
+                name: "File",
+                icon: "file"
+            }
+        ].filter(info => info !== null) as { name: string, icon: string }[],
+
+        [
+            {
+                name: "Thing",
+                icon: "thing"
+            },
+            {
+                name: "Space",
+                icon: "space"
+            },
+            {
+                name: "Settings",
+                icon: "settings"
+            },
+            $devMode ?
+                {
+                    name: "Dev",
+                    icon: "dev"
+                } :
+                null
+        ].filter(info => info !== null) as { name: string, icon: string }[]
+    ]
     let openedSubMenuName: string | null
     const defaultOpenSubMenuName = "Thing"
 

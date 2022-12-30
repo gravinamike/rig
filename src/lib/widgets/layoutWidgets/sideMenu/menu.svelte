@@ -5,7 +5,7 @@
 
     
     /**
-     * @param subMenuInfos - Array of objects configuring the sub-menus.
+     * @param subMenuInfos - Nested array of objects configuring the sub-menus.
      * @param defaultOpenSubMenuName - The name of the sub-menu that is opened when the menu is opened.
      * @param openedSubMenuName - The name of the currently opened sub-menu.
      * @param openWidth - The width of the side menu when it is open.
@@ -13,7 +13,7 @@
      * @param overlapPage - Whether the side-menu overlaps the page (or, alternatively, displaces it).
      * @param slideDirection - Whether the side-menu slides open towards the right or the left.
      */
-    export let subMenuInfos: { name: string, icon: string }[]
+    export let subMenuInfos: { name: string, icon: string }[][]
     export let defaultOpenSubMenuName: string
     export let openedSubMenuName: string | null
     export let open: boolean = false
@@ -142,24 +142,34 @@
         style="border-radius: {buttonSize / 2}px;"
     >
 
-        {#each subMenuInfos as info}
+        <!-- Menu button groups. -->
+        {#each subMenuInfos as buttonGroup}
 
-            <!-- Menu button. -->
-            <div
-                class="button"
-                class:opened-menu={openedSubMenuName !== null && openedSubMenuName === info.name}
-                class:locked-menu={lockedOpen && defaultOpenSubMenuName === info.name}
+            <div class="button-group">
 
-                on:mouseenter={ () => { openedSubMenuName = info.name } }
-                on:click={ () => { handleButtonClick(info.name) } }
-                on:keydown={()=>{}}
-            >
-                <img
-                    src="./icons/{info.icon}.png"
-                    alt={info.name}
-                    width="{buttonSize}px"
-                    height="{buttonSize}px"
-                >
+                <!-- Menu button group. -->
+                {#each buttonGroup as info}
+
+                    <!-- Menu button. -->
+                    <div
+                        class="button"
+                        class:opened-menu={openedSubMenuName !== null && openedSubMenuName === info.name}
+                        class:locked-menu={lockedOpen && defaultOpenSubMenuName === info.name}
+
+                        on:mouseenter={ () => { openedSubMenuName = info.name } }
+                        on:click={ () => { handleButtonClick(info.name) } }
+                        on:keydown={()=>{}}
+                    >
+                        <img
+                            src="./icons/{info.icon}.png"
+                            alt={info.name}
+                            width="{buttonSize}px"
+                            height="{buttonSize}px"
+                        >
+                    </div>
+
+                {/each}
+
             </div>
 
         {/each}
@@ -224,15 +234,17 @@
     }
 
     .side-menu-buttons {
-        margin: 5px;
+        padding: 5px;
 
+        box-sizing: border-box;
         position: absolute;
         top: 0;
         z-index: 1;
+        height: 100%;
 
         display: flex;
         flex-direction: column;
-        gap: 5px;
+        justify-content: space-between;
     }
 
     .side-menu-buttons.slide-right {
@@ -245,6 +257,12 @@
 
     .side-menu-buttons:hover .button {
         opacity: 0.75;
+    }
+
+    .button-group {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
     }
 
     .button {

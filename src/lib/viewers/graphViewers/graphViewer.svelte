@@ -55,23 +55,25 @@
 
     // Side-menu configuration.
     $: subMenuInfos = [
-        $devMode ?
+        [
+            $devMode ?
+                {
+                    name: "Outline",
+                    icon: "outline"
+                } :
+                null,
             {
-                name: "Outline",
-                icon: "outline"
-            } :
-            null,
-        {
-            name: "Notes",
-            icon: "notes"
-        },
-        $devMode ?
-            {
-                name: "Attachments",
-                icon: "attachment"
-            } :
-            null
-    ].filter(info => info !== null) as { name: string, icon: string }[]
+                name: "Notes",
+                icon: "notes"
+            },
+            $devMode ?
+                {
+                    name: "Attachments",
+                    icon: "attachment"
+                } :
+                null
+        ].filter(info => info !== null) as { name: string, icon: string }[]
+    ]
     let openedSubMenuName: string | null
     const defaultOpenSubMenuName = "Notes"
 
