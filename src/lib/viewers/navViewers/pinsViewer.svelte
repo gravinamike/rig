@@ -115,13 +115,13 @@
         outline-offset: -1px;
 
         box-sizing: border-box;
-        height: 100%;
+        height: fit-content;
         background-color: #fafafa;
 
         display: flex;
         flex-direction: column;
         padding: 0.75rem 0 0.75rem 0;
-        gap: 0.75rem;
+        gap: 0.5rem;
         
         text-align: center;
 
@@ -137,14 +137,9 @@
     }
 
     .content {
-        flex: 1 1 0;
-
         display: flex;
         flex-direction: column;
         padding: 0.75rem;
         gap: 0.75rem;
-
-        overflow-y: auto;
-        scrollbar-width: thin;
     }
   </style>

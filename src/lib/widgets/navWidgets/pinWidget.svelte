@@ -77,7 +77,7 @@
         gap: 10px;
 
         text-align: left;
-        font-size: 1rem;
+        font-size: 0.85rem;
 
         cursor: default;
     }

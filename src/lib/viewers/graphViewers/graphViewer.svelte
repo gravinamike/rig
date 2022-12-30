@@ -252,10 +252,10 @@
         {subMenuInfos}
         {defaultOpenSubMenuName}
         bind:openedSubMenuName
-        open={true}
-        lockedOpen={true}
+        open={false}
+        lockedOpen={false}
         openWidth={500}
-        openTime={250}
+        openTime={500}
         overlapPage={false}
         slideDirection={"left"}
     >

@@ -19,6 +19,8 @@
      */
     export let graph: Graph
     export let rePerspectToThingId: (thingId: number) => Promise<void>
+    export let back: () => void
+    export let forward: () => void
 
 
     let useUniqueHistory = true
@@ -35,17 +37,33 @@
 <!-- History viewer. -->
 <div class="history-viewer">
 
-    <!-- Title. -->
-    <div class="title">
-        <h4>History</h4>
-    </div>
-
     <!-- Toggle to use unique or full history. -->
     <div class="unique-toggle {useUniqueHistory ? "toggled": ""}">
         Unique
         <Toggle
             bind:toggled={useUniqueHistory}
         />
+    </div>
+
+    <!-- Title. -->
+    <div class="title">
+        <h4>History</h4>
+    </div>
+
+    <!-- Navigate back and forth buttons. -->
+    <div class="back-and-forth-buttons">
+        <button
+            on:click={back}
+            on:keydown={()=>{}}
+        >
+            ◄
+        </button>
+        <button
+            on:click={forward}
+            on:keydown={()=>{}}
+        >
+            ►
+        </button>
     </div>
 
     <!-- History list. -->
@@ -124,7 +142,7 @@
         display: flex;
         flex-direction: column;
         padding: 0.75rem 0 0.75rem 0;
-        gap: 0.75rem;
+        gap: 1rem;
         
         text-align: center;
 
@@ -141,7 +159,7 @@
 
     .unique-toggle {
         position: absolute;
-        right: 5px;
+        left: 10px;
         top: 16px;
 
         display: flex;
@@ -155,6 +173,21 @@
 
     .unique-toggle.toggled {
         color: darkgrey;
+    }
+
+    .back-and-forth-buttons {
+        position: absolute;
+        top: 2px;
+        right: 1px;
+
+        display: flex;
+        flex-direction: row;
+        padding: 5px;
+        gap: 5px;
+    }
+
+    button {
+        font-size: 1.25rem;
     }
 
     .content {

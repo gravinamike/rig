@@ -201,55 +201,38 @@
         {subMenuInfos}
         {defaultOpenSubMenuName}
         bind:openedSubMenuName
-        openWidth={400}
-        openTime={250}
+        openWidth={250}
+        openTime={500}
         overlapPage={false}
     >
         <!-- Thing menu. -->
         {#if openedSubMenuName === "Thing"}
             <div class="navigation-view">
-                <div class="search-back-and-forth-buttons-container">
-                    <!-- Thing searchbox. -->
-                    <div class="search-container">
-                        <ThingSearchboxViewer
-                            {rePerspectToThingId}
-                        />
-                    </div>
-
-                    <!-- Navigate back and forth buttons. -->
-                    <div class="back-and-forth-buttons">
-                        <button
-                            on:click={back}
-                            on:keydown={()=>{}}
-                        >
-                            ◄
-                        </button>
-                        <button
-                            on:click={forward}
-                            on:keydown={()=>{}}
-                        >
-                            ►
-                        </button>
-                    </div>
+                <!-- Thing searchbox. -->
+                <div class="search-container">
+                    <ThingSearchboxViewer
+                        {rePerspectToThingId}
+                    />
                 </div>
 
                 <div class="pins-history-container">        
-                    <!-- Graph pins viewer -->
-                    <div class="pins-container">
-                        <PinsViewer
-                            {rePerspectToThingId}
-                        />
-                    </div>
-
                     <!-- Graph history viewer -->
                     {#if graph}
                         <div class="history-container">
                             <HistoryViewer
                                 bind:graph
                                 {rePerspectToThingId}
+                                {back}
+                                {forward}
                             />
                         </div>
                     {/if}
+                    <!-- Graph pins viewer -->
+                    <div class="pins-container">
+                        <PinsViewer
+                            {rePerspectToThingId}
+                        />
+                    </div>
                 </div>
             </div>
 
@@ -409,50 +392,24 @@
         overflow-y: hidden;
     }
 
-    .search-back-and-forth-buttons-container {
-        outline: solid 1px lightgrey;
-        outline-offset: -1px;
-
-        background-color: #fafafa;
-
-        display: flex;
-    }
-
-    .search-container {
-        flex: 1 1 0;
-    }
-
-    .back-and-forth-buttons {
-        display: flex;
-        flex-direction: row;
-        padding: 5px;
-        gap: 5px;
-    }
-
-    button {
-        font-size: 1.25rem;
-    }
-
     .pins-history-container {
         flex: 1 1 auto;
 
         position: relative;
 
         display: flex;
-        flex-direction: row;
+        flex-direction: column;
 
         overflow:hidden;
     }
 
-    .pins-container {
-        width: 45%;
+    .history-container {
+        flex: 1 1 auto;
 
         overflow: hidden;
     }
 
-    .history-container {
-        width: 55%;
-
+    .pins-container {
         overflow: hidden;
     }
 
@@ -461,15 +418,15 @@
         height: 100%;
 
         display: flex;
-        flex-direction: row;
+        flex-direction: column;
     }
 
     .directions-container {
-        width: 50%;
+        height: 33%;
     }
 
     .spaces-container {
-        width: 55%;
+        height: 67%;
 
         scrollbar-width: thin;
     }

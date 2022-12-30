@@ -255,7 +255,7 @@
         right: 100%;
     }
 
-    .side-menu-buttons:hover .button {
+    .button-group:hover .button {
         opacity: 0.75;
     }
 
