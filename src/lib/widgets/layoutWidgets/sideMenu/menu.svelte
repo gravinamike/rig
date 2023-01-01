@@ -2,6 +2,7 @@
     // Import basic framework resources.
     import { tweened } from "svelte/motion"
     import { cubicOut } from "svelte/easing"
+    import { onMobile, sleep } from "$lib/shared/utility";
 
     
     /**
@@ -28,6 +29,7 @@
     const buttonSize = 30
 
     openedSubMenuName = defaultOpenSubMenuName
+    let lockedSubMenuName: string | null = openedSubMenuName
 
     // The "width" attribute is derived from the base width and the tweened
     // "percentOpen" value.
@@ -44,11 +46,26 @@
      * @param name - Name of the menu button that was clicked.
      */
     async function handleButtonClick(name: string) {
-        if (defaultOpenSubMenuName !== name) {
+
+        if (lockedSubMenuName === name && open) {
+            lockedOpen = false
+            open = false
+            await sleep(openTime) // Wait for the menu to close fully before hiding the content.
+            openedSubMenuName = defaultOpenSubMenuName
+            lockedSubMenuName = null
+        } else {
+            openedSubMenuName = name
+            lockedSubMenuName = name
+            open = true
+            lockedOpen = true
+        }
+
+
+        /*if (defaultOpenSubMenuName !== name) {
             defaultOpenSubMenuName = name
         } else {
             lockedOpen = !lockedOpen
-        }
+        }*/
         
         /////////////////////////////////////////////////////////////////////// BEFORE DELETING, MAKE SURE THINGS WORK PROPERLY ON THE OVERLAP-PAGE VERSION TOO.
         // If there is a sub-menu currently open and a different sub-menu was
@@ -71,20 +88,29 @@
         }*/
     }
 
+    function handleButtonMouseEnter(name: string) {
+        if (open) openedSubMenuName = name
+    }
+
+
+
 
 
     let mousePressed = false
 
     function handleMouseEnter() {
         open = true
-        openedSubMenuName = defaultOpenSubMenuName
     }
 
-    function handleMouseLeave() {
+    async function handleMouseLeave() {
         if (!lockedOpen) {
             open = false
+            await sleep(openTime) // Wait for the menu to close fully before hiding the content.
+            openedSubMenuName = defaultOpenSubMenuName
+        } else {
+            openedSubMenuName = lockedSubMenuName
         }
-        openedSubMenuName = defaultOpenSubMenuName
+        
     }
 </script>
 
@@ -103,12 +129,15 @@
 
     style="width: {width}px;"
 
-    on:mouseenter={handleMouseEnter}
     on:mouseleave={handleMouseLeave}
 >
     
     <!-- Menu content. -->
-    <div style="position: relative; width: 100%; height: 100%; overflow: hidden;">
+    <div
+        style="position: relative; width: 100%; height: 100%; overflow: hidden;"
+
+        on:mouseenter={handleMouseEnter}
+    >
         {#if width > 0}
             <div
                 class="content"
@@ -123,15 +152,19 @@
         {/if}
     </div>
 
-    <!-- Hover-open strip. -->
-    <div
-        class="hover-open-strip"
-        class:slide-right={slideDirection === "right"}
-        class:slide-left={slideDirection === "left"}
-        class:no-pointer-events={lockedOpen && mousePressed}
+    <!-- Hover-open strip. --><!------------------------------------------------------------------------->
+    {#if !onMobile()}
+        <div
+            class="hover-open-strip"
+            class:slide-right={slideDirection === "right"}
+            class:slide-left={slideDirection === "left"}
+            class:no-pointer-events={lockedOpen && mousePressed}
 
-        style="width: {buttonSize + 20}px;"
-    />
+            style="width: {buttonSize + 20}px;"
+
+            on:mouseenter={handleMouseEnter}
+        />
+    {/if}
 
     <!-- Menu buttons. -->
     <div
@@ -154,9 +187,9 @@
                     <div
                         class="button"
                         class:opened-menu={openedSubMenuName !== null && openedSubMenuName === info.name}
-                        class:locked-menu={lockedOpen && defaultOpenSubMenuName === info.name}
+                        class:locked-menu={lockedOpen && lockedSubMenuName === info.name}
 
-                        on:mouseenter={ () => { openedSubMenuName = info.name } }
+                        on:mouseenter={ () => handleButtonMouseEnter(info.name) }
                         on:click={ () => { handleButtonClick(info.name) } }
                         on:keydown={()=>{}}
                     >
@@ -219,6 +252,8 @@
         top: 0;
         z-index: 1;
         height: 100%;
+
+        background-color: pink;
     }
 
     .hover-open-strip.slide-right {
@@ -234,8 +269,6 @@
     }
 
     .side-menu-buttons {
-        padding: 5px;
-
         box-sizing: border-box;
         position: absolute;
         top: 0;
@@ -245,6 +278,8 @@
         display: flex;
         flex-direction: column;
         justify-content: space-between;
+
+        pointer-events: none;
     }
 
     .side-menu-buttons.slide-right {
@@ -262,7 +297,11 @@
     .button-group {
         display: flex;
         flex-direction: column;
+        padding: 5px;
         gap: 5px;
+
+        pointer-events: auto;
+        background-color: green;
     }
 
     .button {

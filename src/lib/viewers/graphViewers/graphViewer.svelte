@@ -4,7 +4,7 @@
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
     
     // Import utility functions.
-    import { sleep } from "$lib/shared/utility"
+    import { onMobile, sleep } from "$lib/shared/utility"
 
     // Import stores.
     import { devMode, addGraph, removeGraph, hoveredThingIdStore, openGraphStore, graphIdsNeedingViewerRefresh, addGraphIdsNeedingViewerRefresh, removeGraphIdsNeedingViewerRefresh, perspectiveThingIdStore } from "$lib/stores"
@@ -221,6 +221,17 @@
             addGraphIdsNeedingViewerRefresh(graph.id)
         }
     }
+
+
+
+
+    $: sideMenuWidth = 
+        onMobile() ? 250 :
+        (window.innerWidth - 250) * 0.5
+
+
+
+
 </script>
 
 
@@ -256,7 +267,7 @@
         bind:openedSubMenuName
         open={false}
         lockedOpen={false}
-        openWidth={(window.innerWidth - 250) * 0.5}
+        openWidth={sideMenuWidth}
         openTime={500}
         overlapPage={false}
         slideDirection={"left"}
