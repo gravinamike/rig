@@ -49,7 +49,7 @@
      */
     async function handleButtonClick(name: string) {
 
-        if (lockedSubMenuName === name && open) {
+        if (lockedOpen && lockedSubMenuName === name && open) {
             lockedOpen = false
             lockedSubMenuName = null
             close()
