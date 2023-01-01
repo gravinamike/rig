@@ -39,6 +39,8 @@
     export let graph: Graph | null = null
     export let graphWidgetStyle: GraphWidgetStyle = {...defaultGraphWidgetStyle}
     export let allowZoomAndScrollToFit = false
+    export let rightMenuOpen: boolean
+    export let closeRightMenu: () => {}
     export let rePerspectToThingId: (thingId: number, updateHistory?: boolean, zoomAndScroll?: boolean) => Promise<void>
     export let back: () => void
     export let forward: () => void
@@ -265,12 +267,13 @@
         {subMenuInfos}
         {defaultOpenSubMenuName}
         bind:openedSubMenuName
-        open={false}
+        bind:open={rightMenuOpen}
         lockedOpen={false}
         openWidth={sideMenuWidth}
         openTime={500}
         overlapPage={false}
         slideDirection={"left"}
+        bind:close={closeRightMenu}
     >
         <!-- Outline viewer. -->
         {#if openedSubMenuName === "Outline"}

@@ -13,6 +13,7 @@
      * @param openTime - The time (in milliseconds) it takes for the side-menu to open/close.
      * @param overlapPage - Whether the side-menu overlaps the page (or, alternatively, displaces it).
      * @param slideDirection - Whether the side-menu slides open towards the right or the left.
+     * @param close - Method to close the side-menu.
      */
     export let subMenuInfos: { name: string, icon: string }[][]
     export let defaultOpenSubMenuName: string
@@ -23,6 +24,7 @@
     export let openTime = 500
     export let overlapPage = false
     export let slideDirection: "right" | "left" = "right"
+    export let close: () => void = () => {}
 
 
     // Size of the menu buttons.
@@ -49,10 +51,8 @@
 
         if (lockedSubMenuName === name && open) {
             lockedOpen = false
-            open = false
-            await sleep(openTime) // Wait for the menu to close fully before hiding the content.
-            openedSubMenuName = defaultOpenSubMenuName
             lockedSubMenuName = null
+            close()
         } else {
             openedSubMenuName = name
             lockedSubMenuName = name
@@ -94,6 +94,12 @@
 
 
 
+    close = async () => {
+        open = false
+        await sleep(openTime) // Wait for the menu to close fully before hiding the content.
+        openedSubMenuName = defaultOpenSubMenuName
+    }
+
 
 
     let mousePressed = false
@@ -104,9 +110,7 @@
 
     async function handleMouseLeave() {
         if (!lockedOpen) {
-            open = false
-            await sleep(openTime) // Wait for the menu to close fully before hiding the content.
-            openedSubMenuName = defaultOpenSubMenuName
+            close()
         } else {
             openedSubMenuName = lockedSubMenuName
         }
@@ -252,8 +256,6 @@
         top: 0;
         z-index: 1;
         height: 100%;
-
-        background-color: pink;
     }
 
     .hover-open-strip.slide-right {
@@ -301,7 +303,6 @@
         gap: 5px;
 
         pointer-events: auto;
-        background-color: green;
     }
 
     .button {
@@ -331,10 +332,6 @@
         opacity: 0.75;
 
         background-color: white;
-    }
-
-    .button.locked-menu {
-        background-color: #F8F8F8;
     }
 
     .button:hover {

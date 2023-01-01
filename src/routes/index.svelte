@@ -39,6 +39,7 @@
     // Import API methods.
     import { openUnigraph } from "$lib/shared/unigraph"
     import { getFontNames } from "$lib/db/clientSide/getInfo"
+    import { onMobile } from "$lib/shared/utility";
 
 
     // Initialize states for waiting indicator.
@@ -154,6 +155,19 @@
             $loadingState = "graphLoaded"
         }
 	})
+
+
+
+    let leftMenuOpen: boolean
+    let rightMenuOpen: boolean
+    let closeLeftMenu: () => {}
+    let closeRightMenu: () => {}
+
+    $: if (onMobile() && window.innerWidth < 600 && leftMenuOpen) closeRightMenu()
+    $: if (onMobile() && window.innerWidth < 600 && rightMenuOpen) closeLeftMenu()
+
+
+
 </script>
 
 
@@ -201,7 +215,9 @@
         {subMenuInfos}
         {defaultOpenSubMenuName}
         bind:openedSubMenuName
+        bind:open={leftMenuOpen}
         overlapPage={false}
+        bind:close={closeLeftMenu}
     >
         <!-- Thing menu. -->
         {#if openedSubMenuName === "Thing"}
@@ -340,6 +356,8 @@
             bind:graph
             bind:graphWidgetStyle
             bind:allowZoomAndScrollToFit
+            bind:rightMenuOpen
+            bind:closeRightMenu
             bind:rePerspectToThingId
             bind:back
             bind:forward
