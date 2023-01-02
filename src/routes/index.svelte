@@ -12,7 +12,7 @@
     import { storeAppConfig } from "$lib/shared/config"
 
     // Import database/stores-related functions.
-    import { devMode, fontNames, loadingState, openGraphStore, perspectiveThingIdStore, reorderingInfoStore, updateMousePosition, updateRelationshipBeingCreatedEndpoint } from "$lib/stores"
+    import { devMode, fontNames, leftSideMenuStore, loadingState, openGraphStore, perspectiveThingIdStore, reorderingInfoStore, updateMousePosition, updateRelationshipBeingCreatedEndpoint } from "$lib/stores"
 
     // Import widgets.
     import {
@@ -105,6 +105,7 @@
         ].filter(info => info !== null) as { name: string, icon: string }[]
     ]
     let openedSubMenuName: string | null
+    let lockedSubMenuName: string | null
     const defaultOpenSubMenuName = "Thing"
 
 
@@ -150,6 +151,10 @@
             $loadingState = "graphLoading"
 
             await openUnigraph()
+            leftMenuOpen = !!$leftSideMenuStore
+            leftMenuLockedOpen = !!$leftSideMenuStore
+            openedSubMenuName = $leftSideMenuStore
+            lockedSubMenuName = $leftSideMenuStore
             openGraphStore.set(appConfig.unigraphFolder)
 
             $loadingState = "graphLoaded"
@@ -159,6 +164,7 @@
 
 
     let leftMenuOpen: boolean
+    let leftMenuLockedOpen: boolean
     let rightMenuOpen: boolean
     let closeLeftMenu: () => {}
     let closeRightMenu: () => {}
@@ -170,7 +176,6 @@
 
 
     let height: number
-    $: console.log(height)
     $: useTabbedLayout = height < 500
 
 
@@ -226,7 +231,10 @@
         {defaultOpenSubMenuName}
         bind:openedSubMenuName
         bind:open={leftMenuOpen}
+        bind:lockedOpen={leftMenuLockedOpen}
+        bind:lockedSubMenuName
         overlapPage={false}
+        stateStore={leftSideMenuStore}
         bind:close={closeLeftMenu}
     >
         <!-- Thing menu. -->

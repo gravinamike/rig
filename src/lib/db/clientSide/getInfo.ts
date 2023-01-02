@@ -163,8 +163,14 @@ export async function getGraphConfig(): Promise<GraphConfig | false> {
 
     // If the response is ok,
     if (res.ok) {
-        const graphConfig = await res.json() as GraphConfig
-        return graphConfig
+        const graphConfig = await res.json()
+
+        // If the config is from an older version that doesn't contain certain
+        // keys, add these keys.
+        if (!("leftSideMenu" in graphConfig)) graphConfig["leftSideMenu"] = null
+        if (!("rightSideMenu" in graphConfig)) graphConfig["rightSideMenu"] = null
+
+        return graphConfig as GraphConfig
 
     // Handle errors if needed.
     } else {

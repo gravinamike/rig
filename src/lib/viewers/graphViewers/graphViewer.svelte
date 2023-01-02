@@ -7,7 +7,7 @@
     import { onMobile, sleep } from "$lib/shared/utility"
 
     // Import stores.
-    import { devMode, addGraph, removeGraph, hoveredThingIdStore, openGraphStore, graphIdsNeedingViewerRefresh, addGraphIdsNeedingViewerRefresh, removeGraphIdsNeedingViewerRefresh, perspectiveThingIdStore } from "$lib/stores"
+    import { devMode, addGraph, removeGraph, hoveredThingIdStore, openGraphStore, graphIdsNeedingViewerRefresh, addGraphIdsNeedingViewerRefresh, removeGraphIdsNeedingViewerRefresh, perspectiveThingIdStore, rightSideMenuStore } from "$lib/stores"
 
     // Import layout elements.
     import { SideMenu } from "$lib/widgets/layoutWidgets"
@@ -76,7 +76,9 @@
                 null
         ].filter(info => info !== null) as { name: string, icon: string }[]
     ]
+    let rightMenuLockedOpen: boolean
     let openedSubMenuName: string | null
+    let lockedSubMenuName: string | null
     const defaultOpenSubMenuName = "Notes"
 
 
@@ -125,6 +127,11 @@
         // Refresh the Graph viewers.
         showGraph = true
         addGraphIdsNeedingViewerRefresh(graph.id)
+
+        rightMenuOpen = !!$rightSideMenuStore
+        rightMenuLockedOpen = !!$rightSideMenuStore
+        openedSubMenuName = $rightSideMenuStore
+        lockedSubMenuName = $rightSideMenuStore
     }
 
     // This indicates whether a re-Perspect operation is in progress but not yet completed.
@@ -200,7 +207,7 @@
      * Allows for shift-scrolling the Perspective history.
      * @param event - The mouse-wheel event that triggered the method.
      */
-     async function handleWheel(event: WheelEvent) {
+    async function handleWheel(event: WheelEvent) {
         if (event.shiftKey) {
             if (event.deltaY > 0) {
                 back()
@@ -268,11 +275,13 @@
         {defaultOpenSubMenuName}
         bind:openedSubMenuName
         bind:open={rightMenuOpen}
-        lockedOpen={false}
+        bind:lockedOpen={rightMenuLockedOpen}
+        bind:lockedSubMenuName
         openWidth={sideMenuWidth}
         openTime={500}
         overlapPage={false}
         slideDirection={"left"}
+        stateStore={rightSideMenuStore}
         bind:close={closeRightMenu}
     >
         <!-- Outline viewer. -->

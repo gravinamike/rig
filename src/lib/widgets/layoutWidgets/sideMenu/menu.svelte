@@ -1,8 +1,12 @@
 <script lang="ts">
+    // Import types.
+    import type { Writable } from "svelte/store"
+
     // Import basic framework resources.
     import { tweened } from "svelte/motion"
     import { cubicOut } from "svelte/easing"
-    import { onMobile, sleep } from "$lib/shared/utility";
+    import { onMobile, sleep } from "$lib/shared/utility"
+    import { saveGraphConfig } from "$lib/shared/config"
 
     
     /**
@@ -13,6 +17,7 @@
      * @param openTime - The time (in milliseconds) it takes for the side-menu to open/close.
      * @param overlapPage - Whether the side-menu overlaps the page (or, alternatively, displaces it).
      * @param slideDirection - Whether the side-menu slides open towards the right or the left.
+     * @param stateStore - The store that records the state of this menu (if any).
      * @param close - Method to close the side-menu.
      */
     export let subMenuInfos: { name: string, icon: string }[][]
@@ -20,10 +25,12 @@
     export let openedSubMenuName: string | null
     export let open: boolean = false
     export let lockedOpen = false
+    export let lockedSubMenuName: string | null = openedSubMenuName
     export let openWidth = 250
     export let openTime = 500
     export let overlapPage = false
     export let slideDirection: "right" | "left" = "right"
+    export let stateStore: Writable<string | null> | null = null
     export let close: () => void = () => {}
 
 
@@ -31,7 +38,6 @@
     const buttonSize = 30
 
     openedSubMenuName = defaultOpenSubMenuName
-    let lockedSubMenuName: string | null = openedSubMenuName
 
     // The "width" attribute is derived from the base width and the tweened
     // "percentOpen" value.
@@ -58,6 +64,11 @@
             lockedSubMenuName = name
             open = true
             lockedOpen = true
+        }
+
+        if (stateStore) {
+            stateStore.set(lockedSubMenuName)
+            saveGraphConfig()
         }
 
 
