@@ -168,6 +168,14 @@
 
 
 
+
+    let height: number
+    $: console.log(height)
+    $: useTabbedLayout = height < 500
+
+
+
+
 </script>
 
 
@@ -187,6 +195,8 @@
         && $reorderingInfoStore.thingCohort?.rowOrColumn() === "column"
     }
 
+    bind:clientHeight={height}
+    
     on:mousemove={handleMouseMove}
 >
     
@@ -229,48 +239,152 @@
                     />
                 </div>
 
-                <div class="pins-history-container">        
-                    <!-- Graph history viewer -->
-                    {#if graph}
-                        <div class="history-container">
-                            <HistoryViewer
-                                bind:graph
+                <div class="pins-history-container">
+
+                    {#if useTabbedLayout}
+
+                        <TabBlock>
+                            <TabFlaps>
+                                <TabFlap><span style="font-size: 1.25rem;">History</span></TabFlap>
+                                <TabFlap><span style="font-size: 1.25rem;">Pins</span></TabFlap>
+                            </TabFlaps>
+        
+                            <!-- Graph Schematic tab. -->
+                            <TabBody>
+                                {#if graph}
+                                    <HistoryViewer
+                                        bind:graph
+                                        {useTabbedLayout}
+                                        {rePerspectToThingId}
+                                    />
+                                {/if}
+                            </TabBody>
+                        
+                            <!-- Stores tab. --> 
+                            <TabBody>
+                                <PinsViewer
+                                    {useTabbedLayout}
+                                    {rePerspectToThingId}
+                                />
+                            </TabBody>
+                        </TabBlock>
+
+                    {:else}
+
+                        <!-- Graph history viewer -->
+                        {#if graph}
+                            <div
+                                class="history-container"
+
+                                style={
+                                    onMobile() && window.innerHeight < 500 ? "height: 50%" :
+                                    ""
+                                }
+                            >
+                                <HistoryViewer
+                                    bind:graph
+                                    {useTabbedLayout}
+                                    {rePerspectToThingId}
+                                />
+                            </div>
+                        {/if}
+                        
+                        <!-- Graph pins viewer -->
+                        <div
+                            class="pins-container"
+
+                            style={
+                                onMobile() && window.innerHeight < 500 ? "height: 50%" :
+                                ""
+                            }
+                        >
+                            <PinsViewer
+                                {useTabbedLayout}
                                 {rePerspectToThingId}
-                                {back}
-                                {forward}
                             />
                         </div>
+
                     {/if}
-                    <!-- Graph pins viewer -->
-                    <div class="pins-container">
-                        <PinsViewer
-                            {rePerspectToThingId}
-                        />
+
+                    <!-- Navigate back and forth buttons. -->
+                    <div
+                        class="back-and-forth-buttons"
+                        class:on-mobile={onMobile()}
+                    >
+                        <button
+                            on:click={back}
+                            on:keydown={()=>{}}
+                        >
+                            ◄
+                        </button>
+                        <button                        
+                            on:click={forward}
+                            on:keydown={()=>{}}
+                        >
+                            ►
+                        </button>
                     </div>
+                    
                 </div>
             </div>
 
         <!-- Space menu. -->
         {:else if openedSubMenuName === "Space"}
             <div class="directions-spaces-container">
-                {#if graph}
-                    <!-- Directions viewer. -->
-                    <div class="directions-container">
-                        <DirectionsViewer
-                            {graph}
-                            {graphWidgetStyle}
-                        />
-                    </div>
 
-                    <!-- Spaces viewer. -->
-                    <div class="spaces-container">
-                        <SpacesViewer
-                            {graph}
-                            {graphWidgetStyle}
-                            {setGraphSpace}
-                        />
-                    </div>
+                {#if useTabbedLayout}
+
+                    <TabBlock>
+                        <TabFlaps>
+                            <TabFlap><span style="font-size: 1.25rem;">Directions</span></TabFlap>
+                            <TabFlap><span style="font-size: 1.25rem;">Spaces</span></TabFlap>
+                        </TabFlaps>
+    
+                        {#if graph}
+                            <TabBody>
+                                <DirectionsViewer
+                                    {graph}
+                                    {graphWidgetStyle}
+                                    {useTabbedLayout}
+                                />
+                            </TabBody>
+                        
+                            <TabBody>
+                                <SpacesViewer
+                                    {graph}
+                                    {graphWidgetStyle}
+                                    {useTabbedLayout}
+                                    {setGraphSpace}
+                                />
+                            </TabBody>
+                        {/if}
+                    </TabBlock>
+
+                {:else}
+
+                    {#if graph}
+                        <!-- Directions viewer. -->
+                        <div class="directions-container">
+                            <DirectionsViewer
+                                {graph}
+                                {graphWidgetStyle}
+                                {useTabbedLayout}
+                            />
+                        </div>
+
+                        <!-- Spaces viewer. -->
+                        <div class="spaces-container">
+                            <SpacesViewer
+                                {graph}
+                                {graphWidgetStyle}
+                                {useTabbedLayout}
+                                {setGraphSpace}
+                            />
+                        </div>
+                    {/if}
+
                 {/if}
+
             </div>
 
         <!-- Graph settings viewer. -->
@@ -417,6 +531,35 @@
         flex-direction: column;
 
         overflow:hidden;
+    }
+
+    .back-and-forth-buttons {
+        position: absolute;
+        right: -2px;
+        top: -2px;
+
+        display: flex;
+        flex-direction: row;
+        padding: 5px;
+        gap: 5px;
+    }
+
+    .back-and-forth-buttons.on-mobile {
+        right: 0;
+        top: 0;
+    }
+
+    button {
+        height: 29px;
+
+        padding-top: 2px;
+
+        font-size: 1.25rem;
+        font-family: Serif;
+    }
+
+    .back-and-forth-buttons.on-mobile button {
+        line-height: 5px;
     }
 
     .history-container {

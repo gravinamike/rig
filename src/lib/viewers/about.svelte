@@ -21,7 +21,23 @@
     <h4>About</h4>
     
     <div>
-        This is Mike Gravina's attempt at building a domain-general, high-dimensional semantic medium.
+        <p>
+            This is Mike Gravina's attempt at building a general-purpose medium
+            for depicting how things are related to each other.
+        </p>
+        <p>
+            "Rig" is intended to overcome some of the limitations of
+            traditional, linear text. In particular, it can be difficult to
+            capture all the details of very complex systems when the content of
+            a model has to be arranged as a single long sequence, one section
+            after the other.
+        </p>
+        <p>
+            In Rig, content can be connected in many different ways, across a
+            large number of dimensions. The hope is that, together with
+            traditional forms of text, this can be useful for dealing with many
+            complex issues that are difficult to discuss with text alone.
+        </p>
     </div>
 
     <div class="secret" on:click={displaySecret} on:keydown={()=>{}}>

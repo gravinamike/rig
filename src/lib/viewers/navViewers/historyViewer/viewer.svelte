@@ -15,12 +15,12 @@
 
     /**
      * @param graph - The Graph that this widget shows the history for.
+     * 
      * @param rePerspectToThingId - Method to re-Perspect the Graph to a new Thing ID.
      */
     export let graph: Graph
+    export let useTabbedLayout: boolean
     export let rePerspectToThingId: (thingId: number) => Promise<void>
-    export let back: () => void
-    export let forward: () => void
 
 
     let useUniqueHistory = true
@@ -35,10 +35,16 @@
 </script>
 
 <!-- History viewer. -->
-<div class="history-viewer">
+<div
+    class="history-viewer"
+>
 
     <!-- Toggle to use unique or full history. -->
-    <div class="unique-toggle {useUniqueHistory ? "toggled": ""}">
+    <div
+        class="unique-toggle"
+        class:toggled={useUniqueHistory}
+        class:tabbed={useTabbedLayout}
+    >
         Unique
         <Toggle
             bind:toggled={useUniqueHistory}
@@ -46,25 +52,11 @@
     </div>
 
     <!-- Title. -->
-    <div class="title">
-        <h4>History</h4>
-    </div>
-
-    <!-- Navigate back and forth buttons. -->
-    <div class="back-and-forth-buttons">
-        <button
-            on:click={back}
-            on:keydown={()=>{}}
-        >
-            ◄
-        </button>
-        <button
-            on:click={forward}
-            on:keydown={()=>{}}
-        >
-            ►
-        </button>
-    </div>
+    {#if !useTabbedLayout}
+        <div class="title">
+            <h4>History</h4>
+        </div>
+    {/if}
 
     <!-- History list. -->
     <div class="content">
@@ -160,7 +152,7 @@
     .unique-toggle {
         position: absolute;
         left: 10px;
-        top: 16px;
+        top: 13px;
 
         display: flex;
         flex-direction: row;
@@ -171,23 +163,12 @@
         color: lightgrey;
     }
 
+    .unique-toggle.tabbed {
+        right: 10px;
+    }
+
     .unique-toggle.toggled {
         color: darkgrey;
-    }
-
-    .back-and-forth-buttons {
-        position: absolute;
-        top: 2px;
-        right: 1px;
-
-        display: flex;
-        flex-direction: row;
-        padding: 5px;
-        gap: 5px;
-    }
-
-    button {
-        font-size: 1.25rem;
     }
 
     .content {
