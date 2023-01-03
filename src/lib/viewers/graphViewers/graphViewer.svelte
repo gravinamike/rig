@@ -7,7 +7,11 @@
     import { onMobile, sleep } from "$lib/shared/utility"
 
     // Import stores.
-    import { devMode, addGraph, removeGraph, hoveredThingIdStore, openGraphStore, graphIdsNeedingViewerRefresh, addGraphIdsNeedingViewerRefresh, removeGraphIdsNeedingViewerRefresh, perspectiveThingIdStore, rightSideMenuStore } from "$lib/stores"
+    import {
+        devMode, addGraph, removeGraph, openGraphStore, perspectiveThingIdStore, hoveredThingIdStore,
+        graphIdsNeedingViewerRefresh, addGraphIdsNeedingViewerRefresh, removeGraphIdsNeedingViewerRefresh,
+        rightSideMenuStore
+    } from "$lib/stores"
 
     // Import layout elements.
     import { SideMenu } from "$lib/widgets/layoutWidgets"
@@ -46,6 +50,7 @@
     export let forward: () => void
     export let setGraphSpace: (space: Space) => void
 
+
     // Show-Graph flag. This is a kludge, to ensure that the Graph widgets are
     // completely replaced at each re-Perspect to prevent retention of state
     // information.
@@ -55,7 +60,7 @@
     let allowScrollToThingId = false
     let thingIdToScrollTo: number | null = null
 
-    // Side-menu configuration.
+    // Right side-menu configuration.
     $: subMenuInfos = [
         [
             $devMode ?
@@ -76,10 +81,13 @@
                 null
         ].filter(info => info !== null) as { name: string, icon: string }[]
     ]
-    let rightMenuLockedOpen: boolean
-    let openedSubMenuName: string | null
-    let lockedSubMenuName: string | null
     const defaultOpenSubMenuName = "Notes"
+    let openedSubMenuName: string | null
+    let rightMenuLockedOpen: boolean
+    let lockedSubMenuName: string | null
+    $: sideMenuWidth = 
+        onMobile() ? 250 :
+        (window.innerWidth - 250) * 0.5
 
 
     // Refresh the viewer whenever...
@@ -230,17 +238,6 @@
             addGraphIdsNeedingViewerRefresh(graph.id)
         }
     }
-
-
-
-
-    $: sideMenuWidth = 
-        onMobile() ? 250 :
-        (window.innerWidth - 250) * 0.5
-
-
-
-
 </script>
 
 

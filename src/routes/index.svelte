@@ -70,7 +70,7 @@
         }
     }
 
-    // Initialize side-menu configuration.
+    // Initialize left side-menu configuration.
     $: subMenuInfos = [
         [
             {
@@ -104,12 +104,24 @@
                 null
         ].filter(info => info !== null) as { name: string, icon: string }[]
     ]
-    let openedSubMenuName: string | null
-    let lockedSubMenuName: string | null
+    let leftMenuOpen: boolean
     const defaultOpenSubMenuName = "Thing"
+    let openedSubMenuName: string | null
+    let leftMenuLockedOpen: boolean
+    let lockedSubMenuName: string | null
+    let height: number
+    $: useTabbedLayout = height < 500
+    let closeLeftMenu: () => {}
 
+    // Attributes for right side-menu configuration.
+    let rightMenuOpen: boolean
+    let closeRightMenu: () => {}
 
-    // Initialize open-Graph store and which side menu to open.
+    // Set side menus to close if the other is open (only when on mobile with narrow viewport).
+    $: if (onMobile() && window.innerWidth < 600 && leftMenuOpen) closeRightMenu()
+    $: if (onMobile() && window.innerWidth < 600 && rightMenuOpen) closeLeftMenu()
+
+    // Initialize open-Graph store.
     openGraphStore.set(null)
 
     // Attributes handled by the Graph Viewer.
@@ -160,27 +172,6 @@
             $loadingState = "graphLoaded"
         }
 	})
-
-
-
-    let leftMenuOpen: boolean
-    let leftMenuLockedOpen: boolean
-    let rightMenuOpen: boolean
-    let closeLeftMenu: () => {}
-    let closeRightMenu: () => {}
-
-    $: if (onMobile() && window.innerWidth < 600 && leftMenuOpen) closeRightMenu()
-    $: if (onMobile() && window.innerWidth < 600 && rightMenuOpen) closeLeftMenu()
-
-
-
-
-    let height: number
-    $: useTabbedLayout = height < 500
-
-
-
-
 </script>
 
 
@@ -223,7 +214,6 @@
 
     <!-- Controller for Relationship-reorder operations. -->
     <RelationshipReorderController />
-
 
     <!-- Side-menu. -->
     <SideMenu

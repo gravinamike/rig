@@ -37,7 +37,11 @@
     // Size of the menu buttons.
     const buttonSize = 30
 
+    // Initialize the open submenu to the default.
     openedSubMenuName = defaultOpenSubMenuName
+
+    // Mouse-pressed flag tracks whether the mouse button is currently being held down.
+    let mousePressed = false
 
     // The "width" attribute is derived from the base width and the tweened
     // "percentOpen" value.
@@ -45,6 +49,30 @@
     $: percentOpen.set( open ? 1.0 : 0.0 )
     $: width = openWidth * $percentOpen
 
+
+    /**
+     * Handle-mouse-enter method.
+     * 
+     * When the mouse enters the side menu or hover-open strip, the menu opens.
+     */
+    function handleMouseEnter() {
+        open = true
+    }
+
+    /**
+     * Handle-mouse-leave method.
+     * 
+     * When the mouse leaves the side menu, if the menu is locked open, it
+     * switches back to the locked submenu. Otherwise, it closes.
+     */
+    async function handleMouseLeave() {
+        if (lockedOpen) {
+            openedSubMenuName = lockedSubMenuName
+        } else {
+            close()
+        }
+        
+    }
 
     /**
      * Handle-button-click method.
@@ -70,66 +98,33 @@
             stateStore.set(lockedSubMenuName)
             saveGraphConfig()
         }
-
-
-        /*if (defaultOpenSubMenuName !== name) {
-            defaultOpenSubMenuName = name
-        } else {
-            lockedOpen = !lockedOpen
-        }*/
-        
-        /////////////////////////////////////////////////////////////////////// BEFORE DELETING, MAKE SURE THINGS WORK PROPERLY ON THE OVERLAP-PAGE VERSION TOO.
-        // If there is a sub-menu currently open and a different sub-menu was
-        // specified, switch to the new sub-menu.
-        /*if (openedSubMenuName !== null && openedSubMenuName !== name) {
-            openedSubMenuName = name
-
-        // Else, if there is currently no sub-menu open, open the specified sub-
-        // menu.
-        } else if (openedSubMenuName === null) {
-            openedSubMenuName = name
-            open = true
-
-        // Otherwise (if there is currently a sub-menu open and it's the same one
-        // that was specified by the click), close the side-menu.
-        } else {
-            open = false
-            await sleep(openTime) // Wait for the menu to close fully before hiding the content.
-            openedSubMenuName = null
-        }*/
     }
 
+    /**
+     * Handle-mouse-enter-on-button method.
+     * 
+     * If the menu is already open, hovering over the button changes the current
+     * submenu to the button's submenu.
+     * @param name - Name of the menu button that was hovered.
+     */
     function handleButtonMouseEnter(name: string) {
         if (open) openedSubMenuName = name
     }
 
-
-
+    /**
+     * Close method.
+     * 
+     * Closes the side-menu and resets the submenu to the default.
+     */
     close = async () => {
         open = false
         await sleep(openTime) // Wait for the menu to close fully before hiding the content.
         openedSubMenuName = defaultOpenSubMenuName
     }
-
-
-
-    let mousePressed = false
-
-    function handleMouseEnter() {
-        open = true
-    }
-
-    async function handleMouseLeave() {
-        if (!lockedOpen) {
-            close()
-        } else {
-            openedSubMenuName = lockedSubMenuName
-        }
-        
-    }
 </script>
 
 
+<!-- Mouse up/down handlers for document body. -->
 <svelte:body
     on:mousedown={() => {mousePressed = true}}
     on:mouseup={() => {mousePressed = false}}
@@ -167,7 +162,7 @@
         {/if}
     </div>
 
-    <!-- Hover-open strip. --><!------------------------------------------------------------------------->
+    <!-- Hover-open strip. -->
     {#if !onMobile()}
         <div
             class="hover-open-strip"
