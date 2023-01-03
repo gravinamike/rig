@@ -37,6 +37,7 @@ export interface GraphConfig {
     perspectiveThingId: number
     leftSideMenu: string | null
     rightSideMenu: string | null
+    notesEditorLocked: boolean
 }
 
 export type GraphConstruct = Direction | Space | Thing | Relationship

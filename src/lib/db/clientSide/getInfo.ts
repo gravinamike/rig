@@ -169,6 +169,7 @@ export async function getGraphConfig(): Promise<GraphConfig | false> {
         // keys, add these keys.
         if (!("leftSideMenu" in graphConfig)) graphConfig["leftSideMenu"] = null
         if (!("rightSideMenu" in graphConfig)) graphConfig["rightSideMenu"] = null
+        if (!("notesEditorLocked" in graphConfig)) graphConfig["notesEditorLocked"] = null
 
         return graphConfig as GraphConfig
 

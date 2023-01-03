@@ -3,7 +3,7 @@ import { get } from "svelte/store"
 import { pinIdsStore } from "$lib/stores/pinStores"
 import { getAppConfig, getGraphConfig } from "$lib/db/clientSide/getInfo"
 import { setDbPort, setGraphsBaseFolder, setUnigraphFolder, saveAppConfig as apiSaveAppConfig, saveGraphConfig as apiSaveGraphConfig } from "$lib/db/clientSide/makeChanges"
-import { perspectiveThingIdStore, leftSideMenuStore, rightSideMenuStore } from "$lib/stores"
+import { perspectiveThingIdStore, leftSideMenuStore, rightSideMenuStore, notesEditorLockedStore } from "$lib/stores"
 
 
 // Load configuration-related values from the JSON config file.
@@ -29,6 +29,7 @@ export async function storeGraphConfig(): Promise<void> {
     perspectiveThingIdStore.set(graphConfig.perspectiveThingId)
     leftSideMenuStore.set(graphConfig.leftSideMenu)
     rightSideMenuStore.set(graphConfig.rightSideMenu)
+    notesEditorLockedStore.set(graphConfig.notesEditorLocked)
 }
 
 
@@ -43,12 +44,14 @@ export async function saveGraphConfig(): Promise<void> {
     const lastPerspectiveThingId = get(perspectiveThingIdStore)
     const leftSideMenu = get(leftSideMenuStore)
     const rightSideMenu = get(rightSideMenuStore)
+    const notesEditorLocked = get(notesEditorLockedStore)
     
     const graphConfig = {
         pinIds: pinIdsStoreValue,
         perspectiveThingId: lastPerspectiveThingId,
         leftSideMenu: leftSideMenu,
-        rightSideMenu: rightSideMenu
+        rightSideMenu: rightSideMenu,
+        notesEditorLocked: notesEditorLocked
     }
 
     await apiSaveGraphConfig(graphConfig)

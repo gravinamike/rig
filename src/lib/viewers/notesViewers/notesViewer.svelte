@@ -12,6 +12,10 @@
     import { thingsByGuid, addNoteToThing, updateNote, markNotesModified } from "$lib/db/clientSide"
 
 
+    import { notesEditorLockedStore } from "$lib/stores"
+    import { saveGraphConfig } from "$lib/shared/config"
+
+
     /**
      * @param graph - The Graph that this widget is displaying Notes for.
      * @param rePerspectToThingId - Method to re-Perspect the Graph to a given Thing ID.
@@ -25,10 +29,10 @@
     let editButton: Element
 
     // Whether Notes are displayed as plain HTML or as an editable interface.
-    let editing = false
+    let editing = $notesEditorLockedStore
 
     // Whether the viewer is locked in editing mode.
-    let editingLocked = false
+    let editingLocked = $notesEditorLockedStore
 
     // Flags for interactions with the editing button.
     let editButtonHovered = false
@@ -232,6 +236,8 @@
         } else {
             editingLocked = !editingLocked
             editingLockJustToggled = true
+            notesEditorLockedStore.set(editingLocked)
+            saveGraphConfig()
         }
     }
 </script>
