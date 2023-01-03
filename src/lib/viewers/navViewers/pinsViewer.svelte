@@ -11,9 +11,10 @@
 
     // Import related widgets.
     import { PinWidget } from "$lib/widgets/navWidgets"
-    import { changeIndexInArray } from "$lib/shared/utility";
+    import { changeIndexInArray } from "$lib/shared/utility"
 
 
+    export let useTabbedLayout: boolean
     export let rePerspectToThingId: (thingId: number) => Promise<void>
 
 
@@ -80,15 +81,31 @@
         // Update the store and the config file.
         setPins( pins.map(pin => pin.thingId) )
     }
+
+
+
 </script>
 
 
-<div class="pins-viewer">
-    <div class="title">
-        <h4>Pins</h4>
-    </div>
+<div
+    class="pins-viewer"
 
-    <div class="content">
+    style={
+        useTabbedLayout ? "height: 100%;" :
+        "height: fit-content;"
+    }
+>
+
+    {#if !useTabbedLayout}
+        <div class="title">
+            <h4>Pins</h4>
+        </div>
+    {/if}
+    
+
+    <div
+        class="content"
+    >
         {#each pins as pin, index (pin.thingId)}
             <div
                 draggable=true
@@ -115,13 +132,12 @@
         outline-offset: -1px;
 
         box-sizing: border-box;
-        height: 100%;
         background-color: #fafafa;
 
         display: flex;
         flex-direction: column;
         padding: 0.75rem 0 0.75rem 0;
-        gap: 0.75rem;
+        gap: 0.5rem;
         
         text-align: center;
 
@@ -137,8 +153,6 @@
     }
 
     .content {
-        flex: 1 1 0;
-
         display: flex;
         flex-direction: column;
         padding: 0.75rem;

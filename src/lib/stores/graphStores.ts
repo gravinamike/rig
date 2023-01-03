@@ -67,6 +67,14 @@ export const perspectiveThingIdStore = writable( 1 as number )
 
 
 
+export const leftSideMenuStore = writable( null as string | null )
+export const rightSideMenuStore = writable( null as string | null )
+export const notesEditorLockedStore = writable ( false )
+
+
+
+
+
 
 export const graphIdsNeedingViewerRefresh = writable( [] as number[] )
 

@@ -21,9 +21,11 @@
     /**
      * @param graph - The Graph that the Directions are part of.
      * @param graphWidgetStyle - Controls the visual style of the Graph.
+     * @param useTabbedLayout - Whether to use full or tabbed layout for side menus.
      */
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
+    export let useTabbedLayout: boolean
 
     // Get array of Directions.
     let unsortedDirectionIds: number[] = []
@@ -92,15 +94,23 @@
     }
 
 
+
+    let height: number
+    $: useTabbedLayout = height < 500
+
 </script>
 
 
 <!-- Directions viewer. -->
-<div class="directions-viewer">
-    <!-- Title. -->
-    <div class="title">
-        <h4>Directions</h4>
-    </div>
+<div
+    class="directions-viewer"
+>
+    {#if !useTabbedLayout}
+        <!-- Title. -->
+        <div class="title">
+            <h4>Directions</h4>
+        </div>
+    {/if}
 
     <!-- List of Directions. -->
     <div class="scrollable">

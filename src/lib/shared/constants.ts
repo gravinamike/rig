@@ -35,6 +35,9 @@ export interface WaitingIndicatorStates {
 export interface GraphConfig {
     pinIds: number[]
     perspectiveThingId: number
+    leftSideMenu: string | null
+    rightSideMenu: string | null
+    notesEditorLocked: boolean
 }
 
 export type GraphConstruct = Direction | Space | Thing | Relationship

@@ -21,10 +21,12 @@
     /**
      * @param graph - The Graph that the Directions are part of.
      * @param graphWidgetStyle - Controls the visual style of the Graph.
+     * @param useTabbedLayout - Whether to use full or tabbed layout for side menus.
      * @param setGraphSpace - Method to set the Graph's current Space.
      */
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
+    export let useTabbedLayout: boolean    
     export let setGraphSpace: (space: Space) => void
 
 
@@ -97,18 +99,19 @@
         await reorderSpace(spaceId, destIndex)
         await storeGraphDbModels("Space")
     }
-
-
-
 </script>
 
 
 <!-- Spaces viewer. -->
-<div class="spaces-viewer">
-    <!-- Title. -->
-    <div class="title">
-        <h4>Spaces</h4>
-    </div>
+<div
+    class="spaces-viewer"
+>
+    {#if !useTabbedLayout}
+        <!-- Title. -->
+        <div class="title">
+            <h4>Spaces</h4>
+        </div>
+    {/if}
 
     <!-- List of Spaces. -->
     <div class="scrollable">

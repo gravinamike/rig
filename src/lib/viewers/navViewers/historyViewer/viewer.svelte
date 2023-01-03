@@ -15,9 +15,11 @@
 
     /**
      * @param graph - The Graph that this widget shows the history for.
+     * 
      * @param rePerspectToThingId - Method to re-Perspect the Graph to a new Thing ID.
      */
     export let graph: Graph
+    export let useTabbedLayout: boolean
     export let rePerspectToThingId: (thingId: number) => Promise<void>
 
 
@@ -33,20 +35,28 @@
 </script>
 
 <!-- History viewer. -->
-<div class="history-viewer">
-
-    <!-- Title. -->
-    <div class="title">
-        <h4>History</h4>
-    </div>
+<div
+    class="history-viewer"
+>
 
     <!-- Toggle to use unique or full history. -->
-    <div class="unique-toggle {useUniqueHistory ? "toggled": ""}">
+    <div
+        class="unique-toggle"
+        class:toggled={useUniqueHistory}
+        class:tabbed={useTabbedLayout}
+    >
         Unique
         <Toggle
             bind:toggled={useUniqueHistory}
         />
     </div>
+
+    <!-- Title. -->
+    {#if !useTabbedLayout}
+        <div class="title">
+            <h4>History</h4>
+        </div>
+    {/if}
 
     <!-- History list. -->
     <div class="content">
@@ -124,7 +134,7 @@
         display: flex;
         flex-direction: column;
         padding: 0.75rem 0 0.75rem 0;
-        gap: 0.75rem;
+        gap: 1rem;
         
         text-align: center;
 
@@ -141,8 +151,8 @@
 
     .unique-toggle {
         position: absolute;
-        right: 5px;
-        top: 16px;
+        left: 10px;
+        top: 13px;
 
         display: flex;
         flex-direction: row;
@@ -151,6 +161,10 @@
 
         font-size: 0.75rem;
         color: lightgrey;
+    }
+
+    .unique-toggle.tabbed {
+        right: 10px;
     }
 
     .unique-toggle.toggled {

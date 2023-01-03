@@ -4,10 +4,14 @@
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
     
     // Import utility functions.
-    import { sleep } from "$lib/shared/utility"
+    import { onMobile, sleep } from "$lib/shared/utility"
 
     // Import stores.
-    import { devMode, addGraph, removeGraph, hoveredThingIdStore, openGraphStore, graphIdsNeedingViewerRefresh, addGraphIdsNeedingViewerRefresh, removeGraphIdsNeedingViewerRefresh, perspectiveThingIdStore } from "$lib/stores"
+    import {
+        devMode, addGraph, removeGraph, openGraphStore, perspectiveThingIdStore, hoveredThingIdStore,
+        graphIdsNeedingViewerRefresh, addGraphIdsNeedingViewerRefresh, removeGraphIdsNeedingViewerRefresh,
+        rightSideMenuStore
+    } from "$lib/stores"
 
     // Import layout elements.
     import { SideMenu } from "$lib/widgets/layoutWidgets"
@@ -39,10 +43,13 @@
     export let graph: Graph | null = null
     export let graphWidgetStyle: GraphWidgetStyle = {...defaultGraphWidgetStyle}
     export let allowZoomAndScrollToFit = false
+    export let rightMenuOpen: boolean
+    export let closeRightMenu: () => {}
     export let rePerspectToThingId: (thingId: number, updateHistory?: boolean, zoomAndScroll?: boolean) => Promise<void>
     export let back: () => void
     export let forward: () => void
     export let setGraphSpace: (space: Space) => void
+
 
     // Show-Graph flag. This is a kludge, to ensure that the Graph widgets are
     // completely replaced at each re-Perspect to prevent retention of state
@@ -53,26 +60,34 @@
     let allowScrollToThingId = false
     let thingIdToScrollTo: number | null = null
 
-    // Side-menu configuration.
+    // Right side-menu configuration.
     $: subMenuInfos = [
-        $devMode ?
+        [
+            $devMode ?
+                {
+                    name: "Outline",
+                    icon: "outline"
+                } :
+                null,
             {
-                name: "Outline",
-                icon: "outline"
-            } :
-            null,
-        {
-            name: "Notes",
-            icon: "notes"
-        },
-        $devMode ?
-            {
-                name: "Attachments",
-                icon: "attachment"
-            } :
-            null
-    ].filter(info => info !== null) as { name: string, icon: string }[]
-    let openedSubMenuName: string | null = "Notes"
+                name: "Notes",
+                icon: "notes"
+            },
+            $devMode ?
+                {
+                    name: "Attachments",
+                    icon: "attachment"
+                } :
+                null
+        ].filter(info => info !== null) as { name: string, icon: string }[]
+    ]
+    const defaultOpenSubMenuName = "Notes"
+    let openedSubMenuName: string | null
+    let rightMenuLockedOpen: boolean
+    let lockedSubMenuName: string | null
+    $: sideMenuWidth = 
+        onMobile() ? 250 :
+        (window.innerWidth - 250) * 0.5
 
 
     // Refresh the viewer whenever...
@@ -120,6 +135,11 @@
         // Refresh the Graph viewers.
         showGraph = true
         addGraphIdsNeedingViewerRefresh(graph.id)
+
+        rightMenuOpen = !!$rightSideMenuStore
+        rightMenuLockedOpen = !!$rightSideMenuStore
+        openedSubMenuName = $rightSideMenuStore
+        lockedSubMenuName = $rightSideMenuStore
     }
 
     // This indicates whether a re-Perspect operation is in progress but not yet completed.
@@ -195,7 +215,7 @@
      * Allows for shift-scrolling the Perspective history.
      * @param event - The mouse-wheel event that triggered the method.
      */
-     async function handleWheel(event: WheelEvent) {
+    async function handleWheel(event: WheelEvent) {
         if (event.shiftKey) {
             if (event.deltaY > 0) {
                 back()
@@ -228,7 +248,9 @@
 
 
 <!-- Graph viewer. -->
-<div class="graph-viewer">
+<div
+    class="graph-viewer"
+>
 
     <!-- Graph Widget -->
     <div class="graph-widget-container">
@@ -247,11 +269,17 @@
     <!-- Content side-menu. -->
     <SideMenu
         {subMenuInfos}
+        {defaultOpenSubMenuName}
         bind:openedSubMenuName
-        openWidth={500}
-        openTime={250}
+        bind:open={rightMenuOpen}
+        bind:lockedOpen={rightMenuLockedOpen}
+        bind:lockedSubMenuName
+        openWidth={sideMenuWidth}
+        openTime={500}
         overlapPage={false}
         slideDirection={"left"}
+        stateStore={rightSideMenuStore}
+        bind:close={closeRightMenu}
     >
         <!-- Outline viewer. -->
         {#if openedSubMenuName === "Outline"}
@@ -310,7 +338,7 @@
     }
 
     .graph-outline-widget-container {
-        width: 750px;
+        width: 100%;
         height: 100%;
         background-color: #fafafa;
     }

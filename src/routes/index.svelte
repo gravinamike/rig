@@ -12,7 +12,7 @@
     import { storeAppConfig } from "$lib/shared/config"
 
     // Import database/stores-related functions.
-    import { devMode, fontNames, loadingState, openGraphStore, perspectiveThingIdStore, reorderingInfoStore, updateMousePosition, updateRelationshipBeingCreatedEndpoint } from "$lib/stores"
+    import { devMode, fontNames, leftSideMenuStore, loadingState, openGraphStore, perspectiveThingIdStore, reorderingInfoStore, updateMousePosition, updateRelationshipBeingCreatedEndpoint } from "$lib/stores"
 
     // Import widgets.
     import {
@@ -39,6 +39,7 @@
     // Import API methods.
     import { openUnigraph } from "$lib/shared/unigraph"
     import { getFontNames } from "$lib/db/clientSide/getInfo"
+    import { onMobile } from "$lib/shared/utility";
 
 
     // Initialize states for waiting indicator.
@@ -69,41 +70,58 @@
         }
     }
 
-    // Initialize side-menu configuration.
+    // Initialize left side-menu configuration.
     $: subMenuInfos = [
-        
-        
-        {
-            name: "About",
-            icon: "about"
-        },
-        {
-            name: "File",
-            icon: "file"
-        },
-        $devMode ?
+        [
             {
-                name: "Dev",
-                icon: "dev"
-            } :
-            null,
-        {
-            name: "Settings",
-            icon: "settings"
-        },
-        {
-            name: "Space",
-            icon: "space"
-        },
-        {
-            name: "Thing",
-            icon: "thing"
-        }
-    ].filter(info => info !== null) as { name: string, icon: string }[]
-    let openedSubMenuName: string | null = "Thing"
+                name: "About",
+                icon: "about"
+            },
+            {
+                name: "File",
+                icon: "file"
+            }
+        ].filter(info => info !== null) as { name: string, icon: string }[],
 
+        [
+            {
+                name: "Thing",
+                icon: "thing"
+            },
+            {
+                name: "Space",
+                icon: "space"
+            },
+            {
+                name: "Settings",
+                icon: "settings"
+            },
+            $devMode ?
+                {
+                    name: "Dev",
+                    icon: "dev"
+                } :
+                null
+        ].filter(info => info !== null) as { name: string, icon: string }[]
+    ]
+    let leftMenuOpen: boolean
+    const defaultOpenSubMenuName = "Thing"
+    let openedSubMenuName: string | null
+    let leftMenuLockedOpen: boolean
+    let lockedSubMenuName: string | null
+    let height: number
+    $: useTabbedLayout = height < 500
+    let closeLeftMenu: () => {}
 
-    // Initialize open-Graph store and which side menu to open.
+    // Attributes for right side-menu configuration.
+    let rightMenuOpen: boolean
+    let closeRightMenu: () => {}
+
+    // Set side menus to close if the other is open (only when on mobile with narrow viewport).
+    $: if (onMobile() && window.innerWidth < 600 && leftMenuOpen) closeRightMenu()
+    $: if (onMobile() && window.innerWidth < 600 && rightMenuOpen) closeLeftMenu()
+
+    // Initialize open-Graph store.
     openGraphStore.set(null)
 
     // Attributes handled by the Graph Viewer.
@@ -145,6 +163,10 @@
             $loadingState = "graphLoading"
 
             await openUnigraph()
+            leftMenuOpen = !!$leftSideMenuStore
+            leftMenuLockedOpen = !!$leftSideMenuStore
+            openedSubMenuName = $leftSideMenuStore
+            lockedSubMenuName = $leftSideMenuStore
             openGraphStore.set(appConfig.unigraphFolder)
 
             $loadingState = "graphLoaded"
@@ -169,6 +191,8 @@
         && $reorderingInfoStore.thingCohort?.rowOrColumn() === "column"
     }
 
+    bind:clientHeight={height}
+    
     on:mousemove={handleMouseMove}
 >
     
@@ -191,84 +215,174 @@
     <!-- Controller for Relationship-reorder operations. -->
     <RelationshipReorderController />
 
-
     <!-- Side-menu. -->
     <SideMenu
         {subMenuInfos}
+        {defaultOpenSubMenuName}
         bind:openedSubMenuName
-        openWidth={400}
-        openTime={250}
+        bind:open={leftMenuOpen}
+        bind:lockedOpen={leftMenuLockedOpen}
+        bind:lockedSubMenuName
         overlapPage={false}
+        stateStore={leftSideMenuStore}
+        bind:close={closeLeftMenu}
     >
         <!-- Thing menu. -->
         {#if openedSubMenuName === "Thing"}
             <div class="navigation-view">
-                <div class="search-back-and-forth-buttons-container">
-                    <!-- Thing searchbox. -->
-                    <div class="search-container">
-                        <ThingSearchboxViewer
-                            {rePerspectToThingId}
-                        />
-                    </div>
+                <!-- Thing searchbox. -->
+                <div class="search-container">
+                    <ThingSearchboxViewer
+                        {rePerspectToThingId}
+                    />
+                </div>
+
+                <div class="pins-history-container">
+
+                    {#if useTabbedLayout}
+
+                        <TabBlock>
+                            <TabFlaps>
+                                <TabFlap><span style="font-size: 1.25rem;">History</span></TabFlap>
+                                <TabFlap><span style="font-size: 1.25rem;">Pins</span></TabFlap>
+                            </TabFlaps>
+        
+                            <!-- Graph Schematic tab. -->
+                            <TabBody>
+                                {#if graph}
+                                    <HistoryViewer
+                                        bind:graph
+                                        {useTabbedLayout}
+                                        {rePerspectToThingId}
+                                    />
+                                {/if}
+                            </TabBody>
+                        
+                            <!-- Stores tab. --> 
+                            <TabBody>
+                                <PinsViewer
+                                    {useTabbedLayout}
+                                    {rePerspectToThingId}
+                                />
+                            </TabBody>
+                        </TabBlock>
+
+                    {:else}
+
+                        <!-- Graph history viewer -->
+                        {#if graph}
+                            <div
+                                class="history-container"
+
+                                style={
+                                    onMobile() && window.innerHeight < 500 ? "height: 50%" :
+                                    ""
+                                }
+                            >
+                                <HistoryViewer
+                                    bind:graph
+                                    {useTabbedLayout}
+                                    {rePerspectToThingId}
+                                />
+                            </div>
+                        {/if}
+                        
+                        <!-- Graph pins viewer -->
+                        <div
+                            class="pins-container"
+
+                            style={
+                                onMobile() && window.innerHeight < 500 ? "height: 50%" :
+                                ""
+                            }
+                        >
+                            <PinsViewer
+                                {useTabbedLayout}
+                                {rePerspectToThingId}
+                            />
+                        </div>
+
+                    {/if}
 
                     <!-- Navigate back and forth buttons. -->
-                    <div class="back-and-forth-buttons">
+                    <div
+                        class="back-and-forth-buttons"
+                        class:on-mobile={onMobile()}
+                    >
                         <button
                             on:click={back}
                             on:keydown={()=>{}}
                         >
                             ◄
                         </button>
-                        <button
+                        <button                        
                             on:click={forward}
                             on:keydown={()=>{}}
                         >
                             ►
                         </button>
                     </div>
-                </div>
-
-                <div class="pins-history-container">        
-                    <!-- Graph pins viewer -->
-                    <div class="pins-container">
-                        <PinsViewer
-                            {rePerspectToThingId}
-                        />
-                    </div>
-
-                    <!-- Graph history viewer -->
-                    {#if graph}
-                        <div class="history-container">
-                            <HistoryViewer
-                                bind:graph
-                                {rePerspectToThingId}
-                            />
-                        </div>
-                    {/if}
+                    
                 </div>
             </div>
 
         <!-- Space menu. -->
         {:else if openedSubMenuName === "Space"}
             <div class="directions-spaces-container">
-                {#if graph}
-                    <!-- Directions viewer. -->
-                    <div class="directions-container">
-                        <DirectionsViewer
-                            {graph}
-                            {graphWidgetStyle}
-                        />
-                    </div>
 
-                    <!-- Spaces viewer. -->
-                    <div class="spaces-container">
-                        <SpacesViewer
-                            {graph}
-                            {graphWidgetStyle}
-                            {setGraphSpace}
-                        />
-                    </div>
+                {#if useTabbedLayout}
+
+                    <TabBlock>
+                        <TabFlaps>
+                            <TabFlap><span style="font-size: 1.25rem;">Directions</span></TabFlap>
+                            <TabFlap><span style="font-size: 1.25rem;">Spaces</span></TabFlap>
+                        </TabFlaps>
+    
+                        {#if graph}
+                            <TabBody>
+                                <DirectionsViewer
+                                    {graph}
+                                    {graphWidgetStyle}
+                                    {useTabbedLayout}
+                                />
+                            </TabBody>
+                        
+                            <TabBody>
+                                <SpacesViewer
+                                    {graph}
+                                    {graphWidgetStyle}
+                                    {useTabbedLayout}
+                                    {setGraphSpace}
+                                />
+                            </TabBody>
+                        {/if}
+                    </TabBlock>
+
+                {:else}
+
+                    {#if graph}
+                        <!-- Directions viewer. -->
+                        <div class="directions-container">
+                            <DirectionsViewer
+                                {graph}
+                                {graphWidgetStyle}
+                                {useTabbedLayout}
+                            />
+                        </div>
+
+                        <!-- Spaces viewer. -->
+                        <div class="spaces-container">
+                            <SpacesViewer
+                                {graph}
+                                {graphWidgetStyle}
+                                {useTabbedLayout}
+                                {setGraphSpace}
+                            />
+                        </div>
+                    {/if}
+
                 {/if}
+
             </div>
 
         <!-- Graph settings viewer. -->
@@ -354,6 +468,8 @@
             bind:graph
             bind:graphWidgetStyle
             bind:allowZoomAndScrollToFit
+            bind:rightMenuOpen
+            bind:closeRightMenu
             bind:rePerspectToThingId
             bind:back
             bind:forward
@@ -404,50 +520,53 @@
         overflow-y: hidden;
     }
 
-    .search-back-and-forth-buttons-container {
-        outline: solid 1px lightgrey;
-        outline-offset: -1px;
-
-        background-color: #fafafa;
-
-        display: flex;
-    }
-
-    .search-container {
-        flex: 1 1 0;
-    }
-
-    .back-and-forth-buttons {
-        display: flex;
-        flex-direction: row;
-        padding: 5px;
-        gap: 5px;
-    }
-
-    button {
-        font-size: 1.25rem;
-    }
-
     .pins-history-container {
         flex: 1 1 auto;
 
         position: relative;
 
         display: flex;
-        flex-direction: row;
+        flex-direction: column;
 
         overflow:hidden;
     }
 
-    .pins-container {
-        width: 45%;
+    .back-and-forth-buttons {
+        position: absolute;
+        right: -2px;
+        top: -2px;
+
+        display: flex;
+        flex-direction: row;
+        padding: 5px;
+        gap: 5px;
+    }
+
+    .back-and-forth-buttons.on-mobile {
+        right: 0;
+        top: 0;
+    }
+
+    button {
+        height: 29px;
+
+        padding-top: 2px;
+
+        font-size: 1.25rem;
+        font-family: Serif;
+    }
+
+    .back-and-forth-buttons.on-mobile button {
+        line-height: 5px;
+    }
+
+    .history-container {
+        flex: 1 1 auto;
 
         overflow: hidden;
     }
 
-    .history-container {
-        width: 55%;
-
+    .pins-container {
         overflow: hidden;
     }
 
@@ -456,15 +575,15 @@
         height: 100%;
 
         display: flex;
-        flex-direction: row;
+        flex-direction: column;
     }
 
     .directions-container {
-        width: 50%;
+        height: 33%;
     }
 
     .spaces-container {
-        width: 55%;
+        height: 67%;
 
         scrollbar-width: thin;
     }

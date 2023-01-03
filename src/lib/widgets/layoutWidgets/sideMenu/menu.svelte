@@ -1,33 +1,47 @@
 <script lang="ts">
+    // Import types.
+    import type { Writable } from "svelte/store"
+
     // Import basic framework resources.
     import { tweened } from "svelte/motion"
     import { cubicOut } from "svelte/easing"
-
-    // Import utility functions.
-    import { sleep } from "$lib/shared/utility"
+    import { onMobile, sleep } from "$lib/shared/utility"
+    import { saveGraphConfig } from "$lib/shared/config"
 
     
     /**
-     * @param subMenuInfos - Array of objects configuring the sub-menus.
+     * @param subMenuInfos - Nested array of objects configuring the sub-menus.
+     * @param defaultOpenSubMenuName - The name of the sub-menu that is opened when the menu is opened.
      * @param openedSubMenuName - The name of the currently opened sub-menu.
      * @param openWidth - The width of the side menu when it is open.
      * @param openTime - The time (in milliseconds) it takes for the side-menu to open/close.
      * @param overlapPage - Whether the side-menu overlaps the page (or, alternatively, displaces it).
      * @param slideDirection - Whether the side-menu slides open towards the right or the left.
+     * @param stateStore - The store that records the state of this menu (if any).
+     * @param close - Method to close the side-menu.
      */
-    export let subMenuInfos: { name: string, icon: string }[]
+    export let subMenuInfos: { name: string, icon: string }[][]
+    export let defaultOpenSubMenuName: string
     export let openedSubMenuName: string | null
-    export let openWidth = 200
-    export let openTime = 200
+    export let open: boolean = false
+    export let lockedOpen = false
+    export let lockedSubMenuName: string | null = openedSubMenuName
+    export let openWidth = 250
+    export let openTime = 500
     export let overlapPage = false
     export let slideDirection: "right" | "left" = "right"
+    export let stateStore: Writable<string | null> | null = null
+    export let close: () => void = () => {}
 
 
     // Size of the menu buttons.
     const buttonSize = 30
 
-    // Initialize the "open" flag based on whether any sub-menu is open.
-    let open = !!openedSubMenuName
+    // Initialize the open submenu to the default.
+    openedSubMenuName = defaultOpenSubMenuName
+
+    // Mouse-pressed flag tracks whether the mouse button is currently being held down.
+    let mousePressed = false
 
     // The "width" attribute is derived from the base width and the tweened
     // "percentOpen" value.
@@ -37,6 +51,30 @@
 
 
     /**
+     * Handle-mouse-enter method.
+     * 
+     * When the mouse enters the side menu or hover-open strip, the menu opens.
+     */
+    function handleMouseEnter() {
+        open = true
+    }
+
+    /**
+     * Handle-mouse-leave method.
+     * 
+     * When the mouse leaves the side menu, if the menu is locked open, it
+     * switches back to the locked submenu. Otherwise, it closes.
+     */
+    async function handleMouseLeave() {
+        if (lockedOpen) {
+            openedSubMenuName = lockedSubMenuName
+        } else {
+            close()
+        }
+        
+    }
+
+    /**
      * Handle-button-click method.
      * 
      * Opens, closes and switches the sub-menus in response to clicks on the menu
@@ -44,26 +82,53 @@
      * @param name - Name of the menu button that was clicked.
      */
     async function handleButtonClick(name: string) {
-        // If there is a sub-menu currently open and a different sub-menu was
-        // specified, switch to the new sub-menu.
-        if (openedSubMenuName !== null && openedSubMenuName !== name) {
-            openedSubMenuName = name
 
-        // Else, if there is currently no sub-menu open, open the specified sub-
-        // menu.
-        } else if (openedSubMenuName === null) {
-            openedSubMenuName = name
-            open = true
-
-        // Otherwise (if there is currently a sub-menu open and it's the same one
-        // that was specified by the click), close the side-menu.
+        if (lockedOpen && lockedSubMenuName === name && open) {
+            lockedOpen = false
+            lockedSubMenuName = null
+            close()
         } else {
-            open = false
-            await sleep(openTime) // Wait for the menu to close fully before hiding the content.
-            openedSubMenuName = null
+            openedSubMenuName = name
+            lockedSubMenuName = name
+            open = true
+            lockedOpen = true
+        }
+
+        if (stateStore) {
+            stateStore.set(lockedSubMenuName)
+            saveGraphConfig()
         }
     }
+
+    /**
+     * Handle-mouse-enter-on-button method.
+     * 
+     * If the menu is already open, hovering over the button changes the current
+     * submenu to the button's submenu.
+     * @param name - Name of the menu button that was hovered.
+     */
+    function handleButtonMouseEnter(name: string) {
+        if (open) openedSubMenuName = name
+    }
+
+    /**
+     * Close method.
+     * 
+     * Closes the side-menu and resets the submenu to the default.
+     */
+    close = async () => {
+        open = false
+        await sleep(openTime) // Wait for the menu to close fully before hiding the content.
+        openedSubMenuName = defaultOpenSubMenuName
+    }
 </script>
+
+
+<!-- Mouse up/down handlers for document body. -->
+<svelte:body
+    on:mousedown={() => {mousePressed = true}}
+    on:mouseup={() => {mousePressed = false}}
+/>
 
 
 <!-- Side menu. -->
@@ -73,10 +138,16 @@
     class:slide-left={slideDirection === "left"}
 
     style="width: {width}px;"
+
+    on:mouseleave={handleMouseLeave}
 >
     
     <!-- Menu content. -->
-    <div style="position: relative; width: 100%; height: 100%; overflow: hidden;">
+    <div
+        style="position: relative; width: 100%; height: 100%; overflow: hidden;"
+
+        on:mouseenter={handleMouseEnter}
+    >
         {#if width > 0}
             <div
                 class="content"
@@ -90,7 +161,20 @@
             </div>
         {/if}
     </div>
-    
+
+    <!-- Hover-open strip. -->
+    {#if !onMobile()}
+        <div
+            class="hover-open-strip"
+            class:slide-right={slideDirection === "right"}
+            class:slide-left={slideDirection === "left"}
+            class:no-pointer-events={mousePressed}
+
+            style="width: {buttonSize + 20}px;"
+
+            on:mouseenter={handleMouseEnter}
+        />
+    {/if}
 
     <!-- Menu buttons. -->
     <div
@@ -101,22 +185,34 @@
         style="border-radius: {buttonSize / 2}px;"
     >
 
-        {#each subMenuInfos as info}
+        <!-- Menu button groups. -->
+        {#each subMenuInfos as buttonGroup}
 
-            <!-- Menu button. -->
-            <div
-                class="button"
-                class:opened-menu={openedSubMenuName !== null && openedSubMenuName === info.name}
+            <div class="button-group">
 
-                on:click={ () => { handleButtonClick(info.name) } }
-                on:keydown={()=>{}}
-            >
-                <img
-                    src="./icons/{info.icon}.png"
-                    alt={info.name}
-                    width="{buttonSize}px"
-                    height="{buttonSize}px"
-                >
+                <!-- Menu button group. -->
+                {#each buttonGroup as info}
+
+                    <!-- Menu button. -->
+                    <div
+                        class="button"
+                        class:opened-menu={openedSubMenuName !== null && openedSubMenuName === info.name}
+                        class:locked-menu={lockedOpen && lockedSubMenuName === info.name}
+
+                        on:mouseenter={ () => handleButtonMouseEnter(info.name) }
+                        on:click={ () => { handleButtonClick(info.name) } }
+                        on:keydown={()=>{}}
+                    >
+                        <img
+                            src="./icons/{info.icon}.png"
+                            alt={info.name}
+                            width="{buttonSize}px"
+                            height="{buttonSize}px"
+                        >
+                    </div>
+
+                {/each}
+
             </div>
 
         {/each}
@@ -161,16 +257,37 @@
         left: 0px;
     }
 
-    .side-menu-buttons {
-        margin: 5px;
-
+    .hover-open-strip {
         position: absolute;
         top: 0;
         z-index: 1;
+        height: 100%;
+    }
+
+    .hover-open-strip.slide-right {
+        left: 100%;
+    }
+
+    .hover-open-strip.slide-left {
+        right: 100%;
+    }
+
+    .hover-open-strip.no-pointer-events {
+        pointer-events: none;
+    }
+
+    .side-menu-buttons {
+        box-sizing: border-box;
+        position: absolute;
+        top: 0;
+        z-index: 1;
+        height: 100%;
 
         display: flex;
         flex-direction: column;
-        gap: 5px;
+        justify-content: space-between;
+
+        pointer-events: none;
     }
 
     .side-menu-buttons.slide-right {
@@ -181,8 +298,17 @@
         right: 100%;
     }
 
-    .side-menu-buttons:hover .button {
+    .button-group:hover .button {
         opacity: 0.75;
+    }
+
+    .button-group {
+        display: flex;
+        flex-direction: column;
+        padding: 5px;
+        gap: 5px;
+
+        pointer-events: auto;
     }
 
     .button {
@@ -201,6 +327,11 @@
 
 		cursor: default;
 	}
+
+    .button.locked-menu {
+        outline: solid 1px grey;
+        opacity: 0.33;
+    }
 
 	.button.opened-menu {
         outline: solid 1px grey;
