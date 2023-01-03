@@ -173,7 +173,7 @@
             class="hover-open-strip"
             class:slide-right={slideDirection === "right"}
             class:slide-left={slideDirection === "left"}
-            class:no-pointer-events={lockedOpen && mousePressed}
+            class:no-pointer-events={mousePressed}
 
             style="width: {buttonSize + 20}px;"
 
