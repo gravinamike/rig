@@ -91,9 +91,11 @@ export function legacyPerspectiveThingsParse(jsonString: string): {[thingId: str
         output = JSON.parse(jsonString)
 
     } catch {
-
+        
         const modifiedJsonString =
             jsonString
+                // Convert `"` to `\"`.
+                .replace(/"/g, `\\"`)
                 // Convert `{N: ` to `{"N": `.
                 .replace( /{\d+:\s/g, (match) => {return `{"${match.substring(1, match.length - 2)}": `} )
                 // Convert `, N: ` to `, "N": `.
@@ -104,7 +106,7 @@ export function legacyPerspectiveThingsParse(jsonString: string): {[thingId: str
                 .replace(/',\s"/g, `", "`)
                 // Convert final `'}` to `"}`.
                 .replace(/'}$/g, `"}`)
-
+        
         output = JSON.parse(modifiedJsonString)
 
     }    
