@@ -37,9 +37,6 @@ export async function createTable(
             null
         if (defaultValueText) queryLine = `${queryLine} DEFAULT ${defaultValueText}`
 
-        // Add final semicolon.
-        queryLine = `${queryLine};`
-
         // Add the substring to the array.
         fieldStrings.push(queryLine)
     }
