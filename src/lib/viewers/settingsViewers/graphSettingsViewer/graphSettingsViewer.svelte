@@ -18,6 +18,13 @@
     function updateGraphFormat() {
         addGraphIdsNeedingViewerRefresh(graph.id)
     }
+
+
+
+    let readOnlyMode = false
+
+
+
 </script>
 
 
@@ -81,6 +88,12 @@
         minValue={-10}
         maxValue={10}
         onChangeFunction={updateGraphFormat}
+    />
+
+    <SettingWidget
+        labelText={"Read-only mode"}
+        bind:boundValue={readOnlyMode}
+        onChangeFunction={() => {console.log(readOnlyMode)}}
     />
 </div>
 
