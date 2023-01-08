@@ -2,20 +2,34 @@ import { writable } from "svelte/store"
 
 
 
-// Dev-mode flag store.
-// Holds a boolean specifying whether the app is running in dev mode.
-export const devMode = writable( false )
-
-
-
-// Font names store.
-// Holds an array of font names the application can use.
+/**
+ * Font names store.
+ * 
+ * Holds an array of font names the application can use.
+ */
 export const fontNames = writable( [] as string[] )
 
 
+/**
+ * Dev-mode flag store.
+ * 
+ * Holds a boolean specifying whether the app is running in dev mode.
+ */
+export const devMode = writable( false )
 
-// Loading state store.
-// Holds a string specifying the current loading state of the app.
+/**
+ * Read-only-mode flag store.
+ * 
+ * Holds a boolean specifying whether the app is running in read-only-mode.
+ */
+export const readOnlyMode = writable( false )
+
+
+/**
+ * Loading state store.
+ * 
+ * Holds a string specifying the current loading state of the app.
+ */
 export const loadingState = writable(
     "start" as (
         "start" | "configLoading" | "configLoaded" | "graphLoading" | "graphLoaded" | "error"
@@ -23,6 +37,9 @@ export const loadingState = writable(
 )
 
 
-// Hovered Thing ID store.
-// Holds the ID of the Thing that the mouse is hovered over.
+/**
+ * Hovered Thing ID store.
+ * 
+ * Holds the ID of the Thing that the mouse is hovered over.
+ */
 export const hoveredThingIdStore = writable( null as number | null )
