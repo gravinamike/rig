@@ -33,11 +33,12 @@ export interface WaitingIndicatorStates {
  * Graph-level interfaces and types.
  */
 export interface GraphConfig {
-    pinIds: number[]
-    perspectiveThingId: number
+    readOnlyMode: boolean
     leftSideMenu: string | null
     rightSideMenu: string | null
     notesEditorLocked: boolean
+    pinIds: number[]
+    perspectiveThingId: number
 }
 
 export type GraphConstruct = Direction | Space | Thing | Relationship

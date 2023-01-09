@@ -3,6 +3,7 @@
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
     import { addGraphIdsNeedingViewerRefresh, readOnlyMode as readOnlyModeStore } from "$lib/stores"
     import SettingWidget from "./settingWidget.svelte"
+    import { saveGraphConfig } from "$lib/shared/config"
 
 
     export let graph: Graph
@@ -22,6 +23,11 @@
 
     function updateGraphFormat() {
         addGraphIdsNeedingViewerRefresh(graph.id)
+    }
+
+    async function updateReadOnlyMode() {
+        readOnlyModeStore.set(readOnlyMode)
+        await saveGraphConfig()
     }
 </script>
 
@@ -91,7 +97,7 @@
     <SettingWidget
         labelText={"Read-only mode"}
         bind:boundValue={readOnlyMode}
-        onChangeFunction={ () => { readOnlyModeStore.set(readOnlyMode) } }
+        onChangeFunction={updateReadOnlyMode}
     />
 </div>
 
