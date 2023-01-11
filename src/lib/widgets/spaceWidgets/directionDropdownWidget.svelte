@@ -8,7 +8,7 @@
 
     // Constants and stores imports.
     import { relationshipColorByHalfAxisId } from "$lib/shared/constants"
-    import { directionDbModelsStore, getGraphConstructs } from "$lib/stores"
+    import { directionDbModelsStore, getGraphConstructs, readOnlyMode } from "$lib/stores"
 
     /**
      * @param  {Direction | null} direction - The Direction currently being represented by this widget.
@@ -52,6 +52,7 @@
 <!-- Direction Widget. -->
 <div
     class="direction-widget {showOptions ? "options-open" : ""}"
+    class:read-only-mode={$readOnlyMode}
     bind:this={directionWidget}
 >
     <!-- Direction text. -->
@@ -61,7 +62,7 @@
             {direction ? "" : "font-style: italic;"}
             color: {relationshipColor};
         "
-        on:click={() => {showOptions = !showOptions}}
+        on:click={() => { showOptions = !showOptions }}
         on:keypress={()=>{}}
     >
         {direction ? direction.text : "Choose Direction..."}
@@ -108,6 +109,10 @@
 
         padding: 0.25rem;
 
+        pointer-events: none;
+    }
+
+    .direction-widget:not(.read-only-mode) {
         pointer-events: auto;
         cursor: pointer;
     }

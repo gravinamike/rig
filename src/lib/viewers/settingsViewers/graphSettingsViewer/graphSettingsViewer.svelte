@@ -15,6 +15,11 @@
     $: readOnlyMode = $readOnlyModeStore
 
 
+    async function updateReadOnlyMode() {
+        readOnlyModeStore.set(readOnlyMode)
+        await saveGraphConfig()
+    }
+    
     async function setGraphDepth() {
         await graph.generations.adjustToDepth(graph._depth)
         allowZoomAndScrollToFit = true
@@ -24,17 +29,18 @@
     function updateGraphFormat() {
         addGraphIdsNeedingViewerRefresh(graph.id)
     }
-
-    async function updateReadOnlyMode() {
-        readOnlyModeStore.set(readOnlyMode)
-        await saveGraphConfig()
-    }
 </script>
 
 
 <div class="graph-settings-viewer">
     <h4>Graph settings</h4>
 
+    <SettingWidget
+        labelText={"Read-only mode"}
+        bind:boundValue={readOnlyMode}
+        onChangeFunction={updateReadOnlyMode}
+    />
+    
     <SettingWidget
         labelText={"Graph Depth"}
         bind:boundValue={graph._depth}
@@ -92,12 +98,6 @@
         minValue={-10}
         maxValue={10}
         onChangeFunction={updateGraphFormat}
-    />
-
-    <SettingWidget
-        labelText={"Read-only mode"}
-        bind:boundValue={readOnlyMode}
-        onChangeFunction={updateReadOnlyMode}
     />
 </div>
 

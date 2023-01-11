@@ -8,7 +8,7 @@
     import { flip } from "svelte/animate"
 
     // Import stores and utility functions.
-    import { directionDbModelsStoreAsArray, getGraphConstructs, storeGraphDbModels } from "$lib/stores"
+    import { directionDbModelsStoreAsArray, getGraphConstructs, readOnlyMode, storeGraphDbModels } from "$lib/stores"
     import { changeIndexInArray } from "$lib/shared/utility"
 
     // Import related widgets.
@@ -49,7 +49,7 @@
      * @param event - The mouse-drag event that triggered this method.
      * @param sourceIndex - The index of the Direction that is being dragged.
      */
-     const startDragDirection = (event: DragEvent, sourceIndex: number) => {
+    const startDragDirection = (event: DragEvent, sourceIndex: number) => {
         // If the event isn't transferring data, abort.
         if (!event.dataTransfer) return
 
@@ -116,10 +116,10 @@
     <div class="scrollable">
         {#each directions as direction, index (direction.id)}
             <div
-                draggable=true
+                draggable={ $readOnlyMode ? false : true }
                 animate:flip={{ duration: 250 }}
 
-                on:dragstart={ (event) => startDragDirection(event, index) }
+                on:dragstart={ (event) => {if (!$readOnlyMode) startDragDirection(event, index)} }
                 on:dragover|preventDefault
                 on:drop|preventDefault={ (event) => dropDirection(event, index) }
             >

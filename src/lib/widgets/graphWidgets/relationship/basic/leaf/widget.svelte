@@ -7,6 +7,7 @@
     // Import related widgets.
     import { DirectionDropdownWidget } from "$lib/widgets/spaceWidgets"
     import RelationshipLeafWidgetController from "./controller.svelte"
+    import { readOnlyMode } from "$lib/stores";
 
 
     /**
@@ -100,6 +101,7 @@
             class="leaf-hover-zone"
             class:rowCohort={ cohort?.rowOrColumn() === "row" }
             class:columnCohort={ cohort?.rowOrColumn() === "column" }
+            class:read-only-mode={$readOnlyMode}
 
             x1="{leafGeometry.bottomMidline}" y1="{leafGeometry.bottom}"
             x2="{leafGeometry.topMidline}" y2="{leafGeometry.top}"
@@ -183,6 +185,10 @@
     .leaf-hover-zone {
         opacity: 0;
 
+        pointer-events: none;
+    }
+
+    .leaf-hover-zone:not(.read-only-mode) {
         pointer-events: auto;
     }
 

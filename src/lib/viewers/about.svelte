@@ -38,6 +38,10 @@
             traditional forms of text, this can be useful for dealing with many
             complex issues that are difficult to discuss with text alone.
         </p>
+        <p>
+            Rig is in very early development. Watch for new features and bugfixes
+            in the future. And if you have any suggestions, let Mike know!
+        </p>
     </div>
 
     <div class="secret" on:click={displaySecret} on:keydown={()=>{}}>

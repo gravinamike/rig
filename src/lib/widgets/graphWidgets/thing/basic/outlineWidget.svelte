@@ -8,7 +8,7 @@
         hoveredThingIdStore, hoveredRelationshipTarget,
         relationshipBeingCreatedInfoStore,
         setRelationshipBeingCreatedDestThingId, disableRelationshipBeingCreated,
-        pinIdsStore, openContextCommandPalette, addPin, removePin,
+        pinIdsStore, openContextCommandPalette, addPin, removePin, readOnlyMode,
     } from "$lib/stores"
 
     /* Widget imports. */
@@ -39,6 +39,7 @@
     let thingWidth: number
     let thingHeight: number
     let textFontSize: number
+    let showDeleteButton: boolean
     let handleMouseDown: (event: MouseEvent) => void
     let handleMouseDrag: (event: MouseEvent) => void
     let onBodyMouseUp: (event: MouseEvent) => void
@@ -115,6 +116,7 @@
     bind:thingWidgetId
     bind:thing
     bind:textFontSize
+    bind:showDeleteButton
     bind:elongationCategory
     bind:isEncapsulating
     bind:relatableForCurrentDrag
@@ -158,7 +160,7 @@
                 disableRelationshipBeingCreated()
             }
         } }
-        on:contextmenu|preventDefault={openCommandPalette}
+        on:contextmenu|preventDefault={ (event) => {if (!$readOnlyMode) openCommandPalette(event)} }
     >
         <!-- Thing text. -->
         <div
@@ -193,21 +195,25 @@
         {/if}
 
         <!-- Delete button and confirm delete dialog. -->
-        {#if isHoveredWidget && !confirmDeleteBoxOpen}
-            <div class="delete-button-container">
-                <XButton
-                    buttonFunction={startDelete}
+        {#if showDeleteButton}
+
+            {#if isHoveredWidget && !confirmDeleteBoxOpen}
+                <div class="delete-button-container">
+                    <XButton
+                        buttonFunction={startDelete}
+                    />
+                </div>
+            {/if}
+            {#if confirmDeleteBoxOpen}
+                <ConfirmDeleteBox
+                    {thingWidth}
+                    {thingHeight}
+                    {encapsulatingDepth}
+                    {elongationCategory}
+                    confirmDeleteFunction={completeDelete}
                 />
-            </div>
-        {/if}
-        {#if confirmDeleteBoxOpen}
-            <ConfirmDeleteBox
-                {thingWidth}
-                {thingHeight}
-                {encapsulatingDepth}
-                {elongationCategory}
-                confirmDeleteFunction={completeDelete}
-            />
+            {/if}
+
         {/if}
     </div>
 {/if}

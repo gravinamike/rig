@@ -6,7 +6,7 @@
     import type { ThingDbModel } from "$lib/models/dbModels/clientSide"
 
     // Import stores and utilty functions.
-    import { addGraphIdsNeedingViewerRefresh, storeGraphDbModels } from "$lib/stores"
+    import { addGraphIdsNeedingViewerRefresh, readOnlyMode, storeGraphDbModels } from "$lib/stores"
     import { sleep } from "$lib/shared/utility"
 
     // Import related widgets.
@@ -191,7 +191,7 @@
     on:mouseenter={() => {isHovered = true}}
     on:mouseleave={() => {isHovered = false}}
     on:click={handleClick}
-    on:dblclick={() => { if (interactionMode = "display") handleButton() }}
+    on:dblclick={() => { if (!$readOnlyMode && interactionMode === "display") handleButton() }}
     on:keydown={()=>{}}
 >
     <!-- Space name or name-input field. -->
@@ -264,12 +264,13 @@
     </div>
 
     <!-- Perspective-Space button. -->
-    {#if defaultPerspectiveSpace || isHovered}
+    {#if defaultPerspectiveSpace || (!$readOnlyMode && isHovered)}
         <div
             class="perspective-space-button"
             class:is-default-perspective={defaultPerspectiveSpace}
+            class:read-only-mode={readOnlyMode}
 
-            on:click|stopPropagation={setPerspectiveThingDefaultSpace}
+            on:click|stopPropagation={ () => { if (!readOnlyMode) setPerspectiveThingDefaultSpace() } }
             on:keydown={()=>{}}
         >
             <img
@@ -283,7 +284,7 @@
     {/if}
 
     <!-- Mode button. -->
-    {#if isHovered || interactionMode === "editing" || interactionMode === "create"}
+    {#if !$readOnlyMode && (isHovered || interactionMode === "editing" || interactionMode === "create")}
         <div class="container button-container">
             <button
                 class="button"
@@ -463,6 +464,11 @@
         justify-content: center;
         align-items: center;
 
+        pointer-events: none;
+    }
+
+    .perspective-space-button:not(.read-only-mode) {
+        pointer-events: auto;
         cursor: pointer;
     }
 

@@ -12,7 +12,7 @@
     import { thingsByGuid, addNoteToThing, updateNote, markNotesModified } from "$lib/db/clientSide"
 
 
-    import { notesEditorLockedStore } from "$lib/stores"
+    import { notesEditorLockedStore, readOnlyMode } from "$lib/stores"
     import { saveGraphConfig } from "$lib/shared/config"
 
 
@@ -259,29 +259,31 @@
     </div>
 
     <!-- Edit button. -->
-    <div
-        class="edit-button"
-        class:editing
-        class:editingLocked
-        bind:this={editButton}
+    {#if !$readOnlyMode}
+        <div
+            class="edit-button"
+            class:editing
+            class:editingLocked
+            bind:this={editButton}
 
-        on:mouseenter={() => {editButtonHovered = true}}
-        on:mouseleave={() => {
-            editButtonHovered = false
-            editingLockJustToggled = false
-        }}
-        on:click={handleEditButton}
-        on:keydown={()=>{}}
-    >
-        <img
-            src={
-                showEditingLockedIcon ? "./icons/lock-edit.png" : "./icons/edit.png" }
-            alt={
-                showEditingLockedIcon ? "Lock Notes in editing mode" : "Edit Notes" }
-            width=20px
-            height=20px
+            on:mouseenter={() => {editButtonHovered = true}}
+            on:mouseleave={() => {
+                editButtonHovered = false
+                editingLockJustToggled = false
+            }}
+            on:click={handleEditButton}
+            on:keydown={()=>{}}
         >
-    </div>
+            <img
+                src={
+                    showEditingLockedIcon ? "./icons/lock-edit.png" : "./icons/edit.png" }
+                alt={
+                    showEditingLockedIcon ? "Lock Notes in editing mode" : "Edit Notes" }
+                width=20px
+                height=20px
+            >
+        </div>
+    {/if}
 
     <!-- Container to hold either Note display or Note editor. -->
     <div
@@ -291,7 +293,7 @@
         on:dblclick={ () => {editing = true} }
     >
         <!-- Note editor. -->
-        {#if editing}
+        {#if !$readOnlyMode && editing}
             <NotesEditor
                 {currentPThingNoteText}
                 bind:currentEditorTextContent

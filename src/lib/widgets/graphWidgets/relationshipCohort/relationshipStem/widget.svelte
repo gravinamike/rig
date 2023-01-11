@@ -7,7 +7,8 @@
     import {
         hoveredRelationshipTarget, enableRelationshipBeingCreated, setRelationshipBeingCreatedDestThingId,
         disableRelationshipBeingCreated,
-        reorderingInfoStore
+        reorderingInfoStore,
+        readOnlyMode
     } from "$lib/stores"
     
 
@@ -39,6 +40,15 @@
     let thingHovered = false
     let isDragRelateSource = false
     let addThingForm = async () => {}
+
+
+    $: showStem = (
+        relationshipsExist
+        || ofPerspectiveThing
+        || (relatableForCurrentDrag && stemHovered)
+        || isDragRelateSource
+    )
+
 </script>
 
 
@@ -64,16 +74,19 @@
         stroke: {relationshipColor};
         fill: {relationshipColor};
     "
-    on:click={addThingForm}
+    on:click={ () => { if (!$readOnlyMode) addThingForm() } }
     on:keydown={()=>{}}
 >
 
     <!-- Hoverable zone of stem. -->
     <line
         class="stem-hover-zone"
+        class:readOnlyMode={$readOnlyMode}
+
         x1="{midline}" y1="{stemBottom}"
         x2="{midline}" y2="{stemTop}"
         style="stroke-width: {20 / tweenedScale};"
+
         on:mouseenter={ () => {
             stemHovered = true
             hoveredRelationshipTarget.set(cohort)
@@ -109,10 +122,10 @@
     <g
         class="
             stem-image
-            {relationshipsExist || ofPerspectiveThing || (relatableForCurrentDrag && stemHovered) || isDragRelateSource ? "" : "hidden"}
             {!$reorderingInfoStore.reorderInProgress && (stemHovered || relationshipHovered || thingHovered) ? "hovered" : ""}
             {stemClicked || isDragRelateSource ? "clicked" : ""}
         "
+        class:hidden={!showStem}
     >
         <line
             x1="{midline}" y1="{stemBottom}"
@@ -145,6 +158,10 @@
 
         pointer-events: auto;
         cursor: pointer;
+    }
+
+    .stem-hover-zone.readOnlyMode {
+        pointer-events: none;
     }
 
     .stem-image {
