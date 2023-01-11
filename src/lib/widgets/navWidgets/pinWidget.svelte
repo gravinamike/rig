@@ -3,7 +3,7 @@
     import type { Thing } from "$lib/models/constructModels"
 
     /* Store-related imports. */
-    import { hoveredThingIdStore, openContextCommandPalette, removePin } from "$lib/stores"
+    import { hoveredThingIdStore, openContextCommandPalette, readOnlyMode, removePin } from "$lib/stores"
 
 
     /**
@@ -56,7 +56,7 @@
 
     on:click={ () => { if (thing) rePerspectToThingId(thingId) } }
     on:keydown={()=>{}}
-    on:contextmenu|preventDefault={ openPinContextCommandPalette }
+    on:contextmenu|preventDefault={ (event) => {if (!$readOnlyMode) openPinContextCommandPalette(event)} }
 >
     {thingText}
 </div>

@@ -14,7 +14,8 @@
         pinIdsStore, openContextCommandPalette, addPin, removePin,
         removeIdsFromThingSearchListStore,
         reorderingInfoStore,
-        storeGraphDbModels
+        storeGraphDbModels,
+        readOnlyMode
 
     } from "$lib/stores"
 
@@ -199,7 +200,7 @@
      * operation in progress, and the confirm-delete operation has not been
      * started.
      */
-    $: showDeleteButton = isHoveredWidget && !$reorderingInfoStore.reorderInProgress && !confirmDeleteBoxOpen
+    $: showDeleteButton = !$readOnlyMode && isHoveredWidget && !$reorderingInfoStore.reorderInProgress && !confirmDeleteBoxOpen
 
     /**
      * Handle-mouse-down method.

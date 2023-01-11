@@ -4,7 +4,7 @@
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
     // Import stores and utility functions.
-    import { addGraphIdsNeedingViewerRefresh, getGraphConstructs, storeGraphDbModels } from "$lib/stores"
+    import { addGraphIdsNeedingViewerRefresh, getGraphConstructs, readOnlyMode, storeGraphDbModels } from "$lib/stores"
     import { sleep } from "$lib/shared/utility"
 
     // Import related widgets.
@@ -152,7 +152,7 @@
 
     on:mouseenter={() => {isHovered = true}}
     on:mouseleave={() => {isHovered = false}}
-    on:dblclick={() => { if (interactionMode === "display" && editable) handleButton() }}
+    on:dblclick={() => { if (!$readOnlyMode && interactionMode === "display" && editable) handleButton() }}
 >
 
     <div class="container vertical">
@@ -270,34 +270,38 @@
                 </div>
 
                 <!-- Button. -->
-                <div class="container button-container">
-                    {#if
-                        editable
-                        && (
-                            isHovered
-                            || interactionMode === "editing"
-                            || interactionMode === "create"
-                        )
-                    }
-                        <button
-                            class="button"
-                            class:editing={interactionMode === "editing"}
-                            class:create={interactionMode === "create"}
-                            tabindex=0
+                {#if !$readOnlyMode}
 
-                            on:click|stopPropagation={handleButton}
-                            
-                        >
-                            {#if interactionMode === "display"}
-                                <img src="./icons/edit.png" alt="Edit Direction" width=15px height=15px />
-                            {:else if interactionMode === "editing"}
-                                ✓
-                            {:else}
-                                +
-                            {/if}
-                        </button>
-                    {/if}
-                </div>
+                    <div class="container button-container">
+                        {#if
+                            editable
+                            && (
+                                isHovered
+                                || interactionMode === "editing"
+                                || interactionMode === "create"
+                            )
+                        }
+                            <button
+                                class="button"
+                                class:editing={interactionMode === "editing"}
+                                class:create={interactionMode === "create"}
+                                tabindex=0
+
+                                on:click|stopPropagation={handleButton}
+                                
+                            >
+                                {#if interactionMode === "display"}
+                                    <img src="./icons/edit.png" alt="Edit Direction" width=15px height=15px />
+                                {:else if interactionMode === "editing"}
+                                    ✓
+                                {:else}
+                                    +
+                                {/if}
+                            </button>
+                        {/if}
+                    </div>
+
+                {/if}
             </div>
         {/if}
 

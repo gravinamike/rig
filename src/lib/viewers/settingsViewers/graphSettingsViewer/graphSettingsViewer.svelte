@@ -1,14 +1,25 @@
 <script lang="ts">
     import type { Graph } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
-    import { addGraphIdsNeedingViewerRefresh } from "$lib/stores"
+    import { addGraphIdsNeedingViewerRefresh, readOnlyMode as readOnlyModeStore } from "$lib/stores"
     import SettingWidget from "./settingWidget.svelte"
+    import { saveGraphConfig } from "$lib/shared/config"
+
 
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
     export let allowZoomAndScrollToFit: boolean
 
 
+    let readOnlyMode = false
+    $: readOnlyMode = $readOnlyModeStore
+
+
+    async function updateReadOnlyMode() {
+        readOnlyModeStore.set(readOnlyMode)
+        await saveGraphConfig()
+    }
+    
     async function setGraphDepth() {
         await graph.generations.adjustToDepth(graph._depth)
         allowZoomAndScrollToFit = true
@@ -24,6 +35,12 @@
 <div class="graph-settings-viewer">
     <h4>Graph settings</h4>
 
+    <SettingWidget
+        labelText={"Read-only mode"}
+        bind:boundValue={readOnlyMode}
+        onChangeFunction={updateReadOnlyMode}
+    />
+    
     <SettingWidget
         labelText={"Graph Depth"}
         bind:boundValue={graph._depth}

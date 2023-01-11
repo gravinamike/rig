@@ -7,7 +7,7 @@
     import { flip } from "svelte/animate"
 
     // Import stores.
-    import { pinIdsStore, storeGraphDbModels, graphDbModelInStore, getGraphConstructs, setPins } from "$lib/stores"
+    import { pinIdsStore, storeGraphDbModels, graphDbModelInStore, getGraphConstructs, setPins, readOnlyMode } from "$lib/stores"
 
     // Import related widgets.
     import { PinWidget } from "$lib/widgets/navWidgets"
@@ -108,10 +108,10 @@
     >
         {#each pins as pin, index (pin.thingId)}
             <div
-                draggable=true
+                draggable={ $readOnlyMode ? false : true }
                 animate:flip={{ duration: 250 }}
 
-                on:dragstart={ (event) => startDragPin(event, index) }
+                on:dragstart={ (event) => {if (!$readOnlyMode) startDragPin(event, index)} }
                 on:dragover|preventDefault
                 on:drop|preventDefault={ (event) => dropPin(event, index) }
             >

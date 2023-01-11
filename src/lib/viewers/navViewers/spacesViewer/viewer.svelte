@@ -16,6 +16,7 @@
 
     // Import API methods.
     import { reorderSpace } from "$lib/db/clientSide"
+    import { readOnlyMode } from "$lib/stores";
 
 
     /**
@@ -117,10 +118,10 @@
     <div class="scrollable">
         {#each spaces as space, index (space.id)}
             <div
-                draggable=true
+                draggable={ $readOnlyMode ? false : true }
                 animate:flip={{ duration: 250 }}
 
-                on:dragstart={ (event) => startDragSpace(event, index) }
+                on:dragstart={ (event) => { if (!$readOnlyMode) startDragSpace(event, index) } }
                 on:dragover|preventDefault
                 on:drop|preventDefault={ (event) => dropSpace(event, index) }
             >

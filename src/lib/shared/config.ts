@@ -3,7 +3,7 @@ import { get } from "svelte/store"
 import { pinIdsStore } from "$lib/stores/pinStores"
 import { getAppConfig, getGraphConfig } from "$lib/db/clientSide/getInfo"
 import { setDbPort, setGraphsBaseFolder, setUnigraphFolder, saveAppConfig as apiSaveAppConfig, saveGraphConfig as apiSaveGraphConfig } from "$lib/db/clientSide/makeChanges"
-import { perspectiveThingIdStore, leftSideMenuStore, rightSideMenuStore, notesEditorLockedStore } from "$lib/stores"
+import { readOnlyMode as readOnlyModeStore, perspectiveThingIdStore, leftSideMenuStore, rightSideMenuStore, notesEditorLockedStore } from "$lib/stores"
 
 
 // Load configuration-related values from the JSON config file.
@@ -25,11 +25,12 @@ export async function storeGraphConfig(): Promise<void> {
     const graphConfig = await getGraphConfig() as GraphConfig
 
     // Set front-end stores.
-    pinIdsStore.set(graphConfig.pinIds)
-    perspectiveThingIdStore.set(graphConfig.perspectiveThingId)
+    readOnlyModeStore.set(graphConfig.readOnlyMode)
     leftSideMenuStore.set(graphConfig.leftSideMenu)
     rightSideMenuStore.set(graphConfig.rightSideMenu)
     notesEditorLockedStore.set(graphConfig.notesEditorLocked)
+    pinIdsStore.set(graphConfig.pinIds)
+    perspectiveThingIdStore.set(graphConfig.perspectiveThingId)
 }
 
 
@@ -40,19 +41,21 @@ export async function saveAppConfig(): Promise<void> {
 
 // Save configuration-related values to the JSON config file.
 export async function saveGraphConfig(): Promise<void> {
-    const pinIdsStoreValue = get(pinIdsStore)
-    const lastPerspectiveThingId = get(perspectiveThingIdStore)
+    const readOnlyMode = get(readOnlyModeStore)
     const leftSideMenu = get(leftSideMenuStore)
     const rightSideMenu = get(rightSideMenuStore)
     const notesEditorLocked = get(notesEditorLockedStore)
+    const pinIdsStoreValue = get(pinIdsStore)
+    const lastPerspectiveThingId = get(perspectiveThingIdStore)
     
     const graphConfig = {
-        pinIds: pinIdsStoreValue,
-        perspectiveThingId: lastPerspectiveThingId,
+        readOnlyMode: readOnlyMode,
         leftSideMenu: leftSideMenu,
         rightSideMenu: rightSideMenu,
-        notesEditorLocked: notesEditorLocked
+        notesEditorLocked: notesEditorLocked,
+        pinIds: pinIdsStoreValue,
+        perspectiveThingId: lastPerspectiveThingId
     }
-
+    
     await apiSaveGraphConfig(graphConfig)
 }

@@ -8,7 +8,7 @@
 
     // Constant and utility imports.
     import { zoomBase } from "$lib/shared/constants"
-    import { addGraph, removeGraph, graphIdsNeedingViewerRefresh, addGraphIdsNeedingViewerRefresh, removeGraphIdsNeedingViewerRefresh, reorderingInfoStore } from "$lib/stores"
+    import { addGraph, removeGraph, graphIdsNeedingViewerRefresh, addGraphIdsNeedingViewerRefresh, removeGraphIdsNeedingViewerRefresh, reorderingInfoStore, readOnlyMode } from "$lib/stores"
 
     // Import widgets.
     import { GraphOutlineWidget } from "$lib/widgets/graphWidgets"
@@ -64,6 +64,8 @@
 <div
     class="off-axis-relations-toggle"
     class:expanded
+    class:no-mouse-events={$readOnlyMode && !numberOfRelations}
+
     style="width: {size}px; height: {size}px;"
     on:mouseenter={()=>{toggleHovered = true}}
     on:mouseleave={()=>{toggleHovered = false}}
@@ -129,6 +131,10 @@
 
         font-size: 1.25rem;
 
+        pointer-events: none;
+    }
+
+    .off-axis-relations-toggle:not(.no-mouse-events) {
         pointer-events: auto;
         cursor: pointer;
     }

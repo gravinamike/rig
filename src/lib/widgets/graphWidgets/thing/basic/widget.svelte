@@ -10,7 +10,8 @@
     import {
         hoveredThingIdStore, hoveredRelationshipTarget,
         relationshipBeingCreatedInfoStore, setRelationshipBeingCreatedDestThingId,
-        disableRelationshipBeingCreated
+        disableRelationshipBeingCreated,
+        readOnlyMode
     } from "$lib/stores"
 
     // Utility imports.
@@ -135,7 +136,7 @@
 
 <!-- Set up mouse-event handlers on page body. -->
 <svelte:body
-    on:mousemove={handleMouseDrag}
+    on:mousemove={ (event) => { if (!readOnlyMode) handleMouseDrag(event) } }
     on:mouseup={onBodyMouseUp}
 />
 
@@ -195,7 +196,7 @@
                 disableRelationshipBeingCreated()
             }
         } }
-        on:contextmenu|preventDefault={openCommandPalette}
+        on:contextmenu|preventDefault={ (event) => {if (!$readOnlyMode) openCommandPalette(event)} }
     >
         <!-- Perspective-text slider. -->
         {#if hasPerspectiveText || editingText}

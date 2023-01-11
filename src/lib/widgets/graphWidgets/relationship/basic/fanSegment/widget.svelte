@@ -3,7 +3,7 @@
     import type { GenerationMember, Thing } from "$lib/models/constructModels"
 
     // Import stores.
-    import { relationshipBeingCreatedInfoStore, reorderingInfoStore } from "$lib/stores"
+    import { readOnlyMode, relationshipBeingCreatedInfoStore, reorderingInfoStore } from "$lib/stores"
 
     // Import widget controller.
     import RelationshipFanSegmentWidgetController from "./controller.svelte"
@@ -76,6 +76,7 @@
     <!-- Hoverable zone of fan segment. -->
     <line
         class="fan-segment-hover-zone"
+        class:read-only-mode={$readOnlyMode}
 
         x1="{midline}" y1="{stemTop}"
         x2="{leafGeometry.bottomMidline}" y2="{leafGeometry.bottom}"
@@ -150,6 +151,10 @@
     .fan-segment-hover-zone {
         opacity: 0;
 
+        pointer-events: none;
+    }
+
+    .fan-segment-hover-zone:not(.read-only-mode) {
         pointer-events: auto;
         cursor: pointer;
     }
