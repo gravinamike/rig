@@ -76,10 +76,6 @@
             {
                 name: "About",
                 icon: "about"
-            },
-            {
-                name: "File",
-                icon: "file"
             }
         ].filter(info => info !== null) as { name: string, icon: string }[],
 
@@ -101,7 +97,11 @@
                     name: "Dev",
                     icon: "dev"
                 } :
-                null
+                null,
+            {
+                name: "File",
+                icon: "file"
+            }
         ].filter(info => info !== null) as { name: string, icon: string }[]
     ]
     let leftMenuOpen: boolean
