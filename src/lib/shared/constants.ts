@@ -37,6 +37,7 @@ export interface GraphConfig {
     leftSideMenu: string | null
     rightSideMenu: string | null
     notesEditorLocked: boolean
+    homeThingId: number | null
     pinIds: number[]
     perspectiveThingId: number
 }

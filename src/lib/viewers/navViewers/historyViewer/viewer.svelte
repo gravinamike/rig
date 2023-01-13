@@ -7,7 +7,7 @@
     import { dateDividerOptions } from "$lib/shared/constants"
 
     // Import stores.
-    import { hoveredThingIdStore } from "$lib/stores"
+    import { addPin, homeThingIdStore, hoveredThingIdStore, openContextCommandPalette, pinIdsStore, readOnlyMode, removeHomeThing, removePin, setHomeThingId } from "$lib/stores"
 
     // Import related widgets.
     import { Toggle } from "$lib/widgets/layoutWidgets"
@@ -31,6 +31,49 @@
         useUniqueHistory
 
         historyToUse = graph.history.reverseHistoryWithDateDividers
+    }
+
+    /**
+     * Open a context command palette for a History entry.
+     * @param  {MouseEvent} event - The mouse event that opens the command palette.
+     */
+     function openHistoryContextCommandPalette(event: MouseEvent, thingId: number) {
+        const position: [number, number] = [ event.clientX, event.clientY ]
+        const buttonInfos = [
+            (
+                $pinIdsStore.includes(thingId) ? {
+                    text: "Remove Thing from Pins",
+                    iconName: "no-pin",
+                    iconHtml: null,
+                    isActive: false,
+                    onClick: () => {removePin(thingId)}
+                } :
+                {
+                    text: "Add Thing to Pins",
+                    iconName: "pin",
+                    iconHtml: null,
+                    isActive: false,
+                    onClick: () => {addPin(thingId)}
+                }
+            ),
+            (
+                $homeThingIdStore === thingId ? {
+                    text: "Remove as Home-Thing",
+                    iconName: "no-home",
+                    iconHtml: null,
+                    isActive: false,
+                    onClick: () => {removeHomeThing()}
+                } :
+                {
+                    text: "Make Home Thing",
+                    iconName: "home",
+                    iconHtml: null,
+                    isActive: false,
+                    onClick: () => {setHomeThingId(thingId)}
+                }
+            )
+        ]
+        openContextCommandPalette(position, buttonInfos)
     }
 </script>
 
@@ -69,6 +112,7 @@
                     class="box"
                     class:hovered-thing={entryOrDivider.thingId === $hoveredThingIdStore}
                     class:id-not-found={!entryOrDivider.thing}
+                    class:home-thing={ entryOrDivider.thingId === $homeThingIdStore }
 
                     on:mouseenter={ () => {
                         if (
@@ -86,20 +130,32 @@
                             && entryOrDivider.thing
                         ) rePerspectToThingId(entryOrDivider.thingId)
                     } }
+                    on:contextmenu|preventDefault={ (event) => {
+                        if (!$readOnlyMode && "thingId" in entryOrDivider) {
+                            openHistoryContextCommandPalette(event, entryOrDivider.thingId)
+                        }
+                    } }
                     on:keydown={()=>{}}
                 >
+                    {#if entryOrDivider.thingId === $homeThingIdStore}
+                        <div class="icon-container home">
+                            <img
+                                src="./icons/home.png"
+                                alt="Home indicator"
+                            >
+                        </div>
+                    {/if}
+                    
                     { entryOrDivider.thing?.text || `(THING ${entryOrDivider.thingId} NOT FOUND IN STORE)` }
+                    
                     {#if (
                         (useUniqueHistory && entryOrDivider.thingId === graph.history.selectedThingId)
                         || (!useUniqueHistory && ((historyToUse.length - 1) - index) === graph.history.position)
                     )}
-                        <div class="logo-icon-container">
+                        <div class="icon-container perspective">
                             <img
                                 src="./icons/perspective.png"
                                 alt="Perspective indicator"
-                                width="22px"
-                                height="22px"
-                                style="opacity: 75%;"
                             >
                         </div>
                     {/if}
@@ -208,15 +264,32 @@
         outline: solid 2px black;
     }
 
+    .box.home-thing {
+        padding-left: 30px;
+    }
+
     .id-not-found {
         outline: dashed 1px black;
     }
 
-    .logo-icon-container {
+    .icon-container {
         position: absolute;
         top: 4px;
-        right: 4px;
         background-color: white;
+    }
+
+    .icon-container.home {
+        left: 4px;
+    }
+
+    .icon-container.perspective {
+        right: 4px;
+    }
+
+    .icon-container img {
+        width: 22px;
+        height: 22px;
+        opacity: 75%;
     }
 
     .date-divider {

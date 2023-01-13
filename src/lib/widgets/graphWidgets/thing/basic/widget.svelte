@@ -11,7 +11,8 @@
         hoveredThingIdStore, hoveredRelationshipTarget,
         relationshipBeingCreatedInfoStore, setRelationshipBeingCreatedDestThingId,
         disableRelationshipBeingCreated,
-        readOnlyMode
+        readOnlyMode,
+        homeThingIdStore
     } from "$lib/stores"
 
     // Utility imports.
@@ -279,6 +280,16 @@
             </div>
         {/if}
     </div>
+    
+    <!-- Home-Thing indicator. -->
+    {#if thingId === $homeThingIdStore}
+        <div class="home-indicator">
+            <img
+                src="./icons/home.png"
+                alt="Home indicator"
+            >
+        </div>
+    {/if}
 {/if}
 
 
@@ -358,5 +369,19 @@
         height: calc(100% - 50px);
         bottom: 5px;
         left: 5px;
+    }
+
+    .home-indicator {
+        position: absolute;
+        left: -20px;
+        top: -20px;
+        width: 40px;
+        height: 40px;
+    }
+
+    .home-indicator img {
+        width: 40px;
+        height: 40px;
+        opacity: 35%;
     }
 </style>
