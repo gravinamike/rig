@@ -1,6 +1,6 @@
 import type { AppConfig, GraphConfig } from "$lib/shared/constants"
 import { get } from "svelte/store"
-import { pinIdsStore } from "$lib/stores/pinStores"
+import { homeThingIdStore, pinIdsStore } from "$lib/stores/pinStores"
 import { getAppConfig, getGraphConfig } from "$lib/db/clientSide/getInfo"
 import { setDbPort, setGraphsBaseFolder, setUnigraphFolder, saveAppConfig as apiSaveAppConfig, saveGraphConfig as apiSaveGraphConfig } from "$lib/db/clientSide/makeChanges"
 import { readOnlyMode as readOnlyModeStore, perspectiveThingIdStore, leftSideMenuStore, rightSideMenuStore, notesEditorLockedStore } from "$lib/stores"
@@ -29,6 +29,7 @@ export async function storeGraphConfig(): Promise<void> {
     leftSideMenuStore.set(graphConfig.leftSideMenu)
     rightSideMenuStore.set(graphConfig.rightSideMenu)
     notesEditorLockedStore.set(graphConfig.notesEditorLocked)
+    homeThingIdStore.set(graphConfig.homeThingId)
     pinIdsStore.set(graphConfig.pinIds)
     perspectiveThingIdStore.set(graphConfig.perspectiveThingId)
 }
@@ -45,6 +46,7 @@ export async function saveGraphConfig(): Promise<void> {
     const leftSideMenu = get(leftSideMenuStore)
     const rightSideMenu = get(rightSideMenuStore)
     const notesEditorLocked = get(notesEditorLockedStore)
+    const homeThingId = get(homeThingIdStore)
     const pinIdsStoreValue = get(pinIdsStore)
     const lastPerspectiveThingId = get(perspectiveThingIdStore)
     
@@ -53,6 +55,7 @@ export async function saveGraphConfig(): Promise<void> {
         leftSideMenu: leftSideMenu,
         rightSideMenu: rightSideMenu,
         notesEditorLocked: notesEditorLocked,
+        homeThingId: homeThingId,
         pinIds: pinIdsStoreValue,
         perspectiveThingId: lastPerspectiveThingId
     }

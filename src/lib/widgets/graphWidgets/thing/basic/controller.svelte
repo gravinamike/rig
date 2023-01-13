@@ -15,7 +15,10 @@
         removeIdsFromThingSearchListStore,
         reorderingInfoStore,
         storeGraphDbModels,
-        readOnlyMode
+        readOnlyMode,
+        setHomeThingId,
+        removeHomeThing,
+        homeThingIdStore
 
     } from "$lib/stores"
 
@@ -288,19 +291,19 @@
                     }
                 ),
                 (
-                    true ? {
+                    $homeThingIdStore === thingId ? {
                         text: "Remove as Home-Thing",
                         iconName: "no-home",
                         iconHtml: null,
                         isActive: false,
-                        onClick: () => {}
+                        onClick: () => {removeHomeThing()}
                     } :
                     {
                         text: "Make Home Thing",
                         iconName: "home",
                         iconHtml: null,
                         isActive: false,
-                        onClick: () => {}
+                        onClick: () => {setHomeThingId(thingId)}
                     }
                 )
             ]

@@ -7,7 +7,7 @@
     import { dateDividerOptions } from "$lib/shared/constants"
 
     // Import stores.
-    import { hoveredThingIdStore } from "$lib/stores"
+    import { homeThingIdStore, hoveredThingIdStore } from "$lib/stores"
 
     // Import related widgets.
     import { Toggle } from "$lib/widgets/layoutWidgets"
@@ -32,9 +32,6 @@
 
         historyToUse = graph.history.reverseHistoryWithDateDividers
     }
-
-
-    const isHomeThing = true
 </script>
 
 <!-- History viewer. -->
@@ -72,7 +69,7 @@
                     class="box"
                     class:hovered-thing={entryOrDivider.thingId === $hoveredThingIdStore}
                     class:id-not-found={!entryOrDivider.thing}
-                    class:home-thing={isHomeThing}
+                    class:home-thing={ entryOrDivider.thingId === $homeThingIdStore }
 
                     on:mouseenter={ () => {
                         if (
@@ -92,7 +89,7 @@
                     } }
                     on:keydown={()=>{}}
                 >
-                    {#if isHomeThing}
+                    {#if entryOrDivider.thingId === $homeThingIdStore}
                         <div class="icon-container home">
                             <img
                                 src="./icons/home.png"

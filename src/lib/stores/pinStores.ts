@@ -47,3 +47,37 @@ export async function setPins( thingIds: number[] ): Promise<void> {
     // Update the Graph config to reflect the change.
     await saveGraphConfig()
 }
+
+
+
+
+
+
+
+
+// Home Thing ID Store.
+// Holds the IDs of the Home Thing (or null if none).
+export const homeThingIdStore = writable( null as number | null )
+
+/**
+ * Set the ID of the Home Thing.
+ * @param  {number} thingId - The ID of the new Home Thing.
+ */
+export async function setHomeThingId( thingId: number ): Promise<void> {
+    // Set the Home Thing ID.
+    homeThingIdStore.set( thingId )
+    console.log(thingId)
+    // Update the Graph config to reflect the change.
+    await saveGraphConfig()
+}
+
+/**
+ * Set the Home Thing ID to null (meaning no Home Thing).
+ */
+export async function removeHomeThing(): Promise<void> {
+    // Set the Home Thing ID to null.
+    homeThingIdStore.set( null )
+
+    // Update the Graph config to reflect the change.
+    await saveGraphConfig()
+}
