@@ -1,7 +1,7 @@
 <script lang="ts">
     // Import types.
     import type { ThingDbModel } from "$lib/models/dbModels/clientSide"
-    import type { Thing } from "$lib/models/constructModels"
+    import type { Graph, Thing } from "$lib/models/constructModels"
     
     // Import framework functions.
     import { flip } from "svelte/animate"
@@ -14,6 +14,7 @@
     import { changeIndexInArray } from "$lib/shared/utility"
 
 
+    export let graph: Graph | null
     export let useTabbedLayout: boolean
     export let rePerspectToThingId: (thingId: number) => Promise<void>
 
@@ -118,6 +119,7 @@
                 <PinWidget
                     thingId={pin.thingId}
                     thing={pin.thing}
+                    {graph}
                     {rePerspectToThingId}
                 />
             </div>

@@ -1,6 +1,6 @@
 <script lang="ts">
     /* Type imports. */
-    import type { Thing } from "$lib/models/constructModels"
+    import type { Graph, Thing } from "$lib/models/constructModels"
 
     /* Store-related imports. */
     import { homeThingIdStore, hoveredThingIdStore, openContextCommandPalette, readOnlyMode, removeHomeThing, removePin, setHomeThingId } from "$lib/stores"
@@ -13,6 +13,7 @@
      */
     export let thingId: number
     export let thing: Thing | null
+    export let graph: Graph | null
     export let rePerspectToThingId: (thingId: number) => Promise<void>
 
 
@@ -66,6 +67,7 @@
         { thingId === hoveredThingIdStoreValue ? "hovered-thing" : "" }
         { thing ? "" : "thing-id-not-found" }
     "
+    class:home-thing={ thingId === $homeThingIdStore }
     
     on:mouseenter={()=>{hoveredThingIdStore.set(thingId)}}
     on:mouseleave={()=>{hoveredThingIdStore.set(null)}}
@@ -74,7 +76,25 @@
     on:keydown={()=>{}}
     on:contextmenu|preventDefault={ (event) => {if (!$readOnlyMode) openPinContextCommandPalette(event)} }
 >
+    {#if thingId === $homeThingIdStore}
+        <div class="icon-container home">
+            <img
+                src="./icons/home.png"
+                alt="Home indicator"
+            >
+        </div>
+    {/if}
+
     {thingText}
+
+    {#if (thingId === graph?.history.selectedThingId)}
+        <div class="icon-container perspective">
+            <img
+                src="./icons/perspective.png"
+                alt="Perspective indicator"
+            >
+        </div>
+    {/if}
 </div>
 
 
@@ -108,5 +128,29 @@
 
     .hovered-thing {
         outline: solid 2px black;
+    }
+
+    .pin-widget.home-thing {
+        padding-left: 30px;
+    }
+
+    .icon-container {
+        position: absolute;
+        top: 4px;
+        background-color: white;
+    }
+
+    .icon-container.home {
+        left: 4px;
+    }
+
+    .icon-container.perspective {
+        right: 4px;
+    }
+
+    .icon-container img {
+        width: 22px;
+        height: 22px;
+        opacity: 75%;
     }
 </style>

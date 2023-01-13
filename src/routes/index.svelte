@@ -261,6 +261,7 @@
                             <!-- Stores tab. --> 
                             <TabBody>
                                 <PinsViewer
+                                    {graph}
                                     {useTabbedLayout}
                                     {rePerspectToThingId}
                                 />
@@ -297,6 +298,7 @@
                             }
                         >
                             <PinsViewer
+                                {graph}
                                 {useTabbedLayout}
                                 {rePerspectToThingId}
                             />

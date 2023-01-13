@@ -265,7 +265,7 @@
     }
 
     .box.home-thing {
-        padding-left: 28px;
+        padding-left: 30px;
     }
 
     .id-not-found {
