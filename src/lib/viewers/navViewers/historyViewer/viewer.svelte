@@ -32,6 +32,9 @@
 
         historyToUse = graph.history.reverseHistoryWithDateDividers
     }
+
+
+    const isHomeThing = true
 </script>
 
 <!-- History viewer. -->
@@ -69,6 +72,7 @@
                     class="box"
                     class:hovered-thing={entryOrDivider.thingId === $hoveredThingIdStore}
                     class:id-not-found={!entryOrDivider.thing}
+                    class:home-thing={isHomeThing}
 
                     on:mouseenter={ () => {
                         if (
@@ -88,18 +92,25 @@
                     } }
                     on:keydown={()=>{}}
                 >
+                    {#if isHomeThing}
+                        <div class="icon-container home">
+                            <img
+                                src="./icons/home.png"
+                                alt="Home indicator"
+                            >
+                        </div>
+                    {/if}
+                    
                     { entryOrDivider.thing?.text || `(THING ${entryOrDivider.thingId} NOT FOUND IN STORE)` }
+                    
                     {#if (
                         (useUniqueHistory && entryOrDivider.thingId === graph.history.selectedThingId)
                         || (!useUniqueHistory && ((historyToUse.length - 1) - index) === graph.history.position)
                     )}
-                        <div class="logo-icon-container">
+                        <div class="icon-container perspective">
                             <img
                                 src="./icons/perspective.png"
                                 alt="Perspective indicator"
-                                width="22px"
-                                height="22px"
-                                style="opacity: 75%;"
                             >
                         </div>
                     {/if}
@@ -208,15 +219,32 @@
         outline: solid 2px black;
     }
 
+    .box.home-thing {
+        padding-left: 28px;
+    }
+
     .id-not-found {
         outline: dashed 1px black;
     }
 
-    .logo-icon-container {
+    .icon-container {
         position: absolute;
         top: 4px;
-        right: 4px;
         background-color: white;
+    }
+
+    .icon-container.home {
+        left: 4px;
+    }
+
+    .icon-container.perspective {
+        right: 4px;
+    }
+
+    .icon-container img {
+        width: 22px;
+        height: 22px;
+        opacity: 75%;
     }
 
     .date-divider {
