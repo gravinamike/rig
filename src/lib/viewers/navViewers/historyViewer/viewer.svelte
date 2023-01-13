@@ -7,7 +7,7 @@
     import { dateDividerOptions } from "$lib/shared/constants"
 
     // Import stores.
-    import { homeThingIdStore, hoveredThingIdStore } from "$lib/stores"
+    import { addPin, homeThingIdStore, hoveredThingIdStore, openContextCommandPalette, pinIdsStore, readOnlyMode, removeHomeThing, removePin, setHomeThingId } from "$lib/stores"
 
     // Import related widgets.
     import { Toggle } from "$lib/widgets/layoutWidgets"
@@ -31,6 +31,49 @@
         useUniqueHistory
 
         historyToUse = graph.history.reverseHistoryWithDateDividers
+    }
+
+    /**
+     * Open a context command palette for a History entry.
+     * @param  {MouseEvent} event - The mouse event that opens the command palette.
+     */
+     function openHistoryContextCommandPalette(event: MouseEvent, thingId: number) {
+        const position: [number, number] = [ event.clientX, event.clientY ]
+        const buttonInfos = [
+            (
+                $pinIdsStore.includes(thingId) ? {
+                    text: "Remove Thing from Pins",
+                    iconName: "no-pin",
+                    iconHtml: null,
+                    isActive: false,
+                    onClick: () => {removePin(thingId)}
+                } :
+                {
+                    text: "Add Thing to Pins",
+                    iconName: "pin",
+                    iconHtml: null,
+                    isActive: false,
+                    onClick: () => {addPin(thingId)}
+                }
+            ),
+            (
+                $homeThingIdStore === thingId ? {
+                    text: "Remove as Home-Thing",
+                    iconName: "no-home",
+                    iconHtml: null,
+                    isActive: false,
+                    onClick: () => {removeHomeThing()}
+                } :
+                {
+                    text: "Make Home Thing",
+                    iconName: "home",
+                    iconHtml: null,
+                    isActive: false,
+                    onClick: () => {setHomeThingId(thingId)}
+                }
+            )
+        ]
+        openContextCommandPalette(position, buttonInfos)
     }
 </script>
 
@@ -86,6 +129,11 @@
                             && "thingId" in entryOrDivider
                             && entryOrDivider.thing
                         ) rePerspectToThingId(entryOrDivider.thingId)
+                    } }
+                    on:contextmenu|preventDefault={ (event) => {
+                        if (!$readOnlyMode && "thingId" in entryOrDivider) {
+                            openHistoryContextCommandPalette(event, entryOrDivider.thingId)
+                        }
                     } }
                     on:keydown={()=>{}}
                 >

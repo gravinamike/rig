@@ -3,7 +3,7 @@
     import type { Thing } from "$lib/models/constructModels"
 
     /* Store-related imports. */
-    import { hoveredThingIdStore, openContextCommandPalette, readOnlyMode, removePin } from "$lib/stores"
+    import { homeThingIdStore, hoveredThingIdStore, openContextCommandPalette, readOnlyMode, removeHomeThing, removePin, setHomeThingId } from "$lib/stores"
 
 
     /**
@@ -36,7 +36,23 @@
                 iconHtml: null,
                 isActive: false,
                 onClick: () => {removePin(thingId)}
-            }
+            },
+            (
+                $homeThingIdStore === thingId ? {
+                    text: "Remove as Home-Thing",
+                    iconName: "no-home",
+                    iconHtml: null,
+                    isActive: false,
+                    onClick: () => {removeHomeThing()}
+                } :
+                {
+                    text: "Make Home Thing",
+                    iconName: "home",
+                    iconHtml: null,
+                    isActive: false,
+                    onClick: () => {setHomeThingId(thingId)}
+                }
+            )
         ]
         openContextCommandPalette(position, buttonInfos)
     }
