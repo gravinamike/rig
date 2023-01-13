@@ -31,7 +31,10 @@ export async function storeGraphConfig(): Promise<void> {
     notesEditorLockedStore.set(graphConfig.notesEditorLocked)
     homeThingIdStore.set(graphConfig.homeThingId)
     pinIdsStore.set(graphConfig.pinIds)
-    perspectiveThingIdStore.set(graphConfig.perspectiveThingId)
+    perspectiveThingIdStore.set(
+        graphConfig.homeThingId ? graphConfig.homeThingId :
+        graphConfig.perspectiveThingId
+    )
 }
 
 
