@@ -4,7 +4,7 @@
     import type { Graph, Space } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
-    // Import basic framework functions.
+    // Import basic framework resources.
     import { onMount } from "svelte"
 
     // Import constants and configs.
@@ -12,7 +12,7 @@
     import { storeAppConfig } from "$lib/shared/config"
 
     // Import database/stores-related functions.
-    import { devMode, fontNames, leftSideMenuStore, loadingState, openGraphStore, perspectiveThingIdStore, reorderingInfoStore, updateMousePosition, updateRelationshipBeingCreatedEndpoint } from "$lib/stores"
+    import { urlStore, devMode, fontNames, leftSideMenuStore, loadingState, openGraphStore, perspectiveThingIdStore, reorderingInfoStore, updateMousePosition, updateRelationshipBeingCreatedEndpoint } from "$lib/stores"
 
     // Import widgets.
     import {
@@ -39,7 +39,7 @@
     // Import API methods.
     import { openUnigraph } from "$lib/shared/unigraph"
     import { getFontNames } from "$lib/db/clientSide/getInfo"
-    import { onMobile } from "$lib/shared/utility";
+    import { onMobile, urlHashToObject } from "$lib/shared/utility"
 
 
     // Initialize states for waiting indicator.
@@ -146,6 +146,7 @@
     } 
 
 
+
     // At app initialization,
     onMount(async () => {
         $loadingState = "configLoading"
@@ -172,6 +173,19 @@
             $loadingState = "graphLoaded"
         }
 	})
+
+
+
+
+
+    let urlHashParams: Record<string, unknown> = {}
+    $: urlHashParams = urlHashToObject($urlStore.hash)
+    $: console.log(urlHashParams)/////////////////////////////////////
+
+
+
+
+    
 </script>
 
 

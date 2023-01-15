@@ -119,3 +119,26 @@ export function onMobile(): boolean {
     const onMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
     return onMobile
 }
+
+
+
+export function urlHashToObject(hash: string): Record<string, unknown> {
+
+    if ( !hash.length || (hash.length === 1 && hash[0] === "#") ) return {}
+
+    const hashWithoutHashCharacter =
+        hash[0] === "#" ? hash.slice(1) :
+        hash
+
+    const parsedObject = hashWithoutHashCharacter
+        // Split into key-value pairs.
+        .split("&")
+        // Convert each key-balue pair into a [key, value] array.
+        .map( kVPair => kVPair.split("=") )
+        // 
+        .reduce(
+            (previousValues, [key, value]) => ({ ...previousValues, [key]: value }),
+            {}
+        )
+    return parsedObject
+}
