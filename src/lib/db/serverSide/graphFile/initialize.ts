@@ -1,7 +1,5 @@
-// Import types.
-import type Knex from "knex"
-
 // Import database-framework-related classes.
+import type { Knex } from "knex"
 import { Model } from "objection"
 
 // Import database-related methods.

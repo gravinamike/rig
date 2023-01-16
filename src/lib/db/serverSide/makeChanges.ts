@@ -1,6 +1,3 @@
-// Type imports.
-import type Knex from "knex"
-
 // Database-related imports.
 import { Model } from "objection"
 import { v4 as uuidv4 } from "uuid"
@@ -19,6 +16,7 @@ import { Direction, Space, Thing } from "$lib/models/constructModels"
 import { createFolder } from "$lib/shared/fileSystem"
 
 import { changeIndexInArray, legacyPerspectiveThingsParse } from "$lib/shared/utility"
+import type { Knex } from "knex"
 
 
 /*
@@ -158,7 +156,7 @@ export async function updateSpace(
             await RawSpaceDbModel.relatedQuery('directionToSpaces').for([spaceId]).delete().transacting(transaction)
 
             // Create new Direction linkers.
-            const spaceToAddDirectionsTo = await RawSpaceDbModel.query().findById(spaceId)
+            const spaceToAddDirectionsTo = await RawSpaceDbModel.query().findById(spaceId) as RawSpaceDbModel
             for (const direction of directions) if (direction?.id) {
                 const querystring = spaceToAddDirectionsTo.$relatedQuery('directions').relate(direction.id).toKnexQuery().toString()
                 await alterQuerystringForH2AndRun(querystring, transaction, "", "DirectionToSpace")
@@ -451,7 +449,7 @@ export async function addNoteToThing(thingId: number): Promise<number | false> {
         const newAddedNote = await alterQuerystringForH2AndRun(querystring1, transaction, whenCreated, "Note") as RawNoteDbModel
 
         // Create the linker between the Note and its Thing.
-        const thingToAddNoteTo = await RawThingDbModel.query().findById(thingId)
+        const thingToAddNoteTo = await RawThingDbModel.query().findById(thingId) as RawThingDbModel
         const querystring2 = thingToAddNoteTo.$relatedQuery('note').relate(newAddedNote.id).toKnexQuery().toString()
         await alterQuerystringForH2AndRun(querystring2, transaction, whenCreated, "NoteToThing") as RawNoteToThingDbModel
 
@@ -512,7 +510,7 @@ export async function addFolderToThing(thingId: number): Promise<void> {
         const newAddedFolder = await alterQuerystringForH2AndRun(querystring1, transaction, whenCreated, "Folder") as RawFolderDbModel
 
         // Create the linker between the Folder and its Thing.
-        const thingToAddFolderTo = await RawThingDbModel.query().findById(thingId)
+        const thingToAddFolderTo = await RawThingDbModel.query().findById(thingId) as RawThingDbModel
         const querystring2 = thingToAddFolderTo.$relatedQuery('folder').relate(newAddedFolder.id).toKnexQuery().toString()
         await alterQuerystringForH2AndRun(querystring2, transaction, whenCreated, "FolderToThing") as RawFolderToThingDbModel
         

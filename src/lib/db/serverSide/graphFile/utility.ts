@@ -1,5 +1,5 @@
 // Import types.
-import type Knex from "knex"
+import type { Knex } from "knex"
 import type { TableInfo } from "./dbInfo"
 
 
