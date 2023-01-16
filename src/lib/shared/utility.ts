@@ -116,6 +116,7 @@ export function legacyPerspectiveThingsParse(jsonString: string): {[thingId: str
 
 
 export function onMobile(): boolean {
+    if (typeof navigator === "undefined") return false
     const onMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
     return onMobile
 }
