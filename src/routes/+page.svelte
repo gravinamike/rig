@@ -37,7 +37,7 @@
     import { defaultGraphWidgetStyle, RelationshipBeingCreatedWidget } from "$lib/widgets/graphWidgets"
 
     // Import API methods.
-    import { openUnigraph } from "$lib/shared/unigraph"
+    import { openUnigraph, openUnigraphFolder } from "$lib/shared/unigraph"
     import { getFontNames } from "$lib/db/clientSide/getInfo"
     import { onMobile, urlHashToObject } from "$lib/shared/utility"
 
@@ -154,24 +154,17 @@
     let urlHashParams: { [key: string]: string } = {}
     $: urlHashParams = urlHashToObject($urlStore.hash)
     $: graphFolder = "graph" in urlHashParams ? urlHashParams["graph"] : null
-    $: pThingId = "thingId" in urlHashParams ? urlHashParams["thingId"] : null
+    //$: pThingId = "thingId" in urlHashParams ? urlHashParams["thingId"] : null
 
 
 
     async function loadGraph(graphFolder: string) {
-        $loadingState = "graphLoading"
+        await openUnigraphFolder(graphFolder)
 
-        document.cookie = `graphName=${graphFolder}`
-        //document.cookie = `pThingId=${pThingId}`
-        openGraphStore.set(graphFolder)
-
-        await openUnigraph()
         leftMenuOpen = !!$leftSideMenuStore
         leftMenuLockedOpen = !!$leftSideMenuStore
         openedSubMenuName = $leftSideMenuStore
         lockedSubMenuName = $leftSideMenuStore
-
-        $loadingState = "graphLoaded"
     }
 
     // At app initialization,

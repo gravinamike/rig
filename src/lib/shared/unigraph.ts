@@ -1,9 +1,32 @@
 import { storeGraphConfig, saveAppConfig } from "$lib/shared/config"
-import { storeGraphDbModels, clearGraphDbModelStore, storeThingSearchList, clearThingSearchList } from "$lib/stores"
+import { storeGraphDbModels, clearGraphDbModelStore, storeThingSearchList, clearThingSearchList, urlStore } from "$lib/stores"
 import { loadingState, openGraphStore } from "$lib/stores"
 import { graphIsUpdated, updateGraph } from "$lib/db/clientSide/graphFile"
 import { get } from "svelte/store"
 
+
+
+
+
+export async function openUnigraphFolder(folderName: string, updateUrlHash=false): Promise<void> {
+    await closeUnigraph()
+    openGraphStore.set(null)
+    
+
+    loadingState.set("graphLoading")
+
+
+    const url = get(urlStore)////////////////////////////// MOVE THIS WHOLE SECTION TO A "UPDATE HASH" FUNCTION
+    url.hash = `graph=${folderName}`
+    if (updateUrlHash) document.location.href = url.href
+
+
+    document.cookie = `graphName=${folderName}`
+    openGraphStore.set(folderName)
+    await openUnigraph()
+
+    loadingState.set("graphLoaded")
+}
 
 
 export async function openUnigraph(): Promise<boolean> {
@@ -68,15 +91,3 @@ export async function closeUnigraph(): Promise<void> {
 }
 
 
-export async function openUnigraphFolder(folderName: string): Promise<void> {
-    await closeUnigraph()
-    openGraphStore.set(null)
-    
-    loadingState.set("graphLoading")
-    
-    document.cookie = `graphName=${folderName}`
-    openGraphStore.set(folderName)
-    await openUnigraph()
-
-    loadingState.set("graphLoaded")
-}
