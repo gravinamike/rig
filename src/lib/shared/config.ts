@@ -2,7 +2,7 @@ import type { AppConfig, GraphConfig } from "$lib/shared/constants"
 import { get } from "svelte/store"
 import { homeThingIdStore, pinIdsStore } from "$lib/stores/pinStores"
 import { getAppConfig, getGraphConfig } from "$lib/db/clientSide/getInfo"
-import { setDbPort, setGraphsBaseFolder, setUnigraphFolder, saveAppConfig as apiSaveAppConfig, saveGraphConfig as apiSaveGraphConfig } from "$lib/db/clientSide/makeChanges"
+import { setDbPort, setGraphsBaseFolder, saveAppConfig as apiSaveAppConfig, saveGraphConfig as apiSaveGraphConfig } from "$lib/db/clientSide/makeChanges"
 import { readOnlyMode as readOnlyModeStore, perspectiveThingIdStore, leftSideMenuStore, rightSideMenuStore, notesEditorLockedStore } from "$lib/stores"
 
 
@@ -13,9 +13,6 @@ export async function storeAppConfig(): Promise<AppConfig> {
     // Set the back-end stores.
     await setDbPort()
     await setGraphsBaseFolder()
-    if (appConfig.unigraphFolder) {
-        await setUnigraphFolder(appConfig.unigraphFolder)
-    }
 
     return appConfig
 }

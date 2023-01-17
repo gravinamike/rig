@@ -10,7 +10,8 @@
     import {
         devMode, addGraph, removeGraph, openGraphStore, perspectiveThingIdStore, hoveredThingIdStore,
         graphIdsNeedingViewerRefresh, addGraphIdsNeedingViewerRefresh, removeGraphIdsNeedingViewerRefresh,
-        rightSideMenuStore
+        rightSideMenuStore,
+        loadingState
     } from "$lib/stores"
 
     // Import layout elements.
@@ -37,7 +38,7 @@
      * @param forward - Method to navigate a step forwards in the Perspective history.
      * @param setGraphSpace - Method to rebuild the Graph in a new Space.
      */
-    export let pThingIds: number[]
+    export let pThingIds: (number | null)[]
     export let depth: number
 
     export let graph: Graph | null = null
@@ -92,7 +93,7 @@
 
     // Refresh the viewer whenever...
     // ...a Graph is opened...
-    $: {
+    $: if ($loadingState === "graphLoaded") {
         $openGraphStore
 
         buildAndRefresh()
@@ -128,9 +129,9 @@
         }
 
         // Open and build the new Graph.
-        graph = await addGraph(pThingIds, depth)
+        graph = await addGraph(pThingIds as number[], depth)
         graphWidgetStyle = {...defaultGraphWidgetStyle}
-        await markThingsVisited(pThingIds)
+        await markThingsVisited(pThingIds as number[])
 
         // Refresh the Graph viewers.
         showGraph = true
@@ -176,7 +177,7 @@
             addGraphIdsNeedingViewerRefresh(graph.id)
 
             // Update Thing-visit records in the database, History, store and Graph configuration.
-            await markThingsVisited(pThingIds)
+            await markThingsVisited(pThingIds as number[])
             perspectiveThingIdStore.set(thingId)
             saveGraphConfig()
 

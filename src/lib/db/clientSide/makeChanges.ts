@@ -437,16 +437,6 @@ export async function setGraphsBaseFolder(): Promise<void> {
 }
 
 
-/*
- * Set the Unigraph folder.
- */
-export async function setUnigraphFolder(folderName: string): Promise<void> {
-    await fetch("/api/file/unigraphFolder", {
-        method: "POST",
-        body: JSON.stringify(folderName)
-    })
-}
-
 
 
 /*

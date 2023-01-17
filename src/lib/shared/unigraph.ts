@@ -1,50 +1,64 @@
 import { storeGraphConfig, saveAppConfig } from "$lib/shared/config"
 import { storeGraphDbModels, clearGraphDbModelStore, storeThingSearchList, clearThingSearchList } from "$lib/stores"
-import { getUnigraphFolder, setUnigraphFolder } from "$lib/db/clientSide"
 import { loadingState, openGraphStore } from "$lib/stores"
 import { graphIsUpdated, updateGraph } from "$lib/db/clientSide/graphFile"
+import { get } from "svelte/store"
+
+
 
 export async function openUnigraph(): Promise<boolean> {
-    const unigraphFolder = await getUnigraphFolder()
+
+    const unigraphFolder = get(openGraphStore)
 
     if (!unigraphFolder) {
 
-        console.log(`Error retrieving Graph folder.`)
+        console.log(`No Graph folder set - aborting open-Graph operation.`)
 
         return false
 
-    } else if (unigraphFolder !== "null") {
+    } else {
 
+
+        // Update the Graph if necessary.
+
+        // Check if the Graph is up-to-date.
         const isUpdated = await graphIsUpdated()
-
-        // Give user the option to abort before updating the Graph.
+        
+        // Give user the option to abort, then update the Graph if they don't.
         if (!isUpdated) {
             if (confirm(`This Graph's database needs to be updated to work with this version of Rig. Do you want to update it now? (It's a good idea to make a backup copy of the Graph first.)`)) {
-                updateGraph()
+                await updateGraph()
             } else {
                 console.log(`Canceled updating and opening Graph.`)
                 return false
             }
         }
 
+
+        // Load the Graph configuration into stores.
         await storeGraphConfig()
 
+        // Load starting database models into stores.
         await storeGraphDbModels("Direction")
         await storeGraphDbModels("Space")
         await storeThingSearchList()
 
+
+        // Save the Graph configuration to file.
         await saveAppConfig()
 
         return true
 
-    } else {
-
-        console.log(`Can't open Graph because folder has not been set.`)
-
-        return false
-
     }
 }
+
+
+
+
+
+
+
+
 
 export async function closeUnigraph(): Promise<void> {
     await clearGraphDbModelStore("Direction")
@@ -55,13 +69,14 @@ export async function closeUnigraph(): Promise<void> {
 
 
 export async function openUnigraphFolder(folderName: string): Promise<void> {
-    await setUnigraphFolder(folderName)
-
     await closeUnigraph()
     openGraphStore.set(null)
     
     loadingState.set("graphLoading")
-    await openUnigraph()
+    
+    document.cookie = `graphName=${folderName}`
     openGraphStore.set(folderName)
+    await openUnigraph()
+
     loadingState.set("graphLoaded")
 }

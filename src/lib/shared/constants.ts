@@ -39,7 +39,7 @@ export interface GraphConfig {
     notesEditorLocked: boolean
     homeThingId: number | null
     pinIds: number[]
-    perspectiveThingId: number
+    perspectiveThingId: number | null
 }
 
 export type GraphConstruct = Direction | Space | Thing | Relationship

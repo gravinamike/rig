@@ -21,16 +21,21 @@ const cached = global.h2
 /**
  * Get a connection to the database.
  */
-export async function getDatabaseConnection( newGraphName: (string | null) = null ): Promise<typeof Model> {
+export async function getDatabaseConnection(
+    graphName: string,
+    pThingId: (number | null) = null,
+    createGraph = false
+): Promise<typeof Model> {
     const dbPort = get(dbPortStore)
     const graphsBaseFolder = get(graphsBaseFolderStore)
-    const unigraphFolderName = newGraphName ?
-        newGraphName :
-        get(unigraphFolderStore)
+    const unigraphFolderName = graphName
+    /*const unigraphFolderName = createGraph ?
+        graphName :
+        get(unigraphFolderStore)//////////////////////////////// REMOVE THE STORE ENTIRELY?*/
     const unigraphFolderPath = unigraphFolderName ?
         path.join(graphsBaseFolder, unigraphFolderName) :
         null
-
+    
     const knexConfig = {
         client: 'pg',
         version: '1.4',

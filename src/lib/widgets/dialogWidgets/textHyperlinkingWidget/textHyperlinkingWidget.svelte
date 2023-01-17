@@ -20,7 +20,6 @@
     }
 
     function handleEnter() {
-        console.log(urlField.value)
         if (!(urlField.value.startsWith("http://") || urlField.value.startsWith("https://"))) {
             showErrorMessage = true
         } else {

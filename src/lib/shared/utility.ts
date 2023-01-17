@@ -123,7 +123,7 @@ export function onMobile(): boolean {
 
 
 
-export function urlHashToObject(hash: string): Record<string, unknown> {
+export function urlHashToObject(hash: string): { [key: string]: string } {
 
     if ( !hash.length || (hash.length === 1 && hash[0] === "#") ) return {}
 
@@ -131,7 +131,7 @@ export function urlHashToObject(hash: string): Record<string, unknown> {
         hash[0] === "#" ? hash.slice(1) :
         hash
 
-    const parsedObject = hashWithoutHashCharacter
+    const parsedObject: { [key: string]: string } = hashWithoutHashCharacter
         // Split into key-value pairs.
         .split("&")
         // Convert each key-balue pair into a [key, value] array.
@@ -142,4 +142,8 @@ export function urlHashToObject(hash: string): Record<string, unknown> {
             {}
         )
     return parsedObject
+}
+
+export function stringRepresentsInteger(str: string) {
+    return /^\d+$/.test(str)
 }

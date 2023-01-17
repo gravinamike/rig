@@ -3,17 +3,22 @@ import { error } from "@sveltejs/kit"
 import path from "path"
 import fs from "fs"
 import type { GraphConfig } from "$lib/shared/constants"
-import { graphsBaseFolderStore, unigraphFolderStore } from "$lib/stores"
+import { graphsBaseFolderStore } from "$lib/stores"
 import { get as getStore } from "svelte/store"
+import { parse } from "cookie"
 
 
-export const GET: RequestHandler = async () => {
+export const GET: RequestHandler = async ({ request }) => {
     try {
-        const graphsBaseFolder = getStore(graphsBaseFolderStore)
-        const unigraphFolderStoreValue = getStore(unigraphFolderStore)
 
-        const graphConfigPath = unigraphFolderStoreValue ?
-            path.join(graphsBaseFolder, unigraphFolderStoreValue, "config.json") :
+        const cookies = parse(request.headers.get("cookie") || "")
+        const graphName = cookies.graphName || null
+
+
+        const graphsBaseFolder = getStore(graphsBaseFolderStore)
+
+        const graphConfigPath = graphName ?
+            path.join(graphsBaseFolder, graphName, "config.json") :
             null
 
         if (graphConfigPath) {
@@ -37,9 +42,14 @@ export const GET: RequestHandler = async () => {
 
 export const POST: RequestHandler = async ({ request }) => {
     try {
+
+        const cookies = parse(request.headers.get("cookie") || "")
+        const graphName = cookies.graphName || null
+
+
         const graphsBaseFolder = getStore(graphsBaseFolderStore)
         const body = await request.json()
-        const graphConfigPath = `${graphsBaseFolder}/${getStore(unigraphFolderStore)}/config.json`
+        const graphConfigPath = `${graphsBaseFolder}/${graphName}/config.json`
         fs.writeFile(graphConfigPath, JSON.stringify(body), function (err) {
             if (err) {
                 console.log(`Error saving configuration: ${err.message}`)

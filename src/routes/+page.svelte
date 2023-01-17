@@ -147,7 +147,35 @@
 
 
 
+
+
+
+
+    let urlHashParams: { [key: string]: string } = {}
+    $: urlHashParams = urlHashToObject($urlStore.hash)
+    $: graphFolder = "graph" in urlHashParams ? urlHashParams["graph"] : null
+    $: pThingId = "thingId" in urlHashParams ? urlHashParams["thingId"] : null
+
+
+
+    async function loadGraph(graphFolder: string) {
+        $loadingState = "graphLoading"
+
+        document.cookie = `graphName=${graphFolder}`
+        //document.cookie = `pThingId=${pThingId}`
+        openGraphStore.set(graphFolder)
+
+        await openUnigraph()
+        leftMenuOpen = !!$leftSideMenuStore
+        leftMenuLockedOpen = !!$leftSideMenuStore
+        openedSubMenuName = $leftSideMenuStore
+        lockedSubMenuName = $leftSideMenuStore
+
+        $loadingState = "graphLoaded"
+    }
+
     // At app initialization,
+    let mountComplete = false
     onMount(async () => {
         $loadingState = "configLoading"
 
@@ -155,32 +183,30 @@
         devMode.set(import.meta.env.MODE === "development")
         const apiFontNames = await getFontNames()
         if (apiFontNames) fontNames.set(apiFontNames)
-        const appConfig = await storeAppConfig()
 
+        // Store app config.
+        const appConfig = await storeAppConfig()
+        
         $loadingState = "configLoaded"
 
+
         // Open the Unigraph currently specified in the store.
-        if (appConfig.unigraphFolder) {
-            $loadingState = "graphLoading"
+        if (graphFolder) loadGraph(graphFolder)
 
-            await openUnigraph()
-            leftMenuOpen = !!$leftSideMenuStore
-            leftMenuLockedOpen = !!$leftSideMenuStore
-            openedSubMenuName = $leftSideMenuStore
-            lockedSubMenuName = $leftSideMenuStore
-            openGraphStore.set(appConfig.unigraphFolder)
-
-            $loadingState = "graphLoaded"
-        }
+        mountComplete = true
 	})
 
+    $: if (mountComplete && graphFolder) loadGraph(graphFolder)
+
+    
 
 
 
+    
 
-    let urlHashParams: Record<string, unknown> = {}
-    $: urlHashParams = urlHashToObject($urlStore.hash)
-    $: console.log(urlHashParams)/////////////////////////////////////
+    
+
+
 
 
 

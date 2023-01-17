@@ -66,7 +66,6 @@ export const homeThingIdStore = writable( null as number | null )
 export async function setHomeThingId( thingId: number ): Promise<void> {
     // Set the Home Thing ID.
     homeThingIdStore.set( thingId )
-    console.log(thingId)
     // Update the Graph config to reflect the change.
     await saveGraphConfig()
 }
