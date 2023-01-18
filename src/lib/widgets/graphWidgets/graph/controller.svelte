@@ -149,7 +149,7 @@
      */
     handleWheelScroll = (event: WheelEvent) => {
         // If there is not a Relationship-drag operation in progress,
-        if (!event.shiftKey && $relationshipBeingCreatedInfoStore.sourceThingId === null) {
+        if ($relationshipBeingCreatedInfoStore.sourceThingId === null) {
             // Calculate the new zoom.
             const newZoom = graphWidgetStyle.zoom + event.deltaY * -0.005
             // If the new zoom would not exceed min and max zoom bounds, set zoom to the new zoom.

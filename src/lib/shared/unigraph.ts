@@ -21,7 +21,7 @@ export async function openUnigraphFolder(folderName: string, updateUrlHash=false
     if (updateUrlHash) document.location.href = url.href
 
 
-    document.cookie = `graphName=${folderName}`
+    document.cookie = `graphName=${folderName}; SameSite=Strict;`
     openGraphStore.set(folderName)
     await openUnigraph()
 

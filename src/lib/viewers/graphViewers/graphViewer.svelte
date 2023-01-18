@@ -211,22 +211,6 @@
     }
 
     /**
-     * Handle-mouse-wheel method.
-     * 
-     * Allows for shift-scrolling the Perspective history.
-     * @param event - The mouse-wheel event that triggered the method.
-     */
-    async function handleWheel(event: WheelEvent) {
-        if (event.shiftKey) {
-            if (event.deltaY > 0) {
-                back()
-            } else {
-                forward()
-            }
-        }
-    }
-
-    /**
      * Set-Graph-Space method.
      * 
      * Re-builds the the Graph in a new Space.
@@ -240,12 +224,6 @@
         }
     }
 </script>
-
-
-<!-- Handle mouse-wheel events over the page body. -->
-<svelte:body lang="ts"
-    on:wheel={handleWheel}
-/>
 
 
 <!-- Graph viewer. -->
