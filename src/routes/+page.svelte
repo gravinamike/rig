@@ -496,7 +496,7 @@
 
 
     <!-- Graph Portal. -->
-    {#if $openGraphStore}
+    {#if $loadingState === "graphLoaded"}
         <GraphViewer
             pThingIds={[$perspectiveThingIdStore]}
             depth={startingGraphDepth}
