@@ -5,7 +5,7 @@
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
     // Import basic framework resources.
-    import { onMount } from "svelte"
+    import { onMount, tick } from "svelte"
 
     // Import constants and configs.
     import { startingGraphDepth } from "$lib/shared/constants"
@@ -39,7 +39,7 @@
     // Import API methods.
     import { openUnigraph, openUnigraphFolder } from "$lib/shared/unigraph"
     import { getFontNames } from "$lib/db/clientSide/getInfo"
-    import { onMobile, urlHashToObject } from "$lib/shared/utility"
+    import { onMobile, sleep, stringRepresentsInteger, urlHashToObject } from "$lib/shared/utility"
 
 
     // Initialize states for waiting indicator.
@@ -154,12 +154,16 @@
     let urlHashParams: { [key: string]: string } = {}
     $: urlHashParams = urlHashToObject($urlStore.hash)
     $: graphFolder = "graph" in urlHashParams ? urlHashParams["graph"] : null
-    //$: pThingId = "thingId" in urlHashParams ? urlHashParams["thingId"] : null
+    $: pThingId =
+        "thingId" in urlHashParams && stringRepresentsInteger(urlHashParams["thingId"]) ? parseInt(urlHashParams["thingId"]) :
+        null
 
 
 
-    async function loadGraph(graphFolder: string) {
-        await openUnigraphFolder(graphFolder)
+    async function loadGraph(graphFolder: string, pThingId: number | null = null) {
+        if (!mounted) return
+
+        await openUnigraphFolder(graphFolder, pThingId)
 
         leftMenuOpen = !!$leftSideMenuStore
         leftMenuLockedOpen = !!$leftSideMenuStore
@@ -168,8 +172,10 @@
     }
 
     // At app initialization,
-    let mountComplete = false
+    let mounted = false
     onMount(async () => {
+        mounted = true
+
         $loadingState = "configLoading"
 
         // Set the stores.
@@ -184,15 +190,17 @@
 
 
         // Open the Unigraph currently specified in the store.
-        if (graphFolder) loadGraph(graphFolder)
-
-        mountComplete = true
+        if (graphFolder) await loadGraph(graphFolder, pThingId)
 	})
 
-    $: if (mountComplete && graphFolder) loadGraph(graphFolder)
+    
+    $: if (graphFolder) loadGraph(graphFolder)
+
+    function rePerspectIfMounted(pThingId: number) { if (mounted) rePerspectToThingId(pThingId) }
+    $: if (pThingId) rePerspectIfMounted(pThingId)
 
     
-
+    
 
 
     

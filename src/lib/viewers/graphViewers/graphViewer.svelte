@@ -11,7 +11,9 @@
         devMode, addGraph, removeGraph, openGraphStore, perspectiveThingIdStore, hoveredThingIdStore,
         graphIdsNeedingViewerRefresh, addGraphIdsNeedingViewerRefresh, removeGraphIdsNeedingViewerRefresh,
         rightSideMenuStore,
-        loadingState
+        loadingState,
+        urlStore,
+        unigraphFolderStore
     } from "$lib/stores"
 
     // Import layout elements.
@@ -156,6 +158,12 @@
         if (graph) {
             // Record that this re-Perspect operation is in progress.
             rePerspectInProgressThingId = thingId
+
+            
+            const url = $urlStore
+            url.hash = `graph=${$openGraphStore}&thingId=${thingId}`
+            document.location.href = url.href
+
             
             // If the new Perspective Thing is already in the Graph, scroll to center it.
             allowScrollToThingId = true

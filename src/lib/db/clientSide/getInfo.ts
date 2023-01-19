@@ -115,28 +115,6 @@ export async function latestDbConstructs(): Promise<LatestConstructInfos | false
 
 
 
-
-/*
- * Get the Unigraph folder.
- */
-export async function getUnigraphFolder(): Promise<string | false> {
-    const res = await fetch(`api/file/unigraphFolder`)
-
-    // If the response is ok,
-    if (res.ok) {
-        const unigraphFolder = await res.text()
-        return unigraphFolder
-
-    // Handle errors if needed.
-    } else {
-        res.text().then(text => {throw Error(text)})
-        return false
-    }
-}
-
-
-
-
 /*
  * Get the app configuration.
  */

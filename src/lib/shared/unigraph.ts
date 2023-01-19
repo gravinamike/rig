@@ -1,5 +1,5 @@
 import { storeGraphConfig, saveAppConfig } from "$lib/shared/config"
-import { storeGraphDbModels, clearGraphDbModelStore, storeThingSearchList, clearThingSearchList, urlStore } from "$lib/stores"
+import { storeGraphDbModels, clearGraphDbModelStore, storeThingSearchList, clearThingSearchList, urlStore, perspectiveThingIdStore } from "$lib/stores"
 import { loadingState, openGraphStore } from "$lib/stores"
 import { graphIsUpdated, updateGraph } from "$lib/db/clientSide/graphFile"
 import { get } from "svelte/store"
@@ -8,28 +8,29 @@ import { get } from "svelte/store"
 
 
 
-export async function openUnigraphFolder(folderName: string, updateUrlHash=false): Promise<void> {
-    await closeUnigraph()
-    openGraphStore.set(null)
-    
-
+export async function openUnigraphFolder(folderName: string, pThingId: number | null = null, updateUrlHash = false): Promise<void> {
     loadingState.set("graphLoading")
 
-
-    const url = get(urlStore)////////////////////////////// MOVE THIS WHOLE SECTION TO A "UPDATE HASH" FUNCTION
-    url.hash = `graph=${folderName}`
-    if (updateUrlHash) document.location.href = url.href
-
+    await closeUnigraph()
+    openGraphStore.set(null)
 
     document.cookie = `graphName=${folderName}; SameSite=Strict;`
     openGraphStore.set(folderName)
-    await openUnigraph()
+    await openUnigraph(pThingId)
+
+
+    
+    const url = get(urlStore)////////////////////////////// MOVE THIS WHOLE SECTION TO A "UPDATE HASH" FUNCTION
+    url.hash = `graph=${folderName}&thingId=${get(perspectiveThingIdStore)}`
+    if (updateUrlHash) document.location.href = url.href
+
+
 
     loadingState.set("graphLoaded")
 }
 
 
-export async function openUnigraph(): Promise<boolean> {
+export async function openUnigraph(pThingId: number | null = null): Promise<boolean> {
 
     const unigraphFolder = get(openGraphStore)
 
@@ -60,6 +61,11 @@ export async function openUnigraph(): Promise<boolean> {
 
         // Load the Graph configuration into stores.
         await storeGraphConfig()
+
+        // Overwrite Perspective Thing store if parameter was included in the
+        // URL hash.
+        if (pThingId) perspectiveThingIdStore.set(pThingId)
+
 
         // Load starting database models into stores.
         await storeGraphDbModels("Direction")
