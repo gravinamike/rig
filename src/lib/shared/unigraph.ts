@@ -1,14 +1,15 @@
 import { storeGraphConfig, saveAppConfig } from "$lib/shared/config"
-import { storeGraphDbModels, clearGraphDbModelStore, storeThingSearchList, clearThingSearchList, urlStore, perspectiveThingIdStore } from "$lib/stores"
+import { storeGraphDbModels, clearGraphDbModelStore, storeThingSearchList, clearThingSearchList, urlStore, perspectiveThingIdStore, perspectiveSpaceIdStore } from "$lib/stores"
 import { loadingState, openGraphStore } from "$lib/stores"
 import { graphIsUpdated, updateGraph } from "$lib/db/clientSide/graphFile"
 import { get } from "svelte/store"
+import { updateUrlHash as updateUrlHashMethod } from "$lib/shared/utility"
 
 
 
 
 
-export async function openUnigraphFolder(folderName: string, pThingId: number | null = null, updateUrlHash = false): Promise<void> {
+export async function openUnigraphFolder(folderName: string, pThingId: number | null = null, spaceId: number | null = null, updateUrlHash = false): Promise<void> {
     loadingState.set("graphLoading")
 
     await closeUnigraph()
@@ -18,13 +19,11 @@ export async function openUnigraphFolder(folderName: string, pThingId: number | 
     openGraphStore.set(folderName)
     await openUnigraph(pThingId)
 
-
-    
-    const url = get(urlStore)////////////////////////////// MOVE THIS WHOLE SECTION TO A "UPDATE HASH" FUNCTION
-    url.hash = `graph=${folderName}&thingId=${get(perspectiveThingIdStore)}`
-    if (updateUrlHash) document.location.href = url.href
-
-
+    if (updateUrlHash) updateUrlHashMethod({
+        graph: folderName,
+        thingId: get(perspectiveThingIdStore) ? String(get(perspectiveThingIdStore)) : null,
+        spaceId: get(perspectiveSpaceIdStore) ? String(get(perspectiveSpaceIdStore)) : null
+    })
 
     loadingState.set("graphLoaded")
 }
@@ -62,8 +61,8 @@ export async function openUnigraph(pThingId: number | null = null): Promise<bool
         // Load the Graph configuration into stores.
         await storeGraphConfig()
 
-        // Overwrite Perspective Thing store if parameter was included in the
-        // URL hash.
+        // Overwrite Perspective Thing ID store if parameter was
+        // included in the URL hash.
         if (pThingId) perspectiveThingIdStore.set(pThingId)
 
 

@@ -64,6 +64,10 @@ export const perspectiveThingIdStore = writable( null as number | null )
 
 
 
+export const perspectiveSpaceIdStore = writable( null as number | null )
+
+
+
 
 
 

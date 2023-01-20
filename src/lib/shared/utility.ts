@@ -1,3 +1,6 @@
+import { urlStore } from "$lib/stores"
+import { get } from "svelte/store"
+
 export function sleep(time: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, time))
 }
@@ -123,6 +126,12 @@ export function onMobile(): boolean {
 
 
 
+export function stringRepresentsInteger(str: string) {
+    return /^\d+$/.test(str)
+}
+
+
+
 export function urlHashToObject(hash: string): { [key: string]: string } {
 
     if ( !hash.length || (hash.length === 1 && hash[0] === "#") ) return {}
@@ -144,6 +153,23 @@ export function urlHashToObject(hash: string): { [key: string]: string } {
     return parsedObject
 }
 
-export function stringRepresentsInteger(str: string) {
-    return /^\d+$/.test(str)
+
+
+
+
+
+export function updateUrlHash(paramsToChange: { [key: string]: string | null }) {
+    const url = get(urlStore)
+    
+    const urlHashParams = urlHashToObject(url.hash)
+
+    for (const [key, value] of Object.entries(paramsToChange)) {
+        if (value) urlHashParams[key] = value
+    }
+
+    const urlHashParamsAsArray = Object.entries(urlHashParams).filter(keyValue => !!keyValue[1])
+
+    url.hash = urlHashParamsAsArray.map(([key, value]) => `${key}=${value}`).join("&")
+    
+    document.location.href = url.href
 }

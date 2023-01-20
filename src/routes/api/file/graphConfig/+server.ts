@@ -52,7 +52,7 @@ export const POST: RequestHandler = async ({ request }) => {
         const graphConfigPath = `${graphsBaseFolder}/${graphName}/config.json`
         fs.writeFile(graphConfigPath, JSON.stringify(body), function (err) {
             if (err) {
-                console.log(`Error saving configuration: ${err.message}`)
+                console.log(`Error saving Graph configuration: ${err.message}`)
                 return
             }
         })

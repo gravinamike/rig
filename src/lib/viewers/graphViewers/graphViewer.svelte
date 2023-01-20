@@ -4,7 +4,7 @@
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
     
     // Import utility functions.
-    import { onMobile, sleep } from "$lib/shared/utility"
+    import { onMobile, sleep, stringRepresentsInteger, updateUrlHash, urlHashToObject } from "$lib/shared/utility"
 
     // Import stores.
     import {
@@ -13,7 +13,9 @@
         rightSideMenuStore,
         loadingState,
         urlStore,
-        unigraphFolderStore
+        unigraphFolderStore,
+        getGraphConstructs,
+        perspectiveSpaceIdStore
     } from "$lib/stores"
 
     // Import layout elements.
@@ -51,7 +53,7 @@
     export let rePerspectToThingId: (thingId: number, updateHistory?: boolean, zoomAndScroll?: boolean) => Promise<void>
     export let back: () => void
     export let forward: () => void
-    export let setGraphSpace: (space: Space) => void
+    export let setGraphSpace: (space: Space | number) => void
 
 
     // Show-Graph flag. This is a kludge, to ensure that the Graph widgets are
@@ -130,8 +132,16 @@
             graph = null
         }
 
+        const urlHashParams = urlHashToObject($urlStore.hash)
+        const spaceIdToUse =
+            "spaceId" in urlHashParams && stringRepresentsInteger(urlHashParams["spaceId"]) ? parseInt(urlHashParams["spaceId"]) :
+            null
+        const spaceToUse =
+            spaceIdToUse !== null ? getGraphConstructs("Space", spaceIdToUse) as Space :
+            null
+
         // Open and build the new Graph.
-        graph = await addGraph(pThingIds as number[], depth)
+        graph = await addGraph(pThingIds as number[], depth, null, false, spaceToUse)
         graphWidgetStyle = {...defaultGraphWidgetStyle}
         await markThingsVisited(pThingIds as number[])
 
@@ -160,9 +170,9 @@
             rePerspectInProgressThingId = thingId
 
             
-            const url = $urlStore
-            url.hash = `graph=${$openGraphStore}&thingId=${thingId}`
-            document.location.href = url.href
+            updateUrlHash({
+                thingId: String(thingId)
+            })
 
             
             // If the new Perspective Thing is already in the Graph, scroll to center it.
@@ -224,9 +234,16 @@
      * Re-builds the the Graph in a new Space.
      * @param space - The Space in which to rebuild the Graph.
      */
-    setGraphSpace = async (space: Space) => {
-        if (graph) {
-            await graph.setSpace(space)
+    setGraphSpace = async (space: Space | number) => {
+        const spaceToUse = typeof space === "number" ? getGraphConstructs("Space", space) :
+        space
+
+        if (graph && spaceToUse?.id) {
+            updateUrlHash({
+               spaceId: String(spaceToUse.id)
+            })
+
+            await graph.setSpace(spaceToUse as Space)
 
             addGraphIdsNeedingViewerRefresh(graph.id)
         }

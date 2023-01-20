@@ -21,7 +21,7 @@
         {#each $graphFoldersStore as folder}
             <div
                 class="button graph-folder-button { folder === $openGraphStore ? "opened" : "" }"
-                on:click={() => {openUnigraphFolder(folder, null, true)}}
+                on:click={() => {openUnigraphFolder(folder, null, null, true)}}
                 on:keydown={()=>{}}
             >
                 {folder}

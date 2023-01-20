@@ -131,7 +131,7 @@
     let rePerspectToThingId: (thingId: number, updateHistory?: boolean, zoomAndScroll?: boolean) => Promise<void>
     let back: () => void
     let forward: () => void
-    let setGraphSpace: (space: Space) => void
+    let setGraphSpace: (space: Space | number) => void
 
     
     /**
@@ -157,7 +157,9 @@
     $: pThingId =
         "thingId" in urlHashParams && stringRepresentsInteger(urlHashParams["thingId"]) ? parseInt(urlHashParams["thingId"]) :
         null
-
+    $: spaceId = 
+        "spaceId" in urlHashParams && stringRepresentsInteger(urlHashParams["spaceId"]) ? parseInt(urlHashParams["spaceId"]) :
+        null
 
 
     async function loadGraph(graphFolder: string, pThingId: number | null = null) {
@@ -196,8 +198,10 @@
     
     $: if (graphFolder) loadGraph(graphFolder)
 
-    function rePerspectIfMounted(pThingId: number) { if (mounted) rePerspectToThingId(pThingId) }
-    $: if (pThingId) rePerspectIfMounted(pThingId)
+    function rePerspectIfAble(pThingId: number) { if (mounted && graph) rePerspectToThingId(pThingId) }
+    $: if (pThingId) rePerspectIfAble(pThingId)
+    function setGraphSpaceIfAble(spaceId: number) { if (mounted && graph) setGraphSpace(spaceId) }
+    $: if (spaceId) setGraphSpaceIfAble(spaceId)
 
     
     
