@@ -159,6 +159,8 @@ export function urlHashToObject(hash: string): { [key: string]: string } {
 
 
 export function updateUrlHash(paramsToChange: { [key: string]: string | null }) {
+    const allowedHashKeys = ["graph", "thingId", "spaceId"]
+
     const url = get(urlStore)
     
     const urlHashParams = urlHashToObject(url.hash)
@@ -167,7 +169,8 @@ export function updateUrlHash(paramsToChange: { [key: string]: string | null }) 
         if (value) urlHashParams[key] = value
     }
 
-    const urlHashParamsAsArray = Object.entries(urlHashParams).filter(keyValue => !!keyValue[1])
+    const urlHashParamsAsArray = Object.entries(urlHashParams)
+        .filter(keyValue => allowedHashKeys.includes(keyValue[0]) && !!keyValue[1])
 
     url.hash = urlHashParamsAsArray.map(([key, value]) => `${key}=${value}`).join("&")
     

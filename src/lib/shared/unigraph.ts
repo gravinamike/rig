@@ -1,5 +1,5 @@
 import { storeGraphConfig, saveAppConfig } from "$lib/shared/config"
-import { storeGraphDbModels, clearGraphDbModelStore, storeThingSearchList, clearThingSearchList, urlStore, perspectiveThingIdStore, perspectiveSpaceIdStore } from "$lib/stores"
+import { storeGraphDbModels, clearGraphDbModelStore, storeThingSearchList, clearThingSearchList, urlStore, perspectiveThingIdStore, perspectiveSpaceIdStore, refreshGraphFoldersStore, graphFoldersStore } from "$lib/stores"
 import { loadingState, openGraphStore } from "$lib/stores"
 import { graphIsUpdated, updateGraph } from "$lib/db/clientSide/graphFile"
 import { get } from "svelte/store"
@@ -14,6 +14,16 @@ export async function openUnigraphFolder(folderName: string, pThingId: number | 
 
     await closeUnigraph()
     openGraphStore.set(null)
+
+
+    // Check whether the requested Graph exists. If not, abort with an error
+    // message.
+    await refreshGraphFoldersStore()
+    if (!get(graphFoldersStore).includes(folderName)) {
+        alert(`No Graph with the name ${folderName} was found.)`)
+        return
+    }
+
 
     document.cookie = `graphName=${folderName}; SameSite=Strict;`
     openGraphStore.set(folderName)
