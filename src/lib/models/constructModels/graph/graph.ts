@@ -114,11 +114,13 @@ export class Graph {
         await this.generations.adjustToDepth(this._depth)
         this.pThing = (this.rootCohort as unknown as ThingCohort).members[0].thing as Thing
 
-        const pThingSpaceId = this.pThing.space?.id as number
-        perspectiveSpaceIdStore.set(pThingSpaceId)
-        updateUrlHash({
-            spaceId: String(pThingSpaceId)
-        })
+        if (!this.parentGraph) {
+            const pThingSpaceId = this.pThing.space?.id as number
+            perspectiveSpaceIdStore.set(pThingSpaceId)
+            updateUrlHash({
+                spaceId: String(pThingSpaceId)
+            })
+        }
 
         // Add the starting Perspective Thing IDs to History.
         if (updateHistory) this.history.addEntries(this._pThingIds)
