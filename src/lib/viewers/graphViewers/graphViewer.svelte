@@ -139,6 +139,11 @@
         const spaceToUse =
             spaceIdToUse !== null ? getGraphConstructs("Space", spaceIdToUse) as Space :
             null
+        if (!spaceToUse) {
+            alert(`No Space with ID ${spaceIdToUse} was found. Using default Space instead.)`)
+        }
+
+        
 
         // Open and build the new Graph.
         graph = await addGraph(pThingIds as number[], depth, null, false, spaceToUse)
@@ -235,18 +240,28 @@
      * @param space - The Space in which to rebuild the Graph.
      */
     setGraphSpace = async (space: Space | number) => {
-        const spaceToUse = typeof space === "number" ? getGraphConstructs("Space", space) :
-        space
+        
+        let spaceToUse: Space | null
 
-        if (graph && spaceToUse?.id) {
-            updateUrlHash({
-               spaceId: String(spaceToUse.id)
-            })
+        if (typeof space === "number") {
+            spaceToUse = getGraphConstructs("Space", space) as Space | null
+            if (!spaceToUse) {
+                alert(`No Space with ID ${space} was found. Keeping current Space.)`)
+                return
+            }
+        } else {
+            spaceToUse = space
 
-            await graph.setSpace(spaceToUse as Space)
+            if (graph && spaceToUse?.id) {
+                updateUrlHash({
+                    spaceId: String(spaceToUse.id)
+                })
 
-            addGraphIdsNeedingViewerRefresh(graph.id)
-        }
+                await graph.setSpace(spaceToUse as Space)
+
+                addGraphIdsNeedingViewerRefresh(graph.id)
+            }
+        }   
     }
 </script>
 
