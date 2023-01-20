@@ -225,10 +225,14 @@
      * Scrolls the widget to center on a target Thing based on its ID.
      */
     async function scrollToThingId( thingId: number ): Promise<void> {
-        // Get the HTML element for the given Thing.
+        // Get the HTML element for the given Thing ID.
         const thingWidgetId = `graph#${ graph.id }-thing#${ thingId }`
-        const thingWidget = document.getElementById(thingWidgetId)
+        let thingWidget = document.getElementById(thingWidgetId)
 
+        // If no such element exists for that ID, get the HTML element for the
+        // Thing-missing-from-store widget.
+        if (!thingWidget) thingWidget = document.getElementsByClassName("thing-missing-from-store-widget")[0] as HTMLElement
+        
         // If the Thing exists, scroll it into the center of the view.
         if (thingWidget) thingWidget.scrollIntoView({
             behavior: graphWidgetStyle.animateZoomAndScroll ? "smooth" : "auto",

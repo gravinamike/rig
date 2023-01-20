@@ -139,8 +139,8 @@
         const spaceToUse =
             spaceIdToUse !== null ? getGraphConstructs("Space", spaceIdToUse) as Space :
             null
-        if (!spaceToUse) {
-            alert(`No Space with ID ${spaceIdToUse} was found. Using default Space instead.)`)
+        if (spaceIdToUse && !spaceToUse) {
+            alert(`No Space with ID ${spaceIdToUse} was found. Using default Space instead.`)
         }
 
         
@@ -246,7 +246,7 @@
         if (typeof space === "number") {
             spaceToUse = getGraphConstructs("Space", space) as Space | null
             if (!spaceToUse) {
-                alert(`No Space with ID ${space} was found. Keeping current Space.)`)
+                alert(`No Space with ID ${space} was found. Keeping current Space.`)
                 return
             }
         } else {

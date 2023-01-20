@@ -61,5 +61,7 @@
         font-weight: 400;
         border-radius: 10px;
         border-color: green;
+
+        text-align: center;
     }
 </style>

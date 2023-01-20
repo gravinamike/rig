@@ -20,7 +20,7 @@ export const graphsBaseFolderStore = writable( "" )
 export const graphFoldersStore = writable( [] as string[] )
 
 export async function refreshGraphFoldersStore(): Promise< void > {
-    fetch(`api/file/graphFolders`)
+    await fetch(`api/file/graphFolders`)
         .then(response => {return (response.json() as unknown) as string[]})
         .then(data => graphFoldersStore.set(data))
 }

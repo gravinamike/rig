@@ -112,10 +112,10 @@ export class Graph {
         // Adjust (build) the Generations to the Graph's specified Depth.
         this.lifecycleStatus = "building"
         await this.generations.adjustToDepth(this._depth)
-        this.pThing = (this.rootCohort as unknown as ThingCohort).members[0].thing as Thing
+        this.pThing = (this.rootCohort as unknown as ThingCohort).members[0].thing
 
         if (!this.parentGraph) {
-            const pThingSpaceId = this.pThing.space?.id as number
+            const pThingSpaceId = this.pThing?.space?.id || null
             perspectiveSpaceIdStore.set(pThingSpaceId)
             updateUrlHash({
                 spaceId: String(pThingSpaceId)
