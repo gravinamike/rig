@@ -7,12 +7,15 @@
     // Import basic framework resources.
     import { onMount } from "svelte"
 
+    // Import UUID resources.
+    import { v4 as uuidv4 } from "uuid"
+
     // Import constants.
     import { startingGraphDepth } from "$lib/shared/constants"
 
-    // Import database/stores-related functions.
+    // Import stores.
     import {
-        devMode, fontNames, urlStore, leftSideMenuStore, loadingState,
+        devMode, fontNames, urlStore, sessionUuidStore, leftSideMenuStore, loadingState,
         openGraphStore, perspectiveThingIdStore, reorderingInfoStore,
         updateMousePosition, updateRelationshipBeingCreatedEndpoint
     } from "$lib/stores"
@@ -49,6 +52,9 @@
     import { onMobile, stringRepresentsInteger, urlHashToObject } from "$lib/shared/utility"
 
 
+    // Session UUID.
+    sessionUuidStore.set( uuidv4() )
+    
     // HTML element attributes.
     let height: number
     

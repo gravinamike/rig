@@ -1,5 +1,6 @@
 import type { Direction, Space, Thing } from "$lib/models/constructModels"
 import type { GraphConfig } from "$lib/shared/constants"
+import { sessionSpecificFetch as fetch } from "$lib/db/utility/sessionSpecificFetch"
 
 
 /*

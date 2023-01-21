@@ -6,7 +6,7 @@ import {
     refreshGraphFoldersStore, graphFoldersStore,
     loadingState, openGraphStore, storeThingSearchList, clearThingSearchList,
     perspectiveThingIdStore, perspectiveSpaceIdStore, 
-    storeGraphDbModels, clearGraphDbModelStore
+    storeGraphDbModels, clearGraphDbModelStore, sessionUuidStore
 } from "$lib/stores"
 
 // Import utility methods.
@@ -43,7 +43,7 @@ export async function openGraphFile(folderName: string, pThingId: number | null 
     }
 
     // Set the Graph name in the cookies and store.
-    document.cookie = `graphName=${folderName}; SameSite=Strict;`
+    document.cookie = `session-${get(sessionUuidStore)}-graphName=${folderName}; SameSite=Strict;`
     openGraphStore.set(folderName)
     
     // If the Graph isn't updated, give user the option to abort, then
@@ -91,7 +91,7 @@ export async function openGraphFile(folderName: string, pThingId: number | null 
  */
 export async function closeGraphFile(): Promise<void> {
     // Clear the cookies.
-    document.cookie = `graphName= ; expires = Thu, 01 Jan 1970 00:00:00 GMT`
+    document.cookie = `graphName= ; expires = Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict;`
 
     // Clear the Graph name store.
     openGraphStore.set(null)

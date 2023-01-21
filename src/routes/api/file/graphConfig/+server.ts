@@ -5,14 +5,13 @@ import fs from "fs"
 import type { GraphConfig } from "$lib/shared/constants"
 import { graphsBaseFolderStore } from "$lib/stores"
 import { get as getStore } from "svelte/store"
-import { parse } from "cookie"
+import { retrieveSessionSpecificCookie } from "$lib/db/utility/sessionSpecificFetch"
 
 
 export const GET: RequestHandler = async ({ request }) => {
     try {
 
-        const cookies = parse(request.headers.get("cookie") || "")
-        const graphName = cookies.graphName || null
+        const graphName = retrieveSessionSpecificCookie(request, "graphName")
 
 
         const graphsBaseFolder = getStore(graphsBaseFolderStore)
@@ -43,8 +42,7 @@ export const GET: RequestHandler = async ({ request }) => {
 export const POST: RequestHandler = async ({ request }) => {
     try {
 
-        const cookies = parse(request.headers.get("cookie") || "")
-        const graphName = cookies.graphName || null
+        const graphName = retrieveSessionSpecificCookie(request, "graphName")
 
 
         const graphsBaseFolder = getStore(graphsBaseFolderStore)

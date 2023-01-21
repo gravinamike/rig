@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { sessionSpecificFetch as fetch } from "$lib/db/utility/sessionSpecificFetch"
+
     import { graphFoldersStore, refreshGraphFoldersStore, enableNewFileCreation, openGraphStore } from "$lib/stores"
     import { openGraphFile } from "$lib/shared/unigraph"
 

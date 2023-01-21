@@ -1,6 +1,6 @@
 import type { Handle } from "@sveltejs/kit"
-import { parse } from "cookie"
-import { getDatabaseConnection } from "$lib/db/connection"
+import { getDatabaseConnection } from "$lib/db/utility/connection"
+import { retrieveSessionSpecificCookie } from "$lib/db/utility/sessionSpecificFetch"
 
 
 /**
@@ -18,8 +18,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 	if ( event.url.pathname.startsWith("/api/db/") ) {
 
 		// Retrieve the name of the Graph file from the cookies.
-		const cookies = parse(event.request.headers.get("cookie") || "")
-		const graphName = cookies.graphName || null
+		const graphName = retrieveSessionSpecificCookie(event.request, "graphName")
 
 		// Get a database connection to that Graph file.
 		if (graphName) await getDatabaseConnection(graphName)			
