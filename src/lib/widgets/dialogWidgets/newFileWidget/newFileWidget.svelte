@@ -1,7 +1,7 @@
 <script lang="ts">
     import { refreshGraphFoldersStore, newFileCreationStore, updateNewFileCreationFileName, disableNewFileCreation } from "$lib/stores"
     import { createGraph } from "$lib/db/clientSide/makeChanges"
-    import { openUnigraphFolder } from "$lib/shared/unigraph"
+    import { openGraphFile } from "$lib/shared/unigraph"
 
 
     let newFileNameField: HTMLInputElement
@@ -49,7 +49,7 @@
             updateNewFileCreationFileName(newFileName)
             const graphCreated = await createGraph(newFileName)
             if (graphCreated) {
-                openUnigraphFolder(newFileName)
+                openGraphFile(newFileName)
             }
             disableNewFileCreation()
             refreshGraphFoldersStore()

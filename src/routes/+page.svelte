@@ -1,22 +1,25 @@
 <script lang="ts">
-    // Type imports.
+    // Import types.
     import type { WaitingIndicatorStates } from "$lib/shared/constants"
     import type { Graph, Space } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
     // Import basic framework resources.
-    import { onMount, tick } from "svelte"
+    import { onMount } from "svelte"
 
-    // Import constants and configs.
+    // Import constants.
     import { startingGraphDepth } from "$lib/shared/constants"
-    import { storeAppConfig } from "$lib/shared/config"
 
     // Import database/stores-related functions.
-    import { urlStore, devMode, fontNames, leftSideMenuStore, loadingState, openGraphStore, perspectiveThingIdStore, reorderingInfoStore, updateMousePosition, updateRelationshipBeingCreatedEndpoint } from "$lib/stores"
+    import {
+        devMode, fontNames, urlStore, leftSideMenuStore, loadingState,
+        openGraphStore, perspectiveThingIdStore, reorderingInfoStore,
+        updateMousePosition, updateRelationshipBeingCreatedEndpoint
+    } from "$lib/stores"
 
     // Import widgets.
     import {
-        ContextCommandPalette, SideMenu, TabBlock, TabFlap, TabFlaps, TabBody, WaitingIndicator
+        WaitingIndicator, ContextCommandPalette, SideMenu, TabBlock, TabFlap, TabFlaps, TabBody
     } from "$lib/widgets/layoutWidgets"
     import { 
         NewFileWidget, RemoteRelatingWidget, ThingLinkingWidget, TextHyperlinkingWidget,
@@ -24,25 +27,32 @@
     } from "$lib/widgets/dialogWidgets"
 
     // Import viewers.
-    import { ThingSearchboxViewer, HistoryViewer, PinsViewer, DirectionsViewer, SpacesViewer } from "$lib/viewers/navViewers"
-    import { GraphSettingsViewer } from "$lib/viewers/settingsViewers"
+    import AboutMenu from "$lib/viewers/about.svelte"
     import FileViewer from "$lib/viewers/settingsViewers/fileViewer.svelte"
+    import {
+        ThingSearchboxViewer, PinsViewer, HistoryViewer, 
+        DirectionsViewer, SpacesViewer
+    } from "$lib/viewers/navViewers"
+    import { GraphSettingsViewer } from "$lib/viewers/settingsViewers"
     import { GraphSchematicViewer } from "$lib/viewers/graphViewers"
     import { DirectionsStoreViewer, SpacesStoreViewer, ThingsStoreViewer } from "$lib/viewers/storeViewers"
     import { DbLatestViewer } from "$lib/viewers/dbViewers"    
-    import AboutMenu from "$lib/viewers/about.svelte"
     import { GraphViewer } from "$lib/viewers/graphViewers"
 
     // Import related widgets.
     import { defaultGraphWidgetStyle, RelationshipBeingCreatedWidget } from "$lib/widgets/graphWidgets"
 
     // Import API methods.
-    import { openUnigraph, openUnigraphFolder } from "$lib/shared/unigraph"
     import { getFontNames } from "$lib/db/clientSide/getInfo"
-    import { onMobile, sleep, stringRepresentsInteger, urlHashToObject } from "$lib/shared/utility"
+    import { storeAppConfig } from "$lib/shared/config"
+    import { openGraphFile } from "$lib/shared/unigraph"
+    import { onMobile, stringRepresentsInteger, urlHashToObject } from "$lib/shared/utility"
 
 
-    // Initialize states for waiting indicator.
+    // HTML element attributes.
+    let height: number
+    
+    // Starting states for waiting indicator.
     const graphIndicatorStates: WaitingIndicatorStates = {
         start: {
             text: "Configuration not loaded yet.",
@@ -70,7 +80,7 @@
         }
     }
 
-    // Initialize left side-menu configuration.
+    // Configuration for left side-menu.
     $: subMenuInfos = [
         [
             {
@@ -105,24 +115,37 @@
         ].filter(info => info !== null) as { name: string, icon: string }[]
     ]
     let leftMenuOpen: boolean
-    const defaultOpenSubMenuName = "Thing"
-    let openedSubMenuName: string | null
     let leftMenuLockedOpen: boolean
+    let openedSubMenuName: string | null
+    const defaultOpenSubMenuName = "Thing"
     let lockedSubMenuName: string | null
-    let height: number
     $: useTabbedLayout = height < 500
     let closeLeftMenu: () => {}
 
-    // Attributes for right side-menu configuration.
+    // Configuration for right side-menu.
     let rightMenuOpen: boolean
     let closeRightMenu: () => {}
 
-    // Set side menus to close if the other is open (only when on mobile with narrow viewport).
+    // When on mobile with narrow viewport, set up each side-menu to close if
+    // the other is open.
     $: if (onMobile() && window.innerWidth < 600 && leftMenuOpen) closeRightMenu()
     $: if (onMobile() && window.innerWidth < 600 && rightMenuOpen) closeLeftMenu()
 
     // Initialize open-Graph store.
     openGraphStore.set(null)
+
+
+    // Graph parameters derived from the URL hash.
+    let urlHashParams: { [key: string]: string } = {}
+    $: urlHashParams = urlHashToObject($urlStore.hash)
+    $: urlGraphFolder = "graph" in urlHashParams ? urlHashParams["graph"] : null
+    $: urlThingId =
+        "thingId" in urlHashParams && stringRepresentsInteger(urlHashParams["thingId"]) ? parseInt(urlHashParams["thingId"]) :
+        null
+    $: urlSpaceId = 
+        "spaceId" in urlHashParams && stringRepresentsInteger(urlHashParams["spaceId"]) ? parseInt(urlHashParams["spaceId"]) :
+        null
+
 
     // Attributes handled by the Graph Viewer.
     let graph: Graph | null
@@ -135,6 +158,51 @@
 
     
     /**
+     * Load-app-config method.
+     * 
+     * Loads development-mode flag, font names and all config options stored
+     * in the app-level config.json file.
+     */
+    async function loadAppConfig() {
+        if (!mounted) return
+
+        $loadingState = "configLoading"
+
+        // Store development-mode flag.
+        devMode.set(import.meta.env.MODE === "development")
+
+        // Store font names.
+        const apiFontNames = await getFontNames()
+        if (apiFontNames) fontNames.set(apiFontNames)
+
+        // Store app config.
+        await storeAppConfig()
+        
+        $loadingState = "configLoaded"
+    }
+
+    /**
+     * Open-Graph method.
+     * 
+     * Loads a Graph by filename, with the option to specify the starting
+     * Perspective Thing as well.
+     * @param graphName - The name of the Graph file to be opened.
+     * @param pThingId - The ID of the Perspective Thing to start on, if not the Graph's default.
+     */
+    async function openGraph(graphName: string, pThingId: number | null = null) {
+        if (!mounted) return
+
+        // Open the Graph.
+        await openGraphFile(graphName, pThingId)
+
+        // Configure the left side-menu based on the Graph.
+        leftMenuOpen = !!$leftSideMenuStore
+        leftMenuLockedOpen = !!$leftSideMenuStore
+        openedSubMenuName = $leftSideMenuStore
+        lockedSubMenuName = $leftSideMenuStore
+    }
+    
+    /**
      * Handle-mouse-move method.
      * 
      * Updates the mouse-position tracker and the endpoint for any in-progress
@@ -143,80 +211,32 @@
     function handleMouseMove( event: MouseEvent ): void {
         updateMousePosition( [event.clientX, event.clientY] )
         updateRelationshipBeingCreatedEndpoint( [event.clientX, event.clientY] )
-    } 
-
-
-
-
-
-
-
-    let urlHashParams: { [key: string]: string } = {}
-    $: urlHashParams = urlHashToObject($urlStore.hash)
-    $: graphFolder = "graph" in urlHashParams ? urlHashParams["graph"] : null
-    $: pThingId =
-        "thingId" in urlHashParams && stringRepresentsInteger(urlHashParams["thingId"]) ? parseInt(urlHashParams["thingId"]) :
-        null
-    $: spaceId = 
-        "spaceId" in urlHashParams && stringRepresentsInteger(urlHashParams["spaceId"]) ? parseInt(urlHashParams["spaceId"]) :
-        null
-
-
-    async function loadGraph(graphFolder: string, pThingId: number | null = null) {
-        if (!mounted) return
-
-        await openUnigraphFolder(graphFolder, pThingId)
-
-        leftMenuOpen = !!$leftSideMenuStore
-        leftMenuLockedOpen = !!$leftSideMenuStore
-        openedSubMenuName = $leftSideMenuStore
-        lockedSubMenuName = $leftSideMenuStore
     }
+
 
     // At app initialization,
     let mounted = false
     onMount(async () => {
         mounted = true
 
-        $loadingState = "configLoading"
-
-        // Set the stores.
-        devMode.set(import.meta.env.MODE === "development")
-        const apiFontNames = await getFontNames()
-        if (apiFontNames) fontNames.set(apiFontNames)
-
-        // Store app config.
-        const appConfig = await storeAppConfig()
+        // Load the app config.
+        await loadAppConfig()
         
-        $loadingState = "configLoaded"
-
-
-        // Open the Unigraph currently specified in the store.
-        if (graphFolder) await loadGraph(graphFolder, pThingId)
+        // Open the Graph currently specified in the store.
+        if (urlGraphFolder) await openGraph(urlGraphFolder, urlThingId)
 	})
 
     
-    $: if (graphFolder) loadGraph(graphFolder)
+    // Set up reactive Graph loading when the Graph parameter in the URL
+    // changes.
+    $: if (urlGraphFolder) openGraph(urlGraphFolder)
 
+    // Set up reactive re-Perspecting and Space-changing that should happen
+    // after Graph is loaded.
     function rePerspectIfAble(pThingId: number) { if (mounted && graph) rePerspectToThingId(pThingId) }
-    $: if (pThingId) rePerspectIfAble(pThingId)
+    $: if (urlThingId) rePerspectIfAble(urlThingId)
     function setGraphSpaceIfAble(spaceId: number) { if (mounted && graph) setGraphSpace(spaceId) }
-    $: if (spaceId) setGraphSpaceIfAble(spaceId)
-
-    
-    
-
-
-    
-
-    
-
-
-
-
-
-
-    
+    $: if (urlSpaceId) setGraphSpaceIfAble(urlSpaceId)
 </script>
 
 
@@ -226,6 +246,7 @@
 </svelte:head>
 
 
+<!-- Main app UI. -->
 <main
     class:reorderRow={
         $reorderingInfoStore.dragStartPosition !== null
@@ -250,7 +271,7 @@
     <!-- Front pane for Relationship-being-created Widget. -->
     <RelationshipBeingCreatedWidget />
 
-    <!-- Front pane for Relationship-being-created Widget. -->
+    <!-- Front pane for Remote-relating Widget. -->
     <RemoteRelatingWidget />
 
     <!-- Front panes for Thing-linking and text-hyperlinking Widgets. -->
@@ -264,9 +285,9 @@
     <SideMenu
         {subMenuInfos}
         {defaultOpenSubMenuName}
-        bind:openedSubMenuName
         bind:open={leftMenuOpen}
         bind:lockedOpen={leftMenuLockedOpen}
+        bind:openedSubMenuName
         bind:lockedSubMenuName
         overlapPage={false}
         stateStore={leftSideMenuStore}
@@ -523,6 +544,7 @@
             bind:setGraphSpace
         />
 
+        
     <!-- Waiting indicator. -->
     {:else}
         <WaitingIndicator

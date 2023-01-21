@@ -1,8 +1,12 @@
 <script lang="ts">
+    // Import types.
+    import type { Graph } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
+
+    // Import constants.
     import { planePadding } from "$lib/shared/constants"
     import ThingMissingFromStoreWidgetController from "./controller.svelte"
-    import type { Graph } from "$lib/models/constructModels";
+    
 
     export let thingId: number
     export let graph: Graph

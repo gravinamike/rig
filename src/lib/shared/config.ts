@@ -17,8 +17,9 @@ export async function storeAppConfig(): Promise<AppConfig> {
     return appConfig
 }
 
-// Load configuration-related values from the JSON config file.
-export async function storeGraphConfig(): Promise<void> {
+// Load configuration-related values from the JSON config file. Gives option to
+// force overwrite of Perspective Thing ID parameter.
+export async function storeGraphConfig(pThingId: number | null = null): Promise<void> {
     const graphConfig = await getGraphConfig() as GraphConfig
 
     // Set front-end stores.
@@ -32,6 +33,9 @@ export async function storeGraphConfig(): Promise<void> {
         graphConfig.homeThingId ? graphConfig.homeThingId :
         graphConfig.perspectiveThingId
     )
+
+    // Overwrite Perspective Thing ID store if required.
+    if (pThingId) perspectiveThingIdStore.set(pThingId)
 }
 
 
