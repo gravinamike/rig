@@ -101,4 +101,11 @@ export async function closeGraphFile(): Promise<void> {
     await clearGraphDbModelStore("Space")
     await clearGraphDbModelStore("Thing")
     await clearThingSearchList()
+
+    // Unset the URL hash.
+    updateUrlHashMethod({
+        graph: null,
+        thingId: null,
+        spaceId: null
+    })
 }
