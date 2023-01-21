@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { SearchOption } from "./types"
     import { onMount } from "svelte"
-    import { onMobile } from "$lib/shared/utility";
+    import { onMobile } from "$lib/shared/utility"
 
     export let unfilteredArray: {id: number, name: string}[]
     export let placeholderText: string

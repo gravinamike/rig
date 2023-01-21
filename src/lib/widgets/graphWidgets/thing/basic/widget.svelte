@@ -1,43 +1,47 @@
 <script lang="ts">
-    import { tweened } from "svelte/motion"
-    import { cubicOut } from "svelte/easing"
-
-    /* Type imports. */
+    /* Import types. */
     import type { Graph, Thing } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
-    /* Store imports. */
+    // Import basic framework resources.
+    import { tweened } from "svelte/motion"
+    import { cubicOut } from "svelte/easing"
+
+    /* Import stores. */
     import {
-        hoveredThingIdStore, hoveredRelationshipTarget,
+        readOnlyMode, hoveredThingIdStore, hoveredRelationshipTarget,
         relationshipBeingCreatedInfoStore, setRelationshipBeingCreatedDestThingId,
-        disableRelationshipBeingCreated,
-        readOnlyMode,
-        homeThingIdStore
+        disableRelationshipBeingCreated, homeThingIdStore
     } from "$lib/stores"
 
-    // Utility imports.
+    // Import utility methods.
     import { hexToRgba, sleep } from "$lib/shared/utility"
 
-    /* Widget imports. */
+    /* Import related widgets. */
+    import ThingWidgetController from "./controller.svelte"
     import { ThingTextWidget, ThingTextFormWidget } from "../subWidgets"
     import DeleteWidget from "$lib/widgets/layoutWidgets/deleteWidget.svelte"
     import { ThingDetailsWidget } from "$lib/widgets/detailsWidgets"
-    import ThingWidgetController from "./controller.svelte"
 
 
     /**
      * @param thingId - The ID of the Thing the widget is based on.
+     * @param thing - The Thing the widget is based on.
      * @param graph - The Graph that the Thing is in.
+     * @param graphWidgetStyle - Controls the visual styling of the Graph.
+     * @param thingWidth - The width of the Thing widget.
+     * @param thingHeight - The height of the Thing widget.
+     * @param perspectiveTexts - Object specifying texts to use for specific Things based on the Perspective Thing.
      * @param rePerspectToThingId - A function that re-perspects the Graph to a given Thing ID.
      */
     export let thingId: number
     export let thing: Thing | null = null
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
-    export let perspectiveTexts: {[thingId: string]: string}
-    export let rePerspectToThingId: (id: number) => Promise<void>
     export let thingWidth: number
     export let thingHeight: number
+    export let perspectiveTexts: {[thingId: string]: string}
+    export let rePerspectToThingId: (id: number) => Promise<void>
 
 
     // Attributes handled by the widget controller.
@@ -72,8 +76,6 @@
     let cancelEditingText: () => void
 
 
-
-    
     let sliderOpen = false
     $: usePerspectiveText = !sliderOpen
 

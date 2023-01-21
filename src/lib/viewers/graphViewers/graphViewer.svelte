@@ -13,9 +13,7 @@
         rightSideMenuStore,
         loadingState,
         urlStore,
-        unigraphFolderStore,
-        getGraphConstructs,
-        perspectiveSpaceIdStore
+        getGraphConstructs
     } from "$lib/stores"
 
     // Import layout elements.

@@ -7,7 +7,7 @@
     import { cubicOut } from "svelte/easing"
     import { onMobile, sleep } from "$lib/shared/utility"
     import { saveGraphConfig } from "$lib/shared/config"
-    import { openGraphStore } from "$lib/stores";
+    import { openGraphStore } from "$lib/stores"
 
     
     /**

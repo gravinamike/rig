@@ -5,7 +5,7 @@ import type { Thing } from "$lib/models/constructModels"
 import { storeGraphDbModels } from "$lib/stores"
 
 // Utility imports.
-import { unique } from "$lib/shared/utility"
+import { makeArrayUnique } from "$lib/shared/utility"
 
 // Model imports.
 import { Graph, Generation } from "$lib/models/constructModels"
@@ -116,7 +116,7 @@ export class Generations {
     }
 
     get seedGenerationRelatedThingIds(): number[] {
-        const seedGenerationRelatedThingIdsAndNulls = unique(this.seedGenerationThings.map(thingWidgetModel => thingWidgetModel.relatedThingIds).flat())
+        const seedGenerationRelatedThingIdsAndNulls = makeArrayUnique(this.seedGenerationThings.map(thingWidgetModel => thingWidgetModel.relatedThingIds).flat())
         const seedGenerationRelatedThingIds = seedGenerationRelatedThingIdsAndNulls.filter(id => !!id) as number[]
         return seedGenerationRelatedThingIds
     }
