@@ -197,7 +197,7 @@
 
             graph.originalStartingSpace = null
             updateUrlHash({
-                thingId: String(thingId)
+                thingId: String(thingId)///////////////////////////////////////////
             })
 
 

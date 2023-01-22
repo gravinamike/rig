@@ -71,7 +71,7 @@ export async function openGraphFile(folderName: string, pThingId: number | null 
 
     // Save the Graph configuration to file.
     await saveAppConfig()
-
+    console.log(get(perspectiveThingIdStore), updateUrlHash)
     // Update the URL hash if necessary.
     if (updateUrlHash) updateUrlHashMethod({
         graph: folderName,

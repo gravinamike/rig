@@ -198,7 +198,7 @@
         if (!mounted) return
 
         // Open the Graph.
-        await openGraphFile(graphName, pThingId)
+        await openGraphFile(graphName, pThingId, true)
 
         // Configure the left side-menu based on the Graph.
         leftMenuOpen = !!$leftSideMenuStore
@@ -243,7 +243,7 @@
             mounted
             && graph?.pThing
             && graph.pThing.id !== pThingId
-            && urlThingId !== pThingId
+            //&& urlThingId !== pThingId////////////////////////// PROBLEM
         ) rePerspectToThingId(pThingId)
     }
     $: if (urlThingId) rePerspectIfAble(urlThingId)
