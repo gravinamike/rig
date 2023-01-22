@@ -110,7 +110,7 @@
     // If the position in the Perspective History has changed, re-Perspect the Graph.
     $: if (graph) {
         const selectedHistoryThingId = graph.history.entryWithThingAtPosition.thingId
-
+        
         if (
             !rePerspectInProgressThingId
             && selectedHistoryThingId !== graph._pThingIds[0]
@@ -140,7 +140,6 @@
         if (spaceIdToUse && !spaceToUse) {
             alert(`No Space with ID ${spaceIdToUse} was found. Using default Space instead.`)
         }
-
         
 
         // Open and build the new Graph.
@@ -173,11 +172,6 @@
             rePerspectInProgressThingId = thingId
 
             
-            updateUrlHash({
-                thingId: String(thingId)
-            })
-
-            
             // If the new Perspective Thing is already in the Graph, scroll to center it.
             allowScrollToThingId = true
             thingIdToScrollTo = thingId
@@ -200,6 +194,14 @@
             // Update Thing-visit records in the database, History, store and Graph configuration.
             await markThingsVisited(pThingIds as number[])
             perspectiveThingIdStore.set(thingId)
+
+            graph.originalStartingSpace = null
+            updateUrlHash({
+                thingId: String(thingId)
+            })
+
+
+
             saveGraphConfig()
 
             // Record that the re-Perspect operation is finished.
@@ -249,17 +251,16 @@
             }
         } else {
             spaceToUse = space
+        }
 
-            if (graph && spaceToUse?.id) {
-                updateUrlHash({
-                    spaceId: String(spaceToUse.id)
-                })
+        if (graph && spaceToUse?.id) {
+            updateUrlHash({
+                spaceId: String(spaceToUse.id)
+            })
+            await graph.setSpace(spaceToUse as Space)
 
-                await graph.setSpace(spaceToUse as Space)
-
-                addGraphIdsNeedingViewerRefresh(graph.id)
-            }
-        }   
+            addGraphIdsNeedingViewerRefresh(graph.id)
+        }
     }
 </script>
 

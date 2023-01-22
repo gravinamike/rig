@@ -53,7 +53,11 @@ export function updateUrlHash(paramsToChange: { [key: string]: string | null }) 
 
     // Update the object's entries based on the parameters-to-change object.
     for (const [key, value] of Object.entries(paramsToChange)) {
-        if (value) urlHashParams[key] = value
+        if (value !== null) {
+            urlHashParams[key] = value
+        } else {
+            delete urlHashParams[key]
+        }
     }
 
     // Filter out entries with non-allowed keys or null values, and set the URL
@@ -61,7 +65,7 @@ export function updateUrlHash(paramsToChange: { [key: string]: string | null }) 
     const urlHashParamsAsArray = Object.entries(urlHashParams)
         .filter(keyValue => allowedHashKeys.includes(keyValue[0]) && !!keyValue[1])
     url.hash = urlHashParamsAsArray.map(([key, value]) => `${key}=${value}`).join("&")
-    
+
     // Set the document's URL to the updated URL.
     document.location.href = url.href
 }

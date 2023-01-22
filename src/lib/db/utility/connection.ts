@@ -70,7 +70,8 @@ export async function getDatabaseConnection(
                 const knex = Knex(knexConfig)
                 Model.knex(knex)
                 return Model
-            })();
+            })()
+
             cached.promise = modelPromise
         }
         cached.connection = await cached.promise

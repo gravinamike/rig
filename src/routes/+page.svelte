@@ -152,7 +152,6 @@
         "spaceId" in urlHashParams && stringRepresentsInteger(urlHashParams["spaceId"]) ? parseInt(urlHashParams["spaceId"]) :
         null
 
-
     // Attributes handled by the Graph Viewer.
     let graph: Graph | null
     let graphWidgetStyle: GraphWidgetStyle = {...defaultGraphWidgetStyle}
@@ -239,9 +238,23 @@
 
     // Set up reactive re-Perspecting and Space-changing that should happen
     // after Graph is loaded.
-    function rePerspectIfAble(pThingId: number) { if (mounted && graph) rePerspectToThingId(pThingId) }
+    function rePerspectIfAble(pThingId: number) {
+        if (
+            mounted
+            && graph?.pThing
+            && graph.pThing.id !== pThingId
+            && urlThingId !== pThingId
+        ) rePerspectToThingId(pThingId)
+    }
     $: if (urlThingId) rePerspectIfAble(urlThingId)
-    function setGraphSpaceIfAble(spaceId: number) { if (mounted && graph) setGraphSpace(spaceId) }
+    function setGraphSpaceIfAble(spaceId: number) {
+        if (
+            mounted
+            && graph
+            && graph.lifecycleStatus !== "building"
+            && graph.pThing?.space?.id !== spaceId
+        ) setGraphSpace(spaceId)
+    }
     $: if (urlSpaceId) setGraphSpaceIfAble(urlSpaceId)
 </script>
 

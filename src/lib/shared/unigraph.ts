@@ -89,7 +89,7 @@ export async function openGraphFile(folderName: string, pThingId: number | null 
  * 
  * Clears the cookies and stores of an open Graph.
  */
-export async function closeGraphFile(): Promise<void> {
+export async function closeGraphFile(updateUrlHash = false): Promise<void> {
     // Clear the cookies.
     document.cookie = `graphName= ; expires = Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict;`
 
@@ -103,7 +103,7 @@ export async function closeGraphFile(): Promise<void> {
     await clearThingSearchList()
 
     // Unset the URL hash.
-    updateUrlHashMethod({
+    if (updateUrlHash) updateUrlHashMethod({
         graph: null,
         thingId: null,
         spaceId: null

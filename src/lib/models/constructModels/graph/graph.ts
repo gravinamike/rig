@@ -77,7 +77,6 @@ export class Graph {
      */
     async setPThingIds(pThingIds: number[], updateHistory=true): Promise<void> {
         this._pThingIds = pThingIds
-
         await this.build(false, updateHistory)
     }
 
