@@ -113,7 +113,7 @@
         top: 0px;
         width: 100%;
         height: 100%;
-        z-index: 1;
+        z-index: 2;
         background-color: grey;
         opacity: 0.5;
     }
@@ -128,7 +128,7 @@
         left: 50%;
         top: 50%;
         transform: translate(-50%, -50%);
-        z-index: 1;
+        z-index: 2;
         box-sizing: border-box;
         width: calc(100% - 200px);
         height: calc(100% - 200px);

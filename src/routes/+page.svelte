@@ -92,6 +92,10 @@
             {
                 name: "About",
                 icon: "about"
+            },
+            {
+                name: "File",
+                icon: "file"
             }
         ].filter(info => info !== null) as { name: string, icon: string }[],
 
@@ -113,11 +117,7 @@
                     name: "Dev",
                     icon: "dev"
                 } :
-                null,
-            {
-                name: "File",
-                icon: "file"
-            }
+                null
         ].filter(info => info !== null) as { name: string, icon: string }[]
     ]
     let leftMenuOpen: boolean
@@ -332,11 +332,20 @@
 
                         <TabBlock>
                             <TabFlaps>
-                                <TabFlap><span style="font-size: 1.25rem;">History</span></TabFlap>
                                 <TabFlap><span style="font-size: 1.25rem;">Pins</span></TabFlap>
+                                <TabFlap><span style="font-size: 1.25rem;">History</span></TabFlap>
                             </TabFlaps>
-        
-                            <!-- Graph Schematic tab. -->
+                        
+                            <!-- Graph Pins viewer -->
+                            <TabBody>
+                                <PinsViewer
+                                    {graph}
+                                    {useTabbedLayout}
+                                    {rePerspectToThingId}
+                                />
+                            </TabBody>
+
+                            <!-- Graph History viewer -->
                             <TabBody>
                                 {#if graph}
                                     <HistoryViewer
@@ -346,20 +355,27 @@
                                     />
                                 {/if}
                             </TabBody>
-                        
-                            <!-- Stores tab. --> 
-                            <TabBody>
-                                <PinsViewer
-                                    {graph}
-                                    {useTabbedLayout}
-                                    {rePerspectToThingId}
-                                />
-                            </TabBody>
                         </TabBlock>
 
                     {:else}
 
-                        <!-- Graph history viewer -->
+                        <!-- Graph Pins viewer -->
+                        <div
+                            class="pins-container"
+
+                            style={
+                                onMobile() && window.innerHeight < 500 ? "height: 50%" :
+                                ""
+                            }
+                        >
+                            <PinsViewer
+                                {graph}
+                                {useTabbedLayout}
+                                {rePerspectToThingId}
+                            />
+                        </div>
+
+                        <!-- Graph History viewer -->
                         {#if graph}
                             <div
                                 class="history-container"
@@ -376,43 +392,8 @@
                                 />
                             </div>
                         {/if}
-                        
-                        <!-- Graph pins viewer -->
-                        <div
-                            class="pins-container"
-
-                            style={
-                                onMobile() && window.innerHeight < 500 ? "height: 50%" :
-                                ""
-                            }
-                        >
-                            <PinsViewer
-                                {graph}
-                                {useTabbedLayout}
-                                {rePerspectToThingId}
-                            />
-                        </div>
 
                     {/if}
-
-                    <!-- Navigate back and forth buttons. -->
-                    <div
-                        class="back-and-forth-buttons"
-                        class:on-mobile={onMobile()}
-                    >
-                        <button
-                            on:click={back}
-                            on:keydown={()=>{}}
-                        >
-                            ◄
-                        </button>
-                        <button                        
-                            on:click={forward}
-                            on:keydown={()=>{}}
-                        >
-                            ►
-                        </button>
-                    </div>
                     
                 </div>
             </div>
@@ -621,35 +602,6 @@
         flex-direction: column;
 
         overflow:hidden;
-    }
-
-    .back-and-forth-buttons {
-        position: absolute;
-        right: -2px;
-        top: -2px;
-
-        display: flex;
-        flex-direction: row;
-        padding: 5px;
-        gap: 5px;
-    }
-
-    .back-and-forth-buttons.on-mobile {
-        right: 0;
-        top: 0;
-    }
-
-    button {
-        height: 29px;
-
-        padding-top: 2px;
-
-        font-size: 1.25rem;
-        font-family: Serif;
-    }
-
-    .back-and-forth-buttons.on-mobile button {
-        line-height: 5px;
     }
 
     .history-container {
