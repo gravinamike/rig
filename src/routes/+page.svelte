@@ -197,6 +197,9 @@
     async function openGraph(graphName: string, pThingId: number | null = null) {
         if (!mounted) return
 
+        // Close any existing Graph.
+        graph = null
+
         // Open the Graph.
         await openGraphFile(graphName, pThingId, true)
 
@@ -241,9 +244,10 @@
     function rePerspectIfAble(pThingId: number) {
         if (
             mounted
+            && $loadingState === "graphLoaded"
             && graph?.pThing
             && graph.pThing.id !== pThingId
-            //&& urlThingId !== pThingId////////////////////////// PROBLEM
+            && graph.pThing.id !== urlThingId
         ) rePerspectToThingId(pThingId)
     }
     $: if (urlThingId) rePerspectIfAble(urlThingId)

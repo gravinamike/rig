@@ -112,7 +112,7 @@ export class Graph {
         this.lifecycleStatus = "building"
         await this.generations.adjustToDepth(this._depth)
         this.pThing = (this.rootCohort as unknown as ThingCohort).members[0].thing
-
+        
         if (!this.parentGraph) {
             const pThingSpaceId = this.pThing?.space?.id || null
             perspectiveSpaceIdStore.set(pThingSpaceId)
@@ -120,9 +120,11 @@ export class Graph {
                 spaceId: String(pThingSpaceId)
             })
         }
-
+        
         // Add the starting Perspective Thing IDs to History.
-        if (updateHistory) this.history.addEntries(this._pThingIds)
+        if (updateHistory) {
+            await this.history.addEntries(this._pThingIds)
+        }
         
         this.lifecycleStatus = "built"
     }

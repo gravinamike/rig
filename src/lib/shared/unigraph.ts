@@ -3,10 +3,10 @@ import { get } from "svelte/store"
 
 // Import stores.
 import {
-    refreshGraphFoldersStore, graphFoldersStore,
+    refreshGraphFoldersStore, graphFoldersStore, graphsStore,
     loadingState, openGraphStore, storeThingSearchList, clearThingSearchList,
     perspectiveThingIdStore, perspectiveSpaceIdStore, 
-    storeGraphDbModels, clearGraphDbModelStore, sessionUuidStore
+    storeGraphDbModels, clearGraphDbModelStore, sessionUuidStore, rightSideMenuStore, notesEditorLockedStore, homeThingIdStore, pinIdsStore, readOnlyMode
 } from "$lib/stores"
 
 // Import utility methods.
@@ -28,7 +28,7 @@ import { storeGraphConfig, saveAppConfig } from "$lib/shared/config"
  */
 export async function openGraphFile(folderName: string, pThingId: number | null = null, updateUrlHash = false): Promise<void> {
     loadingState.set("graphLoading")
-
+    
     // Close any existing Graph.
     await closeGraphFile()
 
@@ -71,7 +71,7 @@ export async function openGraphFile(folderName: string, pThingId: number | null 
 
     // Save the Graph configuration to file.
     await saveAppConfig()
-    console.log(get(perspectiveThingIdStore), updateUrlHash)
+    
     // Update the URL hash if necessary.
     if (updateUrlHash) updateUrlHashMethod({
         graph: folderName,
@@ -93,8 +93,17 @@ export async function closeGraphFile(updateUrlHash = false): Promise<void> {
     // Clear the cookies.
     document.cookie = `graphName= ; expires = Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict;`
 
-    // Clear the Graph name store.
+    // Clear the Graph-related stores
     openGraphStore.set(null)
+    graphsStore.set([])
+
+    // Set front-end stores.
+    readOnlyMode.set(false)
+    rightSideMenuStore.set(null)
+    notesEditorLockedStore.set(false)
+    homeThingIdStore.set(null)
+    pinIdsStore.set([])
+    perspectiveThingIdStore.set(null)
 
     // Clear the Graph construct stores.
     await clearGraphDbModelStore("Direction")

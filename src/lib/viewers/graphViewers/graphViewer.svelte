@@ -58,7 +58,7 @@
     // completely replaced at each re-Perspect to prevent retention of state
     // information.
     let showGraph = false
-
+    
     // Attributes controlling zoom and scroll.
     let allowScrollToThingId = false
     let thingIdToScrollTo: number | null = null
