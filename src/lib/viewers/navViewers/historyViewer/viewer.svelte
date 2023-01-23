@@ -86,7 +86,6 @@
     <div
         class="unique-toggle"
         class:toggled={useUniqueHistory}
-        class:tabbed={useTabbedLayout}
     >
         Unique
         <Toggle
@@ -207,7 +206,7 @@
 
     .unique-toggle {
         position: absolute;
-        left: 10px;
+        right: 10px;
         top: 13px;
 
         display: flex;
@@ -217,10 +216,6 @@
 
         font-size: 0.75rem;
         color: lightgrey;
-    }
-
-    .unique-toggle.tabbed {
-        right: 10px;
     }
 
     .unique-toggle.toggled {

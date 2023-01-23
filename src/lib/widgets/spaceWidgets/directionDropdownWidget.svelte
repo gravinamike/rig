@@ -131,7 +131,7 @@
         box-sizing: border-box;
         left: 0%;
         top: 100% - 1px;
-        z-index: 1;
+        z-index: 2;
         min-width: 100%;
         max-height: 100px;
         background-color: white;

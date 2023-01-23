@@ -7,7 +7,7 @@
     import { cubicOut } from "svelte/easing"
     import { onMobile, sleep } from "$lib/shared/utility"
     import { saveGraphConfig } from "$lib/shared/config"
-    import { openGraphStore } from "$lib/stores"
+    import { mouseSpeed, openGraphStore } from "$lib/stores"
 
     
     /**
@@ -108,8 +108,8 @@
      * submenu to the button's submenu.
      * @param name - Name of the menu button that was hovered.
      */
-    function handleButtonMouseEnter(name: string) {
-        if (open) openedSubMenuName = name
+    function handleButtonMouseMove(name: string) {
+        if (open && mouseSpeed() < 100) openedSubMenuName = name
     }
 
     /**
@@ -164,7 +164,7 @@
     </div>
 
     <!-- Hover-open strip. -->
-    {#if !onMobile()}
+    {#if !onMobile() && width === 0 && !mousePressed}
         <div
             class="hover-open-strip"
             class:slide-right={slideDirection === "right"}
@@ -200,7 +200,7 @@
                         class:opened-menu={openedSubMenuName !== null && openedSubMenuName === info.name}
                         class:locked-menu={lockedOpen && lockedSubMenuName === info.name}
 
-                        on:mouseenter={ () => handleButtonMouseEnter(info.name) }
+                        on:mousemove={ () => handleButtonMouseMove(info.name) }
                         on:click={ () => { handleButtonClick(info.name) } }
                         on:keydown={()=>{}}
                     >
