@@ -72,7 +72,7 @@
         {#each cohortMembersToDisplay as member}
 
             <!-- If no Thing was found in the store for the Thing ID, show a Thing Missing From Store Widget. -->
-            {#if member.thingId && member.thing === null}
+            {#if member.thingId && !member.thing?.id}
                 <ThingMissingFromStoreWidget
                     thingId={member.thingId}
                     {graph}

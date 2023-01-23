@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { getContext, createEventDispatcher } from "svelte"
 	import { MENU } from "./ContextMenuFrame.svelte"
-	const { dispatchClick, closeMenu } = getContext(MENU)
+	const { dispatchClick, closeMenu } = getContext<{dispatchClick: ()=>void, closeMenu: ()=>void}>(MENU)
 	
 	export let text = ""
 	export let disabled = false

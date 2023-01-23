@@ -1,5 +1,7 @@
 import type { NewFileCreationInfo } from "$lib/widgets/dialogWidgets"
 
+import { sessionSpecificFetch as fetch } from "$lib/db/utility/sessionSpecificFetch"
+
 import { writable } from "svelte/store"
 import { nullNewFileCreationInfo } from "$lib/widgets/dialogWidgets"
 
@@ -20,7 +22,7 @@ export const graphsBaseFolderStore = writable( "" )
 export const graphFoldersStore = writable( [] as string[] )
 
 export async function refreshGraphFoldersStore(): Promise< void > {
-    fetch(`api/file/graphFolders`)
+    await fetch(`api/file/graphFolders`)
         .then(response => {return (response.json() as unknown) as string[]})
         .then(data => graphFoldersStore.set(data))
 }

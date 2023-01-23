@@ -3,6 +3,14 @@ import { writable } from "svelte/store"
 
 
 /**
+ * Session UUID store.
+ * 
+ * Holds a UUID string that uniquely identifies the session.
+ */
+export const sessionUuidStore = writable( "" )
+
+
+/**
  * Font names store.
  * 
  * Holds an array of font names the application can use.

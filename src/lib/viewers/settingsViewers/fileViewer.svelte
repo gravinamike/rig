@@ -1,6 +1,8 @@
 <script lang="ts">
+    import { sessionSpecificFetch as fetch } from "$lib/db/utility/sessionSpecificFetch"
+
     import { graphFoldersStore, refreshGraphFoldersStore, enableNewFileCreation, openGraphStore } from "$lib/stores"
-    import { openUnigraphFolder } from "$lib/shared/unigraph"
+    import { openGraphFile } from "$lib/shared/unigraph"
 
 
     /*let graphFolders: string[] = []
@@ -21,7 +23,7 @@
         {#each $graphFoldersStore as folder}
             <div
                 class="button graph-folder-button { folder === $openGraphStore ? "opened" : "" }"
-                on:click={() => {openUnigraphFolder(folder)}}
+                on:click={() => {openGraphFile(folder, null, true)}}
                 on:keydown={()=>{}}
             >
                 {folder}

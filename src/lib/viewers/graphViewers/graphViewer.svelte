@@ -4,13 +4,17 @@
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
     
     // Import utility functions.
-    import { onMobile, sleep } from "$lib/shared/utility"
+    import { onMobile, sleep, stringRepresentsInteger, updateUrlHash, urlHashToObject } from "$lib/shared/utility"
 
     // Import stores.
     import {
         devMode, addGraph, removeGraph, openGraphStore, perspectiveThingIdStore, hoveredThingIdStore,
         graphIdsNeedingViewerRefresh, addGraphIdsNeedingViewerRefresh, removeGraphIdsNeedingViewerRefresh,
-        rightSideMenuStore
+        rightSideMenuStore,
+        loadingState,
+        urlStore,
+        getGraphConstructs,
+        perspectiveSpaceIdStore
     } from "$lib/stores"
 
     // Import layout elements.
@@ -37,7 +41,7 @@
      * @param forward - Method to navigate a step forwards in the Perspective history.
      * @param setGraphSpace - Method to rebuild the Graph in a new Space.
      */
-    export let pThingIds: number[]
+    export let pThingIds: (number | null)[]
     export let depth: number
 
     export let graph: Graph | null = null
@@ -48,14 +52,14 @@
     export let rePerspectToThingId: (thingId: number, updateHistory?: boolean, zoomAndScroll?: boolean) => Promise<void>
     export let back: () => void
     export let forward: () => void
-    export let setGraphSpace: (space: Space) => void
+    export let setGraphSpace: (space: Space | number) => void
 
 
     // Show-Graph flag. This is a kludge, to ensure that the Graph widgets are
     // completely replaced at each re-Perspect to prevent retention of state
     // information.
     let showGraph = false
-
+    
     // Attributes controlling zoom and scroll.
     let allowScrollToThingId = false
     let thingIdToScrollTo: number | null = null
@@ -92,7 +96,7 @@
 
     // Refresh the viewer whenever...
     // ...a Graph is opened...
-    $: {
+    $: if ($loadingState === "graphLoaded") {
         $openGraphStore
 
         buildAndRefresh()
@@ -107,7 +111,7 @@
     // If the position in the Perspective History has changed, re-Perspect the Graph.
     $: if (graph) {
         const selectedHistoryThingId = graph.history.entryWithThingAtPosition.thingId
-
+        
         if (
             !rePerspectInProgressThingId
             && selectedHistoryThingId !== graph._pThingIds[0]
@@ -127,10 +131,22 @@
             graph = null
         }
 
+        const urlHashParams = urlHashToObject($urlStore.hash)
+        const spaceIdToUse =
+            "spaceId" in urlHashParams && stringRepresentsInteger(urlHashParams["spaceId"]) ? parseInt(urlHashParams["spaceId"]) :
+            null
+        const spaceToUse =
+            spaceIdToUse !== null ? getGraphConstructs("Space", spaceIdToUse) as Space :
+            null
+        if (spaceIdToUse && !spaceToUse) {
+            alert(`No Space with ID ${spaceIdToUse} was found. Using default Space instead.`)
+        }
+        
+
         // Open and build the new Graph.
-        graph = await addGraph(pThingIds, depth)
+        graph = await addGraph(pThingIds as number[], depth, null, false, spaceToUse)
         graphWidgetStyle = {...defaultGraphWidgetStyle}
-        await markThingsVisited(pThingIds)
+        await markThingsVisited(pThingIds as number[])
 
         // Refresh the Graph viewers.
         showGraph = true
@@ -155,6 +171,7 @@
         if (graph) {
             // Record that this re-Perspect operation is in progress.
             rePerspectInProgressThingId = thingId
+
             
             // If the new Perspective Thing is already in the Graph, scroll to center it.
             allowScrollToThingId = true
@@ -176,8 +193,16 @@
             addGraphIdsNeedingViewerRefresh(graph.id)
 
             // Update Thing-visit records in the database, History, store and Graph configuration.
-            await markThingsVisited(pThingIds)
+            await markThingsVisited(pThingIds as number[])
             perspectiveThingIdStore.set(thingId)
+
+            graph.originalStartingSpace = null
+            updateUrlHash({
+                thingId: String(thingId)///////////////////////////////////////////
+            })
+
+
+
             saveGraphConfig()
 
             // Record that the re-Perspect operation is finished.
@@ -210,41 +235,39 @@
     }
 
     /**
-     * Handle-mouse-wheel method.
-     * 
-     * Allows for shift-scrolling the Perspective history.
-     * @param event - The mouse-wheel event that triggered the method.
-     */
-    async function handleWheel(event: WheelEvent) {
-        if (event.shiftKey) {
-            if (event.deltaY > 0) {
-                back()
-            } else {
-                forward()
-            }
-        }
-    }
-
-    /**
      * Set-Graph-Space method.
      * 
      * Re-builds the the Graph in a new Space.
      * @param space - The Space in which to rebuild the Graph.
      */
-    setGraphSpace = async (space: Space) => {
-        if (graph) {
-            await graph.setSpace(space)
+    setGraphSpace = async (space: Space | number) => {
+        
+        let spaceToUse: Space | null
+
+        if (typeof space === "number") {
+            spaceToUse = getGraphConstructs("Space", space) as Space | null
+            if (!spaceToUse) {
+                alert(`No Space with ID ${space} was found. Keeping current Space.`)
+            }
+        } else {
+            spaceToUse = space
+        }
+
+        if (!spaceToUse) {
+            // Revert URL to previous Space.
+            updateUrlHash({
+                spaceId: String($perspectiveSpaceIdStore)
+            })
+        } else if (graph && spaceToUse?.id) {
+            updateUrlHash({
+                spaceId: String(spaceToUse.id)
+            })
+            await graph.setSpace(spaceToUse as Space)
 
             addGraphIdsNeedingViewerRefresh(graph.id)
         }
     }
 </script>
-
-
-<!-- Handle mouse-wheel events over the page body. -->
-<svelte:body lang="ts"
-    on:wheel={handleWheel}
-/>
 
 
 <!-- Graph viewer. -->

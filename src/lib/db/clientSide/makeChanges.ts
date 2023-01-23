@@ -1,5 +1,6 @@
 import type { Direction, Space, Thing } from "$lib/models/constructModels"
 import type { GraphConfig } from "$lib/shared/constants"
+import { sessionSpecificFetch as fetch } from "$lib/db/utility/sessionSpecificFetch"
 
 
 /*
@@ -436,16 +437,6 @@ export async function setGraphsBaseFolder(): Promise<void> {
     })
 }
 
-
-/*
- * Set the Unigraph folder.
- */
-export async function setUnigraphFolder(folderName: string): Promise<void> {
-    await fetch("/api/file/unigraphFolder", {
-        method: "POST",
-        body: JSON.stringify(folderName)
-    })
-}
 
 
 

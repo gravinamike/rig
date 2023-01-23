@@ -1,5 +1,8 @@
 <script lang="ts">
     import type { Thing, Graph } from "$lib/models/constructModels"
+
+    import { sessionSpecificFetch as fetch } from "$lib/db/utility/sessionSpecificFetch"
+
     import { thingDbModelsStore, storeGraphDbModels, getGraphConstructs, graphDbModelInStore } from "$lib/stores/graphConstructStores"
     import { addFolderToThing } from "$lib/db/clientSide"
     import type { ThingDbModel } from "$lib/models/dbModels/clientSide";

@@ -32,7 +32,7 @@
 
         historyToUse = graph.history.reverseHistoryWithDateDividers
     }
-
+    
     /**
      * Open a context command palette for a History entry.
      * @param  {MouseEvent} event - The mouse event that opens the command palette.

@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { getContext } from "svelte"
+    import type { Writable } from "svelte/store";
 	import { TABS } from "./TabBlock.svelte"
-	const { registerTabBody, activeTabBody } = getContext(TABS)
+	const { registerTabBody, activeTabBody } = getContext<{registerTabBody: (tabBody: {})=>void, activeTabBody: Writable<{} | null>}>(TABS)
 
 	const tabBody = {}
 

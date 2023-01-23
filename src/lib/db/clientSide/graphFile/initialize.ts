@@ -1,3 +1,6 @@
+import { sessionSpecificFetch as fetch } from "$lib/db/utility/sessionSpecificFetch"
+
+
 export async function graphIsUpdated(): Promise<boolean | null> {
     const res = await fetch(`api/db/graphFile/graphIsUpdated`)
 

@@ -1,11 +1,12 @@
 import type { Space, Thing, ThingCohort } from "$lib/models/constructModels"
 
-import { storeGraphDbModels, getGraphConstructs, unstoreGraphDbModels } from "$lib/stores"
+import { storeGraphDbModels, getGraphConstructs, unstoreGraphDbModels, perspectiveSpaceIdStore } from "$lib/stores"
 import { Generations } from "./generations"
 import { Planes } from "./planes"
 import { PerspectiveHistory } from "./history"
 import { deleteThing, deleteRelationship } from "$lib/db/clientSide/makeChanges"
 import type { ThingDbModel } from "$lib/models/dbModels/clientSide"
+import { updateUrlHash } from "$lib/shared/utility"
 
 
 /** Class representing a Graph. */
@@ -76,7 +77,6 @@ export class Graph {
      */
     async setPThingIds(pThingIds: number[], updateHistory=true): Promise<void> {
         this._pThingIds = pThingIds
-
         await this.build(false, updateHistory)
     }
 
@@ -112,9 +112,19 @@ export class Graph {
         this.lifecycleStatus = "building"
         await this.generations.adjustToDepth(this._depth)
         this.pThing = (this.rootCohort as unknown as ThingCohort).members[0].thing
-
+        
+        if (!this.parentGraph) {
+            const pThingSpaceId = this.pThing?.space?.id || null
+            perspectiveSpaceIdStore.set(pThingSpaceId)
+            updateUrlHash({
+                spaceId: String(pThingSpaceId)
+            })
+        }
+        
         // Add the starting Perspective Thing IDs to History.
-        if (updateHistory) this.history.addEntries(this._pThingIds)
+        if (updateHistory) {
+            await this.history.addEntries(this._pThingIds)
+        }
         
         this.lifecycleStatus = "built"
     }

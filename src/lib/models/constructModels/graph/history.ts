@@ -19,7 +19,7 @@ export class PerspectiveHistory {
 
     // Basic array of Thing IDs by timestamp.
     _entries: { timestamp: Date, thingId: number }[] = []
-
+    
     // History arrays for use by the History Viewer.
     fullHistoryWithThings: HistoryEntryWithThing[] = []
     uniqueHistoryWithThings: HistoryEntryWithThing[] = []
@@ -48,17 +48,17 @@ export class PerspectiveHistory {
      * Add one or multiple Thing IDs to the Perspective History.
      * @param  {number | number[]} thingIds - The Thing ID or IDs to add to the History.
      */
-    addEntries( thingIds: number | number[] ): void {
+    async addEntries( thingIds: number | number[] ): Promise< void > {
         // Re-package single Thing IDs into an array for processing.
         if (typeof thingIds === "number") thingIds = [thingIds]
-
+        
         // Construct and add entries to the history entries object.
         const timestamp = new Date()
         const entries = thingIds.map(
             (thingId) => { return { timestamp: timestamp, thingId: thingId } }
         )
         this._entries.push(...entries)
-
+        
         // Rebuild the Graph.
         this.build()
 
@@ -163,7 +163,7 @@ export class PerspectiveHistory {
             this._useUniqueHistory ? this.uniqueHistoryWithThings :
             this.fullHistoryWithThings
         this.reverseHistoryWithDateDividers = this.reverseAndAddDateDividers(this.historyWithThings)
-
+        
         // Derive the ID of the currently selected Thing.
         this.selectedThingId = this.entryWithThingAtPosition.thingId
     }
