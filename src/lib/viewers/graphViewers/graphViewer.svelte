@@ -13,7 +13,8 @@
         rightSideMenuStore,
         loadingState,
         urlStore,
-        getGraphConstructs
+        getGraphConstructs,
+        perspectiveSpaceIdStore
     } from "$lib/stores"
 
     // Import layout elements.
@@ -247,13 +248,17 @@
             spaceToUse = getGraphConstructs("Space", space) as Space | null
             if (!spaceToUse) {
                 alert(`No Space with ID ${space} was found. Keeping current Space.`)
-                return
             }
         } else {
             spaceToUse = space
         }
 
-        if (graph && spaceToUse?.id) {
+        if (!spaceToUse) {
+            // Revert URL to previous Space.
+            updateUrlHash({
+                spaceId: String($perspectiveSpaceIdStore)
+            })
+        } else if (graph && spaceToUse?.id) {
             updateUrlHash({
                 spaceId: String(spaceToUse.id)
             })
