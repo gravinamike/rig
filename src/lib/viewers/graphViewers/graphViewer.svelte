@@ -148,14 +148,16 @@
         graphWidgetStyle = {...defaultGraphWidgetStyle}
         await markThingsVisited(pThingIds as number[])
 
-        // Refresh the Graph viewers.
-        showGraph = true
-        addGraphIdsNeedingViewerRefresh(graph.id)
-
         rightMenuOpen = !!$rightSideMenuStore
         rightMenuLockedOpen = !!$rightSideMenuStore
         openedSubMenuName = $rightSideMenuStore
         lockedSubMenuName = $rightSideMenuStore
+
+        await sleep(500) // Allow side-menu to open.
+
+        // Refresh the Graph viewers.
+        showGraph = true
+        addGraphIdsNeedingViewerRefresh(graph.id)
     }
 
     // This indicates whether a re-Perspect operation is in progress but not yet completed.
@@ -198,7 +200,7 @@
 
             graph.originalStartingSpace = null
             updateUrlHash({
-                thingId: String(thingId)///////////////////////////////////////////
+                thingId: String(thingId)
             })
 
 
