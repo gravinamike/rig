@@ -4,4 +4,5 @@ node_modules
 /.svelte-kit
 /package
 /static/config/config.json
+/static/config/serverconfig.json
 /static/customizable
