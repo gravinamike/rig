@@ -25,8 +25,10 @@
 
     
     // Handles for HTML elements.
-    let notesContainer: Element
     let editButton: Element
+    let notesContainer: Element
+    let textField: Element
+    let textEditorField: Element
 
     // Whether Notes are displayed as plain HTML or as an editable interface.
     let editing = $notesEditorLockedStore
@@ -61,6 +63,9 @@
     async function updateTexts(text: string) {
         currentPThingNoteText = text
         viewerDisplayText = textForDisplay(text)
+
+        textField?.scroll({top: 0})
+        textEditorField?.scroll({top: 0})
     }
 
     /**
@@ -298,11 +303,16 @@
                 {currentPThingNoteText}
                 bind:currentEditorTextContent
                 bind:editorTextEditedButNotSynced
+                bind:textField={textEditorField}
             />
 
         <!-- Note display. -->
         {:else}
-            <div class="notes-display">
+            <div
+                class="notes-display"
+
+                bind:this={textField}
+            >
                 {@html viewerDisplayText}
             </div>
         {/if}

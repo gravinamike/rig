@@ -21,13 +21,14 @@
      * @param currentPThingNoteText - The text of the Perspective Thing's Note.
      * @param currentEditorTextContent - The editor's text content as a string.
      * @param editorTextEditedButNotSynced - Indicates whether the editor's text content has been changed (excluding complete replacement because of a re-Perspect).
+     * @param textField - The HTML Element of the text field.
      */
     export let currentPThingNoteText: string | null
     export let currentEditorTextContent: string | null
     export let editorTextEditedButNotSynced: boolean
+    export let textField: Element
 
     // HTML element handles.
-    let textField: Element
     let editor: Editor
 
 
