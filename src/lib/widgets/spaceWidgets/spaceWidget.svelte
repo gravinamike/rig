@@ -268,9 +268,9 @@
         <div
             class="perspective-space-button"
             class:is-default-perspective={defaultPerspectiveSpace}
-            class:read-only-mode={readOnlyMode}
+            class:read-only-mode={$readOnlyMode}
 
-            on:click|stopPropagation={ () => { if (!readOnlyMode) setPerspectiveThingDefaultSpace() } }
+            on:click|stopPropagation={ () => { if (!$readOnlyMode) setPerspectiveThingDefaultSpace() } }
             on:keydown={()=>{}}
         >
             <img
