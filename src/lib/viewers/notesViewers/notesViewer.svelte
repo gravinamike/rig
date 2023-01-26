@@ -58,14 +58,16 @@
     }
 
     // When Perspective Thing changes, update the raw and display text to match.
-    $: if (typeof graph.pThing?.note?.text === "string") updateTexts(graph.pThing.note.text)
+    $: if (typeof graph.pThing?.note?.text === "string") {
+        updateTexts(graph.pThing.note.text)
+
+        textField?.scroll({top: 0})
+        textEditorField?.scroll({top: 0})
+    }
 
     async function updateTexts(text: string) {
         currentPThingNoteText = text
         viewerDisplayText = textForDisplay(text)
-
-        textField?.scroll({top: 0})
-        textEditorField?.scroll({top: 0})
     }
 
     /**
