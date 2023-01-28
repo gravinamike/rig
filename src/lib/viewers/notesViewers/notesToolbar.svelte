@@ -333,8 +333,8 @@
 
         <CommandPalette
             {commandButtonInfos}
-            buttonSize={20}
-            maxRowLength={18}
+            buttonSize={19}
+            maxRowLength={21}
         />
     </div>
 {/if}
@@ -344,14 +344,23 @@
     .notes-toolbar {
         flex: 0 0;
 
+        border-radius: 5px;
+
+        background-color: #fafafa;
+
         display: flex;
         flex-direction: column;
+        padding: 0.5rem;
+        gap: 0.5rem;
     }
 
     .button-group {
         display: flex;
         flex-direction: row;
-        padding: 0.25rem;
         gap: 0.5rem;
+    }
+
+    select, input {
+        height: 30px;
     }
 </style>

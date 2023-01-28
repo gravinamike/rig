@@ -180,11 +180,9 @@
     .notes-editor {
         flex: 1 1 0;
 
-        background-color: #fafafa;
-
         display: flex;
         flex-direction: column;
-        gap: 0.75rem;
+        gap: 0.5rem;
 
         text-align: center;
     }
@@ -192,19 +190,24 @@
     .text-field {
         flex: 1 1 0;
 
-        outline: solid 1px black;
-        outline-offset: -1px;
+        outline: solid 2px grey;
+        outline-offset: -2px;
+        border-radius: 5px;
 
         box-sizing: border-box;
         background-color: white;
 
-        padding: 0.5rem;
-
         overflow-x: hidden;
         overflow-y: auto;
+        scrollbar-width: thin;
 
         text-align: left;
-        
+    }
+
+    :global(.ProseMirror) {
+        height: 100%;
+
+        padding: 1rem;
     }
 
     :global(.ProseMirror li > p) {

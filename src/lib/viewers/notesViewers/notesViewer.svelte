@@ -265,33 +265,6 @@
         <h3>{title}</h3>
     </div>
 
-    <!-- Edit button. -->
-    {#if !$readOnlyMode}
-        <div
-            class="edit-button"
-            class:editing
-            class:editingLocked
-            bind:this={editButton}
-
-            on:mouseenter={() => {editButtonHovered = true}}
-            on:mouseleave={() => {
-                editButtonHovered = false
-                editingLockJustToggled = false
-            }}
-            on:click={handleEditButton}
-            on:keydown={()=>{}}
-        >
-            <img
-                src={
-                    showEditingLockedIcon ? "./icons/lock-edit.png" : "./icons/edit.png" }
-                alt={
-                    showEditingLockedIcon ? "Lock Notes in editing mode" : "Edit Notes" }
-                width=20px
-                height=20px
-            >
-        </div>
-    {/if}
-
     <!-- Container to hold either Note display or Note editor. -->
     <div
         class="notes-container"
@@ -319,25 +292,49 @@
             </div>
         {/if}
     </div>
+
+    <!-- Edit button. -->
+    {#if !$readOnlyMode}
+        <div
+            class="edit-button"
+            class:editing
+            class:editingLocked
+            bind:this={editButton}
+
+            on:mouseenter={() => {editButtonHovered = true}}
+            on:mouseleave={() => {
+                editButtonHovered = false
+                editingLockJustToggled = false
+            }}
+            on:click={handleEditButton}
+            on:keydown={()=>{}}
+        >
+            <img
+                src={
+                    showEditingLockedIcon ? "./icons/lock-edit.png" : "./icons/edit.png" }
+                alt={
+                    showEditingLockedIcon ? "Lock Notes in editing mode" : "Edit Notes" }
+                width=20px
+                height=20px
+            >
+        </div>
+    {/if}
     
 </div>
 
 
 <style>
     .notes-viewer {
-        outline: solid 1px lightgrey;
-        outline-offset: -1px;
-
         box-sizing: border-box;
         position: relative;
         width: 100%;
         height: 100%;
-        background-color: #fafafa;
+        background-color: #EEEEEE;
 
         display: flex;
         flex-direction: column;
-        padding: 0.75rem;
-        gap: 0.75rem;
+        padding: 0.5rem;
+        gap: 0.5rem;
 
         text-align: center;
     }
@@ -347,8 +344,8 @@
 
 		box-sizing: border-box;
         position: absolute;
-        top: 0.55rem;
-        left: 0.75rem;
+        bottom: 0.75rem;
+        right: 1rem;
         opacity: 0.25;
 
 		display: flex;
@@ -362,6 +359,8 @@
     .edit-button.editing {
         outline: solid 1px lightgrey;
 		outline-offset: -1px;
+
+        bottom: 75px;
 
         background-color: white;
         opacity: 1;
@@ -400,16 +399,16 @@
     .notes-display {
         flex: 1 1 0;
 
-        outline: solid 1px lightgrey;
-        outline-offset: -1px;
+        border-radius: 5px;
 
         box-sizing: border-box;
         background-color: white;
 
-        padding: 0.5rem;
+        padding: 1rem;
 
         overflow-x: hidden;
         overflow-y: auto;
+        scrollbar-width: thin;
 
         text-align: left;
         white-space: pre-wrap;
