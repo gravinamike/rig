@@ -80,6 +80,7 @@
 <!-- History viewer. -->
 <div
     class="history-viewer"
+    class:use-tabbed-layout={useTabbedLayout}
 >
 
     <!-- Toggle to use unique or full history. -->
@@ -178,8 +179,7 @@
 
 <style>
     .history-viewer {
-        outline: solid 1px lightgrey;
-        outline-offset: -1px;
+        border-radius: 5px;
 
         position: relative;
         box-sizing: border-box;
@@ -194,6 +194,10 @@
         text-align: center;
 
         overflow: hidden;
+    }
+
+    .history-viewer.use-tabbed-layout {
+        border-radius: 0 0 5px 5px;
     }
 
     .title {
@@ -215,7 +219,6 @@
         gap: 5px;
 
         font-size: 0.75rem;
-        color: lightgrey;
     }
 
     .unique-toggle.toggled {
@@ -227,8 +230,8 @@
 
         display: flex;
         flex-direction: column;
-        padding: 0.75rem;
-        gap: 0.75rem;
+        padding: 0.5rem;
+        gap: 0.15rem;
 
         overflow-y: auto;
         scrollbar-width: thin;
@@ -236,7 +239,6 @@
 
     .box {
         border-radius: 10px;
-        box-shadow: 5px 5px 10px 2px lightgray;
 
         position: relative;
         height: max-content;
@@ -249,10 +251,6 @@
         text-align: left;
 
         cursor: default;
-    }
-
-    .box:hover {
-        box-shadow: 5px 5px 10px 10px lightgray;
     }
 
     .hovered-thing {

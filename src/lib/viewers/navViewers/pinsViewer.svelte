@@ -90,6 +90,7 @@
 
 <div
     class="pins-viewer"
+    class:use-tabbed-layout={useTabbedLayout}
 
     style={
         useTabbedLayout ? "height: 100%;" :
@@ -130,20 +131,23 @@
 
 <style>
     .pins-viewer {
-        outline: solid 1px lightgrey;
-        outline-offset: -1px;
+        border-radius: 5px;
 
         box-sizing: border-box;
         background-color: #fafafa;
 
         display: flex;
         flex-direction: column;
-        padding: 0.75rem 0 0.75rem 0;
-        gap: 0.5rem;
+        padding: 0.5rem 0 0.5rem 0;
+        gap: 0.25rem;
         
         text-align: center;
 
         overflow: hidden;
+    }
+
+    .pins-viewer.use-tabbed-layout {
+        border-radius: 0 0 5px 5px;
     }
 
     .title {
@@ -157,8 +161,8 @@
     .content {
         display: flex;
         flex-direction: column;
-        padding: 0.75rem;
-        gap: 0.75rem;
+        padding: 0.5rem;
+        gap: 0.5rem;
 
         overflow-y: auto;
         scrollbar-width: thin;

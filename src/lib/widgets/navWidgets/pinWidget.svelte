@@ -101,7 +101,7 @@
 <style>
     .pin-widget {
         border-radius: 10px;
-        box-shadow: 5px 5px 10px 2px lightgray;
+        box-shadow: 2px 2px 5px 1px gainsboro;
 
         position: relative;
         height: max-content;
@@ -123,7 +123,7 @@
     }
 
     .pin-widget:hover {
-        box-shadow: 5px 5px 10px 10px lightgray;
+        box-shadow: 2px 2px 5px 1px gainsboro;
     }
 
     .hovered-thing {

@@ -323,6 +323,7 @@
                 <div class="search-container">
                     <ThingSearchboxViewer
                         {rePerspectToThingId}
+                        padded={false}
                     />
                 </div>
 
@@ -332,8 +333,8 @@
 
                         <TabBlock>
                             <TabFlaps>
-                                <TabFlap><span style="font-size: 1.25rem;">Pins</span></TabFlap>
-                                <TabFlap><span style="font-size: 1.25rem;">History</span></TabFlap>
+                                <TabFlap><span class="tab-flap-span">Pins</span></TabFlap>
+                                <TabFlap><span class="tab-flap-span">History</span></TabFlap>
                             </TabFlaps>
                         
                             <!-- Graph Pins viewer -->
@@ -406,8 +407,8 @@
 
                     <TabBlock>
                         <TabFlaps>
-                            <TabFlap><span style="font-size: 1.25rem;">Directions</span></TabFlap>
-                            <TabFlap><span style="font-size: 1.25rem;">Spaces</span></TabFlap>
+                            <TabFlap><span class="tab-flap-span">Directions</span></TabFlap>
+                            <TabFlap><span class="tab-flap-span">Spaces</span></TabFlap>
                         </TabFlaps>
     
                         {#if graph}
@@ -593,13 +594,23 @@
         overflow-y: hidden;
     }
 
+    .search-container {
+        background-color: #E8E8E8;
+
+        padding: 0.5rem;
+        gap: 0.5rem;
+    }
+
     .pins-history-container {
         flex: 1 1 auto;
 
         position: relative;
+        background-color: #E8E8E8;
 
         display: flex;
         flex-direction: column;
+        padding: 0 0.5rem 0.5rem 0.5rem;
+        gap: 0.5rem;
 
         overflow:hidden;
     }
@@ -639,5 +650,10 @@
         
         overflow-x: hidden;
         overflow-y: hidden;
+    }
+
+    .tab-flap-span {
+        font-size: 0.9rem;
+        font-weight: 600;
     }
 </style>

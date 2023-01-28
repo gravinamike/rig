@@ -5,6 +5,7 @@
     import { SearchWidget } from "$lib/widgets/navWidgets"
 
     export let rePerspectToThingId: (id: number) => Promise<void>
+    export let padded = true
 
 
     let unfilteredArray: {id: number, name: string}[] = []
@@ -27,7 +28,10 @@
 </script>
 
 
-<div class="thing-searchbox-viewer">
+<div
+    class="thing-searchbox-viewer"
+    class:padded
+>
 
     <SearchWidget
         {unfilteredArray}
@@ -41,7 +45,7 @@
 
 
 <style>
-    .thing-searchbox-viewer {
+    .thing-searchbox-viewer.padded {
         outline: solid 1px lightgrey;
         outline-offset: -1px;
 
