@@ -404,7 +404,7 @@
         box-sizing: border-box;
         background-color: white;
 
-        padding: 1rem;
+        padding: 1rem 2rem 1rem 2rem;
 
         overflow-x: hidden;
         overflow-y: auto;

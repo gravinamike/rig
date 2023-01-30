@@ -195,6 +195,7 @@
         border-radius: 5px;
 
         box-sizing: border-box;
+        height: 100%;
         background-color: white;
 
         overflow-x: hidden;
@@ -205,9 +206,9 @@
     }
 
     :global(.ProseMirror) {
-        height: 100%;
+        box-sizing: border-box;
 
-        padding: 1rem;
+        padding: 1rem 2rem 1rem 2rem;
     }
 
     :global(.ProseMirror li > p) {
