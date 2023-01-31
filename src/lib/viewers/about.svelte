@@ -77,12 +77,13 @@
 
     .content {
         flex: 1 1 0;
+
         border-radius: 5px;
+
         background-color: white;
 
         display: flex;
         flex-direction: column;
-
         padding: 0.5rem 1rem 0.5rem 1rem;
         gap: 1rem;
     }

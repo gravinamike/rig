@@ -17,55 +17,68 @@
 
 
 <div class="file-viewer">
-    <h4>Open file:</h4>
 
-    <div class="graph-folder-buttons">
-        {#each $graphFoldersStore as folder}
+    <div class="content">
+        <h4>Open file:</h4>
+
+        <div class="graph-folder-buttons">
+            {#each $graphFoldersStore as folder}
+                <div
+                    class="button graph-folder-button { folder === $openGraphStore ? "opened" : "" }"
+                    on:click={() => {openGraphFile(folder, null, true)}}
+                    on:keydown={()=>{}}
+                >
+                    {folder}
+                </div>
+            {/each}
+
             <div
-                class="button graph-folder-button { folder === $openGraphStore ? "opened" : "" }"
-                on:click={() => {openGraphFile(folder, null, true)}}
+                class="button new-graph-button"
+                style={ $graphFoldersStore.length ? "margin-top: 25px;" : ""}
+                on:click={enableNewFileCreation}
                 on:keydown={()=>{}}
             >
-                {folder}
+                <strong>+</strong>&nbsp;&nbsp;&nbsp;New Graph
             </div>
-        {/each}
-
-        <div
-            class="button new-graph-button"
-            style={ $graphFoldersStore.length ? "margin-top: 25px;" : ""}
-            on:click={enableNewFileCreation}
-            on:keydown={()=>{}}
-        >
-            New Graph
         </div>
     </div>
+    
 </div>
 
 
 <style>
-    .file-viewer {
-        outline: solid 1px lightgrey;
-        outline-offset: -1px;
-        
+    .file-viewer {        
         box-sizing: border-box;
         height: 100%;
-        background-color: #fafafa;
+        background-color: #E8E8E8;
+
+        display: flex;
+        flex-direction: column;
+        padding: 0.5rem;
+    }
+
+    h4 {
+        margin: 0;
+    }
+
+    .content {
+        flex: 1 1 0;
+
+        border-radius: 5px;
+        
+        background-color: white;
 
         overflow-x: hidden;
         overflow-y: auto;
 
         display: flex;
         flex-direction: column;
-        padding: 0.75rem;
-        gap: 1.25rem;
+        padding: 0.5rem 1rem 0.5rem 1rem;
+        gap: 2rem;
         
         text-align: center;
 
         scrollbar-width: thin;
-    }
-
-    h4 {
-        margin: 0;
     }
 
     .graph-folder-buttons {
@@ -77,7 +90,7 @@
     }
 
     .button {
-        border-radius: 3px;
+        border-radius: 10px;
         outline: solid 1px lightgrey;
         outline-offset: -1px;
 
@@ -112,5 +125,9 @@
     .new-graph-button:hover {
         color: black;
         font-style: normal;
+    }
+
+    .new-graph-button strong {
+        font-size: 1rem;
     }
   </style>
