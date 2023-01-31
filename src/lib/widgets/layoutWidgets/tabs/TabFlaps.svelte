@@ -9,7 +9,7 @@
 		border-bottom: 1px solid black;
 		border-radius: 5px 5px 0 0;
 
-		background-color: whitesmoke;
+		background-color: #fafafa;
 
 		display: flex;
 		flex-direction: row;

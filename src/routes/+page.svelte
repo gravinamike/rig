@@ -401,61 +401,34 @@
 
         <!-- Space menu. -->
         {:else if openedSubMenuName === "Space"}
-            <div class="directions-spaces-container">
-
-                {#if useTabbedLayout}
+            <div class="spaces-view">
+                <div class="directions-spaces-container">
 
                     <TabBlock>
                         <TabFlaps>
-                            <TabFlap><span class="tab-flap-span">Directions</span></TabFlap>
                             <TabFlap><span class="tab-flap-span">Spaces</span></TabFlap>
+                            <TabFlap><span class="tab-flap-span">Directions</span></TabFlap>
                         </TabFlaps>
     
-                        {#if graph}
-                            <TabBody>
-                                <DirectionsViewer
-                                    {graph}
-                                    {graphWidgetStyle}
-                                    {useTabbedLayout}
-                                />
-                            </TabBody>
-                        
+                        {#if graph}                    
                             <TabBody>
                                 <SpacesViewer
                                     {graph}
                                     {graphWidgetStyle}
-                                    {useTabbedLayout}
                                     {setGraphSpace}
+                                />
+                            </TabBody>
+    
+                            <TabBody>
+                                <DirectionsViewer
+                                    {graph}
+                                    {graphWidgetStyle}
                                 />
                             </TabBody>
                         {/if}
                     </TabBlock>
-
-                {:else}
-
-                    {#if graph}
-                        <!-- Directions viewer. -->
-                        <div class="directions-container">
-                            <DirectionsViewer
-                                {graph}
-                                {graphWidgetStyle}
-                                {useTabbedLayout}
-                            />
-                        </div>
-
-                        <!-- Spaces viewer. -->
-                        <div class="spaces-container">
-                            <SpacesViewer
-                                {graph}
-                                {graphWidgetStyle}
-                                {useTabbedLayout}
-                                {setGraphSpace}
-                            />
-                        </div>
-                    {/if}
-
-                {/if}
-
+    
+                </div>
             </div>
 
         <!-- Graph settings viewer. -->
@@ -625,7 +598,21 @@
         overflow: hidden;
     }
 
+    .spaces-view {
+        box-sizing: border-box;
+        height: 100%;
+        background-color: #E8E8E8;
+
+        display: flex;
+        flex-direction: column;
+        padding: 0.5rem;
+    }
+
     .directions-spaces-container {
+        flex: 1 1 auto;
+
+        border-radius: 5px;
+
         position: relative;
         height: 100%;
 
@@ -633,20 +620,10 @@
         flex-direction: column;
     }
 
-    .directions-container {
-        height: 33%;
-    }
-
-    .spaces-container {
-        height: 67%;
-
-        scrollbar-width: thin;
-    }
-
     .tabs-container {
         width: 100%;
         height: 100%;
-        background-color: white;;
+        background-color: white;
         
         overflow-x: hidden;
         overflow-y: hidden;
