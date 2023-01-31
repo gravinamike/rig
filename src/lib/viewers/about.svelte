@@ -21,7 +21,7 @@
     <div class="content">
         <h4>About</h4>
 
-        <div>
+        <div class="text">
             <p>
                 This is an early version of an application by Mike Gravina called
                 Rig. It's focused on "Graphs", which are diagrams of the
@@ -57,16 +57,25 @@
 <style>
     .about-menu {
         box-sizing: border-box;
+        position: relative;
         height: 100%;
         background-color: #E8E8E8;
 
         display: flex;
         flex-direction: column;
         padding: 0.5rem;
+    }
 
-        overflow-x: hidden;
-        overflow-y: auto;
-        scrollbar-width: thin;
+    .content {
+        border-radius: 5px;
+
+        height: 100%;
+        background-color: white;
+
+        display: flex;
+        flex-direction: column;
+        padding: 0.5rem 1rem 0.5rem 1rem;
+        gap: 1rem;
     }
 
     h4 {
@@ -75,17 +84,12 @@
         text-align: center;
     }
 
-    .content {
+    .text {
         flex: 1 1 0;
 
-        border-radius: 5px;
-
-        background-color: white;
-
-        display: flex;
-        flex-direction: column;
-        padding: 0.5rem 1rem 0.5rem 1rem;
-        gap: 1rem;
+        overflow-x: hidden;
+        overflow-y: auto;
+        scrollbar-width: thin;
     }
 
     p {

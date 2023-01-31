@@ -19,7 +19,7 @@
 <div class="file-viewer">
 
     <div class="content">
-        <h4>Open file:</h4>
+        <h4>File</h4>
 
         <div class="graph-folder-buttons">
             {#each $graphFoldersStore as folder}
@@ -57,19 +57,11 @@
         padding: 0.5rem;
     }
 
-    h4 {
-        margin: 0;
-    }
-
     .content {
-        flex: 1 1 0;
-
         border-radius: 5px;
         
+        height: 100%;
         background-color: white;
-
-        overflow-x: hidden;
-        overflow-y: auto;
 
         display: flex;
         flex-direction: column;
@@ -77,20 +69,28 @@
         gap: 2rem;
         
         text-align: center;
+    }
 
-        scrollbar-width: thin;
+    h4 {
+        margin: 0;
     }
 
     .graph-folder-buttons {
+        flex: 1 1 0;
+        
         display: flex;
         flex-direction: column;
         gap: 0.25rem;
 
         font-size: 0.85rem;
+
+        overflow-x: hidden;
+        overflow-y: auto;
+        scrollbar-width: thin;
     }
 
     .button {
-        border-radius: 10px;
+        border-radius: 15px;
         outline: solid 1px lightgrey;
         outline-offset: -1px;
 
