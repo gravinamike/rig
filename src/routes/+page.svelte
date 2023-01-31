@@ -99,31 +99,32 @@
             }
         ].filter(info => info !== null) as { name: string, icon: string }[],
 
-        [
-            {
-                name: "Thing",
-                icon: "thing"
-            },
-            {
-                name: "Space",
-                icon: "space"
-            },
-            {
-                name: "Settings",
-                icon: "settings"
-            },
-            $devMode ?
+        $loadingState === "graphLoaded" ? [
                 {
-                    name: "Dev",
-                    icon: "dev"
-                } :
-                null
-        ].filter(info => info !== null) as { name: string, icon: string }[]
-    ]
+                    name: "Thing",
+                    icon: "thing"
+                },
+                {
+                    name: "Space",
+                    icon: "space"
+                },
+                {
+                    name: "Settings",
+                    icon: "settings"
+                },
+                $devMode ?
+                    {
+                        name: "Dev",
+                        icon: "dev"
+                    } :
+                    null
+            ].filter(info => info !== null) as { name: string, icon: string }[] :
+            null
+    ].filter(infoBlock => infoBlock !== null) as ({ name: string, icon: string }[])[]
     let leftMenuOpen: boolean
     let leftMenuLockedOpen: boolean
     let openedSubMenuName: string | null
-    const defaultOpenSubMenuName = "Thing"
+    $: defaultOpenSubMenuName = $loadingState === "graphLoaded" ? "Thing" : "File"
     let lockedSubMenuName: string | null
     $: useTabbedLayout = height < 500
     let closeLeftMenu: () => {}
