@@ -12,7 +12,7 @@
     import { thingsByGuid, addNoteToThing, updateNote, markNotesModified } from "$lib/db/clientSide"
 
 
-    import { notesEditorLockedStore, readOnlyMode } from "$lib/stores"
+    import { notesEditorLockedStore, readOnlyMode, uITrimColorStore } from "$lib/stores"
     import { saveGraphConfig } from "$lib/shared/config"
 
 
@@ -258,7 +258,11 @@
 
 
 <!-- Notes viewer. -->
-<div class="notes-viewer graph-{graph.id}">
+<div
+    class="notes-viewer graph-{graph.id}"
+
+    style="background-color: {$uITrimColorStore};"
+>
 
     <!-- Title. -->
     <div class="title">
@@ -329,7 +333,6 @@
         position: relative;
         width: 100%;
         height: 100%;
-        background-color: #EEEEEE;
 
         display: flex;
         flex-direction: column;

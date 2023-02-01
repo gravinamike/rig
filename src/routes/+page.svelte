@@ -17,7 +17,7 @@
     import {
         devMode, fontNames, urlStore, sessionUuidStore, leftSideMenuStore, loadingState,
         openGraphStore, perspectiveThingIdStore, reorderingInfoStore,
-        updateMousePosition, updateRelationshipBeingCreatedEndpoint
+        updateMousePosition, updateRelationshipBeingCreatedEndpoint, uITrimColorStore, uIBackgroundColorStore
     } from "$lib/stores"
 
     // Import widgets.
@@ -329,14 +329,22 @@
         {#if openedSubMenuName === "Thing"}
             <div class="navigation-view">
                 <!-- Thing searchbox. -->
-                <div class="search-container">
+                <div
+                    class="search-container"
+
+                    style="background-color: {$uITrimColorStore};"
+                >
                     <ThingSearchboxViewer
                         {rePerspectToThingId}
                         padded={false}
                     />
                 </div>
 
-                <div class="pins-history-container">
+                <div
+                    class="pins-history-container"
+
+                    style="background-color: {$uITrimColorStore};"
+                >
 
                     {#if useTabbedLayout}
 
@@ -410,7 +418,11 @@
 
         <!-- Space menu. -->
         {:else if openedSubMenuName === "Space"}
-            <div class="spaces-view">
+            <div
+                class="spaces-view"
+
+                style="background-color: {$uITrimColorStore};"
+            >
                 <div class="directions-spaces-container">
 
                     <TabBlock>
@@ -577,8 +589,6 @@
     }
 
     .search-container {
-        background-color: #E8E8E8;
-
         padding: 0.5rem;
         gap: 0.5rem;
     }
@@ -587,7 +597,6 @@
         flex: 1 1 auto;
 
         position: relative;
-        background-color: #E8E8E8;
 
         display: flex;
         flex-direction: column;
@@ -610,7 +619,6 @@
     .spaces-view {
         box-sizing: border-box;
         height: 100%;
-        background-color: #E8E8E8;
 
         display: flex;
         flex-direction: column;
@@ -632,7 +640,6 @@
     .tabs-container {
         width: 100%;
         height: 100%;
-        background-color: white;
         
         overflow-x: hidden;
         overflow-y: hidden;

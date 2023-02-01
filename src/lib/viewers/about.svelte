@@ -1,4 +1,7 @@
 <script>
+    import { uITrimColorStore } from "$lib/stores";
+
+
     const catPic = `
                                                                          Meow.
                                                                          /
@@ -17,7 +20,11 @@
     }
 </script>
 
-<div class="about-menu">    
+<div
+    class="about-menu"
+
+    style="background-color: {$uITrimColorStore};"
+>    
     <div class="content">
         <h4>About</h4>
 
@@ -59,7 +66,6 @@
         box-sizing: border-box;
         position: relative;
         height: 100%;
-        background-color: #E8E8E8;
 
         display: flex;
         flex-direction: column;

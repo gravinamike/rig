@@ -8,7 +8,7 @@
     import { flip } from "svelte/animate"
 
     // Import stores and utility functions.
-    import { directionDbModelsStoreAsArray, getGraphConstructs, readOnlyMode, storeGraphDbModels } from "$lib/stores"
+    import { directionDbModelsStoreAsArray, getGraphConstructs, readOnlyMode, storeGraphDbModels, uIBackgroundColorStore } from "$lib/stores"
     import { changeIndexInArray } from "$lib/shared/utility"
 
     // Import related widgets.
@@ -96,6 +96,8 @@
 <!-- Directions viewer. -->
 <div
     class="directions-viewer"
+
+    style="background-color: {$uIBackgroundColorStore};"
 >
     <!-- List of Directions. -->
     <div class="scrollable">
@@ -125,7 +127,6 @@
 
         box-sizing: border-box;
         height: 100%;
-        background-color: #fafafa;
 
         display: flex;
         flex-direction: column;

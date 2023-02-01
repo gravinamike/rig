@@ -1,24 +1,25 @@
 <script lang="ts">
     import { sessionSpecificFetch as fetch } from "$lib/db/utility/sessionSpecificFetch"
 
-    import { graphFoldersStore, refreshGraphFoldersStore, enableNewFileCreation, openGraphStore } from "$lib/stores"
+    import { graphFoldersStore, refreshGraphFoldersStore, enableNewFileCreation, openGraphStore, uIBackgroundColorStore, uITrimColorStore } from "$lib/stores"
     import { openGraphFile } from "$lib/shared/unigraph"
 
 
-    /*let graphFolders: string[] = []
-
-    function refreshGraphFolders() {
-        fetch(`api/file/graphFolders`)
-            .then(response => {return (response.json() as unknown) as string[]})
-            .then(data => graphFolders = data)
-    }*/
     refreshGraphFoldersStore()
 </script>
 
 
-<div class="file-viewer">
+<div
+    class="file-viewer"
 
-    <div class="content">
+    style="background-color: {$uITrimColorStore};"
+>
+
+    <div
+        class="content"
+
+        style="background-color: {$uIBackgroundColorStore};"
+    >
         <h4>File</h4>
 
         <div class="graph-folder-buttons">
@@ -50,7 +51,6 @@
     .file-viewer {        
         box-sizing: border-box;
         height: 100%;
-        background-color: #E8E8E8;
 
         display: flex;
         flex-direction: column;
@@ -61,7 +61,6 @@
         border-radius: 5px;
         
         height: 100%;
-        background-color: white;
 
         display: flex;
         flex-direction: column;

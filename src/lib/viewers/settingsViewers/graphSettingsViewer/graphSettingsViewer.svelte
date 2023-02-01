@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { Graph } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
-    import { addGraphIdsNeedingViewerRefresh, readOnlyMode as readOnlyModeStore } from "$lib/stores"
+    import { addGraphIdsNeedingViewerRefresh, readOnlyMode as readOnlyModeStore, uIBackgroundColorStore, uITrimColorStore } from "$lib/stores"
     import SettingWidget from "./settingWidget.svelte"
     import { saveGraphConfig } from "$lib/shared/config"
 
@@ -32,9 +32,17 @@
 </script>
 
 
-<div class="graph-settings-viewer">
+<div
+    class="graph-settings-viewer"
 
-    <div class="content">
+    style="background-color: {$uITrimColorStore};"
+>
+
+    <div
+        class="content"
+
+        style="background-color: {$uIBackgroundColorStore};"
+    >
         <h4>Graph settings</h4>
 
         <div class="setting-widgets">
@@ -113,7 +121,6 @@
     .graph-settings-viewer {        
         box-sizing: border-box;
         height: 100%;
-        background-color: #E8E8E8;
 
         display: flex;
         flex-direction: column;
@@ -126,7 +133,6 @@
         border-radius: 5px;
 
         height: 100%;
-        background-color: white;
 
         display: flex;
         flex-direction: column;

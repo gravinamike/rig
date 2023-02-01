@@ -16,7 +16,7 @@
 
     // Import API methods.
     import { reorderSpace } from "$lib/db/clientSide"
-    import { readOnlyMode } from "$lib/stores";
+    import { readOnlyMode, uIBackgroundColorStore } from "$lib/stores"
 
 
     /**
@@ -104,6 +104,8 @@
 <!-- Spaces viewer. -->
 <div
     class="spaces-viewer"
+
+    style="background-color: {$uIBackgroundColorStore};"
 >
     <!-- List of Spaces. -->
     <div class="scrollable">
@@ -134,7 +136,6 @@
 
         box-sizing: border-box;
         height: 100%;
-        background-color: #fafafa;
 
         display: flex;
         flex-direction: column;
