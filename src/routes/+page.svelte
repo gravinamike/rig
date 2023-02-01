@@ -232,7 +232,15 @@
         await loadAppConfig()
         
         // Open the Graph currently specified in the store.
-        if (urlGraphFolder) await openGraph(urlGraphFolder, urlThingId)
+        if (urlGraphFolder) {
+            await openGraph(urlGraphFolder, urlThingId)
+        } else {
+            leftSideMenuStore.set("File")
+            leftMenuOpen = !!$leftSideMenuStore
+            leftMenuLockedOpen = !!$leftSideMenuStore
+            openedSubMenuName = $leftSideMenuStore
+            lockedSubMenuName = $leftSideMenuStore
+        }
 	})
 
     
