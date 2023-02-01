@@ -4,7 +4,14 @@ import { sessionSpecificFetch as fetch } from "$lib/db/utility/sessionSpecificFe
 
 import { writable } from "svelte/store"
 import { nullNewFileCreationInfo } from "$lib/widgets/dialogWidgets"
+import { defaultUIBackgroundColor, defaultUITrimColor } from "$lib/shared/constants"
 
+
+
+// Database listening port store.
+// Holds the port number that the database listens on.
+export const uIBackgroundColorStore = writable( defaultUIBackgroundColor )
+export const uITrimColorStore = writable( defaultUITrimColor )
 
 
 // Database listening port store.

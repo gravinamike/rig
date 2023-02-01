@@ -2,7 +2,7 @@ import path from "path"
 import Knex from "knex"
 import pkg from "objection"
 const { Model, knexSnakeCaseMappers } = pkg
-import { dbPortStore, graphsBaseFolderStore, unigraphFolderStore } from "$lib/stores"
+import { dbPortStore, graphsBaseFolderStore } from "$lib/stores"
 import { get } from "svelte/store"
 
 
@@ -29,9 +29,6 @@ export async function getDatabaseConnection(
     const dbPort = get(dbPortStore)
     const graphsBaseFolder = get(graphsBaseFolderStore)
     const unigraphFolderName = graphName
-    /*const unigraphFolderName = createGraph ?
-        graphName :
-        get(unigraphFolderStore)//////////////////////////////// REMOVE THE STORE ENTIRELY?*/
     const unigraphFolderPath = unigraphFolderName ?
         path.join(graphsBaseFolder, unigraphFolderName) :
         null

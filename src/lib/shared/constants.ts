@@ -33,6 +33,8 @@ export interface WaitingIndicatorStates {
  * Graph-level interfaces and types.
  */
 export interface GraphConfig {
+    uIBackgroundColor?: string
+    uITrimColor?: string
     readOnlyMode: boolean
     leftSideMenu: string | null
     rightSideMenu: string | null
@@ -160,3 +162,7 @@ export const dateDividerOptions = {
     day: "numeric",
     weekday: "short"
 } as const
+
+
+export const defaultUIBackgroundColor = "#fafafa"
+export const defaultUITrimColor = "#E8E8E8"
