@@ -12,7 +12,7 @@
     import { thingsByGuid, addNoteToThing, updateNote, markNotesModified } from "$lib/db/clientSide"
 
 
-    import { notesEditorLockedStore, readOnlyMode, uITrimColorStore } from "$lib/stores"
+    import { notesBackgroundImageStore, notesEditorLockedStore, readOnlyMode, uITrimColorStore } from "$lib/stores"
     import { saveGraphConfig } from "$lib/shared/config"
 
 
@@ -247,6 +247,9 @@
             saveGraphConfig()
         }
     }
+
+
+    $: console.log("NOTES BACKGROUND IMAGE FILENAME:", $notesBackgroundImageStore)
 </script>
 
 

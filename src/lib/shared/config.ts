@@ -7,7 +7,7 @@ import { get } from "svelte/store"
 // Import stores.
 import {
     readOnlyMode as readOnlyModeStore, perspectiveThingIdStore, leftSideMenuStore, rightSideMenuStore, notesEditorLockedStore,
-    homeThingIdStore, pinIdsStore, uIBackgroundColorStore, uITrimColorStore
+    homeThingIdStore, pinIdsStore, uIBackgroundColorStore, uITrimColorStore, graphBackgroundImageStore, notesBackgroundImageStore
 } from "$lib/stores"
 
 // Import API methods.
@@ -46,13 +46,19 @@ export async function storeGraphConfig(pThingId: number | null = null): Promise<
     const graphConfig = await getGraphConfig() as GraphConfig
 
     // Set front-end stores.
+    uITrimColorStore.set(
+        graphConfig.uITrimColor && stringRepresentsHexColor(graphConfig.uITrimColor) ? graphConfig.uITrimColor :
+        defaultUITrimColor
+    )
     uIBackgroundColorStore.set(
         graphConfig.uIBackgroundColor && stringRepresentsHexColor(graphConfig.uIBackgroundColor) ? graphConfig.uIBackgroundColor :
         defaultUIBackgroundColor
     )
-    uITrimColorStore.set(
-        graphConfig.uITrimColor && stringRepresentsHexColor(graphConfig.uITrimColor) ? graphConfig.uITrimColor :
-        defaultUITrimColor
+    graphBackgroundImageStore.set(
+        graphConfig.graphBackgroundImage || null
+    )
+    notesBackgroundImageStore.set(
+        graphConfig.notesBackgroundImage || null
     )
     readOnlyModeStore.set(graphConfig.readOnlyMode)
     leftSideMenuStore.set(graphConfig.leftSideMenu)
@@ -85,8 +91,8 @@ export async function saveAppConfig(): Promise<void> {
  */
 export async function saveGraphConfig(): Promise<void> {
     // Retrieve config info from the stores.
-    const uIBackgroundColor = get(uIBackgroundColorStore)
     const uITrimColor = get(uITrimColorStore)
+    const uIBackgroundColor = get(uIBackgroundColorStore)
     const readOnlyMode = get(readOnlyModeStore)
     const leftSideMenu = get(leftSideMenuStore)
     const rightSideMenu = get(rightSideMenuStore)
@@ -97,8 +103,8 @@ export async function saveGraphConfig(): Promise<void> {
     
     // Create a Graph config object to save.
     const graphConfig = {
-        uIBackgroundColor: uIBackgroundColor,
         uITrimColor: uITrimColor,
+        uIBackgroundColor: uIBackgroundColor,
         readOnlyMode: readOnlyMode,
         leftSideMenu: leftSideMenu,
         rightSideMenu: rightSideMenu,

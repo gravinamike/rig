@@ -9,7 +9,7 @@
     import { legacyPerspectiveThingsParse, Rectangle } from "$lib/shared/utility"
 
     // Import stores.
-    import { relationshipBeingCreatedInfoStore } from "$lib/stores"
+    import { graphBackgroundImageStore, relationshipBeingCreatedInfoStore } from "$lib/stores"
 
     // Import widget controller.
     import GraphWidgetController from "./controller.svelte"
@@ -69,7 +69,7 @@
 
     $: processWidgetResize(widgetWidth, widgetHeight)
         
-
+    $: console.log("GRAPH BACKGROUND IMAGE FILENAME:", $graphBackgroundImageStore)
 </script>
 
 
