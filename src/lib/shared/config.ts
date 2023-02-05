@@ -93,6 +93,8 @@ export async function saveGraphConfig(): Promise<void> {
     // Retrieve config info from the stores.
     const uITrimColor = get(uITrimColorStore)
     const uIBackgroundColor = get(uIBackgroundColorStore)
+    const graphBackgroundImage = get(graphBackgroundImageStore)
+    const notesBackgroundImage = get(notesBackgroundImageStore)
     const readOnlyMode = get(readOnlyModeStore)
     const leftSideMenu = get(leftSideMenuStore)
     const rightSideMenu = get(rightSideMenuStore)
@@ -105,6 +107,8 @@ export async function saveGraphConfig(): Promise<void> {
     const graphConfig = {
         uITrimColor: uITrimColor,
         uIBackgroundColor: uIBackgroundColor,
+        graphBackgroundImage: graphBackgroundImage,
+        notesBackgroundImage: notesBackgroundImage,
         readOnlyMode: readOnlyMode,
         leftSideMenu: leftSideMenu,
         rightSideMenu: rightSideMenu,

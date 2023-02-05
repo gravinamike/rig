@@ -249,7 +249,14 @@
     }
 
 
-    $: console.log("NOTES BACKGROUND IMAGE FILENAME:", $notesBackgroundImageStore)
+    $: notesBackgroundImageUrl =
+        $notesBackgroundImageStore ? `customizable/background-images/${$notesBackgroundImageStore}` :
+        null
+
+
+
+
+
 </script>
 
 
@@ -294,6 +301,14 @@
                 class="notes-display"
 
                 bind:this={textField}
+                
+                style={
+                    notesBackgroundImageUrl ? `
+                        background-image: url(${notesBackgroundImageUrl});
+                        background-size: 100% 100vh;
+                    ` :
+                    ""
+                }
             >
                 {@html viewerDisplayText}
             </div>

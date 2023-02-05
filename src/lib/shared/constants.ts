@@ -35,8 +35,8 @@ export interface WaitingIndicatorStates {
 export interface GraphConfig {
     uIBackgroundColor?: string
     uITrimColor?: string
-    graphBackgroundImage?: string
-    notesBackgroundImage?: string
+    graphBackgroundImage?: string | null
+    notesBackgroundImage?: string | null
     readOnlyMode: boolean
     leftSideMenu: string | null
     rightSideMenu: string | null

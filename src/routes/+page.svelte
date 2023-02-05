@@ -17,7 +17,8 @@
     import {
         devMode, fontNames, urlStore, sessionUuidStore, leftSideMenuStore, loadingState,
         openGraphStore, perspectiveThingIdStore, reorderingInfoStore,
-        updateMousePosition, updateRelationshipBeingCreatedEndpoint, uITrimColorStore, uIBackgroundColorStore
+        updateMousePosition, updateRelationshipBeingCreatedEndpoint,
+        uITrimColorStore, uIBackgroundColorStore, graphBackgroundImageStore
     } from "$lib/stores"
 
     // Import widgets.
@@ -269,6 +270,16 @@
         ) setGraphSpace(spaceId)
     }
     $: if (urlSpaceId) setGraphSpaceIfAble(urlSpaceId)
+
+
+
+
+    $: graphBackgroundImageUrl =
+        $graphBackgroundImageStore ? `customizable/background-images/${$graphBackgroundImageStore}` :
+        null
+
+
+
 </script>
 
 
@@ -293,6 +304,22 @@
     
     on:mousemove={handleMouseMove}
 >
+
+    {#if $loadingState === "graphLoaded"}
+        <div
+            class="background-image"
+
+            style={
+                graphBackgroundImageUrl ? `
+                    background-image: url(${graphBackgroundImageUrl});
+                    background-size: cover;
+                ` :
+                `
+                    background-color: #eef8ff;
+                `
+            }
+        />
+    {/if}
     
     <!-- Front pane for context menus and command palettes. -->
     <ContextCommandPalette />
@@ -576,6 +603,12 @@
 
     :global(main.reorderColumn *) {
         cursor: row-resize;
+    }
+
+    .background-image {
+        position: absolute;
+        width: 100vw;
+        height: 100vh;
     }
 
     .navigation-view {
