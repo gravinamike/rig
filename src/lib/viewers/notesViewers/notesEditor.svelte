@@ -15,6 +15,7 @@
 
     // Import related widgets.
     import NotesToolbar from "./notesToolbar.svelte"
+    import { notesBackgroundImageStore } from "$lib/stores";
 
 
     /**
@@ -145,6 +146,21 @@
 
 
     let ctrlKeyPressed = false
+
+
+
+
+
+
+    $: notesBackgroundImageUrl =
+        $notesBackgroundImageStore ? `customizable/background-images/${$notesBackgroundImageStore}` :
+        null
+
+
+
+
+
+
 </script>
 
 
@@ -163,6 +179,14 @@
         on:click|preventDefault={focusEditor}
         on:wheel|stopPropagation
         on:keydown={()=>{}}
+
+        style={
+            notesBackgroundImageUrl ? `
+                background-image: url(${notesBackgroundImageUrl});
+                background-size: 100% 100vh;
+            ` :
+            ""
+        }
     >
     </div>
 

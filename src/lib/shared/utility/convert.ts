@@ -3,10 +3,21 @@
  * 
  * Determines whether a given string represents an integer.
  * @param str - The string to check.
- * @returns - True if the string represents and integer, otherwise false.
+ * @returns - True if the string represents an integer, otherwise false.
  */
 export function stringRepresentsInteger(str: string): boolean {
     return /^\d+$/.test(str)
+}
+
+/**
+ * String-represents-hex-color method.
+ * 
+ * Determines whether a given string represents a hexidecimal code for a color.
+ * @param str - The string to check.
+ * @returns - True if the string represents a hex color code, otherwise false.
+ */
+export function stringRepresentsHexColor(str: string): boolean {
+    return /^#[0-9A-F]{6}$/i.test(str)
 }
 
 /**

@@ -1,67 +1,73 @@
 <script lang="ts">
     import { sessionSpecificFetch as fetch } from "$lib/db/utility/sessionSpecificFetch"
 
-    import { graphFoldersStore, refreshGraphFoldersStore, enableNewFileCreation, openGraphStore } from "$lib/stores"
+    import { graphFoldersStore, refreshGraphFoldersStore, enableNewFileCreation, openGraphStore, uIBackgroundColorStore, uITrimColorStore } from "$lib/stores"
     import { openGraphFile } from "$lib/shared/unigraph"
 
 
-    /*let graphFolders: string[] = []
-
-    function refreshGraphFolders() {
-        fetch(`api/file/graphFolders`)
-            .then(response => {return (response.json() as unknown) as string[]})
-            .then(data => graphFolders = data)
-    }*/
     refreshGraphFoldersStore()
 </script>
 
 
-<div class="file-viewer">
-    <h4>Open file:</h4>
+<div
+    class="file-viewer"
 
-    <div class="graph-folder-buttons">
-        {#each $graphFoldersStore as folder}
+    style="background-color: {$uITrimColorStore};"
+>
+
+    <div
+        class="content"
+
+        style="background-color: {$uIBackgroundColorStore};"
+    >
+        <h4>File</h4>
+
+        <div class="graph-folder-buttons">
+            {#each $graphFoldersStore as folder}
+                <div
+                    class="button graph-folder-button { folder === $openGraphStore ? "opened" : "" }"
+                    on:click={() => {openGraphFile(folder, null, true)}}
+                    on:keydown={()=>{}}
+                >
+                    {folder}
+                </div>
+            {/each}
+
             <div
-                class="button graph-folder-button { folder === $openGraphStore ? "opened" : "" }"
-                on:click={() => {openGraphFile(folder, null, true)}}
+                class="button new-graph-button"
+                style={ $graphFoldersStore.length ? "margin-top: 25px;" : ""}
+                on:click={enableNewFileCreation}
                 on:keydown={()=>{}}
             >
-                {folder}
+                <strong>+</strong>&nbsp;&nbsp;&nbsp;New Graph
             </div>
-        {/each}
-
-        <div
-            class="button new-graph-button"
-            style={ $graphFoldersStore.length ? "margin-top: 25px;" : ""}
-            on:click={enableNewFileCreation}
-            on:keydown={()=>{}}
-        >
-            New Graph
         </div>
     </div>
+    
 </div>
 
 
 <style>
-    .file-viewer {
-        outline: solid 1px lightgrey;
-        outline-offset: -1px;
-        
+    .file-viewer {        
         box-sizing: border-box;
         height: 100%;
-        background-color: #fafafa;
-
-        overflow-x: hidden;
-        overflow-y: auto;
 
         display: flex;
         flex-direction: column;
-        padding: 0.75rem;
-        gap: 1.25rem;
+        padding: 0.5rem;
+    }
+
+    .content {
+        border-radius: 5px;
+        
+        height: 100%;
+
+        display: flex;
+        flex-direction: column;
+        padding: 0.5rem 1rem 0.5rem 1rem;
+        gap: 2rem;
         
         text-align: center;
-
-        scrollbar-width: thin;
     }
 
     h4 {
@@ -69,15 +75,21 @@
     }
 
     .graph-folder-buttons {
+        flex: 1 1 0;
+        
         display: flex;
         flex-direction: column;
         gap: 0.25rem;
 
         font-size: 0.85rem;
+
+        overflow-x: hidden;
+        overflow-y: auto;
+        scrollbar-width: thin;
     }
 
     .button {
-        border-radius: 3px;
+        border-radius: 15px;
         outline: solid 1px lightgrey;
         outline-offset: -1px;
 
@@ -112,5 +124,9 @@
     .new-graph-button:hover {
         color: black;
         font-style: normal;
+    }
+
+    .new-graph-button strong {
+        font-size: 1rem;
     }
   </style>

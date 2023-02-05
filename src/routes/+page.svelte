@@ -17,7 +17,8 @@
     import {
         devMode, fontNames, urlStore, sessionUuidStore, leftSideMenuStore, loadingState,
         openGraphStore, perspectiveThingIdStore, reorderingInfoStore,
-        updateMousePosition, updateRelationshipBeingCreatedEndpoint
+        updateMousePosition, updateRelationshipBeingCreatedEndpoint,
+        uITrimColorStore, uIBackgroundColorStore, graphBackgroundImageStore
     } from "$lib/stores"
 
     // Import widgets.
@@ -99,31 +100,32 @@
             }
         ].filter(info => info !== null) as { name: string, icon: string }[],
 
-        [
-            {
-                name: "Thing",
-                icon: "thing"
-            },
-            {
-                name: "Space",
-                icon: "space"
-            },
-            {
-                name: "Settings",
-                icon: "settings"
-            },
-            $devMode ?
+        $loadingState === "graphLoaded" ? [
                 {
-                    name: "Dev",
-                    icon: "dev"
-                } :
-                null
-        ].filter(info => info !== null) as { name: string, icon: string }[]
-    ]
+                    name: "Thing",
+                    icon: "thing"
+                },
+                {
+                    name: "Space",
+                    icon: "space"
+                },
+                {
+                    name: "Settings",
+                    icon: "settings"
+                },
+                $devMode ?
+                    {
+                        name: "Dev",
+                        icon: "dev"
+                    } :
+                    null
+            ].filter(info => info !== null) as { name: string, icon: string }[] :
+            null
+    ].filter(infoBlock => infoBlock !== null) as ({ name: string, icon: string }[])[]
     let leftMenuOpen: boolean
     let leftMenuLockedOpen: boolean
     let openedSubMenuName: string | null
-    const defaultOpenSubMenuName = "Thing"
+    $: defaultOpenSubMenuName = $loadingState === "graphLoaded" ? "Thing" : "File"
     let lockedSubMenuName: string | null
     $: useTabbedLayout = height < 500
     let closeLeftMenu: () => {}
@@ -231,7 +233,15 @@
         await loadAppConfig()
         
         // Open the Graph currently specified in the store.
-        if (urlGraphFolder) await openGraph(urlGraphFolder, urlThingId)
+        if (urlGraphFolder) {
+            await openGraph(urlGraphFolder, urlThingId)
+        } else {
+            leftSideMenuStore.set("File")
+            leftMenuOpen = !!$leftSideMenuStore
+            leftMenuLockedOpen = !!$leftSideMenuStore
+            openedSubMenuName = $leftSideMenuStore
+            lockedSubMenuName = $leftSideMenuStore
+        }
 	})
 
     
@@ -260,6 +270,16 @@
         ) setGraphSpace(spaceId)
     }
     $: if (urlSpaceId) setGraphSpaceIfAble(urlSpaceId)
+
+
+
+
+    $: graphBackgroundImageUrl =
+        $graphBackgroundImageStore ? `customizable/background-images/${$graphBackgroundImageStore}` :
+        null
+
+
+
 </script>
 
 
@@ -284,6 +304,22 @@
     
     on:mousemove={handleMouseMove}
 >
+
+    {#if $loadingState === "graphLoaded"}
+        <div
+            class="background-image"
+
+            style={
+                graphBackgroundImageUrl ? `
+                    background-image: url(${graphBackgroundImageUrl});
+                    background-size: cover;
+                ` :
+                `
+                    background-color: #eef8ff;
+                `
+            }
+        />
+    {/if}
     
     <!-- Front pane for context menus and command palettes. -->
     <ContextCommandPalette />
@@ -320,14 +356,22 @@
         {#if openedSubMenuName === "Thing"}
             <div class="navigation-view">
                 <!-- Thing searchbox. -->
-                <div class="search-container">
+                <div
+                    class="search-container"
+
+                    style="background-color: {$uITrimColorStore};"
+                >
                     <ThingSearchboxViewer
                         {rePerspectToThingId}
                         padded={false}
                     />
                 </div>
 
-                <div class="pins-history-container">
+                <div
+                    class="pins-history-container"
+
+                    style="background-color: {$uITrimColorStore};"
+                >
 
                     {#if useTabbedLayout}
 
@@ -401,61 +445,38 @@
 
         <!-- Space menu. -->
         {:else if openedSubMenuName === "Space"}
-            <div class="directions-spaces-container">
+            <div
+                class="spaces-view"
 
-                {#if useTabbedLayout}
+                style="background-color: {$uITrimColorStore};"
+            >
+                <div class="directions-spaces-container">
 
                     <TabBlock>
                         <TabFlaps>
-                            <TabFlap><span class="tab-flap-span">Directions</span></TabFlap>
                             <TabFlap><span class="tab-flap-span">Spaces</span></TabFlap>
+                            <TabFlap><span class="tab-flap-span">Directions</span></TabFlap>
                         </TabFlaps>
     
-                        {#if graph}
-                            <TabBody>
-                                <DirectionsViewer
-                                    {graph}
-                                    {graphWidgetStyle}
-                                    {useTabbedLayout}
-                                />
-                            </TabBody>
-                        
+                        {#if graph}                    
                             <TabBody>
                                 <SpacesViewer
                                     {graph}
                                     {graphWidgetStyle}
-                                    {useTabbedLayout}
                                     {setGraphSpace}
+                                />
+                            </TabBody>
+    
+                            <TabBody>
+                                <DirectionsViewer
+                                    {graph}
+                                    {graphWidgetStyle}
                                 />
                             </TabBody>
                         {/if}
                     </TabBlock>
-
-                {:else}
-
-                    {#if graph}
-                        <!-- Directions viewer. -->
-                        <div class="directions-container">
-                            <DirectionsViewer
-                                {graph}
-                                {graphWidgetStyle}
-                                {useTabbedLayout}
-                            />
-                        </div>
-
-                        <!-- Spaces viewer. -->
-                        <div class="spaces-container">
-                            <SpacesViewer
-                                {graph}
-                                {graphWidgetStyle}
-                                {useTabbedLayout}
-                                {setGraphSpace}
-                            />
-                        </div>
-                    {/if}
-
-                {/if}
-
+    
+                </div>
             </div>
 
         <!-- Graph settings viewer. -->
@@ -584,6 +605,12 @@
         cursor: row-resize;
     }
 
+    .background-image {
+        position: absolute;
+        width: 100vw;
+        height: 100vh;
+    }
+
     .navigation-view {
         height: 100%;
 
@@ -595,8 +622,6 @@
     }
 
     .search-container {
-        background-color: #E8E8E8;
-
         padding: 0.5rem;
         gap: 0.5rem;
     }
@@ -605,7 +630,6 @@
         flex: 1 1 auto;
 
         position: relative;
-        background-color: #E8E8E8;
 
         display: flex;
         flex-direction: column;
@@ -625,7 +649,20 @@
         overflow: hidden;
     }
 
+    .spaces-view {
+        box-sizing: border-box;
+        height: 100%;
+
+        display: flex;
+        flex-direction: column;
+        padding: 0.5rem;
+    }
+
     .directions-spaces-container {
+        flex: 1 1 auto;
+
+        border-radius: 5px;
+
         position: relative;
         height: 100%;
 
@@ -633,20 +670,9 @@
         flex-direction: column;
     }
 
-    .directions-container {
-        height: 33%;
-    }
-
-    .spaces-container {
-        height: 67%;
-
-        scrollbar-width: thin;
-    }
-
     .tabs-container {
         width: 100%;
         height: 100%;
-        background-color: white;;
         
         overflow-x: hidden;
         overflow-y: hidden;

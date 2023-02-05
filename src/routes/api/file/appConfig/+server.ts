@@ -31,7 +31,7 @@ export const POST: RequestHandler = async () => {
         }
 
 
-        fs.writeFile(configPath, JSON.stringify(appConfig), function (err) {
+        fs.writeFile(configPath, JSON.stringify(appConfig, null, 2), function (err) {
             if (err) {
                 console.log(`Error saving app configuration: ${err.message}`)
                 return

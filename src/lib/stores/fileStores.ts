@@ -4,7 +4,20 @@ import { sessionSpecificFetch as fetch } from "$lib/db/utility/sessionSpecificFe
 
 import { writable } from "svelte/store"
 import { nullNewFileCreationInfo } from "$lib/widgets/dialogWidgets"
+import { defaultUIBackgroundColor, defaultUITrimColor } from "$lib/shared/constants"
 
+
+
+// UI trim and background color stores.
+// Hold the hex-strings for the UI's trim and background colors.
+export const uIBackgroundColorStore = writable( defaultUIBackgroundColor )
+export const uITrimColorStore = writable( defaultUITrimColor )
+
+
+// Graph and Notes background image path stores.
+// Hold the file names for the Graph and Notes background images.
+export const graphBackgroundImageStore = writable( null as string | null )
+export const notesBackgroundImageStore = writable( null as string | null )
 
 
 // Database listening port store.

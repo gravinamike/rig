@@ -1,4 +1,12 @@
-<div class="tab-flaps">
+<script>
+    import { uIBackgroundColorStore } from "$lib/stores"
+</script>
+
+<div
+	class="tab-flaps"
+
+	style="background-color: {$uIBackgroundColorStore};"
+>
 	<slot />
 </div>
 
@@ -8,8 +16,6 @@
 		
 		border-bottom: 1px solid black;
 		border-radius: 5px 5px 0 0;
-
-		background-color: whitesmoke;
 
 		display: flex;
 		flex-direction: row;

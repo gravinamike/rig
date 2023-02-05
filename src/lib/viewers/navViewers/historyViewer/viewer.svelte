@@ -7,7 +7,7 @@
     import { dateDividerOptions } from "$lib/shared/constants"
 
     // Import stores.
-    import { addPin, homeThingIdStore, hoveredThingIdStore, openContextCommandPalette, pinIdsStore, readOnlyMode, removeHomeThing, removePin, setHomeThingId } from "$lib/stores"
+    import { addPin, homeThingIdStore, hoveredThingIdStore, openContextCommandPalette, pinIdsStore, readOnlyMode, removeHomeThing, removePin, setHomeThingId, uIBackgroundColorStore } from "$lib/stores"
 
     // Import related widgets.
     import { Toggle } from "$lib/widgets/layoutWidgets"
@@ -81,6 +81,8 @@
 <div
     class="history-viewer"
     class:use-tabbed-layout={useTabbedLayout}
+
+    style="background-color: {$uIBackgroundColorStore};"
 >
 
     <!-- Toggle to use unique or full history. -->
@@ -184,7 +186,6 @@
         position: relative;
         box-sizing: border-box;
         height: 100%;
-        background-color: #fafafa;
 
         display: flex;
         flex-direction: column;

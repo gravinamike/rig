@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { Editor } from "@tiptap/core"
     import { fontSizes, headerLevels } from "$lib/shared/constants"
-    import { enableThingLinking, enableTextHyperlinking, fontNames } from "$lib/stores"
+    import { enableThingLinking, enableTextHyperlinking, fontNames, uIBackgroundColorStore } from "$lib/stores"
     import CommandPalette from "$lib/widgets/layoutWidgets/commandPalette/commandPalette.svelte"
 
 
@@ -272,7 +272,11 @@
 
 
 {#if editor}
-    <div class="notes-toolbar">
+    <div
+        class="notes-toolbar"
+
+        style="background-color: {$uIBackgroundColorStore};"
+    >
 
         <!-- Font family, size, and header level. -->
         <div class="button-group">
@@ -345,8 +349,6 @@
         flex: 0 0;
 
         border-radius: 5px;
-
-        background-color: #fafafa;
 
         display: flex;
         flex-direction: column;

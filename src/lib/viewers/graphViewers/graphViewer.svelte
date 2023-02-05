@@ -278,7 +278,9 @@
 >
 
     <!-- Graph Widget -->
-    <div class="graph-widget-container">
+    <div
+        class="graph-widget-container"
+    >
         {#if graph && showGraph}
             <GraphWidget
                 bind:graph
@@ -355,11 +357,7 @@
         flex: 1 1 0;
         min-width: 0;
 
-        outline: solid 1px lightgrey;
-        outline-offset: -1px;
-
         position: relative;
-        background-color: #eef8ff;
     }
 
     .graph-outline-widget-container {

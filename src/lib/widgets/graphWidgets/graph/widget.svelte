@@ -70,6 +70,14 @@
     $: processWidgetResize(widgetWidth, widgetHeight)
         
 
+
+
+    
+
+
+
+
+
 </script>
 
 
@@ -99,7 +107,7 @@
     class="graph-widget"
     bind:this={widget}
     bind:clientWidth={widgetWidth}
-    bind:clientHeight={widgetHeight}
+    bind:clientHeight={widgetHeight}    
 
     on:mousedown={() => {
         if (!$relationshipBeingCreatedInfoStore.sourceThingId) trackingMouse = true
@@ -112,7 +120,9 @@
 >
 
     <!-- Backfield (defines the outer bounds of the scrollable area). -->
-    <div class="graph-backfield">
+    <div
+        class="graph-backfield"
+    >
 
         <!-- Central anchor (the center-point of the scrollable area, to which the center of the Graph is fixed.). -->
         <div
@@ -171,7 +181,6 @@
     .graph-widget {
         width: 100%;
         height: 100%;
-        background-color: #eef8ff;
 
         overflow: hidden;
         

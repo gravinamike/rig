@@ -7,7 +7,7 @@
     import { flip } from "svelte/animate"
 
     // Import stores.
-    import { pinIdsStore, storeGraphDbModels, graphDbModelInStore, getGraphConstructs, setPins, readOnlyMode } from "$lib/stores"
+    import { pinIdsStore, storeGraphDbModels, graphDbModelInStore, getGraphConstructs, setPins, readOnlyMode, uIBackgroundColorStore } from "$lib/stores"
 
     // Import related widgets.
     import { PinWidget } from "$lib/widgets/navWidgets"
@@ -92,10 +92,7 @@
     class="pins-viewer"
     class:use-tabbed-layout={useTabbedLayout}
 
-    style={
-        useTabbedLayout ? "height: 100%;" :
-        "height: fit-content;"
-    }
+    style="background-color: {$uIBackgroundColorStore};"
 >
 
     {#if !useTabbedLayout}
@@ -134,7 +131,6 @@
         border-radius: 5px;
 
         box-sizing: border-box;
-        background-color: #fafafa;
 
         display: flex;
         flex-direction: column;
@@ -148,6 +144,12 @@
 
     .pins-viewer.use-tabbed-layout {
         border-radius: 0 0 5px 5px;
+
+        height: 100%;
+    }
+
+    .pins-viewer:not(.use-tabbed-layout) {
+        height: fit-content;
     }
 
     .title {

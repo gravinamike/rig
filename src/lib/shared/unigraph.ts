@@ -68,9 +68,6 @@ export async function openGraphFile(folderName: string, pThingId: number | null 
     await storeGraphDbModels("Direction")
     await storeGraphDbModels("Space")
     await storeThingSearchList()
-
-    // Save the Graph configuration to file.
-    await saveAppConfig()
     
     // Update the URL hash if necessary.
     if (updateUrlHash) updateUrlHashMethod({
