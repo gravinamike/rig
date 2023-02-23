@@ -112,8 +112,11 @@
             >
                 <DirectionWidget
                     {direction}
+                    forceExpanded={true}
                     {graph}
                     {graphWidgetStyle}
+                    buttonToShow={"edit"}
+                    buttonOnWhichSide={"right"}
                 />
             </div>
         {/each}

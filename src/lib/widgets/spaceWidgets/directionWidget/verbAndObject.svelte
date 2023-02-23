@@ -22,6 +22,7 @@
     let directionNameInput: HTMLInputElement
     let objectNameInput: HTMLInputElement
 
+    // Direction color.
     const directionColor = "#000000"
 </script>
 

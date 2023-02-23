@@ -219,9 +219,10 @@
                     <DirectionWidget
                         direction={info.direction}
                         editable={false}
-                        forceExpanded={!!isHovered}
                         {graph}
                         {graphWidgetStyle}
+                        buttonToShow={"expand"}
+                        buttonOnWhichSide={"left"}
                     />
                 {/if}
 
@@ -285,7 +286,10 @@
 
     <!-- Mode button. -->
     {#if !$readOnlyMode && (isHovered || interactionMode === "editing" || interactionMode === "create")}
-        <div class="container button-container">
+        <div
+            class="container button-container"
+            class:editing={interactionMode === "editing"}
+        >
             <button
                 class="button"
                 class:editing={interactionMode === "editing"}
@@ -382,6 +386,12 @@
         display: flex;
         flex-direction: row;
         justify-content: flex-end;
+    }
+
+    .button-container:not(.editing) {
+        position: absolute;
+        right: 5px;
+        bottom: 5px;
     }
 
     .button {

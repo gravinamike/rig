@@ -11,8 +11,6 @@
 
     // Import related widgets.
     import VerbAndObject from "./verbAndObject.svelte"
-    import { Arrow } from "$lib/widgets/layoutWidgets"
-    import { DirectionDropdownWidget } from "$lib/widgets/spaceWidgets"
 
     // Import API methods.
     import { updateDirection } from "$lib/db/clientSide"
@@ -26,9 +24,14 @@
      */
     export let direction: Direction
     export let editable = true
-    export let forceExpanded = true//////////////////////////////////////////////////////////
+    export let forceExpanded = false
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
+    export let buttonToShow: "expand" | "edit"
+    export let buttonOnWhichSide: "left" | "right"
+
+
+    let expanded = false
 
 
     // Object handles for form inputs.
@@ -44,18 +47,12 @@
     // Attributes controlling visual appearance of widget.
     const directionHeight = 20
     let arrowAndBoxWidth: number
-    const directionColor = "#000000"
-    $: oppositeDirectionHeight =
-        oppositeDisplayMode === "small" ? directionHeight / 2 :
-        directionHeight
-    const oppositeDirectionColor = "#000000"
 
     // Attributes indicating interaction state of widget.
     let isHovered = false
     let interactionMode: "display" | "editing" | "create" = "display"
     $: oppositeDisplayMode =
-        ( interactionMode === "editing" || interactionMode === "create" || forceExpanded ) ? "full" :
-        isHovered ? "small" :
+        ( interactionMode === "editing" || interactionMode === "create" || expanded || forceExpanded ) ? "full" :
         "none"
 
 
@@ -149,6 +146,7 @@
     class="direction-widget container horizontal"
     class:editing={interactionMode === "editing"}
     class:create={interactionMode === "create"}
+    style={`align-items: ${buttonToShow === "expand" ? "flex-start" : "flex-end"};`}
 
     on:mouseenter={() => {isHovered = true}}
     on:mouseleave={() => {isHovered = false}}
@@ -161,6 +159,8 @@
     <div
         class="container vertical arrows-and-boxes"
         bind:clientWidth={arrowAndBoxWidth}
+
+        style={buttonOnWhichSide === "left" ? "order: 1;" : "order: 0;"}
     >
         <!-- Direction. -->
         <VerbAndObject
@@ -187,34 +187,46 @@
         {/if}
     </div>
         
-    <div class="container vertical">
-        <!-- Button. -->
-        <div class="container button-container">
-            <button
-                class="button"
-                class:editing={interactionMode === "editing"}
-                class:create={interactionMode === "create"}
-                tabindex=0
+    <div
+        class="container vertical"
 
-                on:click|stopPropagation={handleButton}
-                
-            >
-                EX
-            </button>
-        </div>
+        style={buttonOnWhichSide === "left" ? "order: 0;" : "order: 1;"}
+    >
+        <!-- Expand button. -->
+        {#if
+            buttonToShow === "expand"
+            && isHovered
+            && !(
+                interactionMode === "editing"
+                || interactionMode === "create"
+            )
+        }
+            <div class="container button-container">
+                <button
+                    class="button"
+                    tabindex=0
 
-        <!-- Button. -->
+                    on:click|stopPropagation={() => expanded = !expanded}
+                >
+                    ▼
+                </button>
+            </div>
+        {/if}
+
+        <!-- Edit button. -->
         {#if !$readOnlyMode}
 
-            <div class="container button-container">
-                {#if
-                    editable
-                    && (
-                        isHovered
-                        || interactionMode === "editing"
-                        || interactionMode === "create"
-                    )
-                }
+            
+            {#if
+                buttonToShow === "edit"
+                && editable
+                && (
+                    isHovered
+                    || interactionMode === "editing"
+                    || interactionMode === "create"
+                )
+            }
+                <div class="container button-container">
                     <button
                         class="button"
                         class:editing={interactionMode === "editing"}
@@ -232,8 +244,8 @@
                             +
                         {/if}
                     </button>
-                {/if}
-            </div>
+                </div>
+            {/if}
 
         {/if}
     </div>
@@ -244,7 +256,7 @@
 <style>
     .direction-widget {
         border-radius: 5px;
-        padding: 0.15rem 0.25rem 0.3rem 0.25rem;
+        padding: 0.25rem;
 
         background-color: rgb(244, 244, 244);
 
