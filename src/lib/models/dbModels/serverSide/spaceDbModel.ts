@@ -30,7 +30,8 @@ export class RawSpaceDbModel extends Model {
                     from: 'spaces.id',
                     through: {
                         from: 'directiontospace.spaceid',
-                        to: 'directiontospace.directionid'
+                        to: 'directiontospace.directionid',
+                        extra: ['halfaxisid']
                     },
                     to: 'directions.id'
                 }
@@ -78,6 +79,7 @@ export class RawDirectionToSpaceDbModel extends Model {
     id!: string | number | null
     directionid!: string | number | null
     spaceid!: string | number | null
+    halfaxisid!: string | number | null
 }
 
 
@@ -90,7 +92,8 @@ export function stripDirectionToSpaceDbModels(models: RawDirectionToSpaceDbModel
             {
                 id: model.id,
                 directionid: model.directionid,
-                spaceid: model.spaceid
+                spaceid: model.spaceid,
+                halfaxisid: model.halfaxisid
             }
         )
     }

@@ -218,6 +218,7 @@
                 {#if info.direction}
                     <DirectionWidget
                         direction={info.direction}
+                        halfAxisId={info.halfAxisId}
                         editable={false}
                         {graph}
                         {graphWidgetStyle}

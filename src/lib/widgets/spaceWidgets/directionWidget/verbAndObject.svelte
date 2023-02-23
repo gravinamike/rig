@@ -2,6 +2,10 @@
     // Import types.
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
     import type { Direction } from "$lib/models/constructModels"
+    import type { HalfAxisId } from "$lib/shared/constants"
+
+    // Import constants.
+    import { relationshipColorByHalfAxisId } from "$lib/shared/constants"
 
     // Import related widgets.
     import { Arrow } from "$lib/widgets/layoutWidgets"
@@ -9,6 +13,7 @@
 
 
     export let direction: Direction
+    export let halfAxisId: HalfAxisId | null = null
     export let verbAndObjectWidth: number
     export let verbAndObjectHeight: number
     export let opposite: boolean
@@ -23,17 +28,13 @@
     let objectNameInput: HTMLInputElement
 
     // Direction color.
-    const directionColor = "#000000"
+    const directionColor = halfAxisId ? relationshipColorByHalfAxisId[halfAxisId] : "grey"
 </script>
 
 
 <!-- Verb and object. -->
 <div
     class="container horizontal"
-
-    style="
-        opacity: {displayMode === "small" ? 0.66 : 1};
-    "
 >
 
     <!-- Verb. -->
@@ -43,13 +44,19 @@
         style="{opposite ? "order: 2;" : ""}"
     >
         <!-- Arrow. -->
-        <Arrow
-            svgLength={verbAndObjectWidth * 0.6}
-            svgHeight={verbAndObjectHeight}
-            simplified={true}
-            color={directionColor}
-            reversed={opposite}
-        />
+        <div
+            style="
+                opacity: {displayMode === "small" ? 0.66 : 1};
+            "
+        >
+            <Arrow
+                svgLength={verbAndObjectWidth * 0.6}
+                svgHeight={verbAndObjectHeight}
+                simplified={true}
+                color={directionColor}
+                reversed={opposite}
+            />
+        </div>
 
         <!-- Text. -->
         <div class="floating-text">
@@ -88,7 +95,11 @@
         <!-- Box. -->
         <div
             class="object"
-            style="width: {verbAndObjectWidth * 0.35}px; height: {verbAndObjectHeight}px;"
+            style="
+                width: {verbAndObjectWidth * 0.35}px;
+                height: {verbAndObjectHeight}px;
+                {displayMode === "small" ? "opacity: 0.66;" : ""}
+            "
         />
         
         <!-- Text. -->

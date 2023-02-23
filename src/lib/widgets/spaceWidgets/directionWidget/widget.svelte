@@ -1,6 +1,7 @@
 <script lang="ts">
     // Import types.
     import type { Direction, Graph } from "$lib/models/constructModels"
+    import type { HalfAxisId } from "$lib/shared/constants"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
     // Import stores and utility functions.
@@ -23,6 +24,7 @@
      * @param graphWidgetStyle - Controls the visual style of the Graph.
      */
     export let direction: Direction
+    export let halfAxisId: HalfAxisId | null = null
     export let editable = true
     export let forceExpanded = false
     export let graph: Graph
@@ -165,6 +167,7 @@
         <!-- Direction. -->
         <VerbAndObject
             {direction}
+            {halfAxisId}
             verbAndObjectWidth={arrowAndBoxWidth}
             verbAndObjectHeight={directionHeight}
             opposite={false}
@@ -177,6 +180,7 @@
         {#if oppositeDirection && !(oppositeDisplayMode === "none")}
             <VerbAndObject
                 direction={oppositeDirection}
+                {halfAxisId}
                 verbAndObjectWidth={arrowAndBoxWidth}
                 verbAndObjectHeight={directionHeight}
                 opposite={true}
@@ -267,6 +271,8 @@
 
     .direction-widget.editing, .direction-widget.create {
         outline: solid 1px lightgrey;
+
+        z-index: 1;
     }
 
     .container {
