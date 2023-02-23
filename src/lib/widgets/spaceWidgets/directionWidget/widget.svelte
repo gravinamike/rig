@@ -4,10 +4,13 @@
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
     // Import stores and utility functions.
-    import { addGraphIdsNeedingViewerRefresh, getGraphConstructs, readOnlyMode, storeGraphDbModels } from "$lib/stores"
+    import {
+        addGraphIdsNeedingViewerRefresh, getGraphConstructs, readOnlyMode, storeGraphDbModels
+    } from "$lib/stores"
     import { sleep } from "$lib/shared/utility"
 
     // Import related widgets.
+    import VerbAndObject from "./verbAndObject.svelte"
     import { Arrow } from "$lib/widgets/layoutWidgets"
     import { DirectionDropdownWidget } from "$lib/widgets/spaceWidgets"
 
@@ -23,7 +26,7 @@
      */
     export let direction: Direction
     export let editable = true
-    export let forceExpanded = false
+    export let forceExpanded = true//////////////////////////////////////////////////////////
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
 
@@ -40,8 +43,7 @@
 
     // Attributes controlling visual appearance of widget.
     const directionHeight = 20
-    const topArrowLength = 85
-    const bottomArrowLength = 75
+    let arrowAndBoxWidth: number
     const directionColor = "#000000"
     $: oppositeDirectionHeight =
         oppositeDisplayMode === "small" ? directionHeight / 2 :
@@ -56,8 +58,6 @@
         isHovered ? "small" :
         "none"
 
-
-    
 
     /**
      * Handle-button method.
@@ -152,159 +152,90 @@
 
     on:mouseenter={() => {isHovered = true}}
     on:mouseleave={() => {isHovered = false}}
-    on:dblclick={() => { if (!$readOnlyMode && interactionMode === "display" && editable) handleButton() }}
+    on:dblclick={() => {
+        if (!$readOnlyMode && interactionMode === "display" && editable) handleButton()
+    }}
 >
 
-    <div class="container vertical">
-
+    <!-- Arrows and object boxes container. -->
+    <div
+        class="container vertical arrows-and-boxes"
+        bind:clientWidth={arrowAndBoxWidth}
+    >
         <!-- Direction. -->
-        <div class="container horizontal">
-
-            <!-- Direction text. -->
-            <div class="container">
-                <!-- Arrow. -->
-                <Arrow
-                    svgLength={topArrowLength}
-                    svgHeight={directionHeight}
-                    color={directionColor}
-                />
-
-                <!-- Text. -->
-                <div class="floating-text">
-                    {#if interactionMode === "display"}
-                        {direction.text}
-                    {:else}
-                        <input
-                            type="text"
-                            placeholder="Direction"
-                            bind:this={directionNameInput}
-                        />
-                    {/if}
-                </div>
-            </div>
-
-            <!-- Object text. -->
-            <div class="container">
-                <!-- Box. -->
-                <div
-                    class="object"
-                    style="width: 50px; height: {directionHeight}px;"
-                />
-                
-                <!-- Text. -->
-                <div class="floating-text">
-                    {#if interactionMode === "display"}
-                        {direction.nameforobjects}
-                    {:else}
-                        <input
-                            type="text"
-                            placeholder="Object"
-                            bind:this={objectNameInput}
-                        />
-                    {/if}
-                </div>
-            </div>
-        </div>
-
+        <VerbAndObject
+            {direction}
+            verbAndObjectWidth={arrowAndBoxWidth}
+            verbAndObjectHeight={directionHeight}
+            opposite={false}
+            displayMode={"full"}
+            {interactionMode}
+            {graphWidgetStyle}
+        />
+        
         <!-- Opposite Direction -->
         {#if oppositeDirection && !(oppositeDisplayMode === "none")}
-            <div
-                class="container horizontal"
-                style="
-                    opacity: {oppositeDisplayMode === "small" ? 0.5 : 1};
-                    font-size: 0.5rem;
-                "
+            <VerbAndObject
+                direction={oppositeDirection}
+                verbAndObjectWidth={arrowAndBoxWidth}
+                verbAndObjectHeight={directionHeight}
+                opposite={true}
+                displayMode={"small"} 
+                {interactionMode}
+                {graphWidgetStyle}
+            />
+        {/if}
+    </div>
+        
+    <div class="container vertical">
+        <!-- Button. -->
+        <div class="container button-container">
+            <button
+                class="button"
+                class:editing={interactionMode === "editing"}
+                class:create={interactionMode === "create"}
+                tabindex=0
+
+                on:click|stopPropagation={handleButton}
+                
             >
-                <!-- Opposite object text. -->
-                <div class="container">
-                    <!-- Box. -->
-                    <div
-                        class="object"
-                        style="width: 50px; height: {oppositeDirectionHeight}px;"
+                EX
+            </button>
+        </div>
+
+        <!-- Button. -->
+        {#if !$readOnlyMode}
+
+            <div class="container button-container">
+                {#if
+                    editable
+                    && (
+                        isHovered
+                        || interactionMode === "editing"
+                        || interactionMode === "create"
+                    )
+                }
+                    <button
+                        class="button"
+                        class:editing={interactionMode === "editing"}
+                        class:create={interactionMode === "create"}
+                        tabindex=0
+
+                        on:click|stopPropagation={handleButton}
+                        
                     >
-                        <!-- Text. -->
-                        <div
-                            class="floating-text"
-                        >
-                            {#if interactionMode === "display"}
-                                {oppositeDirection.nameforobjects}
-                            {:else}
-                                {oppositeDirectionInForm?.nameforobjects || ""}
-                            {/if}
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Opposite Direction text. -->
-                <div class="container">
-                    <!-- Arrow. -->
-                    <Arrow
-                        svgLength={bottomArrowLength}
-                        svgHeight={oppositeDirectionHeight}
-                        color={oppositeDirectionColor}
-                        reversed={true}
-                    />
-
-                    <!-- Text. -->
-                    <div class="floating-text">
                         {#if interactionMode === "display"}
-                            {oppositeDirection.text}
+                            <img src="./icons/edit.png" alt="Edit Direction" width=15px height=15px />
+                        {:else if interactionMode === "editing"}
+                            ✓
                         {:else}
-                            <DirectionDropdownWidget
-                                direction={oppositeDirectionInForm}
-                                halfAxisId={0}
-                                {graphWidgetStyle}
-                                fontSize={10}
-                                optionClickedFunction={ (option) => {
-                                    oppositeDirectionInForm = option
-                                } }
-                                optionHoveredFunction={ async (_, option) => {
-                                    oppositeDirectionInForm = option
-                                } }
-                                exitOptionHoveredFunction={ async () => {
-                                    oppositeDirectionInForm = oppositeDirection
-                                } }
-                            />
+                            +
                         {/if}
-                    </div>
-                </div>
-
-                <!-- Button. -->
-                {#if !$readOnlyMode}
-
-                    <div class="container button-container">
-                        {#if
-                            editable
-                            && (
-                                isHovered
-                                || interactionMode === "editing"
-                                || interactionMode === "create"
-                            )
-                        }
-                            <button
-                                class="button"
-                                class:editing={interactionMode === "editing"}
-                                class:create={interactionMode === "create"}
-                                tabindex=0
-
-                                on:click|stopPropagation={handleButton}
-                                
-                            >
-                                {#if interactionMode === "display"}
-                                    <img src="./icons/edit.png" alt="Edit Direction" width=15px height=15px />
-                                {:else if interactionMode === "editing"}
-                                    ✓
-                                {:else}
-                                    +
-                                {/if}
-                            </button>
-                        {/if}
-                    </div>
-
+                    </button>
                 {/if}
             </div>
-        {/if}
 
+        {/if}
     </div>
 
 </div>
@@ -330,7 +261,7 @@
         position: relative;
 
         display: flex;
-        justify-content: center;
+        justify-content: space-between;
         align-items: center;
         gap: 5px;
     }
@@ -343,32 +274,8 @@
         flex-direction: column;
     }
 
-    .floating-text {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    input {
-        border: none;
-
-        width: 75%;
-        background-color: transparent;
-
-        text-align: center;
-
-        font-size: 0.5rem;
-    }
-
-    .object {
-        border-radius: 5px;
-        box-shadow: 2px 2px 5px 1px lightgray;
-
-        background-color: white;
+    .arrows-and-boxes {
+        flex: 1 1 0;
     }
 
     .button-container {

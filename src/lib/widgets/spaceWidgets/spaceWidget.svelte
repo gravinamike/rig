@@ -10,7 +10,7 @@
     import { sleep } from "$lib/shared/utility"
 
     // Import related widgets.
-    import DirectionWidget from "./directionWidget.svelte"
+    import { DirectionWidget } from "./directionWidget"
     import { DirectionDropdownWidget } from "$lib/widgets/spaceWidgets"
     import DeleteWidget from "$lib/widgets/layoutWidgets/deleteWidget.svelte"
     

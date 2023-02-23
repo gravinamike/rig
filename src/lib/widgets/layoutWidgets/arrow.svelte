@@ -2,12 +2,13 @@
     export let svgLength: number
     export let svgHeight: number
     export let color: string
+    export let simplified = true
     export let reversed = false
 
-    $: arrowThickness = svgHeight * 0.6
+    $: arrowThickness = simplified ? svgHeight : svgHeight * 0.6
     $: arrowMidline = svgHeight / 2
 
-    $: triangleLength = svgHeight * 0.75
+    $: triangleLength = simplified ? svgHeight * 0.5 : svgHeight * 0.75
     $: triangleBase = svgLength - triangleLength
     $: trianglePoint = svgLength
     const triangleTop = 0
