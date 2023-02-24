@@ -13,6 +13,7 @@ export class RawDirectionDbModel extends Model {
     text!: string | null
     nameforobjects!: string | null
     directionorder!: number | null
+    halfaxisid!: string | number | null
 }
 
 

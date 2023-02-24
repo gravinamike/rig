@@ -43,3 +43,14 @@ export function changeIndexInArray<Type>(array: Type[], currentIndex: number, ne
 export function makeArrayUnique<Type>(array: Type[]): Type[] {
     return [...new Set(array)]
 }
+
+/**
+ * Array-has-duplicates method.
+ * 
+ * Determines if there are any duplicate values in the array.
+ * @param array 
+ * @returns 
+ */
+export function arrayHasDuplicates(array: unknown[]) {
+    return (new Set(array)).size !== array.length
+}
