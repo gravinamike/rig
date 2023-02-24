@@ -21,11 +21,8 @@
     export let interactionMode: "display" | "editing" | "create"
     export let oppositeDirectionInForm: Direction | null = null
     export let graphWidgetStyle: GraphWidgetStyle
-
-
-    // Object handles for form inputs.
-    let directionNameInput: HTMLInputElement
-    let objectNameInput: HTMLInputElement
+    export let directionNameInput: HTMLInputElement | null = null
+    export let objectNameInput: HTMLInputElement | null = null
 
     // Direction color.
     const directionColor = halfAxisId ? relationshipColorByHalfAxisId[halfAxisId] : "grey"
@@ -104,7 +101,7 @@
         
         <!-- Text. -->
         <div class="floating-text">
-            {#if interactionMode === "display"}
+            {#if interactionMode === "display" || opposite}
                 {direction.nameforobjects}
             {:else}
                 <input

@@ -36,7 +36,8 @@
     let expanded = false
 
 
-    // Object handles for form inputs.
+    // Object handles for HTML elements.
+    let directionWidget: HTMLElement
     let directionNameInput: HTMLInputElement
     let objectNameInput: HTMLInputElement
 
@@ -132,11 +133,18 @@
         await graph.build()
         addGraphIdsNeedingViewerRefresh(graph.id)
     }
+
+    function handlePossibleOutsideClick(event: MouseEvent) {
+		if (event.target !== directionWidget && !directionWidget.contains(event.target as Node)) {
+			interactionMode = "display"
+		}
+	}
 </script>
 
 
 <!-- Set up body escape-key handler to disable editing mode. -->
 <svelte:body
+    on:click={handlePossibleOutsideClick}
     on:keyup={(event) => {
         if (event.key === "Escape") interactionMode = "display"
     } }
@@ -149,6 +157,8 @@
     class:editing={interactionMode === "editing"}
     class:create={interactionMode === "create"}
     style={`align-items: ${buttonToShow === "expand" ? "flex-start" : "flex-end"};`}
+
+    bind:this={directionWidget}
 
     on:mouseenter={() => {isHovered = true}}
     on:mouseleave={() => {isHovered = false}}
@@ -173,7 +183,10 @@
             opposite={false}
             displayMode={"full"}
             {interactionMode}
+            bind:oppositeDirectionInForm
             {graphWidgetStyle}
+            bind:directionNameInput
+            bind:objectNameInput
         />
         
         <!-- Opposite Direction -->
@@ -186,6 +199,7 @@
                 opposite={true}
                 displayMode={"small"} 
                 {interactionMode}
+                bind:oppositeDirectionInForm
                 {graphWidgetStyle}
             />
         {/if}
@@ -237,11 +251,11 @@
                         class:create={interactionMode === "create"}
                         tabindex=0
 
-                        on:click|stopPropagation={handleButton}
+                        on:click={handleButton}
                         
                     >
                         {#if interactionMode === "display"}
-                            <img src="./icons/edit.png" alt="Edit Direction" width=15px height=15px />
+                            <img src="./icons/edit.png" alt="Edit Direction" width=15px height=15px  style="pointer-events: none;" />
                         {:else if interactionMode === "editing"}
                             ✓
                         {:else}

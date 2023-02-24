@@ -30,7 +30,8 @@
     export let setGraphSpace: (space: Space) => void
 
 
-    // Object handle for name input field.
+    // Object handles for HTML elements.
+    let spaceWidget: HTMLElement
     let spaceNameInput: HTMLInputElement
 
     // Flags describing interaction state.
@@ -42,6 +43,9 @@
         graph.pThing?.defaultSpaceId
         && space.id === graph.pThing.defaultSpaceId
 
+
+
+
     // Array of objects defining the half-axes, including which Direction is
     // assigned to each.
     let directionListInfos: { direction: Direction | null, halfAxisId: OddHalfAxisId }[] = []
@@ -51,13 +55,15 @@
             newDirectionListInfos.push(
                 {
                     direction: direction,
-                    halfAxisId: (2 * index + 1) as OddHalfAxisId
+                    halfAxisId: direction.halfaxisid as OddHalfAxisId
                 }
             )
         }
         return newDirectionListInfos
     }
     $: directionListInfos = buildDirectionListInfos()
+
+
 
     // Array of the Directions currently specified in the Direction name input
     // fields, since these may differ from the Space's starting Directions.
@@ -171,11 +177,18 @@
         // Rebuild the widget's Direction list.
         directionListInfos = buildDirectionListInfos()
     }
+
+    function handlePossibleOutsideClick(event: MouseEvent) {
+		if (event.target !== spaceWidget && !spaceWidget.contains(event.target as Node)) {
+			interactionMode = "display"
+		}
+	}
 </script>
 
 
 <!-- Escape key on page body disables interaction mode. -->
 <svelte:body
+    on:click={handlePossibleOutsideClick}
     on:keyup={(event) => {
         if (event.key === "Escape") interactionMode = "display"
     } }
@@ -187,6 +200,8 @@
     class="space-widget"
     class:editing={interactionMode === "editing"}
     class:create={interactionMode === "create"}
+    
+    bind:this={spaceWidget}
 
     on:mouseenter={() => {isHovered = true}}
     on:mouseleave={() => {isHovered = false}}
@@ -303,7 +318,7 @@
                 }}
             >
                 {#if interactionMode === "display"}
-                    <img src="./icons/edit.png" alt="Edit Space" width=15px height=15px />
+                    <img src="./icons/edit.png" alt="Edit Space" width=15px height=15px style="pointer-events: none;" />
                 {:else if interactionMode === "editing"}
                     ✓
                 {:else}
@@ -334,13 +349,13 @@
         cursor: default;
     }
 
-    .space-widget.editing, .space-widget.create {
-        outline: solid 1px grey;
-    }
-
     .space-widget:hover {
         outline: solid 1px lightgrey;
         background-color: gainsboro;
+    }
+
+    .space-widget.editing, .space-widget.create {
+        outline: solid 1px grey;
     }
 
     .space-widget:active {
