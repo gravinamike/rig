@@ -5,9 +5,12 @@
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
     import type { ThingDbModel } from "$lib/models/dbModels/clientSide"
 
-    // Import stores and utilty functions.
-    import { addGraphIdsNeedingViewerRefresh, readOnlyMode, storeGraphDbModels } from "$lib/stores"
+    // Import contants and utilty functions.
+    import { oddHalfAxisIds } from "$lib/shared/constants"
     import { sleep } from "$lib/shared/utility"
+
+    // Import stores.
+    import { addGraphIdsNeedingViewerRefresh, readOnlyMode, storeGraphDbModels } from "$lib/stores"
 
     // Import related widgets.
     import { DirectionWidget } from "./directionWidget"
@@ -50,12 +53,13 @@
     // assigned to each.
     let directionListInfos: { direction: Direction | null, halfAxisId: OddHalfAxisId }[] = []
     function buildDirectionListInfos() {
-        const newDirectionListInfos: { direction: Direction | null, halfAxisId: OddHalfAxisId, }[] = []
-        for (const [index, direction] of space.directions.entries()) {
-            newDirectionListInfos.push(
+        const newDirectionListInfos: { direction: Direction | null, halfAxisId: OddHalfAxisId }[] = []
+        for (const oddHalfAxisId of oddHalfAxisIds) {
+            const direction = space.directions.find(direction => direction.halfaxisid === oddHalfAxisId) || null
+           newDirectionListInfos.push(
                 {
                     direction: direction,
-                    halfAxisId: direction.halfaxisid as OddHalfAxisId
+                    halfAxisId: oddHalfAxisId as OddHalfAxisId
                 }
             )
         }
