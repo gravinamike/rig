@@ -141,8 +141,8 @@
      * 
      * Remove a Direction from the Directions list dropdowns by its index.
      */
-    function removeDirectionByIndex(index: number) {
-        directionDropdownContents.splice(index, 1)
+    function setDirectionNullByIndex(index: number) {
+        directionDropdownContents[index] = null
         directionDropdownContents = directionDropdownContents // Needed for reactivity.
     }
 
@@ -248,7 +248,7 @@
 
             <!-- Direction-selecting dropdown. -->
             {:else}
-                {#if directionDropdownContents[index] || directionDropdownContents[index - 1]}
+                {#if directionDropdownContents[index]}
                     <div
                         class="direction-dropdown-container"
                         style="z-index: {4 - index};"
@@ -274,10 +274,22 @@
                                 thingHeight={50}
                                 encapsulatingDepth={0}
                                 elongationCategory="neutral"
-                                startDelete={() => {removeDirectionByIndex(index)}}
+                                startDelete={() => {setDirectionNullByIndex(index)}}
                                 completeDelete={()=>{}}
                             />
                         {/if}
+                    </div>
+                {:else}
+                    <div class="no-direction">
+                        None
+                        <div
+                            class="add-button"
+
+                            on:click={() => console.log("foo")}
+                            on:keydown={()=>{}}
+                        >
+                            <div class="add-button-text">+</div>
+                        </div>
                     </div>
                 {/if}
             {/if}
@@ -512,5 +524,45 @@
         outline: solid 1px rgb(175, 175, 175);
 
         background-color: white;
+    }
+
+    .no-direction {
+        outline: dashed 1px grey;
+        border-radius: 7px;
+
+        position: relative;
+        height: 1rem;
+        
+        padding: 5px;
+
+        font-size: 0.9rem;
+    }
+
+    .add-button {
+        outline: solid 1px grey;
+        border-radius: 50%;
+
+        position: absolute;
+        right: 5px;
+        top: 6px;
+        width: 12px;
+        height: 12px; 
+        
+        font-size: 1.2rem;
+        color: grey;
+    }
+
+    .add-button:hover {
+        background-color: silver;
+    }
+
+    .add-button:active {
+        background-color: darkgray;
+    }
+
+    .add-button-text {
+        position: relative;
+        left: 0.425px;
+        top: -5.5px;
     }
 </style>
