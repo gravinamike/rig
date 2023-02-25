@@ -56,7 +56,7 @@
         const newDirectionListInfos: { direction: Direction | null, halfAxisId: OddHalfAxisId }[] = []
         for (const oddHalfAxisId of oddHalfAxisIds) {
             const direction = space.directions.find(direction => direction.halfaxisid === oddHalfAxisId) || null
-           newDirectionListInfos.push(
+            newDirectionListInfos.push(
                 {
                     direction: direction,
                     halfAxisId: oddHalfAxisId as OddHalfAxisId
@@ -71,7 +71,7 @@
 
     // Array of the Directions currently specified in the Direction name input
     // fields, since these may differ from the Space's starting Directions.
-    let directionDropdownContents: (Direction | null)[] = []
+    let directionDropdownContents: (Direction | "blank" | null)[] = []
     function resetDirectionDropdownContents() {
         directionDropdownContents = []
         for (const direction of space.directions) directionDropdownContents.push(direction)
@@ -147,13 +147,26 @@
     }
 
     /**
+     * Add-Direction-by-Index method.
+     * 
+     * Add a new Direction to the Directions list dropdowns by its index.
+     */
+     function setDirectionNotNullByIndex(index: number) {
+        directionDropdownContents[index] = "blank"
+        directionDropdownContents = directionDropdownContents // Needed for reactivity.
+    }
+
+    /**
      * Validate method.
      * 
      * Determine whether the edited Space information is valid before submitting.
      */
     function validate() {
         const valid =
-            spaceNameInput.value !== "" ? true :
+            (
+                spaceNameInput.value !== ""
+                && directionDropdownContents.every(dropdownContent => dropdownContent !== "blank")
+            ) ? true :
             false
         return valid
     }
@@ -169,7 +182,7 @@
         if ( !validInputs || !space.id ) return
 
         // Update the Space in the database and store.
-        await updateSpace(space.id, spaceNameInput.value, directionDropdownContents)
+        await updateSpace(space.id, spaceNameInput.value, directionDropdownContents as (Direction | null)[])
         await storeGraphDbModels("Space")
 
         // If the Graph is displayed in this Space, rebuild and refresh the
@@ -254,7 +267,7 @@
                         style="z-index: {4 - index};"
                     >
                         <DirectionDropdownWidget
-                            direction={info.direction}
+                            direction={directionDropdownContents[index] !== "blank" ? info.direction : null}
                             halfAxisId={info.halfAxisId}
                             {graphWidgetStyle}
                             optionClickedFunction={(direction, _, __) => {
@@ -285,7 +298,7 @@
                         <div
                             class="add-button"
 
-                            on:click={() => console.log("foo")}
+                            on:click|stopPropagation={() => {setDirectionNotNullByIndex(index)}}
                             on:keydown={()=>{}}
                         >
                             <div class="add-button-text">+</div>
