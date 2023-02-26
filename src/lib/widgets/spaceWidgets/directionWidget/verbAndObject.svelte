@@ -49,8 +49,8 @@
             <Arrow
                 svgLength={verbAndObjectWidth * 0.6}
                 svgHeight={verbAndObjectHeight}
-                simplified={true}
                 color={directionColor}
+                simplified={true}
                 reversed={opposite}
             />
         </div>

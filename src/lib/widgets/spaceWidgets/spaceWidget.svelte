@@ -49,6 +49,43 @@
 
 
 
+
+
+
+
+
+
+
+    interface HalfAxisInfo { direction: Direction | null, formDirection: (Direction | "blank" | null) }
+
+    type HalfAxisInfos = {
+        [halfAxisId: number]: HalfAxisInfo
+    }
+
+    let halfAxisInfos: HalfAxisInfos = {}
+    function buildHalfAxisInfos() {
+        const newHalfAxisInfos: HalfAxisInfos = {}
+        for (const oddHalfAxisId of oddHalfAxisIds) {
+            const direction = space.directions.find(direction => direction.halfaxisid === oddHalfAxisId) || null
+            newHalfAxisInfos[oddHalfAxisId] = 
+                {
+                    direction: direction,
+                    formDirection: direction
+                }
+        }
+        halfAxisInfos = newHalfAxisInfos
+    }
+    buildHalfAxisInfos()
+
+    let halfAxisInfosAsArray: [OddHalfAxisId, HalfAxisInfo][]
+    $: halfAxisInfosAsArray = Object.entries(halfAxisInfos).map(
+        ([halfAxisIdString, info]) => [Number(halfAxisIdString) as OddHalfAxisId, info]
+    )
+
+
+
+
+    /*
     // Array of objects defining the half-axes, including which Direction is
     // assigned to each.
     let directionListInfos: { direction: Direction | null, halfAxisId: OddHalfAxisId }[] = []
@@ -78,6 +115,14 @@
         directionDropdownContents = directionDropdownContents // Needed for reactivity.
     }
     resetDirectionDropdownContents()
+    */
+
+
+
+
+
+
+
 
 
     /**
@@ -103,7 +148,7 @@
             await sleep(50) // Allow the fields to finish rendering.
 
             // Populate the fields and focus the Space name field.
-            resetDirectionDropdownContents()
+            buildHalfAxisInfos()
             spaceNameInput.value = space.text || ""
             spaceNameInput.focus()
 
@@ -137,23 +182,23 @@
     }
 
     /**
-     * Remove-Direction-by-Index method.
+     * Remove-Direction-by-half-axis-ID method.
      * 
-     * Remove a Direction from the Directions list dropdowns by its index.
+     * Remove a Direction from the Directions list dropdowns by its half-axis ID.
      */
-    function setDirectionNullByIndex(index: number) {
-        directionDropdownContents[index] = null
-        directionDropdownContents = directionDropdownContents // Needed for reactivity.
+    function setDirectionNullByHalfAxisId(halfAxisId: number) {
+        halfAxisInfos[halfAxisId].formDirection = null
+        halfAxisInfos = halfAxisInfos // Needed for reactivity.
     }
 
     /**
-     * Add-Direction-by-Index method.
+     * Add-Direction-by-half-axis-ID method.
      * 
-     * Add a new Direction to the Directions list dropdowns by its index.
+     * Add a new Direction to the Directions list dropdowns by its half-axis ID.
      */
-     function setDirectionNotNullByIndex(index: number) {
-        directionDropdownContents[index] = "blank"
-        directionDropdownContents = directionDropdownContents // Needed for reactivity.
+     function setDirectionNotNullByHalfAxisId(halfAxisId: number) {
+        halfAxisInfos[halfAxisId].formDirection = "blank"
+        halfAxisInfos = halfAxisInfos // Needed for reactivity.
     }
 
     /**
@@ -165,7 +210,7 @@
         const valid =
             (
                 spaceNameInput.value !== ""
-                && directionDropdownContents.every(dropdownContent => dropdownContent !== "blank")
+                && Object.values(halfAxisInfos).every(info => info.formDirection !== "blank")
             ) ? true :
             false
         return valid
@@ -182,8 +227,8 @@
         if ( !validInputs || !space.id ) return
 
         // Update the Space in the database and store.
-        await updateSpace(space.id, spaceNameInput.value, directionDropdownContents as (Direction | null)[])
-        await storeGraphDbModels("Space")
+        //await updateSpace(space.id, spaceNameInput.value, directionDropdownContents as (Direction | null)[])
+        //await storeGraphDbModels("Space")
 
         // If the Graph is displayed in this Space, rebuild and refresh the
         // Graph to reflect the changes
@@ -192,7 +237,7 @@
             addGraphIdsNeedingViewerRefresh(graph.id)
 
         // Rebuild the widget's Direction list.
-        directionListInfos = buildDirectionListInfos()
+        buildHalfAxisInfos()
     }
 
     function handlePossibleOutsideClick(event: MouseEvent) {
@@ -243,14 +288,14 @@
 
     <!-- List of Direction widgets or Direction-selecting dropdowns. -->
     <div class="direction-list">
-        {#each directionListInfos as info, index}
+        {#each halfAxisInfosAsArray as [halfAxisId, info], index}
 
             <!-- Direction name. -->
             {#if interactionMode === "display"}
                 {#if info.direction}
                     <DirectionWidget
                         direction={info.direction}
-                        halfAxisId={info.halfAxisId}
+                        halfAxisId={halfAxisId}
                         editable={false}
                         {graph}
                         {graphWidgetStyle}
@@ -261,17 +306,17 @@
 
             <!-- Direction-selecting dropdown. -->
             {:else}
-                {#if directionDropdownContents[index]}
+                {#if info.formDirection}
                     <div
                         class="direction-dropdown-container"
                         style="z-index: {4 - index};"
                     >
                         <DirectionDropdownWidget
-                            direction={directionDropdownContents[index] !== "blank" ? info.direction : null}
-                            halfAxisId={info.halfAxisId}
+                            direction={info.formDirection !== "blank" ? info.direction : null}
+                            halfAxisId={halfAxisId}
                             {graphWidgetStyle}
                             optionClickedFunction={(direction, _, __) => {
-                                directionDropdownContents[index] = direction
+                                info.formDirection = direction
                             }}
                             optionHoveredFunction={async () => {
                             }}
@@ -287,7 +332,7 @@
                                 thingHeight={50}
                                 encapsulatingDepth={0}
                                 elongationCategory="neutral"
-                                startDelete={() => {setDirectionNullByIndex(index)}}
+                                startDelete={() => {setDirectionNullByHalfAxisId(halfAxisId)}}
                                 completeDelete={()=>{}}
                             />
                         {/if}
@@ -298,7 +343,7 @@
                         <div
                             class="add-button"
 
-                            on:click|stopPropagation={() => {setDirectionNotNullByIndex(index)}}
+                            on:click|stopPropagation={() => {setDirectionNotNullByHalfAxisId(halfAxisId)}}
                             on:keydown={()=>{}}
                         >
                             <div class="add-button-text">+</div>
