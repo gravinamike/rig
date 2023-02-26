@@ -162,7 +162,7 @@
             "
         >
             <DirectionDropdownWidget
-                direction={direction}
+                startingDirection={direction}
                 halfAxisId={halfAxisId}
                 {graphWidgetStyle}
                 optionClickedFunction={(direction, _, __) => {

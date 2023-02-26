@@ -17,6 +17,7 @@ import { createFolder } from "$lib/shared/fileSystem"
 
 import { changeIndexInArray, legacyPerspectiveThingsParse } from "$lib/shared/utility"
 import type { Knex } from "knex"
+import type { OddHalfAxisId } from "$lib/shared/constants"
 
 
 /*
@@ -138,7 +139,7 @@ export async function reorderDirection(
 export async function updateSpace(
     spaceId: number,
     spaceText: string,
-    directions: (Direction | null)[]
+    halfAxisIdsAndDirections: [OddHalfAxisId, (Direction | null)][]
 ): Promise<boolean> {
     try {
         // Construct and run SQL query.
@@ -157,8 +158,13 @@ export async function updateSpace(
 
             // Create new Direction linkers.
             const spaceToAddDirectionsTo = await RawSpaceDbModel.query().findById(spaceId) as RawSpaceDbModel
-            for (const direction of directions) if (direction?.id) {
-                const querystring = spaceToAddDirectionsTo.$relatedQuery('directions').relate(direction.id).toKnexQuery().toString()
+            for (const halfAxisIdAndDirection of halfAxisIdsAndDirections) if (halfAxisIdAndDirection[1]?.id) {
+                const halfAxisId = halfAxisIdAndDirection[0]
+                const directionId = halfAxisIdAndDirection[1].id
+                const querystring = spaceToAddDirectionsTo
+                    .$relatedQuery('directions')
+                    .relate({id: directionId,  halfaxisid: halfAxisId})
+                    .toKnexQuery().toString()
                 await alterQuerystringForH2AndRun(querystring, transaction, "", "DirectionToSpace")
             }
 

@@ -140,7 +140,7 @@
                 "
             >
                 <DirectionDropdownWidget
-                    {direction}
+                    startingDirection={direction}
                     halfAxisId={cohort.halfAxisId}
                     {graphWidgetStyle}
                     optionClickedFunction={(direction, _, __) => {

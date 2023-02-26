@@ -229,7 +229,7 @@
         >
             {#if spaceFrameActive}
                 <DirectionDropdownWidget
-                    direction={arrowInfo.direction}
+                    startingDirection={arrowInfo.direction}
                     halfAxisId={arrowInfo.halfAxisId}
                     {graphWidgetStyle}
                     optionClickedFunction={(direction, _, option) => {

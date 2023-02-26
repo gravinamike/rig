@@ -209,7 +209,7 @@
                 on:wheel|preventDefault
             >
                 <DirectionDropdownWidget
-                    {direction}
+                    startingDirection={direction}
                     {halfAxisId}
                     {askingForDirection}
                     {graphWidgetStyle}

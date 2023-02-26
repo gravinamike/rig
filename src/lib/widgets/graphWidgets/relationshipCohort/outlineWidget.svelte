@@ -41,7 +41,7 @@
 <!-- Direction text. -->
 <div class="direction-widget-container">
     <DirectionDropdownWidget
-        {direction}
+        startingDirection={direction}
         {halfAxisId}
         {graphWidgetStyle}
         optionClickedFunction={(direction, _, option) => {console.log(direction, option)}}

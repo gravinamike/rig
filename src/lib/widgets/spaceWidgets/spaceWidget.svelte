@@ -10,7 +10,7 @@
     import { sleep } from "$lib/shared/utility"
 
     // Import stores.
-    import { addGraphIdsNeedingViewerRefresh, readOnlyMode, storeGraphDbModels } from "$lib/stores"
+    import { addGraphIdsNeedingViewerRefresh, getGraphConstructs, readOnlyMode, storeGraphDbModels } from "$lib/stores"
 
     // Import related widgets.
     import { DirectionWidget } from "./directionWidget"
@@ -47,20 +47,8 @@
         && space.id === graph.pThing.defaultSpaceId
 
 
-
-
-
-
-
-
-
-
-
     interface HalfAxisInfo { direction: Direction | null, formDirection: (Direction | "blank" | null) }
-
-    type HalfAxisInfos = {
-        [halfAxisId: number]: HalfAxisInfo
-    }
+    type HalfAxisInfos = { [halfAxisId: number]: HalfAxisInfo }
 
     let halfAxisInfos: HalfAxisInfos = {}
     function buildHalfAxisInfos() {
@@ -81,48 +69,6 @@
     $: halfAxisInfosAsArray = Object.entries(halfAxisInfos).map(
         ([halfAxisIdString, info]) => [Number(halfAxisIdString) as OddHalfAxisId, info]
     )
-
-
-
-
-    /*
-    // Array of objects defining the half-axes, including which Direction is
-    // assigned to each.
-    let directionListInfos: { direction: Direction | null, halfAxisId: OddHalfAxisId }[] = []
-    function buildDirectionListInfos() {
-        const newDirectionListInfos: { direction: Direction | null, halfAxisId: OddHalfAxisId }[] = []
-        for (const oddHalfAxisId of oddHalfAxisIds) {
-            const direction = space.directions.find(direction => direction.halfaxisid === oddHalfAxisId) || null
-            newDirectionListInfos.push(
-                {
-                    direction: direction,
-                    halfAxisId: oddHalfAxisId as OddHalfAxisId
-                }
-            )
-        }
-        return newDirectionListInfos
-    }
-    $: directionListInfos = buildDirectionListInfos()
-
-
-
-    // Array of the Directions currently specified in the Direction name input
-    // fields, since these may differ from the Space's starting Directions.
-    let directionDropdownContents: (Direction | "blank" | null)[] = []
-    function resetDirectionDropdownContents() {
-        directionDropdownContents = []
-        for (const direction of space.directions) directionDropdownContents.push(direction)
-        directionDropdownContents = directionDropdownContents // Needed for reactivity.
-    }
-    resetDirectionDropdownContents()
-    */
-
-
-
-
-
-
-
 
 
     /**
@@ -226,15 +172,22 @@
         const validInputs = validate()
         if ( !validInputs || !space.id ) return
 
-        // Update the Space in the database and store.
-        //await updateSpace(space.id, spaceNameInput.value, directionDropdownContents as (Direction | null)[])
-        //await storeGraphDbModels("Space")
+        const halfAxisIdsAndDirections = halfAxisInfosAsArray.map(
+            ([halfAxisId, halfAxisInfo]) => [halfAxisId, halfAxisInfo.formDirection as Direction | null]
+        ) as [OddHalfAxisId, (Direction | null)][]
+
+        // Update the Space in the database, store, and this widget.
+        await updateSpace(space.id, spaceNameInput.value, halfAxisIdsAndDirections)
+        await storeGraphDbModels("Space")
+        space = getGraphConstructs("Space", space.id) as Space
+
 
         // If the Graph is displayed in this Space, rebuild and refresh the
         // Graph to reflect the changes
         if (graph.pThing?.space?.id === space.id)
-            await graph.setSpace(space)
-            addGraphIdsNeedingViewerRefresh(graph.id)
+            //await graph.setSpace(space)
+            //addGraphIdsNeedingViewerRefresh(graph.id)
+            setGraphSpace(space)
 
         // Rebuild the widget's Direction list.
         buildHalfAxisInfos()
@@ -312,7 +265,7 @@
                         style="z-index: {4 - index};"
                     >
                         <DirectionDropdownWidget
-                            direction={info.formDirection !== "blank" ? info.direction : null}
+                            startingDirection={info.formDirection !== "blank" ? info.direction : null}
                             halfAxisId={halfAxisId}
                             {graphWidgetStyle}
                             optionClickedFunction={(direction, _, __) => {

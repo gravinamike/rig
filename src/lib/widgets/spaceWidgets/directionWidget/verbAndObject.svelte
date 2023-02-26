@@ -62,7 +62,7 @@
             {:else}
                 {#if opposite}
                     <DirectionDropdownWidget
-                        direction={oppositeDirectionInForm}
+                        startingDirection={oppositeDirectionInForm}
                         halfAxisId={0}
                         {graphWidgetStyle}
                         fontSize={10}

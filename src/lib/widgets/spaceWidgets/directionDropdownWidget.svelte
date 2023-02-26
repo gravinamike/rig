@@ -11,13 +11,13 @@
     import { directionDbModelsStore, getGraphConstructs, readOnlyMode } from "$lib/stores"
 
     /**
-     * @param  {Direction | null} direction - The Direction currently being represented by this widget.
+     * @param  {Direction | null} startingDirection - The Direction this widget starts off representing.
      * @param  {HalfAxisId | null} halfAxisId - The Half-Axis that the Direction is being displayed on.
      * @param  {Graph} Graph - The Graph that the widget is part of.
      * @param  {boolean} askingForDirection - Whether or not the widget requires the user to select a Direction.
      * @param  {(direction: Direction | null, optionId: number, option: Direction) => void} optionClickedFunction - The function to execute when a Direction option is clicked.
      */
-    export let direction: Direction | null
+    export let startingDirection: Direction | null
     export let halfAxisId: HalfAxisId | null
     export let graphWidgetStyle: GraphWidgetStyle
     export let askingForDirection = false
@@ -26,7 +26,8 @@
     export let optionHoveredFunction: (optionId: number, option: Direction) => void = () => {}
     export let exitOptionHoveredFunction: () => void = () => {}
 
-
+    
+    let direction = startingDirection
     let directionWidget: Element
 
     // Formatting-related information.
@@ -80,7 +81,7 @@
             {#each Object.entries($directionDbModelsStore) as [optionId, option]}
                 <div
                     class="option"
-                    on:click={() => {
+                    on:click|stopPropagation={() => {
                         direction = getGraphConstructs("Direction", Number(option.id))
                         showOptions = false
                         if (direction) optionClickedFunction(direction, Number(optionId), direction)

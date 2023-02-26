@@ -1,5 +1,5 @@
 import type { Direction, Space, Thing } from "$lib/models/constructModels"
-import type { GraphConfig } from "$lib/shared/constants"
+import type { GraphConfig, OddHalfAxisId } from "$lib/shared/constants"
 import { sessionSpecificFetch as fetch } from "$lib/db/utility/sessionSpecificFetch"
 
 
@@ -69,7 +69,7 @@ export async function reorderDirection(
 export async function updateSpace(
     spaceId: number,
     spaceText: string,
-    directions: (Direction | null)[]
+    halfAxisIdsAndDirections: [OddHalfAxisId, (Direction | null)][]
 ): Promise<boolean> {
     // Post to the update-Space API.
     const res = await fetch(
@@ -80,7 +80,7 @@ export async function updateSpace(
             body: JSON.stringify({
                 spaceId: spaceId,
                 spaceText: spaceText,
-                directions: directions
+                halfAxisIdsAndDirections: halfAxisIdsAndDirections
             })
         }
     )
