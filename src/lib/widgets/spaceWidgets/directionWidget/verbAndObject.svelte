@@ -24,6 +24,7 @@
     export let directionNameInput: HTMLInputElement | null = null
     export let objectNameInput: HTMLInputElement | null = null
 
+
     // Direction color.
     const directionColor = halfAxisId ? relationshipColorByHalfAxisId[halfAxisId] : "grey"
 </script>
@@ -68,6 +69,7 @@
                         fontSize={10}
                         optionClickedFunction={ (option) => {
                             oppositeDirectionInForm = option
+                            if (option) direction = option
                         } }
                         optionHoveredFunction={ async (_, option) => {
                             oppositeDirectionInForm = option

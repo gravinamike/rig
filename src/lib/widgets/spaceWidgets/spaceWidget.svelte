@@ -185,8 +185,6 @@
         // If the Graph is displayed in this Space, rebuild and refresh the
         // Graph to reflect the changes
         if (graph.pThing?.space?.id === space.id)
-            //await graph.setSpace(space)
-            //addGraphIdsNeedingViewerRefresh(graph.id)
             setGraphSpace(space)
 
         // Rebuild the widget's Direction list.

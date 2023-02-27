@@ -41,11 +41,12 @@
     let directionNameInput: HTMLInputElement
     let objectNameInput: HTMLInputElement
 
+
     // Direction-related attributes.
-    $: oppositeDirection =
+    const oppositeDirection =
         direction.oppositeid ? getGraphConstructs("Direction", direction.oppositeid) as Direction | null :
         null
-    $: oppositeDirectionInForm = oppositeDirection
+    let oppositeDirectionInForm = oppositeDirection
 
     // Attributes controlling visual appearance of widget.
     const directionHeight = 20
@@ -125,9 +126,10 @@
             oppositeDirectionInForm?.id || null
         )
 
-        // Update the Direction in the stores.
+        // Update the Direction in the stores and this widget.
         await storeGraphDbModels("Direction")
         await storeGraphDbModels("Space")
+        direction = getGraphConstructs("Direction", direction.id) as Direction
 
         // Rebuild and refresh the Graph.
         await graph.build()
@@ -183,7 +185,6 @@
             opposite={false}
             displayMode={"full"}
             {interactionMode}
-            bind:oppositeDirectionInForm
             {graphWidgetStyle}
             bind:directionNameInput
             bind:objectNameInput
