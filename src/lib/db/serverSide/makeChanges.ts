@@ -8,7 +8,7 @@ import {
     RawDirectionDbModel, RawThingDbModel, getNewThingInfo,
     RawRelationshipDbModel, getNewRelationshipInfo,
     RawNoteDbModel, getNewNoteInfo, RawNoteToThingDbModel,
-    RawFolderDbModel, getNewFolderInfo, RawFolderToThingDbModel, RawSpaceDbModel
+    RawFolderDbModel, getNewFolderInfo, RawFolderToThingDbModel, RawSpaceDbModel, getNewSpaceInfo
 } from "$lib/models/dbModels/serverSide"
 import { Direction, Space, Thing } from "$lib/models/constructModels"
 
@@ -131,6 +131,79 @@ export async function reorderDirection(
     // Update the orders of the Directions using the above array.
     await updateDirectionOrders(updateDirectionOrderInfos)
 }
+
+
+/*
+ * Create a new Space.
+ */
+export async function createSpace(
+    spaceText: string,
+    halfAxisIdsAndDirections: [OddHalfAxisId, (Direction | null)][]
+): Promise<Space | false> {
+    try {
+        // Construct and run SQL query.
+        const knex = Model.knex()
+        const newSpace = await knex.transaction(async (transaction: Knex.Transaction) => {
+            // Determine order for new Space.
+            const queriedSpaces = await RawSpaceDbModel.query()
+            const orders = queriedSpaces.map( model => {
+                return model.spaceorder ? model.spaceorder : 0
+            } )
+            const maxOrder = orders.length ? Math.max(...orders) : -1
+            const newOrder = maxOrder + 1
+
+            // Create new Space.
+            const newSpaceInfo = getNewSpaceInfo(spaceText, newOrder)
+            const querystring1 = RawSpaceDbModel.query().insert(newSpaceInfo).toKnexQuery().toString()
+            const newSpaceDbModel = await alterQuerystringForH2AndRun(querystring1, transaction, "", "Space") as RawSpaceDbModel
+            console.log("TEST1")
+            // Create new Direction linkers.
+            for (const halfAxisIdAndDirection of halfAxisIdsAndDirections) if (halfAxisIdAndDirection[1]?.id) {
+                const halfAxisId = halfAxisIdAndDirection[0]
+                const directionId = halfAxisIdAndDirection[1].id
+                const querystring = newSpaceDbModel
+                    .$relatedQuery('directions')
+                    .relate({id: directionId,  halfaxisid: halfAxisId})
+                    .toKnexQuery().toString()
+                await alterQuerystringForH2AndRun(querystring, transaction, "", "DirectionToSpace")
+            }
+            console.log("TEST2")
+            // Convert the RawSpaceDbModel to a SpaceDbModel.
+            console.log(typeof newSpaceDbModel)
+            console.log(newSpaceDbModel.text)
+            const newSpace = new Space(newSpaceDbModel)
+
+            return newSpace
+        })
+
+        return newSpace as Space
+
+    } catch(err) {
+        console.error(err)
+        return false
+    }
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 /*

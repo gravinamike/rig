@@ -64,6 +64,37 @@ export async function reorderDirection(
 
 
 /*
+ * Create a new Space.
+ */
+export async function createSpace(
+    spaceText: string,
+    halfAxisIdsAndDirections: [OddHalfAxisId, (Direction | null)][]
+): Promise<Space | false> {
+    // Post to the create-Space API.
+    const res = await fetch(
+        `api/db/graphManipulation/createSpace`,
+        {
+            method: "POST",
+
+            body: JSON.stringify({
+                spaceText: spaceText,
+                halfAxisIdsAndDirections: halfAxisIdsAndDirections
+            })
+        }
+    )
+
+    // Report on the response.
+    if (res.ok) {
+        const newSpace = await res.json() as Space
+        return newSpace
+    } else {
+        res.text().then(text => {throw Error(text)})
+        return false
+    }
+}
+
+
+/*
  * Update an existing Space.
  */
 export async function updateSpace(

@@ -18,16 +18,16 @@
     import DeleteWidget from "$lib/widgets/layoutWidgets/deleteWidget.svelte"
     
     // Import API functions.
-    import { updateSpace, updateThingDefaultSpace } from "$lib/db/clientSide"
+    import { createSpace, updateSpace, updateThingDefaultSpace } from "$lib/db/clientSide"
 
 
     /**
-     * @param space - The Space which this widget represents.
+     * @param space - The Space which this widget represents (or null if this is a Space Form).
      * @param graph - The Graph that the Directions are part of.
      * @param graphWidgetStyle - Controls the visual style of the Graph.
      * @param setGraphSpace - Method to set the Graph's current Space.
      */
-    export let space: Space
+    export let space: Space | null
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
     export let setGraphSpace: (space: Space) => void
@@ -37,14 +37,17 @@
     let spaceWidget: HTMLElement
     let spaceNameInput: HTMLInputElement
 
+    // Flags describing type of widget.
+    let isSpaceForm = (space === null)
+
     // Flags describing interaction state.
     let isHovered = false
-    let interactionMode: "display" | "editing" | "create" = "display"
+    let interactionMode: "display" | "editing" | "create" = isSpaceForm ? "editing" : "display"
 
     // Whether the Space is the default Space for the current Perspective Thing.
     $: defaultPerspectiveSpace = 
         graph.pThing?.defaultSpaceId
-        && space.id === graph.pThing.defaultSpaceId
+        && space?.id === graph.pThing.defaultSpaceId
 
 
     interface HalfAxisInfo { direction: Direction | null, formDirection: (Direction | "blank" | null) }
@@ -54,7 +57,7 @@
     function buildHalfAxisInfos() {
         const newHalfAxisInfos: HalfAxisInfos = {}
         for (const oddHalfAxisId of oddHalfAxisIds) {
-            const direction = space.directions.find(direction => direction.halfaxisid === oddHalfAxisId) || null
+            const direction = space?.directions.find(direction => direction.halfaxisid === oddHalfAxisId) || null
             newHalfAxisInfos[oddHalfAxisId] = 
                 {
                     direction: direction,
@@ -78,7 +81,7 @@
      * represented by the widget.
      */
     function handleClick() {
-        if (interactionMode === "display") setGraphSpace(space)
+        if (space && interactionMode === "display") setGraphSpace(space)
     }
 
     /**
@@ -95,7 +98,7 @@
 
             // Populate the fields and focus the Space name field.
             buildHalfAxisInfos()
-            spaceNameInput.value = space.text || ""
+            spaceNameInput.value = space?.text || ""
             spaceNameInput.focus()
 
         // If the widget is in editing mode,
@@ -115,7 +118,7 @@
      */
     async function setPerspectiveThingDefaultSpace() {
         // If any necessary information is null or undefined, abort.
-        if (!graph.pThing?.id || !space.id) return
+        if (!graph.pThing?.id || !space?.id) return
 
         // Set the Perspective Thing's default Space to this Space.
         await updateThingDefaultSpace(graph.pThing?.id, space.id)
@@ -170,21 +173,27 @@
     async function submit() {
         // If the edited Space information isn't valid, abort.
         const validInputs = validate()
-        if ( !validInputs || !space.id ) return
+        if ( !validInputs || (!isSpaceForm && !space?.id) ) return
 
         const halfAxisIdsAndDirections = halfAxisInfosAsArray.map(
             ([halfAxisId, halfAxisInfo]) => [halfAxisId, halfAxisInfo.formDirection as Direction | null]
         ) as [OddHalfAxisId, (Direction | null)][]
 
-        // Update the Space in the database, store, and this widget.
-        await updateSpace(space.id, spaceNameInput.value, halfAxisIdsAndDirections)
-        await storeGraphDbModels("Space")
-        space = getGraphConstructs("Space", space.id) as Space
+        // Update (or create) the Space in the database, store, and this widget.
+        if (isSpaceForm) {
+            space = await createSpace(spaceNameInput.value, halfAxisIdsAndDirections) || null
+            await storeGraphDbModels("Space")
+            isSpaceForm = false
+        } else {
+            await updateSpace(space?.id as number, spaceNameInput.value, halfAxisIdsAndDirections)
+            await storeGraphDbModels("Space")
+            space = getGraphConstructs("Space", space?.id as number) as Space
+        }
 
 
         // If the Graph is displayed in this Space, rebuild and refresh the
         // Graph to reflect the changes
-        if (graph.pThing?.space?.id === space.id)
+        if (space && graph.pThing?.space?.id === space.id)
             setGraphSpace(space)
 
         // Rebuild the widget's Direction list.
@@ -193,7 +202,7 @@
 
     function handlePossibleOutsideClick(event: MouseEvent) {
 		if (event.target !== spaceWidget && !spaceWidget.contains(event.target as Node)) {
-			interactionMode = "display"
+			interactionMode = isSpaceForm ? "editing" : "display"
 		}
 	}
 </script>
@@ -226,7 +235,7 @@
     <div class="space-name">
         <div>
             {#if interactionMode === "display"}
-                {space.text}
+                {space?.text}
             {:else}
                 <input
                     type="text"
@@ -306,7 +315,7 @@
     </div>
 
     <!-- Perspective-Space button. -->
-    {#if defaultPerspectiveSpace || (!$readOnlyMode && isHovered)}
+    {#if interactionMode === "display" && (defaultPerspectiveSpace || (!$readOnlyMode && isHovered))}
         <div
             class="perspective-space-button"
             class:is-default-perspective={defaultPerspectiveSpace}

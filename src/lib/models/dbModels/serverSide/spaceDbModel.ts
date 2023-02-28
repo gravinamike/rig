@@ -49,6 +49,20 @@ export class RawSpaceDbModel extends Model {
     }
 }
 
+interface NewSpaceInfo {
+    text: string
+    spaceorder: number
+}
+
+export function getNewSpaceInfo(text: string, spaceOrder: number): NewSpaceInfo {
+    const newSpaceInfo = {
+        text: text,
+        spaceorder: spaceOrder
+    }
+
+    return newSpaceInfo
+}
+
 
 // Necessary to strip out the server-only Objection.js model parts before sending client-side.
 export function stripSpaceDbModels(models: RawSpaceDbModel[]): SpaceDbModel[] {
