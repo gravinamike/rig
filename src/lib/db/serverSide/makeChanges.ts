@@ -139,13 +139,18 @@ export async function reorderDirection(
 export async function createSpace(
     spaceText: string,
     halfAxisIdsAndDirections: [OddHalfAxisId, (Direction | null)][]
-): Promise<Space | false> {
+): Promise<number | false> {
     try {
         // Construct and run SQL query.
         const knex = Model.knex()
-        const newSpace = await knex.transaction(async (transaction: Knex.Transaction) => {
-            // Determine order for new Space.
+        const newSpaceId = await knex.transaction(async (transaction: Knex.Transaction) => {
+            // Determine id and order for new Space.
             const queriedSpaces = await RawSpaceDbModel.query()
+            const ids = queriedSpaces.map( model => {
+                return model.id ? Number(model.id) : 0
+            } )
+            const maxId = ids.length ? Math.max(...ids) : -1
+            const newId = maxId + 1
             const orders = queriedSpaces.map( model => {
                 return model.spaceorder ? model.spaceorder : 0
             } )
@@ -153,10 +158,10 @@ export async function createSpace(
             const newOrder = maxOrder + 1
 
             // Create new Space.
-            const newSpaceInfo = getNewSpaceInfo(spaceText, newOrder)
+            const newSpaceInfo = getNewSpaceInfo(newId, spaceText, newOrder)
             const querystring1 = RawSpaceDbModel.query().insert(newSpaceInfo).toKnexQuery().toString()
             const newSpaceDbModel = await alterQuerystringForH2AndRun(querystring1, transaction, "", "Space") as RawSpaceDbModel
-            console.log("TEST1")
+            
             // Create new Direction linkers.
             for (const halfAxisIdAndDirection of halfAxisIdsAndDirections) if (halfAxisIdAndDirection[1]?.id) {
                 const halfAxisId = halfAxisIdAndDirection[0]
@@ -166,17 +171,15 @@ export async function createSpace(
                     .relate({id: directionId,  halfaxisid: halfAxisId})
                     .toKnexQuery().toString()
                 await alterQuerystringForH2AndRun(querystring, transaction, "", "DirectionToSpace")
-            }
-            console.log("TEST2")
+            }        
+
             // Convert the RawSpaceDbModel to a SpaceDbModel.
-            console.log(typeof newSpaceDbModel)
-            console.log(newSpaceDbModel.text)
             const newSpace = new Space(newSpaceDbModel)
 
-            return newSpace
+            return newSpace.id as number
         })
 
-        return newSpace as Space
+        return newSpaceId
 
     } catch(err) {
         console.error(err)

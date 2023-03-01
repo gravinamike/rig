@@ -181,8 +181,9 @@
 
         // Update (or create) the Space in the database, store, and this widget.
         if (isSpaceForm) {
-            space = await createSpace(spaceNameInput.value, halfAxisIdsAndDirections) || null
+            const newSpaceId = await createSpace(spaceNameInput.value, halfAxisIdsAndDirections) || null
             await storeGraphDbModels("Space")
+            space = getGraphConstructs("Space", newSpaceId as number) as Space
             isSpaceForm = false
         } else {
             await updateSpace(space?.id as number, spaceNameInput.value, halfAxisIdsAndDirections)

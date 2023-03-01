@@ -69,7 +69,7 @@ export async function reorderDirection(
 export async function createSpace(
     spaceText: string,
     halfAxisIdsAndDirections: [OddHalfAxisId, (Direction | null)][]
-): Promise<Space | false> {
+): Promise<number | false> {
     // Post to the create-Space API.
     const res = await fetch(
         `api/db/graphManipulation/createSpace`,
@@ -85,7 +85,7 @@ export async function createSpace(
 
     // Report on the response.
     if (res.ok) {
-        const newSpace = await res.json() as Space
+        const newSpace = Number(await res.json() as string)
         return newSpace
     } else {
         res.text().then(text => {throw Error(text)})

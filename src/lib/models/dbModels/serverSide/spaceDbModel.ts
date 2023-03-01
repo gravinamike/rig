@@ -54,8 +54,9 @@ interface NewSpaceInfo {
     spaceorder: number
 }
 
-export function getNewSpaceInfo(text: string, spaceOrder: number): NewSpaceInfo {
+export function getNewSpaceInfo(id: number, text: string, spaceOrder: number): NewSpaceInfo {
     const newSpaceInfo = {
+        id: id,
         text: text,
         spaceorder: spaceOrder
     }
