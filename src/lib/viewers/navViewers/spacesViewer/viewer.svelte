@@ -5,6 +5,7 @@
     import type { SpaceDbModel } from "$lib/models/dbModels/clientSide"
 
     // Import framework functions.
+    import { tick } from "svelte"
     import { flip } from "svelte/animate"
 
     // Import stores and utility functions.
@@ -17,7 +18,6 @@
     // Import API methods.
     import { reorderSpace } from "$lib/db/clientSide"
     import { readOnlyMode, uIBackgroundColorStore } from "$lib/stores"
-    import { tick } from "svelte";
 
 
     /**
@@ -99,7 +99,7 @@
 
     let scrollArea: HTMLElement
     
-    async function activateSpaceForm() {
+    async function addSpaceForm() {
         spaces.push(null)
         spaces = spaces // Needed for reactivity.
         await tick()
@@ -146,7 +146,7 @@
 <div
     class="add-space-button"
 
-    on:click={activateSpaceForm}
+    on:click={addSpaceForm}
     on:keydown={()=>{}}
 >
     <strong>+</strong>

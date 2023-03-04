@@ -12,7 +12,7 @@
     import { DirectionDropdownWidget } from "$lib/widgets/spaceWidgets"
 
 
-    export let direction: Direction
+    export let direction: Direction | null
     export let halfAxisId: HalfAxisId | null = null
     export let verbAndObjectWidth: number
     export let verbAndObjectHeight: number
@@ -59,7 +59,7 @@
         <!-- Text. -->
         <div class="floating-text">
             {#if interactionMode === "display"}
-                {direction.text}
+                {direction?.text}
             {:else}
                 {#if opposite}
                     <DirectionDropdownWidget
@@ -104,7 +104,7 @@
         <!-- Text. -->
         <div class="floating-text">
             {#if interactionMode === "display" || opposite}
-                {direction.nameforobjects}
+                {direction?.nameforobjects}
             {:else}
                 <input
                     type="text"

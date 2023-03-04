@@ -5,6 +5,7 @@
     import type { DirectionDbModel } from "$lib/models/dbModels/clientSide"
 
     // Import framework functions.
+    import { tick } from "svelte"
     import { flip } from "svelte/animate"
 
     // Import stores and utility functions.
@@ -28,16 +29,16 @@
     // Get array of Directions.
     let unsortedDirectionIds: number[] = []
     let directionIds: number[] = []
-    let directions: Direction[] = []
+    let directions: (Direction | null)[] = []
     function getDirectionIdsFromDbModels(dbModels: DirectionDbModel[]) {
         unsortedDirectionIds = dbModels.map(model => Number(model.id))
         const unsortedDirections = getGraphConstructs("Direction", unsortedDirectionIds) as Direction[]
         directions = unsortedDirections.sort(
             (a, b) => (a.directionorder ? a.directionorder : 0) - (b.directionorder ? b.directionorder : 0)
         )
-        directionIds = directions.map(direction => Number(direction.id))
+        directionIds = directions.map(direction => direction ? Number(direction.id) : -1)
     }
-    getDirectionIdsFromDbModels($directionDbModelsStoreAsArray)
+    $: getDirectionIdsFromDbModels($directionDbModelsStoreAsArray)
 
 
     /**
@@ -90,6 +91,20 @@
         await reorderDirection(directionId, destIndex)
         await storeGraphDbModels("Direction")
     }
+
+
+
+    let scrollArea: HTMLElement
+    
+    async function addDirectionForm() {
+        directions.push(null)
+        directions = directions // Needed for reactivity.
+        await tick()
+        scrollArea.scrollTo({top: scrollArea.scrollHeight, behavior: "smooth"})
+    }
+
+
+
 </script>
 
 
@@ -100,8 +115,11 @@
     style="background-color: {$uIBackgroundColorStore};"
 >
     <!-- List of Directions. -->
-    <div class="scrollable">
-        {#each directions as direction, index (direction.id)}
+    <div
+        class="scrollable"
+        bind:this={scrollArea}
+    >
+        {#each directions as direction, index (direction?.id || -1)}
             <div
                 draggable={ $readOnlyMode ? false : true }
                 animate:flip={{ duration: 250 }}
@@ -111,7 +129,7 @@
                 on:drop|preventDefault={ (event) => dropDirection(event, index) }
             >
                 <DirectionWidget
-                    {direction}
+                    bind:direction
                     forceExpanded={true}
                     {graph}
                     {graphWidgetStyle}
@@ -121,6 +139,15 @@
             </div>
         {/each}
     </div>
+</div>
+
+<div
+    class="add-direction-button"
+
+    on:click={addDirectionForm}
+    on:keydown={()=>{}}
+>
+    <strong>+</strong>
 </div>
 
 
@@ -147,5 +174,30 @@
         overflow-y: auto;
 
         scrollbar-width: thin;
+    }
+
+    .add-direction-button {
+        border-radius: 5px;
+
+        position: absolute;
+        right: 5px;
+        top: 5px;
+        width: 20px;
+        height: 20px;
+
+        background-color: lightgrey;
+
+        text-align: center;
+        font-size: 1.07rem;
+
+        cursor: pointer;
+    }
+
+    .add-direction-button:hover {
+        background-color: silver;
+    }
+
+    .add-direction-button:active {
+        background-color: darkgrey;
     }
   </style>

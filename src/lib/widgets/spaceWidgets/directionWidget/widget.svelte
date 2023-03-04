@@ -23,7 +23,7 @@
      * @param graph - The Graph that the Directions are part of.
      * @param graphWidgetStyle - Controls the visual style of the Graph.
      */
-    export let direction: Direction
+    export let direction: Direction | null
     export let halfAxisId: HalfAxisId | null = null
     export let editable = true
     export let forceExpanded = false
@@ -42,9 +42,13 @@
     let objectNameInput: HTMLInputElement
 
 
+    // Flags describing type of widget.
+    let isDirectionForm = (direction === null)
+
+
     // Direction-related attributes.
     const oppositeDirection =
-        direction.oppositeid ? getGraphConstructs("Direction", direction.oppositeid) as Direction | null :
+        direction?.oppositeid ? getGraphConstructs("Direction", direction.oppositeid) as Direction | null :
         null
     let oppositeDirectionInForm = oppositeDirection
 
@@ -54,7 +58,7 @@
 
     // Attributes indicating interaction state of widget.
     let isHovered = false
-    let interactionMode: "display" | "editing" | "create" = "display"
+    let interactionMode: "display" | "editing" | "create" = isDirectionForm ? "editing" : "display"
     $: oppositeDisplayMode =
         ( interactionMode === "editing" || interactionMode === "create" || expanded || forceExpanded ) ? "full" :
         "none"
@@ -73,8 +77,8 @@
             await sleep(50) // Allow the fields to finish rendering.
 
             // Set its initial content.
-            directionNameInput.value = direction.text || ""
-            objectNameInput.value = direction.nameforobjects || ""
+            directionNameInput.value = direction?.text || ""
+            objectNameInput.value = direction?.nameforobjects || ""
 
             // Give it keyboard focus.
             directionNameInput.focus()
@@ -116,7 +120,7 @@
     async function submit() {
         // If the current form entries aren't valid, abort.
         const validInputs = validate()
-        if (!validInputs || !direction.id) return
+        if (!validInputs || !direction?.id) return
 
         // Update the Direction in the database.
         await updateDirection(
@@ -138,7 +142,7 @@
 
     function handlePossibleOutsideClick(event: MouseEvent) {
 		if (event.target !== directionWidget && !directionWidget.contains(event.target as Node)) {
-			interactionMode = "display"
+			interactionMode = isDirectionForm ? "editing" : "display"
 		}
 	}
 </script>
