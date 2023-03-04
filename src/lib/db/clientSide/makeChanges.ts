@@ -152,6 +152,31 @@ export async function reorderSpace(
 
 
 /*
+ * Delete a Space.
+ */
+export async function deleteSpace( spaceIdToDelete: number ): Promise<boolean> {
+    // Post to the delete-Space API.
+    const res = await fetch(
+        `api/db/graphManipulation/deleteSpace`,
+        {
+            method: "POST",
+            body: JSON.stringify({
+                spaceIdToDelete: spaceIdToDelete
+            })
+        }
+    )
+
+    // Report on the response.
+    if (res.ok) {
+        return true
+    } else {
+        res.text().then(text => {throw Error(text)})
+        return false
+    }
+}
+
+
+/*
  * From a starting Thing, create a related Thing.
  */
 export async function createNewRelatedThing(

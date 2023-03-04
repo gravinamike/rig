@@ -31,7 +31,10 @@ export class RawSpaceDbModel extends Model {
                     through: {
                         from: 'directiontospace.spaceid',
                         to: 'directiontospace.directionid',
-                        extra: ['halfaxisid']
+                        extra: {
+                            linkerid: 'id',
+                            halfaxisid: 'halfaxisid'
+                        }
                     },
                     to: 'directions.id'
                 }

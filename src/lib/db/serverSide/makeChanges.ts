@@ -8,7 +8,7 @@ import {
     RawDirectionDbModel, RawThingDbModel, getNewThingInfo,
     RawRelationshipDbModel, getNewRelationshipInfo,
     RawNoteDbModel, getNewNoteInfo, RawNoteToThingDbModel,
-    RawFolderDbModel, getNewFolderInfo, RawFolderToThingDbModel, RawSpaceDbModel, getNewSpaceInfo
+    RawFolderDbModel, getNewFolderInfo, RawFolderToThingDbModel, RawSpaceDbModel, getNewSpaceInfo, RawDirectionToSpaceDbModel
 } from "$lib/models/dbModels/serverSide"
 import { Direction, Space, Thing } from "$lib/models/constructModels"
 
@@ -146,11 +146,11 @@ export async function createSpace(
         const newSpaceId = await knex.transaction(async (transaction: Knex.Transaction) => {
             // Determine id and order for new Space.
             const queriedSpaces = await RawSpaceDbModel.query()
-            const ids = queriedSpaces.map( model => {
+            const spaceIds = queriedSpaces.map( model => {
                 return model.id ? Number(model.id) : 0
             } )
-            const maxId = ids.length ? Math.max(...ids) : -1
-            const newId = maxId + 1
+            const maxSpaceId = spaceIds.length ? Math.max(...spaceIds) : -1
+            const newSpaceId = maxSpaceId + 1
             const orders = queriedSpaces.map( model => {
                 return model.spaceorder ? model.spaceorder : 0
             } )
@@ -158,17 +158,25 @@ export async function createSpace(
             const newOrder = maxOrder + 1
 
             // Create new Space.
-            const newSpaceInfo = getNewSpaceInfo(newId, spaceText, newOrder)
+            const newSpaceInfo = getNewSpaceInfo(newSpaceId, spaceText, newOrder)
             const querystring1 = RawSpaceDbModel.query().insert(newSpaceInfo).toKnexQuery().toString()
             const newSpaceDbModel = await alterQuerystringForH2AndRun(querystring1, transaction, "", "Space") as RawSpaceDbModel
+
+            // Determine starting ID for new Direction linkers.
+            const queriedDirectionToSpaces = await RawDirectionToSpaceDbModel.query()
+            const directionToSpaceIds = queriedDirectionToSpaces.map( model => {
+                return model.id ? Number(model.id) : 0
+            } )
+            const maxDirectionToSpaceId = directionToSpaceIds.length ? Math.max(...directionToSpaceIds) : -1
+            const newStartingDirectionToSpaceId = maxDirectionToSpaceId + 1
             
             // Create new Direction linkers.
-            for (const halfAxisIdAndDirection of halfAxisIdsAndDirections) if (halfAxisIdAndDirection[1]?.id) {
+            for (const [index, halfAxisIdAndDirection] of halfAxisIdsAndDirections.entries()) if (halfAxisIdAndDirection[1]?.id) {
                 const halfAxisId = halfAxisIdAndDirection[0]
                 const directionId = halfAxisIdAndDirection[1].id
                 const querystring = newSpaceDbModel
                     .$relatedQuery('directions')
-                    .relate({id: directionId,  halfaxisid: halfAxisId})
+                    .relate({id: directionId, linkerid: newStartingDirectionToSpaceId + index, halfaxisid: halfAxisId})
                     .toKnexQuery().toString()
                 await alterQuerystringForH2AndRun(querystring, transaction, "", "DirectionToSpace")
             }        
@@ -188,26 +196,6 @@ export async function createSpace(
 
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 /*
  * Update a Space.
@@ -254,8 +242,6 @@ export async function updateSpace(
         return false
     }
 }
-
-
 
 /*
  * Update the Orders of a set of Spaces.
@@ -332,6 +318,48 @@ export async function reorderSpace(
     // Update the orders of the Spaces using the above array.
     await updateSpaceOrders(updateSpaceOrderInfos)
 }
+
+
+
+
+/*
+ * Delete a Space.
+ */
+export async function deleteSpace(spaceId: number): Promise<void> {
+    const knex = Model.knex()
+    await knex.transaction(async (transaction: Knex.Transaction) => {
+        // Wherever a Thing has this Space as its default Space, set to null
+        // instead.
+        await RawThingDbModel.query()
+            .patch({ defaultplane: null })
+            .where('id', spaceId)
+            .transacting(transaction)
+
+        // Delete existing Direction linkers.
+        await RawSpaceDbModel.relatedQuery('directionToSpaces').for([spaceId]).delete().transacting(transaction)
+
+        // Delete the Space itself.
+        await RawSpaceDbModel.query().delete().where("id", spaceId).transacting(transaction)
+
+        return
+    })
+
+    // Report on the response.
+    .then(function() {
+        console.log('Transaction complete.')
+    })
+    .catch(function(err: Error) {
+        console.error(err)
+    })
+}
+
+
+
+
+
+
+
+
 
 
 

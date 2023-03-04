@@ -10,7 +10,7 @@
     import { sleep } from "$lib/shared/utility"
 
     // Import stores.
-    import { addGraphIdsNeedingViewerRefresh, getGraphConstructs, readOnlyMode, storeGraphDbModels } from "$lib/stores"
+    import { addGraphIdsNeedingViewerRefresh, getGraphConstructs, readOnlyMode, spaceDbModelsStore, spaceDbModelsStoreAsArray, storeGraphDbModels } from "$lib/stores"
 
     // Import related widgets.
     import { DirectionWidget } from "./directionWidget"
@@ -18,7 +18,7 @@
     import DeleteWidget from "$lib/widgets/layoutWidgets/deleteWidget.svelte"
     
     // Import API functions.
-    import { createSpace, updateSpace, updateThingDefaultSpace } from "$lib/db/clientSide"
+    import { createSpace, deleteSpace, updateSpace, updateThingDefaultSpace } from "$lib/db/clientSide"
 
 
     /**
@@ -30,11 +30,14 @@
     export let space: Space | null
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
+    export let parentScrollArea: HTMLElement
     export let setGraphSpace: (space: Space) => void
 
 
-    // Object handles for HTML elements.
+    // Handles for HTML elements and their attributes.
     let spaceWidget: HTMLElement
+    let spaceWidgetWidth: number
+    let spaceWidgetHeight: number
     let spaceNameInput: HTMLInputElement
 
     // Flags describing type of widget.
@@ -81,7 +84,7 @@
      * represented by the widget.
      */
     function handleClick() {
-        if (space && interactionMode === "display") setGraphSpace(space)
+        if (space && interactionMode === "display" && !confirmDeleteBoxOpen) setGraphSpace(space)
     }
 
     /**
@@ -185,6 +188,7 @@
             await storeGraphDbModels("Space")
             space = getGraphConstructs("Space", newSpaceId as number) as Space
             isSpaceForm = false
+            parentScrollArea.scrollTo({top: parentScrollArea.scrollHeight, behavior: "smooth"})
         } else {
             await updateSpace(space?.id as number, spaceNameInput.value, halfAxisIdsAndDirections)
             await storeGraphDbModels("Space")
@@ -206,6 +210,39 @@
 			interactionMode = isSpaceForm ? "editing" : "display"
 		}
 	}
+
+
+
+
+
+
+
+
+
+
+    let confirmDeleteBoxOpen = false
+    $: showDeleteButton = isHovered && !confirmDeleteBoxOpen
+    
+
+
+
+    /**
+     * Delete-Space method.
+     * 
+     * Completes a delete operation after it has been confirmed.
+     */
+    async function completeDelete() {
+        // If Space or Space ID is null, abort.
+        if (!space?.id) return
+
+        // Delete the Space in the Graph.
+        await deleteSpace(space.id)
+
+        // Delete the Space from the stores.
+        spaceDbModelsStore.update( (current) => { delete current[space?.id as number]; return current } )
+    }
+
+
 </script>
 
 
@@ -225,11 +262,16 @@
     class:create={interactionMode === "create"}
     
     bind:this={spaceWidget}
+    bind:clientWidth={spaceWidgetWidth}
+    bind:clientHeight={spaceWidgetHeight}
 
     on:mouseenter={() => {isHovered = true}}
-    on:mouseleave={() => {isHovered = false}}
+    on:mouseleave={() => {
+        isHovered = false
+        confirmDeleteBoxOpen = false
+    }}
     on:click={handleClick}
-    on:dblclick={() => { if (!$readOnlyMode && interactionMode === "display") handleButton() }}
+    on:dblclick={() => { if (!$readOnlyMode && interactionMode === "display" && !confirmDeleteBoxOpen) handleButton() }}
     on:keydown={()=>{}}
 >
     <!-- Space name or name-input field. -->
@@ -362,6 +404,26 @@
             </button>
         </div>
     {/if}
+
+
+
+
+    <!-- Delete-Space widget. -->
+    <DeleteWidget
+        {showDeleteButton}
+        bind:confirmDeleteBoxOpen
+        thingWidth={spaceWidgetWidth}
+        thingHeight={spaceWidgetHeight}
+        elongationCategory="neutral"
+        encapsulatingDepth={0}
+        startDelete={() => {confirmDeleteBoxOpen = true}}
+        {completeDelete}
+    />
+
+
+
+
+
 </div>
 
 
@@ -405,8 +467,10 @@
         display: flex;
         flex-direction: row;
         gap: 5px;
+        justify-content: center;
 
         font-size: 1rem;
+        text-align: center;
     }
 
     .direction-list {
@@ -518,7 +582,7 @@
         width: 26px;
         height: 26px;
         top: 4px;
-        right: 4px;
+        left: 4px;
         background-color: rgb(230, 230, 230);
 
         display: flex;

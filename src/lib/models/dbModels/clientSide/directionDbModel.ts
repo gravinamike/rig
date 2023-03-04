@@ -4,5 +4,6 @@ export interface DirectionDbModel {
     text: string | null
     nameforobjects: string | null
     directionorder: number | null
+    linkerid: number | null
     halfaxisid: number | null
 }

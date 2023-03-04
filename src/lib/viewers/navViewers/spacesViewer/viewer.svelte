@@ -8,7 +8,7 @@
     import { flip } from "svelte/animate"
 
     // Import stores and utility functions.
-    import { spaceDbModelsStoreAsArray, getGraphConstructs, storeGraphDbModels } from "$lib/stores/graphConstructStores"
+    import { spaceDbModelsStoreAsArray, getGraphConstructs, storeGraphDbModels, spaceDbModelsStore } from "$lib/stores/graphConstructStores"
     import { changeIndexInArray } from "$lib/shared/utility"
 
     // Import related widgets.
@@ -42,7 +42,7 @@
         )
         spaceIds = spaces.map(space => space ? Number(space.id) : -1)
     }
-    getSpaceIdsFromDbModels($spaceDbModelsStoreAsArray)
+    $: getSpaceIdsFromDbModels($spaceDbModelsStoreAsArray)
 
 
     /**
@@ -101,7 +101,7 @@
     
     async function activateSpaceForm() {
         spaces.push(null)
-        spaces = spaces // Needed for reactivity;
+        spaces = spaces // Needed for reactivity.
         await tick()
         scrollArea.scrollTo({top: scrollArea.scrollHeight, behavior: "smooth"})
     }
@@ -131,9 +131,10 @@
                 on:drop|preventDefault={ (event) => dropSpace(event, index) }
             >
                 <SpaceWidget
-                    {space}
+                    bind:space
                     {graph}
                     {graphWidgetStyle}
+                    parentScrollArea={scrollArea}
                     {setGraphSpace}
                 />
             </div>
