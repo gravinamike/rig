@@ -23,7 +23,7 @@ export async function alterQuerystringForH2AndRun(
     // be the construct created by this transaction).
     if (constructName === "Direction") {
         const latestConstructResults = await RawDirectionDbModel.query().transacting(transaction)
-        return latestConstructResults[0]
+        return latestConstructResults[latestConstructResults.length - 1]
     } else if (constructName === "Space") {
         const latestConstructResults = await RawSpaceDbModel.query()
             .allowGraph('directions')

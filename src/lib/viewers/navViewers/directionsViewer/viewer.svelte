@@ -119,7 +119,7 @@
         class="scrollable"
         bind:this={scrollArea}
     >
-        {#each directions as direction, index (direction?.id || -1)}
+        {#each directions as direction, index (direction?.id || -index)}
             <div
                 draggable={ $readOnlyMode ? false : true }
                 animate:flip={{ duration: 250 }}
@@ -135,6 +135,7 @@
                     {graphWidgetStyle}
                     buttonToShow={"edit"}
                     buttonOnWhichSide={"right"}
+                    parentScrollArea={scrollArea}
                 />
             </div>
         {/each}

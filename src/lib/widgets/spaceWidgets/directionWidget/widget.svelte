@@ -14,7 +14,7 @@
     import VerbAndObject from "./verbAndObject.svelte"
 
     // Import API methods.
-    import { updateDirection } from "$lib/db/clientSide"
+    import { createDirection, updateDirection } from "$lib/db/clientSide"
 
 
     /**
@@ -31,6 +31,7 @@
     export let graphWidgetStyle: GraphWidgetStyle
     export let buttonToShow: "expand" | "edit"
     export let buttonOnWhichSide: "left" | "right"
+    export let parentScrollArea: HTMLElement | null = null
 
 
     let expanded = false
@@ -120,20 +121,34 @@
     async function submit() {
         // If the current form entries aren't valid, abort.
         const validInputs = validate()
-        if (!validInputs || !direction?.id) return
+        if (!validInputs || (!isDirectionForm && !direction?.id )) return
 
-        // Update the Direction in the database.
-        await updateDirection(
-            direction.id,
-            directionNameInput.value,
-            objectNameInput.value,
-            oppositeDirectionInForm?.id || null
-        )
+        
 
-        // Update the Direction in the stores and this widget.
-        await storeGraphDbModels("Direction")
-        await storeGraphDbModels("Space")
-        direction = getGraphConstructs("Direction", direction.id) as Direction
+
+        // Update (or create) the Direction in the database, store, Space, and this widget.
+        if (isDirectionForm) {
+            const newDirectionId = await createDirection(
+                directionNameInput.value,
+                objectNameInput.value,
+                oppositeDirectionInForm?.id || null
+            ) || null
+            await storeGraphDbModels("Space")
+            await storeGraphDbModels("Direction")
+            direction = getGraphConstructs("Direction", newDirectionId as number) as Direction
+            isDirectionForm = false
+            parentScrollArea?.scrollTo({top: parentScrollArea.scrollHeight, behavior: "smooth"})
+        } else {
+            await updateDirection(
+                direction?.id as number,
+                directionNameInput.value,
+                objectNameInput.value,
+                oppositeDirectionInForm?.id || null
+            )
+            await storeGraphDbModels("Space")
+            await storeGraphDbModels("Direction")
+            direction = getGraphConstructs("Direction", direction?.id as number) as Direction
+        }
 
         // Rebuild and refresh the Graph.
         await graph.build()
@@ -195,7 +210,7 @@
         />
         
         <!-- Opposite Direction -->
-        {#if oppositeDirection && !(oppositeDisplayMode === "none")}
+        {#if (oppositeDirection || isDirectionForm) && !(oppositeDisplayMode === "none")}
             <VerbAndObject
                 direction={oppositeDirection}
                 {halfAxisId}

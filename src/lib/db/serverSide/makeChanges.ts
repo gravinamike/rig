@@ -8,7 +8,7 @@ import {
     RawDirectionDbModel, RawThingDbModel, getNewThingInfo,
     RawRelationshipDbModel, getNewRelationshipInfo,
     RawNoteDbModel, getNewNoteInfo, RawNoteToThingDbModel,
-    RawFolderDbModel, getNewFolderInfo, RawFolderToThingDbModel, RawSpaceDbModel, getNewSpaceInfo, RawDirectionToSpaceDbModel
+    RawFolderDbModel, getNewFolderInfo, RawFolderToThingDbModel, RawSpaceDbModel, getNewSpaceInfo, RawDirectionToSpaceDbModel, getNewDirectionInfo
 } from "$lib/models/dbModels/serverSide"
 import { Direction, Space, Thing } from "$lib/models/constructModels"
 
@@ -19,6 +19,55 @@ import { changeIndexInArray, legacyPerspectiveThingsParse } from "$lib/shared/ut
 import type { Knex } from "knex"
 import type { OddHalfAxisId } from "$lib/shared/constants"
 
+
+/*
+ * Create a new Direction.
+ */
+export async function createDirection(
+    directionText: string,
+    objectText: string,
+    oppositeDirectionId: number | null
+): Promise<number | false> {
+    try {
+        // Construct and run SQL query.
+        const knex = Model.knex()
+        const newDirectionId = await knex.transaction(async (transaction: Knex.Transaction) => {
+            // Determine id and order for new Direction.
+            const queriedDirections = await RawDirectionDbModel.query()
+            const directionIds = queriedDirections.map( model => {
+                return model.id ? Number(model.id) : 0
+            } )
+            const maxDirectionId = directionIds.length ? Math.max(...directionIds) : -1
+            const newDirectionId = maxDirectionId + 1
+            const orders = queriedDirections.map( model => {
+                return model.directionorder ? model.directionorder : 0
+            } )
+            const maxOrder = orders.length ? Math.max(...orders) : -1
+            const newOrder = maxOrder + 1
+            
+            // Create new Direction.
+            const newDirectionInfo = getNewDirectionInfo(
+                newDirectionId,
+                directionText,
+                objectText,
+                oppositeDirectionId,
+                newOrder
+            )
+            const querystring1 = RawDirectionDbModel.query().insert(newDirectionInfo).toKnexQuery().toString()
+            //console.log(querystring1)
+            const newDirectionDbModel = await alterQuerystringForH2AndRun(querystring1, transaction, "", "Direction") as RawDirectionDbModel
+
+            return newDirectionDbModel.id as number
+        })
+
+        return newDirectionId
+
+    } catch(err) {
+        console.error(err)
+        return false
+    }
+
+}
 
 /*
  * Update a Direction.
@@ -179,12 +228,9 @@ export async function createSpace(
                     .relate({id: directionId, linkerid: newStartingDirectionToSpaceId + index, halfaxisid: halfAxisId})
                     .toKnexQuery().toString()
                 await alterQuerystringForH2AndRun(querystring, transaction, "", "DirectionToSpace")
-            }        
+            }
 
-            // Convert the RawSpaceDbModel to a SpaceDbModel.
-            const newSpace = new Space(newSpaceDbModel)
-
-            return newSpace.id as number
+            return newSpaceDbModel.id as number
         })
 
         return newSpaceId
@@ -193,7 +239,6 @@ export async function createSpace(
         console.error(err)
         return false
     }
-
 
 }
 

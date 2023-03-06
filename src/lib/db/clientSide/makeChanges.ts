@@ -4,6 +4,38 @@ import { sessionSpecificFetch as fetch } from "$lib/db/utility/sessionSpecificFe
 
 
 /*
+ * Create a new Direction.
+ */
+export async function createDirection(
+    directionText: string,
+    objectText: string,
+    oppositeDirectionId: number | null
+): Promise<number | false> {
+    // Post to the create-Space API.
+    const res = await fetch(
+        `api/db/graphManipulation/createDirection`,
+        {
+            method: "POST",
+
+            body: JSON.stringify({
+                directionText: directionText,
+                objectText: objectText,
+                oppositeDirectionId: oppositeDirectionId
+            })
+        }
+    )
+
+    // Report on the response.
+    if (res.ok) {
+        const newSpace = Number(await res.json() as string)
+        return newSpace
+    } else {
+        res.text().then(text => {throw Error(text)})
+        return false
+    }
+}
+
+/*
  * Update an existing Direction.
  */
 export async function updateDirection(

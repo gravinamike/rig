@@ -104,7 +104,7 @@
         <!-- Text. -->
         <div class="floating-text">
             {#if interactionMode === "display" || opposite}
-                {direction?.nameforobjects}
+                {direction?.nameforobjects || ""}
             {:else}
                 <input
                     type="text"
