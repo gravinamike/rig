@@ -181,6 +181,37 @@ export async function reorderDirection(
     await updateDirectionOrders(updateDirectionOrderInfos)
 }
 
+/*
+ * Delete a Direction.
+ */
+export async function deleteDirection(directionId: number): Promise<void> {
+    const knex = Model.knex()
+    await knex.transaction(async (transaction: Knex.Transaction) => {
+        // Wherever a Direction has this Direction as its opposite, set to null
+        // instead.
+        await RawDirectionDbModel.query()
+            .patch({ oppositeid: null })
+            .where('oppositeid', directionId)
+            .transacting(transaction)
+
+        // Delete any Direction-to-Space linkers involving this Direction.
+        await RawDirectionDbModel.relatedQuery('directionToSpaces').for([directionId]).delete().transacting(transaction)
+
+        // Delete the Direction itself.
+        await RawDirectionDbModel.query().delete().where("id", directionId).transacting(transaction)
+
+        return
+    })
+
+    // Report on the response.
+    .then(function() {
+        console.log('Transaction complete.')
+    })
+    .catch(function(err: Error) {
+        console.error(err)
+    })
+}
+
 
 /*
  * Create a new Space.
@@ -377,7 +408,7 @@ export async function deleteSpace(spaceId: number): Promise<void> {
         // instead.
         await RawThingDbModel.query()
             .patch({ defaultplane: null })
-            .where('id', spaceId)
+            .where('defaultplane', spaceId)
             .transacting(transaction)
 
         // Delete existing Direction linkers.

@@ -94,6 +94,30 @@ export async function reorderDirection(
     }
 }
 
+/*
+ * Delete a Direction.
+ */
+export async function deleteDirection( directionIdToDelete: number ): Promise<boolean> {
+    // Post to the delete-Direction API.
+    const res = await fetch(
+        `api/db/graphManipulation/deleteDirection`,
+        {
+            method: "POST",
+            body: JSON.stringify({
+                spaceIdToDelete: directionIdToDelete
+            })
+        }
+    )
+
+    // Report on the response.
+    if (res.ok) {
+        return true
+    } else {
+        res.text().then(text => {throw Error(text)})
+        return false
+    }
+}
+
 
 /*
  * Create a new Space.

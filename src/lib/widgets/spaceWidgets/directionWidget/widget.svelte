@@ -6,15 +6,16 @@
 
     // Import stores and utility functions.
     import {
-        addGraphIdsNeedingViewerRefresh, getGraphConstructs, readOnlyMode, storeGraphDbModels
+        addGraphIdsNeedingViewerRefresh, directionDbModelsStore, getGraphConstructs, readOnlyMode, storeGraphDbModels
     } from "$lib/stores"
     import { sleep } from "$lib/shared/utility"
 
     // Import related widgets.
     import VerbAndObject from "./verbAndObject.svelte"
+    import DeleteWidget from "$lib/widgets/layoutWidgets/deleteWidget.svelte"
 
     // Import API methods.
-    import { createDirection, updateDirection } from "$lib/db/clientSide"
+    import { createDirection, updateDirection, deleteDirection } from "$lib/db/clientSide"
 
 
     /**
@@ -39,6 +40,8 @@
 
     // Object handles for HTML elements.
     let directionWidget: HTMLElement
+    let directionWidgetWidth: number
+    let directionWidgetHeight: number
     let directionNameInput: HTMLInputElement
     let objectNameInput: HTMLInputElement
 
@@ -48,10 +51,10 @@
 
 
     // Direction-related attributes.
-    const oppositeDirection =
+    $: oppositeDirection =
         direction?.oppositeid ? getGraphConstructs("Direction", direction.oppositeid) as Direction | null :
         null
-    let oppositeDirectionInForm = oppositeDirection
+    $: oppositeDirectionInForm = oppositeDirection
 
     // Attributes controlling visual appearance of widget.
     const directionHeight = 20
@@ -160,6 +163,34 @@
 			interactionMode = isDirectionForm ? "editing" : "display"
 		}
 	}
+
+
+
+
+    let confirmDeleteBoxOpen = false
+    $: showDeleteButton = isHovered && !confirmDeleteBoxOpen
+
+
+
+    /**
+     * Delete-Direction method.
+     * 
+     * Completes a delete operation after it has been confirmed.
+     */
+    async function completeDelete() {
+        // If Direction or Direction ID is null, abort.
+        if (!direction?.id) return
+
+        // Delete the Direction in the Graph.
+        await deleteDirection(direction.id)
+
+        // Remove the Direction from the stores.
+        directionDbModelsStore.update( (current) => { delete current[direction?.id as number]; return current } )
+        await storeGraphDbModels("Direction")
+        await storeGraphDbModels("Space")
+    }
+
+
 </script>
 
 
@@ -180,11 +211,16 @@
     style={`align-items: ${buttonToShow === "expand" ? "flex-start" : "flex-end"};`}
 
     bind:this={directionWidget}
+    bind:clientWidth={directionWidgetWidth}
+    bind:clientHeight={directionWidgetHeight}
 
     on:mouseenter={() => {isHovered = true}}
-    on:mouseleave={() => {isHovered = false}}
+    on:mouseleave={() => {
+        isHovered = false
+        confirmDeleteBoxOpen = false
+    }}
     on:dblclick={() => {
-        if (!$readOnlyMode && interactionMode === "display" && editable) handleButton()
+        if (!$readOnlyMode && interactionMode === "display" && editable && !confirmDeleteBoxOpen) handleButton()
     }}
 >
 
@@ -193,7 +229,7 @@
         class="container vertical arrows-and-boxes"
         bind:clientWidth={arrowAndBoxWidth}
 
-        style={buttonOnWhichSide === "left" ? "order: 1;" : "order: 0;"}
+        style={`order: ${buttonOnWhichSide === "left" ? 1: 0}`}
     >
         <!-- Direction. -->
         <VerbAndObject
@@ -263,6 +299,7 @@
                     || interactionMode === "editing"
                     || interactionMode === "create"
                 )
+                && !confirmDeleteBoxOpen
             }
                 <div class="container button-container">
                     <button
@@ -287,6 +324,20 @@
 
         {/if}
     </div>
+
+    <!-- Delete-Space widget. -->
+    {#if editable}
+        <DeleteWidget
+            {showDeleteButton}
+            bind:confirmDeleteBoxOpen
+            thingWidth={directionWidgetWidth}
+            thingHeight={directionWidgetHeight}
+            elongationCategory="neutral"
+            encapsulatingDepth={0}
+            startDelete={() => {confirmDeleteBoxOpen = true}}
+            {completeDelete}
+        />
+    {/if}
 
 </div>
 

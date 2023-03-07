@@ -1,5 +1,7 @@
+import type { RelationMappings, RelationMappingsThunk } from "objection"
 import type { DirectionDbModel } from "../clientSide"
 import { Model } from "objection"
+import { RawDirectionToSpaceDbModel } from "./spaceDbModel"
 
 
 /*
@@ -15,6 +17,23 @@ export class RawDirectionDbModel extends Model {
     directionorder!: number | null
     linkerid!: number | null
     halfaxisid!: number | null
+
+
+    static get relationMappings(): RelationMappings | RelationMappingsThunk {
+        return {
+            directionToSpaces: {
+                relation: Model.HasManyRelation,
+                modelClass: RawDirectionToSpaceDbModel,
+                join: {
+                    from: 'directions.id',
+                    to: 'directiontospace.directionid'
+                }
+            }
+        }
+    }
+
+
+
 }
 
 
