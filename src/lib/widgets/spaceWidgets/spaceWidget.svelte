@@ -10,7 +10,7 @@
     import { sleep } from "$lib/shared/utility"
 
     // Import stores.
-    import { addGraphIdsNeedingViewerRefresh, getGraphConstructs, readOnlyMode, spaceDbModelsStore, spaceDbModelsStoreAsArray, storeGraphDbModels } from "$lib/stores"
+    import { addGraphIdsNeedingViewerRefresh, getGraphConstructs, readOnlyMode, spaceDbModelsStore, storeGraphDbModels } from "$lib/stores"
 
     // Import related widgets.
     import { DirectionWidget } from "./directionWidget"
@@ -18,7 +18,7 @@
     import DeleteWidget from "$lib/widgets/layoutWidgets/deleteWidget.svelte"
     
     // Import API functions.
-    import { createSpace, deleteSpace, updateSpace, updateThingDefaultSpace } from "$lib/db/clientSide"
+    import { createSpace, deleteSpace, spaceIsReferenced, updateSpace, updateThingDefaultSpace } from "$lib/db/clientSide"
 
 
     /**
@@ -234,6 +234,14 @@
     async function completeDelete() {
         // If Space or Space ID is null, abort.
         if (!space?.id) return
+
+        // If the Direction is referenced by other structures, ask the user if
+        // they want to continue.
+        if (await spaceIsReferenced(space.id)) {
+            if (!confirm(`The Space named "${space.text}" is referenced by other structures. Deleting it will remove it from those structures. Continue?`)) {
+                return
+            }
+        }
 
         // Delete the Space in the Graph.
         await deleteSpace(space.id)

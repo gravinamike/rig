@@ -45,6 +45,46 @@ export async function graphDbModels<Type extends GraphDbModel>(
     }
 }
 
+
+/*
+ * Determine if a Direction is referenced in any other constructs (for example,
+ * set as the opposite of another Direction, or set as a member of a Space).
+ */
+export async function directionIsReferenced(directionId: number): Promise<boolean> {
+    const res = await fetch(`api/db/graphConstructs/direction-is-referenced-${directionId}`)
+
+    // If the response is ok,
+    if (res.ok) {
+        const isReferenced = await res.json() as boolean
+        return isReferenced
+
+    // Handle errors if needed.
+    } else {
+        res.text().then(text => {throw Error(text)})
+        return false
+    }
+}
+
+/*
+ * Determine if a Space is referenced in any other constructs (for example, set
+ * as the default Space of any Things).
+ */
+export async function spaceIsReferenced(spaceId: number): Promise<boolean> {
+    const res = await fetch(`api/db/graphConstructs/space-is-referenced-${spaceId}`)
+
+    // If the response is ok,
+    if (res.ok) {
+        const isReferenced = await res.json() as boolean
+        return isReferenced
+
+    // Handle errors if needed.
+    } else {
+        res.text().then(text => {throw Error(text)})
+        return false
+    }
+}
+
+
 /*
  * Retrieve Things from the database by GUID.
  */
@@ -135,7 +175,7 @@ export async function getAppConfig(): Promise<AppConfig | false> {
 }
 
 /*
- * Get the app configuration.
+ * Get the Graph configuration.
  */
 export async function getGraphConfig(): Promise<GraphConfig | false> {
     const res = await fetch("/api/file/graphConfig")

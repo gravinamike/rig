@@ -9,7 +9,7 @@
     import { flip } from "svelte/animate"
 
     // Import stores and utility functions.
-    import { spaceDbModelsStoreAsArray, getGraphConstructs, storeGraphDbModels, spaceDbModelsStore } from "$lib/stores/graphConstructStores"
+    import { spaceDbModelsStoreAsArray, getGraphConstructs, storeGraphDbModels } from "$lib/stores/graphConstructStores"
     import { changeIndexInArray } from "$lib/shared/utility"
 
     // Import related widgets.

@@ -10,7 +10,7 @@
 
     // Import stores and utility functions.
     import { directionDbModelsStoreAsArray, getGraphConstructs, readOnlyMode, storeGraphDbModels, uIBackgroundColorStore } from "$lib/stores"
-    import { changeIndexInArray } from "$lib/shared/utility"
+    import { changeIndexInArray, sleep } from "$lib/shared/utility"
 
     // Import related widgets.
     import { DirectionWidget } from "$lib/widgets/spaceWidgets"
@@ -97,10 +97,16 @@
     let scrollArea: HTMLElement
     
     async function addDirectionForm() {
+        await sleep(50) // Prevent the click that called this method from escaping the form.
         directions.push(null)
         directions = directions // Needed for reactivity.
         await tick()
         scrollArea.scrollTo({top: scrollArea.scrollHeight, behavior: "smooth"})
+    }
+
+    function removeDirectionForm() {
+        directions.pop()
+        directions = directions // Needed for reactivity.
     }
 
 
@@ -136,6 +142,7 @@
                     buttonToShow={"edit"}
                     buttonOnWhichSide={"right"}
                     parentScrollArea={scrollArea}
+                    {removeDirectionForm}
                 />
             </div>
         {/each}

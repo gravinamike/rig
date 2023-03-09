@@ -15,7 +15,7 @@
     import DeleteWidget from "$lib/widgets/layoutWidgets/deleteWidget.svelte"
 
     // Import API methods.
-    import { createDirection, updateDirection, deleteDirection } from "$lib/db/clientSide"
+    import { createDirection, updateDirection, deleteDirection, directionIsReferenced } from "$lib/db/clientSide"
 
 
     /**
@@ -33,6 +33,7 @@
     export let buttonToShow: "expand" | "edit"
     export let buttonOnWhichSide: "left" | "right"
     export let parentScrollArea: HTMLElement | null = null
+    export let removeDirectionForm: () => void = () => {}
 
 
     let expanded = false
@@ -83,6 +84,7 @@
             // Set its initial content.
             directionNameInput.value = direction?.text || ""
             objectNameInput.value = direction?.nameforobjects || ""
+            oppositeDirectionInForm = oppositeDirection
 
             // Give it keyboard focus.
             directionNameInput.focus()
@@ -160,7 +162,7 @@
 
     function handlePossibleOutsideClick(event: MouseEvent) {
 		if (event.target !== directionWidget && !directionWidget.contains(event.target as Node)) {
-			interactionMode = isDirectionForm ? "editing" : "display"
+			cancel()
 		}
 	}
 
@@ -168,7 +170,7 @@
 
 
     let confirmDeleteBoxOpen = false
-    $: showDeleteButton = isHovered && !confirmDeleteBoxOpen
+    $: showDeleteButton = interactionMode === "editing" || (isHovered && !confirmDeleteBoxOpen)
 
 
 
@@ -181,6 +183,14 @@
         // If Direction or Direction ID is null, abort.
         if (!direction?.id) return
 
+        // If the Direction is referenced by other structures, ask the user if
+        // they want to continue.
+        if (await directionIsReferenced(direction.id)) {
+            if (!confirm(`The Direction named "${direction.text}" is referenced by other structures. Deleting it will remove it from those structures. Continue?`)) {
+                return
+            }
+        }
+
         // Delete the Direction in the Graph.
         await deleteDirection(direction.id)
 
@@ -191,6 +201,19 @@
     }
 
 
+    /**
+     * Cancel method.
+     * 
+     * Cancels the create-Direction or edit-Direction operation.
+    */
+    async function cancel() {
+        if (isDirectionForm) {
+            removeDirectionForm()
+        } else {
+            interactionMode = "display"
+        }
+    }
+
 </script>
 
 
@@ -198,7 +221,7 @@
 <svelte:body
     on:click={handlePossibleOutsideClick}
     on:keyup={(event) => {
-        if (event.key === "Escape") interactionMode = "display"
+        if (event.key === "Escape") cancel()
     } }
 />
 
@@ -334,7 +357,13 @@
             thingHeight={directionWidgetHeight}
             elongationCategory="neutral"
             encapsulatingDepth={0}
-            startDelete={() => {confirmDeleteBoxOpen = true}}
+            startDelete={() => {
+                if (interactionMode === "editing") {
+                    cancel()
+                } else {
+                    confirmDeleteBoxOpen = true
+                }
+            }}
             {completeDelete}
         />
     {/if}

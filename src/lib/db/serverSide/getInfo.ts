@@ -253,3 +253,25 @@ export async function getLatestConstructs(): Promise<LatestConstructInfos> {
         folderToThings: queriedFolderToThings.map(x => {return {id: x?.id || "NULL", folderid: x?.folderid || 0, thingid: x?.thingid || 0}})
     }
 }
+
+
+/*
+ * Determine if a Direction is referenced in any other constructs (for example,
+ * set as the opposite of another Direction, or set as a member of a Space).
+ */
+export async function directionIsReferenced(directionId: number): Promise<boolean> {
+    const queriedDirections = await RawDirectionDbModel.query()
+        .where('oppositeid', directionId)
+        .whereNot('id', directionId)
+    const queriedDirectionToSpaces = await RawDirectionToSpaceDbModel.query().where('directionid', directionId)
+    return queriedDirections.length || queriedDirectionToSpaces.length ? true : false
+}
+
+/*
+ * Determine if a Space is referenced in any other constructs (for example, set
+ * as the default Space of any Things).
+ */
+export async function spaceIsReferenced(spaceId: number): Promise<boolean> {
+    const queriedSpaces = await RawThingDbModel.query().where('defaultplane', spaceId)
+    return queriedSpaces.length ? true : false
+}
