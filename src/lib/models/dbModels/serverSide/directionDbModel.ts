@@ -1,5 +1,7 @@
+import type { RelationMappings, RelationMappingsThunk } from "objection"
 import type { DirectionDbModel } from "../clientSide"
 import { Model } from "objection"
+import { RawDirectionToSpaceDbModel } from "./spaceDbModel"
 
 
 /*
@@ -13,6 +15,52 @@ export class RawDirectionDbModel extends Model {
     text!: string | null
     nameforobjects!: string | null
     directionorder!: number | null
+    linkerid!: number | null
+    halfaxisid!: number | null
+
+
+    static get relationMappings(): RelationMappings | RelationMappingsThunk {
+        return {
+            directionToSpaces: {
+                relation: Model.HasManyRelation,
+                modelClass: RawDirectionToSpaceDbModel,
+                join: {
+                    from: 'directions.id',
+                    to: 'directiontospace.directionid'
+                }
+            }
+        }
+    }
+
+
+
+}
+
+
+interface NewDirectionInfo {
+    id: number
+    text: string
+    nameforobjects: string
+    oppositeid: number | null
+    directionorder: number
+}
+
+export function getNewDirectionInfo(
+    id: number,
+    text: string,
+    nameForObjects: string,
+    oppositeId: number | null,
+    directionOrder: number
+): NewDirectionInfo {
+    const newDirectionInfo = {
+        id: id,
+        text: text,
+        nameforobjects: nameForObjects,
+        oppositeid: oppositeId,
+        directionorder: directionOrder
+    }
+
+    return newDirectionInfo
 }
 
 
@@ -27,7 +75,9 @@ export function stripDirectionDbModels(models: RawDirectionDbModel[]): Direction
                 oppositeid: model.oppositeid,
                 text: model.text,
                 nameforobjects: model.nameforobjects,
-                directionorder: model.directionorder
+                directionorder: model.directionorder,
+                linkerid: model.linkerid,
+                halfaxisid: model.halfaxisid
             }
         )
     }

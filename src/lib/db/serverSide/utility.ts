@@ -1,5 +1,5 @@
 import { Model } from "objection"
-import { RawThingDbModel, RawRelationshipDbModel, RawNoteDbModel, RawNoteToThingDbModel, RawFolderDbModel, RawFolderToThingDbModel } from "$lib/models/dbModels/serverSide"
+import { RawThingDbModel, RawRelationshipDbModel, RawNoteDbModel, RawNoteToThingDbModel, RawFolderDbModel, RawFolderToThingDbModel, RawDirectionDbModel, RawSpaceDbModel } from "$lib/models/dbModels/serverSide"
 import type { Knex } from "knex"
 
 
@@ -11,7 +11,7 @@ export async function alterQuerystringForH2AndRun(
     transaction: Knex.Transaction,
     whenCreated: string,
     constructName: "Direction" | "Space" | "DirectionToSpace" | "Thing" | "Relationship" | "Note" | "NoteToThing" | "Folder" | "FolderToThing"
-): Promise< RawThingDbModel | RawRelationshipDbModel | RawNoteDbModel | RawNoteToThingDbModel | RawFolderDbModel | RawFolderToThingDbModel | null > {
+): Promise< RawDirectionDbModel | RawSpaceDbModel | RawThingDbModel | RawRelationshipDbModel | RawNoteDbModel | RawNoteToThingDbModel | RawFolderDbModel | RawFolderToThingDbModel | null > {
     // Remove the "returning" clause in the query string.
     querystring = querystring.replace(/ returning "\w+"/, "")
 
@@ -21,7 +21,16 @@ export async function alterQuerystringForH2AndRun(
     
     // Return the last-created construct of the specified type (which should
     // be the construct created by this transaction).
-    if (constructName === "Thing") {
+    if (constructName === "Direction") {
+        const latestConstructResults = await RawDirectionDbModel.query().transacting(transaction)
+        return latestConstructResults[latestConstructResults.length - 1]
+    } else if (constructName === "Space") {
+        const latestConstructResults = await RawSpaceDbModel.query()
+            .allowGraph('directions')
+            .withGraphFetched('directions')
+            .transacting(transaction)
+        return latestConstructResults[latestConstructResults.length - 1]
+    } else if (constructName === "Thing") {
         const latestConstructResults = await RawThingDbModel.query().select("id").where({whencreated: whenCreated})
             .allowGraph('[a_relationships, b_relationships, note, folder]')
             .withGraphFetched('[a_relationships, b_relationships, note, folder]')

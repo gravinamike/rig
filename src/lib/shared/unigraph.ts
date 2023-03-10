@@ -13,8 +13,8 @@ import {
 import { updateUrlHash as updateUrlHashMethod } from "$lib/shared/utility"
 
 // Import API methods.
-import { graphIsUpdated, updateGraph } from "$lib/db/clientSide/graphFile"
-import { storeGraphConfig, saveAppConfig } from "$lib/shared/config"
+import { graphIsUpdated, updateGraph, graphNeedsRepair, repairGraph } from "$lib/db/clientSide/graphFile"
+import { storeGraphConfig } from "$lib/shared/config"
 
 
 /**
@@ -46,11 +46,11 @@ export async function openGraphFile(folderName: string, pThingId: number | null 
     document.cookie = `session-${get(sessionUuidStore)}-graphName=${folderName}; SameSite=Strict;`
     openGraphStore.set(folderName)
     
-    // If the Graph isn't updated, give user the option to abort, then
-    // update the Graph if they don't.
+    // If the Graph isn't updated, give user the option to abort, then update
+    // the Graph if they don't.
     const isUpdated = await graphIsUpdated()
     if (!isUpdated) {
-        if (confirm(`This Graph's database needs to be updated to work with this version of Rig. Do you want to update it now? (It's a good idea to make a backup copy of the Graph first.)`)) {
+        if (confirm(`This Graph's database needs to be updated to work with this version of Rig. Do you want to update it now? (It's a good idea to make a backup copy of the Graph first, and you should also make sure that nobody else is accessing this file while it is being updated.)`)) {
             await updateGraph()
         } else {
             console.log(`Canceled updating and opening Graph.`)
@@ -59,6 +59,27 @@ export async function openGraphFile(folderName: string, pThingId: number | null 
             return
         }
     }
+
+
+
+
+    // If the Graph needs repair, give user the option to abort, then update
+    // the Graph if they don't.
+    const needsRepair = await graphNeedsRepair()
+    if (needsRepair) {
+        if (confirm(`This Graph's database needs to be repaired. Do you want to repair it now? (It's a good idea to make a backup copy of the Graph first, and you should also make sure that nobody else is accessing this file while it is being repaired.)`)) {
+            await repairGraph()
+        } else {
+            console.log(`Canceled repairing and opening Graph.`)
+            await closeGraphFile()
+            loadingState.set("configLoaded")
+            return
+        }
+    }
+
+
+
+
 
     // Load the Graph configuration into stores, overwriting Perspective Thing
     // ID store if parameter was included in the URL hash.

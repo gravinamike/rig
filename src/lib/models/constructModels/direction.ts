@@ -14,6 +14,7 @@ export class Direction {
     text: string | null
     nameforobjects!: string | null
     directionorder!: number | null
+    halfaxisid!: number | null
 
     constructor(dbModel: DirectionDbModel) {
         this.dbModel = dbModel
@@ -23,6 +24,7 @@ export class Direction {
         this.text = dbModel.text
         this.nameforobjects = dbModel.nameforobjects
         this.directionorder = dbModel.directionorder
+        this.halfaxisid = dbModel.halfaxisid
     }
 }
 

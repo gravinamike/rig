@@ -5,69 +5,76 @@
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
     import type { ThingDbModel } from "$lib/models/dbModels/clientSide"
 
-    // Import stores and utilty functions.
-    import { addGraphIdsNeedingViewerRefresh, readOnlyMode, storeGraphDbModels } from "$lib/stores"
+    // Import contants and utilty functions.
+    import { oddHalfAxisIds } from "$lib/shared/constants"
     import { sleep } from "$lib/shared/utility"
 
+    // Import stores.
+    import { addGraphIdsNeedingViewerRefresh, getGraphConstructs, readOnlyMode, spaceDbModelsStore, storeGraphDbModels } from "$lib/stores"
+
     // Import related widgets.
-    import DirectionWidget from "./directionWidget.svelte"
+    import { DirectionWidget } from "./directionWidget"
     import { DirectionDropdownWidget } from "$lib/widgets/spaceWidgets"
     import DeleteWidget from "$lib/widgets/layoutWidgets/deleteWidget.svelte"
     
     // Import API functions.
-    import { updateSpace, updateThingDefaultSpace } from "$lib/db/clientSide"
+    import { createSpace, deleteSpace, spaceIsReferenced, updateSpace, updateThingDefaultSpace } from "$lib/db/clientSide"
 
 
     /**
-     * @param space - The Space which this widget represents.
+     * @param space - The Space which this widget represents (or null if this is a Space Form).
      * @param graph - The Graph that the Directions are part of.
      * @param graphWidgetStyle - Controls the visual style of the Graph.
      * @param setGraphSpace - Method to set the Graph's current Space.
      */
-    export let space: Space
+    export let space: Space | null
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
+    export let parentScrollArea: HTMLElement
     export let setGraphSpace: (space: Space) => void
 
 
-    // Object handle for name input field.
+    // Handles for HTML elements and their attributes.
+    let spaceWidget: HTMLElement
+    let spaceWidgetWidth: number
+    let spaceWidgetHeight: number
     let spaceNameInput: HTMLInputElement
+
+    // Flags describing type of widget.
+    let isSpaceForm = (space === null)
 
     // Flags describing interaction state.
     let isHovered = false
-    let interactionMode: "display" | "editing" | "create" = "display"
+    let interactionMode: "display" | "editing" | "create" = isSpaceForm ? "editing" : "display"
 
     // Whether the Space is the default Space for the current Perspective Thing.
     $: defaultPerspectiveSpace = 
         graph.pThing?.defaultSpaceId
-        && space.id === graph.pThing.defaultSpaceId
+        && space?.id === graph.pThing.defaultSpaceId
 
-    // Array of objects defining the half-axes, including which Direction is
-    // assigned to each.
-    let directionListInfos: { direction: Direction | null, halfAxisId: OddHalfAxisId }[] = []
-    function buildDirectionListInfos() {
-        const newDirectionListInfos: { direction: Direction | null, halfAxisId: OddHalfAxisId, }[] = []
-        for (const [index, direction] of space.directions.entries()) {
-            newDirectionListInfos.push(
+
+    interface HalfAxisInfo { direction: Direction | null, formDirection: (Direction | "blank" | null) }
+    type HalfAxisInfos = { [halfAxisId: number]: HalfAxisInfo }
+
+    let halfAxisInfos: HalfAxisInfos = {}
+    function buildHalfAxisInfos() {
+        const newHalfAxisInfos: HalfAxisInfos = {}
+        for (const oddHalfAxisId of oddHalfAxisIds) {
+            const direction = space?.directions.find(direction => direction.halfaxisid === oddHalfAxisId) || null
+            newHalfAxisInfos[oddHalfAxisId] = 
                 {
                     direction: direction,
-                    halfAxisId: (2 * index + 1) as OddHalfAxisId
+                    formDirection: direction
                 }
-            )
         }
-        return newDirectionListInfos
+        halfAxisInfos = newHalfAxisInfos
     }
-    $: directionListInfos = buildDirectionListInfos()
+    buildHalfAxisInfos()
 
-    // Array of the Directions currently specified in the Direction name input
-    // fields, since these may differ from the Space's starting Directions.
-    let directionDropdownContents: (Direction | null)[] = []
-    function resetDirectionDropdownContents() {
-        directionDropdownContents = []
-        for (const direction of space.directions) directionDropdownContents.push(direction)
-        directionDropdownContents = directionDropdownContents // Needed for reactivity.
-    }
-    resetDirectionDropdownContents()
+    let halfAxisInfosAsArray: [OddHalfAxisId, HalfAxisInfo][]
+    $: halfAxisInfosAsArray = Object.entries(halfAxisInfos).map(
+        ([halfAxisIdString, info]) => [Number(halfAxisIdString) as OddHalfAxisId, info]
+    )
 
 
     /**
@@ -77,7 +84,7 @@
      * represented by the widget.
      */
     function handleClick() {
-        if (interactionMode === "display") setGraphSpace(space)
+        if (space && interactionMode === "display" && !confirmDeleteBoxOpen) setGraphSpace(space)
     }
 
     /**
@@ -93,8 +100,8 @@
             await sleep(50) // Allow the fields to finish rendering.
 
             // Populate the fields and focus the Space name field.
-            resetDirectionDropdownContents()
-            spaceNameInput.value = space.text || ""
+            buildHalfAxisInfos()
+            spaceNameInput.value = space?.text || ""
             spaceNameInput.focus()
 
         // If the widget is in editing mode,
@@ -114,7 +121,7 @@
      */
     async function setPerspectiveThingDefaultSpace() {
         // If any necessary information is null or undefined, abort.
-        if (!graph.pThing?.id || !space.id) return
+        if (!graph.pThing?.id || !space?.id) return
 
         // Set the Perspective Thing's default Space to this Space.
         await updateThingDefaultSpace(graph.pThing?.id, space.id)
@@ -127,13 +134,23 @@
     }
 
     /**
-     * Remove-Direction-by-Index method.
+     * Remove-Direction-by-half-axis-ID method.
      * 
-     * Remove a Direction from the Directions list dropdowns by its index.
+     * Remove a Direction from the Directions list dropdowns by its half-axis ID.
      */
-    function removeDirectionByIndex(index: number) {
-        directionDropdownContents.splice(index, 1)
-        directionDropdownContents = directionDropdownContents // Needed for reactivity.
+    function setDirectionNullByHalfAxisId(halfAxisId: number) {
+        halfAxisInfos[halfAxisId].formDirection = null
+        halfAxisInfos = halfAxisInfos // Needed for reactivity.
+    }
+
+    /**
+     * Add-Direction-by-half-axis-ID method.
+     * 
+     * Add a new Direction to the Directions list dropdowns by its half-axis ID.
+     */
+     function setDirectionNotNullByHalfAxisId(halfAxisId: number) {
+        halfAxisInfos[halfAxisId].formDirection = "blank"
+        halfAxisInfos = halfAxisInfos // Needed for reactivity.
     }
 
     /**
@@ -143,7 +160,10 @@
      */
     function validate() {
         const valid =
-            spaceNameInput.value !== "" ? true :
+            (
+                spaceNameInput.value !== ""
+                && Object.values(halfAxisInfos).every(info => info.formDirection !== "blank")
+            ) ? true :
             false
         return valid
     }
@@ -156,26 +176,87 @@
     async function submit() {
         // If the edited Space information isn't valid, abort.
         const validInputs = validate()
-        if ( !validInputs || !space.id ) return
+        if ( !validInputs || (!isSpaceForm && !space?.id) ) return
 
-        // Update the Space in the database and store.
-        await updateSpace(space.id, spaceNameInput.value, directionDropdownContents)
-        await storeGraphDbModels("Space")
+        const halfAxisIdsAndDirections = halfAxisInfosAsArray.map(
+            ([halfAxisId, halfAxisInfo]) => [halfAxisId, halfAxisInfo.formDirection as Direction | null]
+        ) as [OddHalfAxisId, (Direction | null)][]
+
+        // Update (or create) the Space in the database, store, and this widget.
+        if (isSpaceForm) {
+            const newSpaceId = await createSpace(spaceNameInput.value, halfAxisIdsAndDirections) || null
+            await storeGraphDbModels("Space")
+            space = getGraphConstructs("Space", newSpaceId as number) as Space
+            isSpaceForm = false
+            parentScrollArea.scrollTo({top: parentScrollArea.scrollHeight, behavior: "smooth"})
+        } else {
+            await updateSpace(space?.id as number, spaceNameInput.value, halfAxisIdsAndDirections)
+            await storeGraphDbModels("Space")
+            space = getGraphConstructs("Space", space?.id as number) as Space
+        }
+
 
         // If the Graph is displayed in this Space, rebuild and refresh the
         // Graph to reflect the changes
-        if (graph.pThing?.space?.id === space.id)
-            await graph.setSpace(space)
-            addGraphIdsNeedingViewerRefresh(graph.id)
+        if (space && graph.pThing?.space?.id === space.id)
+            setGraphSpace(space)
 
         // Rebuild the widget's Direction list.
-        directionListInfos = buildDirectionListInfos()
+        buildHalfAxisInfos()
     }
+
+    function handlePossibleOutsideClick(event: MouseEvent) {
+		if (event.target !== spaceWidget && !spaceWidget.contains(event.target as Node)) {
+			interactionMode = isSpaceForm ? "editing" : "display"
+		}
+	}
+
+
+
+
+
+
+
+
+
+
+    let confirmDeleteBoxOpen = false
+    $: showDeleteButton = isHovered && !confirmDeleteBoxOpen
+    
+
+
+
+    /**
+     * Delete-Space method.
+     * 
+     * Completes a delete operation after it has been confirmed.
+     */
+    async function completeDelete() {
+        // If Space or Space ID is null, abort.
+        if (!space?.id) return
+
+        // If the Direction is referenced by other structures, ask the user if
+        // they want to continue.
+        if (await spaceIsReferenced(space.id)) {
+            if (!confirm(`The Space named "${space.text}" is referenced by other structures. Deleting it will remove it from those structures. Continue?`)) {
+                return
+            }
+        }
+
+        // Delete the Space in the Graph.
+        await deleteSpace(space.id)
+
+        // Delete the Space from the stores.
+        spaceDbModelsStore.update( (current) => { delete current[space?.id as number]; return current } )
+    }
+
+
 </script>
 
 
 <!-- Escape key on page body disables interaction mode. -->
 <svelte:body
+    on:click={handlePossibleOutsideClick}
     on:keyup={(event) => {
         if (event.key === "Escape") interactionMode = "display"
     } }
@@ -187,18 +268,25 @@
     class="space-widget"
     class:editing={interactionMode === "editing"}
     class:create={interactionMode === "create"}
+    
+    bind:this={spaceWidget}
+    bind:clientWidth={spaceWidgetWidth}
+    bind:clientHeight={spaceWidgetHeight}
 
     on:mouseenter={() => {isHovered = true}}
-    on:mouseleave={() => {isHovered = false}}
+    on:mouseleave={() => {
+        isHovered = false
+        confirmDeleteBoxOpen = false
+    }}
     on:click={handleClick}
-    on:dblclick={() => { if (!$readOnlyMode && interactionMode === "display") handleButton() }}
+    on:dblclick={() => { if (!$readOnlyMode && interactionMode === "display" && !confirmDeleteBoxOpen) handleButton() }}
     on:keydown={()=>{}}
 >
     <!-- Space name or name-input field. -->
     <div class="space-name">
         <div>
             {#if interactionMode === "display"}
-                {space.text}
+                {space?.text}
             {:else}
                 <input
                     type="text"
@@ -211,33 +299,35 @@
 
     <!-- List of Direction widgets or Direction-selecting dropdowns. -->
     <div class="direction-list">
-        {#each directionListInfos as info, index}
+        {#each halfAxisInfosAsArray as [halfAxisId, info], index}
 
             <!-- Direction name. -->
             {#if interactionMode === "display"}
                 {#if info.direction}
                     <DirectionWidget
                         direction={info.direction}
+                        halfAxisId={halfAxisId}
                         editable={false}
-                        forceExpanded={!!isHovered}
                         {graph}
                         {graphWidgetStyle}
+                        buttonToShow={"expand"}
+                        buttonOnWhichSide={"left"}
                     />
                 {/if}
 
             <!-- Direction-selecting dropdown. -->
             {:else}
-                {#if directionDropdownContents[index] || directionDropdownContents[index - 1]}
+                {#if info.formDirection}
                     <div
                         class="direction-dropdown-container"
                         style="z-index: {4 - index};"
                     >
                         <DirectionDropdownWidget
-                            direction={info.direction}
-                            halfAxisId={info.halfAxisId}
+                            startingDirection={info.formDirection !== "blank" ? info.direction : null}
+                            halfAxisId={halfAxisId}
                             {graphWidgetStyle}
                             optionClickedFunction={(direction, _, __) => {
-                                directionDropdownContents[index] = direction
+                                info.formDirection = direction
                             }}
                             optionHoveredFunction={async () => {
                             }}
@@ -253,10 +343,22 @@
                                 thingHeight={50}
                                 encapsulatingDepth={0}
                                 elongationCategory="neutral"
-                                startDelete={() => {removeDirectionByIndex(index)}}
+                                startDelete={() => {setDirectionNullByHalfAxisId(halfAxisId)}}
                                 completeDelete={()=>{}}
                             />
                         {/if}
+                    </div>
+                {:else}
+                    <div class="no-direction">
+                        None
+                        <div
+                            class="add-button"
+
+                            on:click|stopPropagation={() => {setDirectionNotNullByHalfAxisId(halfAxisId)}}
+                            on:keydown={()=>{}}
+                        >
+                            <div class="add-button-text">+</div>
+                        </div>
                     </div>
                 {/if}
             {/if}
@@ -264,7 +366,7 @@
     </div>
 
     <!-- Perspective-Space button. -->
-    {#if defaultPerspectiveSpace || (!$readOnlyMode && isHovered)}
+    {#if interactionMode === "display" && (defaultPerspectiveSpace || (!$readOnlyMode && isHovered))}
         <div
             class="perspective-space-button"
             class:is-default-perspective={defaultPerspectiveSpace}
@@ -285,7 +387,10 @@
 
     <!-- Mode button. -->
     {#if !$readOnlyMode && (isHovered || interactionMode === "editing" || interactionMode === "create")}
-        <div class="container button-container">
+        <div
+            class="container button-container"
+            class:editing={interactionMode === "editing"}
+        >
             <button
                 class="button"
                 class:editing={interactionMode === "editing"}
@@ -298,7 +403,7 @@
                 }}
             >
                 {#if interactionMode === "display"}
-                    <img src="./icons/edit.png" alt="Edit Space" width=15px height=15px />
+                    <img src="./icons/edit.png" alt="Edit Space" width=15px height=15px style="pointer-events: none;" />
                 {:else if interactionMode === "editing"}
                     ✓
                 {:else}
@@ -307,6 +412,26 @@
             </button>
         </div>
     {/if}
+
+
+
+
+    <!-- Delete-Space widget. -->
+    <DeleteWidget
+        {showDeleteButton}
+        bind:confirmDeleteBoxOpen
+        thingWidth={spaceWidgetWidth}
+        thingHeight={spaceWidgetHeight}
+        elongationCategory="neutral"
+        encapsulatingDepth={0}
+        startDelete={() => {confirmDeleteBoxOpen = true}}
+        {completeDelete}
+    />
+
+
+
+
+
 </div>
 
 
@@ -329,13 +454,13 @@
         cursor: default;
     }
 
-    .space-widget.editing, .space-widget.create {
-        outline: solid 1px grey;
-    }
-
     .space-widget:hover {
         outline: solid 1px lightgrey;
         background-color: gainsboro;
+    }
+
+    .space-widget.editing, .space-widget.create {
+        outline: solid 1px grey;
     }
 
     .space-widget:active {
@@ -350,8 +475,10 @@
         display: flex;
         flex-direction: row;
         gap: 5px;
+        justify-content: center;
 
         font-size: 1rem;
+        text-align: center;
     }
 
     .direction-list {
@@ -382,6 +509,12 @@
         display: flex;
         flex-direction: row;
         justify-content: flex-end;
+    }
+
+    .button-container:not(.editing) {
+        position: absolute;
+        right: 5px;
+        bottom: 5px;
     }
 
     .button {
@@ -457,7 +590,7 @@
         width: 26px;
         height: 26px;
         top: 4px;
-        right: 4px;
+        left: 4px;
         background-color: rgb(230, 230, 230);
 
         display: flex;
@@ -482,5 +615,45 @@
         outline: solid 1px rgb(175, 175, 175);
 
         background-color: white;
+    }
+
+    .no-direction {
+        outline: dashed 1px grey;
+        border-radius: 7px;
+
+        position: relative;
+        height: 1rem;
+        
+        padding: 5px;
+
+        font-size: 0.9rem;
+    }
+
+    .add-button {
+        outline: solid 1px grey;
+        border-radius: 50%;
+
+        position: absolute;
+        right: 5px;
+        top: 6px;
+        width: 12px;
+        height: 12px; 
+        
+        font-size: 1.2rem;
+        color: grey;
+    }
+
+    .add-button:hover {
+        background-color: silver;
+    }
+
+    .add-button:active {
+        background-color: darkgray;
+    }
+
+    .add-button-text {
+        position: relative;
+        left: 0.425px;
+        top: -5.5px;
     }
 </style>

@@ -203,7 +203,7 @@ export async function queryThingSearchList( thingIds: number[] | null ): Promise
 export interface LatestConstructInfos {
     directions: {id: string | number, oppositeid: string | number | null, text: string | null, nameforobjects: string | null}[],
     spaces: {id: string | number | null, text: string | null}[],
-    directionToSpaces: {id: string | number | null, directionid: string | number | null, spaceid: string | number | null}[],
+    directionToSpaces: {id: string | number | null, directionid: string | number | null, spaceid: string | number | null, halfaxisid: string | number | null}[],
     things: {id: string | number, text: string}[],
     relationships: {id: string | number, thingaid: number | null, thingbid: number | null}[],
     notes: {id: string | number}[],
@@ -244,7 +244,7 @@ export async function getLatestConstructs(): Promise<LatestConstructInfos> {
     return {
         directions: queriedDirections.map(x => {return {id: x.id, oppositeid: x.oppositeid, text: x.text, nameforobjects: x.nameforobjects}}),
         spaces: queriedSpaces.map(x => {return {id: x.id, text: x.text}}),
-        directionToSpaces: queriedDirectionToSpaces.map(x => {return {id: x.id, directionid: x.directionid, spaceid: x.spaceid}}),
+        directionToSpaces: queriedDirectionToSpaces.map(x => {return {id: x.id, directionid: x.directionid, spaceid: x.spaceid, halfaxisid: x.halfaxisid}}),
         things: queriedThings.map(x => {return {id: x.id, text: x.text}}),
         relationships: queriedRelationships.map(x => {return {id: x.id, thingaid: x.thingaid, thingbid: x.thingbid}}),
         notes: queriedNotes.map(x => {return {id: x?.id || "NULL"}}),
@@ -252,4 +252,26 @@ export async function getLatestConstructs(): Promise<LatestConstructInfos> {
         folders: queriedFolders.map(x => {return {id: x?.id || "NULL"}}),
         folderToThings: queriedFolderToThings.map(x => {return {id: x?.id || "NULL", folderid: x?.folderid || 0, thingid: x?.thingid || 0}})
     }
+}
+
+
+/*
+ * Determine if a Direction is referenced in any other constructs (for example,
+ * set as the opposite of another Direction, or set as a member of a Space).
+ */
+export async function directionIsReferenced(directionId: number): Promise<boolean> {
+    const queriedDirections = await RawDirectionDbModel.query()
+        .where('oppositeid', directionId)
+        .whereNot('id', directionId)
+    const queriedDirectionToSpaces = await RawDirectionToSpaceDbModel.query().where('directionid', directionId)
+    return queriedDirections.length || queriedDirectionToSpaces.length ? true : false
+}
+
+/*
+ * Determine if a Space is referenced in any other constructs (for example, set
+ * as the default Space of any Things).
+ */
+export async function spaceIsReferenced(spaceId: number): Promise<boolean> {
+    const queriedSpaces = await RawThingDbModel.query().where('defaultplane', spaceId)
+    return queriedSpaces.length ? true : false
 }

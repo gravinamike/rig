@@ -30,7 +30,11 @@ export class RawSpaceDbModel extends Model {
                     from: 'spaces.id',
                     through: {
                         from: 'directiontospace.spaceid',
-                        to: 'directiontospace.directionid'
+                        to: 'directiontospace.directionid',
+                        extra: {
+                            linkerid: 'id',
+                            halfaxisid: 'halfaxisid'
+                        }
                     },
                     to: 'directions.id'
                 }
@@ -46,6 +50,21 @@ export class RawSpaceDbModel extends Model {
             }
         }
     }
+}
+
+interface NewSpaceInfo {
+    text: string
+    spaceorder: number
+}
+
+export function getNewSpaceInfo(id: number, text: string, spaceOrder: number): NewSpaceInfo {
+    const newSpaceInfo = {
+        id: id,
+        text: text,
+        spaceorder: spaceOrder
+    }
+
+    return newSpaceInfo
 }
 
 
@@ -78,6 +97,7 @@ export class RawDirectionToSpaceDbModel extends Model {
     id!: string | number | null
     directionid!: string | number | null
     spaceid!: string | number | null
+    halfaxisid!: string | number | null
 }
 
 
@@ -90,7 +110,8 @@ export function stripDirectionToSpaceDbModels(models: RawDirectionToSpaceDbModel
             {
                 id: model.id,
                 directionid: model.directionid,
-                spaceid: model.spaceid
+                spaceid: model.spaceid,
+                halfaxisid: model.halfaxisid
             }
         )
     }

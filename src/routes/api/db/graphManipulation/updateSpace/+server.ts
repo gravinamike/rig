@@ -9,7 +9,7 @@ export const POST: RequestHandler = async ({request}) => {
         await updateSpace(
             body.spaceId,
             body.spaceText,
-            body.directions
+            body.halfAxisIdsAndDirections
         )
         
         return new Response(JSON.stringify(

@@ -45,6 +45,7 @@
                 <strong>ID</strong> {info.id}&nbsp;&nbsp;
                 <strong>DIR ID</strong> {info.directionid}&nbsp;&nbsp;
                 <strong>SPACE ID</strong> {info.spaceid}&nbsp;&nbsp;
+                <strong>HALF AXIS ID</strong> {info.halfaxisid}&nbsp;&nbsp;
                 <br>
             {/each}
             <br>

@@ -5,6 +5,7 @@
     import type { SpaceDbModel } from "$lib/models/dbModels/clientSide"
 
     // Import framework functions.
+    import { tick } from "svelte"
     import { flip } from "svelte/animate"
 
     // Import stores and utility functions.
@@ -32,20 +33,16 @@
     // Get array of Spaces.
     let unsortedSpaceIds: number[] = []
     let spaceIds: number[] = []
-    let spaces: Space[] = []
+    let spaces: (Space | null)[] = []
     function getSpaceIdsFromDbModels(dbModels: SpaceDbModel[]) {
         unsortedSpaceIds = dbModels.map(model => Number(model.id))
         const unsortedSpaces = getGraphConstructs("Space", unsortedSpaceIds) as Space[]
         spaces = unsortedSpaces.sort(
             (a, b) => (a.spaceorder ? a.spaceorder : 0) - (b.spaceorder ? b.spaceorder : 0)
         )
-        spaceIds = spaces.map(space => Number(space.id))
+        spaceIds = spaces.map(space => space ? Number(space.id) : -1)
     }
-    getSpaceIdsFromDbModels($spaceDbModelsStoreAsArray)
-
-
-
-
+    $: getSpaceIdsFromDbModels($spaceDbModelsStoreAsArray)
 
 
     /**
@@ -55,7 +52,7 @@
      * @param event - The mouse-drag event that triggered this method.
      * @param sourceIndex - The index of the Space that is being dragged.
      */
-     const startDragSpace = (event: DragEvent, sourceIndex: number) => {
+    const startDragSpace = (event: DragEvent, sourceIndex: number) => {
         // If the event isn't transferring data, abort.
         if (!event.dataTransfer) return
 
@@ -89,15 +86,27 @@
             changeIndexInArray(spaceIds, sourceIndex, destIndex) as number[]
         )
         spaceIds = reorderedDirectionIds
-        let reorderedDirections = (
+        let reorderedSpaces = (
             changeIndexInArray(spaces, sourceIndex, destIndex) as Space[]
         )
-        spaces = reorderedDirections
+        spaces = reorderedSpaces
 
         // Update the database and the store.
         await reorderSpace(spaceId, destIndex)
         await storeGraphDbModels("Space")
     }
+
+
+    let scrollArea: HTMLElement
+    
+    async function addSpaceForm() {
+        spaces.push(null)
+        spaces = spaces // Needed for reactivity.
+        await tick()
+        scrollArea.scrollTo({top: scrollArea.scrollHeight, behavior: "smooth"})
+    }
+
+
 </script>
 
 
@@ -108,8 +117,11 @@
     style="background-color: {$uIBackgroundColorStore};"
 >
     <!-- List of Spaces. -->
-    <div class="scrollable">
-        {#each spaces as space, index (space.id)}
+    <div
+        class="scrollable"
+        bind:this={scrollArea}
+    >
+        {#each spaces as space, index (space?.id || -1)}
             <div
                 draggable={ $readOnlyMode ? false : true }
                 animate:flip={{ duration: 250 }}
@@ -119,14 +131,25 @@
                 on:drop|preventDefault={ (event) => dropSpace(event, index) }
             >
                 <SpaceWidget
-                    {space}
+                    bind:space
                     {graph}
                     {graphWidgetStyle}
+                    parentScrollArea={scrollArea}
                     {setGraphSpace}
                 />
-            </div> 
+            </div>
         {/each}
     </div>
+
+</div>
+
+<div
+    class="add-space-button"
+
+    on:click={addSpaceForm}
+    on:keydown={()=>{}}
+>
+    <strong>+</strong>
 </div>
 
 
@@ -153,5 +176,30 @@
         overflow-y: auto;
 
         scrollbar-width: thin;
+    }
+
+    .add-space-button {
+        border-radius: 5px;
+
+        position: absolute;
+        right: 5px;
+        top: 5px;
+        width: 20px;
+        height: 20px;
+
+        background-color: lightgrey;
+
+        text-align: center;
+        font-size: 1.07rem;
+
+        cursor: pointer;
+    }
+
+    .add-space-button:hover {
+        background-color: silver;
+    }
+
+    .add-space-button:active {
+        background-color: darkgrey;
     }
   </style>
