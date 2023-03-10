@@ -269,7 +269,7 @@
         />
         
         <!-- Opposite Direction -->
-        {#if (oppositeDirection || isDirectionForm) && !(oppositeDisplayMode === "none")}
+        {#if (oppositeDirection || interactionMode === "editing") && !(oppositeDisplayMode === "none")}
             <VerbAndObject
                 direction={oppositeDirection}
                 {halfAxisId}
