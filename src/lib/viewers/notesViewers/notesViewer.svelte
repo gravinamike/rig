@@ -210,7 +210,15 @@
         // If the hyperlink follows a normal protocol,
         if (isRegularHyperlink) {
             // For editing mode, reimplement normal opening of hyperlinks.
-            if (editing) window.open(hyperlink.href, hyperlink.target)
+            if (editing) {
+                // Use the href as a target for external Graph links, so that
+                // clicking them opens any pre-existing tab instance instead
+                // of opening a new tab.
+                const target =
+                    hyperlink.href.includes("/#graph=") ? hyperlink.href :
+                    hyperlink.target
+                window.open(hyperlink.href, target)
+            }
         
         // Else, if the hyperlink follows a special Thing-link protocol,
         } else {

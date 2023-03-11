@@ -68,4 +68,8 @@ export function updateUrlHash(paramsToChange: { [key: string]: string | null }) 
 
     // Set the document's URL to the updated URL.
     document.location.href = url.href
+
+    // Set the tab target to the href so that users navigating to this
+    // tab from an external Graph link will not open another tab.
+    window.name = url.href
 }
