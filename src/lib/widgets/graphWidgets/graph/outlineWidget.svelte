@@ -8,6 +8,13 @@
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
     export let rePerspectToThingId: (thingId: number) => Promise<void>
+
+
+    // Configure style for off-axis styling, if applicable.
+    if (graph.offAxis) {
+        graphWidgetStyle.excludePerspectiveThing = true
+        graphWidgetStyle.excludeCartesianAxes = true
+    }
 </script>
 
 

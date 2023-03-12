@@ -12,12 +12,15 @@
 
     // Import widgets.
     import { GraphOutlineWidget } from "$lib/widgets/graphWidgets"
-    import type { GraphWidgetStyle } from "./graph"
+    import { defaultGraphWidgetStyle, type GraphWidgetStyle } from "./graph"
 
     export let parentThing: Thing
     export let parentGraph: Graph
     export let parentGraphWidgetStyle: GraphWidgetStyle
     export let rePerspectToThingId: (thingId: number) => Promise<void>
+
+    
+    let graphWidgetStyle: GraphWidgetStyle = {...defaultGraphWidgetStyle}
 
 
     $: parentThingId = parentThing.id as number
@@ -40,6 +43,7 @@
         // Open and build the new Graph.
         const parentGraphSpace = parentGraph.pThing?.space as Space
         graph = await addGraph([parentThingId], 1, parentGraph, true, parentGraphSpace)
+        graphWidgetStyle = {...defaultGraphWidgetStyle}
         // Refresh the Graph viewers.
         addGraphIdsNeedingViewerRefresh(graph.id)
     }
@@ -106,7 +110,7 @@
         {#if graph}
             <GraphOutlineWidget
                 bind:graph
-                graphWidgetStyle={parentGraphWidgetStyle}
+                bind:graphWidgetStyle
                 {rePerspectToThingId}
             />
         {/if}
