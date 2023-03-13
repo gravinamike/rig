@@ -123,6 +123,8 @@
     }
     let orderedThingCohorts: ThingCohort[] = []
     $: orderedThingCohorts = getOrderedThingCohorts(rootThing)
+
+    $: relationshipsAndChildCohortsHeight = 1
 </script>
 
 
@@ -166,34 +168,36 @@
     <!-- The Thing's Relationships and child Cohorts (outer containers). -->
     {#each orderedThingCohorts as thingCohort (thingCohort.address)}  
         <div class="relationships-and-child-cohorts-outer-container">
-
             <!-- Relationship color field. -->
             <div
                 class="relationship-color-field"
 
-                style="background-color: {relationshipColorByHalfAxisId[thingCohort.halfAxisId]};"
+                style="
+                    height: {relationshipsAndChildCohortsHeight}px;
+                    background-color: {relationshipColorByHalfAxisId[thingCohort.halfAxisId] || "gainsboro"};
+                "
             />
 
             <!-- The Thing's Relationships and child Cohorts (inner container). -->
             <div
                 class="relationships-and-child-cohorts-inner-container"
+                bind:clientHeight={relationshipsAndChildCohortsHeight}
                 
-                style="flex-direction: { expanded ? "row" : "column" };"    
+                style="flex-direction: { expanded ? "row" : "column" };"
             >
                 <!-- Relationship Cohort Widget. -->
-                {#if thingCohort.halfAxisId}
-                    <div
-                        class="relationships-outline-widget-container"
-                        class:expanded
-                        class:has-children={thingCohort.members.length}
-                    >
-                        <RelationshipCohortOutlineWidget
-                            {thingCohort}
-                            bind:graph
-                            {graphWidgetStyle}
-                        />
-                    </div>
-                {/if}
+                <div
+                    class="relationships-outline-widget-container"
+                    class:expanded
+                    class:has-children={thingCohort.members.length}
+                >
+                    <RelationshipCohortOutlineWidget
+                        {thingCohort}
+                        directionWidgetIsRotated={thingCohort.members.length >= 3}
+                        bind:graph
+                        {graphWidgetStyle}
+                    />
+                </div>
 
                 <!-- Thing Cohort Widget. -->
                 {#if (
@@ -258,7 +262,6 @@
         box-sizing: border-box;
         position: absolute;
         width: 100%;
-        height: 100%;
         opacity: 0.25;
     }
 
@@ -269,15 +272,18 @@
 
     .relationships-outline-widget-container {
         position: relative;
-        width: 100%;
         transform: scale(0.5);
         transform-origin: left;
 
         display: none;
     }
 
+    .relationships-outline-widget-container:not(.expanded.has-children) {
+        width: 100%;
+    }
+
     .relationships-outline-widget-container.expanded.has-children {
-        width: 100px;
+        width: fit-content;
         min-height: 100%;
         transform: scale(1);
 

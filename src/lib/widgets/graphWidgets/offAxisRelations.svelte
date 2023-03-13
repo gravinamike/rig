@@ -1,6 +1,7 @@
 <script lang="ts">
     // Type imports.
     import type { Graph, Space, Thing } from "$lib/models/constructModels"
+    import type { GraphWidgetStyle } from "./graph"
 
     // Basic UI imports.
     import { tweened } from "svelte/motion"
@@ -8,11 +9,15 @@
 
     // Constant and utility imports.
     import { zoomBase } from "$lib/shared/constants"
-    import { addGraph, removeGraph, graphIdsNeedingViewerRefresh, addGraphIdsNeedingViewerRefresh, removeGraphIdsNeedingViewerRefresh, reorderingInfoStore, readOnlyMode } from "$lib/stores"
+    import {
+        addGraph, removeGraph, reorderingInfoStore, readOnlyMode,
+        graphIdsNeedingViewerRefresh, addGraphIdsNeedingViewerRefresh, removeGraphIdsNeedingViewerRefresh
+    } from "$lib/stores"
 
-    // Import widgets.
+    // Import related widgets.
+    import { defaultGraphWidgetStyle } from "./graph"
     import { GraphOutlineWidget } from "$lib/widgets/graphWidgets"
-    import { defaultGraphWidgetStyle, type GraphWidgetStyle } from "./graph"
+
 
     export let parentThing: Thing
     export let parentGraph: Graph
@@ -61,22 +66,30 @@
         graph = graph // Needed for reactivity.
     }
 
-    let toggleHovered = false    
+    let toggleHovered = false
+
+
+    $: showToggle = ((!$reorderingInfoStore.reorderInProgress && toggleHovered) || expanded)
+    $: showOffAxisRelations = numberOfRelations && expanded
+
 </script>
 
 
+<!-- Off-axis relations toggle. -->
 <div
     class="off-axis-relations-toggle"
     class:expanded
     class:no-mouse-events={$readOnlyMode && !numberOfRelations}
 
     style="width: {size}px; height: {size}px;"
+
     on:mouseenter={()=>{toggleHovered = true}}
     on:mouseleave={()=>{toggleHovered = false}}
     on:click={() => {if (numberOfRelations) expanded = !expanded}}
     on:keydown={()=>{}}
 >
-    {#if ((!$reorderingInfoStore.reorderInProgress && toggleHovered) || expanded)}
+    <!-- Visible toggle image. -->
+    {#if showToggle}
         <svg
             class="relationship-image"
             style="width: {size}px; height: {size}px;"
@@ -97,12 +110,14 @@
         </svg>
     {/if}
 
+    <!-- Number-of-off-axis-relations indicator. -->
     {#if numberOfRelations}
         <div>+{numberOfRelations}</div>
     {/if}
 </div>
 
-{#if numberOfRelations && expanded}
+<!-- Off-axis-relations display. -->
+{#if showOffAxisRelations}
     <div
         class="box off-axis-relations-widget"
         on:wheel|stopPropagation
@@ -165,7 +180,9 @@
 
         overflow-x: hidden;
         overflow-y: auto;
+        scrollbar-width: thin;
         
         pointer-events: auto;
+        cursor: default;
     }
 </style>

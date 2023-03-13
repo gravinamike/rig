@@ -111,7 +111,7 @@ export const mirroringByHalfAxisId = {
  * be colored based on their Half Axes.
  */
 export const relationshipColorByHalfAxisId = {
-    0: "#000000", //Center
+    0: "#000000", // Center
     1: "#ff3f3f", // Down
     2: "#bf0000", // Up
     3: "#40bf00", // Right
