@@ -1,22 +1,23 @@
 <script lang="ts">
-    // Type imports.
+    // Import types.
     import type { Graph, Space, Thing } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "./graph"
 
-    // Basic UI imports.
+    // Import basic framework resources.
     import { tweened } from "svelte/motion"
 	import { cubicOut } from "svelte/easing"
 
-    // Constant and utility imports.
+    // Import constants and stores.
     import { zoomBase } from "$lib/shared/constants"
     import {
         addGraph, removeGraph, reorderingInfoStore, readOnlyMode,
-        graphIdsNeedingViewerRefresh, addGraphIdsNeedingViewerRefresh, removeGraphIdsNeedingViewerRefresh
+        graphIdsNeedingViewerRefresh, addGraphIdsNeedingViewerRefresh,
+        removeGraphIdsNeedingViewerRefresh
     } from "$lib/stores"
 
     // Import related widgets.
-    import { defaultGraphWidgetStyle } from "./graph"
     import { GraphOutlineWidget } from "$lib/widgets/graphWidgets"
+    import { defaultGraphWidgetStyle } from "./graph"
 
 
     export let parentThing: Thing
@@ -25,22 +26,39 @@
     export let rePerspectToThingId: (thingId: number) => Promise<void>
 
     
-    let graphWidgetStyle: GraphWidgetStyle = {...defaultGraphWidgetStyle}
-
-
+    // ID of the widget's parent Thing.
     $: parentThingId = parentThing.id as number
 
+    // Information about related Things.
+    $: numberOfRelations = parentThing.offAxisRelatedThingIds((parentThing.space as Space)).length
 
+
+    /* Toggle-related attributes. */
+
+    // Toggle state attributes.
+    let toggleHovered = false
+    $: showToggle = ((!$reorderingInfoStore.reorderInProgress && toggleHovered) || expanded)
+
+    // Scale-related attributes.
     $: scale = zoomBase ** parentGraphWidgetStyle.zoom
     let tweenedScale = tweened(1, {duration: 100, easing: cubicOut})
     $: tweenedScale.set(scale)
 
-    const size = 25
-    $: diagonal = Math.hypot(size, size)
-    $: diagonalOverhang = (diagonal - size) / 2 + 8
-    $: numberOfRelations = parentThing.offAxisRelatedThingIds((parentThing.space as Space)).length
-    let expanded = false
+    // Toggle arrow geometry.
+    const toggleSize = 25
+    $: toggleDiagonal = Math.hypot(toggleSize, toggleSize)
+    $: toggleDiagonalOverhang = (toggleDiagonal - toggleSize) / 2 + 8
 
+
+
+    /* Off-axis-relations-related attributes. */
+
+    // Off-axis-relations state attributes.
+    let expanded = false
+    $: showOffAxisRelations = numberOfRelations && expanded
+
+    // The off-axis-relations Graph is created and removed when the toggle is
+    // expanded and collapsed, respectively.
     let graph: Graph | null = null
     async function createGraph() {
         // Close any existing Graph.
@@ -66,12 +84,8 @@
         graph = graph // Needed for reactivity.
     }
 
-    let toggleHovered = false
-
-
-    $: showToggle = ((!$reorderingInfoStore.reorderInProgress && toggleHovered) || expanded)
-    $: showOffAxisRelations = numberOfRelations && expanded
-
+    // Graph outline widget style.
+    let graphWidgetStyle: GraphWidgetStyle = {...defaultGraphWidgetStyle}
 </script>
 
 
@@ -81,7 +95,7 @@
     class:expanded
     class:no-mouse-events={$readOnlyMode && !numberOfRelations}
 
-    style="width: {size}px; height: {size}px;"
+    style="width: {toggleSize}px; height: {toggleSize}px;"
 
     on:mouseenter={()=>{toggleHovered = true}}
     on:mouseleave={()=>{toggleHovered = false}}
@@ -92,18 +106,18 @@
     {#if showToggle}
         <svg
             class="relationship-image"
-            style="width: {size}px; height: {size}px;"
+            style="width: {toggleSize}px; height: {toggleSize}px;"
         >
             <line
-                x1="{size / 2}" y1="{-diagonalOverhang}"
-                x2="{size / 2}" y2="{size + diagonalOverhang - 6 / $tweenedScale}"
+                x1="{toggleSize / 2}" y1="{-toggleDiagonalOverhang}"
+                x2="{toggleSize / 2}" y2="{toggleSize + toggleDiagonalOverhang - 6 / $tweenedScale}"
                 style="stroke-width: {10 / $tweenedScale};"
             />
             <polygon
                 points="
-                    {size / 2 - 5 / $tweenedScale}, {size + diagonalOverhang - 8 / $tweenedScale}
-                    {size / 2 + 5 / $tweenedScale}, {size + diagonalOverhang - 8 / $tweenedScale}
-                    {size / 2}, {size + diagonalOverhang}
+                    {toggleSize / 2 - 5 / $tweenedScale}, {toggleSize + toggleDiagonalOverhang - 8 / $tweenedScale}
+                    {toggleSize / 2 + 5 / $tweenedScale}, {toggleSize + toggleDiagonalOverhang - 8 / $tweenedScale}
+                    {toggleSize / 2}, {toggleSize + toggleDiagonalOverhang}
                 "
                 style="stroke-width: {3 / $tweenedScale};"
             />
@@ -119,7 +133,7 @@
 <!-- Off-axis-relations display. -->
 {#if showOffAxisRelations}
     <div
-        class="box off-axis-relations-widget"
+        class="off-axis-relations-widget"
         on:wheel|stopPropagation
     >
         {#if graph}
@@ -134,15 +148,6 @@
 
 
 <style>
-    .box {
-        border-radius: 10px;
-        outline: solid 0.25px lightgrey;
-        outline-offset: -0.25px;
-        box-shadow: 5px 5px 10px 2px lightgrey;
-
-        box-sizing: border-box;
-    }
-
     .off-axis-relations-toggle {
         position: absolute;
         left: 100%;
