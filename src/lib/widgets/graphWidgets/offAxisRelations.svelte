@@ -47,7 +47,7 @@
     // Toggle arrow geometry.
     const toggleSize = 25
     $: toggleDiagonal = Math.hypot(toggleSize, toggleSize)
-    $: toggleDiagonalOverhang = (toggleDiagonal - toggleSize) / 2 + 8
+    $: toggleDiagonalOverhang = (toggleDiagonal - toggleSize) / 2 + 4
 
 
 
@@ -125,7 +125,7 @@
     {/if}
 
     <!-- Number-of-off-axis-relations indicator. -->
-    {#if numberOfRelations}
+    {#if numberOfRelations && !expanded}
         <div>+{numberOfRelations}</div>
     {/if}
 </div>
@@ -168,8 +168,8 @@
         z-index: -1;
         transform: rotate(-45deg);
         
-        stroke: black;
-        fill: black;
+        stroke: dimgrey;
+        fill: dimgrey;
         opacity: 0.5;
 
         overflow: visible;

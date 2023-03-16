@@ -14,17 +14,20 @@
         RelationshipCohortOutlineWidget, ThingCohortOutlineWidget,
         ThingOutlineWidget, ThingFormOutlineWidget
     } from "$lib/widgets/graphWidgets"
+    import { reorderingInfoStore } from "$lib/stores";
     
 
     /**
      * @param {Thing} rootThing - The Thing that forms the root of the Clade.
      * @param {Graph} graph - The Graph that the Clade is in.
      * @param {GraphWidgetStyle} graphWidgetStyle - Controls the visual styling of the Graph widget.
+     * @param {boolean} isFinalClade - Whether this is the final Clade for this parent Thing.
      * @param {(thingId: number) => Promise<void>} rePerspectToThingId - A function that re-perspects the Graph to a given Thing ID.
      */
     export let rootThing: Thing
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
+    export let isFinalClade = false
     export let rePerspectToThingId: (id: number) => Promise<void>
     
 
@@ -67,6 +70,18 @@
 
 
 
+
+        
+
+    // Toggle state attributes.
+    let toggleHovered = false
+    $: showToggle = ((!$reorderingInfoStore.reorderInProgress && toggleHovered) || expanded)
+
+    $: orderedThingCohortsWithMembers = orderedThingCohorts.filter(
+        thingCohort => thingCohort.members.length
+    )
+
+
 </script>
 
 
@@ -93,6 +108,45 @@
 
         <div class="root-thing-and-children-indicator-container">
 
+            {#if showCladeRootThing && expandable}
+                <div
+                    class="children-indicator-container"
+
+                    on:click={() => expanded = !expanded}
+                    on:keyup={() => {}}
+                    on:mouseenter={() => toggleHovered = true}
+                    on:mouseleave={() => toggleHovered = false}
+                >
+                    <!-- Children-Things indicator. -->
+                    {#if !expanded}
+                        +{childThings.length}
+                    {/if}
+
+                    <!-- Visible toggle image. -->
+                    {#if showToggle}
+                        <svg
+                            class="relationship-arrow-root"
+
+                            style="width: 32px; height: 32px;"
+                        >
+                            <path
+                                d="M 16 32 A 16 16 0 0 1 32 16"
+                                style="stroke-width: 10;"
+                            />
+                            {#if !expanded}
+                                <polygon
+                                    points="10,30 20,30 15,35"
+                                    style="stroke-width: 3;"
+                                />
+                            {/if}
+                        </svg>
+                    {/if}
+
+
+
+                </div>
+            {/if}
+            
             <div class="root-thing-container">
                 <!-- If the root Thing is specified, show a Thing Widget. -->
                 {#if rootThing?.id}
@@ -114,34 +168,24 @@
                 {/if}
             </div>
 
-            {#if showCladeRootThing && expandable}
-                <div
-                    class="children-indicator-container"
-
-                    on:click={() => expanded = !expanded}
-                    on:keyup={() => {}}
-                >
-                    +{childThings.length}
-                </div>
-            {/if}
-
         </div> 
 
     {/if}
 
     <!-- The Thing's Relationships and child Cohorts (outer containers). -->
-    {#each orderedThingCohorts.filter(
-        thingCohort => thingCohort.members.length
-    ) as thingCohort (thingCohort.address)}  
-        <div class="relationships-and-child-cohorts-outer-container">
+    {#each orderedThingCohortsWithMembers as thingCohort, i (thingCohort.address)}  
+        <div
+            class="relationships-and-child-cohorts-outer-container"
+        >
 
             <!-- Relationship color field. -->
             <div
                 class="relationship-color-field"
 
                 style="
-                    height: {relationshipsAndChildCohortsHeight}px;
-                    background-color: {relationshipColorByHalfAxisId[thingCohort.halfAxisId] || "gainsboro"};
+                    top: 1.5px;
+                    height: calc(100% - 2px);
+                    background-color: {relationshipColorByHalfAxisId[thingCohort.halfAxisId] || "dimgrey"};
                 "
             />
 
@@ -159,6 +203,28 @@
                     class:expanded
                     class:has-children={thingCohort.members.length}
                 >
+                    {#if !graph.offAxis}
+                        <!-- Relationship arrow segment. -->
+                        <div
+                            class="relationship-arrow-segment"
+
+                            style="
+                                position: absolute;
+                                left: 10px;
+                                width: 10px;
+                                height: {
+                                    (
+                                        isFinalClade
+                                        && i === orderedThingCohortsWithMembers.length - 1
+                                    ) ? 20 :
+                                    100
+                                }%;
+                                background-color: {relationshipColorByHalfAxisId[thingCohort.halfAxisId] || "dimgrey"};
+                                opacity: 0.5;
+                            "
+                        />
+                    {/if}
+
                     <RelationshipCohortOutlineWidget
                         {thingCohort}
                         directionWidgetIsRotated={thingCohort.members.length >= 3}
@@ -190,8 +256,6 @@
 
 <style>
     .clade-outline-widget {
-        outline: solid 0.25px red;
-        outline-offset: -0.25px;
         border-radius: 10px;
 
         box-sizing: border-box;
@@ -201,7 +265,7 @@
     }
 
     .clade-outline-widget.expanded.has-children {
-        border-radius: 10px 10px 6px 6px;
+        border-radius: 6px;
     }
 
     .root-thing-and-children-indicator-container {
@@ -224,6 +288,9 @@
     }
 
     .relationships-and-child-cohorts-outer-container {
+        border-radius: 5px;
+
+        position: relative;
         min-height: 0.5rem;
 
         display: none;
@@ -236,7 +303,6 @@
 
     .relationships-and-child-cohorts-outer-container:hover {
         position: relative;
-        background-color: white;
     }
 
     .relationships-and-child-cohorts-outer-container:hover {
@@ -244,8 +310,8 @@
     }
 
     .relationship-color-field {
-        border-top: dotted 1px grey;
-        box-sizing: border-box;
+        border-radius: 5px;
+
         position: absolute;
         width: 100%;
         opacity: 0.25;
@@ -278,5 +344,20 @@
 
     .relationships-and-child-cohorts-outer-container:hover > .relationships-and-child-cohorts-inner-container > .relationships-outline-widget-container {
         display: inline;
+    }
+
+
+
+    
+
+
+    .relationship-arrow-root {
+        position: absolute;
+        
+        stroke: dimgrey;
+        fill: dimgrey;
+        opacity: 0.5;
+
+        overflow: visible;
     }
 </style>

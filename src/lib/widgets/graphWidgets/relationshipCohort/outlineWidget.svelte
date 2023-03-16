@@ -26,7 +26,7 @@
 
 
 
-    $: directionWidgetRotation = directionWidgetIsRotated ? -90 : 0//////////////////// Put into controller.
+    $: directionWidgetRotation = directionWidgetIsRotated ? -90 : 0
     $: directionWidgetTranslation = directionWidgetIsRotated ? directionWidgetWidth : 0
     let directionWidgetWidth = 1
     let directionWidgetHeight = 1
@@ -80,6 +80,7 @@
                 startingDirection={direction}
                 {halfAxisId}
                 {graphWidgetStyle}
+                interactionDisabled={true}
                 optionClickedFunction={(direction, _, option) => {console.log(direction, option)}}
             />
         {/if}

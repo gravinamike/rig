@@ -29,9 +29,11 @@
 </script>
 
 
-<div class="cohort-outline-widget">
+<div
+    class="cohort-outline-widget"
+>
     {#if !onlyDescendantIsDoubledBack}
-        {#each thingCohort.members as cohortMember}
+        {#each thingCohort.members as cohortMember, i}
 
             <!-- If the Thing already exists in the Graph, render an already-rendered widget. -->
             {#if cohortMember.alreadyRendered && cohortMember.thingId}
@@ -48,6 +50,7 @@
                     rootThing={cohortMember.thing}
                     {graph}
                     {graphWidgetStyle}
+                    isFinalClade={i === thingCohort.members.length - 1}
                     {rePerspectToThingId}
                 />
                 

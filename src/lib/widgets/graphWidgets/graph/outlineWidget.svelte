@@ -27,7 +27,10 @@
 <div
     class="graph-outline-widget"
 
-    style={ graph.offAxis ? "" : `background-color: ${$uITrimColorStore};` }
+    style={
+        graph.offAxis ? "padding: 0rem;" :
+        `background-color: ${$uITrimColorStore}; padding: 0.25rem;`
+    }
 >
     <!-- Root Cohort Widget (from which the rest of the Graph Outline automatically "grows"). -->
     {#if graph.rootCohort}
@@ -46,8 +49,6 @@
         box-sizing: border-box;
         width: 100%;
         height: 100%;
-
-        padding: 0.25rem;
 
         overflow-x: hidden;
         overflow-y: auto;
