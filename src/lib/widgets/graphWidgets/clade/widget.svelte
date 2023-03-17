@@ -12,6 +12,7 @@
         HalfAxisWidget,
         OffAxisRelationsWidget
     } from "$lib/widgets/graphWidgets"
+    import { cartesianHalfAxisIds } from "$lib/shared/constants";
     
 
     /**
@@ -76,7 +77,9 @@
     {/if}
 
     <!-- The Thing's child Thing and Relationship Cohorts. -->
-    {#each rootThing.childThingCohorts as thingCohort (thingCohort.address)}
+    {#each rootThing.childThingCohorts.filter(
+        cohort => [1, 2, 3, 4].includes(cohort.halfAxisId)
+    ) as thingCohort (thingCohort.address)}
         <!-- Half-axis widget. -->
         <HalfAxisWidget
             {thingCohort}
