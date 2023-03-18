@@ -216,9 +216,9 @@
                                     (
                                         isFinalClade
                                         && i === orderedThingCohortsWithMembers.length - 1
-                                    ) ? 20 :
-                                    100
-                                }%;
+                                    ) ? "10px" :
+                                    "100%"
+                                };
                                 background-color: {relationshipColorByHalfAxisId[thingCohort.halfAxisId] || "dimgrey"};
                                 opacity: 0.5;
                             "

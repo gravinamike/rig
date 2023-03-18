@@ -54,7 +54,19 @@
     /* Off-axis-relations-related attributes. */
 
     // Off-axis-relations state attributes.
-    let expanded = false
+    $: prioritizedOffAxisDirectionsContainThings = parentThing.childThingCohorts.filter(
+        thingCohort => (
+            [5, 7].includes(thingCohort.halfAxisId)
+            && thingCohort.members.length
+        )
+    ).length !== 0
+
+    $: expanded = prioritizedOffAxisDirectionsContainThings
+
+
+
+
+
     $: showOffAxisRelations = numberOfRelations && expanded
 
     // The off-axis-relations Graph is created and removed when the toggle is
