@@ -2,6 +2,9 @@
     // Import types.
     import type { Graph, Space, Thing } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "./graph"
+    import {
+        WaitingIndicator, ContextCommandPalette, SideMenu, TabBlock, TabFlap, TabFlaps, TabBody
+    } from "$lib/widgets/layoutWidgets"
 
     // Import basic framework resources.
     import { tweened } from "svelte/motion"
@@ -148,11 +151,23 @@
         class="off-axis-relations-widget"
         on:wheel|stopPropagation
     >
-        {#if graph}
+        {#if graph && graph.lifecycleStatus === "built"}
             <GraphOutlineWidget
                 bind:graph
                 bind:graphWidgetStyle
                 {rePerspectToThingId}
+            />
+        {:else}
+            <WaitingIndicator
+                states={
+                    {
+                        waiting: {
+                            text: "",
+                            imageName: "waiting"
+                        },
+                    }
+                }
+                currentStateName={"waiting"}
             />
         {/if}
     </div>
