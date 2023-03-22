@@ -266,7 +266,7 @@
 
         // Update the Graph bounds.
         updateGraphBounds()
-
+        
         // Set the zoom bounds from the Graph bounds, adjusting for both scale
         // and padding.
         zoomBounds.x = ( graphBounds.x / scale ) - graphWidgetStyle.zoomPadding
@@ -326,12 +326,13 @@
         if (!centralAnchor) return
 
         // Get all HTML elements in the Graph, except the zoom bounds element.
-        const descendants = descendantElements(centralAnchor)
+        const descendants = descendantElements(centralAnchor, true)
         const descendantThingElements = descendants.filter(
             element => {
                 if (typeof element.className === "string") return (
                     element.className.includes("thing-widget")
                     || element.className.includes("direction-widget")
+                    || element.className.includes("off-axis-relations-widget")
                 )
             }
         )

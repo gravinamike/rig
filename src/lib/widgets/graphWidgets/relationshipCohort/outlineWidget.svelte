@@ -1,8 +1,11 @@
 <script lang="ts">
-    // Import type.
+    // Import types.
     import type { HalfAxisId } from "$lib/shared/constants"
     import type { Graph, Direction, ThingCohort } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
+
+    // Import basic framework resources.
+    import { onMount } from "svelte"
 
     // Import widget controller.
     import RelationshipCohortWidgetController from "./controller.svelte"
@@ -12,13 +15,27 @@
 
 
     export let thingCohort: ThingCohort
+    export let directionWidgetIsRotated = true
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
 
 
     // Attributes managed by widget controller.
     let direction: Direction
-    let halfAxisId: HalfAxisId
+    let halfAxisId: HalfAxisId | null
+
+
+
+    $: directionWidgetRotation = directionWidgetIsRotated ? -90 : 0
+    $: directionWidgetTranslation = directionWidgetIsRotated ? directionWidgetWidth : 0
+    let directionWidgetWidth = 1
+    let directionWidgetHeight = 1
+
+
+    let mounted = false
+    onMount(async () => {
+        mounted = true
+	})
 </script>
 
 
@@ -33,26 +50,46 @@
 />
 
 
-<!-- Relationships Outline Widget. -->
-<div
-    class="relationships-outline-widget"
-/>
+{#if mounted}
+    <!-- Relationships Outline Widget. -->
+    <div
+        class="relationships-outline-widget"
 
-<!-- Direction text. -->
-<div class="direction-widget-container">
-    <DirectionDropdownWidget
-        startingDirection={direction}
-        {halfAxisId}
-        {graphWidgetStyle}
-        optionClickedFunction={(direction, _, option) => {console.log(direction, option)}}
+        style="
+            width: {
+                directionWidgetIsRotated ? directionWidgetHeight + 4 :
+                directionWidgetWidth + 4
+            }px;
+        "
     />
-</div>
+
+    <!-- Direction text. -->
+    <div
+        class="direction-widget-container"
+        bind:clientWidth={directionWidgetWidth}
+        bind:clientHeight={directionWidgetHeight}
+
+        style="
+            width: 100px;
+            transform-origin: top left;
+            transform: rotate({directionWidgetRotation}deg) translate(-{directionWidgetTranslation}px, 0px);
+        "
+    >
+        {#if direction}
+            <DirectionDropdownWidget
+                startingDirection={direction}
+                {halfAxisId}
+                {graphWidgetStyle}
+                interactionDisabled={true}
+                optionClickedFunction={(direction, _, option) => {console.log(direction, option)}}
+            />
+        {/if}
+    </div>
+{/if}
 
 
 <style>
     .relationships-outline-widget {
-        position: absolute;
-        width: 100%;
         height: 100%;
 
         opacity: 0.25;
@@ -68,8 +105,8 @@
 
     .direction-widget-container {
         position: absolute;
-        left: 0.25rem;
-        top: 0.25rem;
+        left: 4px;
+        top: 4px;
         z-index: 1;
     }
 </style>

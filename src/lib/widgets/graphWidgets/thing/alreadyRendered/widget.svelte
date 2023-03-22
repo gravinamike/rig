@@ -62,9 +62,6 @@
         height: {thingHeight}px;
         {overlapMarginStyleText}
     "
-
-    on:mouseenter={ ()=>{hoveredThingIdStore.set(thingId)} }
-    on:mouseleave={ ()=>{hoveredThingIdStore.set(null)} }
 />
 
 
@@ -81,6 +78,6 @@
         font-size: 0.35rem;
         font-weight: 400;
 
-        pointer-events: auto;
+        pointer-events: none;
     }
 </style>

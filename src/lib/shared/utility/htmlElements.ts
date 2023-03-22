@@ -21,12 +21,21 @@ export class Rectangle {
  * @param descendants - A pre-existing list of descendants to add to, to allow the method to work recursively.
  * @returns 
  */
-export function descendantElements(element: Element, descendants?: Element[]): Element[] {
+export function descendantElements(element: Element, excludeSubGraphChildren: boolean, descendants?: Element[]): Element[] {
+    if (
+        excludeSubGraphChildren
+        && typeof element.className === "string"
+        && element.className.includes("off-axis-relations-widget")
+    ) {
+        return []
+    }
+
     if ( descendants === undefined ) descendants = []
     for (let i = 0; i < element.children.length; i++) {
         descendants.push(element.children[i])
-        descendantElements(element.children[i], descendants)
+        descendantElements(element.children[i], true, descendants)
     }
+
     return descendants
 }
 

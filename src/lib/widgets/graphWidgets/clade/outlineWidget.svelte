@@ -5,124 +5,83 @@
 
     // Import constants and utility functions.
     import { relationshipColorByHalfAxisId } from "$lib/shared/constants"
-    import { hexToRgba } from "$lib/shared/utility"
 
     // Import widget controller.
     import CladeWidgetController from "./controller.svelte"
 
     // Import related widgets.
-    import { RelationshipCohortOutlineWidget, ThingCohortOutlineWidget, ThingOutlineWidget, ThingFormOutlineWidget } from "$lib/widgets/graphWidgets"
+    import {
+        RelationshipCohortOutlineWidget, ThingCohortOutlineWidget,
+        ThingOutlineWidget, ThingFormOutlineWidget
+    } from "$lib/widgets/graphWidgets"
+    import { reorderingInfoStore } from "$lib/stores";
     
 
     /**
      * @param {Thing} rootThing - The Thing that forms the root of the Clade.
      * @param {Graph} graph - The Graph that the Clade is in.
-     * @param {GraphWidgetStyle} graphWidgetStyle - Controls the style of the Graph widget.
+     * @param {GraphWidgetStyle} graphWidgetStyle - Controls the visual styling of the Graph widget.
+     * @param {boolean} isFinalClade - Whether this is the final Clade for this parent Thing.
      * @param {(thingId: number) => Promise<void>} rePerspectToThingId - A function that re-perspects the Graph to a given Thing ID.
      */
     export let rootThing: Thing
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
+    export let isFinalClade = false
     export let rePerspectToThingId: (id: number) => Promise<void>
     
-    
-    // Thing-Cohort-related variables.
-    $: thingCohorts = rootThing.childThingCohorts
+
+    // Handles for widget dimensions.
+    let relationshipsAndChildCohortsHeight = 1
+
+
+    // Attributes managed by widget controller.
+    let thingCohorts: ThingCohort[] = []
+    let showCladeRootThing: boolean
+    let orderedThingCohorts: ThingCohort[] = []
+
+
 
     /**
-     * Expanded flag.
+     * Expandable flag.
      * 
-     * Determines whether the Clade is collapsed to hide children or expanded to
-     * show them.
+     * Determines whether the Clade can be collapsed to hide children or
+     * expanded to show them.
      */
-    $: expanded = (
+    $: expandable = (
         thingCohorts.length
         && thingCohorts[0].generation
         && !thingCohorts[0].generation.isRelationshipsOnly
-    ) ?
-        true :
+    ) ? true :
+    false
+
+    $: expanded =
+        expandable && rootThing.address.generationId === 0 ? true :
         false
 
-    /**
-     * Show-Clade-root-Thing flag.
-     * 
-     * Determines whether the full Clade, including the root Thing, should be
-     * shown, or only the children Things.
-     */
-    $: showCladeRootThing = (
-        rootThing.address.generationId === 0
-        && graphWidgetStyle.excludePerspectiveThing
-    ) ?
-        false :
-        true
 
-    /**
-     * Shadow color.
-     * 
-     * Matches the color of the Thing Cohort's half-axis.
-     */
-    $: shadowColor =
-        rootThing.parentCohort.halfAxisId ? relationshipColorByHalfAxisId[rootThing.parentCohort.halfAxisId] :
-        "#000000"
+    $: childThings = (
+        thingCohorts
+            .map(thingCohort => thingCohort.members).flat()
+            .filter(thingCohortMember => thingCohortMember.thing !== null)
+        ) as unknown as Thing[]
 
-    // The desired order of half-axes in the outline.
-    const orderedHalfAxisIds = [2, 1, 4, 3, 5, 6, 8, 7]
     
 
-    /**
-     * Ordering Thing Cohorts.
-     * 
-     * Thing Cohorts are ordered in a specific way:
-     * 1. First those on the "Cartesian" half-axes, from top to bottom and left
-     *    to right,
-     * 2. Then those on the other half-axes,
-     * 3. Then all those not on a half-axis.
-     */
-    function getOrderedThingCohorts(
-        thing: Thing,
-        excludeHalfAxes=graphWidgetStyle.excludeCartesianAxes
-    ): ThingCohort[] {
 
-        const allCohortGroups: ThingCohort[][] = []
-        const thingCohortsOnHalfAxes: ThingCohort[] = []
-        const thingCohortsNotOnHalfAxes: ThingCohort[] = []
 
-        // If the reordering process should include the main half-axes (Down, Up,
-        // Right, Left, Away, Towards, Inward, Outward), add all Thing Cohorts
-        // which *are* on those main half-axes to an array.
-        if (!excludeHalfAxes) {
 
-            // Get an array of IDs for all half-axes in this Clade that currently
-            // have Thing Cohorts, in the desired order for an outline.
-            const orderedHalfAxisIdsWithThings = orderedHalfAxisIds.filter(
-                id => id in thing.childCohortsByHalfAxisId
-            )
-
-            // For every half-axis ID in that array, add the corresponding Thing
-            // Cohort from the Clade's root Thing to the array of Thing Cohorts
-            // that are on the main half-axes.
-            for (const halfAxisId of orderedHalfAxisIdsWithThings) {
-                thingCohortsOnHalfAxes.push(thing.childCohortsByHalfAxisId[halfAxisId])
-            }
-        }
         
-        // Add all Thing Cohorts which *are not* on the main half-axes to an array.
-        thingCohortsNotOnHalfAxes.push(
-            ...thing.childThingCohorts
-                .filter(cohort => !orderedHalfAxisIds.includes(cohort.halfAxisId))
-        )
 
-        // Combine the arrays to produce a single array of all Thing Cohorts for
-        // this Clade, starting with those on the main half-axes in the desired
-        // order, and followed by those not on the main half-axes.
-        allCohortGroups.push(thingCohortsOnHalfAxes)
-        allCohortGroups.push(thingCohortsNotOnHalfAxes)
-        const orderedThingCohorts = allCohortGroups.flat()
+    // Toggle state attributes.
+    let toggleHovered = false
+    $: showToggle = ((!$reorderingInfoStore.reorderInProgress && toggleHovered) || expanded)
 
-        return orderedThingCohorts
-    }
-    let orderedThingCohorts: ThingCohort[] = []
-    $: orderedThingCohorts = getOrderedThingCohorts(rootThing)
+    $: orderedThingCohortsWithMembers = orderedThingCohorts.filter(
+        thingCohort => thingCohort.members.length
+    )
+
+
 </script>
 
 
@@ -130,70 +89,149 @@
 <CladeWidgetController
     {rootThing}
     {graphWidgetStyle}
+
+    bind:thingCohorts
+    bind:showCladeRootThing
+    bind:orderedThingCohorts
 />
 
 
-<!-- Clade widget.-->
+<!-- Clade outline widget.-->
 <div
     class="clade-outline-widget"
     class:expanded
     class:has-children={thingCohorts.length}
-    
-    style="box-shadow: 5px 5px 10px 2px {hexToRgba(shadowColor, 0.333)};"
 >
 
     <!-- Root Thing. -->
     {#if showCladeRootThing}
-        <!-- If the root Thing is specified, show a Thing Widget. -->
-        {#if rootThing?.id}
-            <ThingOutlineWidget
-                thingId={rootThing.id}
-                thing={rootThing}
-                {graph}
-                {graphWidgetStyle}
-                {rePerspectToThingId}
-            />
-        <!-- Otherwise, show a Thing-Form Widget. -->
-        {:else}
-            <ThingFormOutlineWidget
-                thing={rootThing}
-                bind:graph
-                {graphWidgetStyle}
-            /><!-- Root Thing needs to be replaced with some kind of placeholder "Form" Thing. -->
-        {/if}
+
+        <div class="root-thing-and-children-indicator-container">
+
+            {#if showCladeRootThing && expandable}
+                <div
+                    class="children-indicator-container"
+
+                    on:click={() => expanded = !expanded}
+                    on:keyup={() => {}}
+                    on:mouseenter={() => toggleHovered = true}
+                    on:mouseleave={() => toggleHovered = false}
+                >
+                    <!-- Children-Things indicator. -->
+                    {#if !expanded}
+                        +{childThings.length}
+                    {/if}
+
+                    <!-- Visible toggle image. -->
+                    {#if showToggle}
+                        <svg
+                            class="relationship-arrow-root"
+
+                            style="width: 32px; height: 32px;"
+                        >
+                            <path
+                                d="M 16 32 A 16 16 0 0 1 32 16"
+                                style="stroke-width: 10;"
+                            />
+                            {#if !expanded}
+                                <polygon
+                                    points="10,30 20,30 15,35"
+                                    style="stroke-width: 3;"
+                                />
+                            {/if}
+                        </svg>
+                    {/if}
+
+
+
+                </div>
+            {/if}
+            
+            <div class="root-thing-container">
+                <!-- If the root Thing is specified, show a Thing Widget. -->
+                {#if rootThing?.id}
+                    <ThingOutlineWidget
+                        thingId={rootThing.id}
+                        thing={rootThing}
+                        {graph}
+                        {graphWidgetStyle}
+                        {rePerspectToThingId}
+                    />
+
+                <!-- Otherwise, show a Thing-Form Widget. -->
+                {:else}
+                    <ThingFormOutlineWidget
+                        thing={rootThing}
+                        bind:graph
+                        {graphWidgetStyle}
+                    />
+                {/if}
+            </div>
+
+        </div> 
+
     {/if}
 
     <!-- The Thing's Relationships and child Cohorts (outer containers). -->
-    {#each orderedThingCohorts as thingCohort (thingCohort.address)}  
-        <div class="relationships-and-child-cohorts-outer-container">
+    {#each orderedThingCohortsWithMembers as thingCohort, i (thingCohort.address)}  
+        <div
+            class="relationships-and-child-cohorts-outer-container"
+        >
 
             <!-- Relationship color field. -->
             <div
                 class="relationship-color-field"
 
-                style="background-color: {relationshipColorByHalfAxisId[thingCohort.halfAxisId]};"
+                style="
+                    top: 1.5px;
+                    height: calc(100% - 2px);
+                    background-color: {relationshipColorByHalfAxisId[thingCohort.halfAxisId] || "dimgrey"};
+                "
             />
 
             <!-- The Thing's Relationships and child Cohorts (inner container). -->
             <div
                 class="relationships-and-child-cohorts-inner-container"
+                bind:clientHeight={relationshipsAndChildCohortsHeight}
                 
-                style="flex-direction: { expanded ? "row" : "column" };"    
+                style="flex-direction: { expanded ? "row" : "column" };"
             >
+
                 <!-- Relationship Cohort Widget. -->
-                {#if thingCohort.halfAxisId}
-                    <div
-                        class="relationships-outline-widget-container"
-                        class:expanded
-                        class:has-children={thingCohort.members.length}
-                    >
-                        <RelationshipCohortOutlineWidget
-                            {thingCohort}
-                            bind:graph
-                            {graphWidgetStyle}
+                <div
+                    class="relationships-outline-widget-container"
+                    class:expanded
+                    class:has-children={thingCohort.members.length}
+                >
+                    {#if !graph.offAxis}
+                        <!-- Relationship arrow segment. -->
+                        <div
+                            class="relationship-arrow-segment"
+
+                            style="
+                                position: absolute;
+                                left: 10px;
+                                width: 10px;
+                                height: {
+                                    (
+                                        isFinalClade
+                                        && i === orderedThingCohortsWithMembers.length - 1
+                                    ) ? "10px" :
+                                    "100%"
+                                };
+                                background-color: {relationshipColorByHalfAxisId[thingCohort.halfAxisId] || "dimgrey"};
+                                opacity: 0.5;
+                            "
                         />
-                    </div>
-                {/if}
+                    {/if}
+
+                    <RelationshipCohortOutlineWidget
+                        {thingCohort}
+                        directionWidgetIsRotated={thingCohort.members.length >= 3}
+                        bind:graph
+                        {graphWidgetStyle}
+                    />
+                </div>
 
                 <!-- Thing Cohort Widget. -->
                 {#if (
@@ -208,6 +246,7 @@
                         {rePerspectToThingId}
                     />
                 {/if}
+                
             </div>
         
         </div>
@@ -217,8 +256,6 @@
 
 <style>
     .clade-outline-widget {
-        outline: solid 0.25px lightgrey;
-        outline-offset: -0.25px;
         border-radius: 10px;
 
         box-sizing: border-box;
@@ -227,26 +264,45 @@
         overflow: hidden;
     }
 
-    .clade-outline-widget.expanded.has-children,
-    .clade-outline-widget:hover.has-children {
-        border-radius: 10px 10px 6px 6px;
+    .clade-outline-widget.expanded.has-children {
+        border-radius: 6px;
+    }
+
+    .root-thing-and-children-indicator-container {
+        display: flex;
+        flex-direction: row;
+    }
+
+    .root-thing-container {
+        flex: 1 1 0;
+    }
+
+    .children-indicator-container {
+        width: 30px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        cursor: pointer;
     }
 
     .relationships-and-child-cohorts-outer-container {
+        border-radius: 5px;
+
+        position: relative;
         min-height: 0.5rem;
 
         display: none;
     }
 
-    .clade-outline-widget.expanded > .relationships-and-child-cohorts-outer-container, 
-    .clade-outline-widget:hover > .relationships-and-child-cohorts-outer-container {
+    .clade-outline-widget.expanded > .relationships-and-child-cohorts-outer-container {
         display: flex;
         flex-direction: column;
     }
 
     .relationships-and-child-cohorts-outer-container:hover {
         position: relative;
-        background-color: white;
     }
 
     .relationships-and-child-cohorts-outer-container:hover {
@@ -254,11 +310,10 @@
     }
 
     .relationship-color-field {
-        border-top: dotted 1px grey;
-        box-sizing: border-box;
+        border-radius: 5px;
+
         position: absolute;
         width: 100%;
-        height: 100%;
         opacity: 0.25;
     }
 
@@ -269,15 +324,18 @@
 
     .relationships-outline-widget-container {
         position: relative;
-        width: 100%;
         transform: scale(0.5);
         transform-origin: left;
 
         display: none;
     }
 
+    .relationships-outline-widget-container:not(.expanded.has-children) {
+        width: 100%;
+    }
+
     .relationships-outline-widget-container.expanded.has-children {
-        width: 100px;
+        width: fit-content;
         min-height: 100%;
         transform: scale(1);
 
@@ -286,5 +344,20 @@
 
     .relationships-and-child-cohorts-outer-container:hover > .relationships-and-child-cohorts-inner-container > .relationships-outline-widget-container {
         display: inline;
+    }
+
+
+
+    
+
+
+    .relationship-arrow-root {
+        position: absolute;
+        
+        stroke: dimgrey;
+        fill: dimgrey;
+        opacity: 0.5;
+
+        overflow: visible;
     }
 </style>

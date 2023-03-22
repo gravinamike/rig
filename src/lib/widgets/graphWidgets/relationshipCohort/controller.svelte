@@ -89,7 +89,7 @@
     export let stemTop = 0
     export let showRelationships = false
     export let relationshipColor = "#000000"
-    export let halfAxisId: HalfAxisId
+    export let halfAxisId: HalfAxisId | null
     export let sizeOfThingsAlongWidth = 0
     export let relatableForCurrentDrag = false
 
@@ -121,7 +121,7 @@
      * base value for the half-axis, multiplied according to the Generation.
      */
     $: zIndex =
-        offsetsByHalfAxisId[halfAxisId][2]
+        offsetsByHalfAxisId[halfAxisId || 0][2]
         * (generationId * 2 - 1)
 
     /**
@@ -132,7 +132,7 @@
      * horizontal axis.
      */
     $: widgetWidth =
-        [1, 2].includes(halfAxisId) ? relationshipsWidth :
+        halfAxisId && [1, 2].includes(halfAxisId) ? relationshipsWidth :
         relationshipsLength
 
     /**
@@ -143,7 +143,7 @@
      * horizontal axis.
      */
     $: widgetHeight =
-        [1, 2].includes(halfAxisId) ? relationshipsLength :
+        halfAxisId && [1, 2].includes(halfAxisId) ? relationshipsLength :
         relationshipsWidth
 
 
@@ -169,7 +169,7 @@
      * into account whether the Relationship Cohort is on a vertical or
      * horizontal axis.
      */
-    $: rotatedWidth = [1, 2].includes(halfAxisId) ? widgetWidth : widgetHeight
+    $: rotatedWidth = halfAxisId && [1, 2].includes(halfAxisId) ? widgetWidth : widgetHeight
 
     /**
      * Rotated height.
@@ -178,7 +178,7 @@
      * into account whether the Relationship Cohort is on a vertical or
      * horizontal axis.
      */
-    $: rotatedHeight = [1, 2].includes(halfAxisId) ? widgetHeight : widgetWidth
+    $: rotatedHeight = halfAxisId && [1, 2].includes(halfAxisId) ? widgetHeight : widgetWidth
 
     /**
      * Mirroring.
@@ -186,14 +186,14 @@
      * Whether the content of the widget is flipped relative to the Graph
      * centerline, determined by the half-axis.
      */
-    $: mirroring = mirroringByHalfAxisId[halfAxisId]
+    $: mirroring = mirroringByHalfAxisId[halfAxisId || 0]
     
     /**
      * Rotation.
      * 
      * The rotation of the widget, determined by the half-axis.
      */
-    $: rotation = rotationByHalfAxisId[halfAxisId]
+    $: rotation = rotationByHalfAxisId[halfAxisId || 0]
 
 
     /**
@@ -279,7 +279,7 @@
     $: relationshipsWidth =
         Math.max(cohort.members.length, 1)
         * (
-            [1, 2].includes(halfAxisId) ? thingWidth :
+            halfAxisId && [1, 2].includes(halfAxisId) ? thingWidth :
             thingHeight
         )
         + (Math.max(cohort.members.length, 1) - 1)
@@ -295,7 +295,7 @@
      */
     $: relationshipsLength =
         graphWidgetStyle.relationDistance - (
-            [1, 2].includes(halfAxisId) ? thingHeight :
+            halfAxisId && [1, 2].includes(halfAxisId) ? thingHeight :
             thingWidth
         ) * cohort.axialElongation
 
@@ -363,7 +363,7 @@
      * the half-axis.
      */
     $: sizeOfThingsAlongWidth =
-        [1, 2].includes(halfAxisId) ? thingWidth :
+        halfAxisId && [1, 2].includes(halfAxisId) ? thingWidth :
         thingHeight
 
 
@@ -400,7 +400,7 @@
      * based on the half-axis. Does not take the offset of the grandparent Thing
      * into account.
      */
-    $: xOffset = 0.5 * graphWidgetStyle.relationDistance * offsetsByHalfAxisId[halfAxisId][0]
+    $: xOffset = 0.5 * graphWidgetStyle.relationDistance * offsetsByHalfAxisId[halfAxisId || 0][0]
 
     /**
      * Y offset.
@@ -409,7 +409,7 @@
      * based on the half-axis. Does not take the offset of the grandparent Thing
      * into account.
      */
-    $: yOffset = 0.5 * graphWidgetStyle.relationDistance * offsetsByHalfAxisId[halfAxisId][1]
+    $: yOffset = 0.5 * graphWidgetStyle.relationDistance * offsetsByHalfAxisId[halfAxisId || 0][1]
 
     /**
      * X offset to grandparent Thing.
@@ -489,7 +489,7 @@
             // Cohort.
             * (
                 (
-                    [1, 2].includes(halfAxisId) ? thingWidth :
+                    halfAxisId && [1, 2].includes(halfAxisId) ? thingWidth :
                     thingHeight
                 )
                 + graphWidgetStyle.betweenThingSpacing
@@ -501,7 +501,7 @@
             // Cohort's parent Thing's index in its own Thing Cohort.
             const part2 = (
                 halfAxisId !== 0
-                && halfAxisId === halfAxisOppositeIds[halfAxisId] ? (
+                && halfAxisId === halfAxisOppositeIds[halfAxisId || 0] ? (
                     (sizeOfThingsAlongWidth + graphWidgetStyle.betweenThingSpacing)
                     * parentThing.address.indexInCohort
                 ) :
@@ -535,5 +535,5 @@
      * 
      * The color of the Relationship widget, determined by the half-axis.
      */
-    $: relationshipColor = relationshipColorByHalfAxisId[halfAxisId]
+    $: relationshipColor = relationshipColorByHalfAxisId[halfAxisId || 0]
 </script>

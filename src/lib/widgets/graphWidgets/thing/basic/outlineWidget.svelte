@@ -13,7 +13,7 @@
 
     /* Widget imports. */
     import { ThingDetailsWidget } from "$lib/widgets/detailsWidgets"
-    import { XButton, ConfirmDeleteBox } from "$lib/widgets/layoutWidgets"
+    import DeleteWidget from "$lib/widgets/layoutWidgets/deleteWidget.svelte"
     import type { GraphWidgetStyle } from "../../graph";
 
     import ThingWidgetController from "./controller.svelte"
@@ -60,29 +60,6 @@
     const showContent = false // Content is in development - so `showContent` will eventually be a variable.
     let confirmDeleteBoxOpen = false
 
-    
-    /**
-     * Initiate a delete operation (which needs to be confirmed to finish).
-     */
-    startDelete = async () => {
-        confirmDeleteBoxOpen = true
-    }
-
-    /**
-     * Complete a delete operation after it has been confirmed.
-     */
-    completeDelete = async () => {
-        await graph.deleteThingById(thingId)
-        await unstoreGraphDbModels("Thing", thingId)
-
-        const reverseHistory = graph.history._entries.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
-        for (const historyEntry of reverseHistory) {
-            if (historyEntry.thingId !== thingId && graphDbModelInStore("Thing", historyEntry.thingId)) {
-                rePerspectToThingId(historyEntry.thingId)
-                break
-            }
-        }
-    }
 
     /**
      * Open a context command palette for this Thing.
@@ -96,6 +73,10 @@
             [{ text: "Add Thing to Pins", iconName: "pin", iconHtml: null, isActive: false, onClick: () => {addPin(thingId)} }]
         openContextCommandPalette(position, buttonInfos)
     }
+
+
+    let width = 1
+    let height = 1
 </script>
 
 
@@ -112,6 +93,8 @@
     bind:encapsulatingDepth
     bind:thingWidth
     bind:thingHeight
+
+    bind:confirmDeleteBoxOpen
 
     bind:thingWidgetId
     bind:thing
@@ -137,8 +120,12 @@
     <div
         id="{thingWidgetId}"
         class="box thing-outline-widget" class:highlighted
+
+        bind:clientWidth={width}
+        bind:clientHeight={height}
+
         style="
-            border-radius: { thing.childThingCohorts.length ? "10px 10px 0 0" : "10px" };
+            border-radius: 10px;
         "
 
         on:mouseenter={()=>{
@@ -194,33 +181,26 @@
             </div>
         {/if}
 
-        <!-- Delete button and confirm delete dialog. -->
-        {#if showDeleteButton}
-
-            {#if isHoveredWidget && !confirmDeleteBoxOpen}
-                <div class="delete-button-container">
-                    <XButton
-                        buttonFunction={startDelete}
-                    />
-                </div>
-            {/if}
-            {#if confirmDeleteBoxOpen}
-                <ConfirmDeleteBox
-                    {thingWidth}
-                    {thingHeight}
-                    {encapsulatingDepth}
-                    {elongationCategory}
-                    confirmDeleteFunction={completeDelete}
-                />
-            {/if}
-
-        {/if}
+        <!-- Delete controls. -->
+        <DeleteWidget
+            {showDeleteButton}
+            {confirmDeleteBoxOpen}
+            thingWidth={width}
+            thingHeight={height}
+            {encapsulatingDepth}
+            {elongationCategory}
+            {startDelete}
+            {completeDelete}
+        />
     </div>
 {/if}
 
 
 <style>
     .box {
+        outline: solid 0.25px lightgrey;
+        outline-offset: -0.25px;
+
         height: max-content;
         background-color: white;
 
@@ -240,10 +220,8 @@
         outline-offset: -2px;
     }
 
-    .text-container {
-        left: 0;
-        
-        text-align: center;
+    .text-container {        
+        text-align: left;
     }
 
     .text-container.sideways {
@@ -251,6 +229,8 @@
     }
 
     .thing-text {
+        margin-left: 0.5rem;
+
         font-weight: 600;
     }
 
@@ -271,14 +251,7 @@
         top: 50%;
         transform: translate(-50%, -50%);
         
-        overflow-wrap: break-word;
-    }
-
-    .delete-button-container {
-        position: absolute;
-        top: 3px;
-        right: 3px;
-        z-index: 1;
+        white-space: nowrap;
     }
 
     .content-box {

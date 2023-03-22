@@ -22,6 +22,7 @@
     export let graphWidgetStyle: GraphWidgetStyle
     export let askingForDirection = false
     export let fontSize: number | null = null
+    export let interactionDisabled = false
     export let optionClickedFunction: (direction: Direction | null, optionId: number, option: Direction) => void = (_: Direction | null, __: number, option: Direction) => {console.log(option.text)}
     export let optionHoveredFunction: (optionId: number, option: Direction) => void = () => {}
     export let exitOptionHoveredFunction: () => void = () => {}
@@ -53,7 +54,7 @@
 <!-- Direction Widget. -->
 <div
     class="direction-widget {showOptions ? "options-open" : ""}"
-    class:read-only-mode={$readOnlyMode}
+    class:interaction-disabled={$readOnlyMode || interactionDisabled}
     bind:this={directionWidget}
 >
     <!-- Direction text. -->
@@ -113,7 +114,7 @@
         pointer-events: none;
     }
 
-    .direction-widget:not(.read-only-mode) {
+    .direction-widget:not(.interaction-disabled) {
         pointer-events: auto;
         cursor: pointer;
     }

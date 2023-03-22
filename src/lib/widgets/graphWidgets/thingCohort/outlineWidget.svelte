@@ -6,9 +6,10 @@
 
     
     /**
-     * @param  {ThingCohort} thingCohort - The Thing Cohort used to set up this Widget.
-     * @param  {Graph} graph - The Graph that the Cohort is in.
-     * @param  {(thingId: number) => Promise<void>} rePerspectToThingId - A function that re-perspects the Graph to a given Thing ID.
+     * @param {ThingCohort} thingCohort - The Thing Cohort used to set up this Widget.
+     * @param {Graph} graph - The Graph that the Cohort is in.
+     * @param {GraphWidgetStyle} graphWidgetStyle - Controls the visual styling of the Graph.
+     * @param {(thingId: number) => Promise<void>} rePerspectToThingId - A function that re-perspects the Graph to a given Thing ID.
      */
     export let thingCohort: ThingCohort
     export let graph: Graph
@@ -16,17 +17,25 @@
     export let rePerspectToThingId: (thingId: number) => Promise<void>
 
 
+    // Attributes related to whether the Thing Cohort is "doubled back"
+    // (meaning the ONLY descendent in the Half-Axis is the Thing
+    // Cohort's own parent Thing).
     $: indexOfGrandparentThing = thingCohort.indexOfGrandparentThing
+    $: onlyDescendantIsDoubledBack = (
+        thingCohort.members.length === 1
+        && indexOfGrandparentThing !== null
+        && indexOfGrandparentThing !== -1
+    )
 </script>
 
 
 <div
     class="cohort-outline-widget"
 >
-    {#if !(
-        thingCohort.members.length === 1 && indexOfGrandparentThing !== null && indexOfGrandparentThing !== -1
-    )}<!-- Unless the ONLY descendent in a Half-Axis is a doubled-back parent Thing, -->
-        {#each thingCohort.members as cohortMember}
+    {#if !onlyDescendantIsDoubledBack}
+        {#each thingCohort.members as cohortMember, i}
+
+            <!-- If the Thing already exists in the Graph, render an already-rendered widget. -->
             {#if cohortMember.alreadyRendered && cohortMember.thingId}
                 <ThingOutlineAlreadyRenderedWidget
                     thingId={cohortMember.thingId}
@@ -34,16 +43,19 @@
                     {graph}
                     {graphWidgetStyle}
                 />
+
+            <!-- Else render a Clade outline widget with the Thing as its root. -->
             {:else if cohortMember.thing}
                 <CladeOutlineWidget
                     rootThing={cohortMember.thing}
                     {graph}
                     {graphWidgetStyle}
+                    isFinalClade={i === thingCohort.members.length - 1}
                     {rePerspectToThingId}
                 />
+                
             {/if}
         {/each}
-
     {/if}
 </div>
 
