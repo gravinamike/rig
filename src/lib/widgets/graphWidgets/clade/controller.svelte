@@ -151,36 +151,44 @@
 
 
 
+        // If the reordering process should include Thing Cohorts on the
+        // non-Cartesian half-axes,
+        if (!graphWidgetStyle.excludeNonCartesianAxes) {
+            // Get an array of IDs for all non-Cartesian half-axes in this Clade that currently
+            // have Thing Cohorts, in the desired order for an outline.
+            const orderedNonCartesianHalfAxisIdsWithThings = orderedNonCartesianHalfAxisIds.filter(
+                id => id in thing.childCohortsByHalfAxisId
+            )
 
-
-
-
-        // Get an array of IDs for all non-Cartesian half-axes in this Clade that currently
-        // have Thing Cohorts, in the desired order for an outline.
-        const orderedNonCartesianHalfAxisIdsWithThings = orderedNonCartesianHalfAxisIds.filter(
-            id => id in thing.childCohortsByHalfAxisId
-        )
-
-        // For every half-axis ID in that array, add the corresponding Thing
-        // Cohort from the Clade's root Thing to the array of Thing Cohorts
-        // that are on the non-Cartesian half-axes.
-        for (const halfAxisId of orderedNonCartesianHalfAxisIdsWithThings) {
-            thingCohortsOnNonCartesianHalfAxes.push(thing.childCohortsByHalfAxisId[halfAxisId])
+            // For every half-axis ID in that array, add the corresponding Thing
+            // Cohort from the Clade's root Thing to the array of Thing Cohorts
+            // that are on the non-Cartesian half-axes.
+            for (const halfAxisId of orderedNonCartesianHalfAxisIdsWithThings) {
+                thingCohortsOnNonCartesianHalfAxes.push(thing.childCohortsByHalfAxisId[halfAxisId])
+            }
         }
 
 
 
+
+        // If the reordering process should include Thing Cohorts not on
+        // a half-axis,
+        if (!graphWidgetStyle.excludeNonAxisThingCohorts) {
+            // Add all Thing Cohorts which *are not* on half-axes to an array.
+            thingCohortsNotOnHalfAxes.push(
+                ...thing.childThingCohorts
+                    .filter(cohort => {
+                        return (
+                            !orderedCartesianHalfAxisIds.includes(cohort.halfAxisId)
+                            && !orderedNonCartesianHalfAxisIds.includes(cohort.halfAxisId)
+                        )
+                    })
+            )
+        }
+
+
         
-        // Add all Thing Cohorts which *are not* on the main half-axes to an array.
-        thingCohortsNotOnHalfAxes.push(
-            ...thing.childThingCohorts
-                .filter(cohort => {
-                    return (
-                        !orderedCartesianHalfAxisIds.includes(cohort.halfAxisId)
-                        && !orderedNonCartesianHalfAxisIds.includes(cohort.halfAxisId)
-                    )
-                })
-        )
+        
 
         // Combine the arrays to produce a single array of all Thing Cohorts for
         // this Clade, starting with those on the half-axes in the desired

@@ -182,6 +182,37 @@ export class Thing {
         return Object.values(this.childCohortsByDirectionId)
     }
 
+
+
+    nonCartesianAxisRelatedThingIds(space=this.space): number[] {
+        if (!space) return []
+
+        const nonCartesianAxisRelatedThingIds: number[] = []
+
+        const nonCartesianAxisDirectionIds: number[] = []
+
+        for (const direction of space.directions.filter(
+            direction => {
+                return direction.halfaxisid !== null
+                && ![1, 2, 3, 4].includes(direction.halfaxisid)
+            }
+        )) {
+            if (direction.id) nonCartesianAxisDirectionIds.push(direction.id)
+            if (direction.oppositeid) nonCartesianAxisDirectionIds.push(direction.oppositeid)
+        }
+
+        for (const directionId of this.relatedThingDirectionIds) {
+            if (nonCartesianAxisDirectionIds.includes(directionId) && directionId in this.relatedThingIdsByDirectionId) {
+                nonCartesianAxisRelatedThingIds.push(...this.relatedThingIdsByDirectionId[directionId])
+            }
+        }
+        return nonCartesianAxisRelatedThingIds
+    }
+
+
+
+
+
     offAxisRelatedThingIds(space=this.space): number[] {
         if (!space) return []
 

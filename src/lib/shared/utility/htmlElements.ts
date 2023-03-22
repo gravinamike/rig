@@ -27,7 +27,6 @@ export function descendantElements(element: Element, excludeSubGraphChildren: bo
         && typeof element.className === "string"
         && element.className.includes("off-axis-relations-widget")
     ) {
-        console.log(element.getBoundingClientRect())
         return []
     }
 

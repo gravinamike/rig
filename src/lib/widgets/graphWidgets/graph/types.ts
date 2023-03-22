@@ -1,6 +1,8 @@
 export interface GraphWidgetStyle {
     excludePerspectiveThing: boolean,
     excludeCartesianAxes: boolean,
+    excludeNonCartesianAxes: boolean,
+    excludeNonAxisThingCohorts: boolean
     zoom: number,
     zoomPadding: number,
     animateZoomAndScroll: boolean,
@@ -20,6 +22,8 @@ export interface GraphWidgetStyle {
 export const defaultGraphWidgetStyle: GraphWidgetStyle = {
     excludePerspectiveThing: false,
     excludeCartesianAxes: false,
+    excludeNonCartesianAxes: false,
+    excludeNonAxisThingCohorts: false,
     zoom: 0,
     zoomPadding: 100,
     animateZoomAndScroll: true,

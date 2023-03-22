@@ -34,6 +34,7 @@
 
     // Information about related Things.
     $: numberOfRelations = parentThing.offAxisRelatedThingIds((parentThing.space as Space)).length
+    $: numberOfNonCartesianAxisRelations = parentThing.nonCartesianAxisRelatedThingIds((parentThing.space as Space)).length
 
 
     /* Toggle-related attributes. */
@@ -82,6 +83,18 @@
         const parentGraphSpace = parentGraph.pThing?.space as Space
         graph = await addGraph([parentThingId], 1, parentGraph, true, parentGraphSpace)
         graphWidgetStyle = {...defaultGraphWidgetStyle}
+
+
+        // Configure style for off-axis styling, if applicable.
+        if (graph.offAxis) {//////////////////////////////////////////////////////////////// ALWAYS TRUE?
+            graphWidgetStyle.excludePerspectiveThing = true
+            graphWidgetStyle.excludeCartesianAxes = true
+        }
+
+        graphWidgetStyle.excludeNonAxisThingCohorts = true
+
+
+
         // Refresh the Graph viewers.
         addGraphIdsNeedingViewerRefresh(graph.id)
     }
@@ -101,6 +114,29 @@
 
     // Graph outline widget style.
     let graphWidgetStyle: GraphWidgetStyle = {...defaultGraphWidgetStyle}
+
+
+
+
+
+    let toggle2Hovered = false
+    let toggle2Size = 25
+
+    $: showToggle2 =
+        (!$reorderingInfoStore.reorderInProgress && toggle2Hovered)
+        || !graphWidgetStyle.excludeNonAxisThingCohorts
+
+
+
+    async function rebuildGraph() {
+        if (!graph) return
+        await graph.build()
+        addGraphIdsNeedingViewerRefresh(graph.id)
+    }
+
+
+
+
 </script>
 
 
@@ -108,7 +144,7 @@
 <div
     class="off-axis-relations-toggle"
     class:expanded
-    class:no-mouse-events={$readOnlyMode && !numberOfRelations}
+    class:no-mouse-events={($readOnlyMode && !numberOfRelations) || prioritizedOffAxisDirectionsContainThings}
 
     style="width: {toggleSize}px; height: {toggleSize}px;"
 
@@ -140,36 +176,97 @@
     {/if}
 
     <!-- Number-of-off-axis-relations indicator. -->
-    {#if numberOfRelations && !expanded}
+    {#if numberOfRelations && !expanded && graphWidgetStyle.excludeNonAxisThingCohorts}
         <div>+{numberOfRelations}</div>
     {/if}
 </div>
 
 <!-- Off-axis-relations display. -->
 {#if showOffAxisRelations}
-    <div
-        class="off-axis-relations-widget"
-        on:wheel|stopPropagation
-    >
-        {#if graph && graph.lifecycleStatus === "built"}
-            <GraphOutlineWidget
-                bind:graph
-                bind:graphWidgetStyle
-                {rePerspectToThingId}
-            />
-        {:else}
-            <WaitingIndicator
-                states={
-                    {
-                        waiting: {
-                            text: "",
-                            imageName: "waiting"
-                        },
+    <div class="off-axis-relations-widget-and-unshown-indicator">
+        <div
+            class="off-axis-relations-widget"
+            on:wheel|stopPropagation
+        >
+            {#if graph && graph.lifecycleStatus === "built"}
+                <GraphOutlineWidget
+                    bind:graph
+                    bind:graphWidgetStyle
+                    {rePerspectToThingId}
+                />
+            {:else}
+                <WaitingIndicator
+                    states={
+                        {
+                            waiting: {
+                                text: "",
+                                imageName: "waiting"
+                            },
+                        }
                     }
-                }
-                currentStateName={"waiting"}
-            />
+                    currentStateName={"waiting"}
+                />
+            {/if}
+        </div>
+
+
+        
+
+            
+        {#if numberOfNonCartesianAxisRelations !== 0}
+            <!-- Off-axis relations toggle. -->
+            <div
+                class="non-axis-relations-toggle"
+
+                style="
+                    width: {toggle2Size}px; height: {toggle2Size}px;
+                    pointer-events: auto;
+                    cursor: pointer;
+                "
+
+                on:mouseenter={()=>{toggle2Hovered = true}}
+                on:mouseleave={()=>{toggle2Hovered = false}}
+                on:click={() => {
+                    graphWidgetStyle.excludeNonAxisThingCohorts = !graphWidgetStyle.excludeNonAxisThingCohorts
+                    rebuildGraph()
+                }}
+                on:keydown={()=>{}}
+            >
+                <!-- Visible toggle image. -->
+                {#if showToggle2}
+                    <svg
+                        style="
+                            width: {toggle2Size}px; height: {toggle2Size}px;
+                            position: absolute;
+                            z-index: -1;
+                            
+                            stroke: dimgrey;
+                            fill: dimgrey;
+                            opacity: 0.5;
+                            transform: rotate({
+                                graphWidgetStyle.excludeNonAxisThingCohorts ? 0 :
+                                180
+                            }deg);
+                        "
+                    >
+                        <polygon
+                            points="
+                                2, 0
+                                {toggleSize - 2}, 0
+                                {toggleSize / 2}, {toggleSize / 2}
+                            "
+                            style="stroke-width: {3 / $tweenedScale};"
+                        />
+                    </svg>
+                {/if}
+
+                <!-- Number-of-off-axis-relations indicator. -->
+                {#if graphWidgetStyle.excludeNonAxisThingCohorts}
+                    <div>+{numberOfRelations}</div>
+                {/if}
+            </div>
         {/if}
+        
     </div>
 {/if}
 
@@ -202,13 +299,20 @@
         overflow: visible;
     }
 
-    .off-axis-relations-widget {
+    .off-axis-relations-widget-and-unshown-indicator {
         position: absolute;
         left: calc(100% + 25px);
         top: calc(100% + 25px);
+        z-index: 1;
+
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .off-axis-relations-widget {
         width: 300px;
         max-height: 300px;
-        z-index: 1;
 
         overflow-x: hidden;
         overflow-y: auto;
