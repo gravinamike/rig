@@ -91,7 +91,7 @@
             graphWidgetStyle.excludeCartesianAxes = true
         }
 
-        graphWidgetStyle.excludeNonAxisThingCohorts = true
+        graphWidgetStyle.excludeNonAxisThingCohorts = numberOfNonCartesianAxisRelations !== 0
 
 
 
@@ -176,7 +176,7 @@
     {/if}
 
     <!-- Number-of-off-axis-relations indicator. -->
-    {#if numberOfRelations && !expanded && graphWidgetStyle.excludeNonAxisThingCohorts}
+    {#if numberOfRelations && !expanded}
         <div>+{numberOfRelations}</div>
     {/if}
 </div>
