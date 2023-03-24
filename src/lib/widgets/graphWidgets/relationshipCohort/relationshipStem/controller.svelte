@@ -44,7 +44,7 @@
      * Is true if this Stem widget belongs to the Graph's Perspective Thing.
      */
     $: ofPerspectiveThing =
-        cohort.parentThing && cohort.parentThing.address.generationId === 0 ? true :
+        cohort.parentThing && cohort.parentThing.address?.generationId === 0 ? true :
         false
 
     /**

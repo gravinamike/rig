@@ -56,7 +56,7 @@
     false
 
     $: expanded =
-        expandable && rootThing.address.generationId === 0 ? true :
+        expandable && rootThing.address?.generationId === 0 ? true :
         false
 
 

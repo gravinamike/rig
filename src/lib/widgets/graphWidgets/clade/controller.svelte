@@ -24,15 +24,21 @@
      * on its position in the Thing Cohort and whether the Thing Cohort is
      * arranged in a row or column.
      */
-     $: overlapMarginStyleText =
-        // If there is only 1 Thing in the Thing Cohort, use an empty string (no formatting).
+    $: overlapMarginStyleText =
+        // If the root Thing has no parent Cohort or address, (it hasn't yet
+        // been built into a Graph), use an empty string (no formatting).
+        !rootThing.parentCohort || !rootThing.address ? "" :
+        // If there is only 1 Thing in the Thing Cohort, use an empty string
+        // (no formatting).
         rootThing.parentCohort.members.length === 1 ? "" :
-        // Else, if the Thing is the first in the Thing Cohort, use only a right or bottom overlap margin.
+        // Else, if the Thing is the first in the Thing Cohort, use only a
+        // right or bottom overlap margin.
         rootThing.address.indexInCohort === 0 ? (
             rowOrColumn === "row" ? `margin-right: ${overlapMargin}px;` :
             `margin-bottom: ${overlapMargin}px;`
         ) :
-        // Else, if the Thing is the last in the Thing Cohort, use only a left or top overlap margin.
+        // Else, if the Thing is the last in the Thing Cohort, use only a left
+        // or top overlap margin.
         rootThing.address.indexInCohort === rootThing.parentCohort.members.length - 1 ? (
             rowOrColumn === "row" ? `margin-left: ${overlapMargin}px;` :
             `margin-top: ${overlapMargin}px;`
@@ -51,7 +57,7 @@
      * Indicates whether the root Thing's Thing Cohort is arranged as a row or a
      * column.
      */
-    $: rowOrColumn = rootThing.parentCohort.rowOrColumn()
+    $: rowOrColumn = rootThing.parentCohort?.rowOrColumn() || "row"
     
     /**
      * Overlap margin.
@@ -92,7 +98,7 @@
      * shown, or only the children Things.
      */
     $: showCladeRootThing = (
-        rootThing.address.generationId === 0
+        rootThing.address?.generationId === 0
         && graphWidgetStyle.excludePerspectiveThing
     ) ?
         false :

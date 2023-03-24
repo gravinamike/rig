@@ -207,7 +207,7 @@
      */
     $: showDirection =
         !($relationshipBeingCreatedInfoStore.sourceThingId && !relatableForCurrentDrag)
-        && (parentThing.address.generationId === 0 || stemHovered) && !thingIdOfHoveredRelationship ? true :
+        && (parentThing.address?.generationId === 0 || stemHovered) && !thingIdOfHoveredRelationship ? true :
         false
 
     /**
@@ -500,8 +500,11 @@
             // space each Thing takes up in the Thing Cohort, times the Thing
             // Cohort's parent Thing's index in its own Thing Cohort.
             const part2 = (
-                halfAxisId !== 0
-                && halfAxisId === halfAxisOppositeIds[halfAxisId || 0] ? (
+                (
+                    parentThing.address
+                    && halfAxisId !== 0
+                    && halfAxisId === halfAxisOppositeIds[halfAxisId || 0]
+                ) ? (
                     (sizeOfThingsAlongWidth + graphWidgetStyle.betweenThingSpacing)
                     * parentThing.address.indexInCohort
                 ) :

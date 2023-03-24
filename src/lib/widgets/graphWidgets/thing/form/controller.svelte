@@ -64,7 +64,7 @@
     submit = async () => {
         // Get information needed to create the new Thing.
         const parentThingId = (thing.parentThing?.id as number)
-        const space = (thing.parentCohort.parentThing as Thing).space as Space
+        const space = (thing.parentThing as Thing).space as Space
         const directionId = space.directionIdByHalfAxisId[halfAxisId] as number
 
         // Create the new Thing.
@@ -88,7 +88,7 @@
      * associated flags and refreshing the Graph.
     */
     cancel = async () => {
-        thing.parentCohort.removeMemberById(thing.id as number)
+        thing.parentCohort?.removeMemberById(thing.id as number)
         cohortMembersToDisplay.pop()
         graph.formActive = false
         addGraphIdsNeedingViewerRefresh(graph.id)

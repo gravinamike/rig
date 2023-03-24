@@ -1,11 +1,20 @@
-import type { GraphConstruct } from "$lib/shared/constants"
-import type { HalfAxisId } from "$lib/shared/constants"
-import { oddHalfAxisIds } from "$lib/shared/constants"
-import { graphDbModelInStore, getGraphConstructs } from "$lib/stores"
-import { Graph, Space, Note, Folder, Relationship, NoteToThing, FolderToThing, ThingCohort } from "$lib/models/constructModels"
+// Import types.
+import type { HalfAxisId, GraphConstruct } from "$lib/shared/constants"
 import type { ThingDbModel, ThingSearchListItemDbModel } from "../dbModels/clientSide"
 
+// Import constants and stores.
+import { oddHalfAxisIds } from "$lib/shared/constants"
+import { graphDbModelInStore, getGraphConstructs } from "$lib/stores"
 
+// Import Graph constructs.
+import { Graph, Space, Note, Folder, Relationship, NoteToThing, FolderToThing, ThingCohort } from "$lib/models/constructModels"
+
+
+/**
+ * Thing address.
+ * 
+ * Type for an object that specifies a Thing's unique position in its Graph.
+ */
 type ThingAddress = {
     graph: Graph;
     generationId: number,
@@ -14,14 +23,24 @@ type ThingAddress = {
     indexInCohort: number
 }
 
+interface RelationshipInfo {
+    relatedThingId: number | null,
+    directionId: number,
+    order: number | null
+}
+
 /*
  * Thing model.
+ *
+ * Class representing the defining attributes of a Thing. Generally derived
+ * from the database model equivalent, ThingDbModel.
  */
 export class Thing {
     kind = "thing"
 
     dbModel: ThingDbModel | null = null
 
+    // Intrinsic attributes.
     id: number | null = null
     guid: string | null = null
     text: string | null = null
@@ -31,7 +50,13 @@ export class Thing {
     defaultSpaceId: number | null = null
     perspectivedepths = "{}"// Default is "{}"
     perspectivetexts = "{}"// Default is "{}"
+    inheritSpace = true // For now; will be stored in db in the future.
 
+    // Structures that the Thing is part of.
+    graph: Graph | null = null
+    parentCohort: ThingCohort | null = null
+
+    // Related structures, specified by the database.
     note: Note | null = null
     folder: Folder | null = null
     a_relationships: Relationship[] = []
@@ -39,16 +64,21 @@ export class Thing {
     noteToThing: NoteToThing | null = null
     folderToThing: FolderToThing | null = null
 
-    graph: Graph | null = null
-    _parentCohort: ThingCohort | null = null
-
-    inheritSpace = true // For now.
+    // Related structures, derived during build.
     childCohortsByDirectionId: { [directionId: number]: ThingCohort } = {}
 
+
+    /**
+     * Create a Thing.
+     * @param dbModel - The database model that the Thing is derived from, or null for a "blank" Thing.
+     */
     constructor(dbModel: ThingDbModel | null) {
+        // If a ThingDbModel was supplied, copy or adapt...
         if (dbModel) {
+            // The ThingDbModel itself,
             this.dbModel = dbModel
 
+            // Its intrinsic attributes,
             this.id = Number(dbModel.id)
             this.guid = dbModel.guid
             this.text = dbModel.text
@@ -59,6 +89,7 @@ export class Thing {
             this.perspectivedepths = dbModel.perspectivedepths
             this.perspectivetexts = dbModel.perspectivetexts
 
+            // Its related structures.
             this.note = dbModel.note ? new Note(dbModel.note) : null
             this.folder = dbModel.folder ? new Folder(dbModel.folder) : null     
             for (const relationshipDbModel of dbModel.a_relationships) {
@@ -72,45 +103,104 @@ export class Thing {
         }
     }
 
-    setGraph(graph: Graph): void {
-        this.graph = graph
-    }
 
+    /**
+     * Parent Thing.
+     * 
+     * The Thing that this Thing is a child of (or null if there is none).
+     */
     get parentThing(): Thing | null {
-        return this._parentCohort?.parentThing || null
+        return this.parentCohort?.parentThing || null
     }
 
-
-    get relationshipInfos(): { relatedThingId: number | null, directionId: number, order: number | null }[] {
-        let relationshipInfos: { relatedThingId: number | null, directionId: number, order: number | null }[] = []
+    /**
+     * Relationship infos.
+     * 
+     * An array of objects specifying info about each of the Thing's
+     * Relationships (ID of the related Thing, ID of the Relationship's
+     * Direction, the Relationship's order).
+     */
+    get relationshipInfos(): RelationshipInfo[] {
+        // Construct an array of Relationship infos for each of the Thing's
+        // Relationships.
+        let relationshipInfos: RelationshipInfo[] = []
         for (const relationship of this.b_relationships) relationshipInfos.push(
-            { relatedThingId: relationship.thingbid, directionId: relationship.direction, order: relationship.relationshiporder }
+            {
+                relatedThingId: relationship.thingbid,
+                directionId: relationship.direction,
+                order: relationship.relationshiporder
+            }
         )
+
+        // Remove duplicates from the array.
         relationshipInfos = Array.from(new Set(relationshipInfos))
+
+        // Sort the array by Relationship order.
         relationshipInfos.sort((a, b) => (a.order ? a.order : 0) - (b.order ? b.order : 0))
+
+        // Return the array.
         return relationshipInfos
     }
 
+    /**
+     * Related Thing IDs.
+     * 
+     * An array of IDs for related Things, corresponding exactly with the
+     * array of Relationship infos.
+     */
     get relatedThingIds(): (number | null)[] {
         const relatedThingIds: (number | null)[] = []
-        for (const relationshipInfo of this.relationshipInfos) {
-            relatedThingIds.push(relationshipInfo.relatedThingId)
+        for (const info of this.relationshipInfos) {
+            relatedThingIds.push(info.relatedThingId)
         }
         return relatedThingIds
     }
 
+    /**
+     * Related Thing IDs by Direction ID.
+     * 
+     * An object keyed by Direction ID, with each ID corresponding to the IDs
+     * of the Things that are related in that Direction.
+     */
     get relatedThingIdsByDirectionId(): { [directionId: number]: number[] } {
+        // Initialize the empty object.
         const relatedThingIdsByDirectionId: { [directionId: number]: number[] } = {}
-        for (const relationshipInfo of this.relationshipInfos) {
-            const directionId = relationshipInfo.directionId
-            const relatedThingId = relationshipInfo.relatedThingId
-            if (!(directionId in relatedThingIdsByDirectionId)) relatedThingIdsByDirectionId[directionId] = []
-            if (!(relatedThingId === null || relatedThingId in relatedThingIdsByDirectionId[directionId])) relatedThingIdsByDirectionId[directionId].push(relatedThingId)
+
+        // For each Relationship info,
+        for (const info of this.relationshipInfos) {
+            // Get the IDs of the Direction and the related Thing.
+            const directionId = info.directionId
+            const relatedThingId = info.relatedThingId
+
+            // If the Direction ID isn't yet represented in the object, add an
+            // empty list under its key.
+            if ( !(directionId in relatedThingIdsByDirectionId) ) {
+                relatedThingIdsByDirectionId[directionId] = []
+            }
+
+            // If the related Thing ID is not null and is not already in the
+            // object, add it to the list that corresponds with the Direction
+            // ID.
+            if (
+                relatedThingId !== null
+                && !(relatedThingId in relatedThingIdsByDirectionId[directionId])
+            ) {
+                relatedThingIdsByDirectionId[directionId].push(relatedThingId)
+            }
         }
+
+        // Return the object.
         return relatedThingIdsByDirectionId
     }
 
 
+
+
+
+    get relatedThingDirectionIds(): number[] {
+        const relatedThingDirectionIds = Object.keys(this.relatedThingIdsByDirectionId).map(k => Number(k))
+        return relatedThingDirectionIds
+    }
 
 
 
@@ -161,10 +251,7 @@ export class Thing {
         }
     }
 
-    get relatedThingDirectionIds(): number[] {
-        const relatedThingDirectionIds = Object.keys(this.relatedThingIdsByDirectionId).map(k => Number(k))
-        return relatedThingDirectionIds
-    }
+    
 
     childThingCohort( directionId: number ): ThingCohort | null
     childThingCohort( directionId: number, cohort: ThingCohort ): void
@@ -256,23 +343,16 @@ export class Thing {
         return directionIdByHalfAxisId
     }
 
-    get address(): ThingAddress {
+    get address(): ThingAddress | null {
+        if (!this.id || !this.parentCohort) return null
         const address = {
             graph: this.parentCohort.address.graph,
             generationId: this.parentCohort.address.generationId,
             parentThingId: this.parentCohort.address.parentThingId,
             halfAxisId: this.parentCohort.halfAxisId,
-            indexInCohort: this.id ? this.parentCohort.indexOfMemberById(this.id) as number : -1
+            indexInCohort: this.parentCohort.indexOfMemberById(this.id) || -1
         }
         return address
-    }
-
-    get parentCohort(): ThingCohort {
-        return this._parentCohort as ThingCohort
-    }
-
-    set parentCohort(cohort: ThingCohort) {
-        this._parentCohort = cohort
     }
 
     get childCohorts(): ThingCohort[] {

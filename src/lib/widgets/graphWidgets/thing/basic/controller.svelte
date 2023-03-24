@@ -230,7 +230,8 @@
      */
     handleMouseDrag = (event: MouseEvent) => {
         if (
-            dragStartPosition
+            thing?.parentCohort
+            && dragStartPosition
             && Math.hypot(event.clientX - dragStartPosition[0], event.clientX - dragStartPosition[0]) > 5
             && !$relationshipBeingCreatedInfoStore.sourceThingId
         ) {
@@ -240,7 +241,7 @@
                 thingId,
                 opacity,
                 halfAxisId,
-                (thing as Thing).parentCohort.direction,
+                thing.parentCohort.direction,
                 [event.clientX, event.clientY]
             )
         }
