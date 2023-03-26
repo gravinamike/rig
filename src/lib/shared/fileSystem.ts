@@ -1,7 +1,6 @@
 import path from "path"
 import fs from "fs"
 const fsPromises = fs.promises
-import { unigraphFolder } from "$lib/shared/constants"
 import { initializeOrUpdateGraph } from "$lib/db/serverSide"
 import { get } from "svelte/store"
 import { graphsBaseFolderStore, unigraphFolderStore } from "$lib/stores"
@@ -29,7 +28,15 @@ export async function listAttachmentsFolder(
 }
 
 export async function createFolder(folderGuid: string): Promise<void> {
-    const folderPath = path.join(unigraphFolder, "Folders", folderGuid)
+    const graphsBaseFolder = get(graphsBaseFolderStore)
+    const unigraphFolderName = get(unigraphFolderStore)
+    const unigraphFolderPath = unigraphFolderName ?
+        path.join(graphsBaseFolder, unigraphFolderName) :
+        null
+
+    if (unigraphFolderPath === null) return
+
+    const folderPath = path.join(unigraphFolderPath, "Folders", folderGuid)
 
     fs.mkdirSync(folderPath)
 

@@ -1,16 +1,29 @@
 import type { Space, Direction, Thing, Relationship } from "$lib/models/constructModels"
 
 
-/*
- * "Constants" that will eventually be moved into an editable config file.
- */
-export const unigraphFolder = "C:/Users/mtgra/Desktop/LifeSeahorse_test/LifeGrid_graph"
+/* "Constants" that will eventually be moved into an editable config file. */
+
 export const startingGraphDepth = 1
 export const zoomBase = 1.45
 
 
-/*
- * App-level interfaces and types.
+/* App-level interfaces and types. */
+
+
+/**
+ * App config interface.
+ * 
+ * An object containing information about the app configuration.
+ */
+export interface AppConfig {
+    unigraphFolder: string | null
+}
+
+/**
+ * Server config interface.
+ * 
+ * An object containing information about the server's app port, database port,
+ * and the folder that Graphs are stored in.
  */
 export interface ServerConfig {
     serverPort: number
@@ -18,10 +31,18 @@ export interface ServerConfig {
     graphsFolder: string
 }
 
-export interface AppConfig {
-    unigraphFolder: string | null
-}
+/**
+ * Default UI colors.
+ */
+export const defaultUIBackgroundColor = "#fafafa"
+export const defaultUITrimColor = "#E8E8E8"
 
+/**
+ * Waiting indicator states interface.
+ * 
+ * An object containing waiting indicator state names with their associated
+ * text and image info.
+ */
 export interface WaitingIndicatorStates {
     [stateName: string]: {
         text: string,
@@ -29,8 +50,15 @@ export interface WaitingIndicatorStates {
     }
 }
 
-/*
- * Graph-level interfaces and types.
+
+/* Graph-level interfaces and types. */
+
+/**
+ * Graph config interface.
+ * 
+ * An object containing information about the Graph's configuration, like
+ * visual formatting, menu and editor states, and the IDs of pinned and
+ * Perspective Things.
  */
 export interface GraphConfig {
     uIBackgroundColor?: string
@@ -46,33 +74,52 @@ export interface GraphConfig {
     perspectiveThingId: number | null
 }
 
-export type GraphConstruct = Direction | Space | Thing | Relationship
-
 /*
- * Text parameters.
- */
-export const fontSizes = [8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48, 72]
-
-export const headerLevels = [ 1, 2, 3, 4, 5, 6, null ] as const
-    
-
-/*
- * Layout parameters.
- */
-export const planePadding = 20
-
-
-/*
- * Graph constants.
+ * Constants related to half-axes.
  */
 export type HalfAxisId = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
 export const halfAxisIds = [0, 1, 2, 3, 4, 5, 6, 7, 8] as const
-export const halfAxisOppositeIds = {0: null, 1: 2, 2: 1, 3: 4, 4: 3, 5: 6, 6: 5, 7: 8, 8: 7} as const
+export const halfAxisOppositeIds = {
+    0: null, 1: 2, 2: 1, 3: 4, 4: 3, 5: 6, 6: 5, 7: 8, 8: 7
+} as const
 export type OddHalfAxisId = 1 | 3 | 5 | 7
 export const oddHalfAxisIds = [1, 3, 5, 7] as const
 export const cartesianHalfAxisIds = [1, 2, 3, 4] as const
 
+/**
+ * Graph construct type.
+ * 
+ * Includes subtypes of all major constructs that make up a Graph.
+ */
+export type GraphConstruct = Direction | Space | Thing | Relationship
 
+/**
+ * Maximum number of Things to store in the Thing store before trimming.
+ */
+export const maxThingsToStore = 500
+
+/**
+ * Plane padding.
+ */
+export const planePadding = 20
+
+
+/* History interfaces and types. */
+
+/**
+ * Date divider options.
+ * 
+ * Specify formatting for the dates in date divider widgets.
+ */
+export const dateDividerOptions = {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    weekday: "short"
+} as const
+
+
+/* Relationships interfaces and types. */
 
 /*
  * Rotations specify how many degrees a Relationships Widget
@@ -90,7 +137,7 @@ export const rotationByHalfAxisId = {
     8: 0,  // Outwards
 } as const
 
-/*
+/**
  * Mirrorings specify how a Relationships Widget should (or
  * should not) be mirrored based on its Half Axis.
  */
@@ -123,8 +170,10 @@ export const relationshipColorByHalfAxisId = {
 } as const
 
 
+/* Thing Cohort interfaces and types. */
+
 /*
- * Offset signs specify how a Cohort Widget is rendered
+ * Offset signs specify how a Thing Cohort Widget is rendered
  * relative to its parent:
  * The first number describes the x-axis (with right being positive).
  * The second number describes the y-axis (with down being positive).
@@ -145,6 +194,15 @@ export const offsetsByHalfAxisId = {
 } as const
 
 
+/* Notes editor interfaces and types. */
+
+/*
+ * Font-formatting constants.
+ */
+export const fontSizes = [8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48, 72]
+export const headerLevels = [ 1, 2, 3, 4, 5, 6, null ] as const
+
+// Text hyperlinks constants.
 export const hyperlinkProtocols = [
     "http",
     "https",
@@ -154,17 +212,3 @@ export const hyperlinkProtocols = [
     "news",
     "telnet"
 ]
-
-
-export const maxThingsToStore = 500
-
-export const dateDividerOptions = {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    weekday: "short"
-} as const
-
-
-export const defaultUIBackgroundColor = "#fafafa"
-export const defaultUITrimColor = "#E8E8E8"
