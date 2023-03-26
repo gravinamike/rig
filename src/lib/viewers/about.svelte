@@ -54,6 +54,10 @@
                 in the future. And if you have any suggestions, let Mike know!
             </p>
         </div>
+
+        <div class="copyright">
+            © Michael Gravina 2023&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        </div>
     </div>
 
     <div class="secret" on:click={displaySecret} on:keydown={()=>{}}>
@@ -101,6 +105,12 @@
     p {
         font-size: 0.9rem;
         text-indent: 1rem;
+    }
+
+    .copyright {
+        text-align: center;
+        font-size: 0.75rem;
+        color: grey;
     }
 
     .secret {

@@ -181,7 +181,7 @@
      * if it has child Thing Cohorts on the Outward half-axis.
      */
     $: isEncapsulating =
-        thing && (halfAxisId === 8 || 7 in thing.childCohortsByHalfAxisId) ? true :
+        thing && (halfAxisId === 8 || 7 in thing.childThingCohortByHalfAxisId) ? true :
         false
 
     /**

@@ -143,14 +143,14 @@
             // Get an array of IDs for all Cartesian half-axes in this Clade that currently
             // have Thing Cohorts, in the desired order for an outline.
             const orderedCartesianHalfAxisIdsWithThings = orderedCartesianHalfAxisIds.filter(
-                id => id in thing.childCohortsByHalfAxisId
+                id => id in thing.childThingCohortByHalfAxisId
             )
 
             // For every half-axis ID in that array, add the corresponding Thing
             // Cohort from the Clade's root Thing to the array of Thing Cohorts
             // that are on the Cartesian half-axes.
             for (const halfAxisId of orderedCartesianHalfAxisIdsWithThings) {
-                thingCohortsOnCartesianHalfAxes.push(thing.childCohortsByHalfAxisId[halfAxisId])
+                thingCohortsOnCartesianHalfAxes.push(thing.childThingCohortByHalfAxisId[halfAxisId])
             }
         }
 
@@ -163,14 +163,14 @@
             // Get an array of IDs for all non-Cartesian half-axes in this Clade that currently
             // have Thing Cohorts, in the desired order for an outline.
             const orderedNonCartesianHalfAxisIdsWithThings = orderedNonCartesianHalfAxisIds.filter(
-                id => id in thing.childCohortsByHalfAxisId
+                id => id in thing.childThingCohortByHalfAxisId
             )
 
             // For every half-axis ID in that array, add the corresponding Thing
             // Cohort from the Clade's root Thing to the array of Thing Cohorts
             // that are on the non-Cartesian half-axes.
             for (const halfAxisId of orderedNonCartesianHalfAxisIdsWithThings) {
-                thingCohortsOnNonCartesianHalfAxes.push(thing.childCohortsByHalfAxisId[halfAxisId])
+                thingCohortsOnNonCartesianHalfAxes.push(thing.childThingCohortByHalfAxisId[halfAxisId])
             }
         }
 

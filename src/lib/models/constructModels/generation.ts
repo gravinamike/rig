@@ -143,7 +143,7 @@ export class Generation {
                         childCohort.addMember(member)
                     }
 
-                    prevThing.childThingCohort(directionId, childCohort)
+                    prevThing.childThingCohortByDirectionID(directionId, childCohort)
                 }
             }
         }
