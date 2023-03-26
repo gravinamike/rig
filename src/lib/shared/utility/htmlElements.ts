@@ -19,9 +19,16 @@ export class Rectangle {
  * HTML element.
  * @param element - The HTML element from which to determine descendants.
  * @param descendants - A pre-existing list of descendants to add to, to allow the method to work recursively.
- * @returns 
+ * @returns - An array of elements that are descended from the element.
  */
-export function descendantElements(element: Element, excludeSubGraphChildren: boolean, descendants?: Element[]): Element[] {
+export function descendantElements(
+    element: Element,
+    excludeSubGraphChildren: boolean,
+    descendants?: Element[]
+): Element[] {
+    // If the children of sub-Graphs (such as in the off-axis-relations widget)
+    // are to be excluded, and the element is such a widget, return an empty
+    // array.
     if (
         excludeSubGraphChildren
         && typeof element.className === "string"
@@ -30,12 +37,18 @@ export function descendantElements(element: Element, excludeSubGraphChildren: bo
         return []
     }
 
+    // Start from an empty array if this is the top-level call, otherwise start
+    // from the array that was passed into the function.
     if ( descendants === undefined ) descendants = []
+
+    // Add all the element's children, and (recursively), all *their* children,
+    // and so on.
     for (let i = 0; i < element.children.length; i++) {
         descendants.push(element.children[i])
         descendantElements(element.children[i], true, descendants)
     }
 
+    // Return the array of descendants.
     return descendants
 }
 
@@ -47,13 +60,19 @@ export function descendantElements(element: Element, excludeSubGraphChildren: bo
  * @returns - An object containing rop, right, bottom and left edge coordinates.
  */
 export function elementGroupEdges(elementGroup: Element[]): {top: number, right: number, bottom: number, left: number} {
+    // Initialize an object of edges with default values of 0.
     const edges = {top: 0, right: 0, bottom: 0, left: 0}
+
+    // If there are any elements in the group, push out the edges to include
+    // them.
     if (elementGroup.length) {
         edges.top = Math.min( ...elementGroup.map((element) => {return element.getBoundingClientRect().top}) )
         edges.right = Math.max( ...elementGroup.map((element) => {return element.getBoundingClientRect().right}) )
         edges.bottom = Math.max( ...elementGroup.map((element) => {return element.getBoundingClientRect().bottom}) )
         edges.left = Math.min( ...elementGroup.map((element) => {return element.getBoundingClientRect().left}) )
     }
+
+    // Return the object of edges.
     return edges
 }
 
