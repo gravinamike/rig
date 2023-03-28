@@ -85,6 +85,8 @@ export const halfAxisOppositeIds = {
 export type OddHalfAxisId = 1 | 3 | 5 | 7
 export const oddHalfAxisIds = [1, 3, 5, 7] as const
 export const cartesianHalfAxisIds = [1, 2, 3, 4] as const
+export const orderedCartesianHalfAxisIds = [2, 1, 4, 3]
+export const orderedNonCartesianHalfAxisIds = [5, 6, 8, 7]
 
 /**
  * Graph construct type.

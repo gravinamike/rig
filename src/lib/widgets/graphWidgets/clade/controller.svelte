@@ -3,16 +3,25 @@
     import type { ThingCohort, Thing } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
+    // Import constants.
+    import { orderedCartesianHalfAxisIds, orderedNonCartesianHalfAxisIds } from "$lib/shared/constants"
+
     /**
-     * @param {Thing} rootThing - The Thing that forms the root of the Clade.
-     * @param {GraphWidgetStyle} graphWidgetStyle - Controls the style of the Graph widget.
-     * @param {string} overlapMarginStyleText - The CSS text to handle the overlap between the widgets.
+     * @param rootThing - The Thing that forms the root of the Clade.
+     * @param graphWidgetStyle - Controls the style of the Graph widget.
+     * @param overlapMarginStyleText - The CSS text to handle the overlap between the widgets.
+     * @param thingCohorts - The Thing Cohorts included in the Clade.
+     * @param orderedThingCohorts - The Thing Cohorts in the order they are to be displayed in the outline version of the widget.
+     * @param showCladeRootThing - Whether to display the root Thing of the Clade.
      */
     export let rootThing: Thing
     export let graphWidgetStyle: GraphWidgetStyle
-    
     export let overlapMarginStyleText: string = ""
+    export let thingCohorts: ThingCohort[] = []
+    export let orderedThingCohorts: ThingCohort[] = []
+    export let showCladeRootThing = true
 
+    
     
     /* --------------- Output attributes. --------------- */
 
@@ -48,6 +57,39 @@
             `margin-top: ${overlapMargin}px; margin-bottom: ${overlapMargin}px;`
         )
 
+
+    /* --------------- Output attributes for outline version of the widget. --------------- */
+
+    /**
+     * Thing Cohorts.
+     * 
+     * The Thing Cohorts included in the Clade.
+     */
+    $: thingCohorts = rootThing.childThingCohorts
+
+    /**
+     * Ordered Thing Cohorts.
+     * 
+     * The Thing Cohorts in the order they are to be displayed in the outline version of the widget.
+     */
+    $: orderedThingCohorts = getOrderedThingCohorts(rootThing)
+
+    /**
+     * Show-Clade-root-Thing flag.
+     * 
+     * Determines whether the full Clade, including the root Thing, should be
+     * shown, or only the children Things.
+     */
+     $: showCladeRootThing = (
+        // Show the root Thing unless the Clade's Generation is 0...
+        rootThing.address?.generationId === 0
+        // ... and the exclude-Perspective-Thing flag is true.
+        && graphWidgetStyle.excludePerspectiveThing
+    ) ?
+        false :
+        true
+
+    
     
     /* --------------- Supporting attributes. --------------- */
 
@@ -66,49 +108,9 @@
      * neighbors in the Thing Cohort.
      */
     $: overlapMargin = graphWidgetStyle.betweenThingOverlap / 2
+    
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-    /* Attributes for outline version of the widget. */
-
-
-    export let thingCohorts: ThingCohort[] = []
-    export let showCladeRootThing = true
-    export let orderedThingCohorts: ThingCohort[] = []
-
-
-    // Thing-Cohort-related variables.
-    $: thingCohorts = rootThing.childThingCohorts
-
-    /**
-     * Show-Clade-root-Thing flag.
-     * 
-     * Determines whether the full Clade, including the root Thing, should be
-     * shown, or only the children Things.
-     */
-    $: showCladeRootThing = (
-        rootThing.address?.generationId === 0
-        && graphWidgetStyle.excludePerspectiveThing
-    ) ?
-        false :
-        true
-
-    // The desired order of "Cartesian" half-axes in the outline.
-    const orderedCartesianHalfAxisIds = [2, 1, 4, 3]
-
-    // The desired order of "non-Cartesian" half-axes in the outline.
-    const orderedNonCartesianHalfAxisIds = [5, 6, 8, 7]
+    /* --------------- Support attributes for outline version of the widget. --------------- */
 
     /**
      * Ordering Thing Cohorts.
@@ -121,23 +123,10 @@
      */
     function getOrderedThingCohorts( thing: Thing ): ThingCohort[] {
 
-
-        /*
-        Any on-axis Directions (1, 3, 2, 4)
-        Off-axis Directions in the Space, in the order of the Space.
-        Other Directions, ordered according to their order attribute.
-        */
-
-        
-
-        const allCohortGroups: ThingCohort[][] = []
-        const thingCohortsOnCartesianHalfAxes: ThingCohort[] = []
-        const thingCohortsOnNonCartesianHalfAxes: ThingCohort[] = []
-        const thingCohortsNotOnHalfAxes: ThingCohort[] = []
-
         // If the reordering process should include the "Cartesian" half-axes
         // (Down, Up, Right, Left), add all Thing Cohorts which *are* on
         // those main half-axes to an array.
+        const thingCohortsOnCartesianHalfAxes: ThingCohort[] = []
         if (!graphWidgetStyle.excludeCartesianAxes) {
 
             // Get an array of IDs for all Cartesian half-axes in this Clade that currently
@@ -154,11 +143,9 @@
             }
         }
 
-
-
-
         // If the reordering process should include Thing Cohorts on the
         // non-Cartesian half-axes,
+        const thingCohortsOnNonCartesianHalfAxes: ThingCohort[] = []
         if (!graphWidgetStyle.excludeNonCartesianAxes) {
             // Get an array of IDs for all non-Cartesian half-axes in this Clade that currently
             // have Thing Cohorts, in the desired order for an outline.
@@ -174,11 +161,9 @@
             }
         }
 
-
-
-
         // If the reordering process should include Thing Cohorts not on
         // a half-axis,
+        const thingCohortsNotOnHalfAxes: ThingCohort[] = []
         if (!graphWidgetStyle.excludeNonAxisThingCohorts) {
             // Add all Thing Cohorts which *are not* on half-axes to an array.
             thingCohortsNotOnHalfAxes.push(
@@ -192,19 +177,16 @@
             )
         }
 
-
-        
-        
-
         // Combine the arrays to produce a single array of all Thing Cohorts for
         // this Clade, starting with those on the half-axes in the desired
         // order, and followed by those not on the main half-axes.
+        const allCohortGroups: ThingCohort[][] = []
         allCohortGroups.push(thingCohortsOnCartesianHalfAxes)
         allCohortGroups.push(thingCohortsOnNonCartesianHalfAxes)
         allCohortGroups.push(thingCohortsNotOnHalfAxes)
         const orderedThingCohorts = allCohortGroups.flat()
 
+        // Return the combined array.
         return orderedThingCohorts
     }
-    $: orderedThingCohorts = getOrderedThingCohorts(rootThing)
 </script>
