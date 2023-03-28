@@ -39,4 +39,4 @@ REM Open app in default browser.
 
 echo Opening app in default browser.
 set url=http://localhost:%port%/
-START "" %url%
+START /max "" %url%

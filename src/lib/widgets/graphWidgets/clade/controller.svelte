@@ -12,6 +12,7 @@
      * @param overlapMarginStyleText - The CSS text to handle the overlap between the widgets.
      * @param thingCohorts - The Thing Cohorts included in the Clade.
      * @param orderedThingCohorts - The Thing Cohorts in the order they are to be displayed in the outline version of the widget.
+     * @param childThings - All child Things in the Clade.
      * @param showCladeRootThing - Whether to display the root Thing of the Clade.
      */
     export let rootThing: Thing
@@ -19,7 +20,11 @@
     export let overlapMarginStyleText: string = ""
     export let thingCohorts: ThingCohort[] = []
     export let orderedThingCohorts: ThingCohort[] = []
+    export let orderedThingCohortsWithMembers: ThingCohort[] = []
+    export let childThings: Thing[] = []
     export let showCladeRootThing = true
+    export let expandable = false
+    export let expanded = false
 
     
     
@@ -75,6 +80,25 @@
     $: orderedThingCohorts = getOrderedThingCohorts(rootThing)
 
     /**
+     * Ordered Thing Cohorts with members.
+     * 
+     * Same as ordered Thing Cohorts, but including only those Cohorts that have
+     * members (aren't empty).
+     */
+     $: orderedThingCohortsWithMembers = orderedThingCohorts.filter(
+        thingCohort => thingCohort.members.length
+    )
+
+    /**
+     * Array of all Things across all the Thing Cohorts in the Clade.
+     */
+    $: childThings = (
+        thingCohorts
+            .map(thingCohort => thingCohort.members).flat()
+            .filter(thingCohortMember => thingCohortMember.thing !== null)
+        ) as unknown as Thing[]
+
+    /**
      * Show-Clade-root-Thing flag.
      * 
      * Determines whether the full Clade, including the root Thing, should be
@@ -89,6 +113,34 @@
         false :
         true
 
+
+    /**
+     * Expandable flag.
+     * 
+     * Determines whether the Clade can be collapsed to hide children or
+     * expanded to show them.
+     */
+     $: expandable = (
+        // The Clade is expandable if there are Thing Cohorts...
+        thingCohorts.length
+        // ... the Cohorts have a Generation...
+        && thingCohorts[0].generation
+        // ...and that Generation is not a Relationships-only Generation.
+        && !thingCohorts[0].generation.isRelationshipsOnly
+    ) ? true :
+    false
+
+    /**
+     * Expanded flag.
+     * 
+     * Determines whether the Clade is collapsed to hide children or expanded
+     * to show them. Starts true for the Generation 0 Clade, otherwise starts
+     * false.
+     */
+    $: expanded =
+        expandable && rootThing.address?.generationId === 0 ? true :
+        false
+    
     
     
     /* --------------- Supporting attributes. --------------- */
