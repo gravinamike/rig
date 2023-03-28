@@ -1,6 +1,6 @@
 <script lang="ts">
     // Import types.
-    import type { GenerationMember, Graph, Thing } from "$lib/models/constructModels"
+    import type { GenerationMember, Graph, ThingCohort, Thing } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
     
     // Import widget controller.
@@ -12,24 +12,26 @@
         HalfAxisWidget,
         OffAxisRelationsWidget
     } from "$lib/widgets/graphWidgets"
-    import { cartesianHalfAxisIds } from "$lib/shared/constants";
     
 
     /**
-     * @param {Thing} rootThing - The Thing that forms the root of the Clade.
-     * @param {Graph} graph - The Graph that the Clade is in.
-     * @param {GraphWidgetStyle} graphWidgetStyle - Controls the style of the Graph widget.
-     * @param {(thingId: number) => Promise<void>} rePerspectToThingId - A function that re-perspects the Graph to a given Thing ID.
+     * @param rootThing - The Thing that forms the root of the Clade.
+     * @param graph - The Graph that the Clade is in.
+     * @param graphWidgetStyle - Controls the style of the Graph widget.
+     * @param perspectiveTexts - Object containing texts for Things rendered from the root Thing's Perspective.
+     * @param rootThingThingCohortMembers - Array containing all members of the Thing Cohort containing the root Thing.
+     * @param rePerspectToThingId - A function that re-perspects the Graph to a given Thing ID.
      */
     export let rootThing: Thing
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
     export let perspectiveTexts: {[thingId: string]: string}
-    export let cohortMembersToDisplay: GenerationMember[]
+    export let rootThingThingCohortMembers: GenerationMember[]
     export let rePerspectToThingId: (id: number) => Promise<void>
 
 
     // Attributes managed by the widget controller.
+    let cartesianThingCohorts: ThingCohort[] = []
     let overlapMarginStyleText: string
 
     // Attributes managed by sub-widgets.
@@ -43,6 +45,7 @@
     {rootThing}
     {graphWidgetStyle}
 
+    bind:cartesianThingCohorts
     bind:overlapMarginStyleText
 />
 
@@ -72,14 +75,12 @@
             bind:graph
             {graphWidgetStyle}
             {perspectiveTexts}
-            {cohortMembersToDisplay}
+            cohortMembersToDisplay={rootThingThingCohortMembers}
         />
     {/if}
 
     <!-- The Thing's child Thing and Relationship Cohorts. -->
-    {#each rootThing.childThingCohorts.filter(
-        cohort => [1, 2, 3, 4].includes(cohort.halfAxisId)
-    ) as thingCohort (thingCohort.address)}
+    {#each cartesianThingCohorts as thingCohort (thingCohort.address)}
         <!-- Half-axis widget. -->
         <HalfAxisWidget
             {thingCohort}

@@ -3,22 +3,33 @@
     import type { ThingCohort, Thing } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
+    // Import utility functions.
+    import { readOnlyArrayToArray } from "$lib/shared/utility"
+
     // Import constants.
-    import { orderedCartesianHalfAxisIds, orderedNonCartesianHalfAxisIds } from "$lib/shared/constants"
+    import {
+            cartesianHalfAxisIds, orderedCartesianHalfAxisIds, orderedNonCartesianHalfAxisIds
+    } from "$lib/shared/constants"
+
 
     /**
      * @param rootThing - The Thing that forms the root of the Clade.
      * @param graphWidgetStyle - Controls the style of the Graph widget.
      * @param overlapMarginStyleText - The CSS text to handle the overlap between the widgets.
      * @param thingCohorts - The Thing Cohorts included in the Clade.
+     * @param cartesianThingCohorts - The Thing Cohorts that are on the Cartesian half-axes.
      * @param orderedThingCohorts - The Thing Cohorts in the order they are to be displayed in the outline version of the widget.
+     * @param orderedThingCohortsWithMembers - The ordered Thing Cohorts that have members.
      * @param childThings - All child Things in the Clade.
      * @param showCladeRootThing - Whether to display the root Thing of the Clade.
+     * @param expandable - Whether the Clade can be collapsed to hide children or expanded to show them.
+     * @param expanded - Whether the Clade is collapsed to hide children or expanded to show them.
      */
     export let rootThing: Thing
     export let graphWidgetStyle: GraphWidgetStyle
     export let overlapMarginStyleText: string = ""
     export let thingCohorts: ThingCohort[] = []
+    export let cartesianThingCohorts: ThingCohort[] = []
     export let orderedThingCohorts: ThingCohort[] = []
     export let orderedThingCohortsWithMembers: ThingCohort[] = []
     export let childThings: Thing[] = []
@@ -26,7 +37,6 @@
     export let expandable = false
     export let expanded = false
 
-    
     
     /* --------------- Output attributes. --------------- */
 
@@ -71,6 +81,16 @@
      * The Thing Cohorts included in the Clade.
      */
     $: thingCohorts = rootThing.childThingCohorts
+
+    /**
+     * Cartesian Thing Cohorts.
+     * 
+     * Same as the Thing Cohorts, but only those that are on the "Cartesian"
+     * half-axes (1, 2, 3, 4).
+     */
+    $: cartesianThingCohorts = rootThing.childThingCohorts.filter(
+        cohort => readOnlyArrayToArray(cartesianHalfAxisIds).includes(cohort.halfAxisId)
+    )
 
     /**
      * Ordered Thing Cohorts.
