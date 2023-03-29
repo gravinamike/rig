@@ -10,6 +10,11 @@
     import { ThingCohortOutlineWidget } from "$lib/widgets/graphWidgets"
     
 
+    /**
+     * @param graph - The Graph that the widget is based on.
+     * @param graphWidgetStyle - Controls the style of the widget.
+     * @param rePerspectToThingId - Method to re-Perspect the Graph to a new Thing ID.
+     */
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
     export let rePerspectToThingId: (thingId: number) => Promise<void>

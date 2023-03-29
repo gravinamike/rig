@@ -18,7 +18,6 @@
 
 
     /**
-     * Create a Graph Widget controller.
      * @param graph - The Graph that the widget is based on.
      * @param widget - The top-level <div> of the Graph Widget.
      * @param centralAnchor - A <div> in the center of the Graph Widget that serves as a central attachment point for the Graph.
@@ -303,7 +302,7 @@
             zoomBoundsDiv.scrollIntoView({
                 behavior: "smooth",
                 block: "center", inline: "center"})
-                
+
         // Otherwise, discrete-scroll to center the zoom bounds.
         } else {
             zoomBoundsDiv.scrollIntoView({block: "center", inline: "center"})
