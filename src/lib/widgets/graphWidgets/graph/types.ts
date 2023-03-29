@@ -1,3 +1,8 @@
+/**
+ * Graph widget style interface.
+ * 
+ * Controls the visual style and rendering of Graph widgets.
+ */
 export interface GraphWidgetStyle {
     excludePerspectiveThing: boolean,
     excludeCartesianAxes: boolean,
@@ -16,7 +21,7 @@ export interface GraphWidgetStyle {
     thingTextSize: number,
 }
 
-/*
+/**
  * Default Graph Widget Style.
  */
 export const defaultGraphWidgetStyle: GraphWidgetStyle = {
