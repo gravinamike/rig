@@ -2,9 +2,6 @@
     // Import types.
     import type { Graph, Space, Thing } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "./graph"
-    import {
-        WaitingIndicator, ContextCommandPalette, SideMenu, TabBlock, TabFlap, TabFlaps, TabBody
-    } from "$lib/widgets/layoutWidgets"
 
     // Import basic framework resources.
     import { tweened } from "svelte/motion"
@@ -19,6 +16,7 @@
     } from "$lib/stores"
 
     // Import related widgets.
+    import { WaitingIndicator } from "$lib/widgets/layoutWidgets"
     import { GraphOutlineWidget } from "$lib/widgets/graphWidgets"
     import { defaultGraphWidgetStyle } from "./graph"
 
@@ -33,7 +31,7 @@
     $: parentThingId = parentThing.id as number
 
     // Information about related Things.
-    $: numberOfRelations = parentThing.offAxisRelatedThingIds((parentThing.space as Space)).length
+    $: numberOfOffAxisRelations = parentThing.offAxisRelatedThingIds((parentThing.space as Space)).length
     $: numberOfNonCartesianAxisRelations = parentThing.nonCartesianAxisRelatedThingIds((parentThing.space as Space)).length
 
 
@@ -41,7 +39,7 @@
 
     // Toggle state attributes.
     let toggleHovered = false
-    $: showToggle = ((!$reorderingInfoStore.reorderInProgress && toggleHovered) || expanded)
+    $: showToggle = ((!$reorderingInfoStore.reorderInProgress && toggleHovered) || showOffAxisRelations)
 
     // Scale-related attributes.
     $: scale = zoomBase ** parentGraphWidgetStyle.zoom
@@ -65,13 +63,26 @@
         )
     ).length !== 0
 
-    $: expanded = prioritizedOffAxisDirectionsContainThings
+
+    $: temp = parentThing.childThingCohorts.filter(
+        thingCohort => (
+            [5, 7].includes(thingCohort.halfAxisId)
+            && thingCohort.members.length
+        )
+    ).length
+
+
+
+    let expanded = false
+    $: if (parentThing.address?.generationId === 0 && prioritizedOffAxisDirectionsContainThings) {
+        expanded = true
+    }
 
 
 
 
 
-    $: showOffAxisRelations = numberOfRelations && expanded
+    $: showOffAxisRelations = (numberOfOffAxisRelations || numberOfNonCartesianAxisRelations) && expanded
 
     // The off-axis-relations Graph is created and removed when the toggle is
     // expanded and collapsed, respectively.
@@ -133,26 +144,31 @@
         await graph.build()
         addGraphIdsNeedingViewerRefresh(graph.id)
     }
-
-
-
-
 </script>
+
+
+
+
+
 
 
 <!-- Off-axis relations toggle. -->
 <div
     class="off-axis-relations-toggle"
     class:expanded
-    class:no-mouse-events={($readOnlyMode && !numberOfRelations) || prioritizedOffAxisDirectionsContainThings}
+    class:no-mouse-events={
+        ($readOnlyMode && !(numberOfNonCartesianAxisRelations + numberOfOffAxisRelations))
+        || parentThing.address?.generationId === 0 && prioritizedOffAxisDirectionsContainThings
+    }
 
     style="width: {toggleSize}px; height: {toggleSize}px;"
 
     on:mouseenter={()=>{toggleHovered = true}}
     on:mouseleave={()=>{toggleHovered = false}}
-    on:click={() => {if (numberOfRelations) expanded = !expanded}}
+    on:click={() => {expanded = !expanded}}
     on:keydown={()=>{}}
 >
+    
     <!-- Visible toggle image. -->
     {#if showToggle}
         <svg
@@ -176,10 +192,15 @@
     {/if}
 
     <!-- Number-of-off-axis-relations indicator. -->
-    {#if numberOfRelations && !expanded}
-        <div>+{numberOfRelations}</div>
+    {#if (numberOfNonCartesianAxisRelations + numberOfOffAxisRelations) && !expanded}
+        <div>+{numberOfNonCartesianAxisRelations + numberOfOffAxisRelations}</div>
     {/if}
 </div>
+
+
+
+
+
 
 <!-- Off-axis-relations display. -->
 {#if showOffAxisRelations}
@@ -261,14 +282,18 @@
                 {/if}
 
                 <!-- Number-of-off-axis-relations indicator. -->
-                {#if graphWidgetStyle.excludeNonAxisThingCohorts}
-                    <div>+{numberOfRelations}</div>
+                {#if graphWidgetStyle.excludeNonAxisThingCohorts && numberOfOffAxisRelations}
+                    <div>+{numberOfOffAxisRelations}</div>
                 {/if}
             </div>
         {/if}
         
     </div>
 {/if}
+
+
+
+
 
 
 <style>
