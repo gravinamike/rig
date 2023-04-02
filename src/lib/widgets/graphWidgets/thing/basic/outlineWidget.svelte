@@ -1,28 +1,30 @@
 <script lang="ts">
-    /* Type imports. */
+    // Import types.
     import type { Graph, Thing } from "$lib/models/constructModels"
+    import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets/graph"
 
-    /* Store imports. */
+    // Import stores.
     import {
-        graphDbModelInStore, unstoreGraphDbModels,
         hoveredThingIdStore, hoveredRelationshipTarget,
         relationshipBeingCreatedInfoStore,
         setRelationshipBeingCreatedDestThingId, disableRelationshipBeingCreated,
         pinIdsStore, openContextCommandPalette, addPin, removePin, readOnlyMode,
     } from "$lib/stores"
 
-    /* Widget imports. */
+    // Import widget controller.
+    import ThingWidgetController from "./controller.svelte"
+
+    // Import related widgets.
     import { ThingDetailsWidget } from "$lib/widgets/detailsWidgets"
     import DeleteWidget from "$lib/widgets/layoutWidgets/deleteWidget.svelte"
-    import type { GraphWidgetStyle } from "../../graph";
-
-    import ThingWidgetController from "./controller.svelte"
 
 
     /**
-     * @param  {ThingWidgetModel} thingWidgetModel - The Thing Widget Model used to set up this Widget.
-     * @param  {Graph} graph - The Graph that the Thing is in.
-     * @param  {(thingId: number) => Promise<void>} rePerspectToThingId - A function that re-perspects the Graph to a given Thing ID.
+     * @param thingID - The ID of the Thing that this widget is based on.
+     * @param thing - The Thing that this widget is based on.
+     * @param graph - The Graph that the Thing is in.
+     * @param graphWidgetStyle - Controls the visual style of the Graph.
+     * @param rePerspectToThingId - A function that re-perspects the Graph to a given Thing ID.
      */
     export let thingId: number
     export let thing: Thing | null = null
@@ -31,6 +33,7 @@
     export let rePerspectToThingId: (id: number) => Promise<void>
 
 
+    // Attributes handled by widget controller.
     let encapsulatingDepth: number = 0
     let elongationCategory: "vertical" | "horizontal" | "neutral"
     let thingWidgetId: string
@@ -48,8 +51,11 @@
     let completeDelete: () => void
     
 
-
+    // Handles for HTML element dimensions.
+    let width = 1
+    let height = 1
     
+
     /* Variables dealing with visual formatting of the Thing itself (color, opacity, outline, etc.). */
     let isHoveredWidget = false
     $: isHoveredThing = thingId === $hoveredThingIdStore
@@ -73,14 +79,7 @@
             [{ text: "Add Thing to Pins", iconName: "pin", iconHtml: null, isActive: false, onClick: () => {addPin(thingId)} }]
         openContextCommandPalette(position, buttonInfos)
     }
-
-
-    let width = 1
-    let height = 1
 </script>
-
-
-
 
 
 <ThingWidgetController
@@ -111,8 +110,6 @@
     bind:startDelete
     bind:completeDelete
 />
-
-
 
 
 <!-- Thing Widget. -->

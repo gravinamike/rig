@@ -1,6 +1,7 @@
 <script lang="ts">
     // Import types.
     import type { HalfAxisId } from "$lib/shared/constants"
+    import type { Graph } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
     // Import stores.
@@ -8,14 +9,13 @@
 
     // Import widget controller.
     import ThingAlreadyRenderedWidgetController from "./controller.svelte"
-    import type { Graph } from "$lib/models/constructModels";
     
 
     /**
-     * Create a Thing-Already-Rendered widget.
-     * @param {number | null} thingId - The ID of the Thing the widget is based on.
-     * @param {HalfAxisId} cohortHalfAxisId - The ID of the half-axis the Thing's Thing Cohort is on.
-     * @param {GraphWidgetStyle} graphWidgetStyle - Controls the style of the Graph widget.
+     * @param thingId - The ID of the Thing the widget is based on.
+     * @param cohortHalfAxisId - The ID of the half-axis the Thing's Thing Cohort is on.
+     * @param graph - The Graph that the Thing is part of.
+     * @param graphWidgetStyle - Controls the style of the Graph widget.
      */
     export let thingId: number
     export let cohortHalfAxisId: HalfAxisId

@@ -1,6 +1,8 @@
 <script lang="ts">
     // Import types.
     import type { Tweened } from "svelte/motion"
+    import type { HalfAxisId } from "$lib/shared/constants"
+    import type { ThingDbModel } from "$lib/models/dbModels/clientSide"
     import type { Direction, Graph, ThingCohort, Thing } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
@@ -11,9 +13,7 @@
     // Import constants.
     import {
         halfAxisOppositeIds, rotationByHalfAxisId, mirroringByHalfAxisId,
-        offsetsByHalfAxisId, relationshipColorByHalfAxisId,
-        zoomBase,
-        type HalfAxisId
+        offsetsByHalfAxisId, relationshipColorByHalfAxisId, zoomBase
      } from "$lib/shared/constants"
 
     // Import stores.
@@ -24,11 +24,9 @@
 
     // Import API functions.
     import { updateRelationships } from "$lib/db/clientSide"
-    import type { ThingDbModel } from "$lib/models/dbModels/clientSide";
     
 
     /**
-     * Create a Relationship Cohort Widget controller.
      * @param cohort - The Thing Cohort that is associated with the Relationship Cohort.
      * @param graph - The Graph that the Cohort is in.
      * @param graphWidgetStyle - Controls the style of the Graph widget.
