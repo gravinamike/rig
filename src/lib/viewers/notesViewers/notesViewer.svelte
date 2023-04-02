@@ -60,15 +60,17 @@
 
     // When Perspective Thing changes, update the raw and display text to match.
     $: if (typeof graph.pThing?.note?.text === "string") {
-        updateTexts(graph.pThing.note.text)
-
-        textField?.scroll({top: 0})
-        textEditorField?.scroll({top: 0})
+        updateTexts(graph.pThing.note.text, true)
     }
 
-    async function updateTexts(text: string) {
+    async function updateTexts(text: string, scrollToTop=false) {
         currentPThingNoteText = text
         viewerDisplayText = textForDisplay(text)
+
+        if (scrollToTop) {
+            textField?.scroll({top: 0})
+            textEditorField?.scroll({top: 0})
+        }
     }
 
     /**
@@ -130,7 +132,7 @@
 
         // Update the note in the stores and the Graph.
         if (graph.pThing?.id) await storeGraphDbModels<ThingDbModel>("Thing", graph.pThing.id, true)
-        if (graph.pThing?.note?.text) graph.pThing.note.text = newText
+        viewerDisplayText = textForDisplay(newText)
     }
 
     // Set up custom hyperlink handling for Thing-links.
@@ -263,11 +265,6 @@
     $: notesBackgroundImageUrl =
         $notesBackgroundImageStore ? `customizable/background-images/${$notesBackgroundImageStore}` :
         null
-
-
-
-
-
 </script>
 
 
