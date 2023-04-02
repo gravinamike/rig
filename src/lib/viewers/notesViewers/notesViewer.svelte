@@ -12,8 +12,9 @@
     import { thingsByGuid, addNoteToThing, updateNote, markNotesModified } from "$lib/db/clientSide"
 
 
-    import { notesBackgroundImageStore, notesEditorLockedStore, readOnlyMode, uITrimColorStore } from "$lib/stores"
+    import { notesBackgroundImageStore, notesEditorLockedStore, readOnlyMode, storeGraphDbModels, uITrimColorStore } from "$lib/stores"
     import { saveGraphConfig } from "$lib/shared/config"
+    import type { ThingDbModel } from "$lib/models/dbModels/clientSide";
 
 
     /**
@@ -123,11 +124,13 @@
      * the editor, then refresh the front-end to show the new Note.
      */
     async function updateAndRefreshNote(noteId: number, newText: string) {
-        // Update the Note and mark the Thing as modified.
+        // Update the Note and mark the Thing as modified in the database.
         await updateNote(noteId, newText)
         await markNotesModified(noteId)
 
-        await graph.refreshPThing()
+        // Update the note in the stores and the Graph.
+        if (graph.pThing?.id) await storeGraphDbModels<ThingDbModel>("Thing", graph.pThing.id, true)
+        if (graph.pThing?.note?.text) graph.pThing.note.text = newText
     }
 
     // Set up custom hyperlink handling for Thing-links.
