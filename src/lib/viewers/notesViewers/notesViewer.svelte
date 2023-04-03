@@ -1,6 +1,6 @@
 <script lang="ts">
     // Import types.
-    import type { Graph } from "$lib/models/constructModels"
+    import type { Graph, Thing } from "$lib/models/constructModels"
 
     // Import constants and stores.
     import { hyperlinkProtocols } from "$lib/shared/constants"
@@ -53,14 +53,24 @@
     // Whether the Note text has been edited in the editor.
     let editorTextEditedButNotSynced = false
     
-    $: if (!graph.pThing?.note?.text) {
+
+    // The Graph's Perspective Thing is proxied here, to prevent reactive
+    // updates whenever the Graph is refreshed.
+    let pThing = graph.pThing
+    function updatePThing(newPThing: Thing | null) {
+        if (newPThing !== pThing) pThing = newPThing
+    }
+    $: updatePThing(graph.pThing)
+
+
+    $: if (pThing?.note?.text) {
         currentPThingNoteText = null
         viewerDisplayText = null
     }
 
     // When Perspective Thing changes, update the raw and display text to match.
-    $: if (typeof graph.pThing?.note?.text === "string") {
-        updateTexts(graph.pThing.note.text, true)
+    $: if (typeof pThing?.note?.text === "string") {
+        updateTexts(pThing.note.text, true)
     }
 
     async function updateTexts(text: string, scrollToTop=false) {
