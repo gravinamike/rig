@@ -187,7 +187,7 @@
                             {graphWidgetStyle}
                             {midline}
                             {stemTop}
-                            {thingIdOfHoveredRelationship}
+                            bind:thingIdOfHoveredRelationship
                             {halfAxisId}
                             {thingWidth}
                             {thingHeight}

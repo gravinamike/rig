@@ -84,7 +84,7 @@
         class:readOnlyMode={$readOnlyMode}
 
         x1="{midline}" y1="{stemBottom}"
-        x2="{midline}" y2="{stemTop}"
+        x2="{midline}" y2="{stemTop + 10}"
         style="stroke-width: {20 / tweenedScale};"
 
         on:mouseenter={ () => {
