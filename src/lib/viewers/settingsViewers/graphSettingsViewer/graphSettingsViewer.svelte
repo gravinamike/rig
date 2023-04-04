@@ -102,14 +102,6 @@
                 maxValue={100}
                 onChangeFunction={updateGraphFormat}
             />
-
-            <SettingWidget
-                labelText={"Focal Plane"}
-                bind:boundValue={graph.planes.focalPlaneId}
-                minValue={-10}
-                maxValue={10}
-                onChangeFunction={updateGraphFormat}
-            />
         </div>
 
     </div>

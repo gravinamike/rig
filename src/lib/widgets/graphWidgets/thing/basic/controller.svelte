@@ -57,8 +57,8 @@
     export let textFontSize = 10
     export let showDeleteButton = false
     export let editingText = false
-    export let textBeingEdited: string
-    export let perspectiveTextBeingEdited: string | null
+    export let textBeingEdited: string = ""
+    export let perspectiveTextBeingEdited: string | null = null
     export let handleMouseDown: (event: MouseEvent) => void
     export let handleMouseDrag: (event: MouseEvent) => void
     export let onBodyMouseUp: (event: MouseEvent) => void

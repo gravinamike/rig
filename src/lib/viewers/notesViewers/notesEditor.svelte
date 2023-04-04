@@ -103,7 +103,7 @@
     }
 
 
-    $: if (currentPThingNoteText) setContent(currentPThingNoteText)
+    $: if (typeof currentPThingNoteText === "string") setContent(currentPThingNoteText)
     
 
 

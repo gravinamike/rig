@@ -54,11 +54,15 @@
     let editorTextEditedButNotSynced = false
     
 
-    // The Graph's Perspective Thing is proxied here, to prevent reactive
-    // updates whenever the Graph is refreshed.
+    // The Graph's Perspective Thing info is proxied here, to prevent
+    // reactive updates whenever the Graph is refreshed.
     let pThing = graph.pThing
+    let pThingNoteId = graph.pThing?.note?.id || null
     function updatePThing(newPThing: Thing | null) {
-        if (newPThing !== pThing) pThing = newPThing
+        if (newPThing !== pThing) {
+            pThing = newPThing
+            pThingNoteId = newPThing?.note?.id || null
+        }
     }
     $: updatePThing(graph.pThing)
 
@@ -68,9 +72,12 @@
         viewerDisplayText = null
     }
 
-    // When Perspective Thing changes, update the raw and display text to match.
+    // When Perspective Thing changes, update the raw and display text to match
+    // (or, if the Perspective Thing doesn't yet have a Note, set blank text).
     $: if (typeof pThing?.note?.text === "string") {
         updateTexts(pThing.note.text, true)
+    } else {
+        updateTexts("", true)
     }
 
     async function updateTexts(text: string, scrollToTop=false) {
@@ -108,7 +115,6 @@
     }
 
     async function createAndUpdateNote(currentEditorTextContent: string): Promise<void> {
-        const pThingNoteId = graph.pThing?.note?.id || null
         let noteIdToUpdate: number | null | false = pThingNoteId
         if (pThingNoteId === null) noteIdToUpdate = await createNoteIfNecessary()
         if (noteIdToUpdate) updateAndRefreshNote(noteIdToUpdate, currentEditorTextContent)
@@ -139,6 +145,7 @@
         // Update the Note and mark the Thing as modified in the database.
         await updateNote(noteId, newText)
         await markNotesModified(noteId)
+        pThingNoteId = noteId
 
         // Update the note in the stores and the Graph.
         if (graph.pThing?.id) await storeGraphDbModels<ThingDbModel>("Thing", graph.pThing.id, true)
