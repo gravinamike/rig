@@ -57,8 +57,8 @@
     export let textFontSize = 10
     export let showDeleteButton = false
     export let editingText = false
-    export let textBeingEdited = thing?.text || ""
-    export let perspectiveTextBeingEdited = String(thingId) in perspectiveTexts ? perspectiveTexts[String(thingId)] : null
+    export let textBeingEdited: string
+    export let perspectiveTextBeingEdited: string | null
     export let handleMouseDown: (event: MouseEvent) => void
     export let handleMouseDrag: (event: MouseEvent) => void
     export let onBodyMouseUp: (event: MouseEvent) => void
@@ -204,6 +204,20 @@
      * started.
      */
     $: showDeleteButton = !$readOnlyMode && isHoveredWidget && !$reorderingInfoStore.reorderInProgress && !confirmDeleteBoxOpen
+
+    /**
+     * Text-being-edited.
+     * 
+     * The text of the Thing when its text form is open and editable.
+    */
+    $: textBeingEdited = thing?.text || ""
+
+    /**
+     * Perspective-text-being-edited.
+     * 
+     * The Perspective text of the Thing when its text form is open and editable.
+    */
+    $: perspectiveTextBeingEdited = String(thingId) in perspectiveTexts ? perspectiveTexts[String(thingId)] : null
 
     /**
      * Handle-mouse-down method.
