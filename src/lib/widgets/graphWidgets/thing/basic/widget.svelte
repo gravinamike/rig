@@ -338,7 +338,6 @@
         top: 5%;
         width: 6%;
         height: 89%;
-        z-index: 2;
         background-color: white;
 
         cursor: pointer;

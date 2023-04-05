@@ -53,18 +53,6 @@
 </script>
 
 
-<!-- Relationship Cohort Widgets (only for Cartesian axes). -->
-{#if [1, 2, 3, 4].includes(thingCohort.halfAxisId)}
-    <RelationshipCohortWidget
-        cohort={thingCohort}
-        {cohortMembersToDisplay}
-        bind:graph
-        {graphWidgetStyle}
-        thingWidth={rootThingWidth}
-        thingHeight={rootThingHeight}
-    />
-{/if}
-
 <!-- Thing Cohort Widgets. -->
 {#if [1, 2, 3, 4, 5, 6, 7, 8].includes(thingCohort.halfAxisId)}
     <ThingCohortWidget
@@ -74,5 +62,17 @@
         {graphWidgetStyle}
         {perspectiveTexts}
         {rePerspectToThingId}
+    />
+{/if}
+
+<!-- Relationship Cohort Widgets (only for Cartesian axes). -->
+{#if [1, 2, 3, 4].includes(thingCohort.halfAxisId)}
+    <RelationshipCohortWidget
+        cohort={thingCohort}
+        {cohortMembersToDisplay}
+        bind:graph
+        {graphWidgetStyle}
+        thingWidth={rootThingWidth}
+        thingHeight={rootThingHeight}
     />
 {/if}

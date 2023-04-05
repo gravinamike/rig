@@ -129,27 +129,6 @@
         "
     >
 
-        <!-- Direction widget. -->
-        {#if showDirection}
-            <div
-                class="direction-widget-anchor"
-                style="
-                    transform:
-                        scaleY({mirroring})
-                        rotate({directionWidgetRotation}deg);
-                "
-            >
-                <DirectionDropdownWidget
-                    startingDirection={direction}
-                    halfAxisId={cohort.halfAxisId}
-                    {graphWidgetStyle}
-                    optionClickedFunction={(direction, _, __) => {
-                        if (direction?.id) changeRelationshipsDirection(direction.id)
-                    }}
-                />
-            </div>
-        {/if}
-
         <!-- Relationship images. -->
         <div
             class="relationship-images"
@@ -205,6 +184,27 @@
             
         </div>
 
+        <!-- Direction widget. -->
+        {#if showDirection}
+            <div
+                class="direction-widget-anchor"
+                style="
+                    transform:
+                        scaleY({mirroring})
+                        rotate({directionWidgetRotation}deg);
+                "
+            >
+                <DirectionDropdownWidget
+                    startingDirection={direction}
+                    halfAxisId={cohort.halfAxisId}
+                    {graphWidgetStyle}
+                    optionClickedFunction={(direction, _, __) => {
+                        if (direction?.id) changeRelationshipsDirection(direction.id)
+                    }}
+                />
+            </div>
+        {/if}
+
     </div>
 </div>
 
@@ -213,7 +213,6 @@
     .relationship-cohort-widget {
         position: absolute;
         transform: translate(-50%, -50%);
-        z-index: -1;
 
         display: flex;
         justify-content: center;
