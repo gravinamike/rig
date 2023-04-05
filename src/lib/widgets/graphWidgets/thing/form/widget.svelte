@@ -30,6 +30,7 @@
     let thingHeight: number
     let distanceFromFocalPlane: number
     let usePerspectiveText: boolean
+    let textFontSize: number
     let submit: () => void
     let cancel: () => void
 
@@ -53,6 +54,7 @@
     bind:thingWidth
     bind:thingHeight
     bind:distanceFromFocalPlane
+    bind:textFontSize
     bind:submit
     bind:cancel
 />
@@ -72,6 +74,7 @@
         bind:text={baseText}
         bind:perspectiveText
         {usePerspectiveText}
+        fontSize={textFontSize}
         {submit}
         {cancel}
     />

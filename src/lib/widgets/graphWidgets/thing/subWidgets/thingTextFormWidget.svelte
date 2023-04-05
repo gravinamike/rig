@@ -6,13 +6,14 @@
     export let text: string
     export let perspectiveText: string
     export let usePerspectiveText: boolean
+    export let fontSize: number
     export let submit: () => void
     export let cancel: () => void
 </script>
 
 
 <div
-    class="thing-form-text-widget"
+    class="thing-text-form-widget"
     
     on:keypress={(event) => {
         if (event.key === "Enter") {
@@ -38,6 +39,8 @@
             rows=3
             placeholder="Enter Perspective text"
 
+            style="font-size: {perspectiveText && perspectiveText.length > 0 ? fontSize : 14}px;"
+
             on:mousemove|stopPropagation
         />
     {:else}
@@ -49,6 +52,8 @@
             rows=3
             placeholder="Enter text"
 
+            style="font-size: {text && text.length > 0 ? fontSize : 14}px;"
+
             on:mousemove|stopPropagation
         />
     {/if}
@@ -57,11 +62,17 @@
 
 
 <style>
-    .thing-form-text-widget {
+    .thing-text-form-widget {
+        box-sizing: border-box;
+
         position: relative;
+        height: 100%;
         z-index: 1;
 
-        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
     }
 
     .cancel-button-container {
@@ -74,10 +85,10 @@
         outline: none;
         border: solid 1px lightgrey;
 
-        width: 100% !important;
+        width: 75% !important;
+        height: 75%;
 
         font-family: Arial;
-        font-size: 10px;   
 
         resize: none;
     }

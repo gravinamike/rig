@@ -234,6 +234,7 @@
                     bind:text={textBeingEdited}
                     bind:perspectiveText={perspectiveTextBeingEdited}
                     {usePerspectiveText}
+                    fontSize={textFontSize}
                     submit={submitEditedText}
                     cancel={cancelEditingText}
                 />

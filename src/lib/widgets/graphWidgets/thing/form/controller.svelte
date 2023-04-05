@@ -37,6 +37,7 @@
     export let thingWidth = 0
     export let thingHeight = 0
     export let distanceFromFocalPlane = 0
+    export let textFontSize = 10
     export let submit: () => void
     export let cancel: () => void
 
@@ -44,6 +45,7 @@
     // Attributes handled by base widget controller.
     let planeId: number
     let halfAxisId: HalfAxisId
+    let cohortSize: number = 0
 
 
     /* --------------- Output attributes. --------------- */
@@ -54,6 +56,17 @@
     $: perspectiveText =
         String(thing.id) in perspectiveTexts ? perspectiveTexts[String(thing.id)] :
         null
+
+    /**
+     * Text font size.
+     * 
+     * The pixel size of the font for the Thing text. This is taken from the
+     * Graph style unless the Thing is "downwardly" encapsulated, in which case
+     * the size is shrunk in order to fit.
+     */
+    $: textFontSize =
+        encapsulatingDepth >= 0 ? graphWidgetStyle.thingTextSize :
+        graphWidgetStyle.thingTextSize / Math.log2(cohortSize)
 
     /**
      * Submit method.
@@ -105,6 +118,7 @@
     bind:encapsulatingDepth
     bind:thingWidth
     bind:thingHeight
+    bind:cohortSize
     bind:distanceFromFocalPlane
     bind:halfAxisId
 />
