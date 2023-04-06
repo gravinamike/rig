@@ -256,7 +256,7 @@
                 opacity,
                 halfAxisId,
                 thing.parentCohort.direction,
-                [event.clientX, event.clientY]
+                dragStartPosition
             )
         }
     }

@@ -144,7 +144,7 @@
         
 
         // Open and build the new Graph.
-        graph = await addGraph(pThingIds as number[], depth, null, false, spaceToUse)
+        graph = await addGraph(pThingIds as number[], depth, null, false, false, spaceToUse)
         graphWidgetStyle = {...defaultGraphWidgetStyle}
         await markThingsVisited(pThingIds as number[])
 

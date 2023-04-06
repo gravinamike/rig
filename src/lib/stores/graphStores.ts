@@ -46,6 +46,7 @@ export async function addGraph(
     depth: number,
     parentGraph: (Graph | null) = null,
     offAxis=false,
+    isSearchMenu=false,
     startingSpace: (Space | null) = null
 ): Promise<Graph> {
     // Calculate the ID for the new Graph based on the maximum existing Graph
@@ -55,7 +56,7 @@ export async function addGraph(
     const newGraphId = allGraphIds.length ? Math.max(...allGraphIds) + 1 : 1
 
     // Create and build the new Graph.
-    const graph = new Graph(newGraphId, pThingIds, depth, parentGraph, offAxis, startingSpace)
+    const graph = new Graph(newGraphId, pThingIds, depth, parentGraph, offAxis, isSearchMenu, startingSpace)
     await graph.build()
 
     // Add the Graph to the Graphs store if it's not already there.

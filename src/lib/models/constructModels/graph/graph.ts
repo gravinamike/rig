@@ -25,6 +25,7 @@ export class Graph {
     startingSpace: Space | null
     originalStartingSpace: Space | null
     offAxis: boolean
+    inSearchMenu: boolean
     formActive: boolean
 
     /**
@@ -32,7 +33,7 @@ export class Graph {
      * @param {number[]} pThingIds - IDs for the Graph's starting Perspective Things.
      * @param {number}   depth     - How many Relationship "steps" to grow the Graph from the Perspective Things.
      */
-    constructor(id: number, pThingIds: number[], depth: number, parentGraph: (Graph | null)=null, offAxis=false, startingSpace: (Space | null)=null) {
+    constructor(id: number, pThingIds: number[], depth: number, parentGraph: (Graph | null)=null, offAxis=false, inSearchMenu=false, startingSpace: (Space | null)=null) {
         this.id = id
         this._pThingIds = pThingIds
         this._depth = depth
@@ -44,6 +45,7 @@ export class Graph {
         this.startingSpace = startingSpace
         this.originalStartingSpace = startingSpace
         this.offAxis = offAxis
+        this.inSearchMenu = inSearchMenu
         this.formActive = false
     }
 
@@ -113,7 +115,7 @@ export class Graph {
         await this.generations.adjustToDepth(this._depth)
         this.pThing = (this.rootCohort as unknown as ThingCohort).members[0].thing
         
-        if (!this.parentGraph) {
+        if (!(this.parentGraph || this.inSearchMenu)) {
             const pThingSpaceId = this.pThing?.space?.id || null
             perspectiveSpaceIdStore.set(pThingSpaceId)
             updateUrlHash({

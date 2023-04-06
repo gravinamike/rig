@@ -204,8 +204,20 @@
      * displayed on the Relationship branch widget instead of the stem).
      */
     $: showDirection =
-        !($relationshipBeingCreatedInfoStore.sourceThingId && !relatableForCurrentDrag)
-        && (parentThing.address?.generationId === 0 || stemHovered) && !thingIdOfHoveredRelationship ? true :
+        // The Cohort's parent is the Perspective Thing, or...
+        parentThing.address?.generationId === 0
+        || (
+            // The Cohort is not an invalid relating target for an in-progress
+            // drag-relate operation,
+            !(
+                $relationshipBeingCreatedInfoStore.sourceThingId
+                && !relatableForCurrentDrag
+            )
+            // and the widget is hovered,
+            && stemHovered
+            // and there is no Relationship being hovered.
+            && !thingIdOfHoveredRelationship
+        ) ? true :
         false
 
     /**
@@ -381,7 +393,7 @@
             $relationshipBeingCreatedInfoStore.sourceThingId !== cohort.parentThingId
             && (
                 !$inferredRelationshipBeingCreatedDirection ||
-                $inferredRelationshipBeingCreatedDirection.id === cohort.direction.oppositeid
+                cohort.direction && $inferredRelationshipBeingCreatedDirection.id === cohort.direction.oppositeid
             )
         ) ? true :
         false

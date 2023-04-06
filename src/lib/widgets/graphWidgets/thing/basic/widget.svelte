@@ -139,7 +139,7 @@
 
 <!-- Set up mouse-event handlers on page body. -->
 <svelte:body
-    on:mousemove={ (event) => { if (!readOnlyMode) handleMouseDrag(event) } }
+    on:mousemove={ (event) => { if (!$readOnlyMode) handleMouseDrag(event) } }
     on:mouseup={onBodyMouseUp}
 />
 

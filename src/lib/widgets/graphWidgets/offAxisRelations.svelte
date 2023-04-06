@@ -112,7 +112,7 @@
 
         // Open and build the new Graph.
         const parentGraphSpace = parentGraph.pThing?.space as Space
-        graph = await addGraph([parentThingId], 1, parentGraph, true, parentGraphSpace)
+        graph = await addGraph([parentThingId], 1, parentGraph, true, false, parentGraphSpace)
         graphWidgetStyle = {...defaultGraphWidgetStyle}
 
         // Configure style for off-axis styling, if applicable.

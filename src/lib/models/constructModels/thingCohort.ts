@@ -129,7 +129,10 @@ export class ThingCohort {
         }
     }
 
-    get direction(): Direction {
-        return getGraphConstructs("Direction", this.address.directionId as number) as Direction
+    get direction(): Direction | null {
+        const direction =
+            this.address.directionId ? getGraphConstructs("Direction", this.address.directionId) as Direction :
+            null
+        return direction
     }
 }
