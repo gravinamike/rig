@@ -19,13 +19,14 @@
         disableThingLinking()
     }
 
-    function submitMethod(selectedItem: SearchOption | null, matchedItems: SearchOption[]) {
+    async function submitMethod(selectedItem: SearchOption | null, matchedItems: SearchOption[]) {
         const destThingId = (
             selectedItem ? selectedItem.id :
             matchedItems.length ? matchedItems[0].id :
             null
         )
 
+        await sleep(50) // Allow the click that triggered the submission to finish.
         if (destThingId) {
             const destThing = getGraphConstructs("Thing", destThingId) as Thing
             if (destThing) {
@@ -34,7 +35,7 @@
                 $thingLinkingStore.editor?.chain().focus().setLink({ href: url, target: '_blank' }).run()
             }            
         }
-
+        
         cancel()
     }
 </script>

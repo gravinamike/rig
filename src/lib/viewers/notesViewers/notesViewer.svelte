@@ -187,11 +187,21 @@
      * @param event - The mouse click that activated the method.
      */
 	function handlePossibleOutsideClick(event: MouseEvent) {
+        const thingLinkingWidgets = document.getElementsByClassName("thing-linking-widget")
+        const thingLinkingWidget = thingLinkingWidgets.length ? thingLinkingWidgets[0] : null
+
 		if (
             event.target !== notesContainer
             && !notesContainer.contains(event.target as Node)
             && event.target !== editButton 
             && !editButton.contains(event.target as Node)
+            && !(
+                thingLinkingWidget
+                && (
+                    event.target === thingLinkingWidget
+                    || thingLinkingWidget.contains(event.target as Node)
+                )
+            )
             && !editingLocked
         ) editing = false
 	}
