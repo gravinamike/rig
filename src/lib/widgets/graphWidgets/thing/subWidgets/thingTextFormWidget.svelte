@@ -73,12 +73,16 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
+
+        pointer-events: none;
     }
 
     .cancel-button-container {
         position: absolute;
         top: 2px;
         right: 2px;
+
+        pointer-events: auto;
     }
 
     textarea {
@@ -88,9 +92,12 @@
         width: 75% !important;
         height: 75%;
 
+        scrollbar-width: thin;
+
         font-family: Arial;
 
         resize: none;
+        pointer-events: auto;
     }
 
     textarea:focus {

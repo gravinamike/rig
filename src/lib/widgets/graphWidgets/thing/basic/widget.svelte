@@ -331,7 +331,7 @@
     .slider-toggle {
         outline: solid 0.25px #ececec;
         outline-offset: -0.25px;
-        box-shadow: 1px 1px 2px 1px #ececec;
+        box-shadow: 1px 1px 2px 1px gainsboro;
         
 
         position: absolute;
