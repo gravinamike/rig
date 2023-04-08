@@ -764,12 +764,16 @@ export async function deleteThing(thingId: number): Promise<void> {
 /*
  * Create a new Relationship.
  */
-export async function createNewRelationship(sourceThingId: number, destThingId: number, directionId: number): Promise<void> {    
+export async function createNewRelationship(sourceThingId: number, destThingId: number, directionId: number): Promise<void> {  
+    // Get Direction info.
+    const direction = (await RawDirectionDbModel.query().where("id", directionId))[0]
+    const oppositeDirectionId = direction.oppositeid as number
+
     // Verify the Relationship does not yet exist.
     const queriedARelationships = await RawRelationshipDbModel.query()
         .where("thingaid", destThingId)
         .where("thingbid", sourceThingId)
-        .where("direction", directionId)
+        .where("direction", oppositeDirectionId)
     const queriedBRelationships = await RawRelationshipDbModel.query()
         .where("thingaid", sourceThingId)
         .where("thingbid", destThingId)
