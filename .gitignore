@@ -3,3 +3,15 @@ node_modules
 /build
 /.svelte-kit
 /package
+
+# Config files.
+/static/config/config.json
+/static/config/serverconfig.json
+
+# Customizable files.
+/static/customizable/background-images/*
+!/static/customizable/background-images/.gitkeep
+/static/customizable/fonts/*
+!/static/customizable/fonts/.gitkeep
+/static/customizable/font-names.json
+/static/customizable/notes-style.css
