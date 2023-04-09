@@ -81,7 +81,7 @@
         // Close any existing Graph.
         if (graph !== null) await removeGraph(graph)
         // Open and build the new Graph.
-        graph = await addGraph([thingIdToShowGraphFor], 1)
+        graph = await addGraph([thingIdToShowGraphFor], 1, null, false, true, null)
         graphWidgetStyle.animateZoomAndScroll = false
         // Refresh the Graph viewer.
         addGraphIdsNeedingViewerRefresh(graph.id)

@@ -93,8 +93,8 @@ export class ThingCohort {
         if (!this.members.includes(member)) {
             this.members.push(member)
             if (member.thing) {
-                if (!member.thing._parentCohort) member.thing.parentCohort = this
-                member.thing.setGraph(this.address.graph)
+                if (!member.thing.parentCohort) member.thing.parentCohort = this
+                member.thing.graph = this.address.graph
             }
         }
     }
@@ -129,7 +129,10 @@ export class ThingCohort {
         }
     }
 
-    get direction(): Direction {
-        return getGraphConstructs("Direction", this.address.directionId as number) as Direction
+    get direction(): Direction | null {
+        const direction =
+            this.address.directionId ? getGraphConstructs("Direction", this.address.directionId) as Direction :
+            null
+        return direction
     }
 }

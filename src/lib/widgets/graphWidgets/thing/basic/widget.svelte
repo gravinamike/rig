@@ -139,7 +139,7 @@
 
 <!-- Set up mouse-event handlers on page body. -->
 <svelte:body
-    on:mousemove={ (event) => { if (!readOnlyMode) handleMouseDrag(event) } }
+    on:mousemove={ (event) => { if (!$readOnlyMode) handleMouseDrag(event) } }
     on:mouseup={onBodyMouseUp}
 />
 
@@ -234,6 +234,7 @@
                     bind:text={textBeingEdited}
                     bind:perspectiveText={perspectiveTextBeingEdited}
                     {usePerspectiveText}
+                    fontSize={textFontSize}
                     submit={submitEditedText}
                     cancel={cancelEditingText}
                 />
@@ -330,14 +331,13 @@
     .slider-toggle {
         outline: solid 0.25px #ececec;
         outline-offset: -0.25px;
-        box-shadow: 1px 1px 2px 1px #ececec;
+        box-shadow: 1px 1px 2px 1px gainsboro;
         
 
         position: absolute;
         top: 5%;
         width: 6%;
         height: 89%;
-        z-index: 2;
         background-color: white;
 
         cursor: pointer;

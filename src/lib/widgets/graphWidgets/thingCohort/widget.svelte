@@ -95,7 +95,7 @@
                     bind:graph
                     {graphWidgetStyle}
                     {perspectiveTexts}
-                    {cohortMembersToDisplay}
+                    rootThingThingCohortMembers={cohortMembersToDisplay}
                     {rePerspectToThingId}
                 />
             {/if}

@@ -195,7 +195,7 @@
     $: parentThingOffsetToGrandparentThing =
         // If the parent Thing and grandparent Thing exist and the Thing Cohort
         // is on a "doubled-back" half-axis...
-        thingCohort.parentThing && grandparentThingId && isDoubledBackHalfAxis ? (
+        thingCohort.parentThing?.address && grandparentThingId && isDoubledBackHalfAxis ? (
             // ...multiply the index of the parent Thing in its Thing Cohort...
             thingCohort.parentThing.address.indexInCohort
             // ...by the space each Thing takes up on the long axis of its Thing

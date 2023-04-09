@@ -37,6 +37,7 @@
     export let thingWidth = 0
     export let thingHeight = 0
     export let distanceFromFocalPlane = 0
+    export let textFontSize = 10
     export let submit: () => void
     export let cancel: () => void
 
@@ -44,6 +45,7 @@
     // Attributes handled by base widget controller.
     let planeId: number
     let halfAxisId: HalfAxisId
+    let cohortSize: number = 0
 
 
     /* --------------- Output attributes. --------------- */
@@ -56,6 +58,17 @@
         null
 
     /**
+     * Text font size.
+     * 
+     * The pixel size of the font for the Thing text. This is taken from the
+     * Graph style unless the Thing is "downwardly" encapsulated, in which case
+     * the size is shrunk in order to fit.
+     */
+    $: textFontSize =
+        encapsulatingDepth >= 0 ? graphWidgetStyle.thingTextSize :
+        graphWidgetStyle.thingTextSize / Math.log2(cohortSize)
+
+    /**
      * Submit method.
      * 
      * Submits the Thing form, calling for the creation of a new Thing with the
@@ -64,7 +77,7 @@
     submit = async () => {
         // Get information needed to create the new Thing.
         const parentThingId = (thing.parentThing?.id as number)
-        const space = (thing.parentCohort.parentThing as Thing).space as Space
+        const space = (thing.parentThing as Thing).space as Space
         const directionId = space.directionIdByHalfAxisId[halfAxisId] as number
 
         // Create the new Thing.
@@ -88,7 +101,7 @@
      * associated flags and refreshing the Graph.
     */
     cancel = async () => {
-        thing.parentCohort.removeMemberById(thing.id as number)
+        thing.parentCohort?.removeMemberById(thing.id as number)
         cohortMembersToDisplay.pop()
         graph.formActive = false
         addGraphIdsNeedingViewerRefresh(graph.id)
@@ -105,6 +118,7 @@
     bind:encapsulatingDepth
     bind:thingWidth
     bind:thingHeight
+    bind:cohortSize
     bind:distanceFromFocalPlane
     bind:halfAxisId
 />

@@ -57,8 +57,8 @@
     export let textFontSize = 10
     export let showDeleteButton = false
     export let editingText = false
-    export let textBeingEdited = thing?.text || ""
-    export let perspectiveTextBeingEdited = String(thingId) in perspectiveTexts ? perspectiveTexts[String(thingId)] : null
+    export let textBeingEdited: string = ""
+    export let perspectiveTextBeingEdited: string | null = null
     export let handleMouseDown: (event: MouseEvent) => void
     export let handleMouseDrag: (event: MouseEvent) => void
     export let onBodyMouseUp: (event: MouseEvent) => void
@@ -181,7 +181,7 @@
      * if it has child Thing Cohorts on the Outward half-axis.
      */
     $: isEncapsulating =
-        thing && (halfAxisId === 8 || 7 in thing.childCohortsByHalfAxisId) ? true :
+        thing && (halfAxisId === 8 || 7 in thing.childThingCohortByHalfAxisId) ? true :
         false
 
     /**
@@ -204,6 +204,20 @@
      * started.
      */
     $: showDeleteButton = !$readOnlyMode && isHoveredWidget && !$reorderingInfoStore.reorderInProgress && !confirmDeleteBoxOpen
+
+    /**
+     * Text-being-edited.
+     * 
+     * The text of the Thing when its text form is open and editable.
+    */
+    $: textBeingEdited = thing?.text || ""
+
+    /**
+     * Perspective-text-being-edited.
+     * 
+     * The Perspective text of the Thing when its text form is open and editable.
+    */
+    $: perspectiveTextBeingEdited = String(thingId) in perspectiveTexts ? perspectiveTexts[String(thingId)] : null
 
     /**
      * Handle-mouse-down method.
@@ -230,7 +244,8 @@
      */
     handleMouseDrag = (event: MouseEvent) => {
         if (
-            dragStartPosition
+            thing?.parentCohort
+            && dragStartPosition
             && Math.hypot(event.clientX - dragStartPosition[0], event.clientX - dragStartPosition[0]) > 5
             && !$relationshipBeingCreatedInfoStore.sourceThingId
         ) {
@@ -240,8 +255,8 @@
                 thingId,
                 opacity,
                 halfAxisId,
-                (thing as Thing).parentCohort.direction,
-                [event.clientX, event.clientY]
+                thing.parentCohort.direction,
+                dragStartPosition
             )
         }
     }

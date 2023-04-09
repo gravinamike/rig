@@ -100,30 +100,35 @@
     />
 
     <!-- Delete button. -->
-    {#if (
-        // Show delete button if the Relationship is hovered, except those relating to Thing Forms.
-        !($relationshipBeingCreatedInfoStore.sourceThingId && !relatableForCurrentDrag)
-        && !$reorderingInfoStore.reorderInProgress
-        && relationshipHovered
-        && cohortMemberWithIndex.member
-    )}
-        <svg
-            class="delete-button-container"
-            x={leafGeometry.bottomMidline}
-            y={leafGeometry.bottom}
+    
+    <svg
+        class="delete-button-group"
+        x={leafGeometry.bottomMidline}
+        y={leafGeometry.bottom}
+        width=20
+        height=20
 
-            on:mouseenter={()=>{
-                fanSegmentHovered = true
-                thingIdOfHoveredRelationship = thing.id || null
-            }}
-            on:mouseleave={()=>{fanSegmentHovered = false; thingIdOfHoveredRelationship = null}}
-        >
+        on:mouseenter={()=>{
+            fanSegmentHovered = true
+            relationshipHovered = true
+            thingIdOfHoveredRelationship = thing.id || null
+        }}
+        on:mouseleave={()=>{fanSegmentHovered = false; relationshipHovered = false; thingIdOfHoveredRelationship = null}}
+    >
+        {#if (
+            // Show delete button if the Relationship is hovered, except those relating to Thing Forms.
+            !($relationshipBeingCreatedInfoStore.sourceThingId && !relatableForCurrentDrag)
+            && !$reorderingInfoStore.reorderInProgress
+            && relationshipHovered
+            && cohortMemberWithIndex.member
+        )}
             <XButton
                 size={20}
                 buttonFunction={deleteRelationship}
             />
-        </svg>
-    {/if}
+        {/if}
+    </svg>
+    
 
     <!-- Will-be-deleted indicator -->
     {#if !($relationshipBeingCreatedInfoStore.sourceThingId && !relatableForCurrentDrag) && willBeDeleted}
@@ -171,10 +176,11 @@
         opacity: 0.25;
     }
 
-    .delete-button-container {
+    .delete-button-group {
         transform: translate(-10px, -10px);
 
         pointer-events: auto;
+        cursor: pointer;
     }
 
     .will-be-deleted-indicator {

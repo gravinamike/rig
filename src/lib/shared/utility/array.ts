@@ -54,3 +54,14 @@ export function makeArrayUnique<Type>(array: Type[]): Type[] {
 export function arrayHasDuplicates(array: unknown[]) {
     return (new Set(array)).size !== array.length
 }
+
+/**
+ * Read-only array to array method.
+ * 
+ * Returns a basic, mutable array equivalent to the input read-only array.
+ * @param readOnlyArray - A read-only array.
+ * @returns - The equivalent mutable array.
+ */
+export function readOnlyArrayToArray(readOnlyArray: readonly number[]) {
+    return readOnlyArray.concat() as number[]
+}

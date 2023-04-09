@@ -35,7 +35,7 @@ export function enableRelationshipBeingCreated(
     sourceThingId: number,
     sourceThingOpacity: number,
     sourceHalfAxisId: HalfAxisId,
-    sourceDirection: Direction,
+    sourceDirection: Direction | null,
     position: [number, number]
 ): void {
     relationshipBeingCreatedInfoStore.set(

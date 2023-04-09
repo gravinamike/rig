@@ -20,22 +20,24 @@
     export let graphWidgetStyle: GraphWidgetStyle
 
 
+    // Handles for HTML element dimensions.
+    let directionWidgetWidth = 1
+    let directionWidgetHeight = 1
+
+
     // Attributes managed by widget controller.
     let direction: Direction
     let halfAxisId: HalfAxisId | null
 
 
-
+    // Rotation and translation of the Direction widget.
     $: directionWidgetRotation = directionWidgetIsRotated ? -90 : 0
     $: directionWidgetTranslation = directionWidgetIsRotated ? directionWidgetWidth : 0
-    let directionWidgetWidth = 1
-    let directionWidgetHeight = 1
 
-
+    
+    // Set up flag for whether the component has finished mounting. 
     let mounted = false
-    onMount(async () => {
-        mounted = true
-	})
+    onMount(async () => { mounted = true })
 </script>
 
 
@@ -69,11 +71,7 @@
         bind:clientWidth={directionWidgetWidth}
         bind:clientHeight={directionWidgetHeight}
 
-        style="
-            width: 100px;
-            transform-origin: top left;
-            transform: rotate({directionWidgetRotation}deg) translate(-{directionWidgetTranslation}px, 0px);
-        "
+        style="transform: rotate({directionWidgetRotation}deg) translate(-{directionWidgetTranslation}px, 0px);"
     >
         {#if direction}
             <DirectionDropdownWidget
@@ -107,6 +105,9 @@
         position: absolute;
         left: 4px;
         top: 4px;
+        width: 100px;
         z-index: 1;
+
+        transform-origin: top left;
     }
 </style>

@@ -1,6 +1,8 @@
 <script lang="ts">
     // Import types.
     import type { Tweened } from "svelte/motion"
+    import type { HalfAxisId } from "$lib/shared/constants"
+    import type { ThingDbModel } from "$lib/models/dbModels/clientSide"
     import type { Direction, Graph, ThingCohort, Thing } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
@@ -11,9 +13,7 @@
     // Import constants.
     import {
         halfAxisOppositeIds, rotationByHalfAxisId, mirroringByHalfAxisId,
-        offsetsByHalfAxisId, relationshipColorByHalfAxisId,
-        zoomBase,
-        type HalfAxisId
+        offsetsByHalfAxisId, relationshipColorByHalfAxisId, zoomBase
      } from "$lib/shared/constants"
 
     // Import stores.
@@ -24,11 +24,9 @@
 
     // Import API functions.
     import { updateRelationships } from "$lib/db/clientSide"
-    import type { ThingDbModel } from "$lib/models/dbModels/clientSide";
     
 
     /**
-     * Create a Relationship Cohort Widget controller.
      * @param cohort - The Thing Cohort that is associated with the Relationship Cohort.
      * @param graph - The Graph that the Cohort is in.
      * @param graphWidgetStyle - Controls the style of the Graph widget.
@@ -206,8 +204,20 @@
      * displayed on the Relationship branch widget instead of the stem).
      */
     $: showDirection =
-        !($relationshipBeingCreatedInfoStore.sourceThingId && !relatableForCurrentDrag)
-        && (parentThing.address.generationId === 0 || stemHovered) && !thingIdOfHoveredRelationship ? true :
+        // The Cohort's parent is the Perspective Thing, or...
+        parentThing.address?.generationId === 0
+        || (
+            // The Cohort is not an invalid relating target for an in-progress
+            // drag-relate operation,
+            !(
+                $relationshipBeingCreatedInfoStore.sourceThingId
+                && !relatableForCurrentDrag
+            )
+            // and the widget is hovered,
+            && stemHovered
+            // and there is no Relationship being hovered.
+            && !thingIdOfHoveredRelationship
+        ) ? true :
         false
 
     /**
@@ -383,7 +393,7 @@
             $relationshipBeingCreatedInfoStore.sourceThingId !== cohort.parentThingId
             && (
                 !$inferredRelationshipBeingCreatedDirection ||
-                $inferredRelationshipBeingCreatedDirection.id === cohort.direction.oppositeid
+                cohort.direction && $inferredRelationshipBeingCreatedDirection.id === cohort.direction.oppositeid
             )
         ) ? true :
         false
@@ -500,8 +510,11 @@
             // space each Thing takes up in the Thing Cohort, times the Thing
             // Cohort's parent Thing's index in its own Thing Cohort.
             const part2 = (
-                halfAxisId !== 0
-                && halfAxisId === halfAxisOppositeIds[halfAxisId || 0] ? (
+                (
+                    parentThing.address
+                    && halfAxisId !== 0
+                    && halfAxisId === halfAxisOppositeIds[halfAxisId || 0]
+                ) ? (
                     (sizeOfThingsAlongWidth + graphWidgetStyle.betweenThingSpacing)
                     * parentThing.address.indexInCohort
                 ) :

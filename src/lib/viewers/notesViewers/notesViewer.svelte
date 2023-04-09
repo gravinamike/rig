@@ -1,6 +1,6 @@
 <script lang="ts">
     // Import types.
-    import type { Graph } from "$lib/models/constructModels"
+    import type { Graph, Thing } from "$lib/models/constructModels"
 
     // Import constants and stores.
     import { hyperlinkProtocols } from "$lib/shared/constants"
@@ -12,8 +12,9 @@
     import { thingsByGuid, addNoteToThing, updateNote, markNotesModified } from "$lib/db/clientSide"
 
 
-    import { notesBackgroundImageStore, notesEditorLockedStore, readOnlyMode, uITrimColorStore } from "$lib/stores"
+    import { notesBackgroundImageStore, notesEditorLockedStore, readOnlyMode, storeGraphDbModels, uITrimColorStore } from "$lib/stores"
     import { saveGraphConfig } from "$lib/shared/config"
+    import type { ThingDbModel } from "$lib/models/dbModels/clientSide";
 
 
     /**
@@ -52,22 +53,41 @@
     // Whether the Note text has been edited in the editor.
     let editorTextEditedButNotSynced = false
     
-    $: if (!graph.pThing?.note?.text) {
+
+    // The Graph's Perspective Thing info is proxied here, to prevent
+    // reactive updates whenever the Graph is refreshed.
+    let pThing = graph.pThing
+    let pThingNoteId = graph.pThing?.note?.id || null
+    function updatePThing(newPThing: Thing | null) {
+        if (newPThing !== pThing) {
+            pThing = newPThing
+            pThingNoteId = newPThing?.note?.id || null
+        }
+    }
+    $: updatePThing(graph.pThing)
+
+
+    $: if (pThing?.note?.text) {
         currentPThingNoteText = null
         viewerDisplayText = null
     }
 
-    // When Perspective Thing changes, update the raw and display text to match.
-    $: if (typeof graph.pThing?.note?.text === "string") {
-        updateTexts(graph.pThing.note.text)
-
-        textField?.scroll({top: 0})
-        textEditorField?.scroll({top: 0})
+    // When Perspective Thing changes, update the raw and display text to match
+    // (or, if the Perspective Thing doesn't yet have a Note, set blank text).
+    $: if (typeof pThing?.note?.text === "string") {
+        updateTexts(pThing.note.text, true)
+    } else {
+        updateTexts("", true)
     }
 
-    async function updateTexts(text: string) {
+    async function updateTexts(text: string, scrollToTop=false) {
         currentPThingNoteText = text
         viewerDisplayText = textForDisplay(text)
+
+        if (scrollToTop) {
+            textField?.scroll({top: 0})
+            textEditorField?.scroll({top: 0})
+        }
     }
 
     /**
@@ -95,7 +115,6 @@
     }
 
     async function createAndUpdateNote(currentEditorTextContent: string): Promise<void> {
-        const pThingNoteId = graph.pThing?.note?.id || null
         let noteIdToUpdate: number | null | false = pThingNoteId
         if (pThingNoteId === null) noteIdToUpdate = await createNoteIfNecessary()
         if (noteIdToUpdate) updateAndRefreshNote(noteIdToUpdate, currentEditorTextContent)
@@ -123,11 +142,14 @@
      * the editor, then refresh the front-end to show the new Note.
      */
     async function updateAndRefreshNote(noteId: number, newText: string) {
-        // Update the Note and mark the Thing as modified.
+        // Update the Note and mark the Thing as modified in the database.
         await updateNote(noteId, newText)
         await markNotesModified(noteId)
+        pThingNoteId = noteId
 
-        await graph.refreshPThing()
+        // Update the note in the stores and the Graph.
+        if (graph.pThing?.id) await storeGraphDbModels<ThingDbModel>("Thing", graph.pThing.id, true)
+        viewerDisplayText = textForDisplay(newText)
     }
 
     // Set up custom hyperlink handling for Thing-links.
@@ -165,11 +187,21 @@
      * @param event - The mouse click that activated the method.
      */
 	function handlePossibleOutsideClick(event: MouseEvent) {
+        const thingLinkingWidgets = document.getElementsByClassName("thing-linking-widget")
+        const thingLinkingWidget = thingLinkingWidgets.length ? thingLinkingWidgets[0] : null
+
 		if (
             event.target !== notesContainer
             && !notesContainer.contains(event.target as Node)
             && event.target !== editButton 
             && !editButton.contains(event.target as Node)
+            && !(
+                thingLinkingWidget
+                && (
+                    event.target === thingLinkingWidget
+                    || thingLinkingWidget.contains(event.target as Node)
+                )
+            )
             && !editingLocked
         ) editing = false
 	}
@@ -260,11 +292,6 @@
     $: notesBackgroundImageUrl =
         $notesBackgroundImageStore ? `customizable/background-images/${$notesBackgroundImageStore}` :
         null
-
-
-
-
-
 </script>
 
 

@@ -19,18 +19,18 @@
     let textField: HTMLTextAreaElement
 
     // Variables situating the Thing in its spatial context (Half-Axis, Plane)
-    $: halfAxisId = thing?.parentCohort.halfAxisId || 0
+    $: halfAxisId = thing?.parentCohort?.halfAxisId || 0
     $: planeId = [7, 8].includes(halfAxisId) ?
-        thing?.parentCohort.parentThing?.parentCohort.plane?.id || 0 :
-        thing?.parentCohort.plane?.id || 0
+        thing?.parentThing?.parentCohort?.plane?.id || 0 :
+        thing?.parentCohort?.plane?.id || 0
     $: distanceFromFocalPlane = planeId - graph.planes.focalPlaneId
     
     // Variables dealing with encapsulation (Things containing other Things).
-    $: encapsulatingDepth = thing?.parentCohort.encapsulatingDepth || 0
+    $: encapsulatingDepth = thing?.parentCohort?.encapsulatingDepth || 0
     $: encapsulatingPadding = encapsulatingDepth >= 0 ? 40 : 20
 
     /* Variables dealing with Thing sizing. */
-    $: elongation = thing?.parentCohort.axialElongation || 1
+    $: elongation = thing?.parentCohort?.axialElongation || 1
     $: elongationCategory = (
         [1, 2, 3, 4].includes(halfAxisId) ?
         ( [1, 2].includes(halfAxisId) ? "vertical" : "horizontal" ) :
@@ -47,7 +47,7 @@
     }
 
     // Variables dealing with Thing sizing.
-    $: cohortSize = thing?.parentCohort.members.length || 1
+    $: cohortSize = thing?.parentCohort?.members.length || 1
     $: thingSize = graphWidgetStyle.thingSize + planePadding * planeId + encapsulatingPadding * encapsulatingDepth
     $: thingWidth = thingSize * XYElongation.x
     $: thingHeight = encapsulatingDepth >= 0 ? thingSize * XYElongation.y : thingSize * XYElongation.y / cohortSize - 2
@@ -55,7 +55,7 @@
 
     async function submit() {
         const parentThingId = thing.parentThing?.id as number
-        const space = (thing.parentCohort.parentThing as Thing).space as Space
+        const space = (thing.parentThing as Thing).space as Space
         const directionId = space.directionIdByHalfAxisId[halfAxisId] as number
         const text = textField.value
 
@@ -68,7 +68,7 @@
     }
 
     async function cancel() {
-        thing.parentCohort.removeMemberById(thing.id as number)
+        thing.parentCohort?.removeMemberById(thing.id as number)
         graph.formActive = false
         addGraphIdsNeedingViewerRefresh(graph.id)
     }    

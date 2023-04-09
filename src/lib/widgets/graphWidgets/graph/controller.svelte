@@ -18,23 +18,22 @@
 
 
     /**
-     * Create a Graph Widget controller.
-     * @param {Graph} graph - The Graph that the widget is based on.
-     * @param {HTMLElement} widget - The top-level <div> of the Graph Widget.
-     * @param {Element} centralAnchor - A <div> in the center of the Graph Widget that serves as a central attachment point for the Graph.
-     * @param {Element} zoomBoundsDiv - A <div> that closely hugs the edges of the Graph, used as a target for zooms.
-     * @param {GraphWidgetStyle} graphWidgetStyle - Controls the style of the widget.
-     * @param {Space | null} currentSpace - The current Space that is used when rendering the Graph.
-     * @param {boolean} showPlaneControls - Whether or not to display the Plane Controls widget.
-     * @param {number} scale - The target scale of the Graph Widget, used for zooming.
-     * @param {number} tweenedScale - A tweened version of the scale, used for animated zooming.
-     * @param {Rectangle} zoomBounds - A Rectangle that describes the zoomBoundsDiv, used to calculate zoom parameters.
-     * @param {boolean} allowZoomAndScrollToFit - Whether to allow automatic zooming and scrolling.
-     * @param {boolean} allowScrollToThingId - Whether to allow automated scrolling to a specified Thing.
-     * @param {boolean} thingIdToScrollTo - The ID of the target Thing for automated scrolling.
-     * @param {boolean} trackingMouse - Whether the position of the mouse is being tracked for dragging.
-     * @param {(WheelEvent) => void} handleMouseMove - Function to mouse-drag the widget.
-     * @param {(MouseEvent) => void} handleWheelScroll - Function to scroll-zoom the widget.
+     * @param graph - The Graph that the widget is based on.
+     * @param widget - The top-level <div> of the Graph Widget.
+     * @param centralAnchor - A <div> in the center of the Graph Widget that serves as a central attachment point for the Graph.
+     * @param zoomBoundsDiv - A <div> that closely hugs the edges of the Graph, used as a target for zooms.
+     * @param graphWidgetStyle - Controls the style of the widget.
+     * @param currentSpace - The current Space that is used when rendering the Graph.
+     * @param showPlaneControls - Whether or not to display the Plane Controls widget.
+     * @param scale - The target scale of the Graph Widget, used for zooming.
+     * @param tweenedScale - A tweened version of the scale, used for animated zooming.
+     * @param zoomBounds - A Rectangle that describes the zoomBoundsDiv, used to calculate zoom parameters.
+     * @param allowZoomAndScrollToFit - Whether to allow automatic zooming and scrolling.
+     * @param allowScrollToThingId - Whether to allow automated scrolling to a specified Thing.
+     * @param thingIdToScrollTo - The ID of the target Thing for automated scrolling.
+     * @param trackingMouse - Whether the position of the mouse is being tracked for dragging.
+     * @param handleMouseMove - Function to mouse-drag the widget.
+     * @param handleWheelScroll - Function to scroll-zoom the widget.
      */
     export let graph: Graph
     export let widget: HTMLElement | null
@@ -303,6 +302,7 @@
             zoomBoundsDiv.scrollIntoView({
                 behavior: "smooth",
                 block: "center", inline: "center"})
+
         // Otherwise, discrete-scroll to center the zoom bounds.
         } else {
             zoomBoundsDiv.scrollIntoView({block: "center", inline: "center"})

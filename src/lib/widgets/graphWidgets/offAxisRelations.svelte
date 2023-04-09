@@ -2,9 +2,6 @@
     // Import types.
     import type { Graph, Space, Thing } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "./graph"
-    import {
-        WaitingIndicator, ContextCommandPalette, SideMenu, TabBlock, TabFlap, TabFlaps, TabBody
-    } from "$lib/widgets/layoutWidgets"
 
     // Import basic framework resources.
     import { tweened } from "svelte/motion"
@@ -19,6 +16,7 @@
     } from "$lib/stores"
 
     // Import related widgets.
+    import { WaitingIndicator } from "$lib/widgets/layoutWidgets"
     import { GraphOutlineWidget } from "$lib/widgets/graphWidgets"
     import { defaultGraphWidgetStyle } from "./graph"
 
@@ -33,45 +31,77 @@
     $: parentThingId = parentThing.id as number
 
     // Information about related Things.
-    $: numberOfRelations = parentThing.offAxisRelatedThingIds((parentThing.space as Space)).length
+    $: numberOfOffAxisRelations = parentThing.offAxisRelatedThingIds((parentThing.space as Space)).length
     $: numberOfNonCartesianAxisRelations = parentThing.nonCartesianAxisRelatedThingIds((parentThing.space as Space)).length
 
 
-    /* Toggle-related attributes. */
+    /* Whole-widget-related attributes. */
 
-    // Toggle state attributes.
-    let toggleHovered = false
-    $: showToggle = ((!$reorderingInfoStore.reorderInProgress && toggleHovered) || expanded)
+    // Expanded/collapsed flag.
+    let expanded = false
+
+    // Start expanded if parent Thing is Generation 0 and has
+    // non-Cartesian axis relations to display.
+    $: if (parentThing.address?.generationId === 0 && nonCartesianAxesContainThings) {
+        expanded = true
+    }
+
+    // Whether to show the off-axis relations.
+    $: showOffAxisRelations =
+        (
+            numberOfOffAxisRelations
+            || numberOfNonCartesianAxisRelations
+        )
+        && expanded
+
+
+    /* Off-axis toggle-related attributes. */
+
+    // Off-axis toggle arrow geometry.
+    const offAxisToggleSize = 25
+    $: offAxisToggleDiagonal = Math.hypot(offAxisToggleSize, offAxisToggleSize)
+    $: offAxisToggleDiagonalOverhang = (offAxisToggleDiagonal - offAxisToggleSize) / 2 + 4
+
+    // Off-axis toggle state attributes.
+    let offAxisToggleToggleHovered = false
+    $: showOffAxisToggle = (
+        (
+            !$reorderingInfoStore.reorderInProgress
+            && offAxisToggleToggleHovered
+        )
+        || showOffAxisRelations
+    )
+    $: offAxisToggleNoMouseEvents =
+        (
+            $readOnlyMode
+            && !(numberOfNonCartesianAxisRelations + numberOfOffAxisRelations)
+        )
+        || (
+            parentThing.address?.generationId === 0
+            && nonCartesianAxesContainThings
+        )
+    $: showOffAxisNumberOfRelationsIndicator =
+        (numberOfNonCartesianAxisRelations + numberOfOffAxisRelations)
+        && !expanded
 
     // Scale-related attributes.
     $: scale = zoomBase ** parentGraphWidgetStyle.zoom
     let tweenedScale = tweened(1, {duration: 100, easing: cubicOut})
     $: tweenedScale.set(scale)
 
-    // Toggle arrow geometry.
-    const toggleSize = 25
-    $: toggleDiagonal = Math.hypot(toggleSize, toggleSize)
-    $: toggleDiagonalOverhang = (toggleDiagonal - toggleSize) / 2 + 4
-
-
 
     /* Off-axis-relations-related attributes. */
 
-    // Off-axis-relations state attributes.
-    $: prioritizedOffAxisDirectionsContainThings = parentThing.childThingCohorts.filter(
+    // Whether there are related Things in the non-Cartesian axes.
+    $: nonCartesianAxesContainThings = parentThing.childThingCohorts.filter(
         thingCohort => (
-            [5, 7].includes(thingCohort.halfAxisId)
+            [5, 6, 7, 8].includes(thingCohort.halfAxisId)
             && thingCohort.members.length
         )
     ).length !== 0
 
-    $: expanded = prioritizedOffAxisDirectionsContainThings
 
-
-
-
-
-    $: showOffAxisRelations = numberOfRelations && expanded
+    /* Sub-Graph related attributes. */
 
     // The off-axis-relations Graph is created and removed when the toggle is
     // expanded and collapsed, respectively.
@@ -79,21 +109,16 @@
     async function createGraph() {
         // Close any existing Graph.
         if (graph !== null) await removeGraph(graph)
+
         // Open and build the new Graph.
         const parentGraphSpace = parentGraph.pThing?.space as Space
-        graph = await addGraph([parentThingId], 1, parentGraph, true, parentGraphSpace)
+        graph = await addGraph([parentThingId], 1, parentGraph, true, false, parentGraphSpace)
         graphWidgetStyle = {...defaultGraphWidgetStyle}
 
-
         // Configure style for off-axis styling, if applicable.
-        if (graph.offAxis) {//////////////////////////////////////////////////////////////// ALWAYS TRUE?
-            graphWidgetStyle.excludePerspectiveThing = true
-            graphWidgetStyle.excludeCartesianAxes = true
-        }
-
+        graphWidgetStyle.excludePerspectiveThing = true
+        graphWidgetStyle.excludeCartesianAxes = true
         graphWidgetStyle.excludeNonAxisThingCohorts = numberOfNonCartesianAxisRelations !== 0
-
-
 
         // Refresh the Graph viewers.
         addGraphIdsNeedingViewerRefresh(graph.id)
@@ -112,31 +137,31 @@
         graph = graph // Needed for reactivity.
     }
 
-    // Graph outline widget style.
-    let graphWidgetStyle: GraphWidgetStyle = {...defaultGraphWidgetStyle}
-
-
-
-
-
-    let toggle2Hovered = false
-    let toggle2Size = 25
-
-    $: showToggle2 =
-        (!$reorderingInfoStore.reorderInProgress && toggle2Hovered)
-        || !graphWidgetStyle.excludeNonAxisThingCohorts
-
-
-
+    // Rebuild-Graph method.
     async function rebuildGraph() {
         if (!graph) return
         await graph.build()
         addGraphIdsNeedingViewerRefresh(graph.id)
     }
 
+    // Graph outline widget style.
+    let graphWidgetStyle: GraphWidgetStyle = {...defaultGraphWidgetStyle}
 
 
+    /* Non-axis-toggle-related attributes. */
 
+    // Non-axis toggle arrow geometry.
+    let nonAxisToggleSize = 25
+
+    // Off-axis toggle state attributes.
+    let nonAxisToggleHovered = false
+    $: showNonAxisToggle =
+        (
+            !$reorderingInfoStore.reorderInProgress
+            && nonAxisToggleHovered
+        )
+        || !graphWidgetStyle.excludeNonAxisThingCohorts
+    $: showNonAxisNumberOfRelationsIndicator = graphWidgetStyle.excludeNonAxisThingCohorts && numberOfOffAxisRelations
 </script>
 
 
@@ -144,31 +169,32 @@
 <div
     class="off-axis-relations-toggle"
     class:expanded
-    class:no-mouse-events={($readOnlyMode && !numberOfRelations) || prioritizedOffAxisDirectionsContainThings}
+    class:no-mouse-events={offAxisToggleNoMouseEvents}
 
-    style="width: {toggleSize}px; height: {toggleSize}px;"
+    style="width: {offAxisToggleSize}px; height: {offAxisToggleSize}px;"
 
-    on:mouseenter={()=>{toggleHovered = true}}
-    on:mouseleave={()=>{toggleHovered = false}}
-    on:click={() => {if (numberOfRelations) expanded = !expanded}}
+    on:mouseenter={()=>{offAxisToggleToggleHovered = true}}
+    on:mouseleave={()=>{offAxisToggleToggleHovered = false}}
+    on:click={() => {expanded = !expanded}}
     on:keydown={()=>{}}
 >
+    
     <!-- Visible toggle image. -->
-    {#if showToggle}
+    {#if showOffAxisToggle}
         <svg
             class="relationship-image"
-            style="width: {toggleSize}px; height: {toggleSize}px;"
+            style="width: {offAxisToggleSize}px; height: {offAxisToggleSize}px;"
         >
             <line
-                x1="{toggleSize / 2}" y1="{-toggleDiagonalOverhang}"
-                x2="{toggleSize / 2}" y2="{toggleSize + toggleDiagonalOverhang - 6 / $tweenedScale}"
+                x1="{offAxisToggleSize / 2}" y1="{-offAxisToggleDiagonalOverhang}"
+                x2="{offAxisToggleSize / 2}" y2="{offAxisToggleSize + offAxisToggleDiagonalOverhang - 6 / $tweenedScale}"
                 style="stroke-width: {10 / $tweenedScale};"
             />
             <polygon
                 points="
-                    {toggleSize / 2 - 5 / $tweenedScale}, {toggleSize + toggleDiagonalOverhang - 8 / $tweenedScale}
-                    {toggleSize / 2 + 5 / $tweenedScale}, {toggleSize + toggleDiagonalOverhang - 8 / $tweenedScale}
-                    {toggleSize / 2}, {toggleSize + toggleDiagonalOverhang}
+                    {offAxisToggleSize / 2 - 5 / $tweenedScale}, {offAxisToggleSize + offAxisToggleDiagonalOverhang - 8 / $tweenedScale}
+                    {offAxisToggleSize / 2 + 5 / $tweenedScale}, {offAxisToggleSize + offAxisToggleDiagonalOverhang - 8 / $tweenedScale}
+                    {offAxisToggleSize / 2}, {offAxisToggleSize + offAxisToggleDiagonalOverhang}
                 "
                 style="stroke-width: {3 / $tweenedScale};"
             />
@@ -176,8 +202,8 @@
     {/if}
 
     <!-- Number-of-off-axis-relations indicator. -->
-    {#if numberOfRelations && !expanded}
-        <div>+{numberOfRelations}</div>
+    {#if showOffAxisNumberOfRelationsIndicator}
+        <div>+{numberOfNonCartesianAxisRelations + numberOfOffAxisRelations}</div>
     {/if}
 </div>
 
@@ -188,12 +214,15 @@
             class="off-axis-relations-widget"
             on:wheel|stopPropagation
         >
+            <!-- Graph outline widget. -->
             {#if graph && graph.lifecycleStatus === "built"}
                 <GraphOutlineWidget
                     bind:graph
                     bind:graphWidgetStyle
                     {rePerspectToThingId}
                 />
+
+            <!-- Waiting indicator. -->
             {:else}
                 <WaitingIndicator
                     states={
@@ -209,23 +238,15 @@
             {/if}
         </div>
 
-
-        
-
-            
+        <!-- Non-axis relations toggle. -->
         {#if numberOfNonCartesianAxisRelations !== 0}
-            <!-- Off-axis relations toggle. -->
             <div
                 class="non-axis-relations-toggle"
 
-                style="
-                    width: {toggle2Size}px; height: {toggle2Size}px;
-                    pointer-events: auto;
-                    cursor: pointer;
-                "
+                style="width: {nonAxisToggleSize}px; height: {nonAxisToggleSize}px;"
 
-                on:mouseenter={()=>{toggle2Hovered = true}}
-                on:mouseleave={()=>{toggle2Hovered = false}}
+                on:mouseenter={()=>{nonAxisToggleHovered = true}}
+                on:mouseleave={()=>{nonAxisToggleHovered = false}}
                 on:click={() => {
                     graphWidgetStyle.excludeNonAxisThingCohorts = !graphWidgetStyle.excludeNonAxisThingCohorts
                     rebuildGraph()
@@ -233,16 +254,10 @@
                 on:keydown={()=>{}}
             >
                 <!-- Visible toggle image. -->
-                {#if showToggle2}
+                {#if showNonAxisToggle}
                     <svg
                         style="
-                            width: {toggle2Size}px; height: {toggle2Size}px;
-                            position: absolute;
-                            z-index: -1;
-                            
-                            stroke: dimgrey;
-                            fill: dimgrey;
-                            opacity: 0.5;
+                            width: {nonAxisToggleSize}px; height: {nonAxisToggleSize}px;
                             transform: rotate({
                                 graphWidgetStyle.excludeNonAxisThingCohorts ? 0 :
                                 180
@@ -252,8 +267,8 @@
                         <polygon
                             points="
                                 2, 0
-                                {toggleSize - 2}, 0
-                                {toggleSize / 2}, {toggleSize / 2}
+                                {offAxisToggleSize - 2}, 0
+                                {offAxisToggleSize / 2}, {offAxisToggleSize / 2}
                             "
                             style="stroke-width: {3 / $tweenedScale};"
                         />
@@ -261,8 +276,8 @@
                 {/if}
 
                 <!-- Number-of-off-axis-relations indicator. -->
-                {#if graphWidgetStyle.excludeNonAxisThingCohorts}
-                    <div>+{numberOfRelations}</div>
+                {#if showNonAxisNumberOfRelationsIndicator}
+                    <div>+{numberOfOffAxisRelations}</div>
                 {/if}
             </div>
         {/if}
@@ -320,5 +335,19 @@
         
         pointer-events: auto;
         cursor: default;
+    }
+
+    .non-axis-relations-toggle {
+        pointer-events: auto;
+        cursor: pointer;
+    }
+
+    .non-axis-relations-toggle svg {
+        position: absolute;
+        z-index: -1;
+        
+        stroke: dimgrey;
+        fill: dimgrey;
+        opacity: 0.5;
     }
 </style>

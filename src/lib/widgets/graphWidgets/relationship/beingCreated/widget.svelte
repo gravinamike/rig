@@ -97,7 +97,11 @@
         tweenedScale.set(1)
     }
 
-    $: askingForDirection = !direction && !$relationshipBeingCreatedInfoStore.trackingMouse
+    $: askingForDirection = (
+        !!$relationshipBeingCreatedInfoStore.destThingId
+        && !direction
+        && !$relationshipBeingCreatedInfoStore.trackingMouse
+    )
         
 
 

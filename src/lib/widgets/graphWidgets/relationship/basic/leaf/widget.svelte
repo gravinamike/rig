@@ -103,7 +103,7 @@
             class:columnCohort={ cohort?.rowOrColumn() === "column" }
             class:read-only-mode={$readOnlyMode}
 
-            x1="{leafGeometry.bottomMidline}" y1="{leafGeometry.bottom}"
+            x1="{leafGeometry.bottomMidline}" y1="{leafGeometry.bottom - 10}"
             x2="{leafGeometry.topMidline}" y2="{leafGeometry.top}"
             style="stroke-width: {8 / tweenedScale};"
 
