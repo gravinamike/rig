@@ -3,6 +3,3 @@ node_modules
 /build
 /.svelte-kit
 /package
-/static/config/config.json
-/static/config/serverconfig.json
-/static/customizable
