@@ -3,6 +3,46 @@
 This is Mike Gravina's attempt at building a domain-general, high-dimensional semantic medium.
 
 
+## Setup
+
+
+### Installation
+
+After cloning the site, run `npm i` to install dependencies and `npm run build` to build.
+
+
+### Setting up the config files
+
+The /static/config folder contains two files in template form (with filenames ending in "_template"). Copy and paste them without the "_template", and modify the resulting config files as needed.
+
+- **config.json**: As of now, this file should remain unmodified from the template. It's a placeholder that will contain information in future releases.
+
+- **serverconfig.json**: This file can be modified to specify the desired ports for the app's main front-end server and its database server (if you need to change these to avoid conflicts with existing port usage). Note that this only applies if you are starting the file as a Windows desktop app using /static/app/start.bat, which is an experimental feature - otherwise ports are set as described below in "Running the application" and "Running the database backend". You can also set the path to the folder where Graph files will be stored.
+
+
+### Setting up the customizable files
+
+The /static/customizable folder contains two files in template form (with filenames ending in "_template"). Copy and paste them without the "_template", and modify the resulting config files as needed.
+
+- **font-names.json**: This file contains an array of font names that will appear in the font drop-down menu of the Notes editor. Each font name must have a matching entry in notes-style.css (and, by extension, a matching font file in the `fonts` folder), unless you expect the font to already be present on users' systems.
+
+- **notes-style.css**: This file contains CSS font declarations that enable the use of custom fonts in the app. Each entry must have a matching font file in the `fonts` folder, and the `font-family` must match a font name in `font-names.json`.
+
+
+### Running the application
+
+If you are setting up on a Linux system, we recommend using [pm2](https://pm2.keymetrics.io/) to manage both the the front-end and back-end processes. Assuming you have pm2 installed, start the front-end application server with:  
+`PORT=48950 pm2 start /var/www/html/rig/build/index.js --name rig`  
+You can change the port to suit your needs.
+
+
+### Running the database back-end
+
+Assuming you have pm2 installed, start the back-end server with:  
+`PORT=48970 pm2 start /var/www/html/rig/static/app/h2-1.4.197.jar --name rig_db`  
+You can change the port to suit your needs.
+
+
 ## Terminology of a Graph
 
 
