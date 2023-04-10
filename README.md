@@ -33,6 +33,7 @@ The /static/customizable folder contains two files in template form (with filena
 
 If you are setting up on a Linux system, we recommend using [pm2](https://pm2.keymetrics.io/) to manage both the the front-end and back-end processes.  
 Once pm2 has been installed, copy and paste the file named `pm2_template.config.cjs`, removing the "_template" from the copy. Edit the new file to suit your needs. You will need to supply your domain as "ORIGIN" in order to avoid cross-site errors. You can also change the ports that the app and its database back-end run on if you prefer.
+To start both the frontend and backend processes, run `pm2 start pm2.config.cjs`.
 
 
 
