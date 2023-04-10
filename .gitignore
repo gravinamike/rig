@@ -4,6 +4,9 @@ node_modules
 /.svelte-kit
 /package
 
+# Automation files.
+pm2.config.cjs
+
 # Config files.
 /static/config/config.json
 /static/config/serverconfig.json

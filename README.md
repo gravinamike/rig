@@ -31,16 +31,9 @@ The /static/customizable folder contains two files in template form (with filena
 
 ### Running the application
 
-If you are setting up on a Linux system, we recommend using [pm2](https://pm2.keymetrics.io/) to manage both the the front-end and back-end processes. Assuming you have pm2 installed, start the front-end application server with:  
-`PORT=48950 pm2 start /var/www/html/rig/build/index.js --name rig`  
-You can change the port to suit your needs.
+If you are setting up on a Linux system, we recommend using [pm2](https://pm2.keymetrics.io/) to manage both the the front-end and back-end processes.  
+Once pm2 has been installed, copy and paste the file named `pm2_template.config.cjs`, removing the "_template" from the copy. Edit the new file to suit your needs. You will need to supply your domain as "ORIGIN" in order to avoid cross-site errors. You can also change the ports that the app and its database back-end run on if you prefer.
 
-
-### Running the database back-end
-
-Assuming you have pm2 installed, start the back-end server with:  
-`PORT=48970 pm2 start /var/www/html/rig/static/app/h2-1.4.197.jar --name rig_db`  
-You can change the port to suit your needs.
 
 
 ## Terminology of a Graph
