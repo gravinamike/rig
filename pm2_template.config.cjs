@@ -10,10 +10,7 @@ module.exports = {
 		},
 		{
 			name: "rig_db",
-			script: "start static/app/h2-1.4.197.jar",
-			env: {
-				"PORT": 48970
-			}
+			script: "sh static/app/start_db.sh"
 		},
 	]
 }
