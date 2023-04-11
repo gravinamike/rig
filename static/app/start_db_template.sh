@@ -1,1 +1,1 @@
-java -cp "h2-1.4.197.jar" org.h2.tools.Server -pg -pgPort 48970
+java -cp "/static/app/h2-1.4.197.jar" org.h2.tools.Server -pg -pgPort 48970
