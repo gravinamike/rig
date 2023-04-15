@@ -11,13 +11,18 @@ This is Mike Gravina's attempt at building a domain-general, high-dimensional se
 After cloning the site, run `npm i` to install dependencies and `npm run build` to build.
 
 
+### Setting up the environment file
+
+The top-level folder of the repository contains a file named `env_template`. Copy and paste this without the "_template", and edit the new file to suit your needs. You can specify the desired ports for the app's main front-end server and its database server (if you need to change these to avoid conflicts with existing port usage). You will also need to supply your domain as "ORIGIN" in order to avoid cross-site errors. You can also change the port that the app runs on if you prefer.
+
+
 ### Setting up the config files
 
 The /static/config folder contains two files in template form (with filenames ending in "_template"). Copy and paste them without the "_template", and modify the resulting config files as needed.
 
 - **config.json**: As of now, this file should remain unmodified from the template. It's a placeholder that will contain information in future releases.
 
-- **serverconfig.json**: This file can be modified to specify the desired ports for the app's main front-end server and its database server (if you need to change these to avoid conflicts with existing port usage). Note that this only applies if you are starting the file as a Windows desktop app using /static/app/start.bat, which is an experimental feature - otherwise ports are set as described below in "Running the application" and "Running the database backend". You can also set the path to the folder where Graph files will be stored.
+- **serverconfig.json**: This file can be modified to specify the desired port for the app's database server (if you need to change this to avoid conflicts with existing port usage). Note that this only applies if you are starting the file as a Windows desktop app using /static/app/start.bat, which is an experimental feature - otherwise ports are set as described below in "Running the application" and "Running the database backend". You can also set the path to the folder where Graph files will be stored.
 
 
 ### Setting up the customizable files

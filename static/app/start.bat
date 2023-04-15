@@ -4,11 +4,10 @@ cd /D "%~dp0"
 cd ../../
 
 
-REM Load the port number from the serverconfig file.
+REM Load environment variables from the .env file.
 
-for /f "tokens=1,2 delims=:{}, " %%A in (static/config/serverconfig.json) do (
-    If "%%~A"=="serverPort" set /A port=%%~B
-    If "%%~A"=="dbPort" set /A dbport=%%~B
+for /f "eol=# tokens=*" %%i in (.env) do (
+    set %%i
 )
 
 
@@ -31,7 +30,7 @@ if %errorlevel% == 0 (
 ) else (
     echo Starting Rig server.
     set PORT = %port%
-    START /min "Rig front-end server" node build/index.js
+    START /min "Rig front-end server" node -r dotenv/config build/index.js
 )
 
 

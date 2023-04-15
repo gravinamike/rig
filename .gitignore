@@ -9,6 +9,7 @@ pm2.config.cjs
 /static/app/start_db.sh
 
 # Config files.
+.env
 /static/config/config.json
 /static/config/serverconfig.json
 
