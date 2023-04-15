@@ -5,7 +5,6 @@ node_modules
 /package
 
 # Automation files.
-pm2.config.cjs
 /static/app/start_db.sh
 
 # Config files.

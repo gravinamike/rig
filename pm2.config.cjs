@@ -2,11 +2,7 @@ module.exports = {
 	apps: [
 		{
 			name: "rig",
-			script: "node build/index.js",
-			env: {
-				"PORT": 48950,
-				"ORIGIN": "https://your.domain.here"
-			}
+			script: "node build/index.js"
 		},
 		{
 			name: "rig_db",
