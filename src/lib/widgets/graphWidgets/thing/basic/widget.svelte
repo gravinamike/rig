@@ -47,7 +47,7 @@
     // Attributes handled by the widget controller.
     let thingWidgetId: string
     let text: string
-    let hasPerspectiveText: boolean
+    let hasPerspectiveText = true
     let highlighted: boolean
     let shadowColor ="#000000"
     let encapsulatingDepth: number = 0
@@ -64,7 +64,7 @@
     let editingText: boolean
     let textBeingEdited: string
     let perspectiveTextBeingEdited: string
-    let usePerspectiveText: boolean
+    let usePerspectiveText = true
     let handleMouseDown: (event: MouseEvent) => void
     let handleMouseDrag: (event: MouseEvent) => void
     let onBodyMouseUp: (event: MouseEvent) => void
@@ -76,7 +76,7 @@
     let cancelEditingText: () => void
 
 
-    let sliderOpen = false
+    let sliderOpen = !hasPerspectiveText || (hasPerspectiveText && !usePerspectiveText)
     $: usePerspectiveText = !sliderOpen
 
     const sliderPosition = tweened( 0, { duration: 150, easing: cubicOut } )
