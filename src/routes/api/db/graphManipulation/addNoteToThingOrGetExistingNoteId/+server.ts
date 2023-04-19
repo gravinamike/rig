@@ -1,12 +1,12 @@
 import type { RequestHandler } from "@sveltejs/kit"
 import { error } from "@sveltejs/kit"
-import { addNoteToThing } from "$lib/db/serverSide"
+import { addNoteToThingOrGetExistingNoteId } from "$lib/db/serverSide"
 
 
 export const POST: RequestHandler = async ({ request }) => {
     try {
         const body = await request.json()
-        const newNoteId = await addNoteToThing(body.thingId)
+        const newNoteId = await addNoteToThingOrGetExistingNoteId(body.thingId)
         
         return new Response(JSON.stringify(newNoteId))
 

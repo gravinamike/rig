@@ -620,7 +620,14 @@ export async function updateThingDefaultSpace(thingId: number, spaceId: number):
 /*
  * Add a Note to a Thing.
  */
-export async function addNoteToThing(thingId: number): Promise<number | false> {
+export async function addNoteToThingOrGetExistingNoteId(thingId: number): Promise<number | false> {
+
+    const queriedNotes = await RawThingDbModel.relatedQuery('note').for([thingId])
+    if (queriedNotes.length) {
+        console.log(Number(queriedNotes[0].id))
+        return Number(queriedNotes[0].id)
+    }
+
     let newNoteId: number | false = false
 
     // Get parameters for SQL query.

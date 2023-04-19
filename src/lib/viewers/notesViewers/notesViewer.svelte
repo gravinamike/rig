@@ -9,12 +9,13 @@
     import NotesEditor from "./notesEditor.svelte"
 
     // Import API methods.
-    import { thingsByGuid, addNoteToThing, updateNote, markNotesModified } from "$lib/db/clientSide"
+    import { thingsByGuid, addNoteToThingOrGetExistingNoteId, updateNote, markNotesModified } from "$lib/db/clientSide"
 
 
     import { notesBackgroundImageStore, notesEditorLockedStore, readOnlyMode, storeGraphDbModels, uITrimColorStore } from "$lib/stores"
     import { saveGraphConfig } from "$lib/shared/config"
     import type { ThingDbModel } from "$lib/models/dbModels/clientSide";
+    import { removeItemFromArray, sleep } from "$lib/shared/utility";
 
 
     /**
@@ -114,10 +115,34 @@
         editorTextEditedButNotSynced = false
     }
 
+
+
+    let noteCreationAttemptTimestamps: string[] = []
     async function createAndUpdateNote(currentEditorTextContent: string): Promise<void> {
-        let noteIdToUpdate: number | null | false = pThingNoteId
-        if (pThingNoteId === null) noteIdToUpdate = await createNoteIfNecessary()
-        if (noteIdToUpdate) updateAndRefreshNote(noteIdToUpdate, currentEditorTextContent)
+        // If there are any Note-creation attempts in progress, delay the
+        // update a bit before trying again.
+        if (noteCreationAttemptTimestamps.length > 0) {
+            await sleep(100)
+            createAndUpdateNote(currentEditorTextContent)
+
+        // Otherwise, (create if necessary, then) update the Note.
+        } else {
+            let noteIdToUpdate: number | null = pThingNoteId
+
+            // Create the node if necessary.
+            if (noteIdToUpdate === null) {
+                const noteCreationAttemptTimestamp = (new Date()).toISOString()
+                noteCreationAttemptTimestamps.push(noteCreationAttemptTimestamp)
+
+                noteIdToUpdate = await createNoteIfNecessary() || null
+
+                removeItemFromArray(noteCreationAttemptTimestamps, noteCreationAttemptTimestamp)
+            }
+
+            // Update the note.
+            if (noteIdToUpdate) await updateAndRefreshNote(noteIdToUpdate, currentEditorTextContent)
+        }
+        
     }
 
     /**
@@ -129,7 +154,7 @@
         if (!graph.pThing?.id) return false
 
         // Create a new Note.
-        const createdNoteId = await addNoteToThing(graph.pThing.id)
+        const createdNoteId = await addNoteToThingOrGetExistingNoteId(graph.pThing.id)
         if (!createdNoteId) return false
         
         return createdNoteId

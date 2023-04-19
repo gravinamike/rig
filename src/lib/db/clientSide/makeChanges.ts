@@ -353,12 +353,12 @@ export async function updateThingDefaultSpace(
 /*
  * Add a Note to a Thing.
  */
-export async function addNoteToThing( thingId: number ): Promise<number | false> {
+export async function addNoteToThingOrGetExistingNoteId( thingId: number ): Promise<number | false> {
     let newNoteId: number | false = false
 
     // Post to the add-Note-to-Thing API.
     const res = await fetch(
-        `api/db/graphManipulation/addNoteToThing`,
+        `api/db/graphManipulation/addNoteToThingOrGetExistingNoteId`,
         {
             method: "POST",
             body: JSON.stringify({
