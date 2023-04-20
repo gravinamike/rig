@@ -49,21 +49,16 @@ export function getDbInfo(): DbInfo {
             },
             "entries": [
                 [1, 1, "is related to", "relations", dateTimeStamp, dateTimeStamp, 1],
-                [2, 2, "is idiomatic synonym of", "idiomatic synonyms", dateTimeStamp, dateTimeStamp, 2],
-                [3, 3, "is analogous to", "analogues", dateTimeStamp, dateTimeStamp, 3],
-                [4, 4, "is opposite of", "opposites", dateTimeStamp, dateTimeStamp, 4],
-                [5, 6, "is exemplar of", "categories", dateTimeStamp, dateTimeStamp, 5],
-                [6, 5, "is category of", "examples", dateTimeStamp, dateTimeStamp, 6],
-                [7, 8, "constitutes", "products", dateTimeStamp, dateTimeStamp, 7],
-                [8, 7, "comprises", "constituents", dateTimeStamp, dateTimeStamp, 8],
-                [9, 10, "is set for category", "categories for set", dateTimeStamp, dateTimeStamp, 9],
-                [10, 9, "is category for set", "sets for category", dateTimeStamp, dateTimeStamp, 10],
-                [11, 12, "is means of", "ends", dateTimeStamp, dateTimeStamp, 11],
-                [12, 11, "is end of", "means", dateTimeStamp, dateTimeStamp, 12],
-                [13, 14, "describes", "model subjects", dateTimeStamp, dateTimeStamp, 13],
-                [14, 13, "is described by", "models", dateTimeStamp, dateTimeStamp, 14],
-                [15, 16, "elaborates", "abstractions", dateTimeStamp, dateTimeStamp, 15],
-                [16, 15, "abstracts", "elaborations", dateTimeStamp, dateTimeStamp, 16]
+                [2, 2, "is synonym of", "synonyms", dateTimeStamp, dateTimeStamp, 2],
+                [3, 3, "is opposite of", "opposites", dateTimeStamp, dateTimeStamp, 3],
+                [4, 5, "is example of", "categories", dateTimeStamp, dateTimeStamp, 4],
+                [5, 4, "is category of", "examples", dateTimeStamp, dateTimeStamp, 5],
+                [6, 7, "is part of", "products", dateTimeStamp, dateTimeStamp, 6],
+                [7, 6, "is made up of", "parts", dateTimeStamp, dateTimeStamp, 7],
+                [8, 9, "leads to", "results", dateTimeStamp, dateTimeStamp, 8],
+                [9, 8, "results from", "causes", dateTimeStamp, dateTimeStamp, 9],
+                [10, 11, "elaborates", "abstractions", dateTimeStamp, dateTimeStamp, 10],
+                [11, 10, "generalizes", "elaborations", dateTimeStamp, dateTimeStamp, 11]
             ]
         },
 
@@ -85,12 +80,9 @@ export function getDbInfo(): DbInfo {
                 "id": "PRIMARY KEY"
             },
             'entries': [
-                [1, 'Constitution/Category', dateTimeStamp, dateTimeStamp, 1],
-                [2, 'Service/Representation', dateTimeStamp, dateTimeStamp, 2],
-                [3, 'Representation/Abstraction', dateTimeStamp, dateTimeStamp, 3],
-                [4, 'Service/Constitution', dateTimeStamp, dateTimeStamp, 4],
-                [5, 'Service/Category', dateTimeStamp, dateTimeStamp, 5],
-                [6, 'Service/Constitution/Category', dateTimeStamp, dateTimeStamp, 6]
+                [1, 'Definition', dateTimeStamp, dateTimeStamp, 1],
+                [2, 'Cause/Composition', dateTimeStamp, dateTimeStamp, 2],
+                [3, 'Composition/Abstraction', dateTimeStamp, dateTimeStamp, 3]
             ]
         },
 
@@ -109,34 +101,13 @@ export function getDbInfo(): DbInfo {
             },
             'entries': [
                 [1, 7, 1, 1],
-                [2, 6, 1, 3],
-                [3, 4, 1, 5],
-                [4, null, 1, 7],
+                [2, 4, 1, 3],
 
-                [5, 11, 2, 1],
-                [6, 13, 2, 3],
-                [7, 8, 2, 5],
-                [8, null, 2, 7],
+                [3, 8, 2, 1],
+                [4, 7, 2, 3],
 
-                [9, 16, 3, 1],
-                [10, 13, 3, 3],
-                [11, 8, 3, 5],
-                [12, null, 3, 7],
-
-                [13, 11, 4, 1],
-                [14, 7, 4, 3],
-                [15, 4, 4, 5],
-                [16, null, 4, 7],
-
-                [17, 11, 5, 1],
-                [18, 6, 5, 3],
-                [19, 8, 5, 5],
-                [20, null, 5, 7],
-
-                [21, 11, 6, 1],
-                [22, 8, 6, 3],
-                [23, 6, 6, 5],
-                [24, null, 6, 7]
+                [5, 7, 3, 1],
+                [6, 11, 3, 3],
             ]
         },
 
@@ -166,7 +137,7 @@ export function getDbInfo(): DbInfo {
             },
             'entries': [
                 [
-                    1, uuidv4(), "--Graph origin--", emptyObjectText, 1, emptyObjectText, dateTimeStamp, null, dateTimeStamp
+                    1, uuidv4(), "First Thing", emptyObjectText, 1, emptyObjectText, dateTimeStamp, null, dateTimeStamp
                 ]
             ]
         },
