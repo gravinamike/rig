@@ -66,6 +66,7 @@ export interface GraphConfig {
     graphBackgroundImage?: string | null
     notesBackgroundImage?: string | null
     readOnlyMode: boolean
+    hideMenus: MenuName[]
     leftSideMenu: string | null
     rightSideMenu: string | null
     notesEditorLocked: boolean
@@ -73,6 +74,11 @@ export interface GraphConfig {
     pinIds: number[]
     perspectiveThingId: number | null
 }
+
+/**
+ * Constants related to menus.
+ */
+export type MenuName = "About" | "File" | "Thing" | "Space" | "Settings" | "Dev" | "Outline" | "Notes" | "Attachments"
 
 /*
  * Constants related to half-axes.

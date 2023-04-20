@@ -1,5 +1,6 @@
 <script lang="ts">
     // Import types.
+    import type { MenuName } from "$lib/shared/constants"
     import type { Graph, Space } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
     
@@ -27,8 +28,7 @@
 
     // Import API functions.
     import { markThingsVisited } from "$lib/db/clientSide/makeChanges"
-    import { saveGraphConfig } from "$lib/shared/config"
-    
+    import { saveGraphConfig } from "$lib/shared/config"    
 
     /**
      * @param pThingIds - The IDs of the Graph's Perspective Things.
@@ -83,7 +83,7 @@
                     icon: "attachment"
                 } :
                 null
-        ].filter(info => info !== null) as { name: string, icon: string }[]
+        ].filter(info => info !== null) as { name: MenuName, icon: string }[]
     ]
     const defaultOpenSubMenuName = "Notes"
     let openedSubMenuName: string | null

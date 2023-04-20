@@ -1,4 +1,5 @@
 // Import ypes.
+import type { MenuName } from "$lib/shared/constants"
 import type { ThingSearchListItem } from "$lib/models/constructModels"
 
 // Import basic framework resources.
@@ -174,6 +175,11 @@ export const perspectiveThingIdStore = writable( null as number | null )
  */
 export const perspectiveSpaceIdStore = writable( null as number | null )
 
+
+/**
+ * Show-menu store.
+ */
+export const hideMenusStore = writable( [] as MenuName[] )
 
 
 /**

@@ -7,7 +7,7 @@ import { get } from "svelte/store"
 // Import stores.
 import {
     readOnlyMode as readOnlyModeStore, perspectiveThingIdStore, leftSideMenuStore, rightSideMenuStore, notesEditorLockedStore,
-    homeThingIdStore, pinIdsStore, uIBackgroundColorStore, uITrimColorStore, graphBackgroundImageStore, notesBackgroundImageStore
+    homeThingIdStore, pinIdsStore, uIBackgroundColorStore, uITrimColorStore, graphBackgroundImageStore, notesBackgroundImageStore, hideMenusStore
 } from "$lib/stores"
 
 // Import API methods.
@@ -61,6 +61,7 @@ export async function storeGraphConfig(pThingId: number | null = null): Promise<
         graphConfig.notesBackgroundImage || null
     )
     readOnlyModeStore.set(graphConfig.readOnlyMode)
+    hideMenusStore.set(graphConfig.hideMenus)
     leftSideMenuStore.set(graphConfig.leftSideMenu)
     rightSideMenuStore.set(graphConfig.rightSideMenu)
     notesEditorLockedStore.set(graphConfig.notesEditorLocked)
@@ -96,6 +97,7 @@ export async function saveGraphConfig(): Promise<void> {
     const graphBackgroundImage = get(graphBackgroundImageStore)
     const notesBackgroundImage = get(notesBackgroundImageStore)
     const readOnlyMode = get(readOnlyModeStore)
+    const hideMenus = get(hideMenusStore)
     const leftSideMenu = get(leftSideMenuStore)
     const rightSideMenu = get(rightSideMenuStore)
     const notesEditorLocked = get(notesEditorLockedStore)
@@ -110,6 +112,7 @@ export async function saveGraphConfig(): Promise<void> {
         graphBackgroundImage: graphBackgroundImage,
         notesBackgroundImage: notesBackgroundImage,
         readOnlyMode: readOnlyMode,
+        hideMenus: hideMenus,
         leftSideMenu: leftSideMenu,
         rightSideMenu: rightSideMenu,
         notesEditorLocked: notesEditorLocked,

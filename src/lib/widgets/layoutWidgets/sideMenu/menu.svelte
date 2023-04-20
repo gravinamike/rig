@@ -1,6 +1,7 @@
 <script lang="ts">
     // Import types.
     import type { Writable } from "svelte/store"
+    import type { MenuName } from "$lib/shared/constants"
 
     // Import basic framework resources.
     import { tweened } from "svelte/motion"
@@ -21,7 +22,7 @@
      * @param stateStore - The store that records the state of this menu (if any).
      * @param close - Method to close the side-menu.
      */
-    export let subMenuInfos: { name: string, icon: string }[][]
+    export let subMenuInfos: { name: MenuName, icon: string }[][]
     export let defaultOpenSubMenuName: string
     export let openedSubMenuName: string | null
     export let open: boolean = false

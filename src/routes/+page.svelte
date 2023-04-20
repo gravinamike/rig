@@ -1,6 +1,6 @@
 <script lang="ts">
     // Import types.
-    import type { WaitingIndicatorStates } from "$lib/shared/constants"
+    import type { MenuName, WaitingIndicatorStates } from "$lib/shared/constants"
     import type { Graph, Space } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
@@ -18,7 +18,8 @@
         devMode, fontNames, urlStore, sessionUuidStore, leftSideMenuStore, loadingState,
         openGraphStore, perspectiveThingIdStore, reorderingInfoStore,
         updateMousePosition, updateRelationshipBeingCreatedEndpoint,
-        uITrimColorStore, graphBackgroundImageStore
+        uITrimColorStore, graphBackgroundImageStore, hideMenusStore
+
     } from "$lib/stores"
 
     // Import widgets.
@@ -98,7 +99,10 @@
                 name: "File",
                 icon: "file"
             }
-        ].filter(info => info !== null) as { name: string, icon: string }[],
+        ].filter(
+            info => info !== null
+            && !($hideMenusStore || []).includes(info.name as MenuName)
+        ) as { name: MenuName, icon: string }[],
 
         $loadingState === "graphLoaded" ? [
                 {
@@ -119,9 +123,12 @@
                         icon: "dev"
                     } :
                     null
-            ].filter(info => info !== null) as { name: string, icon: string }[] :
+            ].filter(
+                info => info !== null
+                && !($hideMenusStore || []).includes(info.name as MenuName)
+            ) as { name: MenuName, icon: string }[] :
             null
-    ].filter(infoBlock => infoBlock !== null) as ({ name: string, icon: string }[])[]
+    ].filter(infoBlock => infoBlock !== null) as ({ name: MenuName, icon: string }[])[]
     let leftMenuOpen: boolean
     let leftMenuLockedOpen: boolean
     let openedSubMenuName: string | null
