@@ -122,6 +122,7 @@ export async function closeGraphFile(updateUrlHash = false): Promise<void> {
     homeThingIdStore.set(null)
     pinIdsStore.set([])
     perspectiveThingIdStore.set(null)
+    perspectiveSpaceIdStore.set(null)
 
     // Clear the Graph construct stores.
     await clearGraphDbModelStore("Direction")
