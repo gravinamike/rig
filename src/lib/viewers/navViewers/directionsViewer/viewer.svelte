@@ -9,7 +9,7 @@
     import { flip } from "svelte/animate"
 
     // Import stores and utility functions.
-    import { directionDbModelsStoreAsArray, getGraphConstructs, readOnlyMode, storeGraphDbModels, uIBackgroundColorStore } from "$lib/stores"
+    import { directionDbModelsStoreAsArray, directionEditingInProgressIdStore, getGraphConstructs, readOnlyMode, storeGraphDbModels, uIBackgroundColorStore } from "$lib/stores"
     import { changeIndexInArray, sleep } from "$lib/shared/utility"
 
     // Import related widgets.
@@ -127,7 +127,7 @@
     >
         {#each directions as direction, index (direction?.id || -index)}
             <div
-                draggable={ $readOnlyMode ? false : true }
+                draggable={ $readOnlyMode || $directionEditingInProgressIdStore.size ? false : true }
                 animate:flip={{ duration: 250 }}
 
                 on:dragstart={ (event) => {if (!$readOnlyMode) startDragDirection(event, index)} }

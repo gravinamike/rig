@@ -1,5 +1,6 @@
 // Import types.
 import type { RelationshipReorderingInfo } from "./types"
+import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 import type { ThingCohort } from "$lib/models/constructModels"
 
 // Import basic framework resources.
@@ -7,7 +8,7 @@ import { writable } from "svelte/store"
 
 // Import null values for stores.
 import { nullRelationshipReorderingInfo } from "./types"
-import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
+
 
 
 /**

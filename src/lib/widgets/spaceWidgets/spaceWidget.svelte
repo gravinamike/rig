@@ -10,7 +10,7 @@
     import { sleep } from "$lib/shared/utility"
 
     // Import stores.
-    import { addGraphIdsNeedingViewerRefresh, getGraphConstructs, readOnlyMode, spaceDbModelsStore, storeGraphDbModels } from "$lib/stores"
+    import { addGraphIdsNeedingViewerRefresh, addSpaceIdToEditingInProgressStore, getGraphConstructs, readOnlyMode, removeSpaceIdFromEditingInProgressStore, spaceDbModelsStore, storeGraphDbModels } from "$lib/stores"
 
     // Import related widgets.
     import { DirectionWidget } from "./directionWidget"
@@ -46,6 +46,11 @@
     // Flags describing interaction state.
     let isHovered = false
     let interactionMode: "display" | "editing" | "create" = isSpaceForm ? "editing" : "display"
+    $: if ( space?.id && interactionMode === "editing" ) {
+        addSpaceIdToEditingInProgressStore(space.id)
+    } else if (space?.id) {
+        removeSpaceIdFromEditingInProgressStore(space.id)
+    }
 
     // Whether the Space is the default Space for the current Perspective Thing.
     $: defaultPerspectiveSpace = 

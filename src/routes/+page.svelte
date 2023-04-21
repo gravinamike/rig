@@ -18,7 +18,11 @@
         devMode, fontNames, urlStore, sessionUuidStore, leftSideMenuStore, loadingState,
         openGraphStore, perspectiveThingIdStore, reorderingInfoStore,
         updateMousePosition, updateRelationshipBeingCreatedEndpoint,
-        uITrimColorStore, graphBackgroundImageStore, hideMenusStore
+        uITrimColorStore, graphBackgroundImageStore, hideMenusStore, directionEditingInProgressIdStore, spaceEditingInProgressIdStore
+
+
+
+
 
     } from "$lib/stores"
 
@@ -52,7 +56,6 @@
     import { storeAppConfig } from "$lib/shared/config"
     import { openGraphFile } from "$lib/shared/unigraph"
     import { onMobile, stringRepresentsInteger, urlHashToObject } from "$lib/shared/utility"
-
 
     // Session UUID.
     sessionUuidStore.set( uuidv4() )

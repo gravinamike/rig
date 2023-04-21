@@ -6,7 +6,7 @@
 
     // Import stores and utility functions.
     import {
-        addGraphIdsNeedingViewerRefresh, directionDbModelsStore, getGraphConstructs, readOnlyMode, storeGraphDbModels
+        addGraphIdsNeedingViewerRefresh, directionDbModelsStore, getGraphConstructs, readOnlyMode, addDirectionIdToEditingInProgressStore, removeDirectionIdFromEditingInProgressStore, storeGraphDbModels
     } from "$lib/stores"
     import { sleep } from "$lib/shared/utility"
 
@@ -64,6 +64,11 @@
     // Attributes indicating interaction state of widget.
     let isHovered = false
     let interactionMode: "display" | "editing" | "create" = isDirectionForm ? "editing" : "display"
+    $: if ( direction?.id && interactionMode === "editing" ) {
+        addDirectionIdToEditingInProgressStore(direction.id)
+    } else if (direction?.id) {
+        removeDirectionIdFromEditingInProgressStore(direction.id)
+    }
     $: oppositeDisplayMode =
         ( interactionMode === "editing" || interactionMode === "create" || expanded || forceExpanded ) ? "full" :
         "none"
