@@ -150,7 +150,7 @@ export async function reorderDirection(
     queriedDirections.forEach( model => {
         directionOrderingInfos.push(
             {
-                directionId: model.id as number,
+                directionId: Number(model.id),
                 order: model.directionorder,
             }
         )
@@ -364,7 +364,7 @@ export async function reorderSpace(
     queriedSpaces.forEach( model => {
         spaceOrderingInfos.push(
             {
-                spaceId: model.id as number,
+                spaceId: Number(model.id),
                 order: model.spaceorder,
             }
         )
