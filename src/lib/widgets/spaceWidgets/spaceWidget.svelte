@@ -37,8 +37,8 @@
 
     // Handles for HTML elements and their attributes.
     let spaceWidget: HTMLElement
-    let spaceWidgetWidth: number
-    let spaceWidgetHeight: number
+    let spaceWidgetWidth = 1
+    let spaceWidgetHeight = 1
     let spaceNameInput: HTMLInputElement
 
     // Flags describing type of widget.

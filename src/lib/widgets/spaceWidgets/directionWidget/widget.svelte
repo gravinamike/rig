@@ -42,8 +42,8 @@
 
     // Object handles for HTML elements.
     let directionWidget: HTMLElement
-    let directionWidgetWidth: number
-    let directionWidgetHeight: number
+    let directionWidgetWidth = 1
+    let directionWidgetHeight = 1
     let directionNameInput: HTMLInputElement
     let objectNameInput: HTMLInputElement
 
@@ -60,7 +60,7 @@
 
     // Attributes controlling visual appearance of widget.
     const directionHeight = 20
-    let arrowAndBoxWidth: number
+    let arrowAndBoxWidth = 1
 
     // Attributes indicating interaction state of widget.
     let isHovered = false

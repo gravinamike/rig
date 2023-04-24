@@ -1,6 +1,6 @@
 <script lang="ts">
-    export let svgLength: number
-    export let svgHeight: number
+    export let svgLength: number = 1
+    export let svgHeight: number = 1
     export let color: string
     export let simplified = true
     export let reversed = false
