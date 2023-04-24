@@ -19,6 +19,7 @@
     
     // Import API functions.
     import { createSpace, deleteSpace, spaceIsReferenced, updateSpace, updateThingDefaultSpace } from "$lib/db/clientSide"
+    import { tick } from "svelte";
 
 
     /**
@@ -107,6 +108,7 @@
             // Populate the fields and focus the Space name field.
             buildHalfAxisInfos()
             spaceNameInput.value = space?.text || ""
+            await tick()
             spaceNameInput.focus()
 
         // If the widget is in editing mode,
@@ -182,7 +184,7 @@
         // If the edited Space information isn't valid, abort.
         const validInputs = validate()
         if ( !validInputs || (!isSpaceForm && !space?.id) ) return
-
+        console.log("FOO")
         const halfAxisIdsAndDirections = halfAxisInfosAsArray.map(
             ([halfAxisId, halfAxisInfo]) => [halfAxisId, halfAxisInfo.formDirection as Direction | null]
         ) as [OddHalfAxisId, (Direction | null)][]

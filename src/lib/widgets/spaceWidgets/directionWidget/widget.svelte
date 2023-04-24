@@ -16,6 +16,7 @@
 
     // Import API methods.
     import { createDirection, updateDirection, deleteDirection, directionIsReferenced } from "$lib/db/clientSide"
+    import { tick } from "svelte";
 
 
     /**
@@ -92,6 +93,7 @@
             oppositeDirectionInForm = oppositeDirection
 
             // Give it keyboard focus.
+            await tick()
             directionNameInput.focus()
 
         // Otherwise (if the widget is in editing mode),
