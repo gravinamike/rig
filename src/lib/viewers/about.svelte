@@ -30,28 +30,17 @@
 
         <div class="text">
             <p>
-                This is an early version of an application by Mike Gravina called
-                Rig. It's focused on "Graphs", which are diagrams of the
-                connections between different things.
+                This is a pre-alpha version of "Rig", an app built by Mike
+                Gravina to help depict the connections between things.
             </p>
             <p>
-                I hope Rig might serve to stimulate conversation around the form
-                of digital media. In particular, I'd like to highlight the fact
-                that it can be difficult to capture all the nuance of more complex
-                topics when content has to be arranged in linear sequence, one
-                section after another.
-                
+                I hope Rig might stimulate conversation around the form
+                of digital media - particularly the value in giving writers
+                freedom to connect ideas in many different, non-linear ways.
             </p>
             <p>
-                In Rig, content can be connected in many different ways, across a
-                large number of "dimensions". My hope is that Rig can serve as
-                an evolving model of new conventions for representing knowledge -
-                conventions that build on the traditional linear form with new
-                tools for constructing rich and flexible models of the world.
-            </p>
-            <p>
-                Rig is in very early development. Watch for new features and bugfixes
-                in the future. And if you have any suggestions, let Mike know!
+                Watch for new features and bugfixes in the future. And if
+                you have any suggestions, please let Mike know!
             </p>
         </div>
 
@@ -105,6 +94,7 @@
     p {
         font-size: 0.9rem;
         text-indent: 1rem;
+        text-align: justify;
     }
 
     .copyright {
