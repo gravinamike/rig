@@ -42,6 +42,8 @@ interface NewDirectionInfo {
     text: string
     nameforobjects: string
     oppositeid: number | null
+    whencreated: null
+    whenmodded: null
     directionorder: number
 }
 
@@ -57,6 +59,8 @@ export function getNewDirectionInfo(
         text: text,
         nameforobjects: nameForObjects,
         oppositeid: oppositeId,
+        whencreated: null,
+        whenmodded: null,
         directionorder: directionOrder
     }
 

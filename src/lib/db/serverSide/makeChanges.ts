@@ -624,7 +624,6 @@ export async function addNoteToThingOrGetExistingNoteId(thingId: number): Promis
 
     const queriedNotes = await RawThingDbModel.relatedQuery('note').for([thingId])
     if (queriedNotes.length) {
-        console.log(Number(queriedNotes[0].id))
         return Number(queriedNotes[0].id)
     }
 

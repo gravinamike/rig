@@ -30,7 +30,6 @@
     let unsortedDirectionIds: number[] = []
     let directionIds: number[] = []
     let directions: (Direction | null)[] = []
-    console.log("CHANGED DIRECTIONS", directions)
     function getDirectionIdsFromDbModels(dbModels: DirectionDbModel[]) {
         unsortedDirectionIds = dbModels.map(model => Number(model.id))
         const unsortedDirections = getGraphConstructs("Direction", unsortedDirectionIds) as Direction[]

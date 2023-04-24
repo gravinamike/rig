@@ -53,7 +53,10 @@ export class RawSpaceDbModel extends Model {
 }
 
 interface NewSpaceInfo {
+    id: number
     text: string
+    whencreated: null
+    whenmodded: null
     spaceorder: number
 }
 
@@ -61,6 +64,8 @@ export function getNewSpaceInfo(id: number, text: string, spaceOrder: number): N
     const newSpaceInfo = {
         id: id,
         text: text,
+        whencreated: null,
+        whenmodded: null,
         spaceorder: spaceOrder
     }
 
