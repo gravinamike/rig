@@ -184,7 +184,6 @@
         // If the edited Space information isn't valid, abort.
         const validInputs = validate()
         if ( !validInputs || (!isSpaceForm && !space?.id) ) return
-        console.log("FOO")
         const halfAxisIdsAndDirections = halfAxisInfosAsArray.map(
             ([halfAxisId, halfAxisInfo]) => [halfAxisId, halfAxisInfo.formDirection as Direction | null]
         ) as [OddHalfAxisId, (Direction | null)][]
