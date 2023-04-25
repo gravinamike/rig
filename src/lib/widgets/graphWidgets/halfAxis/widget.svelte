@@ -60,7 +60,7 @@
         {cohortMembersToDisplay}
         bind:graph
         {graphWidgetStyle}
-        {perspectiveTexts}
+        bind:perspectiveTexts
         {rePerspectToThingId}
     />
 {/if}

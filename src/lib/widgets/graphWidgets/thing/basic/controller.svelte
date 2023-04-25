@@ -372,7 +372,8 @@
         const pThingId = graph.pThing?.id as number
         await updateThingText(thingId, textBeingEdited)
         await updateThingPerspectiveText(pThingId, thingId, perspectiveTextBeingEdited || "")
-        text = textBeingEdited
+        perspectiveTexts[thingId] = perspectiveTextBeingEdited || ""
+        if (thing) thing.text = textBeingEdited
         perspectiveText = perspectiveTextBeingEdited
         // Refresh Thing IDs in the ThingDBModel store.
         await storeGraphDbModels<ThingDbModel>("Thing", [pThingId, thingId], true)

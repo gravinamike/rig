@@ -43,8 +43,7 @@
     let centralAnchor: Element | null = null
     let zoomBoundsDiv: Element | null = null
 
-    $: perspectiveTexts = legacyPerspectiveThingsParse(graph.pThing?.perspectivetexts || "{}")
-
+    let perspectiveTexts = legacyPerspectiveThingsParse(graph.pThing?.perspectivetexts || "{}")
 
 
     // Auto-center the current focal point after resizing the Graph.
@@ -148,7 +147,7 @@
                     cohortMembersToDisplay={graph.rootCohort.members}
                     bind:graph
                     {graphWidgetStyle}
-                    {perspectiveTexts}
+                    bind:perspectiveTexts
                     {rePerspectToThingId}
                 />
             {/if}

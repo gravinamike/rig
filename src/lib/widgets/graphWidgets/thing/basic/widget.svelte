@@ -81,20 +81,24 @@
     onMount(async () => {
         sliderOpen = !hasPerspectiveText || (hasPerspectiveText && !usePerspectiveText)
 	})
+    $: {
+        thingId
+
+        sliderOpen = !hasPerspectiveText
+    }
     
     $: usePerspectiveText = !sliderOpen
 
-    const sliderPosition = tweened( 0, { duration: 150, easing: cubicOut } )
-    $: if (!sliderOpen) sliderPosition.set(0)
-    $: if (sliderOpen) sliderPosition.set(100)
-    $: sliderPercentage = 0.87 * $sliderPosition
+    let sliderPosition = 0
+    $: if (!sliderOpen) sliderPosition = 0
+    $: if (sliderOpen) sliderPosition = 100
+    $: sliderPercentage = 0.87 * sliderPosition
 
     let showText = true
 
     async function toggleSlider() {
         showText = false
         sliderOpen = !sliderOpen
-        await sleep(150)
         showText = true
     }
 </script>
@@ -106,7 +110,7 @@
     {thing}
     {graph}
     {graphWidgetStyle}
-    {perspectiveTexts}
+    bind:perspectiveTexts
     {usePerspectiveText}
     {isHoveredWidget}
     {rePerspectToThingId}

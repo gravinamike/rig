@@ -63,7 +63,7 @@
             thing={rootThing}
             bind:graph
             {graphWidgetStyle}
-            {perspectiveTexts}
+            bind:perspectiveTexts
             {rePerspectToThingId}
             bind:thingWidth={rootThingWidth}
             bind:thingHeight={rootThingHeight}
@@ -86,7 +86,7 @@
             {thingCohort}
             bind:graph
             {graphWidgetStyle}
-            {perspectiveTexts}
+            bind:perspectiveTexts
             {rootThingWidth}
             {rootThingHeight}
             {rePerspectToThingId}
