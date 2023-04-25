@@ -18,12 +18,7 @@
         devMode, fontNames, urlStore, sessionUuidStore, leftSideMenuStore, loadingState,
         openGraphStore, perspectiveThingIdStore, reorderingInfoStore,
         updateMousePosition, updateRelationshipBeingCreatedEndpoint,
-        uITrimColorStore, graphBackgroundImageStore, hideMenusStore, directionEditingInProgressIdStore, spaceEditingInProgressIdStore
-
-
-
-
-
+        uITrimColorStore, graphBackgroundImageStore, hideMenusStore
     } from "$lib/stores"
 
     // Import widgets.

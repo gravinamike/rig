@@ -205,7 +205,10 @@
      */
     $: showDirection =
         // The Cohort's parent is the Perspective Thing, or...
-        parentThing.address?.generationId === 0
+        (
+            parentThing.address?.generationId === 0
+            && !thingIdOfHoveredRelationship
+        )
         || (
             // The Cohort is not an invalid relating target for an in-progress
             // drag-relate operation,
