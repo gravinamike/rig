@@ -1,6 +1,6 @@
 import type { RequestHandler } from "@sveltejs/kit"
 import { error } from "@sveltejs/kit"
-import { deleteRelationship } from "$lib/db/serverSide"
+import { deleteRelationship } from "$lib/server/db"
 
 
 export const POST: RequestHandler = async ({ request }) => {

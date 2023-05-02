@@ -9,7 +9,7 @@
     import NotesEditor from "./notesEditor.svelte"
 
     // Import API methods.
-    import { thingsByGuid, addNoteToThingOrGetExistingNoteId, updateNote, markNotesModified } from "$lib/db/clientSide"
+    import { thingsByGuid, addNoteToThingOrGetExistingNoteId, updateNote, markNotesModified } from "$lib/db"
 
 
     import { notesBackgroundImageStore, notesEditorLockedStore, readOnlyMode, storeGraphDbModels, uITrimColorStore } from "$lib/stores"

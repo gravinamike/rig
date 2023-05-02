@@ -1,6 +1,6 @@
 import type { NewFileCreationInfo } from "$lib/widgets/dialogWidgets"
 
-import { sessionSpecificFetch as fetch } from "$lib/db/utility/sessionSpecificFetch"
+import { sessionSpecificFetch as fetch } from "$lib/db/sessionSpecificFetch"
 
 import { writable } from "svelte/store"
 import { nullNewFileCreationInfo } from "$lib/widgets/dialogWidgets"

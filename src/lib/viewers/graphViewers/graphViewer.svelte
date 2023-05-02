@@ -27,7 +27,7 @@
     import { defaultGraphWidgetStyle, GraphWidget, GraphOutlineWidget } from "$lib/widgets/graphWidgets"
 
     // Import API functions.
-    import { markThingsVisited } from "$lib/db/clientSide/makeChanges"
+    import { markThingsVisited } from "$lib/db/makeChanges"
     import { saveGraphConfig } from "$lib/shared/config"    
 
     /**

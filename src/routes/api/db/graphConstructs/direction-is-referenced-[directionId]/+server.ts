@@ -1,6 +1,6 @@
 import type { RequestHandler } from "@sveltejs/kit"
 import { error } from "@sveltejs/kit"
-import { directionIsReferenced } from "$lib/db/serverSide"
+import { directionIsReferenced } from "$lib/server/db"
 
 
 export const GET: RequestHandler = async ({ params }) => {

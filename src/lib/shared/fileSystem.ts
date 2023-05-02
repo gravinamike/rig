@@ -1,7 +1,7 @@
 import path from "path"
 import fs from "fs"
 const fsPromises = fs.promises
-import { initializeOrUpdateGraph } from "$lib/db/serverSide"
+import { initializeOrUpdateGraph } from "$lib/server/db"
 import { get } from "svelte/store"
 import { graphsBaseFolderStore, unigraphFolderStore } from "$lib/stores"
 

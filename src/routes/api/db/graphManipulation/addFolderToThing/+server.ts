@@ -1,6 +1,6 @@
 import type { RequestHandler } from "@sveltejs/kit"
 import { error } from "@sveltejs/kit"
-import { addFolderToThing } from "$lib/db/serverSide"
+import { addFolderToThing } from "$lib/server/db"
 
 
 export const POST: RequestHandler = async ({ request }) => {

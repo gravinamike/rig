@@ -1,7 +1,7 @@
 import type { RequestHandler } from "@sveltejs/kit"
 import { error } from "@sveltejs/kit"
 import { Thing } from "$lib/models/constructModels"
-import { queryThingsByGuid } from "$lib/db/serverSide"
+import { queryThingsByGuid } from "$lib/server/db"
 
 
 export const GET: RequestHandler = async ({ params }) => {

@@ -47,7 +47,7 @@
     import { defaultGraphWidgetStyle, RelationshipBeingCreatedWidget } from "$lib/widgets/graphWidgets"
 
     // Import API methods.
-    import { getFontNames } from "$lib/db/clientSide/getInfo"
+    import { getFontNames } from "$lib/db/getInfo"
     import { storeAppConfig } from "$lib/shared/config"
     import { openGraphFile } from "$lib/shared/unigraph"
     import { onMobile, stringRepresentsInteger, urlHashToObject } from "$lib/shared/utility"

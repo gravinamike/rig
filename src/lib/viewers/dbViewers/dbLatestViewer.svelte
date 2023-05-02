@@ -1,8 +1,8 @@
 <script lang="ts">
-    import type { LatestConstructInfos } from "$lib/db/serverSide/getInfo"
+    import type { LatestConstructInfos } from "$lib/server/db/getInfo"
 
     import { onMount } from "svelte"
-    import { latestDbConstructs } from "$lib/db/clientSide/getInfo"
+    import { latestDbConstructs } from "$lib/db/getInfo"
 
 
     let latestConstructs: LatestConstructInfos | false = false

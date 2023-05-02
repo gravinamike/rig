@@ -1,6 +1,6 @@
 import type { RequestHandler } from "@sveltejs/kit"
 import { error } from "@sveltejs/kit"
-import { repairGraph } from "$lib/db/serverSide/graphFile/repair"
+import { repairGraph } from "$lib/server/db/graphFile/repair"
 
 
 export const POST: RequestHandler = async () => {

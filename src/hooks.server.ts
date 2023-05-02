@@ -1,6 +1,6 @@
 import type { Handle } from "@sveltejs/kit"
-import { getDatabaseConnection } from "$lib/db/utility/connection"
-import { retrieveSessionSpecificCookie } from "$lib/db/utility/sessionSpecificFetch"
+import { getDatabaseConnection } from "$lib/server/db/connection"
+import { retrieveSessionSpecificCookie } from "$lib/db/sessionSpecificFetch"
 
 
 /**

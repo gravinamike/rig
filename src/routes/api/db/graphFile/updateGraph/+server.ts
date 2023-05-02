@@ -1,6 +1,6 @@
 import type { RequestHandler } from "@sveltejs/kit"
 import { error } from "@sveltejs/kit"
-import { initializeOrUpdateGraph } from "$lib/db/serverSide/graphFile/initialize"
+import { initializeOrUpdateGraph } from "$lib/server/db/graphFile/initialize"
 
 
 export const POST: RequestHandler = async () => {

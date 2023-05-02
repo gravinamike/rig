@@ -1,6 +1,6 @@
 import type { RequestHandler } from "@sveltejs/kit"
 import { error } from "@sveltejs/kit"
-import { addNoteToThingOrGetExistingNoteId } from "$lib/db/serverSide"
+import { addNoteToThingOrGetExistingNoteId } from "$lib/server/db"
 
 
 export const POST: RequestHandler = async ({ request }) => {

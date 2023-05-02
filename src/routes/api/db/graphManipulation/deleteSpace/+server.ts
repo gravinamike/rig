@@ -1,6 +1,6 @@
 import type { RequestHandler } from "@sveltejs/kit"
 import { error } from "@sveltejs/kit"
-import { deleteSpace } from "$lib/db/serverSide"
+import { deleteSpace } from "$lib/server/db"
 
 
 export const POST: RequestHandler = async ({ request }) => {

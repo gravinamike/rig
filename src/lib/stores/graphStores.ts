@@ -9,7 +9,7 @@ import { writable, get } from "svelte/store"
 import { Graph, Space } from "$lib/models/constructModels"
 
 // Import API methods.
-import { thingSearchListItems } from "$lib/db/clientSide"
+import { thingSearchListItems } from "$lib/db"
 
 
 

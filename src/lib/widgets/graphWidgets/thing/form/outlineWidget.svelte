@@ -6,7 +6,7 @@
     import { planePadding } from "$lib/shared/constants"
     import { XButton } from "$lib/widgets/layoutWidgets"
 
-    import { createNewRelatedThing } from "$lib/db/clientSide"
+    import { createNewRelatedThing } from "$lib/db"
     import { storeGraphDbModels, addGraphIdsNeedingViewerRefresh } from "$lib/stores"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
     import type { ThingDbModel } from "$lib/models/dbModels/clientSide";

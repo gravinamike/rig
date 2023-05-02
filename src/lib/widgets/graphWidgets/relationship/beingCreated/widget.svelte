@@ -22,8 +22,8 @@
     import { DirectionDropdownWidget } from "$lib/widgets/spaceWidgets"
 
     // Import API methods.
-    import { createNewRelationship } from "$lib/db/clientSide/makeChanges"
-    import type { ThingDbModel } from "$lib/models/dbModels/clientSide";
+    import { createNewRelationship } from "$lib/db/makeChanges"
+    import type { ThingDbModel } from "$lib/models/dbModels/clientSide"
     
 
 

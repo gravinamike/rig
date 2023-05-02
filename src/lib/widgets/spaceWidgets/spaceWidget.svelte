@@ -18,7 +18,7 @@
     import DeleteWidget from "$lib/widgets/layoutWidgets/deleteWidget.svelte"
     
     // Import API functions.
-    import { createSpace, deleteSpace, spaceIsReferenced, updateSpace, updateThingDefaultSpace } from "$lib/db/clientSide"
+    import { createSpace, deleteSpace, spaceIsReferenced, updateSpace, updateThingDefaultSpace } from "$lib/db"
     import { tick } from "svelte";
 
 

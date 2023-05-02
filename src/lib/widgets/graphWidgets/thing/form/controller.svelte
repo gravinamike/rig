@@ -9,7 +9,7 @@
     import { ThingBaseWidgetController } from "../base"
 
     // Import API methods.
-    import { thingSearchListItems, createNewRelatedThing } from "$lib/db/clientSide"
+    import { thingSearchListItems, createNewRelatedThing } from "$lib/db"
     import type { GraphWidgetStyle } from "../../graph";
 
 

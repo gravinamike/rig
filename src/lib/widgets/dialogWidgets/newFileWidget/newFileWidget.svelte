@@ -1,8 +1,8 @@
 <script lang="ts">
-    import { sessionSpecificFetch as fetch } from "$lib/db/utility/sessionSpecificFetch"
+    import { sessionSpecificFetch as fetch } from "$lib/db/sessionSpecificFetch"
 
     import { refreshGraphFoldersStore, newFileCreationStore, updateNewFileCreationFileName, disableNewFileCreation } from "$lib/stores"
-    import { createGraph } from "$lib/db/clientSide/makeChanges"
+    import { createGraph } from "$lib/db/makeChanges"
     import { openGraphFile } from "$lib/shared/unigraph"
 
 

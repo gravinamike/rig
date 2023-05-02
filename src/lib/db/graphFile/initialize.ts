@@ -1,4 +1,4 @@
-import { sessionSpecificFetch as fetch } from "$lib/db/utility/sessionSpecificFetch"
+import { sessionSpecificFetch as fetch } from "$lib/db/sessionSpecificFetch"
 
 
 export async function graphIsUpdated(): Promise<boolean | null> {

@@ -1,7 +1,7 @@
 import type { RequestHandler } from "@sveltejs/kit"
 import { error } from "@sveltejs/kit"
 import { stripDirectionDbModels } from "$lib/models/dbModels/serverSide"
-import { queryDirections } from "$lib/db/serverSide"
+import { queryDirections } from "$lib/server/db"
 
 
 export const GET: RequestHandler = async ({ params }) => {

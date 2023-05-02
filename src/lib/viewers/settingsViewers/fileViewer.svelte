@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { sessionSpecificFetch as fetch } from "$lib/db/utility/sessionSpecificFetch"
+    import { sessionSpecificFetch as fetch } from "$lib/db/sessionSpecificFetch"
 
     import { graphFoldersStore, refreshGraphFoldersStore, enableNewFileCreation, openGraphStore, uIBackgroundColorStore, uITrimColorStore } from "$lib/stores"
     import { openGraphFile } from "$lib/shared/unigraph"

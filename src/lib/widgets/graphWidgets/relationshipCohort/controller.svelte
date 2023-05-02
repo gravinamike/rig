@@ -23,7 +23,7 @@
     } from "$lib/stores"
 
     // Import API functions.
-    import { updateRelationships } from "$lib/db/clientSide"
+    import { updateRelationships } from "$lib/db"
     
 
     /**

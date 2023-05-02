@@ -15,7 +15,7 @@
     import DeleteWidget from "$lib/widgets/layoutWidgets/deleteWidget.svelte"
 
     // Import API methods.
-    import { createDirection, updateDirection, deleteDirection, directionIsReferenced } from "$lib/db/clientSide"
+    import { createDirection, updateDirection, deleteDirection, directionIsReferenced } from "$lib/db"
     import { tick } from "svelte";
 
 

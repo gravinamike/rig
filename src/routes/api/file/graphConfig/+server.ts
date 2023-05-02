@@ -5,7 +5,7 @@ import fs from "fs"
 import type { GraphConfig } from "$lib/shared/constants"
 import { graphsBaseFolderStore } from "$lib/stores"
 import { get as getStore } from "svelte/store"
-import { retrieveSessionSpecificCookie } from "$lib/db/utility/sessionSpecificFetch"
+import { retrieveSessionSpecificCookie } from "$lib/db/sessionSpecificFetch"
 
 
 export const GET: RequestHandler = async ({ request }) => {

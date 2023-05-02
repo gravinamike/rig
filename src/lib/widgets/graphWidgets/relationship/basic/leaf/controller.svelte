@@ -11,7 +11,7 @@
     } from "$lib/stores"
 
     // Import API methods.
-    import { updateRelationships } from "$lib/db/clientSide"
+    import { updateRelationships } from "$lib/db"
     import type { ThingDbModel } from "$lib/models/dbModels/clientSide";
     
     

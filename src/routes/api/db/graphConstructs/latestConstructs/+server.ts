@@ -1,6 +1,6 @@
 import type { RequestHandler } from "@sveltejs/kit"
 import { error } from "@sveltejs/kit"
-import { getLatestConstructs } from "$lib/db/serverSide"
+import { getLatestConstructs } from "$lib/server/db"
 
 
 export const GET: RequestHandler = async () => {

@@ -1,7 +1,7 @@
 <script lang="ts">
     import { reorderingInfoStore, disableReordering, setReorderingIndex, storeGraphDbModels } from "$lib/stores"
     import { changeIndexInArray, clampNumber } from "$lib/shared/utility"
-    import { reorderRelationship } from "$lib/db/clientSide"
+    import { reorderRelationship } from "$lib/db"
     import type { ThingCohort } from "$lib/models/constructModels";
     import { zoomBase } from "$lib/shared/constants";
     import { tweened } from "svelte/motion";

@@ -13,7 +13,7 @@ import {
 import { updateUrlHash as updateUrlHashMethod } from "$lib/shared/utility"
 
 // Import API methods.
-import { graphIsUpdated, updateGraph, graphNeedsRepair, repairGraph } from "$lib/db/clientSide/graphFile"
+import { graphIsUpdated, updateGraph, graphNeedsRepair, repairGraph } from "$lib/db/graphFile"
 import { storeGraphConfig } from "$lib/shared/config"
 
 

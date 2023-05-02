@@ -16,7 +16,7 @@
     import { DirectionWidget } from "$lib/widgets/spaceWidgets"
 
     // Import API methods.
-    import { reorderDirection } from "$lib/db/clientSide"
+    import { reorderDirection } from "$lib/db"
 
 
     /**

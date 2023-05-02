@@ -11,10 +11,10 @@ import {
 } from "$lib/stores"
 
 // Import API methods.
-import { getAppConfig, getGraphConfig } from "$lib/db/clientSide/getInfo"
+import { getAppConfig, getGraphConfig } from "$lib/db/getInfo"
 import {
     setDbPort, setGraphsBaseFolder, saveAppConfig as apiSaveAppConfig, saveGraphConfig as apiSaveGraphConfig
-} from "$lib/db/clientSide/makeChanges"
+} from "$lib/db/makeChanges"
 import { stringRepresentsHexColor } from "./utility"
 
 

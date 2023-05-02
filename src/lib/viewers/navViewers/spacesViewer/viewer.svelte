@@ -16,7 +16,7 @@
     import { SpaceWidget } from "$lib/widgets/spaceWidgets"
 
     // Import API methods.
-    import { reorderSpace } from "$lib/db/clientSide"
+    import { reorderSpace } from "$lib/db"
     import { readOnlyMode, spaceEditingInProgressIdStore, uIBackgroundColorStore } from "$lib/stores"
 
 
