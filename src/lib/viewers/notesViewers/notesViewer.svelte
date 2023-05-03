@@ -14,7 +14,7 @@
 
     import { notesBackgroundImageStore, notesEditorLockedStore, readOnlyMode, storeGraphDbModels, uITrimColorStore } from "$lib/stores"
     import { saveGraphConfig } from "$lib/shared/config"
-    import type { ThingDbModel } from "$lib/models/dbModels/clientSide";
+    import type { ThingDbModel } from "$lib/models/dbModels"
     import { removeItemFromArray, sleep } from "$lib/shared/utility";
 
 

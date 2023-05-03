@@ -12,7 +12,7 @@ import { maxThingsToStore } from "$lib/shared/constants"
 // Import API methods.
 import { graphDbModels } from "$lib/db"
 import { Direction, Space, Thing } from "$lib/models/constructModels"
-import { isDirectionDbModel, isSpaceDbModel, isThingDbModel, type DirectionDbModel, type GraphDbModel, type SpaceDbModel, type ThingDbModel } from "$lib/models/dbModels/clientSide"
+import { isDirectionDbModel, isSpaceDbModel, isThingDbModel, type DirectionDbModel, type GraphDbModel, type SpaceDbModel, type ThingDbModel } from "$lib/models/dbModels"
 
 
 

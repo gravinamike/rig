@@ -1,8 +1,8 @@
 import type { AppConfig, GraphConfig } from "$lib/shared/constants"
 import type { LatestConstructInfos } from "$lib/server/db/getInfo"
-import type { RawThingDbModel } from "$lib/models/dbModels/serverSide"
+import type { RawThingDbModel } from "$lib/server/models"
 import { Thing, ThingSearchListItem } from "$lib/models/constructModels"
-import type { GraphDbModel, ThingSearchListItemDbModel } from "$lib/models/dbModels/clientSide"
+import type { GraphDbModel, ThingSearchListItemDbModel } from "$lib/models/dbModels"
 import { sessionSpecificFetch as fetch } from "$lib/db/sessionSpecificFetch"
 
 

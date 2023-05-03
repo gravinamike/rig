@@ -7,7 +7,7 @@
     import { tweened } from "svelte/motion";
     import { cubicOut } from "svelte/easing";
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets";
-    import type { ThingDbModel } from "$lib/models/dbModels/clientSide";
+    import type { ThingDbModel } from "$lib/models/dbModels"
 
 
 

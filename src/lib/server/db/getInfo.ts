@@ -1,4 +1,4 @@
-import type { ThingDbModel, ThingSearchListItemDbModel } from "$lib/models/dbModels/clientSide"
+import type { ThingDbModel, ThingSearchListItemDbModel } from "$lib/models/dbModels"
 import {
     RawDirectionDbModel, RawSpaceDbModel,
     RawThingDbModel, RawRelationshipDbModel,
@@ -14,7 +14,7 @@ import {
     stripSpaceDbModels,
     RawDirectionToSpaceDbModel,
     stripDirectionToSpaceDbModels,
-} from "$lib/models/dbModels/serverSide"
+} from "$lib/server/models"
 
 
 /*

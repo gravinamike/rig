@@ -1,5 +1,5 @@
 import { Model } from "objection"
-import { RawThingDbModel, RawRelationshipDbModel, RawNoteDbModel, RawNoteToThingDbModel, RawFolderDbModel, RawFolderToThingDbModel, RawDirectionDbModel, RawSpaceDbModel } from "$lib/models/dbModels/serverSide"
+import { RawThingDbModel, RawRelationshipDbModel, RawNoteDbModel, RawNoteToThingDbModel, RawFolderDbModel, RawFolderToThingDbModel, RawDirectionDbModel, RawSpaceDbModel } from "$lib/server/models"
 import type { Knex } from "knex"
 
 

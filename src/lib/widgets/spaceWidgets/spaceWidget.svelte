@@ -3,7 +3,7 @@
     import type { OddHalfAxisId } from "$lib/shared/constants"
     import type { Graph, Direction, Space } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
-    import type { ThingDbModel } from "$lib/models/dbModels/clientSide"
+    import type { ThingDbModel } from "$lib/models/dbModels"
 
     // Import contants and utilty functions.
     import { oddHalfAxisIds } from "$lib/shared/constants"

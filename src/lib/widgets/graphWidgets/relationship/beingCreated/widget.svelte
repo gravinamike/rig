@@ -23,7 +23,7 @@
 
     // Import API methods.
     import { createNewRelationship } from "$lib/db/makeChanges"
-    import type { ThingDbModel } from "$lib/models/dbModels/clientSide"
+    import type { ThingDbModel } from "$lib/models/dbModels"
     
 
 

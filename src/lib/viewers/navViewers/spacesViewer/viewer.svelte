@@ -2,7 +2,7 @@
     // Import types.
     import type { Graph, Space } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
-    import type { SpaceDbModel } from "$lib/models/dbModels/clientSide"
+    import type { SpaceDbModel } from "$lib/models/dbModels"
 
     // Import framework functions.
     import { tick } from "svelte"

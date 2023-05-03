@@ -9,7 +9,7 @@ import {
     RawRelationshipDbModel, getNewRelationshipInfo,
     RawNoteDbModel, getNewNoteInfo, RawNoteToThingDbModel,
     RawFolderDbModel, getNewFolderInfo, RawFolderToThingDbModel, RawSpaceDbModel, getNewSpaceInfo, RawDirectionToSpaceDbModel, getNewDirectionInfo
-} from "$lib/models/dbModels/serverSide"
+} from "$lib/server/models"
 import { Direction, Space, Thing } from "$lib/models/constructModels"
 
 // Filesystem-related imports.

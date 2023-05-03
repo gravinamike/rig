@@ -5,7 +5,7 @@ import { Generations } from "./generations"
 import { Planes } from "./planes"
 import { PerspectiveHistory } from "./history"
 import { deleteThing, deleteRelationship } from "$lib/db/makeChanges"
-import type { ThingDbModel } from "$lib/models/dbModels/clientSide"
+import type { ThingDbModel } from "$lib/models/dbModels"
 import { updateUrlHash } from "$lib/shared/utility"
 
 

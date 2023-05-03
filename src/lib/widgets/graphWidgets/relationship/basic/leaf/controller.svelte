@@ -12,7 +12,7 @@
 
     // Import API methods.
     import { updateRelationships } from "$lib/db"
-    import type { ThingDbModel } from "$lib/models/dbModels/clientSide";
+    import type { ThingDbModel } from "$lib/models/dbModels"
     
     
     /**

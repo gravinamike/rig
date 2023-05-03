@@ -5,7 +5,7 @@
 
     import { thingDbModelsStore, storeGraphDbModels, getGraphConstructs, graphDbModelInStore } from "$lib/stores/graphConstructStores"
     import { addFolderToThing } from "$lib/db"
-    import type { ThingDbModel } from "$lib/models/dbModels/clientSide";
+    import type { ThingDbModel } from "$lib/models/dbModels"
 
     export let graph: Graph
 

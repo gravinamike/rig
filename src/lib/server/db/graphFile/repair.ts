@@ -1,5 +1,5 @@
 // Import types.
-import type { RawSpaceDbModel } from "$lib/models/dbModels/serverSide"
+import type { RawSpaceDbModel } from "$lib/server/models"
 
 // Import database-framework-related classes.
 import { querySpaces } from "../getInfo"

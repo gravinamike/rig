@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { ThingDbModel } from "$lib/models/dbModels/clientSide"
+    import type { ThingDbModel } from "$lib/models/dbModels"
     import type { GenerationMember, Graph, Space, Thing } from "$lib/models/constructModels"
 
     // Import constants and stores.

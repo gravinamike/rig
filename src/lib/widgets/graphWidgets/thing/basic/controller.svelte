@@ -25,7 +25,7 @@
     import { ThingBaseWidgetController } from "../base"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
     import { updateThingPerspectiveText, updateThingText } from "$lib/db"
-    import type { ThingDbModel } from "$lib/models/dbModels/clientSide"
+    import type { ThingDbModel } from "$lib/models/dbModels"
 
     /**
      * Create a Thing Widget Model.

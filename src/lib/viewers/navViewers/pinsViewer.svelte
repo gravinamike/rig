@@ -1,6 +1,6 @@
 <script lang="ts">
     // Import types.
-    import type { ThingDbModel } from "$lib/models/dbModels/clientSide"
+    import type { ThingDbModel } from "$lib/models/dbModels"
     import type { Graph, Thing } from "$lib/models/constructModels"
     
     // Import framework functions.

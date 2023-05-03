@@ -1,5 +1,5 @@
 // Import types.
-import type { ThingSearchListItemDbModel } from "$lib/models/dbModels/clientSide"
+import type { ThingSearchListItemDbModel } from "$lib/models/dbModels"
 
 
 /*

@@ -2,7 +2,7 @@
     // Import types.
     import type { Tweened } from "svelte/motion"
     import type { HalfAxisId } from "$lib/shared/constants"
-    import type { ThingDbModel } from "$lib/models/dbModels/clientSide"
+    import type { ThingDbModel } from "$lib/models/dbModels"
     import type { Direction, Graph, ThingCohort, Thing } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 

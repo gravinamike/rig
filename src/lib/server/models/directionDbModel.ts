@@ -1,5 +1,5 @@
 import type { RelationMappings, RelationMappingsThunk } from "objection"
-import type { DirectionDbModel } from "../clientSide"
+import type { DirectionDbModel } from "$lib/models/dbModels"
 import { Model } from "objection"
 import { RawDirectionToSpaceDbModel } from "./spaceDbModel"
 

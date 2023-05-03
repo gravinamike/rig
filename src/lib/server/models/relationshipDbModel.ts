@@ -1,4 +1,4 @@
-import type { RelationshipDbModel } from "../clientSide"
+import type { RelationshipDbModel } from "$lib/models/dbModels"
 
 import { Model } from "objection"
 import { v4 as uuidv4 } from "uuid"

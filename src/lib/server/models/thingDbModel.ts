@@ -1,10 +1,10 @@
 import type { RelationMappings, RelationMappingsThunk } from "objection"
 import { stripRelationshipDbModels } from "./relationshipDbModel"
-import type { ThingDbModel, ThingSearchListItemDbModel } from "../clientSide"
+import type { ThingDbModel, ThingSearchListItemDbModel } from "$lib/models/dbModels"
 
 import { Model } from "objection"
 import { v4 as uuidv4 } from "uuid"
-import { RawRelationshipDbModel, RawNoteDbModel, RawNoteToThingDbModel, RawFolderDbModel, RawFolderToThingDbModel } from "$lib/models/dbModels/serverSide"
+import { RawRelationshipDbModel, RawNoteDbModel, RawNoteToThingDbModel, RawFolderDbModel, RawFolderToThingDbModel } from "$lib/server/models"
 import { stripFolderDbModels, stripFolderToThingDbModels } from "./folderDbModel"
 import { stripNoteDbModels, stripNoteToThingDbModels } from "./noteDbModel"
 

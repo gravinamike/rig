@@ -1,22 +1,19 @@
 import type { RelationMappings, RelationMappingsThunk } from "objection"
-import type { NoteDbModel, NoteToThingDbModel } from "../clientSide"
+import type { FolderDbModel, FolderToThingDbModel } from "$lib/models/dbModels"
 
 import { Model } from "objection"
-import { v4 as uuidv4 } from "uuid"
-import { RawThingDbModel } from "$lib/models/dbModels/serverSide"
+import { RawThingDbModel } from "$lib/server/models"
 
 
 /*
- * Note model.
+ * Folder model.
  */
-export class RawNoteDbModel extends Model {
-    static tableName = "notes" as const
+export class RawFolderDbModel extends Model {
+    static tableName = "folders" as const
 
     id!: string | number
-    guid!: string
-    text!: string
     whencreated!: string | null
-    whenmodded!: string | null
+    path!: string
 
     static get relationMappings(): RelationMappings | RelationMappingsThunk {
         return {
@@ -24,10 +21,10 @@ export class RawNoteDbModel extends Model {
                 relation: Model.HasOneThroughRelation,
                 modelClass: RawThingDbModel,
                 join: {
-                    from: 'notes.id',
+                    from: 'folders.id',
                     through: {
-                        from: 'notetothing.noteid',
-                        to: 'notetothing.thingid'
+                        from: 'foldertothing.folderid',
+                        to: 'foldertothing.thingid'
                     },
                     to: 'things.id'
                 }
@@ -37,19 +34,16 @@ export class RawNoteDbModel extends Model {
 }
 
 
-
 // Necessary to strip out the server-only Objection.js model parts before sending client-side.
-export function stripNoteDbModels(models: (RawNoteDbModel | null)[]): (NoteDbModel | null)[] {
+export function stripFolderDbModels(models: (RawFolderDbModel | null)[]): (FolderDbModel | null)[] {
     const stripped = []
 
     for (const model of models) {
         stripped.push(
             model ? {
                 id: model.id,
-                guid: model.guid,
-                text: model.text,
                 whencreated: model.whencreated,
-                whenmodded: model.whenmodded
+                path: model.path
             } :
             null
         )
@@ -60,45 +54,42 @@ export function stripNoteDbModels(models: (RawNoteDbModel | null)[]): (NoteDbMod
 
 
 
-interface NewNoteInfo {
-    guid: string,
-    text: string,
+
+interface NewFolderInfo {
     whencreated: string,
-    whenmodded: null
+    path: string
 }
 
-export function getNewNoteInfo(whenCreated: string): NewNoteInfo {
-    const newThingInfo = {
-        guid: uuidv4(),
-        text: "",
+export function getNewFolderInfo(whenCreated: string, guid: string): NewFolderInfo {
+    const newFolderInfo = {
         whencreated: whenCreated,
-        whenmodded: null
+        path: guid
     }
 
-    return newThingInfo
+    return newFolderInfo
 }
 
 /*
- * NoteToThing model.
+ * FolderToThing model.
  */
-export class RawNoteToThingDbModel extends Model {
-    static tableName = "notetothing" as const
+export class RawFolderToThingDbModel extends Model {
+    static tableName = "foldertothing" as const
 
     id!: string | number
-    noteid!: number
+    folderid!: number
     thingid!: number
 }
 
 
 // Necessary to strip out the server-only Objection.js model parts before sending client-side.
-export function stripNoteToThingDbModels(models: (RawNoteToThingDbModel | null)[]): (NoteToThingDbModel | null)[] {
+export function stripFolderToThingDbModels(models: (RawFolderToThingDbModel | null)[]): (FolderToThingDbModel | null)[] {
     const stripped = []
 
     for (const model of models) {
         stripped.push(
             model ? {
                 id: model.id,
-                noteid: model.noteid,
+                folderid: model.folderid,
                 thingid: model.thingid
             } :
             null

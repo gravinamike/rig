@@ -1,4 +1,4 @@
-import type { FolderDbModel, FolderToThingDbModel } from "../dbModels/clientSide"
+import type { FolderDbModel, FolderToThingDbModel } from "$lib/models/dbModels"
 
 
 

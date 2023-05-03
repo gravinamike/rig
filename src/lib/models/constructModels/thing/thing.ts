@@ -1,6 +1,6 @@
 // Import types.
 import type { HalfAxisId } from "$lib/shared/constants"
-import type { ThingDbModel } from "$lib/models/dbModels/clientSide"
+import type { ThingDbModel } from "$lib/models/dbModels"
 import type { ThingAddress, RelationshipInfo } from "./types"
 
 // Import constants and stores.

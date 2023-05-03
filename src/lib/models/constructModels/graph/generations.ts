@@ -9,7 +9,7 @@ import { makeArrayUnique } from "$lib/shared/utility"
 
 // Model imports.
 import { Graph, Generation } from "$lib/models/constructModels"
-import type { ThingDbModel } from "$lib/models/dbModels/clientSide"
+import type { ThingDbModel } from "$lib/models/dbModels"
 
 
 /** Class representing the set of Generations belonging to a Graph. */

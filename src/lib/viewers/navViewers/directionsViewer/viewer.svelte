@@ -2,7 +2,7 @@
     // Import types.
     import type { Direction, Graph } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
-    import type { DirectionDbModel } from "$lib/models/dbModels/clientSide"
+    import type { DirectionDbModel } from "$lib/models/dbModels"
 
     // Import framework functions.
     import { tick } from "svelte"

@@ -1,6 +1,6 @@
 import type { RequestHandler } from "@sveltejs/kit"
 import { error } from "@sveltejs/kit"
-import { stripDirectionDbModels } from "$lib/models/dbModels/serverSide"
+import { stripDirectionDbModels } from "$lib/server/models"
 import { queryDirections } from "$lib/server/db"
 
 

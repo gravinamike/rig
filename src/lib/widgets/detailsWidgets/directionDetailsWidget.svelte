@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { DirectionDbModel } from "$lib/models/dbModels/clientSide"
+    import type { DirectionDbModel } from "$lib/models/dbModels"
 
     export let directionDbModel: DirectionDbModel
 </script>

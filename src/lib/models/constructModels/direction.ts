@@ -1,5 +1,5 @@
 import type { GraphConstruct } from "$lib/shared/constants"
-import type { DirectionDbModel } from "../dbModels/clientSide"
+import type { DirectionDbModel } from "../dbModels"
 
 
 

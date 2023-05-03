@@ -1,6 +1,6 @@
 import type { RequestHandler } from "@sveltejs/kit"
 import { error } from "@sveltejs/kit"
-import { stripSpaceDbModels } from "$lib/models/dbModels/serverSide"
+import { stripSpaceDbModels } from "$lib/server/models"
 import { querySpaces } from "$lib/server/db"
 
 
