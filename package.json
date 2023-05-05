@@ -1,5 +1,5 @@
 {
-  "name": "~TODO~",
+  "name": "rig-pre-alpha",
   "version": "0.0.1",
   "scripts": {
     "dev": "vite dev --host",
@@ -10,29 +10,29 @@
     "lint": "eslint --ignore-path .gitignore ."
   },
   "devDependencies": {
-    "@sveltejs/kit": "^1.1.1",
-    "@typescript-eslint/eslint-plugin": "^5.54.1",
-    "@typescript-eslint/parser": "^5.54.1",
-    "eslint": "^8.35.0",
+    "@sveltejs/kit": "^1.16.0",
+    "@typescript-eslint/eslint-plugin": "^5.59.2",
+    "@typescript-eslint/parser": "^5.59.2",
+    "eslint": "^8.39.0",
     "eslint-plugin-svelte3": "^4.0.0",
-    "svelte": "^3.56.0",
-    "svelte-check": "^3.1.2",
+    "svelte": "^3.58.0",
+    "svelte-check": "^3.3.0",
     "svelte-preprocess": "^5.0.1",
     "tslib": "^2.5.0",
-    "typescript": "^4.9.5"
+    "typescript": "^5.0.4"
   },
   "type": "module",
   "dependencies": {
-    "@sveltejs/adapter-node": "^1.2.2",
-    "@sveltejs/adapter-static": "^2.0.1",
-    "@tiptap/core": "^2.0.0-beta.220",
-    "@tiptap/extension-color": "^2.0.0-beta.220",
-    "@tiptap/extension-font-family": "^2.0.0-beta.220",
-    "@tiptap/extension-link": "^2.0.0-beta.220",
-    "@tiptap/extension-text-align": "^2.0.0-beta.220",
-    "@tiptap/extension-text-style": "^2.0.0-beta.220",
-    "@tiptap/extension-underline": "^2.0.0-beta.220",
-    "@tiptap/starter-kit": "^2.0.0-beta.220",
+    "@sveltejs/adapter-node": "^1.2.4",
+    "@sveltejs/adapter-static": "^2.0.2",
+    "@tiptap/core": "^2.0.3",
+    "@tiptap/extension-color": "^2.0.3",
+    "@tiptap/extension-font-family": "^2.0.3",
+    "@tiptap/extension-link": "^2.0.3",
+    "@tiptap/extension-text-align": "^2.0.3",
+    "@tiptap/extension-text-style": "^2.0.3",
+    "@tiptap/extension-underline": "^2.0.3",
+    "@tiptap/starter-kit": "^2.0.3",
     "@types/knex": "^0.16.1",
     "@types/uuid": "^9.0.1",
     "dotenv": "^16.0.3",
@@ -41,6 +41,6 @@
     "pg": "^8.10.0",
     "svelte-kit": "^1.2.0",
     "uuid": "^9.0.0",
-    "vite": "^4.1.4"
+    "vite": "^4.3.4"
   }
 }
