@@ -35,8 +35,9 @@ export async function openGraphFile(username: string, folderName: string, pThing
 
     // Check whether the user is authorized to access this Graph. If not, abort
     // with an error alert.
-    await refreshGraphFoldersStore(username === "all" ? null : username)
     const userIdStoreValue = get(userIdStore)
+    console.log(userIdStoreValue)
+    await refreshGraphFoldersStore(userIdStoreValue)
     if (
         username !== "all" && userIdStoreValue !== username
     ) {
@@ -48,7 +49,7 @@ export async function openGraphFile(username: string, folderName: string, pThing
 
     // Check whether the requested Graph exists. If not, abort with an error
     // alert.
-    await refreshGraphFoldersStore(username === "all" ? null : username)
+    await refreshGraphFoldersStore(userIdStoreValue)
     const graphFoldersStoreValue = get(graphFoldersStore)
     if (!(username in graphFoldersStoreValue) || !graphFoldersStoreValue[username].includes(folderName)) {
         alert(`No Graph with the name ${folderName} was found for username ${username}.`)
