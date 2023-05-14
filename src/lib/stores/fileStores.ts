@@ -32,12 +32,20 @@ export const graphsBaseFolderStore = writable( "" )
 
 // Graph Folders Store.
 // Holds a list of folder paths for each Graph in the Graphs directory.
-export const graphFoldersStore = writable( [] as string[] )
+export const graphFoldersStore = writable( {} as {[username: string]: string[]} )
 
-export async function refreshGraphFoldersStore(): Promise< void > {
-    await fetch(`api/file/graphFolders`)
+export async function refreshGraphFoldersStore(username: string | null = null): Promise< void > {
+    const graphFoldersByUsername: {[username: string]: string[]} = {}
+    
+    await fetch(`api/file/graphFolders-all`)
         .then(response => {return (response.json() as unknown) as string[]})
-        .then(data => graphFoldersStore.set(data))
+        .then(data => graphFoldersByUsername["all"] = data)
+        
+    if (username) await fetch(`api/file/graphFolders-${username}`)
+        .then(response => {return (response.json() as unknown) as string[]})
+        .then(data => graphFoldersByUsername[username] = data)
+
+    graphFoldersStore.set(graphFoldersByUsername)
 }
 
 
@@ -52,14 +60,16 @@ export const unigraphFolderStore = writable( null as string | null )
 export const newFileCreationStore = writable(
     {
         dialogOpen: false,
+        username: null,
         newFileName: null
     } as NewFileCreationInfo
 )
 
-export function enableNewFileCreation(): void {
+export function enableNewFileCreation(username: string): void {
     newFileCreationStore.set(
         {
             dialogOpen: true,
+            username: username === "all" ? null : username,
             newFileName: null
         }
     )

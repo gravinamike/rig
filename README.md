@@ -16,6 +16,11 @@ After cloning the site, run `npm i` to install dependencies and `npm run build` 
 The top-level folder of the repository contains a file named `env_template`. Copy and paste this without the "_template", and edit the new file to suit your needs. You can specify the desired ports for the app's main front-end server and its database server (if you need to change these to avoid conflicts with existing port usage). You will also need to supply your domain as "ORIGIN" in order to avoid cross-site errors. You can also change the port that the app runs on if you prefer.
 
 
+### Setting up the authentication database
+
+The /static/auth folder contains a file named `authentication_template.db. Copy and paste it without the "_template" to create the database file that's necessary for user authentication.
+
+
 ### Setting up the config files
 
 The /static/config folder contains two files in template form (with filenames ending in "_template"). Copy and paste them without the "_template", and modify the resulting config files as needed.

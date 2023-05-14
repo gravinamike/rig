@@ -1,5 +1,6 @@
 <script lang="ts">
     // Import types.
+    import type { PageData } from "./$types"
     import type { MenuName, WaitingIndicatorStates } from "$lib/shared/constants"
     import type { Graph, Space } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
@@ -18,7 +19,8 @@
         devMode, fontNames, urlStore, sessionUuidStore, leftSideMenuStore, loadingState,
         openGraphStore, perspectiveThingIdStore, reorderingInfoStore,
         updateMousePosition, updateRelationshipBeingCreatedEndpoint,
-        uITrimColorStore, graphBackgroundImageStore, hideMenusStore
+        uITrimColorStore, graphBackgroundImageStore, hideMenusStore, userIdStore
+
     } from "$lib/stores"
 
     // Import widgets.
@@ -32,6 +34,7 @@
 
     // Import viewers.
     import AboutMenu from "$lib/viewers/about.svelte"
+    import { UsersMenu } from "$lib/viewers/usersMenu"
     import FileViewer from "$lib/viewers/settingsViewers/fileViewer.svelte"
     import {
         ThingSearchboxViewer, PinsViewer, HistoryViewer, 
@@ -51,6 +54,13 @@
     import { storeAppConfig } from "$lib/shared/config"
     import { openGraphFile } from "$lib/shared/unigraph"
     import { onMobile, stringRepresentsInteger, urlHashToObject } from "$lib/shared/utility"
+
+
+    export let data: PageData
+
+
+    // User ID.
+    userIdStore.set( data.user?.username || null )
 
     // Session UUID.
     sessionUuidStore.set( uuidv4() )
@@ -92,6 +102,10 @@
             {
                 name: "About",
                 icon: "about"
+            },
+            {
+                name: "Users",
+                icon: "user"
             },
             {
                 name: "File",
@@ -151,7 +165,7 @@
     // Graph parameters derived from the URL hash.
     let urlHashParams: { [key: string]: string } = {}
     $: urlHashParams = urlHashToObject($urlStore.hash)
-    $: urlGraphFolder = "graph" in urlHashParams ? urlHashParams["graph"] : null
+    $: urlUsernameAndGraphFolder = "graph" in urlHashParams ? urlHashParams["graph"] : null
     $: urlThingId =
         "thingId" in urlHashParams && stringRepresentsInteger(urlHashParams["thingId"]) ? parseInt(urlHashParams["thingId"]) :
         null
@@ -201,14 +215,14 @@
      * @param graphName - The name of the Graph file to be opened.
      * @param pThingId - The ID of the Perspective Thing to start on, if not the Graph's default.
      */
-    async function openGraph(graphName: string, pThingId: number | null = null) {
+    async function openGraph(username: string, graphName: string, pThingId: number | null = null) {
         if (!mounted) return
 
         // Close any existing Graph.
         graph = null
-
+        
         // Open the Graph.
-        await openGraphFile(graphName, pThingId, true)
+        await openGraphFile(username, graphName, pThingId, true)
 
         // Configure the left side-menu based on the Graph.
         leftMenuOpen = !!$leftSideMenuStore
@@ -238,8 +252,9 @@
         await loadAppConfig()
         
         // Open the Graph currently specified in the store.
-        if (urlGraphFolder) {
-            await openGraph(urlGraphFolder, urlThingId)
+        if (urlUsernameAndGraphFolder) {
+            const [username, graphFolder] = urlUsernameAndGraphFolder.split("/")
+            await openGraph(username, graphFolder, urlThingId)
         } else {
             leftSideMenuStore.set("File")
             leftMenuOpen = !!$leftSideMenuStore
@@ -252,7 +267,10 @@
     
     // Set up reactive Graph loading when the Graph parameter in the URL
     // changes.
-    $: if (urlGraphFolder) openGraph(urlGraphFolder)
+    $: if (urlUsernameAndGraphFolder) {
+        const [username, graphFolder] = urlUsernameAndGraphFolder.split("/")
+        openGraph(username, graphFolder)
+    }
 
     // Set up reactive re-Perspecting and Space-changing that should happen
     // after Graph is loaded.
@@ -282,15 +300,17 @@
     $: graphBackgroundImageUrl =
         $graphBackgroundImageStore ? `customizable/background-images/${$graphBackgroundImageStore}` :
         null
-
-
-
 </script>
 
 
 <!-- Set page title based on open Graph. -->
 <svelte:head>
-    <title>{ $openGraphStore ? $openGraphStore : "Rig" }</title>
+    <title>{
+        $openGraphStore ? (
+            $openGraphStore.startsWith("all/") ? $openGraphStore.replace("all/", "") : $openGraphStore
+        ) :
+        "Rig"
+    }</title>
 </svelte:head>
 
 
@@ -494,6 +514,10 @@
                 />
             {/if}
 
+        <!-- Users menu. -->
+        {:else if openedSubMenuName === "Users"}
+            <UsersMenu />
+        
         <!-- File viewer. -->
         {:else if openedSubMenuName === "File"}
             <FileViewer />

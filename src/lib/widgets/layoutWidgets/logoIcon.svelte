@@ -1,4 +1,6 @@
 <script>
+    import { sineIn } from "svelte/easing";
+
     export let scale = 1
     export let outlineColor = "black"
     export let backgroundColor = "whitesmoke"
@@ -12,29 +14,25 @@
     const centerX = width / 2
     const centerY = height / 2
 
-    const boxPeak = centerY - 3
-    const boxTop = centerY + 3
-    const boxBottom = centerY + 30
-    const boxLeft = centerX - 23
-    const boxRight = centerX + 23
+    const smallCirclePercentOffsetFromCenter = 0.25
+    const smallCircleOffsetFromCenter = smallCirclePercentOffsetFromCenter * width
+    const smallCircleAngle = 30
+    const smallCircleOffsetFromCenterX = smallCircleOffsetFromCenter * Math.cos(smallCircleAngle * (Math.PI / 180))
+    const smallCircleOffsetFromCenterY = smallCircleOffsetFromCenter * Math.sin(smallCircleAngle * (Math.PI / 180))
+    const smallCircleWidth = 7
 
-    const roofPeak = boxPeak - 10
-    const roofTop = boxTop - 3
-    const roofLeft = boxLeft - 5
-    const roofRight = boxRight + 5
+    const bottomLeftCircleCenterX = centerX - smallCircleOffsetFromCenterX + 2
+    const bottomLeftCircleCenterY = centerY + smallCircleOffsetFromCenterY + 5
+    const topRightCircleCenterX = centerX + smallCircleOffsetFromCenterX + 2
+    const topRightCircleCenterY = centerY - smallCircleOffsetFromCenterY + 5
+    
+    const hookEndOffsetFromTarget = 17
+    const hookEndAngle = 30
+    const hookEndOffsetFromTargetX = hookEndOffsetFromTarget * Math.cos(hookEndAngle * (Math.PI / 180))
+    const hookEndOffsetFromTargetY = hookEndOffsetFromTarget * Math.sin(hookEndAngle * (Math.PI / 180))
 
-    const archTop = boxTop
-    const archBottom = boxBottom - 6
-    const archMiddle = (boxTop + boxBottom) / 2
-    const arch1Left = boxLeft + 6
-    const arch1Right = centerX - 6
-    const arch2Left = centerX + 6
-    const arch2Right = boxRight - 6
-
-    const poleTop = centerY - 43
-    const arrowHeight = centerY - 30
-    const arrowLeft = centerX - 18
-    const arrowRight = centerX + 18
+    const hookEndCenterX = topRightCircleCenterX - hookEndOffsetFromTargetX
+    const hookEndCenterY = topRightCircleCenterY - hookEndOffsetFromTargetY
 </script>
 
 
@@ -53,7 +51,7 @@
         "
     >
         <svg
-            stroke-width=5
+            stroke-width=7
             stroke={imageColor}
             fill="none"
         >
@@ -66,99 +64,40 @@
                 fill={backgroundColor}
             />
 
-            <!-- Box. -->
-            <polygon
-                points="
-                    {boxLeft},{boxTop}
-                    {centerX},{boxPeak}
-                    {boxRight},{boxTop}
-                    {boxRight},{boxBottom}
-                    {boxLeft},{boxBottom}
-                "
-            />
-
-            <!-- Roof. -->
-            <path
-                d="
-                    M {boxLeft} {boxTop}
-                    L {roofLeft} {boxTop}, {roofLeft} {roofTop}, {centerX} {roofPeak},
-                    {roofRight} {roofTop}, {roofRight} {boxTop}, {boxRight} {boxTop},
-                    {centerX} {boxPeak}, Z
-                "
-                fill={imageColor}
-            />
-
-            <!-- Left window arch. -->
-            <path
-                d="
-                    M {arch1Left} {archBottom} L {arch1Left} {archMiddle}
-                    C {arch1Left} {archTop}, {arch1Right} {archTop}, {arch1Right} {archMiddle - 3}
-                    L {arch1Right} {archBottom} Z
-                "
-                stroke-width=3
-                fill={imageColor}
-            />
-
-            <!-- Right window arch. -->
-            <path
-                d="
-                    M {arch2Left} {archBottom} L {arch2Left} {archMiddle - 3}
-                    C {arch2Left} {archTop}, {arch2Right} {archTop}, {arch2Right} {archMiddle}
-                    L {arch2Right} {archBottom} Z
-                "
-                stroke-width=3
-                fill={imageColor}
-            />
-
-            <!-- Centerline. -->
+            <!-- Hook line. -->
             <line
-                x1={centerX} y1={poleTop}
-                x2={centerX} y2={height}
+                x1={bottomLeftCircleCenterX} y1={bottomLeftCircleCenterY}
+                x2={hookEndCenterX} y2={hookEndCenterY}
+                stroke={outlineColor}
             />
 
-            <!-- Arrow shaft.-->
-            <line
-                x1={arrowLeft} y1={arrowHeight}
-                x2={arrowRight} y2={arrowHeight}
-            />
-
-            <!-- Arrow tail.-->
-            <polygon
-                points="
-                    {arrowLeft + 3},{arrowHeight}
-                    {arrowLeft - 3},{arrowHeight - 3}
-                    {arrowLeft - 3},{arrowHeight + 3}
+            <!-- Hook end. -->
+            <path
+                d="
+                    M {hookEndCenterX - 1} {hookEndCenterY + 3}
+                    A {smallCircleWidth + 1} {smallCircleWidth + 1} 180 1 1 {hookEndCenterX + 10} {hookEndCenterY - 6}
                 "
+                stroke={outlineColor}
             />
 
-            <!-- Arrow head.-->
-            <polygon
-                points="
-                    {arrowRight + 3},{arrowHeight}
-                    {arrowRight - 3},{arrowHeight - 3}
-                    {arrowRight - 3},{arrowHeight + 3}
-                "
-            />
-
-            <!-- Roof underneath -->
-            <polygon
-                points="
-                    {0},{height}
-                    {0},{height - 10}
-                    {boxLeft},{boxBottom}
-                    {boxRight},{boxBottom}
-                    {width},{height - 10}
-                    {width},{height}
-                    {0},{height}
-                "
-                fill={imageColor}
-            />
-
-            <!-- Ball. -->
+            <!-- Lower-left circle. -->
             <circle
-                cx={centerX}
-                cy={roofPeak - 6}
-                r=3
+                class="small-circle"
+                cx={bottomLeftCircleCenterX}
+                cy={bottomLeftCircleCenterY}
+                r={smallCircleWidth}
+                fill={backgroundColor}
+                stroke={outlineColor}
+            />
+
+            <!-- Upper-right circle. -->
+            <circle
+                class="small-circle"
+                cx={topRightCircleCenterX}
+                cy={topRightCircleCenterY}
+                r={smallCircleWidth}
+                fill={backgroundColor}
+                stroke={outlineColor}
             />
 
             <!-- Outline. -->
@@ -167,6 +106,7 @@
                 cy={centerY}
                 r=50
                 stroke={outlineColor}
+                stroke-width=10
             />
         </svg>
     </div>

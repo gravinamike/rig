@@ -38,8 +38,7 @@ export async function getDatabaseConnection(
         version: '1.4',
         connection: {
             user: 'sa',
-            host: 'localhost',//'192.168.0.100',
-            //database: `${unigraphFolder}/graph`,
+            host: 'localhost',
             database: `${unigraphFolderPath}/graph;MODE=PostgreSQL;`,// PostgreSQL compatibility mode, for original database file.
             //database: `${unigraphPath}/graph;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH`,// PostgreSQL compatibility mode. Use this version for subsequent new database files.
             password: 'goodguess',

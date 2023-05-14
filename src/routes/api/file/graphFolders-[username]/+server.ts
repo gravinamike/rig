@@ -1,12 +1,14 @@
 import type { RequestHandler } from "@sveltejs/kit"
 import { error } from "@sveltejs/kit"
-import { listGraphsFolder } from "$lib/shared/fileSystem"
+import { listGraphFolderForUsername } from "$lib/shared/fileSystem"
 
 
-export const GET: RequestHandler = async () => {
+export const GET: RequestHandler = async ({ params }) => {
     try {
-        const folderListing = await listGraphsFolder()
+        const username = params.username || null
 
+        const folderListing = username ? await listGraphFolderForUsername(username) : []
+        
         return new Response(JSON.stringify(folderListing))
 
     } catch(err) {

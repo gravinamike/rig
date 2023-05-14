@@ -3,6 +3,13 @@ import { writable } from "svelte/store"
 
 
 /**
+ * User ID store.
+ * 
+ * Holds an ID string that uniquely identifies the user.
+ */
+export const userIdStore = writable( null as string | null )
+
+/**
  * Session UUID store.
  * 
  * Holds a UUID string that uniquely identifies the session.

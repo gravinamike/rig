@@ -9,7 +9,6 @@ import { addFieldsToTable, createTable } from "./utility"
 
 
 export async function graphIsUpdated(): Promise<boolean> {
-
     let graphIsUpdated = true
 
     // Get object specifying default database setup.

@@ -1,6 +1,8 @@
 import type { Direction, Space, Thing } from "$lib/models/constructModels"
 import type { GraphConfig, OddHalfAxisId } from "$lib/shared/constants"
+import { get } from "svelte/store"
 import { sessionSpecificFetch as fetch } from "$lib/db/sessionSpecificFetch"
+import { newFileCreationStore } from "$lib/stores"
 
 
 /*
@@ -632,12 +634,15 @@ export async function markNotesModified( noteIds: number | number[] ): Promise<b
 
 
 export async function createGraph( newGraphName: string ): Promise<boolean> {
+    const username = get(newFileCreationStore).username
+
     // Post to the create-new-Graph API.
     const res = await fetch(
         `api/file/createGraph`,
         {
             method: "POST",
             body: JSON.stringify({
+                username: username,
                 newGraphName: newGraphName
             })
         }

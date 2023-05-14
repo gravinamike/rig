@@ -1,28 +1,45 @@
 <script lang="ts">
     import { sessionSpecificFetch as fetch } from "$lib/db/sessionSpecificFetch"
 
-    import { refreshGraphFoldersStore, newFileCreationStore, updateNewFileCreationFileName, disableNewFileCreation } from "$lib/stores"
+    import { refreshGraphFoldersStore, newFileCreationStore, updateNewFileCreationFileName, disableNewFileCreation, userIdStore } from "$lib/stores"
     import { createGraph } from "$lib/db/makeChanges"
     import { openGraphFile } from "$lib/shared/unigraph"
+    import { filenameIsValid } from "$lib/shared/utility";
 
 
     let newFileNameField: HTMLInputElement
     
-    let currentGraphFolders: string[] = []
-    function refreshCurrentGraphFolders() {
-        fetch(`api/file/graphFolders`)
+
+
+
+
+    const currentGraphFoldersByUsername: {[username: string]: string[]} = {}
+    async function refreshCurrentGraphFolders() {
+        await fetch(`api/file/graphFolders-all`)
             .then(response => {return (response.json() as unknown) as string[]})
-            .then(data => currentGraphFolders = data)
+            .then(data => currentGraphFoldersByUsername["all"] = data)
+            
+        if ($userIdStore) await fetch(`api/file/graphFolders-${$userIdStore}`)
+            .then(response => {return (response.json() as unknown) as string[]})
+            .then(data => currentGraphFoldersByUsername[$userIdStore as string] = data)
     }
 
     const validCharactersRegex = /^[-_a-z0-9]+$/i
     let invalidFilename = false
     async function checkForError() {
         if (
-            newFileNameField && newFileNameField.value !== ""
+            newFileNameField
             && (
-                !validCharactersRegex.test(newFileNameField.value)
-                || currentGraphFolders.includes(newFileNameField.value)
+                !filenameIsValid(newFileNameField.value)
+                || (
+                    !$newFileCreationStore.username
+                    && currentGraphFoldersByUsername["all"].includes(newFileNameField.value)
+                )
+                || (
+                    $newFileCreationStore.username
+                    && $newFileCreationStore.username in currentGraphFoldersByUsername
+                    && currentGraphFoldersByUsername[$newFileCreationStore.username].includes(newFileNameField.value)
+                )
             )
         )  {
             invalidFilename = true
@@ -51,7 +68,7 @@
             updateNewFileCreationFileName(newFileName)
             const graphCreated = await createGraph(newFileName)
             if (graphCreated) {
-                openGraphFile(newFileName)
+                openGraphFile($newFileCreationStore.username || "all", newFileName)
             }
             disableNewFileCreation()
             refreshGraphFoldersStore()
@@ -85,9 +102,9 @@
                 on:keypress={ (event) => {
                     if (event.key === "Enter") handleEnter()
                 } }
-                on:input={() => {
+                on:input={async () => {
+                    await refreshCurrentGraphFolders()
                     checkForError()
-                    refreshCurrentGraphFolders()
                 } }
             />
         </div>

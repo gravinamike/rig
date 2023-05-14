@@ -19,3 +19,6 @@ node_modules
 !/static/customizable/fonts/.gitkeep
 /static/customizable/font-names.json
 /static/customizable/notes-style.css
+
+# Authentication files.
+/static/auth/authentication.db

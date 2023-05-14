@@ -6,7 +6,7 @@ import { createNewGraphFile } from "$lib/shared/fileSystem"
 export const POST: RequestHandler = async ({ request }) => {
     try {
         const body = await request.json()
-        await createNewGraphFile(body.newGraphName)
+        await createNewGraphFile(body.username, body.newGraphName)
         
         return new Response(JSON.stringify(
             {

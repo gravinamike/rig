@@ -1,9 +1,18 @@
 <script lang="ts">
-    import { graphFoldersStore, refreshGraphFoldersStore, enableNewFileCreation, openGraphStore, uIBackgroundColorStore, uITrimColorStore } from "$lib/stores"
+    import { onMount } from "svelte"
+    import { graphFoldersStore, refreshGraphFoldersStore, enableNewFileCreation, openGraphStore, uIBackgroundColorStore, uITrimColorStore, userIdStore } from "$lib/stores"
     import { openGraphFile } from "$lib/shared/unigraph"
 
+    
+    let graphFoldersByUsername: [string, string[]][] = []
+    $: graphFoldersByUsername =
+        Object.entries($graphFoldersStore).sort(
+            (a, b) => (a[0] === "all" ? 1 : 0) - (b[0] === "all" ? 1 : 0)
+        )
 
-    refreshGraphFoldersStore()
+    onMount(async () => {
+        await refreshGraphFoldersStore($userIdStore)
+    })
 </script>
 
 
@@ -21,24 +30,32 @@
         <h4>File</h4>
 
         <div class="graph-folder-buttons">
-            {#each $graphFoldersStore as folder}
-                <div
-                    class="button graph-folder-button { folder === $openGraphStore ? "opened" : "" }"
-                    on:click={() => {openGraphFile(folder, null, true)}}
-                    on:keydown={()=>{}}
-                >
-                    {folder}
+            {#each graphFoldersByUsername as [username, folders]}
+                <div class="user-block">
+                    <div class="username">
+                        {username === "all" ? "Common Graphs": `${username}'s Graphs:`}:
+                    </div>
+    
+                    {#each folders as folder}
+                        <div
+                            class="button graph-folder-button { folder === $openGraphStore ? "opened" : "" }"
+                            on:click={() => {openGraphFile(username, folder, null, true)}}
+                            on:keydown={()=>{}}
+                        >
+                            {folder}
+                        </div>
+                    {/each}
+    
+                    <div
+                        class="button new-graph-button"
+                        style={ $graphFoldersStore.length ? "margin-top: 25px;" : ""}
+                        on:click={() => enableNewFileCreation(username)}
+                        on:keydown={()=>{}}
+                    >
+                        <strong>+</strong>&nbsp;&nbsp;&nbsp;New Graph
+                    </div>
                 </div>
             {/each}
-
-            <div
-                class="button new-graph-button"
-                style={ $graphFoldersStore.length ? "margin-top: 25px;" : ""}
-                on:click={enableNewFileCreation}
-                on:keydown={()=>{}}
-            >
-                <strong>+</strong>&nbsp;&nbsp;&nbsp;New Graph
-            </div>
         </div>
     </div>
     
@@ -72,6 +89,20 @@
         margin: 0;
     }
 
+    .user-block {
+        margin: 1rem 0 1rem 0;
+
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .username {
+        margin-bottom: 0.5rem;
+        text-align: left;
+        font-weight: 600;
+    }
+
     .graph-folder-buttons {
         flex: 1 1 0;
         
@@ -91,7 +122,7 @@
         outline: solid 1px lightgrey;
         outline-offset: -1px;
 
-        padding: 0.5rem;
+        padding: 0.5rem 0.5rem 0.5rem 0.75rem;
 
         cursor: pointer;
     }
