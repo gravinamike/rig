@@ -50,14 +50,11 @@ export const handle: Handle = async ({ event, resolve }) => {
 
 	// Else, if the request was sent to the create-Graph API,
 	} else if ( event.request.method === "POST" && event.url.pathname.startsWith("/api/file/createGraph") ) {
-		
-		const username = event.locals.user?.username || "all"
-
 		// Retrieve the name of the Graph file from the request body.
 		const body = await event.request.clone().json()
 
 		// Create that Graph file and get a database connection to it.
-		await getDatabaseConnection(`${username}/${body.newGraphName}`, null, true)
+		await getDatabaseConnection(`${body.username || "all"}/${body.newGraphName}`, null, true)
 
 	}
 
