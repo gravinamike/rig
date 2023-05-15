@@ -37,6 +37,7 @@ export interface ServerConfig {
 export const defaultUIBackgroundColor = "#fafafa"
 export const defaultUITrimColor = "#E8E8E8"
 
+
 /**
  * Waiting indicator states interface.
  * 

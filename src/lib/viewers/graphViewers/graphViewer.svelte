@@ -48,7 +48,7 @@
     export let graphWidgetStyle: GraphWidgetStyle = {...defaultGraphWidgetStyle}
     export let allowZoomAndScrollToFit = false
     export let rightMenuOpen: boolean
-    export let closeRightMenu: () => {}
+    export let closeRightMenu: () => void
     export let rePerspectToThingId: (thingId: number, updateHistory?: boolean, zoomAndScroll?: boolean) => Promise<void>
     export let back: () => void
     export let forward: () => void

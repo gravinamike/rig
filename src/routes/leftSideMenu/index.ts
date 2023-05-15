@@ -1,0 +1,1 @@
+export { default as LeftSideMenu }  from "./component.svelte"

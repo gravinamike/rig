@@ -4,10 +4,10 @@
     export let states: WaitingIndicatorStates
     export let currentStateName = "start"
     
-    $: currentState = currentStateName in states ?
-        states[currentStateName] :
+    $: currentState =
+        !Object.keys(states).length ? { text: "", imageName: null } :
+        currentStateName in states ? states[currentStateName] :
         { text: `WIDGET ERROR: STATE KEY "${currentStateName}" NOT DEFINED!`, imageName: "error" }
-
 </script>
 
 

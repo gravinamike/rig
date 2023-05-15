@@ -36,7 +36,6 @@ export async function openGraphFile(username: string, folderName: string, pThing
     // Check whether the user is authorized to access this Graph. If not, abort
     // with an error alert.
     const userIdStoreValue = get(userIdStore)
-    console.log(userIdStoreValue)
     await refreshGraphFoldersStore(userIdStoreValue)
     if (
         username !== "all" && userIdStoreValue !== username
