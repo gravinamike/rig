@@ -1,20 +1,5 @@
 import type { UserCredentials } from "./_types"
-import path from "path"
 import { Model } from "objection"
-import Knex from "knex"
-
-
-// Create a Knex instance to handle the database connection.
-const knex = Knex({
-    client: "sqlite3",
-    useNullAsDefault: true,
-    connection: {
-        filename: path.resolve("static/auth/authentication.db")
-    }
-})
-
-// Hand the Knex instance off to Objection.js.
-Model.knex(knex)
 
 
 /**

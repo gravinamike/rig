@@ -2,7 +2,7 @@ import type { Handle, RequestEvent } from "@sveltejs/kit"
 import { parse } from "cookie"
 import { error } from "@sveltejs/kit"
 import { getSessionById } from "$lib/server/auth"
-import { getDatabaseConnection } from "$lib/server/db/connection"
+import { getAuthDatabaseConnection, getDatabaseConnection } from "$lib/server/db/connection"
 import { retrieveSessionSpecificCookie } from "$lib/db/sessionSpecificFetch"
 
 
@@ -44,8 +44,14 @@ export const handle: Handle = async ({ event, resolve }) => {
 
 	/** Get database connection. */
 
+	// If the request was to the authentication API,
+	if ( event.url.pathname.startsWith("/api/auth/") ) {
+
+		// Get a database connection to the authentication database.
+		await getAuthDatabaseConnection()
+
 	// If the request was to the database API,
-	if ( event.url.pathname.startsWith("/api/db/") ) {
+	} else if ( event.url.pathname.startsWith("/api/db/") ) {
 
 		// Retrieve the name of the Graph file from the cookies.
 		const graphName = retrieveSessionSpecificCookie(event.request, "graphName")
@@ -53,7 +59,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 		// Get a database connection to that Graph file.
 		if (graphName) {
 			await getDatabaseConnection(graphName)
-		}	
+		}
 
 	// Else, if the request was sent to the create-Graph API,
 	} else if ( event.request.method === "POST" && event.url.pathname.startsWith("/api/file/createGraph") ) {

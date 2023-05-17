@@ -19,7 +19,7 @@ if (!('h2' in global && global.h2)) global.h2 = { connection: null, promise: nul
 const cached = global.h2
 
 /**
- * Get a connection to the database.
+ * Get a connection to the Graphs database.
  */
 export async function getDatabaseConnection(
     graphName: string,
@@ -75,4 +75,22 @@ export async function getDatabaseConnection(
 
     // Return the cached connection.
     return cached.connection
+}
+
+
+/**
+ * Get a connection to the authentication database.
+ */
+export async function getAuthDatabaseConnection(): Promise< void > {
+    // Create a Knex instance to handle the authentication database connection.
+    const knex = Knex({
+        client: "sqlite3",
+        useNullAsDefault: true,
+        connection: {
+            filename: path.resolve("static/auth/authentication.db")
+        }
+    })
+
+    // Hand the Knex instance off to Objection.js.
+    Model.knex(knex)
 }
