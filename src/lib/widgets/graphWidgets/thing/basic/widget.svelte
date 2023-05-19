@@ -164,8 +164,8 @@
         style="
             border-radius: {10 + 4 * encapsulatingDepth}px;
             {
-                highlighted ? `box-shadow: 5px 5px 10px 10px ${hexToRgba(shadowColor, 0.15)};` :
-                `box-shadow: 5px 5px 10px 2px ${hexToRgba(shadowColor, 0.15)};`
+                highlighted ? `box-shadow: 0px 0px 10px 6px ${hexToRgba(shadowColor, 0.15)};` :
+                `box-shadow: 0px 0px 10px 2px ${hexToRgba(shadowColor, 0.15)};`
             }
             width: {thingWidth}px; height: {thingHeight}px;
             opacity: {opacity};
