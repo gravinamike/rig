@@ -7,6 +7,7 @@
     export let perspectiveText: string
     export let usePerspectiveText: boolean
     export let fontSize: number
+    export let submitted: boolean
     export let submit: () => void
     export let cancel: () => void
 </script>
@@ -18,7 +19,7 @@
     on:keypress={(event) => {
         if (event.key === "Enter") {
             event.preventDefault() // Prevent carriage-return from being included in entered text.
-            submit()
+            if (!submitted) submit()
         }
     }}
 >

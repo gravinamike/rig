@@ -8,6 +8,7 @@
 
     // Import related widgets.
     import { ThingTextFormWidget } from "../subWidgets"
+    import { WaitingIndicator } from "$lib/widgets/layoutWidgets"
     
 
     /**
@@ -31,12 +32,9 @@
     let distanceFromFocalPlane: number
     let usePerspectiveText: boolean
     let textFontSize: number
+    let submitted: boolean
     let submit: () => void
     let cancel: () => void
-
-    
-
-
 </script>
 
 
@@ -55,6 +53,7 @@
     bind:thingHeight
     bind:distanceFromFocalPlane
     bind:textFontSize
+    bind:submitted
     bind:submit
     bind:cancel
 />
@@ -69,15 +68,33 @@
         pointer-events: {distanceFromFocalPlane === 0 ? "auto" : "none"};
     "
 >
-    <ThingTextFormWidget
-        id={"thing-form-text-field"}
-        bind:text={baseText}
-        bind:perspectiveText
-        {usePerspectiveText}
-        fontSize={textFontSize}
-        {submit}
-        {cancel}
-    />
+    {#if !submitted}
+        <ThingTextFormWidget
+            id={"thing-form-text-field"}
+            bind:text={baseText}
+            bind:perspectiveText
+            {usePerspectiveText}
+            fontSize={textFontSize}
+            {submitted}
+            {submit}
+            {cancel}
+        />
+    {:else}
+        <div class="waiting-indicator-container">
+            <WaitingIndicator
+                states={
+                    {
+                        waiting: {
+                            text: "",
+                            imageName: "waiting"
+                        },
+                    }
+                }
+                currentStateName={"waiting"}
+                showText={false}
+            />
+        </div>
+    {/if}
 </div>
 
 
@@ -92,5 +109,17 @@
         background-color: white;
 
         cursor: default;
+    }
+
+    .waiting-indicator-container {
+        margin: auto;
+
+        width: 100%;
+        height: 100%;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
     }
 </style>

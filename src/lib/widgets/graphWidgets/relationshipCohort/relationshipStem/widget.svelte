@@ -48,13 +48,12 @@
         || (relatableForCurrentDrag && stemHovered)
         || isDragRelateSource
     )
-
 </script>
 
 
 <!-- Widget controller. -->
 <RelationshipStemWidgetController
-    {cohort}
+    bind:cohort
     {graph}
     {thingIdOfHoveredRelationship}
     {cohortMembersToDisplay}

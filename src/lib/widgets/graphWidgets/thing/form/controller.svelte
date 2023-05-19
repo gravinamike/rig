@@ -22,6 +22,7 @@
      * @param thingWidth - The width of a Thing in this Graph.
      * @param thingHeight - The height of a Thing in this Graph.
      * @param distanceFromFocalPlane - The difference between the Plane that the Thing is in and the currently-focused Plane.
+     * @param submitted - Whether the form has been submitted yet.
      * @param submit - Method to submit the Thing form in order to create a new Thing.
      * @param cancel - Method to remove the Thing form before creating a new Thing.
      */
@@ -38,6 +39,7 @@
     export let thingHeight = 0
     export let distanceFromFocalPlane = 0
     export let textFontSize = 10
+    export let submitted = false
     export let submit: () => void
     export let cancel: () => void
 
@@ -75,6 +77,9 @@
      * text in the input field.
     */
     submit = async () => {
+        // Record the submission.
+        submitted = true
+
         // Get information needed to create the new Thing.
         const parentThingId = (thing.parentThing?.id as number)
         const space = (thing.parentThing as Thing).space as Space

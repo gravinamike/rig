@@ -66,6 +66,7 @@
     let textBeingEdited: string
     let perspectiveTextBeingEdited: string
     let usePerspectiveText = false
+    let submitted: boolean
     let handleMouseDown: (event: MouseEvent) => void
     let handleMouseDrag: (event: MouseEvent) => void
     let onBodyMouseUp: (event: MouseEvent) => void
@@ -244,7 +245,8 @@
                     bind:perspectiveText={perspectiveTextBeingEdited}
                     {usePerspectiveText}
                     fontSize={textFontSize}
-                    submit={submitEditedText}
+                    {submitted}
+                    submit={() => {if (!submitted) submitEditedText()}}
                     cancel={cancelEditingText}
                 />
 

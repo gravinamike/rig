@@ -55,7 +55,7 @@
     $: relationshipsExist =
         cohort.members.length ? true :
         false
-
+    
     /**
      * Relationship-hovered flag.
      * 
@@ -93,7 +93,7 @@
         && $relationshipBeingCreatedInfoStore.sourceHalfAxisId === cohort.halfAxisId
     ) ? true :
         false
-
+    
     /**
      * Add-Thing-Form method.
      * 
@@ -105,6 +105,7 @@
         if (graph.formActive === false) {
             const newThing = new Thing(null)
             cohort.addMember({thingId: null, thing: newThing, alreadyRendered: false})
+            cohort = cohort // Needed for reactivity.
             cohortMembersToDisplay.push({
                 thingId: null,
                 thing: newThing,

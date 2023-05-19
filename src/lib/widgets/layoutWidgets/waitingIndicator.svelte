@@ -3,6 +3,7 @@
 
     export let states: WaitingIndicatorStates
     export let currentStateName = "start"
+    export let showText = true
     
     $: currentState =
         !Object.keys(states).length ? { text: "", imageName: null } :
@@ -19,11 +20,13 @@
         </svg>
     {/if}
 
-    <div
-        class="text"
-    >
-        {@html currentState.text}
-    </div>
+    {#if showText}
+        <div
+            class="text"
+        >
+            {@html currentState.text}
+        </div>
+    {/if}
 </div>
 
 
