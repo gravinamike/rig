@@ -126,7 +126,14 @@ async function requestIsForbidden(
 				)
 			)
 		// The request is forbidden.
-		) requestIsForbidden = true
+		) {
+			console.log(
+				"GRAPH NAME:", graphName,
+				"USERNAME FROM GRAPH NAME:", usernameFromGraphName,
+				"SIGNED IN USER NAME:", event.locals.user?.username
+			)
+			requestIsForbidden = true
+		}
 	}
 
 	// If the request is for the create-Graph endpoint,
