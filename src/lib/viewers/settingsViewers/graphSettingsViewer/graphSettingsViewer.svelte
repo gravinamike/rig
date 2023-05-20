@@ -112,7 +112,7 @@
 <style>
     .graph-settings-viewer {        
         box-sizing: border-box;
-        height: 100%;
+        height: calc(100% - 43px);
 
         display: flex;
         flex-direction: column;

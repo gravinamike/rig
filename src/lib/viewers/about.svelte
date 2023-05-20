@@ -26,8 +26,6 @@
     style="background-color: {$uITrimColorStore};"
 >    
     <div class="content">
-        <h4>About</h4>
-
         <div class="text">
             <p>
                 This is a pre-alpha version of "Rig", an app built by Mike
@@ -62,11 +60,10 @@
 
         display: flex;
         flex-direction: column;
-        padding: 0.5rem;
     }
 
     .content {
-        border-radius: 5px;
+        border-radius: 0 0 5px 5px;
 
         height: 100%;
         background-color: white;
@@ -75,12 +72,6 @@
         flex-direction: column;
         padding: 0.5rem 1rem 0.5rem 1rem;
         gap: 1rem;
-    }
-
-    h4 {
-        margin: 0;
-
-        text-align: center;
     }
 
     .text {

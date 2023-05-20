@@ -336,7 +336,7 @@
 
     <!-- Title. -->
     <div class="title">
-        <h3>{title}</h3>
+        <h2>{title}</h2>
     </div>
 
     <!-- Container to hold either Note display or Note editor. -->
@@ -459,14 +459,16 @@
     }
 
     .title {
-        height: 23px;
+        margin-left: 10px;
+
+        height: 34px;
 
         display: flex;
+        justify-content: left;
         align-items: center;
-        justify-content: center;
     }
 
-    h3 {
+    h2 {
         margin: 0;
     }
 

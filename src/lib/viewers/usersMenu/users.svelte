@@ -55,11 +55,10 @@
 
         display: flex;
         flex-direction: column;
-        padding: 0.5rem;
     }
 
     .content {
-        border-radius: 5px;
+        border-radius: 0 0 5px 5px;
 
         height: 100%;
         background-color: white;

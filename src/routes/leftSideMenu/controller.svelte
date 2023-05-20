@@ -25,46 +25,37 @@
     $: subMenuInfos = [
         [
             {
-                name: "About",
-                icon: "about"
-            },
-            {
-                name: "Users",
-                icon: "user"
-            },
-            {
                 name: "File",
                 icon: "file"
-            }
-        ].filter(
-            info => info !== null
-            && !($hideMenusStore || []).includes(info.name as MenuName)
-        ) as { name: MenuName, icon: string }[],
-
-        $loadingState === "graphLoaded" ? [
+            },
+            $loadingState === "graphLoaded" && $devMode ?
                 {
-                    name: "Thing",
-                    icon: "thing"
-                },
-                {
-                    name: "Space",
-                    icon: "space"
-                },
+                    name: "Dev",
+                    icon: "dev"
+                } :
+                null,
+            $loadingState === "graphLoaded" ?
                 {
                     name: "Settings",
                     icon: "settings"
-                },
-                $devMode ?
-                    {
-                        name: "Dev",
-                        icon: "dev"
-                    } :
-                    null
-            ].filter(
-                info => info !== null
-                && !($hideMenusStore || []).includes(info.name as MenuName)
-            ) as { name: MenuName, icon: string }[] :
-            null
+                } :
+                null,
+            $loadingState === "graphLoaded" ?
+                {
+                    name: "Space",
+                    icon: "space"
+                } :
+                null,
+            $loadingState === "graphLoaded" ?
+                {
+                    name: "Thing",
+                    icon: "thing"
+                } :
+                null
+        ].filter(
+            info => info !== null
+            && !($hideMenusStore || []).includes(info.name as MenuName)
+        ) as { name: MenuName, icon: string }[]
     ].filter(infoBlock => infoBlock !== null) as ({ name: MenuName, icon: string }[])[]
     
     // Which sub-menu to open after loading.

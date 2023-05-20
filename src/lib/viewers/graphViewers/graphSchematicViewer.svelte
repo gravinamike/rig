@@ -44,8 +44,7 @@
 
 <style>
     .graph-schematic-viewer {
-        outline: solid 1px lightgrey;
-        outline-offset: -1px;
+        border-radius: 0 0 5px 5px;
 
         box-sizing: border-box;
         height: 100%;

@@ -73,7 +73,6 @@
         } else {
             close()
         }
-        
     }
 
     /**
@@ -283,21 +282,20 @@
         position: absolute;
         top: 0;
         z-index: 1;
-        height: 100%;
 
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
         justify-content: space-between;
 
         pointer-events: none;
     }
 
     .side-menu-buttons.slide-right {
-        left: 100%;
+        left: 0%;
     }
 
     .side-menu-buttons.slide-left {
-        right: 100%;
+        right: 0%;
     }
 
     .button-group:hover .button {
@@ -306,7 +304,7 @@
 
     .button-group {
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
         padding: 5px;
         gap: 5px;
 
