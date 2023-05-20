@@ -158,7 +158,7 @@
         {allowZoomAndScrollToFit}
         {leftMenuOpen}
         {leftMenuLockedOpen}
-        {openedSubMenuName}
+        bind:openedSubMenuName
         {lockedSubMenuName}
         {rePerspectToThingId}
         {setGraphSpace}

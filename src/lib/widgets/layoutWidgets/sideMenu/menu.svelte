@@ -45,11 +45,23 @@
     // Mouse-pressed flag tracks whether the mouse button is currently being held down.
     let mousePressed = false
 
+    // Closing flag tracks whether the menu is currently in the process of
+    // closing.
+    let closing = false
+
     // The "width" attribute is derived from the base width and the tweened
     // "percentOpen" value.
     const percentOpen = tweened( 0.0, { duration: openTime, easing: cubicOut } )
     $: percentOpen.set( open ? 1.0 : 0.0 )
     $: width = openWidth * $percentOpen
+
+    // Attributes related to button formatting.
+    let buttonSpacingPercent = tweened( -100, { duration: 100, easing: cubicOut } )
+    $: buttonSpacingPercent.set( open ? 10 : -100 )
+    $: betweenButtonSpacing = 0.01 * $buttonSpacingPercent * (buttonSize + 10)
+    $: betweenButtonGap = Math.max(0, betweenButtonSpacing)
+    $: betweenButtonOverlap = Math.min(0, betweenButtonSpacing)
+    $: buttonOverlapMargin = betweenButtonOverlap / 2
 
 
     /**
@@ -120,44 +132,8 @@
         closing = true
         open = false
         await sleep(openTime) // Wait for the menu to close fully before hiding the content.
-        openedSubMenuName = defaultOpenSubMenuName
         closing = false
     }
-
-
-
-
-
-
-    let closing = false
-
-
-
-
-    let buttonSpacingPercent = tweened( -100, { duration: 100, easing: cubicOut } )
-    
-    $: buttonSpacingPercent.set( open ? 10 : -100 )
-
-
-
-
-    
-
-    $: betweenButtonSpacing = 0.01 * $buttonSpacingPercent * (buttonSize + 10)
-    $: betweenButtonGap = Math.max(0, betweenButtonSpacing)
-    $: betweenButtonOverlap = Math.min(0, betweenButtonSpacing)
-
-    $: buttonOverlapMargin = betweenButtonOverlap / 2
-
-
-
-
-
-    
-
-
-
-
 </script>
 
 
@@ -228,7 +204,10 @@
             <div
                 class="button-group"
 
-                style="gap: {betweenButtonGap}px;}"
+                style="
+                    padding: {slideDirection === "right" ? "5px 5px 5px 0.5rem" : "5px 0.5rem 5px 5px"};
+                    gap: {betweenButtonGap}px;
+                "
             >
 
                 <!-- Menu button group. -->
@@ -239,6 +218,7 @@
                         class="button"
                         class:opened-menu={openedSubMenuName !== null && openedSubMenuName === info.name}
                         class:locked-menu={lockedOpen && lockedSubMenuName === info.name}
+                        class:menu-closed={!open}
 
                         style={
                             // If the button is the first in the button group, use only a
@@ -355,7 +335,6 @@
     .button-group {
         display: flex;
         flex-direction: row;
-        padding: 5px;
 
         pointer-events: auto;
     }
@@ -388,6 +367,10 @@
 
         z-index: 2;
         background-color: white;
+    }
+
+    .button.menu-closed:not(.opened-menu) {
+        opacity: 0;
     }
 
     .button:hover {
