@@ -8,7 +8,7 @@
     import { cubicOut } from "svelte/easing"
     import { onMobile, sleep } from "$lib/shared/utility"
     import { saveGraphConfig } from "$lib/shared/config"
-    import { mouseSpeed, openGraphStore } from "$lib/stores"
+    import { openGraphStore } from "$lib/stores"
 
     
     /**
@@ -33,7 +33,7 @@
     export let overlapPage = false
     export let slideDirection: "right" | "left" = "right"
     export let stateStore: Writable<string | null> | null = null
-    export let close: () => void = () => {}
+    export let close: () => void
 
 
     // Size of the menu buttons.
@@ -58,7 +58,7 @@
      * When the mouse enters the side menu or hover-open strip, the menu opens.
      */
     function handleMouseEnter() {
-        open = true
+        if (!closing) open = true
     }
 
     /**
@@ -83,7 +83,6 @@
      * @param name - Name of the menu button that was clicked.
      */
     async function handleButtonClick(name: string) {
-
         if (lockedOpen && lockedSubMenuName === name && open) {
             lockedOpen = false
             lockedSubMenuName = null
@@ -108,8 +107,8 @@
      * submenu to the button's submenu.
      * @param name - Name of the menu button that was hovered.
      */
-    function handleButtonMouseMove(name: string) {
-        if (open && mouseSpeed() < 100) openedSubMenuName = name
+    function handleButtonMouseEnter(name: string) {
+        if (!closing) openedSubMenuName = name
     }
 
     /**
@@ -118,10 +117,47 @@
      * Closes the side-menu and resets the submenu to the default.
      */
     close = async () => {
+        closing = true
         open = false
         await sleep(openTime) // Wait for the menu to close fully before hiding the content.
         openedSubMenuName = defaultOpenSubMenuName
+        closing = false
     }
+
+
+
+
+
+
+    let closing = false
+
+
+
+
+    let buttonSpacingPercent = tweened( -100, { duration: 100, easing: cubicOut } )
+    
+    $: buttonSpacingPercent.set( open ? 10 : -100 )
+
+
+
+
+    
+
+    $: betweenButtonSpacing = 0.01 * $buttonSpacingPercent * (buttonSize + 10)
+    $: betweenButtonGap = Math.max(0, betweenButtonSpacing)
+    $: betweenButtonOverlap = Math.min(0, betweenButtonSpacing)
+
+    $: buttonOverlapMargin = betweenButtonOverlap / 2
+
+
+
+
+
+    
+
+
+
+
 </script>
 
 
@@ -142,7 +178,7 @@
 
     on:mouseleave={handleMouseLeave}
 >
-    
+
     <!-- Menu content. -->
     <div
         style="position: relative; width: 100%; height: 100%; overflow: hidden;"
@@ -189,10 +225,14 @@
         <!-- Menu button groups. -->
         {#each subMenuInfos as buttonGroup}
 
-            <div class="button-group">
+            <div
+                class="button-group"
+
+                style="gap: {betweenButtonGap}px;}"
+            >
 
                 <!-- Menu button group. -->
-                {#each buttonGroup as info}
+                {#each buttonGroup as info, i}
 
                     <!-- Menu button. -->
                     <div
@@ -200,7 +240,17 @@
                         class:opened-menu={openedSubMenuName !== null && openedSubMenuName === info.name}
                         class:locked-menu={lockedOpen && lockedSubMenuName === info.name}
 
-                        on:mousemove={ () => handleButtonMouseMove(info.name) }
+                        style={
+                            // If the button is the first in the button group, use only a
+                            // right overlap margin.
+                            i === 0 ? `margin-right: ${buttonOverlapMargin}px;` :
+                            // Else, if the button is the last in the button group, use only a left overlap margin.
+                            i === buttonGroup.length - 1 ? `margin-left: ${buttonOverlapMargin}px;` :
+                            // Else, use overlap margins on both sides.
+                            `margin-left: ${buttonOverlapMargin}px; margin-right: ${buttonOverlapMargin}px;`
+                        }
+
+                        on:mouseenter={ () => handleButtonMouseEnter(info.name) }
                         on:click={ () => { handleButtonClick(info.name) } }
                         on:keydown={()=>{}}
                     >
@@ -306,7 +356,6 @@
         display: flex;
         flex-direction: row;
         padding: 5px;
-        gap: 5px;
 
         pointer-events: auto;
     }
@@ -337,6 +386,7 @@
         outline: solid 1px grey;
         opacity: 0.75;
 
+        z-index: 2;
         background-color: white;
     }
 

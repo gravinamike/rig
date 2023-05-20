@@ -1,7 +1,7 @@
 <script lang="ts">
     // Import types.
     import type { PageData } from "./$types"
-    import type { WaitingIndicatorStates, MenuName } from "$lib/shared/constants"
+    import type { WaitingIndicatorStates } from "$lib/shared/constants"
     import type { Graph, Space } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
@@ -55,7 +55,6 @@
     let urlThingId: number | null = null
     let urlSpaceId: number | null = null
     let graphBackgroundImageUrl: string | null = null
-    let closeLeftMenu: () => void = () => {}
     let closeRightMenu: () => void = () => {}
     let handleMouseMove: (event: MouseEvent) => void = () => {}
 

@@ -14,7 +14,7 @@
     export let defaultOpenSubMenuName: string
     export let useTabbedLayout: boolean
     export let rightMenuOpen: boolean
-    export let closeLeftMenu: () => void = () => {}
+    export let closeLeftMenu: () => void
     export let closeRightMenu: () => void = () => {}
 
 

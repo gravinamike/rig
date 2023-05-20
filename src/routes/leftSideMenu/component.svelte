@@ -50,7 +50,7 @@
     let defaultOpenSubMenuName: string
     let useTabbedLayout: boolean = false
     let rightMenuOpen: boolean = false
-    let closeLeftMenu: () => void = () => {}
+    let closeLeftMenu: () => void
     let closeRightMenu: () => void = () => {}
 </script>
 
@@ -64,7 +64,7 @@
     bind:defaultOpenSubMenuName
     bind:useTabbedLayout
     bind:rightMenuOpen
-    bind:closeLeftMenu
+    {closeLeftMenu}
     bind:closeRightMenu
 />
 
