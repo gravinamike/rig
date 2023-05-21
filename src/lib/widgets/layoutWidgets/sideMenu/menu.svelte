@@ -20,6 +20,7 @@
      * @param overlapPage - Whether the side-menu overlaps the page (or, alternatively, displaces it).
      * @param slideDirection - Whether the side-menu slides open towards the right or the left.
      * @param stateStore - The store that records the state of this menu (if any).
+     * @param closeOnOutsideClick - Whether to automatically close the menu when clicking outside it.
      * @param close - Method to close the side-menu.
      */
     export let subMenuInfos: { name: MenuName, icon: string }[][]
@@ -33,6 +34,7 @@
     export let overlapPage = false
     export let slideDirection: "right" | "left" | "down" | "up" = "right"
     export let stateStore: Writable<string | null> | null = null
+    export let closeOnOutsideClick = false
     export let close: () => void
 
 
@@ -139,11 +141,25 @@
         await sleep(openTime) // Wait for the menu to close fully before hiding the content.
         closing = false
     }
+
+
+
+
+
+    let sideMenu: HTMLElement
+
+    function handlePossibleOutsideClick(event: MouseEvent) {
+		if (event.target !== sideMenu && !sideMenu.contains(event.target as Node)) {
+			if (closeOnOutsideClick) close()
+		}
+	}
+
 </script>
 
 
-<!-- Mouse up/down handlers for document body. -->
+<!-- Mouse event handlers for document body. -->
 <svelte:body
+    on:click={handlePossibleOutsideClick}
     on:mousedown={() => {mousePressed = true}}
     on:mouseup={() => {mousePressed = false}}
 />
@@ -154,6 +170,7 @@
     class="side-menu"
     class:overlap-page={overlapPage}
     class:slide-left={slideDirection === "left"}
+    bind:this={sideMenu}
 
     style={
         orientation === "horizontal" ? `width: ${extension}px; height: 100%;` :

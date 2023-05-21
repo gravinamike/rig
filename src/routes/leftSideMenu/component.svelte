@@ -51,7 +51,6 @@
     let useTabbedLayout: boolean = false
     let rightMenuOpen: boolean = false
     let closeLeftMenu: () => void
-    let closeRightMenu: () => void = () => {}
 </script>
 
 
@@ -60,12 +59,9 @@
     {height}
 
     bind:subMenuInfos
-    bind:leftMenuOpen
     bind:defaultOpenSubMenuName
     bind:useTabbedLayout
-    bind:rightMenuOpen
     {closeLeftMenu}
-    bind:closeRightMenu
 />
 
 
@@ -80,6 +76,7 @@
     openExtension={onMobile() ? window.innerWidth * 0.8 : 250}
     overlapPage={onMobile() ? true: false}
     stateStore={leftSideMenuStore}
+    closeOnOutsideClick={onMobile() ? true : false}
     bind:close={closeLeftMenu}
 >
     <!-- Spacer for menu buttons. -->
