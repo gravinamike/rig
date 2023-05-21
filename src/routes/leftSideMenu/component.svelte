@@ -77,7 +77,8 @@
     bind:open={leftMenuOpen}
     bind:lockedOpen={leftMenuLockedOpen}
     bind:lockedSubMenuName
-    overlapPage={false}
+    openExtension={onMobile() ? window.innerWidth * 0.8 : 250}
+    overlapPage={onMobile() ? true: false}
     stateStore={leftSideMenuStore}
     bind:close={closeLeftMenu}
 >

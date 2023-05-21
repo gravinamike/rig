@@ -15,7 +15,7 @@
      * @param subMenuInfos - Nested array of objects configuring the sub-menus.
      * @param defaultOpenSubMenuName - The name of the sub-menu that is opened when the menu is opened.
      * @param openedSubMenuName - The name of the currently opened sub-menu.
-     * @param openWidth - The width of the side menu when it is open.
+     * @param openExtension - The extension dimension of the side menu when it is open.
      * @param openTime - The time (in milliseconds) it takes for the side-menu to open/close.
      * @param overlapPage - Whether the side-menu overlaps the page (or, alternatively, displaces it).
      * @param slideDirection - Whether the side-menu slides open towards the right or the left.
@@ -28,14 +28,19 @@
     export let open: boolean = false
     export let lockedOpen = false
     export let lockedSubMenuName: string | null = openedSubMenuName
-    export let openWidth = 250
+    export let openExtension = 250
     export let openTime = 500
     export let overlapPage = false
-    export let slideDirection: "right" | "left" = "right"
+    export let slideDirection: "right" | "left" | "down" | "up" = "right"
     export let stateStore: Writable<string | null> | null = null
     export let close: () => void
 
 
+    // Orientation is based on slide direction.
+    $: orientation =
+        ["right", "left"].includes(slideDirection) ? "horizontal" :
+        "vertical"
+    
     // Size of the menu buttons.
     const buttonSize = 30
 
@@ -53,7 +58,7 @@
     // "percentOpen" value.
     const percentOpen = tweened( 0.0, { duration: openTime, easing: cubicOut } )
     $: percentOpen.set( open ? 1.0 : 0.0 )
-    $: width = openWidth * $percentOpen
+    $: extension = openExtension * $percentOpen
 
     // Attributes related to button formatting.
     let buttonSpacingPercent = tweened( -100, { duration: 100, easing: cubicOut } )
@@ -150,7 +155,10 @@
     class:overlap-page={overlapPage}
     class:slide-left={slideDirection === "left"}
 
-    style="width: {width}px;"
+    style={
+        orientation === "horizontal" ? `width: ${extension}px; height: 100%;` :
+        `width: 100%; height: ${extension}px;`
+    }
 
     on:mouseleave={handleMouseLeave}
 >
@@ -161,14 +169,17 @@
 
         on:mouseenter={handleMouseEnter}
     >
-        {#if width > 0}
+        {#if extension > 0}
             <div
                 class="content"
                 class:overlap-page={overlapPage}
                 class:slide-right={slideDirection === "right"}
                 class:slide-left={slideDirection === "left"}
 
-                style="width: {openWidth}px;"
+                style={
+                    orientation === "horizontal" ? `width: ${openExtension}px; height: 100%;` :
+                    `width: 100%; height: ${openExtension}px;`
+                }
             >
                 <slot />
             </div>
@@ -176,7 +187,7 @@
     </div>
 
     <!-- Hover-open strip. -->
-    {#if !onMobile() && width === 0 && !mousePressed}
+    {#if !onMobile() && extension === 0 && !mousePressed}
         <div
             class="hover-open-strip"
             class:slide-right={slideDirection === "right"}
@@ -192,8 +203,8 @@
     <!-- Menu buttons. -->
     <div
         class="side-menu-buttons"
-        class:slide-right={slideDirection === "right"}
-        class:slide-left={slideDirection === "left"}
+        class:buttons-on-left={slideDirection === "right"}
+        class:buttons-on-right={slideDirection !== "right"}
 
         style="border-radius: {buttonSize / 2}px;"
     >
@@ -256,12 +267,11 @@
 <style>
     .side-menu {
         position: relative;
-        height: 100%;
     }
 
     .side-menu.overlap-page {
         position: absolute;
-        z-index: 1;
+        z-index: 2;
     }
 
     .side-menu.overlap-page.slide-left {
@@ -270,7 +280,6 @@
 
     .content {
         position: absolute;
-        height: 100%;
         background-color: #fafafa;
 
         overflow: hidden;
@@ -311,7 +320,6 @@
         box-sizing: border-box;
         position: absolute;
         top: 0;
-        z-index: 1;
 
         display: flex;
         flex-direction: row;
@@ -320,11 +328,11 @@
         pointer-events: none;
     }
 
-    .side-menu-buttons.slide-right {
+    .side-menu-buttons.buttons-on-left {
         left: 0%;
     }
 
-    .side-menu-buttons.slide-left {
+    .side-menu-buttons.buttons-on-right {
         right: 0%;
     }
 
@@ -365,7 +373,7 @@
         outline: solid 1px grey;
         opacity: 0.75;
 
-        z-index: 2;
+        z-index: 1;
         background-color: white;
     }
 

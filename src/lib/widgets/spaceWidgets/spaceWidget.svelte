@@ -155,7 +155,7 @@
      * 
      * Add a new Direction to the Directions list dropdowns by its half-axis ID.
      */
-     function setDirectionNotNullByHalfAxisId(halfAxisId: number) {
+    function setDirectionNotNullByHalfAxisId(halfAxisId: number) {
         halfAxisInfos[halfAxisId].formDirection = "blank"
         halfAxisInfos = halfAxisInfos // Needed for reactivity.
     }
