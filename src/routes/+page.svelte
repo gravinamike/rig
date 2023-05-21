@@ -32,6 +32,7 @@
 
     // Import related widgets.
     import { defaultGraphWidgetStyle, RelationshipBeingCreatedWidget } from "$lib/widgets/graphWidgets"
+    import { onMobile } from "$lib/shared/utility";
 
 
     export let data: PageData
@@ -121,13 +122,18 @@
         <div
             class="background-image"
 
-            style={
-                graphBackgroundImageUrl ? `
-                    background-image: url(${graphBackgroundImageUrl});
-                    background-size: cover;
-                ` :
-                `background-color: #eef8ff;`
-            }
+            style={`
+                ${ onMobile() ? "width: 100%; height: 100%;" : "width: 100vw; height: 100vh;" }
+                ${
+                    graphBackgroundImageUrl ? `
+                        background-image: url(${graphBackgroundImageUrl});
+                        background-size: cover;
+                    ` :
+                    `background-color: #eef8ff;`
+
+                }
+            ` }
+            
         />
     {/if}
     
@@ -216,7 +222,5 @@
 
     .background-image {
         position: absolute;
-        width: 100vw;
-        height: 100vh;
     }
 </style>
