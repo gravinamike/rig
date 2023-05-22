@@ -35,7 +35,8 @@
     let tweenedScale: Tweened<number> = tweened( 1, { duration: 100, easing: cubicOut } )
     let zoomBounds: Rectangle = new Rectangle()
     let trackingMouse = false
-    let handleMouseMove: (event: MouseEvent) => void
+    let handleMouseMove: (event: MouseEvent | TouchEvent) => void
+    let handleTouchEnd: (event: TouchEvent) => void
     let handleWheelScroll: (event: WheelEvent) => void
 
     // HTML element handles.
@@ -87,6 +88,7 @@
     bind:thingIdToScrollTo
     bind:trackingMouse
     bind:handleMouseMove
+    bind:handleTouchEnd
     bind:handleWheelScroll
 />
 
@@ -101,10 +103,18 @@
     on:mousedown={() => {
         if (!$relationshipBeingCreatedInfoStore.sourceThingId) trackingMouse = true
     }}
+    on:touchstart={() => {
+        if (!$relationshipBeingCreatedInfoStore.sourceThingId) trackingMouse = true
+    }}
     on:mouseup={() =>
         trackingMouse = false
     }
+    on:touchend={event => {
+        trackingMouse = false
+        handleTouchEnd(event)
+    } }
     on:mousemove={handleMouseMove}
+    on:touchmove={handleMouseMove}
     on:wheel|preventDefault={handleWheelScroll}
 >
 

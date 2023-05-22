@@ -11,7 +11,7 @@
 
     // Import constants and utility functions.
     import { zoomBase } from "$lib/shared/constants"
-    import { sleep, Rectangle, descendantElements, elementGroupEdges } from "$lib/shared/utility"
+    import { sleep, Rectangle, descendantElements, elementGroupEdges, onMobile } from "$lib/shared/utility"
 
     // Import stores.
     import { relationshipBeingCreatedInfoStore, reorderingInfoStore } from "$lib/stores"
@@ -50,7 +50,8 @@
     export let allowScrollToThingId: boolean
     export let thingIdToScrollTo: number | null
     export let trackingMouse: boolean
-    export let handleMouseMove: (event: MouseEvent) => void
+    export let handleMouseMove: (event: MouseEvent | TouchEvent) => void
+    export let handleTouchEnd: (event: TouchEvent) => void
     export let handleWheelScroll: (event: WheelEvent) => void
 
     
@@ -118,7 +119,11 @@
      * Drags the Graph Widget when left-mouse button is clicked and the mouse is
      * moving.
      */
-    handleMouseMove = (event: MouseEvent) => {
+    handleMouseMove = (event: MouseEvent | TouchEvent) => {
+        // Get X and Y coordinates.
+        const clientX = "clientX" in event ? event.clientX : event.touches.item(0)?.clientX as number
+        const clientY = "clientY" in event ? event.clientY : event.touches.item(0)?.clientY as number
+
         // If mouse tracking has been engaged for at least 1 previous event...
         if (
             widget
@@ -129,15 +134,20 @@
             && prevMouseTrackingLocation.y
         ) {
             // ...calculate the distance components from the previous event,
-            let deltaX = event.clientX - prevMouseTrackingLocation.x
-            let deltaY = event.clientY - prevMouseTrackingLocation.y
+            let deltaX = clientX - prevMouseTrackingLocation.x
+            let deltaY = clientY - prevMouseTrackingLocation.y
             // and adjust the widget's X and Y scroll by those distances.
             widget.scrollLeft = (widget.scrollLeft - deltaX)
             widget.scrollTop = (widget.scrollTop - deltaY)
         }
         // Update mouse tracking with the current event's location.
-        prevMouseTrackingLocation.x = event.clientX
-        prevMouseTrackingLocation.y = event.clientY
+        prevMouseTrackingLocation.x = clientX
+        prevMouseTrackingLocation.y = clientY
+    }
+
+    handleTouchEnd = (event: TouchEvent) => {
+        prevMouseTrackingLocation.x = null
+        prevMouseTrackingLocation.y = null
     }
 
     /**
