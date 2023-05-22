@@ -4,7 +4,7 @@ import { sessionSpecificFetch as fetch } from "$lib/db/sessionSpecificFetch"
 
 import { writable } from "svelte/store"
 import { nullNewFileCreationInfo } from "$lib/widgets/dialogWidgets"
-import { defaultUIBackgroundColor, defaultUITrimColor } from "$lib/shared/constants"
+import { defaultUIBackgroundColor, defaultUITrimColor, defaultMobileMenuTrimColor } from "$lib/shared/constants"
 
 
 
@@ -12,6 +12,7 @@ import { defaultUIBackgroundColor, defaultUITrimColor } from "$lib/shared/consta
 // Hold the hex-strings for the UI's trim and background colors.
 export const uIBackgroundColorStore = writable( defaultUIBackgroundColor )
 export const uITrimColorStore = writable( defaultUITrimColor )
+export const mobileMenuTrimColorStore = writable( defaultMobileMenuTrimColor )
 
 
 // Graph and Notes background image path stores.

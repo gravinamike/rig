@@ -5,7 +5,7 @@
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
     // Import stores.
-    import { leftSideMenuStore, uITrimColorStore } from "$lib/stores"
+    import { leftSideMenuStore, mobileMenuTrimColorStore, uITrimColorStore } from "$lib/stores"
 
     // Import page controller.
     import LeftSideMenuController from "./controller.svelte"
@@ -50,8 +50,7 @@
     let defaultOpenSubMenuName: string
     let useTabbedLayout: boolean = false
     let rightMenuOpen: boolean = false
-    let closeLeftMenu: () => void = () => {}
-    let closeRightMenu: () => void = () => {}
+    let closeLeftMenu: () => void
 </script>
 
 
@@ -60,12 +59,9 @@
     {height}
 
     bind:subMenuInfos
-    bind:leftMenuOpen
     bind:defaultOpenSubMenuName
     bind:useTabbedLayout
-    bind:rightMenuOpen
-    bind:closeLeftMenu
-    bind:closeRightMenu
+    {closeLeftMenu}
 />
 
 
@@ -77,18 +73,28 @@
     bind:open={leftMenuOpen}
     bind:lockedOpen={leftMenuLockedOpen}
     bind:lockedSubMenuName
-    overlapPage={false}
+    openExtension={onMobile() ? window.innerWidth * 0.8 : 250}
+    overlapPage={onMobile() ? true: false}
     stateStore={leftSideMenuStore}
+    closeOnOutsideClick={onMobile() ? true : false}
     bind:close={closeLeftMenu}
 >
+    <!-- Spacer for menu buttons. -->
+    <div
+        class="spacer"
+
+        style="background-color: {onMobile() ? $mobileMenuTrimColorStore : $uITrimColorStore};"
+    />
+
     <!-- Thing menu. -->
     {#if openedSubMenuName === "Thing"}
         <div class="navigation-view">
+
             <!-- Thing searchbox. -->
             <div
                 class="search-container"
 
-                style="background-color: {$uITrimColorStore};"
+                style="background-color: {onMobile() ? $mobileMenuTrimColorStore : $uITrimColorStore};"
             >
                 <ThingSearchboxViewer
                     {rePerspectToThingId}
@@ -99,7 +105,7 @@
             <div
                 class="pins-history-container"
 
-                style="background-color: {$uITrimColorStore};"
+                style="background-color: {onMobile() ? $mobileMenuTrimColorStore : $uITrimColorStore};"
             >
 
                 {#if useTabbedLayout}
@@ -175,11 +181,11 @@
     <!-- Space menu. -->
     {:else if openedSubMenuName === "Space"}
         <div
-            class="spaces-view"
+            class="tabs-container-outer"
 
-            style="background-color: {$uITrimColorStore};"
+            style="background-color: {onMobile() ? $mobileMenuTrimColorStore : $uITrimColorStore};"
         >
-            <div class="directions-spaces-container">
+            <div class="tabs-container-inner">
 
                 <TabBlock>
                     <TabFlaps>
@@ -217,85 +223,120 @@
                 bind:allowZoomAndScrollToFit
             />
         {/if}
-
-    <!-- Users menu. -->
-    {:else if openedSubMenuName === "Users"}
-        <UsersMenu />
     
     <!-- File viewer. -->
     {:else if openedSubMenuName === "File"}
-        <FileViewer />
+        <div
+            class="tabs-container-outer"
+
+            style="background-color: {onMobile() ? $mobileMenuTrimColorStore : $uITrimColorStore};"
+        >
+            <div class="tabs-container-inner">
+
+                <TabBlock>
+                    <TabFlaps>
+                        <TabFlap><span class="tab-flap-span">File</span></TabFlap>
+                        <TabFlap><span class="tab-flap-span">User</span></TabFlap>
+                        <TabFlap><span class="tab-flap-span">About</span></TabFlap>
+                    </TabFlaps>
+
+                    <!-- Graph Schematic tab. -->
+                    <TabBody>
+                        <FileViewer />
+                    </TabBody>
+                
+                    <!-- Users tab. --> 
+                    <TabBody>
+                        <UsersMenu />
+                    </TabBody>
+                
+                    <!-- About tab. --> 
+                    <TabBody>
+                        <AboutMenu />
+                    </TabBody>
+                </TabBlock>
+            
+            </div>
+
+        </div>
 
     <!-- Developer menu. -->
     {:else if openedSubMenuName === "Dev"}
-        <div class="tabs-container">
+        <div
+            class="tabs-container-outer"
 
-            <TabBlock>
-                <TabFlaps>
-                    <TabFlap>Schematic</TabFlap>
-                    <TabFlap>Stores</TabFlap>
-                    <TabFlap>Database</TabFlap>
-                </TabFlaps>
+            style="background-color: {onMobile() ? $mobileMenuTrimColorStore : $uITrimColorStore};"
+        >
+            <div class="tabs-container-inner">
 
-                <!-- Graph Schematic tab. -->
-                <TabBody>
-                    {#if graph}
-                        <GraphSchematicViewer
-                            {graph}
-                        />
-                    {/if}
-                </TabBody>
-            
-                <!-- Stores tab. --> 
-                <TabBody>
-                    <TabBlock>
-                        <TabFlaps>
-                            <TabFlap>Directions</TabFlap>
-                            <TabFlap>Spaces</TabFlap>
-                            <TabFlap>Things</TabFlap>
-                        </TabFlaps>
-                    
-                        <!-- Directions Store view. --> 
-                        <TabBody>
-                            <DirectionsStoreViewer />
-                        </TabBody>
-                    
-                        <!-- Spaces Store view. --> 
-                        <TabBody>
-                            <SpacesStoreViewer />
-                        </TabBody>
-                    
-                        <!-- Things Store view. --> 
-                        <TabBody>
-                            <ThingsStoreViewer />
-                        </TabBody>
-                    </TabBlock>
-                </TabBody>
-            
-                <!-- Database tab. --> 
-                <TabBody>
-                    <DbLatestViewer />
-                </TabBody>
-            </TabBlock>
-            
-        </div>
+                <TabBlock>
+                    <TabFlaps>
+                        <TabFlap><span class="tab-flap-span">Schematic</span></TabFlap>
+                        <TabFlap><span class="tab-flap-span">Stores</span></TabFlap>
+                        <TabFlap><span class="tab-flap-span">Database</span></TabFlap>
+                    </TabFlaps>
 
-    <!-- About menu. -->
-    {:else if openedSubMenuName === "About"}
-        <AboutMenu />
+                    <!-- Graph Schematic tab. -->
+                    <TabBody>
+                        {#if graph}
+                            <GraphSchematicViewer
+                                {graph}
+                            />
+                        {/if}
+                    </TabBody>
+                
+                    <!-- Stores tab. --> 
+                    <TabBody>
+                        <TabBlock>
+                            <TabFlaps>
+                                <TabFlap><span class="tab-flap-span">Directions</span></TabFlap>
+                                <TabFlap><span class="tab-flap-span">Spaces</span></TabFlap>
+                                <TabFlap><span class="tab-flap-span">Things</span></TabFlap>
+                            </TabFlaps>
+                        
+                            <!-- Directions Store view. --> 
+                            <TabBody>
+                                <DirectionsStoreViewer />
+                            </TabBody>
+                        
+                            <!-- Spaces Store view. --> 
+                            <TabBody>
+                                <SpacesStoreViewer />
+                            </TabBody>
+                        
+                            <!-- Things Store view. --> 
+                            <TabBody>
+                                <ThingsStoreViewer />
+                            </TabBody>
+                        </TabBlock>
+                    </TabBody>
+                
+                    <!-- Database tab. --> 
+                    <TabBody>
+                        <DbLatestViewer />
+                    </TabBody>
+                </TabBlock>
+
+            </div>
+            
+        </div>        
     {/if}
 </SideMenu>
 
 
 <style>
     .navigation-view {
-        height: 100%;
+        height: calc(100% - 43px);
 
         display: flex;
         flex-direction: column;
 
         overflow-x: hidden;
         overflow-y: hidden;
+    }
+
+    .spacer {
+        height: 43px;
     }
 
     .search-container {
@@ -326,16 +367,16 @@
         overflow: hidden;
     }
 
-    .spaces-view {
+    .tabs-container-outer {
         box-sizing: border-box;
-        height: 100%;
+        height: calc(100% - 43px);
 
         display: flex;
         flex-direction: column;
         padding: 0.5rem;
     }
 
-    .directions-spaces-container {
+    .tabs-container-inner {
         flex: 1 1 auto;
 
         border-radius: 5px;
@@ -345,14 +386,6 @@
 
         display: flex;
         flex-direction: column;
-    }
-
-    .tabs-container {
-        width: 100%;
-        height: 100%;
-        
-        overflow-x: hidden;
-        overflow-y: hidden;
     }
 
     .tab-flap-span {

@@ -59,6 +59,10 @@
     // completely replaced at each re-Perspect to prevent retention of state
     // information.
     let showGraph = false
+
+    // Viewer orientation determines whether the Graph viewer's content is
+    // arranged horizontally or vertically.
+    const viewerOrientation = onMobile() ? "vertical" : "horizontal"
     
     // Attributes controlling zoom and scroll.
     let allowScrollToThingId = false
@@ -89,9 +93,9 @@
     let openedSubMenuName: string | null
     let rightMenuLockedOpen: boolean
     let lockedSubMenuName: string | null
-    $: sideMenuWidth = 
-        onMobile() ? 250 :
-        (window.innerWidth - 250) * 0.5
+    $: sideMenuExtension = 
+        viewerOrientation === "horizontal" ? (window.innerWidth - 250) * 0.5 :
+        window.innerHeight * 0.5
 
 
     // Refresh the viewer whenever...
@@ -150,7 +154,7 @@
 
         rightMenuOpen = !!$rightSideMenuStore
         rightMenuLockedOpen = !!$rightSideMenuStore
-        openedSubMenuName = $rightSideMenuStore
+        openedSubMenuName = $rightSideMenuStore || "Notes"
         lockedSubMenuName = $rightSideMenuStore
 
         await sleep(500) // Allow side-menu to open.
@@ -174,7 +178,6 @@
             // Record that this re-Perspect operation is in progress.
             rePerspectInProgressThingId = thingId
 
-            
             // If the new Perspective Thing is already in the Graph, scroll to center it.
             allowScrollToThingId = true
             thingIdToScrollTo = thingId
@@ -202,8 +205,6 @@
             updateUrlHash({
                 thingId: String(thingId)
             })
-
-
 
             saveGraphConfig()
 
@@ -275,6 +276,8 @@
 <!-- Graph viewer. -->
 <div
     class="graph-viewer"
+
+    style="flex-direction: {viewerOrientation === "horizontal" ? "row" : "column-reverse"};"
 >
 
     <!-- Graph Widget -->
@@ -301,10 +304,10 @@
         bind:open={rightMenuOpen}
         bind:lockedOpen={rightMenuLockedOpen}
         bind:lockedSubMenuName
-        openWidth={sideMenuWidth}
+        openExtension={sideMenuExtension}
         openTime={500}
         overlapPage={false}
-        slideDirection={"left"}
+        slideDirection={ viewerOrientation === "horizontal" ? "left" : "down" }
         stateStore={rightSideMenuStore}
         bind:close={closeRightMenu}
     >
@@ -325,6 +328,7 @@
             {#if graph}
                 <NotesViewer
                     {graph}
+                    {viewerOrientation}
                     {rePerspectToThingId}
                 />
             {/if}
@@ -346,16 +350,17 @@
     .graph-viewer {
         flex: 1 1 0;
         min-width: 0;
+        min-height: 0;
 
         position: relative;
 
         display: flex;
-        flex-direction: row;
     }
 
     .graph-widget-container {
         flex: 1 1 0;
         min-width: 0;
+        min-height: 0;
 
         position: relative;
     }

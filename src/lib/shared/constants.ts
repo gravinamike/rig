@@ -36,6 +36,7 @@ export interface ServerConfig {
  */
 export const defaultUIBackgroundColor = "#fafafa"
 export const defaultUITrimColor = "#E8E8E8"
+export const defaultMobileMenuTrimColor = "#787878"
 
 
 /**
@@ -64,6 +65,7 @@ export interface WaitingIndicatorStates {
 export interface GraphConfig {
     uIBackgroundColor?: string
     uITrimColor?: string
+    mobileMenuTrimColor?: string
     graphBackgroundImage?: string | null
     notesBackgroundImage?: string | null
     readOnlyMode: boolean

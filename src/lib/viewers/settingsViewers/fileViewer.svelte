@@ -27,8 +27,6 @@
 
         style="background-color: {$uIBackgroundColorStore};"
     >
-        <h4>File</h4>
-
         <div class="graph-folder-buttons">
             {#each graphFoldersByUsername as [username, folders]}
                 <div class="user-block">
@@ -69,11 +67,10 @@
 
         display: flex;
         flex-direction: column;
-        padding: 0.5rem;
     }
 
     .content {
-        border-radius: 5px;
+        border-radius: 0 0 5px 5px;
         
         height: 100%;
 
@@ -83,10 +80,6 @@
         gap: 2rem;
         
         text-align: center;
-    }
-
-    h4 {
-        margin: 0;
     }
 
     .user-block {

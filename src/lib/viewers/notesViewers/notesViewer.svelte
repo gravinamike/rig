@@ -20,9 +20,11 @@
 
     /**
      * @param graph - The Graph that this widget is displaying Notes for.
+     * @param viewerOrientation - Whether the Graph viewer is arranged horizontally or vertically.
      * @param rePerspectToThingId - Method to re-Perspect the Graph to a given Thing ID.
      */
     export let graph: Graph
+    export let viewerOrientation: "horizontal" | "vertical"
     export let rePerspectToThingId: (thingId: number) => Promise<void>
 
     
@@ -335,8 +337,12 @@
 >
 
     <!-- Title. -->
-    <div class="title">
-        <h3>{title}</h3>
+    <div
+        class="title"
+
+        style="justify-content: {viewerOrientation === "horizontal" ? "left" : "center"};"
+    >
+        <h2>{title}</h2>
     </div>
 
     <!-- Container to hold either Note display or Note editor. -->
@@ -459,14 +465,15 @@
     }
 
     .title {
-        height: 23px;
+        margin-left: 10px;
+
+        height: 34px;
 
         display: flex;
         align-items: center;
-        justify-content: center;
     }
 
-    h3 {
+    h2 {
         margin: 0;
     }
 

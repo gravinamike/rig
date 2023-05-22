@@ -1,9 +1,10 @@
 <script lang="ts">
     import type { Graph } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
-    import { addGraphIdsNeedingViewerRefresh, readOnlyMode as readOnlyModeStore, uIBackgroundColorStore, uITrimColorStore } from "$lib/stores"
+    import { addGraphIdsNeedingViewerRefresh, mobileMenuTrimColorStore, readOnlyMode as readOnlyModeStore, uIBackgroundColorStore, uITrimColorStore } from "$lib/stores"
     import SettingWidget from "./settingWidget.svelte"
     import { saveGraphConfig } from "$lib/shared/config"
+    import { onMobile } from "$lib/shared/utility";
 
 
     export let graph: Graph
@@ -35,7 +36,7 @@
 <div
     class="graph-settings-viewer"
 
-    style="background-color: {$uITrimColorStore};"
+    style="background-color: {onMobile() ? $mobileMenuTrimColorStore : $uITrimColorStore};"
 >
 
     <div
@@ -112,7 +113,7 @@
 <style>
     .graph-settings-viewer {        
         box-sizing: border-box;
-        height: 100%;
+        height: calc(100% - 43px);
 
         display: flex;
         flex-direction: column;

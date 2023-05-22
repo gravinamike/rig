@@ -153,7 +153,7 @@
         // Configure the left side-menu based on the Graph.
         leftMenuOpen = !!$leftSideMenuStore
         leftMenuLockedOpen = !!$leftSideMenuStore
-        openedSubMenuName = $leftSideMenuStore
+        openedSubMenuName = $leftSideMenuStore || "File"
         lockedSubMenuName = $leftSideMenuStore
     }
 

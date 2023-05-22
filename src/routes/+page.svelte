@@ -1,7 +1,7 @@
 <script lang="ts">
     // Import types.
     import type { PageData } from "./$types"
-    import type { WaitingIndicatorStates, MenuName } from "$lib/shared/constants"
+    import type { WaitingIndicatorStates } from "$lib/shared/constants"
     import type { Graph, Space } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
@@ -32,6 +32,7 @@
 
     // Import related widgets.
     import { defaultGraphWidgetStyle, RelationshipBeingCreatedWidget } from "$lib/widgets/graphWidgets"
+    import { onMobile } from "$lib/shared/utility";
 
 
     export let data: PageData
@@ -55,7 +56,6 @@
     let urlThingId: number | null = null
     let urlSpaceId: number | null = null
     let graphBackgroundImageUrl: string | null = null
-    let closeLeftMenu: () => void = () => {}
     let closeRightMenu: () => void = () => {}
     let handleMouseMove: (event: MouseEvent) => void = () => {}
 
@@ -122,13 +122,18 @@
         <div
             class="background-image"
 
-            style={
-                graphBackgroundImageUrl ? `
-                    background-image: url(${graphBackgroundImageUrl});
-                    background-size: cover;
-                ` :
-                `background-color: #eef8ff;`
-            }
+            style={`
+                ${ onMobile() ? "width: 100%; height: 100%;" : "width: 100vw; height: 100vh;" }
+                ${
+                    graphBackgroundImageUrl ? `
+                        background-image: url(${graphBackgroundImageUrl});
+                        background-size: cover;
+                    ` :
+                    `background-color: #eef8ff;`
+
+                }
+            ` }
+            
         />
     {/if}
     
@@ -159,7 +164,7 @@
         {allowZoomAndScrollToFit}
         {leftMenuOpen}
         {leftMenuLockedOpen}
-        {openedSubMenuName}
+        bind:openedSubMenuName
         {lockedSubMenuName}
         {rePerspectToThingId}
         {setGraphSpace}
@@ -217,7 +222,5 @@
 
     .background-image {
         position: absolute;
-        width: 100vw;
-        height: 100vh;
     }
 </style>
