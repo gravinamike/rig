@@ -5,7 +5,7 @@
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
     // Import stores.
-    import { leftSideMenuStore, uITrimColorStore } from "$lib/stores"
+    import { leftSideMenuStore, mobileMenuTrimColorStore, uITrimColorStore } from "$lib/stores"
 
     // Import page controller.
     import LeftSideMenuController from "./controller.svelte"
@@ -83,7 +83,7 @@
     <div
         class="spacer"
 
-        style="background-color: {$uITrimColorStore};"
+        style="background-color: {onMobile() ? $mobileMenuTrimColorStore : $uITrimColorStore};"
     />
 
     <!-- Thing menu. -->
@@ -94,7 +94,7 @@
             <div
                 class="search-container"
 
-                style="background-color: {$uITrimColorStore};"
+                style="background-color: {onMobile() ? $mobileMenuTrimColorStore : $uITrimColorStore};"
             >
                 <ThingSearchboxViewer
                     {rePerspectToThingId}
@@ -105,7 +105,7 @@
             <div
                 class="pins-history-container"
 
-                style="background-color: {$uITrimColorStore};"
+                style="background-color: {onMobile() ? $mobileMenuTrimColorStore : $uITrimColorStore};"
             >
 
                 {#if useTabbedLayout}
@@ -183,7 +183,7 @@
         <div
             class="tabs-container-outer"
 
-            style="background-color: {$uITrimColorStore};"
+            style="background-color: {onMobile() ? $mobileMenuTrimColorStore : $uITrimColorStore};"
         >
             <div class="tabs-container-inner">
 
@@ -229,7 +229,7 @@
         <div
             class="tabs-container-outer"
 
-            style="background-color: {$uITrimColorStore};"
+            style="background-color: {onMobile() ? $mobileMenuTrimColorStore : $uITrimColorStore};"
         >
             <div class="tabs-container-inner">
 
@@ -265,7 +265,7 @@
         <div
             class="tabs-container-outer"
 
-            style="background-color: {$uITrimColorStore};"
+            style="background-color: {onMobile() ? $mobileMenuTrimColorStore : $uITrimColorStore};"
         >
             <div class="tabs-container-inner">
 

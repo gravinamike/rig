@@ -1,5 +1,5 @@
 // Import types.
-import { defaultUIBackgroundColor, defaultUITrimColor, type AppConfig, type GraphConfig } from "$lib/shared/constants"
+import { defaultUIBackgroundColor, defaultUITrimColor, defaultMobileMenuTrimColor, type AppConfig, type GraphConfig } from "$lib/shared/constants"
 
 // Import basic framework resources.
 import { get } from "svelte/store"
@@ -7,7 +7,7 @@ import { get } from "svelte/store"
 // Import stores.
 import {
     readOnlyMode as readOnlyModeStore, perspectiveThingIdStore, leftSideMenuStore, rightSideMenuStore, notesEditorLockedStore,
-    homeThingIdStore, pinIdsStore, uIBackgroundColorStore, uITrimColorStore, graphBackgroundImageStore, notesBackgroundImageStore, hideMenusStore
+    homeThingIdStore, pinIdsStore, uIBackgroundColorStore, uITrimColorStore, mobileMenuTrimColorStore, graphBackgroundImageStore, notesBackgroundImageStore, hideMenusStore
 } from "$lib/stores"
 
 // Import API methods.
@@ -49,6 +49,10 @@ export async function storeGraphConfig(pThingId: number | null = null): Promise<
     uITrimColorStore.set(
         graphConfig.uITrimColor && stringRepresentsHexColor(graphConfig.uITrimColor) ? graphConfig.uITrimColor :
         defaultUITrimColor
+    )
+    mobileMenuTrimColorStore.set(
+        graphConfig.mobileMenuTrimColor && stringRepresentsHexColor(graphConfig.mobileMenuTrimColor) ? graphConfig.mobileMenuTrimColor :
+        defaultMobileMenuTrimColor
     )
     uIBackgroundColorStore.set(
         graphConfig.uIBackgroundColor && stringRepresentsHexColor(graphConfig.uIBackgroundColor) ? graphConfig.uIBackgroundColor :
@@ -94,6 +98,7 @@ export async function saveGraphConfig(): Promise<void> {
     // Retrieve config info from the stores.
     const uITrimColor = get(uITrimColorStore)
     const uIBackgroundColor = get(uIBackgroundColorStore)
+    const mobileMenuTrimColor = get(mobileMenuTrimColorStore)
     const graphBackgroundImage = get(graphBackgroundImageStore)
     const notesBackgroundImage = get(notesBackgroundImageStore)
     const readOnlyMode = get(readOnlyModeStore)
@@ -109,6 +114,7 @@ export async function saveGraphConfig(): Promise<void> {
     const graphConfig = {
         uITrimColor: uITrimColor,
         uIBackgroundColor: uIBackgroundColor,
+        mobileMenuTrimColor: mobileMenuTrimColor,
         graphBackgroundImage: graphBackgroundImage,
         notesBackgroundImage: notesBackgroundImage,
         readOnlyMode: readOnlyMode,

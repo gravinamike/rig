@@ -67,16 +67,6 @@
     }
 
     $: processWidgetResize(widgetWidth, widgetHeight)
-        
-
-
-
-    
-
-
-
-
-
 </script>
 
 

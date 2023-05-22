@@ -178,7 +178,6 @@
             // Record that this re-Perspect operation is in progress.
             rePerspectInProgressThingId = thingId
 
-            
             // If the new Perspective Thing is already in the Graph, scroll to center it.
             allowScrollToThingId = true
             thingIdToScrollTo = thingId
@@ -206,8 +205,6 @@
             updateUrlHash({
                 thingId: String(thingId)
             })
-
-
 
             saveGraphConfig()
 
