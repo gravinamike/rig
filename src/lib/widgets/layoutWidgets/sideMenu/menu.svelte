@@ -211,7 +211,13 @@
             class:slide-left={slideDirection === "left"}
             class:no-pointer-events={mousePressed}
 
-            style="width: {buttonSize + 20}px;"
+            style="
+                width: {buttonSize + 20}px;
+                {
+                    onMobile() ? "" :
+                    `height: calc(100% - ${buttonSize + 20}px); margin-top: ${buttonSize + 20}px;`
+                }
+            "
 
             on:mouseenter={handleMouseEnter}
         />
@@ -223,7 +229,11 @@
         class:buttons-on-left={slideDirection === "right"}
         class:buttons-on-right={slideDirection !== "right"}
 
-        style="border-radius: {buttonSize / 2}px;"
+        style="
+            border-radius: {buttonSize / 2}px;
+            top: {onMobile() && orientation === "horizontal" ? -(buttonSize + 20) : 0}px;
+            height: {buttonSize + 20}px;
+        "
     >
 
         <!-- Menu button groups. -->
@@ -247,6 +257,7 @@
                         class:opened-menu={openedSubMenuName !== null && openedSubMenuName === info.name}
                         class:locked-menu={lockedOpen && lockedSubMenuName === info.name}
                         class:menu-closed={!open}
+                        class:on-mobile={onMobile()}
 
                         style={
                             // If the button is the first in the button group, use only a
@@ -336,7 +347,6 @@
     .side-menu-buttons {
         box-sizing: border-box;
         position: absolute;
-        top: 0;
 
         display: flex;
         flex-direction: row;
@@ -353,7 +363,7 @@
         right: 0%;
     }
 
-    .button-group:hover .button {
+    .button-group:hover .button:not(.on-mobile) {
         opacity: 0.75;
     }
 
@@ -398,7 +408,7 @@
         opacity: 0;
     }
 
-    .button:hover {
+    .button:not(.on-mobile):hover {
         outline: solid 1px grey;
 
         background-color: gainsboro;
