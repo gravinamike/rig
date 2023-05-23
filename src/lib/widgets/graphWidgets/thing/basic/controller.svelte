@@ -59,9 +59,9 @@
     export let editingText = false
     export let textBeingEdited: string = ""
     export let perspectiveTextBeingEdited: string | null = null
-    export let handleMouseDown: (event: MouseEvent) => void
-    export let handleMouseDrag: (event: MouseEvent) => void
-    export let onBodyMouseUp: (event: MouseEvent) => void
+    export let handleMouseDown: (event: MouseEvent | TouchEvent) => void
+    export let handleMouseDrag: (event: MouseEvent | TouchEvent) => void
+    export let onBodyMouseUp: (event: MouseEvent | TouchEvent) => void
     export let openCommandPalette: (event: MouseEvent) => void
     export let startDelete: () => void
     export let completeDelete: () => void
@@ -226,9 +226,12 @@
      * related to drag operations.
      * @param event - The mouse-down event that triggered the method.
      */
-    handleMouseDown = (event: MouseEvent) => {
+    handleMouseDown = (event: MouseEvent | TouchEvent) => {
+        // Get X and Y coordinates.
+        const clientX = "clientX" in event ? event.clientX : event.touches.item(0)?.clientX as number
+        const clientY = "clientY" in event ? event.clientY : event.touches.item(0)?.clientY as number
         // Set the start position of the drag operation.
-        const position = [event.clientX, event.clientY] as [number, number]
+        const position = [clientX, clientY] as [number, number]
         dragStartPosition = position
         // Set the Relationship-being-created store's tracking-mouse flag.
         setRelationshipBeingCreatedTrackingMouse(true)
@@ -242,11 +245,15 @@
      * created has not yet been enabled, enables it.
      * @param event - The mouse-move event that triggered the method.
      */
-    handleMouseDrag = (event: MouseEvent) => {
+    handleMouseDrag = (event: MouseEvent | TouchEvent) => {
+        // Get X and Y coordinates.
+        const clientX = "clientX" in event ? event.clientX : event.touches.item(0)?.clientX as number
+        const clientY = "clientY" in event ? event.clientY : event.touches.item(0)?.clientY as number
+
         if (
             thing?.parentCohort
             && dragStartPosition
-            && Math.hypot(event.clientX - dragStartPosition[0], event.clientX - dragStartPosition[0]) > 5
+            && Math.hypot(clientX - dragStartPosition[0], clientX - dragStartPosition[0]) > 5
             && !$relationshipBeingCreatedInfoStore.sourceThingId
         ) {
             enableRelationshipBeingCreated(
@@ -268,8 +275,8 @@
      * drag operation to null.
      * @param event - The mouse-up event that triggered the method.
      */
-    onBodyMouseUp = (event: MouseEvent) => {
-        if (event.button === 0) {
+    onBodyMouseUp = (event: MouseEvent | TouchEvent) => {
+        if ("touches" in event || event.button === 0) {
             dragStartPosition = null
         }
     }

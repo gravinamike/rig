@@ -99,6 +99,7 @@
         rows=3
         placeholder="Enter text"
         on:mousemove|stopPropagation
+        on:touchmove|stopPropagation
     />
 </div>
 

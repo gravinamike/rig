@@ -35,7 +35,7 @@
     export let urlThingId: number | null
     export let urlSpaceId: number | null
     export let graphBackgroundImageUrl: string | null
-    export let handleMouseMove: (event: MouseEvent) => void = () => {}
+    export let handleMouseMove: (event: MouseEvent | TouchEvent) => void = () => {}
     
 
     // Session UUID.
@@ -163,9 +163,11 @@
      * Updates the mouse-position tracker and the endpoint for any in-progress
      * Relationship-creation operation.
      */
-    handleMouseMove = ( event: MouseEvent ) => {
-        updateMousePosition( [event.clientX, event.clientY] )
-        updateRelationshipBeingCreatedEndpoint( [event.clientX, event.clientY] )
+    handleMouseMove = ( event: MouseEvent | TouchEvent ) => {
+        const clientX = "clientX" in event ? event.clientX : event.touches.item(0)?.clientX as number
+        const clientY = "clientY" in event ? event.clientY : event.touches.item(0)?.clientY as number
+        updateMousePosition( [clientX, clientY] )
+        updateRelationshipBeingCreatedEndpoint( [clientX, clientY] )
     }
 
     /**

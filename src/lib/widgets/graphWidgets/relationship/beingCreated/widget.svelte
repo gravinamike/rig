@@ -153,6 +153,7 @@
 
 <svelte:body
     on:mouseup={handleMouseUp}
+    on:touchend={handleMouseUp}
     on:keyup={handleEscape}
 />
 

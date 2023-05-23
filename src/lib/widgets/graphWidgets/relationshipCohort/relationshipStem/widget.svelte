@@ -107,7 +107,30 @@
                 [event.clientX, event.clientY]
             )
         }}
+        on:touchstart={ event => {
+            stemClicked = true
+            // Get X and Y coordinates.
+            const clientX = event.touches.item(0)?.clientX
+            const clientY = event.touches.item(0)?.clientY
+            if (cohort.parentThingId && clientX && clientY) enableRelationshipBeingCreated(
+                graph,
+                graphWidgetStyle,
+                cohort.parentThingId,
+                1,
+                cohort.halfAxisId,
+                cohort.direction,
+                [clientX, clientY]
+            )
+        }}
         on:mouseup={ () => {
+            stemClicked = false
+            if (relatableForCurrentDrag) {
+                setRelationshipBeingCreatedDestThingId(cohort.parentThingId)
+            } else {
+                disableRelationshipBeingCreated()
+            }
+        } }
+        on:touchend={ () => {
             stemClicked = false
             if (relatableForCurrentDrag) {
                 setRelationshipBeingCreatedDestThingId(cohort.parentThingId)

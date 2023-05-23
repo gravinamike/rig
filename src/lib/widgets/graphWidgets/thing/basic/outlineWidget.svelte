@@ -43,9 +43,9 @@
     let thingHeight: number
     let textFontSize: number
     let showDeleteButton: boolean
-    let handleMouseDown: (event: MouseEvent) => void
-    let handleMouseDrag: (event: MouseEvent) => void
-    let onBodyMouseUp: (event: MouseEvent) => void
+    let handleMouseDown: (event: MouseEvent | TouchEvent) => void
+    let handleMouseDrag: (event: MouseEvent | TouchEvent) => void
+    let onBodyMouseUp: (event: MouseEvent | TouchEvent) => void
     let openCommandPalette: (event: MouseEvent) => void
     let startDelete: () => void
     let completeDelete: () => void
@@ -135,9 +135,17 @@
             confirmDeleteBoxOpen = false, hoveredRelationshipTarget.set(null)
         }}
         on:mousedown={ event => {if (event.button === 0) {}}}
+        on:touchstart={ () => {}}
         on:click={ () => {if ($relationshipBeingCreatedInfoStore.sourceThingId === null) rePerspectToThingId(thingId) } }
         on:keydown={()=>{}}
         on:mouseup={ () => {
+            if (relatableForCurrentDrag) {
+                setRelationshipBeingCreatedDestThingId(thingId)
+            } else {
+                disableRelationshipBeingCreated()
+            }
+        } }
+        on:touchend={ () => {
             if (relatableForCurrentDrag) {
                 setRelationshipBeingCreatedDestThingId(thingId)
             } else {

@@ -67,9 +67,9 @@
     let perspectiveTextBeingEdited: string
     let usePerspectiveText = false
     let submitted: boolean
-    let handleMouseDown: (event: MouseEvent) => void
-    let handleMouseDrag: (event: MouseEvent) => void
-    let onBodyMouseUp: (event: MouseEvent) => void
+    let handleMouseDown: (event: MouseEvent | TouchEvent) => void
+    let handleMouseDrag: (event: MouseEvent | TouchEvent) => void
+    let onBodyMouseUp: (event: MouseEvent | TouchEvent) => void
     let openCommandPalette: (event: MouseEvent) => void
     let startDelete: () => void
     let completeDelete: () => void
@@ -150,7 +150,9 @@
 <!-- Set up mouse-event handlers on page body. -->
 <svelte:body
     on:mousemove={ (event) => { if (!$readOnlyMode) handleMouseDrag(event) } }
+    on:touchmove={ (event) => { if (!$readOnlyMode) handleMouseDrag(event) } }
     on:mouseup={onBodyMouseUp}
+    on:touchend={onBodyMouseUp}
 />
 
 
@@ -189,6 +191,9 @@
                 handleMouseDown(event)
             }
         } }
+        on:touchstart={ event => {
+            handleMouseDown(event)
+        } }
         on:click={ event => {
             if (
                 !editingText
@@ -203,6 +208,13 @@
         } }
         on:keydown={()=>{}}
         on:mouseup={ () => {
+            if (relatableForCurrentDrag) {
+                setRelationshipBeingCreatedDestThingId(thingId)
+            } else {
+                disableRelationshipBeingCreated()
+            }
+        } }
+        on:touchend={ () => {
             if (relatableForCurrentDrag) {
                 setRelationshipBeingCreatedDestThingId(thingId)
             } else {

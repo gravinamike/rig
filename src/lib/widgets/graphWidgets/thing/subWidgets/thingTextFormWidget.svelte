@@ -43,6 +43,7 @@
             style="font-size: {perspectiveText && perspectiveText.length > 0 ? fontSize : 14}px;"
 
             on:mousemove|stopPropagation
+            on:touchmove|stopPropagation
         />
     {:else}
         <textarea
@@ -56,6 +57,7 @@
             style="font-size: {text && text.length > 0 ? fontSize : 14}px;"
 
             on:mousemove|stopPropagation
+            on:touchmove|stopPropagation
         />
     {/if}
 </div>

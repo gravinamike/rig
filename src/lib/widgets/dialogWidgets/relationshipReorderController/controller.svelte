@@ -48,15 +48,19 @@
      * page body (including setting the delta-index based on drag distance).
      * @param event - The Mouse event that triggers this method.
      */
-    function handleBodyMouseMove(event: MouseEvent) {
+    function handleBodyMouseMove(event: MouseEvent | TouchEvent) {
         // If no drag has been started, return.
         if (!($reorderingInfoStore.dragStartPosition)) return
 
         // Otherwise, update the delta-index.
 
+        // Get X and Y coordinates.
+        const clientX = "clientX" in event ? event.clientX : event.touches.item(0)?.clientX as number
+        const clientY = "clientY" in event ? event.clientY : event.touches.item(0)?.clientY as number
+
         // Determine the X and Y components of the distance the mouse moved.
-        const dragChangeX = event.clientX - $reorderingInfoStore.dragStartPosition[0]
-        const dragChangeY = event.clientY - $reorderingInfoStore.dragStartPosition[1]
+        const dragChangeX = clientX - $reorderingInfoStore.dragStartPosition[0]
+        const dragChangeY = clientY - $reorderingInfoStore.dragStartPosition[1]
         // The change in index is...
             deltaIndex = Math.floor(
                 // ...the component of the drag parallel to the Relationship
@@ -90,8 +94,8 @@
      * operation).
      * @param event - The Mouse event that triggers this method.
      */
-    async function handleBodyMouseUp(event: MouseEvent) {
-        if (event.button === 0) {
+    async function handleBodyMouseUp(event: MouseEvent | TouchEvent) {
+        if ("touches" in event || event.button === 0) {
             // If the Relationship reordering operation actually calls for a
             // new index,
             const copiedReorderingInfo =
@@ -161,5 +165,7 @@
 
 <svelte:body lang="ts"
     on:mousemove={handleBodyMouseMove}
+    on:touchmove={handleBodyMouseMove}
     on:mouseup={handleBodyMouseUp}
+    on:touchend={handleBodyMouseUp}
 />

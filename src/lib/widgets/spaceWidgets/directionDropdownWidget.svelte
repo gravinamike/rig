@@ -37,7 +37,7 @@
     // State-related information.
     let showOptions = askingForDirection ? true : false
 
-    function handlePossibleOutsideClick(event: MouseEvent) {
+    function handlePossibleOutsideClick(event: MouseEvent | TouchEvent) {
 		if (event.target !== directionWidget && !directionWidget.contains(event.target as Node)) {
 			if (!askingForDirection) showOptions = false
 		}
@@ -48,6 +48,7 @@
 <!-- When clicking outside the widget, unless the user is being prompted to choose a Direction, close the drop-down menu. -->
 <svelte:body
     on:mouseup={handlePossibleOutsideClick}
+    on:touchend={handlePossibleOutsideClick}
 />
 
 
