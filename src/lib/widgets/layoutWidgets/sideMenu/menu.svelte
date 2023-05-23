@@ -161,7 +161,9 @@
 <svelte:body
     on:click={handlePossibleOutsideClick}
     on:mousedown={() => {mousePressed = true}}
+    on:touchstart={() => {mousePressed = true}}
     on:mouseup={() => {mousePressed = false}}
+    on:touchend={() => {mousePressed = false}}
 />
 
 
