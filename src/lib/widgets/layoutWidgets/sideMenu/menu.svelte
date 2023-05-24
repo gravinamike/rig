@@ -262,6 +262,8 @@
                         class:on-mobile={onMobile()}
 
                         style={
+                            // If there is only one button in the group, use no overlap margin.default
+                            buttonGroup.length === 1 ? "" :
                             // If the button is the first in the button group, use only a
                             // right overlap margin.
                             i === 0 ? `margin-right: ${buttonOverlapMargin}px;` :
@@ -365,7 +367,7 @@
         right: 0%;
     }
 
-    .button-group:hover .button:not(.on-mobile) {
+    .button-group:hover .button:not(.menu-closed):not(.on-mobile) {
         opacity: 0.75;
     }
 
@@ -400,7 +402,7 @@
 
 	.button.opened-menu {
         outline: solid 1px grey;
-        opacity: 0.75;
+        opacity: 1;
 
         z-index: 1;
         background-color: white;
