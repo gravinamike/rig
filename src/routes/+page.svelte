@@ -116,6 +116,12 @@
     
     on:mousemove={handleMouseMove}
     on:touchmove={handleMouseMove}
+    on:touchstart={ (event) => {
+        if ("touches" in event && event.touches.length === 2) {
+            event.preventDefault()
+            event.stopPropagation()
+        }
+    } }
 >
 
     <!-- Graph background image. -->

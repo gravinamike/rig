@@ -112,7 +112,15 @@
      * the purposes of dragging the widget.
      */
     trackingMouse = false
+    
 
+
+
+
+
+
+    let prevPinchSize: number | null = null
+    let pinchDiff: number
     /**
      * Mouse-move handler.
      * 
@@ -120,34 +128,74 @@
      * moving.
      */
     handleMouseMove = (event: MouseEvent | TouchEvent) => {
-        // Get X and Y coordinates.
-        const clientX = "clientX" in event ? event.clientX : event.touches.item(0)?.clientX as number
-        const clientY = "clientY" in event ? event.clientY : event.touches.item(0)?.clientY as number
+        // If this is a "pinch" touch gesture.,
+        if ("touches" in event && event.touches.length === 2) {
 
-        // If mouse tracking has been engaged for at least 1 previous event...
-        if (
-            widget
-            && trackingMouse
-            && !$relationshipBeingCreatedInfoStore.trackingMouse
-            && !$reorderingInfoStore.dragStartPosition
-            && prevMouseTrackingLocation.x
-            && prevMouseTrackingLocation.y
-        ) {
-            // ...calculate the distance components from the previous event,
-            let deltaX = clientX - prevMouseTrackingLocation.x
-            let deltaY = clientY - prevMouseTrackingLocation.y
-            // and adjust the widget's X and Y scroll by those distances.
-            widget.scrollLeft = (widget.scrollLeft - deltaX)
-            widget.scrollTop = (widget.scrollTop - deltaY)
+            const x1 = event.touches.item(0)?.clientX as number
+            const y1 = event.touches.item(0)?.clientY as number
+            const x2 = event.touches.item(1)?.clientX as number
+            const y2 = event.touches.item(1)?.clientY as number
+
+            const xDist = x2 - x1
+            const yDist = y2 - y1
+
+            const pinchSize = Math.hypot(xDist, yDist)
+            pinchDiff = prevPinchSize ? pinchSize - prevPinchSize : 0
+
+            prevPinchSize = pinchSize
+
+
+            // If there is not a Relationship-drag operation in progress,
+            if ($relationshipBeingCreatedInfoStore.sourceThingId === null) {
+                // Calculate the new zoom.
+                const newZoom = graphWidgetStyle.zoom + pinchDiff * 0.02
+                // If the new zoom would not exceed min and max zoom bounds, set zoom to the new zoom.
+                if (-5 <= newZoom && newZoom <= 5) graphWidgetStyle.zoom = newZoom
+            }
+
+
+
+
+
+
+
+
+        // Otherwise.
+        } else {
+
+            // Get X and Y coordinates.
+            const clientX = "clientX" in event ? event.clientX : event.touches.item(0)?.clientX as number
+            const clientY = "clientY" in event ? event.clientY : event.touches.item(0)?.clientY as number
+
+            // If mouse tracking has been engaged for at least 1 previous event...
+            if (
+                widget
+                && trackingMouse
+                && !$relationshipBeingCreatedInfoStore.trackingMouse
+                && !$reorderingInfoStore.dragStartPosition
+                && prevMouseTrackingLocation.x
+                && prevMouseTrackingLocation.y
+            ) {
+                // ...calculate the distance components from the previous event,
+                let deltaX = clientX - prevMouseTrackingLocation.x
+                let deltaY = clientY - prevMouseTrackingLocation.y
+                // and adjust the widget's X and Y scroll by those distances.
+                widget.scrollLeft = (widget.scrollLeft - deltaX)
+                widget.scrollTop = (widget.scrollTop - deltaY)
+            }
+            // Update mouse tracking with the current event's location.
+            prevMouseTrackingLocation.x = clientX
+            prevMouseTrackingLocation.y = clientY
+
         }
-        // Update mouse tracking with the current event's location.
-        prevMouseTrackingLocation.x = clientX
-        prevMouseTrackingLocation.y = clientY
+        
     }
 
     handleTouchEnd = (event: TouchEvent) => {
         prevMouseTrackingLocation.x = null
         prevMouseTrackingLocation.y = null
+        prevPinchSize = null
+        pinchDiff = 0
     }
 
     /**
