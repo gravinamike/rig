@@ -20,6 +20,7 @@
     import { ThingCohortWidget } from "$lib/widgets/graphWidgets"
     import { cubicOut } from "svelte/easing";
     
+
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
     export let rePerspectToThingId: (thingId: number) => Promise<void>
@@ -44,9 +45,10 @@
     let centralAnchor: Element | null = null
     let zoomBoundsDiv: Element | null = null
 
+    // Perspective-dependent Thing-texts.
     let perspectiveTexts = legacyPerspectiveThingsParse(graph.pThing?.perspectivetexts || "{}")
 
-
+    
     // Auto-center the current focal point after resizing the Graph.
     let widgetWidth: number
     let widgetHeight: number
@@ -68,13 +70,6 @@
     }
 
     $: processWidgetResize(widgetWidth, widgetHeight)
-
-
-
-    
-
-
-
 </script>
 
 
