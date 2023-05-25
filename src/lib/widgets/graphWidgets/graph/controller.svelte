@@ -11,7 +11,7 @@
 
     // Import constants and utility functions.
     import { zoomBase } from "$lib/shared/constants"
-    import { sleep, Rectangle, descendantElements, elementGroupEdges } from "$lib/shared/utility"
+    import { sleep, Rectangle, descendantElements, elementGroupEdges, onMobile } from "$lib/shared/utility"
 
     // Import stores.
     import { relationshipBeingCreatedInfoStore, reorderingInfoStore } from "$lib/stores"
@@ -50,10 +50,11 @@
     export let allowScrollToThingId: boolean
     export let thingIdToScrollTo: number | null
     export let trackingMouse: boolean
-    export let handleMouseMove: (event: MouseEvent) => void
+    export let handleMouseMove: (event: MouseEvent | TouchEvent) => void
+    export let handleTouchEnd: (event: TouchEvent) => void
     export let handleWheelScroll: (event: WheelEvent) => void
 
-    
+
     /* --------------- Output attributes. --------------- */
 
     /**
@@ -113,31 +114,88 @@
     trackingMouse = false
 
     /**
+     * Previous pinch size.
+     * 
+     * Tracks the distance between touch points on the last-recorded pinch.
+     */
+    let prevPinchSize: number | null = null
+
+    /**
+     * Pinch change.
+     * 
+     * The difference between the sizes of the current and last pinch.
+     */
+    let pinchChange: number
+    
+
+    /**
      * Mouse-move handler.
      * 
      * Drags the Graph Widget when left-mouse button is clicked and the mouse is
      * moving.
      */
-    handleMouseMove = (event: MouseEvent) => {
-        // If mouse tracking has been engaged for at least 1 previous event...
-        if (
-            widget
-            && trackingMouse
-            && !$relationshipBeingCreatedInfoStore.trackingMouse
-            && !$reorderingInfoStore.dragStartPosition
-            && prevMouseTrackingLocation.x
-            && prevMouseTrackingLocation.y
-        ) {
-            // ...calculate the distance components from the previous event,
-            let deltaX = event.clientX - prevMouseTrackingLocation.x
-            let deltaY = event.clientY - prevMouseTrackingLocation.y
-            // and adjust the widget's X and Y scroll by those distances.
-            widget.scrollLeft = (widget.scrollLeft - deltaX)
-            widget.scrollTop = (widget.scrollTop - deltaY)
+    handleMouseMove = (event: MouseEvent | TouchEvent) => {
+        // If this is a "pinch" touch gesture.,
+        if ("touches" in event && event.touches.length === 2) {
+            // Get the size of the pinch.
+            const x1 = event.touches.item(0)?.clientX as number
+            const y1 = event.touches.item(0)?.clientY as number
+            const x2 = event.touches.item(1)?.clientX as number
+            const y2 = event.touches.item(1)?.clientY as number
+            const xDist = x2 - x1
+            const yDist = y2 - y1
+            const pinchSize = Math.hypot(xDist, yDist)
+
+            // Determine how much the pinch changed from the previous pinch.
+            pinchChange = prevPinchSize ? pinchSize - prevPinchSize : 0
+
+            // If there is not a Relationship-drag operation in progress,
+            if ($relationshipBeingCreatedInfoStore.sourceThingId === null) {
+                // Calculate the new zoom.
+                const newZoom = graphWidgetStyle.zoom + pinchChange * 0.02
+                // If the new zoom would not exceed min and max zoom bounds, set zoom to the new zoom.
+                if (-5 <= newZoom && newZoom <= 5) graphWidgetStyle.zoom = newZoom
+            }
+
+            // Set the pinch size as the previous pinch size.
+            prevPinchSize = pinchSize
+
+        // Otherwise.
+        } else {
+
+            // Get X and Y coordinates.
+            const clientX = "clientX" in event ? event.clientX : event.touches.item(0)?.clientX as number
+            const clientY = "clientY" in event ? event.clientY : event.touches.item(0)?.clientY as number
+
+            // If mouse tracking has been engaged for at least 1 previous event...
+            if (
+                widget
+                && trackingMouse
+                && !$relationshipBeingCreatedInfoStore.trackingMouse
+                && !$reorderingInfoStore.dragStartPosition
+                && prevMouseTrackingLocation.x
+                && prevMouseTrackingLocation.y
+            ) {
+                // ...calculate the distance components from the previous event,
+                let deltaX = clientX - prevMouseTrackingLocation.x
+                let deltaY = clientY - prevMouseTrackingLocation.y
+                // and adjust the widget's X and Y scroll by those distances.
+                widget.scrollLeft = (widget.scrollLeft - deltaX)
+                widget.scrollTop = (widget.scrollTop - deltaY)
+            }
+            // Update mouse tracking with the current event's location.
+            prevMouseTrackingLocation.x = clientX
+            prevMouseTrackingLocation.y = clientY
+
         }
-        // Update mouse tracking with the current event's location.
-        prevMouseTrackingLocation.x = event.clientX
-        prevMouseTrackingLocation.y = event.clientY
+        
+    }
+
+    handleTouchEnd = (event: TouchEvent) => {
+        prevMouseTrackingLocation.x = null
+        prevMouseTrackingLocation.y = null
+        prevPinchSize = null
+        pinchChange = 0
     }
 
     /**

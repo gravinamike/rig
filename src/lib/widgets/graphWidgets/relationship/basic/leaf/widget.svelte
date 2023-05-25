@@ -46,9 +46,9 @@
     let highlightLevel: "no-highlight" | "soft-highlight" | "hard-highlight"
     let showDirection: boolean
     let changeRelationshipDirection: (directionId: number) => void
-    let handleMouseDown: (event: MouseEvent) => void
-    let handleBodyMouseMove: (event: MouseEvent) => void
-    let handleBodyMouseUp: (event: MouseEvent) => void
+    let handleMouseDown: (event: MouseEvent | TouchEvent) => void
+    let handleBodyMouseMove: (event: MouseEvent | TouchEvent) => void
+    let handleBodyMouseUp: (event: MouseEvent | TouchEvent) => void
 </script>
 
 
@@ -75,7 +75,9 @@
 <!-- Set up handlers on the page body. -->
 <svelte:body lang="ts"
     on:mousemove={handleBodyMouseMove}
+    on:touchmove={handleBodyMouseMove}
     on:mouseup={handleBodyMouseUp}
+    on:touchend={handleBodyMouseUp}
 />
 
 
@@ -113,7 +115,12 @@
                 leafClicked = true
                 if (event.button === 0) handleMouseDown(event)
             }}
+            on:touchstart={(event) => {
+                leafClicked = true
+                handleMouseDown(event)
+            }}
             on:mouseup={()=>{leafClicked = false}}
+            on:touchend={()=>{leafClicked = false}}
         />
 
         <!-- Visual image of leaf. -->

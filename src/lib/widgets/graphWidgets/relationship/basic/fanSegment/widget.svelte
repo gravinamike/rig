@@ -85,7 +85,9 @@
         on:mouseenter={()=>{fanSegmentHovered = true}}
         on:mouseleave={()=>{fanSegmentHovered = false}}
         on:mousedown={()=>{fanSegmentClicked = true}}
+        on:touchstart={()=>{fanSegmentClicked = true}}
         on:mouseup={()=>{fanSegmentClicked = false}}
+        on:touchend={()=>{fanSegmentClicked = false}}
     />
 
     <!-- Visual image of fan segment. -->

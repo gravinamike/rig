@@ -44,7 +44,7 @@
     export let highlightLevel: "no-highlight" | "soft-highlight" | "hard-highlight"
     export let showDirection: boolean
     export let changeRelationshipDirection: (directionId: number) => void
-    export let handleMouseDown: (event: MouseEvent) => void
+    export let handleMouseDown: (event: MouseEvent | TouchEvent) => void
     export let handleBodyMouseMove: (event: MouseEvent) => void
     export let handleBodyMouseUp: (event: MouseEvent) => void
     
@@ -145,11 +145,15 @@
      * down on the Leaf (including recording the start od a drag).
      * @param event - The MouseEvent that triggered this method.
      */
-    handleMouseDown = (event: MouseEvent) => {
+    handleMouseDown = (event: MouseEvent | TouchEvent) => {
+        // Get X and Y coordinates.
+        const clientX = "clientX" in event ? event.clientX : event.touches.item(0)?.clientX as number
+        const clientY = "clientY" in event ? event.clientY : event.touches.item(0)?.clientY as number
+
         // Record the start of a drag operation to the Relationship-reordering
         // store.
         setReorderingDragStart(
-            [event.clientX, event.clientY] as [number, number],
+            [clientX, clientY] as [number, number],
             graphWidgetStyle,
             cohort,
             cohortMemberWithIndex.member.thingId as number)
@@ -162,12 +166,16 @@
      * page body (including Relationship-reordering drags).
      * @param event - The MouseEvent that triggered this method.
      */
-    handleBodyMouseMove = (event: MouseEvent) => {
+    handleBodyMouseMove = (event: MouseEvent | TouchEvent) => {
+        // Get X and Y coordinates.
+        const clientX = "clientX" in event ? event.clientX : event.touches.item(0)?.clientX as number
+        const clientY = "clientY" in event ? event.clientY : event.touches.item(0)?.clientY as number
+
         const dragChangeX =
-            $reorderingInfoStore.dragStartPosition ? event.clientX - $reorderingInfoStore.dragStartPosition[0] :
+            $reorderingInfoStore.dragStartPosition ? clientX - $reorderingInfoStore.dragStartPosition[0] :
             null
         const dragChangeY =
-            $reorderingInfoStore.dragStartPosition ? event.clientY - $reorderingInfoStore.dragStartPosition[1] :
+            $reorderingInfoStore.dragStartPosition ? clientY - $reorderingInfoStore.dragStartPosition[1] :
             null
         
         // If...

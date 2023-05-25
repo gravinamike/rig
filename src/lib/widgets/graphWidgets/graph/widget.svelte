@@ -20,6 +20,7 @@
     import { ThingCohortWidget } from "$lib/widgets/graphWidgets"
     import { cubicOut } from "svelte/easing";
     
+
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
     export let rePerspectToThingId: (thingId: number) => Promise<void>
@@ -35,7 +36,8 @@
     let tweenedScale: Tweened<number> = tweened( 1, { duration: 100, easing: cubicOut } )
     let zoomBounds: Rectangle = new Rectangle()
     let trackingMouse = false
-    let handleMouseMove: (event: MouseEvent) => void
+    let handleMouseMove: (event: MouseEvent | TouchEvent) => void
+    let handleTouchEnd: (event: TouchEvent) => void
     let handleWheelScroll: (event: WheelEvent) => void
 
     // HTML element handles.
@@ -43,9 +45,10 @@
     let centralAnchor: Element | null = null
     let zoomBoundsDiv: Element | null = null
 
+    // Perspective-dependent Thing-texts.
     let perspectiveTexts = legacyPerspectiveThingsParse(graph.pThing?.perspectivetexts || "{}")
 
-
+    
     // Auto-center the current focal point after resizing the Graph.
     let widgetWidth: number
     let widgetHeight: number
@@ -87,6 +90,7 @@
     bind:thingIdToScrollTo
     bind:trackingMouse
     bind:handleMouseMove
+    bind:handleTouchEnd
     bind:handleWheelScroll
 />
 
@@ -101,10 +105,18 @@
     on:mousedown={() => {
         if (!$relationshipBeingCreatedInfoStore.sourceThingId) trackingMouse = true
     }}
+    on:touchstart={() => {
+        if (!$relationshipBeingCreatedInfoStore.sourceThingId) trackingMouse = true
+    }}
     on:mouseup={() =>
         trackingMouse = false
     }
+    on:touchend={event => {
+        trackingMouse = false
+        handleTouchEnd(event)
+    } }
     on:mousemove={handleMouseMove}
+    on:touchmove={handleMouseMove}
     on:wheel|preventDefault={handleWheelScroll}
 >
 

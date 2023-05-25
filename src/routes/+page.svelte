@@ -57,7 +57,7 @@
     let urlSpaceId: number | null = null
     let graphBackgroundImageUrl: string | null = null
     let closeRightMenu: () => void = () => {}
-    let handleMouseMove: (event: MouseEvent) => void = () => {}
+    let handleMouseMove: (event: MouseEvent | TouchEvent) => void = () => {}
 
 
     // Attributes handled by the Graph Viewer.
@@ -115,6 +115,13 @@
     bind:clientHeight={height}
     
     on:mousemove={handleMouseMove}
+    on:touchmove={handleMouseMove}
+    on:touchstart={ (event) => {
+        if ("touches" in event && event.touches.length === 2) {
+            event.preventDefault()
+            event.stopPropagation()
+        }
+    } }
 >
 
     <!-- Graph background image. -->

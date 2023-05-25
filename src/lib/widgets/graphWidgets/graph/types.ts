@@ -1,3 +1,5 @@
+import { onMobile } from "$lib/shared/utility"
+
 /**
  * Graph widget style interface.
  * 
@@ -30,7 +32,7 @@ export const defaultGraphWidgetStyle: GraphWidgetStyle = {
     excludeNonCartesianAxes: false,
     excludeNonAxisThingCohorts: false,
     zoom: 0,
-    zoomPadding: 100,
+    zoomPadding: onMobile() ? 50: 100,
     animateZoomAndScroll: true,
     relationDistance: 250,
     thingSize: 100,

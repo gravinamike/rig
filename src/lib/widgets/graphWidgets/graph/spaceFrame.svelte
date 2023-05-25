@@ -134,6 +134,9 @@
                     on:mousemove={() => {
                         setSpaceFrameActiveIfSlow()
                     }}
+                    on:touchmove={() => {
+                        setSpaceFrameActiveIfSlow()
+                    }}
                     on:mouseleave={() => {
                         borderHovered = false
                         delayedSetSpaceFrameInactive()
@@ -153,6 +156,9 @@
                         setSpaceFrameActiveIfSlow()
                     }}
                     on:mousemove={() => {
+                        setSpaceFrameActiveIfSlow()
+                    }}
+                    on:touchmove={() => {
                         setSpaceFrameActiveIfSlow()
                     }}
                     on:mouseleave={() => {
@@ -197,6 +203,9 @@
                     on:mousemove={() => {
                         setSpaceFrameActiveIfSlow()
                     }}
+                    on:touchmove={() => {
+                        setSpaceFrameActiveIfSlow()
+                    }}
                     on:mouseleave={() => {
                         borderHovered = false
                         delayedSetSpaceFrameInactive()
@@ -220,6 +229,9 @@
                 setSpaceFrameActiveIfSlow()
             }}
             on:mousemove={() => {
+                setSpaceFrameActiveIfSlow()
+            }}
+            on:touchmove={() => {
                 setSpaceFrameActiveIfSlow()
             }}
             on:mouseleave={() => {

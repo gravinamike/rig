@@ -72,7 +72,7 @@
 		showFiltered = false
     }
 
-    function handlePossibleOutsideClick(event: MouseEvent) {
+    function handlePossibleOutsideClick(event: MouseEvent | TouchEvent) {
 		if (event.target !== thingSearchbox && !thingSearchbox.contains(event.target as Node)) {
             selectedItem = null
             inputText = ""
@@ -126,6 +126,7 @@
 <!-- When clicking outside the widget, close the drop-down menu. -->
 <svelte:body
     on:mouseup={handlePossibleOutsideClick}
+    on:touchend={handlePossibleOutsideClick}
 />
 
 
