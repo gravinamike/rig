@@ -78,7 +78,7 @@
             element: textField,
             extensions: editorExtensions,
             content: content,
-            autofocus: true,
+            autofocus: onMobile() ? false : true,
             onTransaction: () => {
                 editor = editor // Force re-render so `editor.isActive` works correctly.
             },
