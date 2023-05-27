@@ -457,18 +457,16 @@
         outline: solid 1px lightgrey;
 		outline-offset: -1px;
 
-        right: 1.5rem;
-        bottom: 1.5rem;
+        right: 1rem;
+        bottom: 1rem;
 
         background-color: white;
         opacity: 1;
     }
 
     .edit-button.editing.on-mobile {
-        box-shadow: 2px 2px 5px 2px lightgray;
-
-        right: 0.35rem;
-        bottom: 0.35rem;
+        right: 0.74rem;
+        bottom: 0.87rem;
     }
 
     .edit-button:hover {

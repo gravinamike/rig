@@ -8,6 +8,7 @@
 	export let maxRowLength: number | null = null
 	export let startPadding: number | null = null
 	export let showText = true
+	export let forceRows: number | null = null
 
 
 	const numberOfButtonsAndPadding = commandButtonInfos.length + (startPadding ? startPadding : 0)
@@ -23,7 +24,7 @@
 				Math.min(numberOfButtonsAndPadding, maxRowLength) :
 				numberOfButtonsAndPadding
 		)	
-	const rowsTall = Math.ceil(numberOfButtonsAndPadding / rowLength)
+	$: rowsTall = Math.min(Math.ceil(numberOfButtonsAndPadding / rowLength), forceRows || 100)
 
 	let hoveredCommandText = ""
 	function setHoveredCommandText(text: string) { hoveredCommandText = text }
@@ -77,6 +78,8 @@
 		padding-left: 5px;
 		gap: 5px;
 		align-content: flex-start;
+
+		overflow: hidden;
 	}
 
 	.hovered-command-text {

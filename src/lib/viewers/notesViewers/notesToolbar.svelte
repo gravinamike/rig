@@ -10,6 +10,8 @@
     export let focusEditorMethod: () => void
 
 
+    let expanded = false
+    
     function selectedFontFamily(): string | null {
         return editor.getAttributes("textStyle").fontFamily || null
     }
@@ -340,10 +342,27 @@
         <CommandPalette
             {commandButtonInfos}
             buttonSize={onMobile() ? 20 : 25}
-            maxRowLength={onMobile() ? 12 : 17}
-            startPadding={onMobile() ? 10 : 11}
-            showText={onMobile() ? false : true}
+            maxRowLength={onMobile() ? 11 : 20}
+            startPadding={onMobile() ? 8 : 10}
+            showText={onMobile() || !expanded ? false : true}
+            forceRows={expanded ? null : 2}
         />
+
+        <div class="expand-edit-buttons">
+            <div
+                class="expand-button"
+                class:expanded
+
+                on:click={() => {expanded = !expanded}}
+                on:keydown={() => {}}
+            >
+                {#if expanded}
+                    -
+                {:else}
+                    +
+                {/if}
+            </div>
+        </div>
     </div>
 {/if}
 
@@ -357,14 +376,16 @@
         position: relative;
 
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
         padding: 0.5rem;
+        gap: 0.5rem;
     }
 
     .notes-toolbar.on-mobile {
         width: 101%;
 
         padding: 0.1rem;
+        gap: 0.05rem;
     }
 
     .button-group {
@@ -396,11 +417,11 @@
     }
 
     .font-picker {
-        width: 175px;
+        width: 145px;
     }
 
     .notes-toolbar.on-mobile .font-picker {
-        width: 95px;
+        width: 74px;
     }
 
     .font-size-picker {
@@ -408,7 +429,7 @@
     }
 
     .notes-toolbar.on-mobile .font-size-picker {
-        width: 45px;
+        width: 38px;
     }
 
     .level-picker {
@@ -418,7 +439,7 @@
     }
 
     .notes-toolbar.on-mobile .level-picker {
-        width: 70px;
+        width: 48px;
     }
 
     .color-picker {
@@ -429,5 +450,45 @@
 
     .notes-toolbar.on-mobile .color-picker {
         width: 20px;
+    }
+
+    .expand-edit-buttons {
+        width: 45px;
+        height: 100%;
+
+        align-items: center;
+    }
+
+    .notes-toolbar.on-mobile .expand-edit-buttons {
+        width: 74px;
+    }
+
+    .expand-button {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: grey;
+
+        cursor: pointer;
+    }
+
+    .notes-toolbar.on-mobile .expand-button {
+        margin-top: -0.15rem;;
+    }
+
+    .expand-button.expanded {
+        margin-top: -0.25rem;
+        font-size: 1.75rem;
+    }
+
+    .notes-toolbar.on-mobile .expand-button.expanded {
+        margin-top: -0.35rem;;
+    }
+
+    .expand-button:hover {
+        color: dimgrey;
+    }
+
+    .expand-button:active {
+        color: black;
     }
 </style>
