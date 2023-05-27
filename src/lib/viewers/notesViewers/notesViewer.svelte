@@ -391,6 +391,7 @@
             class="edit-button"
             class:editing
             class:editingLocked
+            class:on-mobile={onMobile()}
             bind:this={editButton}
 
             on:mouseenter={() => {editButtonHovered = true}}
@@ -432,7 +433,7 @@
 
     .notes-viewer.on-mobile {
         margin-left: -0.25rem;
-        padding: 0.25rem 0 0.25rem 0;
+        padding: 0.25rem 0 0 0;
     }
 
     .edit-button {
@@ -456,10 +457,18 @@
         outline: solid 1px lightgrey;
 		outline-offset: -1px;
 
-        bottom: 75px;
+        right: 1.5rem;
+        bottom: 1.5rem;
 
         background-color: white;
         opacity: 1;
+    }
+
+    .edit-button.editing.on-mobile {
+        box-shadow: 2px 2px 5px 2px lightgray;
+
+        right: 0.35rem;
+        bottom: 0.35rem;
     }
 
     .edit-button:hover {

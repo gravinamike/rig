@@ -219,6 +219,7 @@
     .notes-editor.on-mobile {
         margin-top: -0.25rem;
         padding: 0.25rem 0 0.25rem 0;
+        gap: 0.25rem;
     }
 
     .text-field.on-mobile {
