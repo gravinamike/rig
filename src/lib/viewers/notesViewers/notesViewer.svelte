@@ -20,11 +20,9 @@
 
     /**
      * @param graph - The Graph that this widget is displaying Notes for.
-     * @param viewerOrientation - Whether the Graph viewer is arranged horizontally or vertically.
      * @param rePerspectToThingId - Method to re-Perspect the Graph to a given Thing ID.
      */
     export let graph: Graph
-    export let viewerOrientation: "horizontal" | "vertical"
     export let rePerspectToThingId: (thingId: number) => Promise<void>
 
     
