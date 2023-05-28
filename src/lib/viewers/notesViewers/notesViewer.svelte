@@ -341,7 +341,11 @@
     <div
         class="title"
 
-        style="justify-content: {viewerOrientation === "horizontal" ? "left" : "center"};"
+        style="
+            margin-left: {onMobile() ? 60 : 8}px;
+            margin-right: {onMobile() ? 45 : 0}px;
+            {onMobile() ? "position: relative; top: 6px; font-size: 0.9rem;" : ""}
+        "
     >
         <h2>{title}</h2>
     </div>
@@ -481,8 +485,6 @@
     }
 
     .title {
-        margin-left: 10px;
-
         height: 34px;
 
         display: flex;
@@ -491,6 +493,8 @@
 
     h2 {
         margin: 0;
+        text-align: left;
+        line-height: 1.5rem;
     }
 
     .notes-container {
