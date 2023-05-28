@@ -16,6 +16,7 @@
     // Import related widgets.
     import NotesToolbar from "./notesToolbar.svelte"
     import { notesBackgroundImageStore } from "$lib/stores";
+    import { onMobile } from "$lib/shared/utility";
 
 
     /**
@@ -77,7 +78,7 @@
             element: textField,
             extensions: editorExtensions,
             content: content,
-            autofocus: true,
+            autofocus: onMobile() ? false : true,
             onTransaction: () => {
                 editor = editor // Force re-render so `editor.isActive` works correctly.
             },
@@ -170,10 +171,14 @@
 />
 
 
-<div class="notes-editor">
+<div
+    class="notes-editor"
+    class:on-mobile={onMobile()}
+>
     <!-- Editor text field. -->
     <div
         class="text-field"
+        class:on-mobile={onMobile()}
         class:ctrlKeyPressed
         bind:this={textField}
         on:click|preventDefault={focusEditor}
@@ -211,6 +216,16 @@
         text-align: center;
     }
 
+    .notes-editor.on-mobile {
+        margin-top: -0.25rem;
+        padding: 0.25rem 0 0.25rem 0;
+        gap: 0.25rem;
+    }
+
+    .text-field.on-mobile {
+        width: 102%;
+    }
+
     .text-field {
         flex: 1 1 0;
 
@@ -233,6 +248,16 @@
         box-sizing: border-box;
 
         padding: 1rem 2rem 1rem 2rem;
+    }
+
+    :global(.text-field.on-mobile .ProseMirror) {
+        padding: 0.5rem 1rem 0.5rem 1rem;
+
+        font-size: 0.85rem;
+    }
+
+    :global(.text-field.on-mobile ul) {
+        padding-left: 1.5rem;
     }
 
     :global(.ProseMirror li > p) {

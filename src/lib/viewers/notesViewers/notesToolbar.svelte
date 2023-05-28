@@ -1,14 +1,18 @@
 <script lang="ts">
     import type { Editor } from "@tiptap/core"
     import { fontSizes, headerLevels } from "$lib/shared/constants"
-    import { enableThingLinking, enableTextHyperlinking, fontNames, uIBackgroundColorStore } from "$lib/stores"
+    import { enableThingLinking, enableTextHyperlinking, fontNames, uIBackgroundColorStore, notesToolbarExpandedStore } from "$lib/stores"
     import CommandPalette from "$lib/widgets/layoutWidgets/commandPalette/commandPalette.svelte"
+    import { onMobile } from "$lib/shared/utility"
+    import { saveGraphConfig } from "$lib/shared/config"
 
 
     export let editor: Editor
     export let focusEditorMethod: () => void
 
 
+    let expanded = $notesToolbarExpandedStore
+    
     function selectedFontFamily(): string | null {
         return editor.getAttributes("textStyle").fontFamily || null
     }
@@ -48,40 +52,6 @@
     }
 
     $: commandButtonInfos = [
-        // Linking.
-        {
-            text: "Thing link",
-            iconName: "thing-link",
-            iconHtml: null,
-            isActive: (
-                editor.isActive('link')
-                && isThingLink()
-            ),
-            onClick: () => {
-                if (editor.isActive('link') && isThingLink()) {
-                    editor.chain().focus().unsetLink().run()
-                } else {
-                    enableThingLinking(editor, focusEditorMethod)
-                }
-            }
-        },
-        {
-            text: "Hyperlink",
-            iconName: "link",
-            iconHtml: null,
-            isActive: (
-                editor.isActive('link')
-                && !isThingLink()
-            ),
-            onClick: () => {
-                if (editor.isActive('link') && !isThingLink()) {
-                    editor.chain().focus().unsetLink().run()
-                } else {
-                    enableTextHyperlinking(editor, focusEditorMethod)
-                }
-            }
-        },
-
         // Basic formatting.
         {
             text: "Bold text",
@@ -209,13 +179,6 @@
 
         // Other formatting.
         {
-            text: "Paragraph",
-            iconName: null,
-            iconHtml: "¶",
-            isActive: editor.isActive('paragraph'),
-            onClick: () => editor.chain().focus().setParagraph().run()
-        },
-        {
             text: "Horizontal rule",
             iconName: null,
             iconHtml: `
@@ -266,14 +229,55 @@
                 editor.chain().focus().unsetAllMarks().run()
                 editor.chain().focus().clearNodes().run()
             }
+        },
+
+        // Linking.
+        {
+            text: "Hyperlink",
+            iconName: "link",
+            iconHtml: null,
+            isActive: (
+                editor.isActive('link')
+                && !isThingLink()
+            ),
+            onClick: () => {
+                if (editor.isActive('link') && !isThingLink()) {
+                    editor.chain().focus().unsetLink().run()
+                } else {
+                    enableTextHyperlinking(editor, focusEditorMethod)
+                }
+            }
+        },
+        {
+            text: "Thing link",
+            iconName: "thing-link",
+            iconHtml: null,
+            isActive: (
+                editor.isActive('link')
+                && isThingLink()
+            ),
+            onClick: () => {
+                if (editor.isActive('link') && isThingLink()) {
+                    editor.chain().focus().unsetLink().run()
+                } else {
+                    enableThingLinking(editor, focusEditorMethod)
+                }
+            }
         }
     ]
+
+    function handleExpandButton() {
+        expanded = !expanded
+        notesToolbarExpandedStore.set(expanded)
+        saveGraphConfig()
+    }
 </script>
 
 
 {#if editor}
     <div
         class="notes-toolbar"
+        class:on-mobile={onMobile()}
 
         style="background-color: {$uIBackgroundColorStore};"
     >
@@ -281,6 +285,8 @@
         <!-- Font family, size, and header level. -->
         <div class="button-group">
             <select
+                class="font-picker"
+
                 value={currentSelectionFontFamily ? currentSelectionFontFamily : "Arial"}
             >
                 {#each $fontNames as fontName}
@@ -294,6 +300,8 @@
             </select>
 
             <select
+                class="font-size-picker"
+
                 value={currentSelectionFontSize ? currentSelectionFontSize : 12}
             >
                 {#each fontSizes as fontSize}
@@ -307,6 +315,8 @@
             </select>
 
             <select
+                class="level-picker"
+
                 value={currentSelectionHeaderLevel === null ? "Body" : `H${currentSelectionHeaderLevel}`}
             >
                 {#each headerLevels as headerLevel}
@@ -327,6 +337,7 @@
             </select>
 
             <input
+                class="color-picker"
                 type="color"
                 bind:this={colorPicker}
                 value={currentSelectionColor === null ? "#000000" : currentSelectionColor}
@@ -337,9 +348,28 @@
 
         <CommandPalette
             {commandButtonInfos}
-            buttonSize={19}
-            maxRowLength={21}
+            buttonSize={onMobile() ? 20 : 25}
+            maxRowLength={onMobile() ? 11 : 20}
+            startPadding={onMobile() ? 8 : 10}
+            showText={onMobile() || !expanded ? false : true}
+            forceRows={expanded ? null : 2}
         />
+
+        <div class="expand-edit-buttons">
+            <div
+                class="expand-button"
+                class:expanded
+
+                on:click={handleExpandButton}
+                on:keydown={() => {}}
+            >
+                {#if expanded}
+                    -
+                {:else}
+                    +
+                {/if}
+            </div>
+        </div>
     </div>
 {/if}
 
@@ -350,19 +380,122 @@
 
         border-radius: 5px;
 
+        position: relative;
+
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
         padding: 0.5rem;
-        gap: 0.5rem;
+        gap: 0.25rem;
+    }
+
+    .notes-toolbar.on-mobile {
+        width: 101%;
+
+        padding: 0.1rem;
+        gap: 0.05rem;
     }
 
     .button-group {
+        position: absolute;
+        left: 14px;
+        top: 14px;
+        z-index: 1;
+
         display: flex;
         flex-direction: row;
-        gap: 0.5rem;
+        gap: 5px;
+    }
+
+    .notes-toolbar.on-mobile .button-group {
+        left: 7.5px;
+        top: 7.5px;
     }
 
     select, input {
-        height: 30px;
+        height: 25px;
+
+        font-size: 0.73rem;
+    }
+
+    .notes-toolbar.on-mobile select, .notes-toolbar.on-mobile input {
+        height: 20px;
+
+        font-size: 0.65rem;
+    }
+
+    .font-picker {
+        width: 145px;
+    }
+
+    .notes-toolbar.on-mobile .font-picker {
+        width: 74px;
+    }
+
+    .font-size-picker {
+        width: 55px;
+    }
+
+    .notes-toolbar.on-mobile .font-size-picker {
+        width: 38px;
+    }
+
+    .level-picker {
+        width: 55px;
+
+        padding: 2.5px;
+    }
+
+    .notes-toolbar.on-mobile .level-picker {
+        width: 48px;
+    }
+
+    .color-picker {
+        width: 25px;
+
+        padding: 2.5px;
+    }
+
+    .notes-toolbar.on-mobile .color-picker {
+        width: 20px;
+    }
+
+    .expand-edit-buttons {
+        width: 51px;
+        height: 100%;
+
+        align-items: center;
+    }
+
+    .notes-toolbar.on-mobile .expand-edit-buttons {
+        width: 74px;
+    }
+
+    .expand-button {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: grey;
+
+        cursor: pointer;
+    }
+
+    .notes-toolbar.on-mobile .expand-button {
+        margin-top: -0.15rem;;
+    }
+
+    .expand-button.expanded {
+        margin-top: -0.25rem;
+        font-size: 1.75rem;
+    }
+
+    .notes-toolbar.on-mobile .expand-button.expanded {
+        margin-top: -0.35rem;;
+    }
+
+    .expand-button:hover {
+        color: dimgrey;
+    }
+
+    .expand-button:active {
+        color: black;
     }
 </style>

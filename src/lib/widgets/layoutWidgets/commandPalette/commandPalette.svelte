@@ -6,20 +6,25 @@
 	export let buttonSize = 30
 	export let square = false
 	export let maxRowLength: number | null = null
+	export let startPadding: number | null = null
+	export let showText = true
+	export let forceRows: number | null = null
 
+
+	const numberOfButtonsAndPadding = commandButtonInfos.length + (startPadding ? startPadding : 0)
 
 	const rowLength = square ?
 		(
 			maxRowLength !== null ? 
-				Math.max(Math.ceil(Math.sqrt(commandButtonInfos.length)), maxRowLength) :
-				Math.ceil(Math.sqrt(commandButtonInfos.length))
+				Math.max(Math.ceil(Math.sqrt(numberOfButtonsAndPadding)), maxRowLength) :
+				Math.ceil(Math.sqrt(numberOfButtonsAndPadding))
 		) :
 		(
 			maxRowLength !== null ? 
-				Math.min(commandButtonInfos.length, maxRowLength) :
-				commandButtonInfos.length
+				Math.min(numberOfButtonsAndPadding, maxRowLength) :
+				numberOfButtonsAndPadding
 		)	
-	const rowsTall = Math.ceil(commandButtonInfos.length / rowLength)
+	$: rowsTall = Math.min(Math.ceil(numberOfButtonsAndPadding / rowLength), forceRows || 100)
 
 	let hoveredCommandText = ""
 	function setHoveredCommandText(text: string) { hoveredCommandText = text }
@@ -28,8 +33,15 @@
 
 <div
 	class="command-palette"
-	style="{square ? `width: ${(buttonSize + 5) * rowLength}px;` : ""} height: {(buttonSize + 5) * rowsTall + 20}px;"
+	style="{square ? `width: ${(buttonSize + 5) * rowLength}px;` : ""} height: {(buttonSize + 5) * rowsTall + (showText ? 20 : 0)}px;"
 >
+	{#if startPadding}
+		<div
+			class="start-padding"
+			style="width: {startPadding * buttonSize + 5 * (startPadding - 1)}px; height: {buttonSize}px;"
+		/>
+	{/if}
+
 	{#each commandButtonInfos as info}
 		<CommandButton
 			text={info.text}
@@ -42,9 +54,11 @@
 		/>
 	{/each}
 
-	<div class="hovered-command-text">
-		{hoveredCommandText}
-	</div>
+	{#if showText}
+		<div class="hovered-command-text">
+			{hoveredCommandText}
+		</div>
+	{/if}
 </div>
 
 
@@ -64,6 +78,8 @@
 		padding-left: 5px;
 		gap: 5px;
 		align-content: flex-start;
+
+		overflow: hidden;
 	}
 
 	.hovered-command-text {

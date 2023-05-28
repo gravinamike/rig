@@ -328,7 +328,6 @@
             {#if graph}
                 <NotesViewer
                     {graph}
-                    {viewerOrientation}
                     {rePerspectToThingId}
                 />
             {/if}

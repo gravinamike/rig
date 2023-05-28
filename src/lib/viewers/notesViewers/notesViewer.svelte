@@ -15,16 +15,14 @@
     import { notesBackgroundImageStore, notesEditorLockedStore, readOnlyMode, storeGraphDbModels, uITrimColorStore } from "$lib/stores"
     import { saveGraphConfig } from "$lib/shared/config"
     import type { ThingDbModel } from "$lib/models/dbModels"
-    import { removeItemFromArray, sleep } from "$lib/shared/utility";
+    import { onMobile, removeItemFromArray, sleep } from "$lib/shared/utility";
 
 
     /**
      * @param graph - The Graph that this widget is displaying Notes for.
-     * @param viewerOrientation - Whether the Graph viewer is arranged horizontally or vertically.
      * @param rePerspectToThingId - Method to re-Perspect the Graph to a given Thing ID.
      */
     export let graph: Graph
-    export let viewerOrientation: "horizontal" | "vertical"
     export let rePerspectToThingId: (thingId: number) => Promise<void>
 
     
@@ -332,6 +330,7 @@
 <!-- Notes viewer. -->
 <div
     class="notes-viewer graph-{graph.id}"
+    class:on-mobile={onMobile()}
 
     style="background-color: {$uITrimColorStore};"
 >
@@ -340,7 +339,11 @@
     <div
         class="title"
 
-        style="justify-content: {viewerOrientation === "horizontal" ? "left" : "center"};"
+        style="
+            margin-left: {onMobile() ? 60 : 8}px;
+            margin-right: {onMobile() ? 45 : 0}px;
+            {onMobile() ? "position: relative; top: 6px; font-size: 0.9rem;" : ""}
+        "
     >
         <h2>{title}</h2>
     </div>
@@ -349,6 +352,8 @@
     <div
         class="notes-container"
         bind:this={notesContainer}
+
+        style={onMobile() ? "font-size: 0.5rem; padding: 0.5rem 1rem 0.5rem 1rem;" : ""}
         
         on:dblclick={ () => {editing = true} }
     >
@@ -365,6 +370,7 @@
         {:else}
             <div
                 class="notes-display"
+                class:on-mobile={onMobile()}
 
                 bind:this={textField}
                 
@@ -387,6 +393,7 @@
             class="edit-button"
             class:editing
             class:editingLocked
+            class:on-mobile={onMobile()}
             bind:this={editButton}
 
             on:mouseenter={() => {editButtonHovered = true}}
@@ -426,6 +433,11 @@
         text-align: center;
     }
 
+    .notes-viewer.on-mobile {
+        margin-left: -0.25rem;
+        padding: 0.25rem 0 0 0;
+    }
+
     .edit-button {
 		border-radius: 5px;
 
@@ -447,10 +459,16 @@
         outline: solid 1px lightgrey;
 		outline-offset: -1px;
 
-        bottom: 75px;
+        right: 0.9rem;
+        bottom: 1rem;
 
         background-color: white;
         opacity: 1;
+    }
+
+    .edit-button.editing.on-mobile {
+        right: 0.74rem;
+        bottom: 0.87rem;
     }
 
     .edit-button:hover {
@@ -465,8 +483,6 @@
     }
 
     .title {
-        margin-left: 10px;
-
         height: 34px;
 
         display: flex;
@@ -475,6 +491,8 @@
 
     h2 {
         margin: 0;
+        text-align: left;
+        line-height: 1.5rem;
     }
 
     .notes-container {
@@ -502,6 +520,14 @@
         white-space: pre-wrap;
     }
 
+    .notes-display.on-mobile {
+        width: 102%;
+
+        padding: 0.5rem 1rem 0.5rem 1rem;
+
+        font-size: 0.85rem;
+    }
+
     :global(.notes-display li > p) {
         margin-top: 0;
         margin-bottom: 0;
@@ -510,5 +536,7 @@
         white-space: break-spaces;
     }
 
-    
+    :global(.notes-display.on-mobile ul) {
+        padding-left: 1.5rem;
+    }
 </style>
