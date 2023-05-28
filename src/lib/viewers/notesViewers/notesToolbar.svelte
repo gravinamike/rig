@@ -1,16 +1,17 @@
 <script lang="ts">
     import type { Editor } from "@tiptap/core"
     import { fontSizes, headerLevels } from "$lib/shared/constants"
-    import { enableThingLinking, enableTextHyperlinking, fontNames, uIBackgroundColorStore } from "$lib/stores"
+    import { enableThingLinking, enableTextHyperlinking, fontNames, uIBackgroundColorStore, notesToolbarExpandedStore } from "$lib/stores"
     import CommandPalette from "$lib/widgets/layoutWidgets/commandPalette/commandPalette.svelte"
-    import { onMobile } from "$lib/shared/utility";
+    import { onMobile } from "$lib/shared/utility"
+    import { saveGraphConfig } from "$lib/shared/config"
 
 
     export let editor: Editor
     export let focusEditorMethod: () => void
 
 
-    let expanded = false
+    let expanded = $notesToolbarExpandedStore
     
     function selectedFontFamily(): string | null {
         return editor.getAttributes("textStyle").fontFamily || null
@@ -264,6 +265,12 @@
             }
         }
     ]
+
+    function handleExpandButton() {
+        expanded = !expanded
+        notesToolbarExpandedStore.set(expanded)
+        saveGraphConfig()
+    }
 </script>
 
 
@@ -353,7 +360,7 @@
                 class="expand-button"
                 class:expanded
 
-                on:click={() => {expanded = !expanded}}
+                on:click={handleExpandButton}
                 on:keydown={() => {}}
             >
                 {#if expanded}
@@ -378,7 +385,7 @@
         display: flex;
         flex-direction: row;
         padding: 0.5rem;
-        gap: 0.5rem;
+        gap: 0.25rem;
     }
 
     .notes-toolbar.on-mobile {
@@ -453,7 +460,7 @@
     }
 
     .expand-edit-buttons {
-        width: 45px;
+        width: 51px;
         height: 100%;
 
         align-items: center;

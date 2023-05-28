@@ -457,7 +457,7 @@
         outline: solid 1px lightgrey;
 		outline-offset: -1px;
 
-        right: 1rem;
+        right: 0.9rem;
         bottom: 1rem;
 
         background-color: white;
