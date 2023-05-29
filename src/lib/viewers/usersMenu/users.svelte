@@ -26,8 +26,8 @@
 
                 <TabBlock>
                     <TabFlaps>
-                        <TabFlap>Sign in</TabFlap>
-                        <TabFlap>Sign up</TabFlap>
+                        <TabFlap><span class="tab-flap-span">Sign in</span></TabFlap>
+                        <TabFlap><span class="tab-flap-span">Sign up</span></TabFlap>
                     </TabFlaps>
 
                     <TabBody>
@@ -65,7 +65,7 @@
 
         display: flex;
         flex-direction: column;
-        padding: 0.5rem 1rem 0.5rem 1rem;
+        padding: 0.5rem;
         gap: 1rem;
     }
 
@@ -75,6 +75,11 @@
         
         overflow-x: hidden;
         overflow-y: hidden;
+    }
+
+    .tab-flap-span {
+        font-size: 0.9rem;
+        font-weight: 600;
     }
 </style>
   

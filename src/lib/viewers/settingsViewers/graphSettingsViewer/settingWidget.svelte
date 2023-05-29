@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { onMobile } from "$lib/shared/utility"
+
     export let labelText: string
     export let boundValue: number | boolean
     export let minValue: number = 0
@@ -9,6 +11,7 @@
 
 <div 
     class="setting-widget"
+    class:on-mobile={onMobile()}
 
     style="flex-direction: {typeof boundValue === "boolean" ? "row" : "column"};"
 >
@@ -57,10 +60,20 @@
         font-size: 0.85rem;
     }
 
+    .setting-widget.on-mobile {
+        gap: 0.25rem;
+
+        font-size: 0.7rem;
+    }
+
     .inputs {
         display: flex;
         flex-direction: row;
         gap: 0.5rem;
+    }
+
+    .setting-widget.on-mobile input {
+        font-size: 0.7rem;
     }
 
     .number-input {

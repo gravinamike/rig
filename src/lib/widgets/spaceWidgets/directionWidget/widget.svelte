@@ -8,7 +8,7 @@
     import {
         addGraphIdsNeedingViewerRefresh, directionDbModelsStore, getGraphConstructs, readOnlyMode, addDirectionIdToEditingInProgressStore, removeDirectionIdFromEditingInProgressStore, storeGraphDbModels
     } from "$lib/stores"
-    import { sleep } from "$lib/shared/utility"
+    import { onMobile, sleep } from "$lib/shared/utility"
 
     // Import related widgets.
     import VerbAndObject from "./verbAndObject.svelte"
@@ -236,6 +236,7 @@
 <!-- Direction widget. -->
 <div
     class="direction-widget container horizontal"
+    class:on-mobile={onMobile()}
     class:editing={interactionMode === "editing"}
     class:create={interactionMode === "create"}
     style={`align-items: ${buttonToShow === "expand" ? "flex-start" : "flex-end"};`}

@@ -10,7 +10,7 @@
 
     // Import stores and utility functions.
     import { directionDbModelsStoreAsArray, directionEditingInProgressIdStore, getGraphConstructs, readOnlyMode, storeGraphDbModels, uIBackgroundColorStore } from "$lib/stores"
-    import { changeIndexInArray, sleep } from "$lib/shared/utility"
+    import { changeIndexInArray, onMobile, sleep } from "$lib/shared/utility"
 
     // Import related widgets.
     import { DirectionWidget } from "$lib/widgets/spaceWidgets"
@@ -117,6 +117,7 @@
 <!-- Directions viewer. -->
 <div
     class="directions-viewer"
+    class:on-mobile={onMobile()}
 
     style="background-color: {$uIBackgroundColorStore};"
 >
@@ -151,6 +152,7 @@
 
 <div
     class="add-direction-button"
+    class:on-mobile={onMobile()}
 
     on:click={addDirectionForm}
     on:keydown={()=>{}}
@@ -184,6 +186,12 @@
         scrollbar-width: thin;
     }
 
+    .directions-viewer.on-mobile .scrollable {
+        padding: 0.35rem;
+        gap: 0.5rem;
+    }
+
+
     .add-direction-button {
         border-radius: 5px;
 
@@ -199,6 +207,10 @@
         font-size: 1.07rem;
 
         cursor: pointer;
+    }
+
+    .add-direction-button.on-mobile {
+        font-size: 0.93rem;
     }
 
     .add-direction-button:hover {

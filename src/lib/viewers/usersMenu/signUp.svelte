@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { filenameIsValid } from "$lib/shared/utility"
+    import { filenameIsValid, onMobile } from "$lib/shared/utility"
 
 
     // Error message.
@@ -56,7 +56,10 @@
 </script>
 
 
-<div class="sign-up">
+<div
+    class="sign-up"
+    class:on-mobile={onMobile()}
+>
     <h4>Create new user:</h4>
 
     <!-- Error message. -->
@@ -107,6 +110,15 @@
     .sign-up {
         margin: 0.25rem;
     }
+
+    .sign-up.on-mobile {
+        font-size: 0.8rem;
+    }
+
+    .sign-up.on-mobile h4 {
+        margin-top: 0.75rem;
+        margin-bottom: 0.75rem;
+    }
     
     .error {
         font-weight: 600;
@@ -119,6 +131,10 @@
         display: flex;
         flex-direction: column;
         gap: 1rem;
+    }
+
+    .sign-up.on-mobile form {
+        gap: 0.5rem;
     }
 
     #username, #password, #confirm-password {

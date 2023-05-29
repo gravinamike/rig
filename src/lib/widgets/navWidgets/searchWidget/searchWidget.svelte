@@ -22,6 +22,8 @@
 
     let showFiltered = false
 
+    const fontSize = onMobile() ? 0.6 : 0.75
+
     function substringIndex(substring: string, caseSensitive=false): number | null {
         const substringIndex = caseSensitive ?
             substring.indexOf(inputText) :
@@ -141,6 +143,9 @@
         placeholder={placeholderText}
         bind:this={inputField}
         bind:value={inputText}
+
+        style={`font-size: ${fontSize}rem;`}
+
         on:input={handleInput}
         on:keydown={ (event) => {
             if (showFiltered && event.key === "ArrowDown") {
@@ -169,6 +174,7 @@
             class="filtered-items"
             style="
                 { maxHeight ? `position: absolute; top: calc(100% - 5px); max-height: ${maxHeight}px;` : "flex: 1 1 0; position: relative; top: -1px;" }
+                {`font-size: ${fontSize}rem;`}
             "
             on:wheel|stopPropagation={()=>{}}
         >
@@ -218,8 +224,6 @@
         background-color: white;
 
         padding: 0.25rem 0.3rem 0.35rem 0.3rem;
-
-        font-size: 0.75rem;
     }
 
     .input-field:focus {
@@ -248,7 +252,6 @@
         scrollbar-width: thin;
 
         text-align: left;
-        font-size: 0.75rem;
     }
 
     .filtered-item {

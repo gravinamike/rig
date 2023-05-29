@@ -49,7 +49,7 @@
     let subMenuInfos: { name: MenuName, icon: string }[][] = []
     let defaultOpenSubMenuName: string
     let useTabbedLayout: boolean = false
-    let rightMenuOpen: boolean = false
+    let usePortraitLayout: boolean = false
     let closeLeftMenu: () => void
 </script>
 
@@ -61,6 +61,7 @@
     bind:subMenuInfos
     bind:defaultOpenSubMenuName
     bind:useTabbedLayout
+    bind:usePortraitLayout
     {closeLeftMenu}
 />
 
@@ -73,17 +74,20 @@
     bind:open={leftMenuOpen}
     bind:lockedOpen={leftMenuLockedOpen}
     bind:lockedSubMenuName
-    openExtension={onMobile() ? window.innerWidth * 0.8 : 250}
-    overlapPage={onMobile() ? true: false}
+    openExtension={
+        usePortraitLayout ? window.innerWidth * 0.8 :
+        onMobile() ? 187 : 250
+    }
+    overlapPage={usePortraitLayout ? true: false}
     stateStore={leftSideMenuStore}
-    closeOnOutsideClick={onMobile() ? true : false}
+    closeOnOutsideClick={usePortraitLayout ? true : false}
     bind:close={closeLeftMenu}
 >
     <!-- Spacer for menu buttons. -->
     <div
         class="spacer"
 
-        style="background-color: {onMobile() ? $mobileMenuTrimColorStore : $uITrimColorStore};"
+        style="background-color: {usePortraitLayout ? $mobileMenuTrimColorStore : $uITrimColorStore};"
     />
 
     <!-- Thing menu. -->
@@ -94,7 +98,7 @@
             <div
                 class="search-container"
 
-                style="background-color: {onMobile() ? $mobileMenuTrimColorStore : $uITrimColorStore};"
+                style="background-color: {usePortraitLayout ? $mobileMenuTrimColorStore : $uITrimColorStore};"
             >
                 <ThingSearchboxViewer
                     {rePerspectToThingId}
@@ -105,7 +109,7 @@
             <div
                 class="pins-history-container"
 
-                style="background-color: {onMobile() ? $mobileMenuTrimColorStore : $uITrimColorStore};"
+                style="background-color: {usePortraitLayout ? $mobileMenuTrimColorStore : $uITrimColorStore};"
             >
 
                 {#if useTabbedLayout}
@@ -144,7 +148,7 @@
                         class="pins-container"
 
                         style={
-                            onMobile() && window.innerHeight < 500 ? "height: 50%" :
+                            usePortraitLayout && window.innerHeight < 500 ? "height: 50%" :
                             ""
                         }
                     >
@@ -161,7 +165,7 @@
                             class="history-container"
 
                             style={
-                                onMobile() && window.innerHeight < 500 ? "height: 50%" :
+                                usePortraitLayout && window.innerHeight < 500 ? "height: 50%" :
                                 ""
                             }
                         >
@@ -183,7 +187,7 @@
         <div
             class="tabs-container-outer"
 
-            style="background-color: {onMobile() ? $mobileMenuTrimColorStore : $uITrimColorStore};"
+            style="background-color: {usePortraitLayout ? $mobileMenuTrimColorStore : $uITrimColorStore};"
         >
             <div class="tabs-container-inner">
 
@@ -229,7 +233,7 @@
         <div
             class="tabs-container-outer"
 
-            style="background-color: {onMobile() ? $mobileMenuTrimColorStore : $uITrimColorStore};"
+            style="background-color: {usePortraitLayout ? $mobileMenuTrimColorStore : $uITrimColorStore};"
         >
             <div class="tabs-container-inner">
 
@@ -265,7 +269,7 @@
         <div
             class="tabs-container-outer"
 
-            style="background-color: {onMobile() ? $mobileMenuTrimColorStore : $uITrimColorStore};"
+            style="background-color: {usePortraitLayout ? $mobileMenuTrimColorStore : $uITrimColorStore};"
         >
             <div class="tabs-container-inner">
 

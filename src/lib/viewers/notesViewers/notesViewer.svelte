@@ -12,7 +12,7 @@
     import { thingsByGuid, addNoteToThingOrGetExistingNoteId, updateNote, markNotesModified } from "$lib/db"
 
 
-    import { notesBackgroundImageStore, notesEditorLockedStore, readOnlyMode, storeGraphDbModels, uITrimColorStore } from "$lib/stores"
+    import { landscapeOrientation, notesBackgroundImageStore, notesEditorLockedStore, readOnlyMode, storeGraphDbModels, uITrimColorStore } from "$lib/stores"
     import { saveGraphConfig } from "$lib/shared/config"
     import type { ThingDbModel } from "$lib/models/dbModels"
     import { onMobile, removeItemFromArray, sleep } from "$lib/shared/utility";
@@ -340,9 +340,16 @@
         class="title"
 
         style="
-            margin-left: {onMobile() ? 60 : 8}px;
+            margin-left: {onMobile() && !$landscapeOrientation ? 60 : 8}px;
             margin-right: {onMobile() ? 45 : 0}px;
-            {onMobile() ? "position: relative; top: 6px; font-size: 0.9rem;" : ""}
+            {
+                onMobile() ? (
+                    !$landscapeOrientation ? "position: relative; top: 6px; font-size: 0.9rem;" :
+                    "position: relative; top: 6px; left: 15px; font-size: 0.9rem;"
+                ) :
+
+                ""
+            }
         "
     >
         <h2>{title}</h2>

@@ -1,6 +1,7 @@
 <script lang="ts">
     /* Type imports. */
     import type { Graph, Thing } from "$lib/models/constructModels"
+    import { onMobile } from "$lib/shared/utility";
 
     /* Store-related imports. */
     import { homeThingIdStore, hoveredThingIdStore, openContextCommandPalette, readOnlyMode, removeHomeThing, removePin, setHomeThingId } from "$lib/stores"
@@ -67,6 +68,7 @@
         { thingId === hoveredThingIdStoreValue ? "hovered-thing" : "" }
         { thing ? "" : "thing-id-not-found" }
     "
+    class:on-mobile={onMobile()}
     class:home-thing={ thingId === $homeThingIdStore }
     
     on:mouseenter={()=>{hoveredThingIdStore.set(thingId)}}
@@ -118,6 +120,12 @@
         cursor: default;
     }
 
+    .pin-widget.on-mobile {
+        padding: 0.35rem;
+
+        font-size: 0.7rem;
+    }
+
     .thing-id-not-found {
         outline: dashed 1px black;
     }
@@ -132,6 +140,10 @@
 
     .pin-widget.home-thing {
         padding-left: 30px;
+    }
+
+    .pin-widget.on-mobile.home-thing {
+        padding-left: 25px;
     }
 
     .icon-container {
@@ -152,5 +164,10 @@
         width: 22px;
         height: 22px;
         opacity: 75%;
+    }
+
+    .pin-widget.on-mobile .icon-container img {
+        width: 17px;
+        height: 17px;
     }
 </style>

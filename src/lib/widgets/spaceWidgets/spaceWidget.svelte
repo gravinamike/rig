@@ -7,7 +7,7 @@
 
     // Import contants and utilty functions.
     import { oddHalfAxisIds } from "$lib/shared/constants"
-    import { sleep } from "$lib/shared/utility"
+    import { onMobile, sleep } from "$lib/shared/utility"
 
     // Import stores.
     import { addGraphIdsNeedingViewerRefresh, addSpaceIdToEditingInProgressStore, getGraphConstructs, readOnlyMode, removeSpaceIdFromEditingInProgressStore, spaceDbModelsStore, storeGraphDbModels } from "$lib/stores"
@@ -272,6 +272,7 @@
 <!-- Space widget. -->
 <div
     class="space-widget"
+    class:on-mobile={onMobile()}
     class:editing={interactionMode === "editing"}
     class:create={interactionMode === "create"}
     
@@ -384,8 +385,8 @@
             <img
                 src="./icons/perspective.png"
                 alt="Perspective indicator"
-                width="25px"
-                height="25px"
+                width={onMobile() ? "20px" : "25px"}
+                height={onMobile() ? "20px" : "25px"}
                 style={`opacity: ${ defaultPerspectiveSpace ? 75 : 25 }%;`}
             >
         </div>
@@ -460,6 +461,10 @@
         cursor: default;
     }
 
+    .space-widget.on-mobile {
+        gap: 6px;
+    }
+
     .space-widget:hover {
         outline: solid 1px lightgrey;
         background-color: gainsboro;
@@ -485,6 +490,10 @@
 
         font-size: 1rem;
         text-align: center;
+    }
+
+    .space-widget.on-mobile .space-name {
+        font-size: 0.8rem;
     }
 
     .direction-list {
@@ -604,6 +613,11 @@
         align-items: center;
 
         pointer-events: none;
+    }
+
+    .space-widget.on-mobile .perspective-space-button {
+        width: 20px;
+        height: 20px;
     }
 
     .perspective-space-button:not(.read-only-mode) {

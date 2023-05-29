@@ -26,6 +26,14 @@ export const fontNames = writable( [] as string[] )
 
 
 /**
+ * Landscape-orientation flag store.
+ * 
+ * Holds a boolean specifying whether the screen is wider than it is tall.
+ */
+export const landscapeOrientation = writable( false )
+
+
+/**
  * Dev-mode flag store.
  * 
  * Holds a boolean specifying whether the app is running in dev mode.
