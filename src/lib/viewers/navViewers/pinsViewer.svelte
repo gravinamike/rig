@@ -175,4 +175,8 @@
         overflow-y: auto;
         scrollbar-width: thin;
     }
+
+    .pins-viewer.on-mobile .content {
+        gap: 0.15rem;
+    }
   </style>

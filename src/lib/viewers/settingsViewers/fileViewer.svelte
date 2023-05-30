@@ -166,4 +166,8 @@
     .new-graph-button strong {
         font-size: 1rem;
     }
+
+    .file-viewer.on-mobile .new-graph-button strong {
+        font-size: 0.7rem;
+    }
   </style>

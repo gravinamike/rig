@@ -275,6 +275,10 @@
         padding-left: 30px;
     }
 
+    .history-viewer.on-mobile .box.home-thing {
+        padding-left: 22px;
+    }
+
     .id-not-found {
         outline: dashed 1px black;
     }

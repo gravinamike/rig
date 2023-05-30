@@ -189,7 +189,7 @@
         (
             editing
             && !editingLocked
-            && (editButtonHovered && !editingLockJustToggled)
+            && (!onMobile() && editButtonHovered && !editingLockJustToggled)
         )
         || (
             editing
@@ -344,8 +344,8 @@
             margin-right: {onMobile() ? 45 : 0}px;
             {
                 onMobile() ? (
-                    !$landscapeOrientation ? "position: relative; top: 6px; font-size: 0.9rem;" :
-                    "position: relative; top: 6px; left: 15px; font-size: 0.9rem;"
+                    !$landscapeOrientation ? "position: relative; top: 5px; font-size: 0.9rem;" :
+                    "position: relative; top: 5px; left: 4px; font-size: 0.9rem;"
                 ) :
 
                 ""
@@ -360,7 +360,7 @@
         class="notes-container"
         bind:this={notesContainer}
 
-        style={onMobile() ? "font-size: 0.5rem; padding: 0.5rem 1rem 0.5rem 1rem;" : ""}
+        style={onMobile() ? "font-size: 0.5rem; padding: 0.25rem 0.5rem 0.25rem 0.5rem;" : ""}
         
         on:dblclick={ () => {editing = true} }
     >
@@ -474,8 +474,8 @@
     }
 
     .edit-button.editing.on-mobile {
-        right: 0.74rem;
-        bottom: 0.87rem;
+        right: 0.3rem;
+        bottom: 0.65rem;
     }
 
     .edit-button:hover {
@@ -528,7 +528,7 @@
     }
 
     .notes-display.on-mobile {
-        width: 102%;
+        width: 100%;
 
         padding: 0.5rem 1rem 0.5rem 1rem;
 

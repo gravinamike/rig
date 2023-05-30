@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { Editor } from "@tiptap/core"
     import { fontSizes, headerLevels } from "$lib/shared/constants"
-    import { enableThingLinking, enableTextHyperlinking, fontNames, uIBackgroundColorStore, notesToolbarExpandedStore } from "$lib/stores"
+    import { enableThingLinking, enableTextHyperlinking, fontNames, uIBackgroundColorStore, notesToolbarExpandedStore, landscapeOrientation } from "$lib/stores"
     import CommandPalette from "$lib/widgets/layoutWidgets/commandPalette/commandPalette.svelte"
     import { onMobile } from "$lib/shared/utility"
     import { saveGraphConfig } from "$lib/shared/config"
@@ -349,13 +349,29 @@
         <CommandPalette
             {commandButtonInfos}
             buttonSize={onMobile() ? 20 : 25}
-            maxRowLength={onMobile() ? 11 : 20}
+            maxRowLength={
+                onMobile() ? (
+                    !$landscapeOrientation ? 11 :
+                    8
+                ):
+                20
+            }
             startPadding={onMobile() ? 8 : 10}
             showText={onMobile() || !expanded ? false : true}
             forceRows={expanded ? null : 2}
         />
 
-        <div class="expand-edit-buttons">
+        <div
+            class="expand-edit-buttons"
+
+            style={
+                onMobile() ? (
+                    !$landscapeOrientation ? "width: 74px;" :
+                    "width: 102px;"
+                ) :
+                "width: 51px;"
+            }
+        >
             <div
                 class="expand-button"
                 class:expanded
@@ -460,14 +476,9 @@
     }
 
     .expand-edit-buttons {
-        width: 51px;
         height: 100%;
 
         align-items: center;
-    }
-
-    .notes-toolbar.on-mobile .expand-edit-buttons {
-        width: 74px;
     }
 
     .expand-button {
