@@ -282,7 +282,6 @@
                     {thingWidth}
                     {thingHeight}
                     {encapsulatingDepth}
-                    {elongationCategory}
                     {startDelete}
                     {completeDelete}
                 />

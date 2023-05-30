@@ -229,6 +229,13 @@
         font-size: 0.75rem;
     }
 
+    .history-viewer.on-mobile .unique-toggle {
+        right: 4px;
+        top: 8px;
+
+        font-size: 0.65rem;
+    }
+
     .unique-toggle.toggled {
         color: darkgrey;
     }

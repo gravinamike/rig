@@ -58,6 +58,38 @@
 />
 
 
+<!-- Delete button. -->
+<div
+    class="delete-button-group"
+    style="
+        left: {leafGeometry.bottomMidline}px;
+        top: {leafGeometry.bottom}px;
+        width: 20px;
+        height: 20px;
+    "
+
+    on:mouseenter={()=>{
+        fanSegmentHovered = true
+        relationshipHovered = true
+        thingIdOfHoveredRelationship = thing.id || null
+    }}
+    on:mouseleave={()=>{fanSegmentHovered = false; relationshipHovered = false; thingIdOfHoveredRelationship = null}}
+>
+    {#if (
+        // Show delete button if the Relationship is hovered, except those relating to Thing Forms.
+        !($relationshipBeingCreatedInfoStore.sourceThingId && !relatableForCurrentDrag)
+        && !$reorderingInfoStore.reorderInProgress
+        && relationshipHovered
+        && cohortMemberWithIndex.member
+    )}
+        <XButton
+            size={20}
+            buttonFunction={deleteRelationship}
+            trashIcon={true}
+        />
+    {/if}
+</div>
+
 <!-- Relationship fan segment. -->
 <svg
     class="relationship-fan-segment"
@@ -99,38 +131,7 @@
         x1="{midline}" y1="{stemTop}"
         x2="{leafGeometry.bottomMidline}" y2="{leafGeometry.bottom}"
         style="stroke-width: {3 / tweenedScale};"
-    />
-
-    <!-- Delete button. -->
-    
-    <svg
-        class="delete-button-group"
-        x={leafGeometry.bottomMidline}
-        y={leafGeometry.bottom}
-        width=20
-        height=20
-
-        on:mouseenter={()=>{
-            fanSegmentHovered = true
-            relationshipHovered = true
-            thingIdOfHoveredRelationship = thing.id || null
-        }}
-        on:mouseleave={()=>{fanSegmentHovered = false; relationshipHovered = false; thingIdOfHoveredRelationship = null}}
-    >
-        {#if (
-            // Show delete button if the Relationship is hovered, except those relating to Thing Forms.
-            !($relationshipBeingCreatedInfoStore.sourceThingId && !relatableForCurrentDrag)
-            && !$reorderingInfoStore.reorderInProgress
-            && relationshipHovered
-            && cohortMemberWithIndex.member
-        )}
-            <XButton
-                size={20}
-                buttonFunction={deleteRelationship}
-            />
-        {/if}
-    </svg>
-    
+    />  
 
     <!-- Will-be-deleted indicator -->
     {#if !($relationshipBeingCreatedInfoStore.sourceThingId && !relatableForCurrentDrag) && willBeDeleted}
@@ -181,6 +182,7 @@
     }
 
     .delete-button-group {
+        position: absolute;
         transform: translate(-10px, -10px);
 
         pointer-events: auto;

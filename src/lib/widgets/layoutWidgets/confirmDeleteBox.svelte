@@ -30,6 +30,7 @@
                 buttonFunction={confirmDeleteFunction}
                 size={20}
                 caution={true}
+                trashIcon={true}
             />
         </div>
     </div>

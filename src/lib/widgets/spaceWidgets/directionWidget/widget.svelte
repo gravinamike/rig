@@ -363,7 +363,6 @@
             bind:confirmDeleteBoxOpen
             thingWidth={directionWidgetWidth}
             thingHeight={directionWidgetHeight}
-            elongationCategory="neutral"
             encapsulatingDepth={0}
             startDelete={() => {
                 if (interactionMode === "editing") {

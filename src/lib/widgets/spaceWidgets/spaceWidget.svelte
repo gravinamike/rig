@@ -349,7 +349,6 @@
                                 thingWidth={50}
                                 thingHeight={50}
                                 encapsulatingDepth={0}
-                                elongationCategory="neutral"
                                 startDelete={() => {setDirectionNullByHalfAxisId(halfAxisId)}}
                                 completeDelete={()=>{}}
                             />
@@ -429,7 +428,6 @@
         bind:confirmDeleteBoxOpen
         thingWidth={spaceWidgetWidth}
         thingHeight={spaceWidgetHeight}
-        elongationCategory="neutral"
         encapsulatingDepth={0}
         startDelete={() => {confirmDeleteBoxOpen = true}}
         {completeDelete}

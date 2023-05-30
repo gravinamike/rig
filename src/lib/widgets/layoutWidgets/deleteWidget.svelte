@@ -6,7 +6,6 @@
     export let thingWidth: number
     export let thingHeight: number
     export let encapsulatingDepth: number
-    export let elongationCategory: "vertical" | "horizontal" | "neutral"
     export let startDelete: () => void
     export let completeDelete: () => void
 </script>
@@ -17,6 +16,7 @@
     <div class="delete-button-container">
         <XButton
             buttonFunction={startDelete}
+            trashIcon={true}
         />
     </div>
 
@@ -28,7 +28,7 @@
         {thingWidth}
         {thingHeight}
         {encapsulatingDepth}
-        {elongationCategory}
+        elongationCategory={"horizontal"}
         confirmDeleteFunction={completeDelete}
     />
 

@@ -193,7 +193,6 @@
             thingWidth={width}
             thingHeight={height}
             {encapsulatingDepth}
-            {elongationCategory}
             {startDelete}
             {completeDelete}
         />
