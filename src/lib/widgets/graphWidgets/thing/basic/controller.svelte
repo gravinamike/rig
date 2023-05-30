@@ -3,7 +3,7 @@
     import type { Graph, Thing } from "$lib/models/constructModels"
 
     // Import utility functions.
-    import { sleep } from "$lib/shared/utility"
+    import { onMobile, sleep } from "$lib/shared/utility"
 
     /* Store imports. */
     import {
@@ -26,6 +26,7 @@
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
     import { updateThingPerspectiveText, updateThingText } from "$lib/db"
     import type { ThingDbModel } from "$lib/models/dbModels"
+    import type { CommandButtonInfo } from "$lib/widgets/layoutWidgets";
 
     /**
      * Create a Thing Widget Model.
@@ -203,7 +204,7 @@
      * operation in progress, and the confirm-delete operation has not been
      * started.
      */
-    $: showDeleteButton = !$readOnlyMode && isHoveredWidget && !$reorderingInfoStore.reorderInProgress && !confirmDeleteBoxOpen
+    $: showDeleteButton = !onMobile() && !$readOnlyMode && isHoveredWidget && !$reorderingInfoStore.reorderInProgress && !confirmDeleteBoxOpen
 
     /**
      * Text-being-edited.
@@ -289,46 +290,57 @@
     openCommandPalette = (event: MouseEvent) => {
         const position = [event.clientX, event.clientY] as [number, number]
         const buttonInfos =[
-                {
-                    text: "Change Thing text",
-                    iconName: "edit",
+            {
+                text: "Change Thing text",
+                iconName: "edit",
+                iconHtml: null,
+                isActive: false,
+                onClick: () => {beginEditingText()}
+            },
+            (
+                $pinIdsStore.includes(thingId) ? {
+                    text: "Remove Thing from Pins",
+                    iconName: "no-pin",
                     iconHtml: null,
                     isActive: false,
-                    onClick: () => {beginEditingText()}
-                },
-                (
-                    $pinIdsStore.includes(thingId) ? {
-                        text: "Remove Thing from Pins",
-                        iconName: "no-pin",
-                        iconHtml: null,
-                        isActive: false,
-                        onClick: () => {removePin(thingId)}
-                    } :
+                    onClick: () => {removePin(thingId)}
+                } :
+                {
+                    text: "Add Thing to Pins",
+                    iconName: "pin",
+                    iconHtml: null,
+                    isActive: false,
+                    onClick: () => {addPin(thingId)}
+                }
+            ),
+            (
+                $homeThingIdStore === thingId ? {
+                    text: "Remove as Home-Thing",
+                    iconName: "no-home",
+                    iconHtml: null,
+                    isActive: false,
+                    onClick: () => {removeHomeThing()}
+                } :
+                {
+                    text: "Make Home Thing",
+                    iconName: "home",
+                    iconHtml: null,
+                    isActive: false,
+                    onClick: () => {setHomeThingId(thingId)}
+                }
+            ),
+                onMobile() ?
                     {
-                        text: "Add Thing to Pins",
-                        iconName: "pin",
+                        text: "Delete Thing",
+                        iconName: "trash",
                         iconHtml: null,
                         isActive: false,
-                        onClick: () => {addPin(thingId)}
-                    }
-                ),
-                (
-                    $homeThingIdStore === thingId ? {
-                        text: "Remove as Home-Thing",
-                        iconName: "no-home",
-                        iconHtml: null,
-                        isActive: false,
-                        onClick: () => {removeHomeThing()}
+                        onClick: startDelete
                     } :
-                    {
-                        text: "Make Home Thing",
-                        iconName: "home",
-                        iconHtml: null,
-                        isActive: false,
-                        onClick: () => {setHomeThingId(thingId)}
-                    }
-                )
-            ]
+                    null
+        ].filter(
+            info => info !== null
+        ) as CommandButtonInfo[]
         openContextCommandPalette(position, buttonInfos)
     }
     
