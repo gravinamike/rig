@@ -116,9 +116,16 @@
         // Refresh the view.
         addGraphIdsNeedingViewerRefresh(graph.id)
         // Allow the Thing Form Widget to render.
-        await sleep(50)
-        // Put the Thing Form's text field into focus.
+        await sleep(500)
+        // Scroll to the Thing Form and put it into focus.
+        const thingForms = document.getElementsByClassName("thing-form-widget")
+        const thingForm = thingForms.length ? thingForms[0] : null
         const thingFormTextField = document.getElementById("thing-form-text-field")
+        thingForm?.scrollIntoView({
+            behavior: "smooth",
+            block: "nearest",
+            inline: "nearest"
+        })
         thingFormTextField?.focus()
     }
 </script>
