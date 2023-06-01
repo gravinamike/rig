@@ -170,6 +170,8 @@
     function handlePossibleOutsideClick(event: MouseEvent) {
 		if (event.target !== directionWidget && !directionWidget.contains(event.target as Node)) {
 			cancel()
+            isHovered = false
+            confirmDeleteBoxOpen = false
 		}
 	}
 
@@ -364,6 +366,7 @@
             thingWidth={directionWidgetWidth}
             thingHeight={directionWidgetHeight}
             encapsulatingDepth={0}
+            trashIcon={interactionMode !== "editing"}
             startDelete={() => {
                 if (interactionMode === "editing") {
                     cancel()

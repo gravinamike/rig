@@ -405,8 +405,6 @@
     }
 
     .notes-toolbar.on-mobile {
-        width: 101%;
-
         padding: 0.1rem;
         gap: 0.05rem;
     }

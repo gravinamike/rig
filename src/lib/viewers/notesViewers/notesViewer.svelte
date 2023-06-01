@@ -441,8 +441,7 @@
     }
 
     .notes-viewer.on-mobile {
-        margin-left: -0.25rem;
-        padding: 0.25rem 0 0 0;
+        padding: 0.25rem 0 0.25rem 0;
     }
 
     .edit-button {
@@ -474,7 +473,7 @@
     }
 
     .edit-button.editing.on-mobile {
-        right: 0.3rem;
+        right: 0.65rem;
         bottom: 0.65rem;
     }
 
@@ -528,8 +527,6 @@
     }
 
     .notes-display.on-mobile {
-        width: 100%;
-
         padding: 0.5rem 1rem 0.5rem 1rem;
 
         font-size: 0.85rem;

@@ -6,6 +6,7 @@
     export let thingWidth: number
     export let thingHeight: number
     export let encapsulatingDepth: number
+    export let trashIcon = false
     export let startDelete: () => void
     export let completeDelete: () => void
 </script>
@@ -16,7 +17,7 @@
     <div class="delete-button-container">
         <XButton
             buttonFunction={startDelete}
-            trashIcon={true}
+            {trashIcon}
         />
     </div>
 

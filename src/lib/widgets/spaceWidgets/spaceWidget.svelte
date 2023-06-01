@@ -214,6 +214,8 @@
     function handlePossibleOutsideClick(event: MouseEvent) {
 		if (event.target !== spaceWidget && !spaceWidget.contains(event.target as Node)) {
 			interactionMode = isSpaceForm ? "editing" : "display"
+            isHovered = false
+            confirmDeleteBoxOpen = false
 		}
 	}
 
@@ -355,14 +357,14 @@
                         {/if}
                     </div>
                 {:else}
-                    <div class="no-direction">
+                    <div
+                        class="no-direction"
+                        
+                        on:click|stopPropagation={() => {setDirectionNotNullByHalfAxisId(halfAxisId)}}
+                        on:keydown={()=>{}}
+                    >
                         None
-                        <div
-                            class="add-button"
-
-                            on:click|stopPropagation={() => {setDirectionNotNullByHalfAxisId(halfAxisId)}}
-                            on:keydown={()=>{}}
-                        >
+                        <div class="add-button">
                             <div class="add-button-text">+</div>
                         </div>
                     </div>
@@ -429,6 +431,7 @@
         thingWidth={spaceWidgetWidth}
         thingHeight={spaceWidgetHeight}
         encapsulatingDepth={0}
+        trashIcon={interactionMode !== "editing"}
         startDelete={() => {confirmDeleteBoxOpen = true}}
         {completeDelete}
     />
