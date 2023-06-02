@@ -166,6 +166,22 @@ export const mirroringByHalfAxisId = {
 } as const
 
 /*
+ * Rotations specify how many degrees a Relationship's Delete button should be
+ * should be counter-rotated based on its Half Axis.
+ */
+export const deleteButtonRotationByHalfAxisId = {
+    0: 0,  // Center
+    1: 180,  // Down
+    2: 0,  // Up
+    3: -90, // Right
+    4: -90, // Left
+    5: 0,  // Away
+    6: 0,  // Towards
+    7: 0,  // Inwards
+    8: 0,  // Outwards
+} as const
+
+/*
  * Relationship colors specify how Relationship Images should
  * be colored based on their Half Axes.
  */

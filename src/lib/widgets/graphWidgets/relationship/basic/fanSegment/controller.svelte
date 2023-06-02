@@ -1,6 +1,7 @@
 <script lang="ts">
     // Import types.
     import type { GenerationMember, ThingCohort, Thing } from "$lib/models/constructModels"
+    import { deleteButtonRotationByHalfAxisId } from "$lib/shared/constants";
 
     // Import stores.
     import {
@@ -19,6 +20,7 @@
      * @param thing - The Thing associated with this Relationship.
      * @param highlightLevel - The intensity of the highlight on the widget.
      * @param relationshipHovered - Whether the mouse is hovering over the Relationship widget.
+     * @param deleteButtonRotation - How much to counter-rotate the delete button so it is right-side up.
      * @param willBeDeleted - Whether this Relationship will be deleted if a to-be-created-Relationship is created.
      * @param deleteRelationship - Method to delete this Relationship.
      */
@@ -30,6 +32,7 @@
     export let thing: Thing
     export let highlightLevel: "no-highlight" | "soft-highlight" | "hard-highlight"
     export let relationshipHovered: boolean
+    export let deleteButtonRotation = 0
     export let willBeDeleted: boolean
     export let deleteRelationship: () => void
     
@@ -81,6 +84,29 @@
      * that this widget is part of.
      */
     $: relationshipHovered = thing.id !== null && thing.id === thingIdOfHoveredRelationship
+
+
+
+
+
+
+
+
+    $: halfAxisId = cohortMemberWithIndex.member.thing?.parentCohort?.halfAxisId || null
+    
+    /**
+     * Rotation.
+     * 
+     * The rotation of the delete icon, determined by the half-axis.
+     */
+    $: deleteButtonRotation = deleteButtonRotationByHalfAxisId[halfAxisId || 0]
+
+
+
+
+
+
+
 
     /**
      * Will-be-deleted flag.

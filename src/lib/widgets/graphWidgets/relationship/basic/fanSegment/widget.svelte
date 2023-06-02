@@ -38,6 +38,7 @@
     let fanSegmentClicked = false
     let highlightLevel: "no-highlight" | "soft-highlight" | "hard-highlight"
     let relationshipHovered: boolean
+    let deleteButtonRotation = 0
     let willBeDeleted: boolean
     let deleteRelationship: () => void
 </script>
@@ -53,6 +54,7 @@
     bind:thing
     bind:highlightLevel
     bind:relationshipHovered
+    bind:deleteButtonRotation
     bind:willBeDeleted
     bind:deleteRelationship
 />
@@ -66,6 +68,7 @@
         top: {leafGeometry.bottom}px;
         width: 20px;
         height: 20px;
+        transform: translate(-10px, -10px) rotate({deleteButtonRotation}deg) ;
     "
 
     on:mouseenter={()=>{
@@ -183,7 +186,6 @@
 
     .delete-button-group {
         position: absolute;
-        transform: translate(-10px, -10px);
 
         pointer-events: auto;
         cursor: pointer;
