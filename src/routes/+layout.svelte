@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { onMount } from "svelte"
     import { landscapeOrientation } from "$lib/stores"
 
     
@@ -6,21 +7,28 @@
     let width: number
     let height: number
 
-    // Track whether the screen is in landscape or portrait orientation.
-    $: if (width && height) {
-        if (width > height) {
+    // Track the orientation of the screen.
+    $: if (mounted && width && height) {
+        if (screen.orientation.type.includes("landscape") ) {
             landscapeOrientation.set(true)
         } else {
             landscapeOrientation.set(false)
         }
     }
+
+
+    // Track whether the component is mounted yet.
+    let mounted = false
+    onMount(async () => {
+        mounted = true
+	})
 </script>
 
 
 <!-- Bind app width and height for use in orientation flag. -->
 <svelte:window
-    bind:innerWidth={width}
-    bind:innerHeight={height}
+    bind:outerWidth={width}
+    bind:outerHeight={height}
 />
 
 <!-- Page content. -->
