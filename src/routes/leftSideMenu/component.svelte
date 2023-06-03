@@ -75,7 +75,7 @@
     bind:lockedOpen={leftMenuLockedOpen}
     bind:lockedSubMenuName
     openExtension={
-        usePortraitLayout ? window.innerWidth * 0.8 :
+        usePortraitLayout ? Math.min(window.innerWidth * 0.8, 300) :
         onMobile() ? 187 : 250
     }
     overlapPage={usePortraitLayout ? true: false}

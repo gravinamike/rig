@@ -12,6 +12,9 @@
 
 
     let expanded = $notesToolbarExpandedStore
+
+    let commandPaletteWidth: number = 1
+    $: commandPaletteMaxRowLength = commandPaletteWidth / ((onMobile() ? 20 : 25) + 5) - 1
     
     function selectedFontFamily(): string | null {
         return editor.getAttributes("textStyle").fontFamily || null
@@ -346,30 +349,23 @@
             >
         </div>
 
-        <CommandPalette
-            {commandButtonInfos}
-            buttonSize={onMobile() ? 20 : 25}
-            maxRowLength={
-                onMobile() ? (
-                    !$landscapeOrientation ? 11 :
-                    8
-                ):
-                20
-            }
-            startPadding={onMobile() ? 8 : 10}
-            showText={onMobile() || !expanded ? false : true}
-            forceRows={expanded ? null : 2}
-        />
+        <div bind:clientWidth={commandPaletteWidth}>
+            <CommandPalette
+                {commandButtonInfos}
+                buttonSize={onMobile() ? 20 : 25}
+                maxRowLength={commandPaletteMaxRowLength}
+                startPadding={onMobile() ? 8 : 10}
+                showText={onMobile() || !expanded ? false : true}
+                forceRows={expanded ? null : 2}
+            />
+        </div>
 
         <div
             class="expand-edit-buttons"
 
             style={
-                onMobile() ? (
-                    !$landscapeOrientation ? "width: 74px;" :
-                    "width: 102px;"
-                ) :
-                "width: 51px;"
+                onMobile() ? "width: 33px; flex: 0 0 33px" :
+                "width: 27px; flex: 0 0 27px"
             }
         >
             <div

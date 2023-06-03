@@ -474,7 +474,7 @@
 
     .edit-button.editing.on-mobile {
         right: 0.65rem;
-        bottom: 0.65rem;
+        bottom: 0.85rem;
     }
 
     .edit-button:hover {
