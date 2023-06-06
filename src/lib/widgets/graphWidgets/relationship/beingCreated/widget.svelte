@@ -14,7 +14,8 @@
     import {
         storeGraphDbModels, addGraphIdsNeedingViewerRefresh,
         relationshipBeingCreatedInfoStore, setRelationshipBeingCreatedTrackingMouse, disableRelationshipBeingCreated,
-        enableRemoteRelating, disableRemoteRelating
+        enableRemoteRelating, disableRemoteRelating, remoteRelatingInfoStore
+
     } from "$lib/stores"
 
     // Import associated widgets.
@@ -24,6 +25,7 @@
     // Import API methods.
     import { createNewRelationship } from "$lib/db/makeChanges"
     import type { ThingDbModel } from "$lib/models/dbModels"
+    import { elementUnderTouchEvent, onMobile } from "$lib/shared/utility";
     
 
 
@@ -108,8 +110,14 @@
 
 
     // Handling outside mouse releases.
-	function handleMouseUp() {
+	function handleMouseUp(event: MouseEvent | TouchEvent) {
         setRelationshipBeingCreatedTrackingMouse(false)
+        
+        if ("touches" in event && graph) {
+            const endingElement = elementUnderTouchEvent(event)
+            if (!endingElement?.className.includes("zoom-bounds")) return
+        }
+
         if (
             sourceThingId
             && Math.hypot(endPositionX - startPositionX, endPositionY - startPositionY) > 5
@@ -148,12 +156,29 @@
         direction,
         $relationshipBeingCreatedInfoStore.trackingMouse
     )
+
+
+
+
+
+
+
+
+
+
+
+    $: showDirectionWidget = askingForDirection || (!!direction && !!halfAxisId)
+
+
+
+
+
 </script>
 
 
 <svelte:body
-    on:mouseup={handleMouseUp}
-    on:touchend={handleMouseUp}
+    on:mouseup={event => handleMouseUp(event)}
+    on:touchend={event => handleMouseUp(event)}
     on:keyup={handleEscape}
 />
 
@@ -167,6 +192,15 @@
         <div
             class="disabled-background"
             on:wheel|preventDefault
+            on:click={() => {
+                disableRelationshipBeingCreated()
+                disableRemoteRelating()
+            }}
+            on:touchend={() => {
+                disableRelationshipBeingCreated()
+                disableRemoteRelating()
+            }}
+            on:keypress={()=>{}}
         />
     {/if}
 
@@ -199,12 +233,12 @@
             position: absolute;
             left: {midpointPositionX}px; top: {midpointPositionY}px;
             transform: translate(-50%, -50%) scale({$tweenedScale});
-            z-index: 1;
+            z-index: 2;
             opacity: {opacity};
             display: flex; flex-direction: row;
         "
     >
-        {#if graphWidgetStyle && (askingForDirection || (direction && halfAxisId))}
+        {#if graphWidgetStyle && showDirectionWidget}
             <div
                 class="direction-widget-container"
                 style="
@@ -224,14 +258,17 @@
         {/if}
 
         <!-- Delete button. -->
-        {#if askingForDirection}
+        {#if !onMobile() && askingForDirection}
             <div
                 class="delete-button-container"
                 style="margin-left: -16px; margin-top: 1px; z-index: 1;"
             >
                 <XButton
                     size={15}
-                    buttonFunction={disableRelationshipBeingCreated}
+                    buttonFunction={() => {
+                        disableRelationshipBeingCreated()
+                        disableRemoteRelating()
+                    } }
                 />
             </div>
         {/if}
@@ -246,7 +283,7 @@
         top: 0px;
         width: 100%;
         height: 100%;
-        z-index: 1;
+        z-index: 2;
         background-color: grey;
         opacity: 0.5;
     }
@@ -255,7 +292,7 @@
         position: absolute;
         left: 0px;
         top: 0px;
-        z-index: 1;
+        z-index: 2;
 
         overflow: visible;
 

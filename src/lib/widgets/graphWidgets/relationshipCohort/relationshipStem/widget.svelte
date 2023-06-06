@@ -8,12 +8,16 @@
         hoveredRelationshipTarget, enableRelationshipBeingCreated, setRelationshipBeingCreatedDestThingId,
         disableRelationshipBeingCreated,
         reorderingInfoStore,
-        readOnlyMode
+        readOnlyMode,
+
+        relationshipBeingCreatedInfoStore
+
     } from "$lib/stores"
     
 
     // Import widget controller.
     import RelationshipStemWidgetController from "./controller.svelte"
+    import { elementUnderTouchEvent } from "$lib/shared/utility";
     
 
     export let cohort: ThingCohort
@@ -68,6 +72,7 @@
 
 <!-- Relationship Stem widget. -->
 <svg
+    id={`graph#${ graph.id }-thing#${ cohort.parentThingId }-halfAxis#${ cohort.halfAxisId }`}
     class="relationship-stem"
     style="
         stroke: {relationshipColor};
@@ -130,13 +135,48 @@
                 disableRelationshipBeingCreated()
             }
         } }
-        on:touchend={ () => {
+        on:touchend={ (event) => {
             stemClicked = false
-            if (relatableForCurrentDrag) {
-                setRelationshipBeingCreatedDestThingId(cohort.parentThingId)
-            } else {
-                disableRelationshipBeingCreated()
+
+
+
+            const endingElement = elementUnderTouchEvent(event)
+
+
+            if (
+                endingElement?.className.includes("thing-widget")
+                || endingElement?.className.includes("relationship-stem")
+            ) {
+
+                const targetThingId = Number(endingElement.id.split("-")[1].split("#")[1])
+
+                const targetThingRelatableForCurrentDrag =
+                    // The flag is true if...
+                    (
+                        // ...there is a drag-relate in progress...
+                        $relationshipBeingCreatedInfoStore.sourceThingId
+                        // ...and the source of the drag-relate is not *this* Thing.
+                        && $relationshipBeingCreatedInfoStore.sourceThingId !== targetThingId
+                    ) ?
+                        true :
+                        false
+
+                if (targetThingRelatableForCurrentDrag) {
+                    setRelationshipBeingCreatedDestThingId(targetThingId)
+                } else {
+                    disableRelationshipBeingCreated()
+                }
             }
+
+
+
+
+
+
+
+
+
+
         } }
     />
 

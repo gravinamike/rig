@@ -2,12 +2,14 @@
     import type { SearchOption } from "./types"
     import { onMount } from "svelte"
     import { onMobile } from "$lib/shared/utility"
+    import EditButton from "$lib/widgets/layoutWidgets/editButton.svelte";
 
     export let unfilteredArray: {id: number, name: string}[]
     export let placeholderText: string
     export let focusMethod: (focusedItem: SearchOption | null) => void
     export let submitMethod: (selectedItem: SearchOption | null, matchedItems: SearchOption[]) => void
     export let maxHeight: number | null = 100
+    export let useSubmitButton = false
 
 
     
@@ -65,13 +67,13 @@
     function handleEnter() {
         submitMethod(selectedItem, matchedItems)
         inputText = ""
-		showFiltered = false
+        showFiltered = false
     }
 
     function submit() {
         submitMethod(selectedItem, matchedItems)
         inputText = ""
-		showFiltered = false
+        showFiltered = false
     }
 
     function handlePossibleOutsideClick(event: MouseEvent | TouchEvent) {
@@ -169,6 +171,15 @@
         } }
     />
 
+    {#if useSubmitButton && selectedItem}
+        <div class="accept-button-container">
+            <EditButton
+                interactionMode={"editing"}
+                onClick={() => submitMethod(selectedItem, matchedItems)}
+            />
+        </div>
+    {/if}
+
     {#if showFiltered}
         <div
             class="filtered-items"
@@ -187,13 +198,19 @@
                         if (filtered[i]) selectedItem = filtered[i]
                         focusedOptionIndex = i
                         focusOnOptionElement(i)
-                        focusMethod(filteredItem)
+                        if (!useSubmitButton) {
+                            focusMethod(selectedItem)
+                        }
                     }}
                     on:click={() => {
                         showFiltered = false
                         selectedItem = filteredItem
                         inputText = selectedItem.text
-                        submit()
+                        if (useSubmitButton) {
+                            focusMethod(selectedItem)
+                        } else {
+                            submit()
+                        }
                     }}
                     on:keydown={()=>{}}
                 >
@@ -234,6 +251,12 @@
         border-radius: 6px 6px 0 0;
         outline: solid 1px black;
         outline-offset: -1px;
+    }
+
+    .accept-button-container {
+        position: absolute;
+        right: 5px;
+        top: 4px;
     }
 
     .filtered-items {

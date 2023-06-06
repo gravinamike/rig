@@ -20,6 +20,7 @@
     // Import API functions.
     import { createSpace, deleteSpace, spaceIsReferenced, updateSpace, updateThingDefaultSpace } from "$lib/db"
     import { tick } from "svelte";
+    import EditButton from "../layoutWidgets/editButton.svelte";
 
 
     /**
@@ -399,25 +400,10 @@
             class="container button-container"
             class:editing={interactionMode === "editing"}
         >
-            <button
-                class="button"
-                class:editing={interactionMode === "editing"}
-                class:create={interactionMode === "create"}
-                tabindex=0
-
-                on:click={handleButton}
-                on:keypress={(event) => {
-                    if (event.key === "Enter") handleButton()
-                }}
-            >
-                {#if interactionMode === "display"}
-                    <img src="./icons/edit.png" alt="Edit Space" width=15px height=15px style="pointer-events: none;" />
-                {:else if interactionMode === "editing"}
-                    ✓
-                {:else}
-                    +
-                {/if}
-            </button>
+            <EditButton
+                {interactionMode}
+                onClick={handleButton}
+            />
         </div>
     {/if}
 
@@ -531,72 +517,6 @@
         position: absolute;
         right: 5px;
         bottom: 5px;
-    }
-
-    .button {
-        border: none;
-        border-radius: 5px;
-        box-shadow: 1px 1px 2px 1px grey;
-        
-        width: 15px;
-        height: 15px;
-
-        display: flex;
-        justify-content: center;
-        align-items: center;
-
-        font-size: 0.75rem;
-        font-weight: 600;
-
-        cursor: pointer;
-    }
-
-    .button:hover, .button:focus {
-        box-shadow: 2px 2px 5px 1px grey;
-
-        background-color: lightgrey;
-    }
-
-    .button:active {
-        outline: solid 1px grey;
-        box-shadow: 1px 1px 2px 1px grey;
-
-        background-color: grey;
-    }
-
-    .button.editing {
-        outline-color: #d0f0c0;
-        background-color: #d0f0c0;
-        color: green;
-    }
-
-    .button.editing:hover, .button.editing:focus {
-        outline-color: #ace1af;
-        background-color: #ace1af;
-    }
-
-    .button.editing:active {
-        outline-color: #8fbc8f;
-        background-color: #8fbc8f;
-    }
-
-    .button.create {
-        outline-color: #fac3ae;
-
-        background-color: #fac3ae;
-
-        font-size: 1rem;
-        color: darkred;
-    }
-
-    .button.create:hover, .button.create:focus {
-        outline-color: #ffa07a;
-        background-color: #ffa07a;
-    }
-
-    .button.create:active {
-        outline-color: #fa8072;
-        background-color: #fa8072;
     }
 
     .perspective-space-button {

@@ -11,6 +11,7 @@
 
     // Import related widgets.
     import { RemoteSelectingWidget } from "$lib/widgets/dialogWidgets"
+    import { onMobile } from "$lib/shared/utility";
 
 
     // The Graph of the remote-selecting widget.
@@ -94,6 +95,12 @@
 
     <div
         class="remote-relating-widget"
+
+        style={
+            onMobile() ? "width: calc(100% - 100px); height: calc(100% - 100px); padding: 15px;" :
+            "width: calc(100% - 200px); height: calc(100% - 200px); padding: 20px;"
+        }
+
         on:click|stopPropagation
         on:keydown={()=>{}}
     >
@@ -130,12 +137,9 @@
         transform: translate(-50%, -50%);
         z-index: 2;
         box-sizing: border-box;
-        width: calc(100% - 200px);
-        height: calc(100% - 200px);
         background-color: #fafafa;
 
         display: flex;
         flex-direction: row;
-        padding: 20px;
     }
 </style>

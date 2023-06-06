@@ -163,7 +163,7 @@
      * This attribute indicates whether the Thing is a valid target for relating
      * for the current drag-relate operation.
      */
-     $: relatableForCurrentDrag =
+    $: relatableForCurrentDrag =
         // The flag is true if...
         (
             // ...there is a drag-relate in progress...
