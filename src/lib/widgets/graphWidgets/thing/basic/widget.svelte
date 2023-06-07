@@ -5,8 +5,6 @@
 
     // Import basic framework resources.
     import { onMount } from "svelte"
-    import { tweened } from "svelte/motion"
-    import { cubicOut } from "svelte/easing"
 
     /* Import stores. */
     import {
@@ -308,6 +306,7 @@
                     {thingWidth}
                     {thingHeight}
                     {encapsulatingDepth}
+                    trashIcon={true}
                     {startDelete}
                     {completeDelete}
                 />
