@@ -3,11 +3,13 @@
     import type { Tweened } from "svelte/motion"
     import type { HalfAxisId } from "$lib/shared/constants"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
-    import type { Graph, GenerationMember, ThingCohort } from "$lib/models/constructModels"
+    import type { Graph, GenerationMember, ThingCohort, Thing } from "$lib/models/constructModels"
 
     // Import constants and utility functions.
     import { mirroringByHalfAxisId, zoomBase } from "$lib/shared/constants"
-    import { rectOfThingWidgetByThingId } from "$lib/shared/utility"
+    import { onMobile, rectOfThingWidgetByThingId } from "$lib/shared/utility"
+    import { addGraphIdsNeedingViewerRefresh, getGraphConstructs, openContextCommandPalette } from "$lib/stores";
+    import type { CommandButtonInfo } from "$lib/widgets/layoutWidgets";
 
 
     /**
@@ -20,7 +22,7 @@
      * @param thingWidth - The width of a Thing widget.
      * @param thingHeight - The height of a Thing widget.
      * @param relationshupsLength - The edge-to-edge distance between the Relationship's source and destination Things.
-     * @param sizeOfThingsALongWidth - The size of a Thing widget along the side-to-side dimension of the Relationship Cohort widget.
+     * @param sizeOfThingsAlongWidth - The size of a Thing widget along the side-to-side dimension of the Relationship Cohort widget.
      */
     export let cohortMemberWithIndex: { index: number, member: GenerationMember }
     export let cohort: ThingCohort
@@ -35,6 +37,9 @@
 
     export let leafGeometry: { bottom: number, top: number, bottomMidline: number, topMidline: number } | null
     export let tweenedScale: Tweened<number>
+    export let openCommandPalette: (event: MouseEvent) => void
+    export let deleteRelationship: () => void
+
 
 
     /* --------------- Output attributes. --------------- */
@@ -98,6 +103,63 @@
      * interpolated version of the discrete scale.
      */
     $: tweenedScale.set(scale)
+
+    /**
+     * Open a context command palette for this Relationship.
+     * 
+     * @param event - The right-click mouse event that triggered the context command palette.
+     */
+     openCommandPalette = (event: MouseEvent) => {
+        const position = [event.clientX, event.clientY] as [number, number]
+        const buttonInfos =[
+            onMobile() ?
+                {
+                    text: "Delete Relationship",
+                    iconName: "trash",
+                    iconHtml: null,
+                    isActive: false,
+                    onClick: deleteRelationship
+                } :
+                null
+        ].filter(
+            info => info !== null
+        ) as CommandButtonInfo[]
+        openContextCommandPalette(position, buttonInfos)
+    }
+
+    /**
+     * Delete-Relationship method.
+     * 
+     * Deletes the Relationship (after, if necessary, warning the user about
+     * potentially isolated Relationships).
+     */
+    deleteRelationship = async () => {
+        // Get the source and destination Things (and their IDs).
+        const sourceThingId = thing.parentThing?.id || null
+        const sourceThing = thing?.parentThing || null
+        const destThingId = thing.id
+        const destThing = thing
+
+        // Check both Things. If either has only 1 Relationship, warn the user that that
+        // Thing will be isolated and ask them to confirm.
+        for (const thing of [sourceThing, destThing]) {
+            if (thing) {
+                if (thing.relationshipInfos.length === 1) {
+                    if (confirm(`The Thing named "${thing.text}" will be isolated if you delete this Relationship. Continue?`)) {
+                        break
+                    } else {
+                        return
+                    } 
+                }
+            }
+        }
+
+        // Otherwise, delete Relationship and refresh the Graph.
+        if (graph && sourceThingId && destThingId) {
+            await graph.deleteRelationshipByThingIds(sourceThingId, destThingId)
+            addGraphIdsNeedingViewerRefresh(graph.id)
+        }
+    }
 
 
 
@@ -210,4 +272,11 @@
         const offsetLengthY = (relatedRectY - parentRectY) / scale
         return {x: offsetLengthX, y: offsetLengthY}
     }
+
+    /**
+     * Thing.
+     * 
+     * The destination Thing of this Relationship.
+     */
+    $: thing = cohortMemberWithIndex.member.thing as Thing
 </script>

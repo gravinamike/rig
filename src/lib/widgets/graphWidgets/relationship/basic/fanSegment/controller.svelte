@@ -5,7 +5,6 @@
 
     // Import stores.
     import {
-        getGraphConstructs, addGraphIdsNeedingViewerRefresh,
         relationshipBeingCreatedInfoStore, hoveredRelationshipTarget,
         hoveredThingIdStore, reorderingInfoStore
     } from "$lib/stores"
@@ -34,7 +33,6 @@
     export let relationshipHovered: boolean
     export let deleteButtonRotation = 0
     export let willBeDeleted: boolean
-    export let deleteRelationship: () => void
     
 
     /* --------------- Output attributes. --------------- */
@@ -127,52 +125,8 @@
         true :
         false
 
-    /**
-     * Delete-Relationship method.
-     * 
-     * Deletes the Relationship (after, if necessary, warning the user about
-     * potentially isolated Relationships).
-     */
-    deleteRelationship = async () => {
-        // Get the source and destination Things (and their IDs).
-        const sourceThingId = thing.parentThing?.id || null
-        const sourceThing = thing?.parentThing || null
-        const destThingId = thingIdOfHoveredRelationship
-        const destThing = thingIdOfHoveredRelationship ?
-            getGraphConstructs("Thing", thingIdOfHoveredRelationship) as Thing :
-            null
-
-        // Check both Things. If either has only 1 Relationship, warn the user that that
-        // Thing will be isolated and ask them to confirm.
-        for (const thing of [sourceThing, destThing]) {
-            if (thing) {
-                if (thing.relationshipInfos.length === 1) {
-                    if (confirm(`The Thing named "${thing.text}" will be isolated if you delete this Relationship. Continue?`)) {
-                        break
-                    } else {
-                        return
-                    } 
-                }
-            }
-        }
-
-        // Otherwise, delete Relationship and refresh the Graph.
-        if (graph && sourceThingId && destThingId) {
-            await graph.deleteRelationshipByThingIds(sourceThingId, destThingId)
-            addGraphIdsNeedingViewerRefresh(graph.id)
-        }
-    }
-
 
     /* --------------- Support attributes. --------------- */
-
-    /**
-     * Graph.
-     * 
-     * The Graph that the Relationship is a part of. Taken from the associated
-     * Thing.
-     */
-    $: graph = thing.graph
     
     /**
      * Thing-hovered flag.

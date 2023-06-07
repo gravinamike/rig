@@ -10,6 +10,7 @@
 
     // Import related widgets.
     import { XButton } from "$lib/widgets/layoutWidgets"
+    import { onMobile } from "$lib/shared/utility";
 
 
     /**
@@ -30,6 +31,8 @@
     export let stemTop: number
     export let leafGeometry: { bottom: number, top: number, bottomMidline: number, topMidline: number }
     export let relationshipColor: string
+    export let openCommandPalette: (event: MouseEvent) => void
+    export let deleteRelationship: () => void
     
 
     // Attributes managed by widget controller.
@@ -40,7 +43,6 @@
     let relationshipHovered: boolean
     let deleteButtonRotation = 0
     let willBeDeleted: boolean
-    let deleteRelationship: () => void
 </script>
 
 
@@ -56,42 +58,43 @@
     bind:relationshipHovered
     bind:deleteButtonRotation
     bind:willBeDeleted
-    bind:deleteRelationship
 />
 
 
 <!-- Delete button. -->
-<div
-    class="delete-button-group"
-    style="
-        left: {leafGeometry.bottomMidline}px;
-        top: {leafGeometry.bottom}px;
-        width: 20px;
-        height: 20px;
-        transform: translate(-10px, -10px) rotate({deleteButtonRotation}deg) ;
-    "
+{#if !onMobile()}
+    <div
+        class="delete-button-group"
+        style="
+            left: {leafGeometry.bottomMidline}px;
+            top: {leafGeometry.bottom}px;
+            width: 20px;
+            height: 20px;
+            transform: translate(-10px, -10px) rotate({deleteButtonRotation}deg) ;
+        "
 
-    on:mouseenter={()=>{
-        fanSegmentHovered = true
-        relationshipHovered = true
-        thingIdOfHoveredRelationship = thing.id || null
-    }}
-    on:mouseleave={()=>{fanSegmentHovered = false; relationshipHovered = false; thingIdOfHoveredRelationship = null}}
->
-    {#if (
-        // Show delete button if the Relationship is hovered, except those relating to Thing Forms.
-        !($relationshipBeingCreatedInfoStore.sourceThingId && !relatableForCurrentDrag)
-        && !$reorderingInfoStore.reorderInProgress
-        && relationshipHovered
-        && cohortMemberWithIndex.member
-    )}
-        <XButton
-            size={20}
-            buttonFunction={deleteRelationship}
-            trashIcon={true}
-        />
-    {/if}
-</div>
+        on:mouseenter={()=>{
+            fanSegmentHovered = true
+            relationshipHovered = true
+            thingIdOfHoveredRelationship = thing.id || null
+        }}
+        on:mouseleave={()=>{fanSegmentHovered = false; relationshipHovered = false; thingIdOfHoveredRelationship = null}}
+    >
+        {#if (
+            // Show delete button if the Relationship is hovered, except those relating to Thing Forms.
+            !($relationshipBeingCreatedInfoStore.sourceThingId && !relatableForCurrentDrag)
+            && !$reorderingInfoStore.reorderInProgress
+            && relationshipHovered
+            && cohortMemberWithIndex.member
+        )}
+            <XButton
+                size={20}
+                buttonFunction={deleteRelationship}
+                trashIcon={true}
+            />
+        {/if}
+    </div>
+{/if}
 
 <!-- Relationship fan segment. -->
 <svg
@@ -123,6 +126,7 @@
         on:touchstart={()=>{fanSegmentClicked = true}}
         on:mouseup={()=>{fanSegmentClicked = false}}
         on:touchend={()=>{fanSegmentClicked = false}}
+        on:contextmenu|preventDefault={ (event) => {if (onMobile() && !$readOnlyMode) openCommandPalette(event)} }
     />
 
     <!-- Visual image of fan segment. -->

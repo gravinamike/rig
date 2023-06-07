@@ -8,6 +8,7 @@
     import { DirectionDropdownWidget } from "$lib/widgets/spaceWidgets"
     import RelationshipLeafWidgetController from "./controller.svelte"
     import { readOnlyMode } from "$lib/stores";
+    import { onMobile } from "$lib/shared/utility";
 
 
     /**
@@ -37,6 +38,7 @@
     export let rotation: number
     export let halfAxisId: HalfAxisId
     export let direction: Direction | null = null
+    export let openCommandPalette: (event: MouseEvent) => void
     
 
     // Attributes handled by widget controller.
@@ -121,6 +123,7 @@
             }}
             on:mouseup={()=>{leafClicked = false}}
             on:touchend={()=>{leafClicked = false}}
+            on:contextmenu|preventDefault={ (event) => {if (onMobile() && !$readOnlyMode) openCommandPalette(event)} }
         />
 
         <!-- Visual image of leaf. -->

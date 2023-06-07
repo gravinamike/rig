@@ -66,8 +66,9 @@
         bottomMidline: 0,
         topMidline: 0
     }
-    
     let tweenedScale = tweened(1, {duration: 100, easing: cubicOut})
+    let openCommandPalette: (event: MouseEvent) => void
+    let deleteRelationship: () => void
 </script>
 
 
@@ -86,6 +87,8 @@
 
     bind:leafGeometry
     bind:tweenedScale
+    bind:openCommandPalette
+    bind:deleteRelationship
 />
 
 
@@ -104,6 +107,7 @@
     {halfAxisId}
     {graphWidgetStyle}
     {relatableForCurrentDrag}
+    {openCommandPalette}
 />
 
 <!-- Relationship fan segment widget -->
@@ -116,4 +120,6 @@
     cohortMemberWithIndex={cohortMemberWithIndex}
     {relationshipColor}
     {relatableForCurrentDrag}
+    {openCommandPalette}
+    {deleteRelationship}
 />
