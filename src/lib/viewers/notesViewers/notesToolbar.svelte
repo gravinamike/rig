@@ -55,6 +55,40 @@
     }
 
     $: commandButtonInfos = [
+        // Linking.
+        {
+            text: "Thing link",
+            iconName: "thing-link",
+            iconHtml: null,
+            isActive: (
+                editor.isActive('link')
+                && isThingLink()
+            ),
+            onClick: () => {
+                if (editor.isActive('link') && isThingLink()) {
+                    editor.chain().focus().unsetLink().run()
+                } else {
+                    enableThingLinking(editor, focusEditorMethod)
+                }
+            }
+        },
+        {
+            text: "Hyperlink",
+            iconName: "link",
+            iconHtml: null,
+            isActive: (
+                editor.isActive('link')
+                && !isThingLink()
+            ),
+            onClick: () => {
+                if (editor.isActive('link') && !isThingLink()) {
+                    editor.chain().focus().unsetLink().run()
+                } else {
+                    enableTextHyperlinking(editor, focusEditorMethod)
+                }
+            }
+        },
+
         // Basic formatting.
         {
             text: "Bold text",
@@ -142,17 +176,6 @@
             isActive: editor.isActive('orderedList'),
             onClick: () => editor.chain().focus().toggleOrderedList().run()
         },
-        {
-            text: "Blockquote",
-            iconName: null,
-            iconHtml: `
-                <div style="line-height: 5.5px; font-weight: 700; padding-left: 0px; padding-top: 5px;">
-                    “<span style="font-size: 5px;">&nbsp;</span>”
-                </div>
-            `,
-            isActive: editor.isActive('blockquote'),
-            onClick: () => editor.chain().focus().toggleBlockquote().run()
-        },
 
         // Block formatting.
         {
@@ -165,19 +188,6 @@
             `,
             isActive: editor.isActive('code'),
             onClick: () => editor.chain().focus().toggleCode().run()
-        },
-        {
-            text: "Code block",
-            iconName: null,
-            iconHtml: `
-                <div style="font-size: 5px; line-height: 5px; font-weight: 1000; padding-left: 0px; padding-top: 0px;">
-                    -------<br>
-                    <span style="font-size: 6.5px; font-weight: 3000;">&nbsp;&#60;&#62;</span><br>
-                    -------
-                </div>
-            `,
-            isActive: editor.isActive('codeBlock'),
-            onClick: () => editor.chain().focus().toggleCodeBlock().run()
         },
 
         // Other formatting.
@@ -231,40 +241,6 @@
             onClick: () => {
                 editor.chain().focus().unsetAllMarks().run()
                 editor.chain().focus().clearNodes().run()
-            }
-        },
-
-        // Linking.
-        {
-            text: "Hyperlink",
-            iconName: "link",
-            iconHtml: null,
-            isActive: (
-                editor.isActive('link')
-                && !isThingLink()
-            ),
-            onClick: () => {
-                if (editor.isActive('link') && !isThingLink()) {
-                    editor.chain().focus().unsetLink().run()
-                } else {
-                    enableTextHyperlinking(editor, focusEditorMethod)
-                }
-            }
-        },
-        {
-            text: "Thing link",
-            iconName: "thing-link",
-            iconHtml: null,
-            isActive: (
-                editor.isActive('link')
-                && isThingLink()
-            ),
-            onClick: () => {
-                if (editor.isActive('link') && isThingLink()) {
-                    editor.chain().focus().unsetLink().run()
-                } else {
-                    enableThingLinking(editor, focusEditorMethod)
-                }
             }
         }
     ]
@@ -320,12 +296,19 @@
             <select
                 class="level-picker"
 
-                value={currentSelectionHeaderLevel === null ? "Body" : `H${currentSelectionHeaderLevel}`}
+                value={
+                    editor.isActive('blockquote') ? "Blockquote" :
+                    editor.isActive('codeBlock') ? "Code block" :
+                    currentSelectionHeaderLevel === null ? "Body" :
+                    `H${currentSelectionHeaderLevel}`
+                }
             >
                 {#each headerLevels as headerLevel}
                     <option
                         value={headerLevel === null ? "Body" : `H${headerLevel}`}
                         on:click={() => {
+                            editor.chain().focus().unsetAllMarks().run()
+                            editor.chain().focus().clearNodes().run()
                             if (headerLevel === null) {
                                 editor.chain().focus().setHeading({ level: 1 }).run()
                                 editor.chain().focus().toggleHeading({ level: 1 }).run()
@@ -337,6 +320,28 @@
                         {headerLevel === null ? "Body" : `H${headerLevel}`}
                     </option>
                 {/each}
+
+                <option
+                    value="Blockquote"
+                    on:click={() => {
+                        editor.chain().focus().unsetAllMarks().run()
+                        editor.chain().focus().clearNodes().run()
+                        editor.chain().focus().toggleBlockquote().run()
+                    } }
+                >
+                    Blockquote
+                </option>
+
+                <option
+                    value="Code block"
+                    on:click={() => {
+                        editor.chain().focus().unsetAllMarks().run()
+                        editor.chain().focus().clearNodes().run()
+                        editor.chain().focus().toggleCodeBlock().run()
+                    } }
+                >
+                    Code block
+                </option>
             </select>
 
             <input

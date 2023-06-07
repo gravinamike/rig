@@ -5,7 +5,7 @@
         thingLinkingStore, updateThingLinkingUrl, disableThingLinking, getGraphConstructs
     } from "$lib/stores"
     import { RemoteSelectingWidget } from "$lib/widgets/dialogWidgets"
-    import { sleep } from "$lib/shared/utility"
+    import { onMobile, sleep } from "$lib/shared/utility"
 
 
 
@@ -57,6 +57,12 @@
 
     <div
         class="thing-linking-widget"
+
+        style={
+            onMobile() ? "width: calc(100% - 100px); height: calc(100% - 100px); padding: 15px;" :
+            "width: calc(100% - 200px); height: calc(100% - 200px); padding: 20px;"
+        }
+
         on:click|stopPropagation
         on:keyup|stopPropagation={handleEscape}
     >
@@ -80,12 +86,9 @@
         transform: translate(-50%, -50%);
         z-index: 2;
         box-sizing: border-box;
-        width: calc(100% - 200px);
-        height: calc(100% - 200px);
         background-color: #fafafa;
 
         display: flex;
         flex-direction: row;
-        padding: 20px;
     }
 </style>
