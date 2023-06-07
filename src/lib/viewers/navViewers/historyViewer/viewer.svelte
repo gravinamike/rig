@@ -5,6 +5,7 @@
 
     // Import constants.
     import { dateDividerOptions } from "$lib/shared/constants"
+    import { onMobile } from "$lib/shared/utility";
 
     // Import stores.
     import { addPin, homeThingIdStore, hoveredThingIdStore, openContextCommandPalette, pinIdsStore, readOnlyMode, removeHomeThing, removePin, setHomeThingId, uIBackgroundColorStore } from "$lib/stores"
@@ -80,6 +81,7 @@
 <!-- History viewer. -->
 <div
     class="history-viewer"
+    class:on-mobile={onMobile()}
     class:use-tabbed-layout={useTabbedLayout}
 
     style="background-color: {$uIBackgroundColorStore};"
@@ -197,6 +199,11 @@
         overflow: hidden;
     }
 
+    .history-viewer.on-mobile {
+        padding: 0.2rem 0 0.2rem 0;
+        gap: 0.15rem;
+    }
+
     .history-viewer.use-tabbed-layout {
         border-radius: 0 0 5px 5px;
     }
@@ -220,6 +227,13 @@
         gap: 5px;
 
         font-size: 0.75rem;
+    }
+
+    .history-viewer.on-mobile .unique-toggle {
+        right: 4px;
+        top: 8px;
+
+        font-size: 0.65rem;
     }
 
     .unique-toggle.toggled {
@@ -254,12 +268,22 @@
         cursor: default;
     }
 
+    .history-viewer.on-mobile .box {
+        padding: 0.35rem;
+
+        font-size: 0.6rem;
+    }
+
     .hovered-thing {
         outline: solid 2px black;
     }
 
     .box.home-thing {
         padding-left: 30px;
+    }
+
+    .history-viewer.on-mobile .box.home-thing {
+        padding-left: 22px;
     }
 
     .id-not-found {
@@ -286,9 +310,18 @@
         opacity: 75%;
     }
 
+    .history-viewer.on-mobile .icon-container img {
+        width: 15px;
+        height: 15px;
+    }
+
     .date-divider {
         text-align: left;
         font-size: 0.85rem;
+    }
+
+    .history-viewer.on-mobile .date-divider {
+        font-size: 0.7rem;
     }
 
     .date-divider:not(:first-child) {

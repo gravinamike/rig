@@ -1,4 +1,5 @@
 <script>
+    import { onMobile } from "$lib/shared/utility";
     import { uITrimColorStore } from "$lib/stores";
 
 
@@ -22,6 +23,7 @@
 
 <div
     class="about-menu"
+    class:on-mobile={onMobile()}
 
     style="background-color: {$uITrimColorStore};"
 >    
@@ -72,6 +74,13 @@
         flex-direction: column;
         padding: 0.5rem 1rem 0.5rem 1rem;
         gap: 1rem;
+
+        overflow: hidden;
+    }
+
+    .about-menu.on-mobile .content {
+        padding: 0.25rem 0.5rem 0.25rem 0.5rem;
+        gap: 0.5rem;
     }
 
     .text {
@@ -88,10 +97,18 @@
         text-align: justify;
     }
 
+    .about-menu.on-mobile p {
+        font-size: 0.75rem;
+    }
+
     .copyright {
         text-align: center;
         font-size: 0.75rem;
         color: grey;
+    }
+
+    .about-menu.on-mobile .copyright {
+        font-size: 0.6rem;
     }
 
     .secret {

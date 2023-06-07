@@ -6,12 +6,14 @@
     // Import stores.
     import {
         thingSearchListStore, addGraph, removeGraph,
-        graphIdsNeedingViewerRefresh, addGraphIdsNeedingViewerRefresh, removeGraphIdsNeedingViewerRefresh
+        graphIdsNeedingViewerRefresh, addGraphIdsNeedingViewerRefresh, removeGraphIdsNeedingViewerRefresh, landscapeOrientation
+
     } from "$lib/stores"
 
     // Import related widgets.
     import { defaultGraphWidgetStyle, GraphWidget, type GraphWidgetStyle } from "$lib/widgets/graphWidgets"
     import { SearchWidget } from "$lib/widgets/navWidgets"
+    import { onMobile } from "$lib/shared/utility";
 
 
     // The method to be executed when a Thing is selected.
@@ -20,6 +22,9 @@
     export let graph: Graph | null = null
 
 
+    // Attributes related to screen orientation.
+    $: portraitOrientation = onMobile() && !$landscapeOrientation
+    
     // Attributes related to the Graph configuration.
     let graphWidgetStyle: GraphWidgetStyle = {...defaultGraphWidgetStyle}
     let thingIdToShowGraphFor: number | null = null
@@ -100,7 +105,10 @@
 </script>
 
 <!-- Remote-selecting widget. -->
-<div class="remote-selecting-widget">
+<div
+    class="remote-selecting-widget"
+    class:portrait-orientation={portraitOrientation}
+>
 
     <!-- Search widget. -->
     <div class="thing-searchbox-container">
@@ -109,7 +117,8 @@
             placeholderText={"Search Things..." }
             {focusMethod}
             {submitMethod}
-            maxHeight={null}
+            maxHeight={portraitOrientation ? 500 : null}
+            useSubmitButton={onMobile() ? true : false}
         />
     </div>
 
@@ -142,16 +151,23 @@
         flex-direction: row;
     }
 
+    .remote-selecting-widget.portrait-orientation {
+        flex-direction: column;
+    }
+
     .thing-searchbox-container {
         outline: solid 1px lightgrey;
         outline-offset: -1px;
 
         box-sizing: border-box;
-        width: 300px;
 
         display: flex;
         flex-direction: column;
         padding: 0.5rem;
+    }
+
+    .remote-selecting-widget:not(.portrait-orientation) .thing-searchbox-container {
+        width: 300px;
     }
 
     .graph-container {
@@ -164,6 +180,8 @@
         min-width: 0;
 
         padding: 0.5rem;
+
+        overflow: hidden;
     }
 
     .glass-pane {

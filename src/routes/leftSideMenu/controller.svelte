@@ -3,7 +3,7 @@
     import type { MenuName } from "$lib/shared/constants"
 
     // Import stores and utility functions.
-    import { devMode, hideMenusStore, loadingState, openGraphStore, perspectiveThingIdStore } from "$lib/stores"
+    import { devMode, hideMenusStore, landscapeOrientation, loadingState, openGraphStore, perspectiveThingIdStore } from "$lib/stores"
     import { onMobile } from "$lib/shared/utility"
     
     
@@ -12,6 +12,7 @@
     export let subMenuInfos: { name: MenuName, icon: string }[][]
     export let defaultOpenSubMenuName: string
     export let useTabbedLayout: boolean
+    export let usePortraitLayout: boolean
     export let closeLeftMenu: () => void
 
 
@@ -61,9 +62,12 @@
     // Whether to use the tabbed menu layout for small screens.
     $: useTabbedLayout = height < 500
 
+    // Whether to use the mobile portrait layout.
+    $: usePortraitLayout = onMobile() && !$landscapeOrientation
 
-    // On mobile, close the left side-menu when the Graph is loaded or re-
-    // Perspected.
-    $: if (onMobile() && $openGraphStore) closeLeftMenu()
-    $: if (onMobile() && $perspectiveThingIdStore) closeLeftMenu()
+
+    // In mobile portrait mode, close the left side-menu when the Graph is
+    // loaded or re-Perspected.
+    $: if (onMobile() && !$landscapeOrientation && $openGraphStore) closeLeftMenu()
+    $: if (onMobile() && !$landscapeOrientation && $perspectiveThingIdStore) closeLeftMenu()
 </script>

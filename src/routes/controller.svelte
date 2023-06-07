@@ -13,9 +13,9 @@
     import {
         devMode, fontNames, sessionUuidStore, loadingState, urlStore, 
         leftSideMenuStore, openGraphStore, graphBackgroundImageStore,
-        updateMousePosition, updateRelationshipBeingCreatedEndpoint 
+        updateMousePosition, updateRelationshipBeingCreatedEndpoint, landscapeOrientation 
     } from "$lib/stores"
-    import { stringRepresentsInteger, urlHashToObject } from "$lib/shared/utility"
+    import { onMobile, stringRepresentsInteger, urlHashToObject } from "$lib/shared/utility"
     
     // Import API methods.
     import { getFontNames } from "$lib/db"
@@ -151,7 +151,7 @@
         await openGraphFile(username, graphName, pThingId, true)
 
         // Configure the left side-menu based on the Graph.
-        leftMenuOpen = !!$leftSideMenuStore
+        leftMenuOpen = !(onMobile() && !$landscapeOrientation) && !!$leftSideMenuStore
         leftMenuLockedOpen = !!$leftSideMenuStore
         openedSubMenuName = $leftSideMenuStore || "File"
         lockedSubMenuName = $leftSideMenuStore

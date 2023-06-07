@@ -222,10 +222,6 @@
         gap: 0.25rem;
     }
 
-    .text-field.on-mobile {
-        width: 102%;
-    }
-
     .text-field {
         flex: 1 1 0;
 

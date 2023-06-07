@@ -58,9 +58,9 @@
     let widgetHeightChange = 0
 
     async function processWidgetResize(widgetWidth: number, widgetHeight: number) {
-        if (lastWidgetWidth) widgetWidthChange = widgetWidth - lastWidgetWidth
-        if (lastWidgetHeight) widgetHeightChange = widgetHeight - lastWidgetHeight
-
+        if (lastWidgetWidth !== null) widgetWidthChange = widgetWidth - lastWidgetWidth
+        if (lastWidgetHeight !== null) widgetHeightChange = widgetHeight - lastWidgetHeight
+        
         const xAdjustment = -widgetWidthChange / 2
         const yAdjustment = -widgetHeightChange / 2
         widget?.scrollBy(xAdjustment, yAdjustment)

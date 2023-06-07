@@ -2,6 +2,7 @@
     import { onMount } from "svelte"
     import { graphFoldersStore, refreshGraphFoldersStore, enableNewFileCreation, openGraphStore, uIBackgroundColorStore, uITrimColorStore, userIdStore } from "$lib/stores"
     import { openGraphFile } from "$lib/shared/unigraph"
+    import { onMobile } from "$lib/shared/utility";
 
     
     let graphFoldersByUsername: [string, string[]][] = []
@@ -18,6 +19,7 @@
 
 <div
     class="file-viewer"
+    class:on-mobile={onMobile()}
 
     style="background-color: {$uITrimColorStore};"
 >
@@ -82,6 +84,11 @@
         text-align: center;
     }
 
+    .file-viewer.on-mobile .content {
+        padding: 0.25rem 0.5rem 0.25rem 0.5rem;
+        gap: 1rem;
+    }
+
     .user-block {
         margin: 1rem 0 1rem 0;
 
@@ -110,6 +117,10 @@
         scrollbar-width: thin;
     }
 
+    .file-viewer.on-mobile .graph-folder-buttons {
+        font-size: 0.7rem;
+    }
+
     .button {
         border-radius: 15px;
         outline: solid 1px lightgrey;
@@ -118,6 +129,10 @@
         padding: 0.5rem 0.5rem 0.5rem 0.75rem;
 
         cursor: pointer;
+    }
+
+    .file-viewer.on-mobile .button {
+        padding: 0.25rem 0.25rem 0.25rem 0.5rem;
     }
 
     .button:hover {
@@ -150,5 +165,9 @@
 
     .new-graph-button strong {
         font-size: 1rem;
+    }
+
+    .file-viewer.on-mobile .new-graph-button strong {
+        font-size: 0.7rem;
     }
   </style>

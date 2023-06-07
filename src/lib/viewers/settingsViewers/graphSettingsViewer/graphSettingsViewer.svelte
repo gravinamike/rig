@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { Graph } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
-    import { addGraphIdsNeedingViewerRefresh, mobileMenuTrimColorStore, readOnlyMode as readOnlyModeStore, uIBackgroundColorStore, uITrimColorStore } from "$lib/stores"
+    import { addGraphIdsNeedingViewerRefresh, landscapeOrientation, mobileMenuTrimColorStore, readOnlyMode as readOnlyModeStore, uIBackgroundColorStore, uITrimColorStore } from "$lib/stores"
     import SettingWidget from "./settingWidget.svelte"
     import { saveGraphConfig } from "$lib/shared/config"
     import { onMobile } from "$lib/shared/utility";
@@ -35,8 +35,9 @@
 
 <div
     class="graph-settings-viewer"
+    class:on-mobile={onMobile()}
 
-    style="background-color: {onMobile() ? $mobileMenuTrimColorStore : $uITrimColorStore};"
+    style="background-color: {onMobile() && !$landscapeOrientation ? $mobileMenuTrimColorStore : $uITrimColorStore};"
 >
 
     <div
@@ -122,6 +123,10 @@
         text-align: center;
     }
 
+    .graph-settings-viewer.on-mobile {        
+        font-size: 0.9rem;
+    }
+
     .content {
         border-radius: 5px;
 
@@ -131,6 +136,11 @@
         flex-direction: column;
         padding: 0.5rem 1rem 0.5rem 1rem;
         gap: 2rem;
+    }
+
+    .graph-settings-viewer.on-mobile .content {   
+        padding: 0.25rem 0.5rem 0.25rem 0.5rem;     
+        gap: 1.5rem;
     }
 
     h4 {

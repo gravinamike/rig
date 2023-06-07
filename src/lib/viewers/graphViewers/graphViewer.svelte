@@ -15,7 +15,10 @@
         loadingState,
         urlStore,
         getGraphConstructs,
-        perspectiveSpaceIdStore
+        perspectiveSpaceIdStore,
+
+        landscapeOrientation
+
     } from "$lib/stores"
 
     // Import layout elements.
@@ -60,9 +63,8 @@
     // information.
     let showGraph = false
 
-    // Viewer orientation determines whether the Graph viewer's content is
-    // arranged horizontally or vertically.
-    const viewerOrientation = onMobile() ? "vertical" : "horizontal"
+    // Whether to use the mobile portrait layout.
+    $: usePortraitLayout = onMobile() && !$landscapeOrientation
     
     // Attributes controlling zoom and scroll.
     let allowScrollToThingId = false
@@ -94,8 +96,9 @@
     let rightMenuLockedOpen: boolean
     let lockedSubMenuName: string | null
     $: sideMenuExtension = 
-        viewerOrientation === "horizontal" ? (window.innerWidth - 250) * 0.5 :
-        window.innerHeight * 0.5
+        usePortraitLayout ? window.innerHeight * 0.5 :
+        onMobile() ? (window.innerWidth - 187) * 0.5 :
+        (window.innerWidth - 250) * 0.5
 
 
     // Refresh the viewer whenever...
@@ -277,7 +280,7 @@
 <div
     class="graph-viewer"
 
-    style="flex-direction: {viewerOrientation === "horizontal" ? "row" : "column-reverse"};"
+    style="flex-direction: {usePortraitLayout ? "column-reverse" : "row"};"
 >
 
     <!-- Graph Widget -->
@@ -307,7 +310,7 @@
         openExtension={sideMenuExtension}
         openTime={500}
         overlapPage={false}
-        slideDirection={ viewerOrientation === "horizontal" ? "left" : "down" }
+        slideDirection={ usePortraitLayout ? "down" : "left" }
         stateStore={rightSideMenuStore}
         bind:close={closeRightMenu}
     >

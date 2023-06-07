@@ -8,7 +8,7 @@
     import {
         addGraphIdsNeedingViewerRefresh, directionDbModelsStore, getGraphConstructs, readOnlyMode, addDirectionIdToEditingInProgressStore, removeDirectionIdFromEditingInProgressStore, storeGraphDbModels
     } from "$lib/stores"
-    import { sleep } from "$lib/shared/utility"
+    import { onMobile, sleep } from "$lib/shared/utility"
 
     // Import related widgets.
     import VerbAndObject from "./verbAndObject.svelte"
@@ -17,6 +17,7 @@
     // Import API methods.
     import { createDirection, updateDirection, deleteDirection, directionIsReferenced } from "$lib/db"
     import { tick } from "svelte";
+    import EditButton from "$lib/widgets/layoutWidgets/editButton.svelte";
 
 
     /**
@@ -170,6 +171,8 @@
     function handlePossibleOutsideClick(event: MouseEvent) {
 		if (event.target !== directionWidget && !directionWidget.contains(event.target as Node)) {
 			cancel()
+            isHovered = false
+            confirmDeleteBoxOpen = false
 		}
 	}
 
@@ -236,6 +239,7 @@
 <!-- Direction widget. -->
 <div
     class="direction-widget container horizontal"
+    class:on-mobile={onMobile()}
     class:editing={interactionMode === "editing"}
     class:create={interactionMode === "create"}
     style={`align-items: ${buttonToShow === "expand" ? "flex-start" : "flex-end"};`}
@@ -332,23 +336,10 @@
                 && !confirmDeleteBoxOpen
             }
                 <div class="container button-container">
-                    <button
-                        class="button"
-                        class:editing={interactionMode === "editing"}
-                        class:create={interactionMode === "create"}
-                        tabindex=0
-
-                        on:click={handleButton}
-                        
-                    >
-                        {#if interactionMode === "display"}
-                            <img src="./icons/edit.png" alt="Edit Direction" width=15px height=15px  style="pointer-events: none;" />
-                        {:else if interactionMode === "editing"}
-                            ✓
-                        {:else}
-                            +
-                        {/if}
-                    </button>
+                    <EditButton
+                        {interactionMode}
+                        onClick={handleButton}
+                    />
                 </div>
             {/if}
 
@@ -362,8 +353,8 @@
             bind:confirmDeleteBoxOpen
             thingWidth={directionWidgetWidth}
             thingHeight={directionWidgetHeight}
-            elongationCategory="neutral"
             encapsulatingDepth={0}
+            trashIcon={interactionMode !== "editing"}
             startDelete={() => {
                 if (interactionMode === "editing") {
                     cancel()
@@ -451,39 +442,5 @@
         box-shadow: 1px 1px 2px 1px grey;
 
         background-color: grey;
-    }
-
-    .button.editing {
-        outline-color: #d0f0c0;
-        background-color: #d0f0c0;
-        color: green;
-    }
-
-    .button.editing:hover, .button.editing:focus {
-        outline-color: #ace1af;
-        background-color: #ace1af;
-    }
-
-    .button.editing:active {
-        outline-color: #8fbc8f;
-        background-color: #8fbc8f;
-    }
-
-    .button.create {
-        outline-color: #fac3ae;
-        background-color: #fac3ae;
-
-        font-size: 1rem;
-        color: darkred;
-    }
-
-    .button.create:hover, .button.create:focus {
-        outline-color: #ffa07a;
-        background-color: #ffa07a;
-    }
-
-    .button.create:active {
-        outline-color: #fa8072;
-        background-color: #fa8072;
     }
   </style>

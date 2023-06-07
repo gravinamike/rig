@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { onMobile } from "$lib/shared/utility";
     import { userIdStore } from "$lib/stores"
 
     
@@ -15,7 +16,10 @@
 </script>
 
 
-<div class="sign-out">
+<div
+    class="sign-out"
+    class:on-mobile={onMobile()}
+>
     <h4>You are signed in as: {$userIdStore}</h4>
 
     <!-- Sign-up form. -->
@@ -33,5 +37,9 @@
         margin: 0.25rem;
 
         text-align: center;
+    }
+
+    .sign-out.on-mobile {
+        font-size: 0.8rem;
     }
 </style>

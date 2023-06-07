@@ -11,7 +11,7 @@
 
     // Import related widgets.
     import { PinWidget } from "$lib/widgets/navWidgets"
-    import { changeIndexInArray } from "$lib/shared/utility"
+    import { changeIndexInArray, onMobile } from "$lib/shared/utility"
 
 
     export let graph: Graph | null
@@ -90,6 +90,7 @@
 
 <div
     class="pins-viewer"
+    class:on-mobile={onMobile()}
     class:use-tabbed-layout={useTabbedLayout}
 
     style="background-color: {$uIBackgroundColorStore};"
@@ -142,6 +143,11 @@
         overflow: hidden;
     }
 
+    .pins-viewer.on-mobile {
+        padding: 0.2rem 0 0.2rem 0;
+        gap: 0.15rem;
+    }
+
     .pins-viewer.use-tabbed-layout {
         border-radius: 0 0 5px 5px;
 
@@ -168,5 +174,9 @@
 
         overflow-y: auto;
         scrollbar-width: thin;
+    }
+
+    .pins-viewer.on-mobile .content {
+        gap: 0.15rem;
     }
   </style>

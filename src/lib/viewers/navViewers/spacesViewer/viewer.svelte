@@ -10,7 +10,7 @@
 
     // Import stores and utility functions.
     import { spaceDbModelsStoreAsArray, getGraphConstructs, storeGraphDbModels } from "$lib/stores/graphConstructStores"
-    import { changeIndexInArray } from "$lib/shared/utility"
+    import { changeIndexInArray, onMobile } from "$lib/shared/utility"
 
     // Import related widgets.
     import { SpaceWidget } from "$lib/widgets/spaceWidgets"
@@ -113,6 +113,7 @@
 <!-- Spaces viewer. -->
 <div
     class="spaces-viewer"
+    class:on-mobile={onMobile()}
 
     style="background-color: {$uIBackgroundColorStore};"
 >
@@ -145,6 +146,7 @@
 
 <div
     class="add-space-button"
+    class:on-mobile={onMobile()}
 
     on:click={addSpaceForm}
     on:keydown={()=>{}}
@@ -178,6 +180,11 @@
         scrollbar-width: thin;
     }
 
+    .spaces-viewer.on-mobile .scrollable {
+        padding: 0.35rem;
+        gap: 0.5rem;
+    }
+
     .add-space-button {
         border-radius: 5px;
 
@@ -193,6 +200,10 @@
         font-size: 1.07rem;
 
         cursor: pointer;
+    }
+
+    .add-space-button.on-mobile {
+        font-size: 0.93rem;
     }
 
     .add-space-button:hover {

@@ -12,7 +12,7 @@
     import { thingsByGuid, addNoteToThingOrGetExistingNoteId, updateNote, markNotesModified } from "$lib/db"
 
 
-    import { notesBackgroundImageStore, notesEditorLockedStore, readOnlyMode, storeGraphDbModels, uITrimColorStore } from "$lib/stores"
+    import { landscapeOrientation, notesBackgroundImageStore, notesEditorLockedStore, readOnlyMode, storeGraphDbModels, uITrimColorStore } from "$lib/stores"
     import { saveGraphConfig } from "$lib/shared/config"
     import type { ThingDbModel } from "$lib/models/dbModels"
     import { onMobile, removeItemFromArray, sleep } from "$lib/shared/utility";
@@ -189,7 +189,7 @@
         (
             editing
             && !editingLocked
-            && (editButtonHovered && !editingLockJustToggled)
+            && (!onMobile() && editButtonHovered && !editingLockJustToggled)
         )
         || (
             editing
@@ -340,9 +340,16 @@
         class="title"
 
         style="
-            margin-left: {onMobile() ? 60 : 8}px;
+            margin-left: {onMobile() && !$landscapeOrientation ? 60 : 8}px;
             margin-right: {onMobile() ? 45 : 0}px;
-            {onMobile() ? "position: relative; top: 6px; font-size: 0.9rem;" : ""}
+            {
+                onMobile() ? (
+                    !$landscapeOrientation ? "position: relative; top: 5px; font-size: 0.9rem;" :
+                    "position: relative; top: 5px; left: 4px; font-size: 0.9rem;"
+                ) :
+
+                ""
+            }
         "
     >
         <h2>{title}</h2>
@@ -353,7 +360,7 @@
         class="notes-container"
         bind:this={notesContainer}
 
-        style={onMobile() ? "font-size: 0.5rem; padding: 0.5rem 1rem 0.5rem 1rem;" : ""}
+        style={onMobile() ? "font-size: 0.5rem; padding: 0.25rem 0.5rem 0.25rem 0.5rem;" : ""}
         
         on:dblclick={ () => {editing = true} }
     >
@@ -434,8 +441,7 @@
     }
 
     .notes-viewer.on-mobile {
-        margin-left: -0.25rem;
-        padding: 0.25rem 0 0 0;
+        padding: 0.25rem 0 0.25rem 0;
     }
 
     .edit-button {
@@ -467,8 +473,8 @@
     }
 
     .edit-button.editing.on-mobile {
-        right: 0.74rem;
-        bottom: 0.87rem;
+        right: 0.65rem;
+        bottom: 0.85rem;
     }
 
     .edit-button:hover {
@@ -521,8 +527,6 @@
     }
 
     .notes-display.on-mobile {
-        width: 102%;
-
         padding: 0.5rem 1rem 0.5rem 1rem;
 
         font-size: 0.85rem;

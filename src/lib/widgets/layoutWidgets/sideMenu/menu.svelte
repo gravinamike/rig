@@ -233,7 +233,7 @@
 
         style="
             border-radius: {buttonSize / 2}px;
-            top: {onMobile() && orientation === "horizontal" ? -(buttonSize + 20) : 0}px;
+            top: {onMobile() && slideDirection === "right" ? -(buttonSize + 20) : 0}px;
             height: {buttonSize + 20}px;
         "
     >

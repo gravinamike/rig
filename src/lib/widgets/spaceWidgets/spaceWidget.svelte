@@ -7,7 +7,7 @@
 
     // Import contants and utilty functions.
     import { oddHalfAxisIds } from "$lib/shared/constants"
-    import { sleep } from "$lib/shared/utility"
+    import { onMobile, sleep } from "$lib/shared/utility"
 
     // Import stores.
     import { addGraphIdsNeedingViewerRefresh, addSpaceIdToEditingInProgressStore, getGraphConstructs, readOnlyMode, removeSpaceIdFromEditingInProgressStore, spaceDbModelsStore, storeGraphDbModels } from "$lib/stores"
@@ -20,6 +20,7 @@
     // Import API functions.
     import { createSpace, deleteSpace, spaceIsReferenced, updateSpace, updateThingDefaultSpace } from "$lib/db"
     import { tick } from "svelte";
+    import EditButton from "../layoutWidgets/editButton.svelte";
 
 
     /**
@@ -214,6 +215,8 @@
     function handlePossibleOutsideClick(event: MouseEvent) {
 		if (event.target !== spaceWidget && !spaceWidget.contains(event.target as Node)) {
 			interactionMode = isSpaceForm ? "editing" : "display"
+            isHovered = false
+            confirmDeleteBoxOpen = false
 		}
 	}
 
@@ -272,6 +275,7 @@
 <!-- Space widget. -->
 <div
     class="space-widget"
+    class:on-mobile={onMobile()}
     class:editing={interactionMode === "editing"}
     class:create={interactionMode === "create"}
     
@@ -348,21 +352,20 @@
                                 thingWidth={50}
                                 thingHeight={50}
                                 encapsulatingDepth={0}
-                                elongationCategory="neutral"
                                 startDelete={() => {setDirectionNullByHalfAxisId(halfAxisId)}}
                                 completeDelete={()=>{}}
                             />
                         {/if}
                     </div>
                 {:else}
-                    <div class="no-direction">
+                    <div
+                        class="no-direction"
+                        
+                        on:click|stopPropagation={() => {setDirectionNotNullByHalfAxisId(halfAxisId)}}
+                        on:keydown={()=>{}}
+                    >
                         None
-                        <div
-                            class="add-button"
-
-                            on:click|stopPropagation={() => {setDirectionNotNullByHalfAxisId(halfAxisId)}}
-                            on:keydown={()=>{}}
-                        >
+                        <div class="add-button">
                             <div class="add-button-text">+</div>
                         </div>
                     </div>
@@ -384,8 +387,8 @@
             <img
                 src="./icons/perspective.png"
                 alt="Perspective indicator"
-                width="25px"
-                height="25px"
+                width={onMobile() ? "20px" : "25px"}
+                height={onMobile() ? "20px" : "25px"}
                 style={`opacity: ${ defaultPerspectiveSpace ? 75 : 25 }%;`}
             >
         </div>
@@ -397,25 +400,10 @@
             class="container button-container"
             class:editing={interactionMode === "editing"}
         >
-            <button
-                class="button"
-                class:editing={interactionMode === "editing"}
-                class:create={interactionMode === "create"}
-                tabindex=0
-
-                on:click={handleButton}
-                on:keypress={(event) => {
-                    if (event.key === "Enter") handleButton()
-                }}
-            >
-                {#if interactionMode === "display"}
-                    <img src="./icons/edit.png" alt="Edit Space" width=15px height=15px style="pointer-events: none;" />
-                {:else if interactionMode === "editing"}
-                    ✓
-                {:else}
-                    +
-                {/if}
-            </button>
+            <EditButton
+                {interactionMode}
+                onClick={handleButton}
+            />
         </div>
     {/if}
 
@@ -428,8 +416,8 @@
         bind:confirmDeleteBoxOpen
         thingWidth={spaceWidgetWidth}
         thingHeight={spaceWidgetHeight}
-        elongationCategory="neutral"
         encapsulatingDepth={0}
+        trashIcon={interactionMode !== "editing"}
         startDelete={() => {confirmDeleteBoxOpen = true}}
         {completeDelete}
     />
@@ -460,6 +448,10 @@
         cursor: default;
     }
 
+    .space-widget.on-mobile {
+        gap: 6px;
+    }
+
     .space-widget:hover {
         outline: solid 1px lightgrey;
         background-color: gainsboro;
@@ -485,6 +477,10 @@
 
         font-size: 1rem;
         text-align: center;
+    }
+
+    .space-widget.on-mobile .space-name {
+        font-size: 0.8rem;
     }
 
     .direction-list {
@@ -523,72 +519,6 @@
         bottom: 5px;
     }
 
-    .button {
-        border: none;
-        border-radius: 5px;
-        box-shadow: 1px 1px 2px 1px grey;
-        
-        width: 15px;
-        height: 15px;
-
-        display: flex;
-        justify-content: center;
-        align-items: center;
-
-        font-size: 0.75rem;
-        font-weight: 600;
-
-        cursor: pointer;
-    }
-
-    .button:hover, .button:focus {
-        box-shadow: 2px 2px 5px 1px grey;
-
-        background-color: lightgrey;
-    }
-
-    .button:active {
-        outline: solid 1px grey;
-        box-shadow: 1px 1px 2px 1px grey;
-
-        background-color: grey;
-    }
-
-    .button.editing {
-        outline-color: #d0f0c0;
-        background-color: #d0f0c0;
-        color: green;
-    }
-
-    .button.editing:hover, .button.editing:focus {
-        outline-color: #ace1af;
-        background-color: #ace1af;
-    }
-
-    .button.editing:active {
-        outline-color: #8fbc8f;
-        background-color: #8fbc8f;
-    }
-
-    .button.create {
-        outline-color: #fac3ae;
-
-        background-color: #fac3ae;
-
-        font-size: 1rem;
-        color: darkred;
-    }
-
-    .button.create:hover, .button.create:focus {
-        outline-color: #ffa07a;
-        background-color: #ffa07a;
-    }
-
-    .button.create:active {
-        outline-color: #fa8072;
-        background-color: #fa8072;
-    }
-
     .perspective-space-button {
         border-radius: 50%;
 
@@ -604,6 +534,11 @@
         align-items: center;
 
         pointer-events: none;
+    }
+
+    .space-widget.on-mobile .perspective-space-button {
+        width: 20px;
+        height: 20px;
     }
 
     .perspective-space-button:not(.read-only-mode) {

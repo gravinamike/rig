@@ -79,6 +79,7 @@
                 if (showOptions) exitOptionHoveredFunction()
             }}
             on:wheel|stopPropagation={()=>{}}
+            on:touchmove|stopPropagation
         >
             {#each Object.entries($directionDbModelsStore) as [optionId, option]}
                 <div
@@ -93,6 +94,7 @@
                         if (direction) optionHoveredFunction(Number(optionId), direction)
                     }}
                     on:keypress={()=>{}}
+                    on:touchmove|stopPropagation
                 >
                     {option.text}
                 </div>

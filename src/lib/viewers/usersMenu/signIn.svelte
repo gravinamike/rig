@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { onMobile } from "$lib/shared/utility";
+
     let username = ""
     let password = ""
     let rememberUser = false
@@ -30,7 +32,10 @@
 </script>
 
 
-<div class="sign-in">
+<div
+    class="sign-in"
+    class:on-mobile={onMobile()}
+>
     <h4>Sign in:</h4>
 
     <!-- Error message. -->
@@ -71,6 +76,15 @@
         margin: 0.25rem;
     }
 
+    .sign-in.on-mobile {
+        font-size: 0.8rem;
+    }
+
+    .sign-in.on-mobile h4 {
+        margin-top: 0.75rem;
+        margin-bottom: 0.75rem;
+    }
+
     .error {
         font-weight: 600;
         color: red;
@@ -82,6 +96,10 @@
         display: flex;
         flex-direction: column;
         gap: 1rem;
+    }
+
+    .sign-in.on-mobile form {
+        gap: 0.5rem;
     }
 
     #username, #password {

@@ -16,7 +16,7 @@
     } from "$lib/stores"
 
     // Import utility methods.
-    import { hexToRgba, sleep } from "$lib/shared/utility"
+    import { elementUnderTouchEvent, hexToRgba } from "$lib/shared/utility"
 
     /* Import related widgets. */
     import ThingWidgetController from "./controller.svelte"
@@ -214,15 +214,41 @@
                 disableRelationshipBeingCreated()
             }
         } }
-        on:touchend={ () => {
-            if (relatableForCurrentDrag) {
-                setRelationshipBeingCreatedDestThingId(thingId)
-            } else {
-                disableRelationshipBeingCreated()
+        on:touchend={ (event) => {
+
+
+            const endingElement = elementUnderTouchEvent(event)
+
+
+            if (
+                endingElement?.className.includes("thing-widget")
+                || endingElement?.className.includes("relationship-stem")
+            ) {
+
+                const targetThingId = Number(endingElement.id.split("-")[1].split("#")[1])
+
+                const targetThingRelatableForCurrentDrag =
+                    // The flag is true if...
+                    (
+                        // ...there is a drag-relate in progress...
+                        $relationshipBeingCreatedInfoStore.sourceThingId
+                        // ...and the source of the drag-relate is not *this* Thing.
+                        && $relationshipBeingCreatedInfoStore.sourceThingId !== targetThingId
+                    ) ?
+                        true :
+                        false
+
+                if (targetThingRelatableForCurrentDrag) {
+                    setRelationshipBeingCreatedDestThingId(targetThingId)
+                } else {
+                    disableRelationshipBeingCreated()
+                }
             }
+
         } }
         on:contextmenu|preventDefault={ (event) => {if (!$readOnlyMode) openCommandPalette(event)} }
     >
+
         <!-- Perspective-text slider. -->
         {#if hasPerspectiveText || editingText}
             <div
@@ -282,7 +308,6 @@
                     {thingWidth}
                     {thingHeight}
                     {encapsulatingDepth}
-                    {elongationCategory}
                     {startDelete}
                     {completeDelete}
                 />

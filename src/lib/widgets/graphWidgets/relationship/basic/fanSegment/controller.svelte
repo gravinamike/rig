@@ -1,10 +1,10 @@
 <script lang="ts">
     // Import types.
     import type { GenerationMember, ThingCohort, Thing } from "$lib/models/constructModels"
+    import { deleteButtonRotationByHalfAxisId } from "$lib/shared/constants";
 
     // Import stores.
     import {
-        getGraphConstructs, addGraphIdsNeedingViewerRefresh,
         relationshipBeingCreatedInfoStore, hoveredRelationshipTarget,
         hoveredThingIdStore, reorderingInfoStore
     } from "$lib/stores"
@@ -19,6 +19,7 @@
      * @param thing - The Thing associated with this Relationship.
      * @param highlightLevel - The intensity of the highlight on the widget.
      * @param relationshipHovered - Whether the mouse is hovering over the Relationship widget.
+     * @param deleteButtonRotation - How much to counter-rotate the delete button so it is right-side up.
      * @param willBeDeleted - Whether this Relationship will be deleted if a to-be-created-Relationship is created.
      * @param deleteRelationship - Method to delete this Relationship.
      */
@@ -30,8 +31,8 @@
     export let thing: Thing
     export let highlightLevel: "no-highlight" | "soft-highlight" | "hard-highlight"
     export let relationshipHovered: boolean
+    export let deleteButtonRotation = 0
     export let willBeDeleted: boolean
-    export let deleteRelationship: () => void
     
 
     /* --------------- Output attributes. --------------- */
@@ -82,6 +83,29 @@
      */
     $: relationshipHovered = thing.id !== null && thing.id === thingIdOfHoveredRelationship
 
+
+
+
+
+
+
+
+    $: halfAxisId = cohortMemberWithIndex.member.thing?.parentCohort?.halfAxisId || null
+    
+    /**
+     * Rotation.
+     * 
+     * The rotation of the delete icon, determined by the half-axis.
+     */
+    $: deleteButtonRotation = deleteButtonRotationByHalfAxisId[halfAxisId || 0]
+
+
+
+
+
+
+
+
     /**
      * Will-be-deleted flag.
      * 
@@ -101,52 +125,8 @@
         true :
         false
 
-    /**
-     * Delete-Relationship method.
-     * 
-     * Deletes the Relationship (after, if necessary, warning the user about
-     * potentially isolated Relationships).
-     */
-    deleteRelationship = async () => {
-        // Get the source and destination Things (and their IDs).
-        const sourceThingId = thing.parentThing?.id || null
-        const sourceThing = thing?.parentThing || null
-        const destThingId = thingIdOfHoveredRelationship
-        const destThing = thingIdOfHoveredRelationship ?
-            getGraphConstructs("Thing", thingIdOfHoveredRelationship) as Thing :
-            null
-
-        // Check both Things. If either has only 1 Relationship, warn the user that that
-        // Thing will be isolated and ask them to confirm.
-        for (const thing of [sourceThing, destThing]) {
-            if (thing) {
-                if (thing.relationshipInfos.length === 1) {
-                    if (confirm(`The Thing named "${thing.text}" will be isolated if you delete this Relationship. Continue?`)) {
-                        break
-                    } else {
-                        return
-                    } 
-                }
-            }
-        }
-
-        // Otherwise, delete Relationship and refresh the Graph.
-        if (graph && sourceThingId && destThingId) {
-            await graph.deleteRelationshipByThingIds(sourceThingId, destThingId)
-            addGraphIdsNeedingViewerRefresh(graph.id)
-        }
-    }
-
 
     /* --------------- Support attributes. --------------- */
-
-    /**
-     * Graph.
-     * 
-     * The Graph that the Relationship is a part of. Taken from the associated
-     * Thing.
-     */
-    $: graph = thing.graph
     
     /**
      * Thing-hovered flag.

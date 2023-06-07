@@ -1,5 +1,6 @@
 <script lang="ts">
-      import { textHyperlinkingStore, updateTextHyperlinkingUrl, disableTextHyperlinking } from "$lib/stores"
+    import { onMobile } from "$lib/shared/utility";
+      import { textHyperlinkingStore, updateTextHyperlinkingUrl, disableTextHyperlinking, landscapeOrientation } from "$lib/stores"
 
     let urlField: HTMLInputElement
     let showErrorMessage = false
@@ -49,7 +50,10 @@
         on:click|stopPropagation
         on:keyup|stopPropagation={handleEscape}
     >
-        <div class="inner-widget">
+        <div
+            class="inner-widget"
+            class:portrait={onMobile() && !$landscapeOrientation}
+        >
             <img src="./icons/link.png" alt="link" width=30px height=30px />
             <input
                 type="text"
@@ -104,6 +108,10 @@
         width: 500px;
 
         padding: 0.25rem 0.3rem 0.35rem 0.3rem;
+    }
+
+    .inner-widget.portrait input {
+        width: 200px;
     }
 
     input:focus {

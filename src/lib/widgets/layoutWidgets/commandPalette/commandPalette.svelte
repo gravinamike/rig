@@ -13,7 +13,7 @@
 
 	const numberOfButtonsAndPadding = commandButtonInfos.length + (startPadding ? startPadding : 0)
 
-	const rowLength = square ?
+	$: rowLength = square ?
 		(
 			maxRowLength !== null ? 
 				Math.max(Math.ceil(Math.sqrt(numberOfButtonsAndPadding)), maxRowLength) :

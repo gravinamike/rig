@@ -2,12 +2,14 @@
     import type { SearchOption } from "./types"
     import { onMount } from "svelte"
     import { onMobile } from "$lib/shared/utility"
+    import EditButton from "$lib/widgets/layoutWidgets/editButton.svelte";
 
     export let unfilteredArray: {id: number, name: string}[]
     export let placeholderText: string
     export let focusMethod: (focusedItem: SearchOption | null) => void
     export let submitMethod: (selectedItem: SearchOption | null, matchedItems: SearchOption[]) => void
     export let maxHeight: number | null = 100
+    export let useSubmitButton = false
 
 
     
@@ -21,6 +23,8 @@
     let selectedItem: SearchOption | null = null
 
     let showFiltered = false
+
+    const fontSize = onMobile() ? 0.6 : 0.75
 
     function substringIndex(substring: string, caseSensitive=false): number | null {
         const substringIndex = caseSensitive ?
@@ -63,13 +67,13 @@
     function handleEnter() {
         submitMethod(selectedItem, matchedItems)
         inputText = ""
-		showFiltered = false
+        showFiltered = false
     }
 
     function submit() {
         submitMethod(selectedItem, matchedItems)
         inputText = ""
-		showFiltered = false
+        showFiltered = false
     }
 
     function handlePossibleOutsideClick(event: MouseEvent | TouchEvent) {
@@ -141,6 +145,9 @@
         placeholder={placeholderText}
         bind:this={inputField}
         bind:value={inputText}
+
+        style={`font-size: ${fontSize}rem;`}
+
         on:input={handleInput}
         on:keydown={ (event) => {
             if (showFiltered && event.key === "ArrowDown") {
@@ -164,11 +171,21 @@
         } }
     />
 
+    {#if useSubmitButton && selectedItem}
+        <div class="accept-button-container">
+            <EditButton
+                interactionMode={"editing"}
+                onClick={() => submitMethod(selectedItem, matchedItems)}
+            />
+        </div>
+    {/if}
+
     {#if showFiltered}
         <div
             class="filtered-items"
             style="
                 { maxHeight ? `position: absolute; top: calc(100% - 5px); max-height: ${maxHeight}px;` : "flex: 1 1 0; position: relative; top: -1px;" }
+                {`font-size: ${fontSize}rem;`}
             "
             on:wheel|stopPropagation={()=>{}}
         >
@@ -181,13 +198,19 @@
                         if (filtered[i]) selectedItem = filtered[i]
                         focusedOptionIndex = i
                         focusOnOptionElement(i)
-                        focusMethod(filteredItem)
+                        if (!useSubmitButton) {
+                            focusMethod(selectedItem)
+                        }
                     }}
                     on:click={() => {
                         showFiltered = false
                         selectedItem = filteredItem
                         inputText = selectedItem.text
-                        submit()
+                        if (useSubmitButton) {
+                            focusMethod(selectedItem)
+                        } else {
+                            submit()
+                        }
                     }}
                     on:keydown={()=>{}}
                 >
@@ -218,8 +241,6 @@
         background-color: white;
 
         padding: 0.25rem 0.3rem 0.35rem 0.3rem;
-
-        font-size: 0.75rem;
     }
 
     .input-field:focus {
@@ -230,6 +251,12 @@
         border-radius: 6px 6px 0 0;
         outline: solid 1px black;
         outline-offset: -1px;
+    }
+
+    .accept-button-container {
+        position: absolute;
+        right: 5px;
+        top: 4px;
     }
 
     .filtered-items {
@@ -248,7 +275,6 @@
         scrollbar-width: thin;
 
         text-align: left;
-        font-size: 0.75rem;
     }
 
     .filtered-item {
