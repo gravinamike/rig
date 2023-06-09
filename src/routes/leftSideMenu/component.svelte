@@ -14,13 +14,11 @@
     import { SideMenu, TabBlock, TabFlap, TabFlaps, TabBody } from "$lib/widgets/layoutWidgets"
 
     // Import viewers.
-    import AboutMenu from "$lib/viewers/about.svelte"
-    import { UsersMenu } from "$lib/viewers/usersMenu"
-    import FileViewer from "$lib/viewers/settingsViewers/fileViewer.svelte"
-    import {
-        ThingSearchboxViewer, PinsViewer, HistoryViewer, 
-        DirectionsViewer, SpacesViewer
-    } from "$lib/viewers/navViewers"
+    import AboutMenu from "$lib/menus/about.svelte"
+    import { UsersMenu } from "$lib/menus/usersMenu"
+    import FileMenu from "$lib/menus/fileMenu.svelte"
+    import { ThingSearchboxViewer, PinsViewer, HistoryViewer } from "$lib/viewers/navViewers"
+    import { DirectionsViewer, SpacesViewer } from "$lib/viewers/spaceViewers"
     import { GraphSettingsViewer } from "$lib/viewers/settingsViewers"
     import { GraphSchematicViewer } from "$lib/viewers/graphViewers"
     import { DirectionsStoreViewer, SpacesStoreViewer, ThingsStoreViewer } from "$lib/viewers/storeViewers"
@@ -244,9 +242,9 @@
                         <TabFlap><span class="tab-flap-span">About</span></TabFlap>
                     </TabFlaps>
 
-                    <!-- Graph Schematic tab. -->
+                    <!-- File menu tab. -->
                     <TabBody>
-                        <FileViewer />
+                        <FileMenu />
                     </TabBody>
                 
                     <!-- Users tab. --> 

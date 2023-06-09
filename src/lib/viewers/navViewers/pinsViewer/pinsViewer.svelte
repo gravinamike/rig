@@ -10,7 +10,7 @@
     import { pinIdsStore, storeGraphDbModels, graphDbModelInStore, getGraphConstructs, setPins, readOnlyMode, uIBackgroundColorStore } from "$lib/stores"
 
     // Import related widgets.
-    import { PinWidget } from "$lib/widgets/navWidgets"
+    import PinWidget from "./pinWidget.svelte"
     import { changeIndexInArray, onMobile } from "$lib/shared/utility"
 
 

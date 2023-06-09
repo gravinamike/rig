@@ -38,7 +38,7 @@
      * Open a context command palette for a History entry.
      * @param  {MouseEvent} event - The mouse event that opens the command palette.
      */
-     function openHistoryContextCommandPalette(event: MouseEvent, thingId: number) {
+    function openHistoryContextCommandPalette(event: MouseEvent, thingId: number) {
         const position: [number, number] = [ event.clientX, event.clientY ]
         const buttonInfos = [
             (
@@ -77,6 +77,7 @@
         openContextCommandPalette(position, buttonInfos)
     }
 </script>
+
 
 <!-- History viewer. -->
 <div

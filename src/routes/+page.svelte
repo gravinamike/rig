@@ -5,34 +5,24 @@
     import type { Graph, Space } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
-    // Import constants.
+    // Import constants and utility functions.
     import { startingGraphDepth } from "$lib/shared/constants"
+    import { onMobile } from "$lib/shared/utility"
 
     // Import stores.
-    import {
-        loadingState, openGraphStore, perspectiveThingIdStore,
-        reorderingInfoStore, userIdStore
-    } from "$lib/stores"
+    import { loadingState, perspectiveThingIdStore, userIdStore } from "$lib/stores"
 
     // Import page controller.
     import PageController from "./controller.svelte"
 
-    // Import side menu.
-    import { LeftSideMenu } from "./leftSideMenu"
-
-    // Import widgets.
+    // Import UI components.
     import { WaitingIndicator, ContextCommandPalette } from "$lib/widgets/layoutWidgets"
+    import { LeftSideMenu } from "./leftSideMenu"
     import { 
-        NewFileWidget, RemoteRelatingWidget, ThingLinkingWidget, TextHyperlinkingWidget,
-        RelationshipReorderController
+        NewFileWidget, RemoteRelatingWidget, ThingLinkingWidget, TextHyperlinkingWidget, RelationshipReorderController
     } from "$lib/widgets/dialogWidgets"
-
-    // Import viewers.
     import { GraphViewer } from "$lib/viewers/graphViewers"
-
-    // Import related widgets.
     import { defaultGraphWidgetStyle, RelationshipBeingCreatedWidget } from "$lib/widgets/graphWidgets"
-    import { onMobile } from "$lib/shared/utility";
 
 
     export let data: PageData
@@ -46,18 +36,22 @@
 
 
     // Attributes handled by page controller.
-    let graphIndicatorStates: WaitingIndicatorStates = {}
+
+    let title = "Rig"
+    let urlUsernameAndGraphFolder: string | null = null
+    let urlThingId: number | null = null
+    let urlSpaceId: number | null = null
     let leftMenuOpen: boolean = false
     let leftMenuLockedOpen: boolean = false
     let openedSubMenuName: string | null = null
     let lockedSubMenuName: string | null = null
     let rightMenuOpen: boolean = false
-    let urlUsernameAndGraphFolder: string | null = null
-    let urlThingId: number | null = null
-    let urlSpaceId: number | null = null
+    let graphIndicatorStates: WaitingIndicatorStates = {}
     let graphBackgroundImageUrl: string | null = null
+    let reorderOrientation: "row" | "column" | null = null
     let closeRightMenu: () => void = () => {}
     let handleMouseMove: (event: MouseEvent | TouchEvent) => void = () => {}
+    let handleTouchStart: (event: TouchEvent) => void = () => {}
 
 
     // Attributes handled by the Graph Viewer.
@@ -77,70 +71,49 @@
     {rePerspectToThingId}
     {setGraphSpace}
 
+    bind:title
+    bind:urlUsernameAndGraphFolder
+    bind:urlThingId
+    bind:urlSpaceId
     bind:leftMenuOpen
     bind:leftMenuLockedOpen
     bind:openedSubMenuName
     bind:lockedSubMenuName
     bind:graphIndicatorStates
-    bind:urlUsernameAndGraphFolder
-    bind:urlThingId
-    bind:urlSpaceId
     bind:graphBackgroundImageUrl
+    bind:reorderOrientation
     bind:handleMouseMove
+    bind:handleTouchStart
 />
 
 
 <!-- Set page title based on open Graph. -->
 <svelte:head>
-    <title>{
-        $openGraphStore ? (
-            $openGraphStore.startsWith("all/") ? $openGraphStore.replace("all/", "") : $openGraphStore
-        ) :
-        "Rig"
-    }</title>
+    <title>{title}</title>
 </svelte:head>
 
 
 <!-- Main app UI. -->
 <main
-    class:reorderRow={
-        $reorderingInfoStore.dragStartPosition !== null
-        && $reorderingInfoStore.thingCohort?.rowOrColumn() === "row"
-    }
-    class:reorderColumn={
-        $reorderingInfoStore.dragStartPosition !== null
-        && $reorderingInfoStore.thingCohort?.rowOrColumn() === "column"
-    }
+    class:on-mobile={onMobile()}
+    class:reorderRow={reorderOrientation === "row"}
+    class:reorderColumn={reorderOrientation === "column"}
 
     bind:clientHeight={height}
     
     on:mousemove={handleMouseMove}
     on:touchmove={handleMouseMove}
-    on:touchstart={ (event) => {
-        if ("touches" in event && event.touches.length === 2) {
-            event.preventDefault()
-            event.stopPropagation()
-        }
-    } }
+    on:touchstart={handleTouchStart}
 >
 
-    <!-- Graph background image. -->
+    <!-- Graph background. -->
     {#if $loadingState === "graphLoaded"}
         <div
-            class="background-image"
+            class="background"
+            class:color={!graphBackgroundImageUrl}
+            class:image={graphBackgroundImageUrl}
 
-            style={`
-                ${ onMobile() ? "width: 100%; height: 100%;" : "width: 100vw; height: 100vh;" }
-                ${
-                    graphBackgroundImageUrl ? `
-                        background-image: url(${graphBackgroundImageUrl});
-                        background-size: cover;
-                    ` :
-                    `background-color: #eef8ff;`
-
-                }
-            ` }
-            
+            style={graphBackgroundImageUrl ? `background-image: url(${graphBackgroundImageUrl});` : ""}
         />
     {/if}
     
@@ -227,7 +200,22 @@
         cursor: row-resize;
     }
 
-    .background-image {
+    .background {
         position: absolute;
+        width: 100vw;
+        height: 100vh;
+    }
+
+    main.on-mobile .background {
+        width: 100%;
+        height: 100%;
+    }
+
+    .background.color {
+        background-color: #eef8ff;
+    }
+
+    .background.image {
+        background-size: cover;
     }
 </style>

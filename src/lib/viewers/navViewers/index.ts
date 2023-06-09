@@ -1,5 +1,3 @@
-export { DirectionsViewer } from "./directionsViewer"
 export { HistoryViewer } from "./historyViewer"
-export { SpacesViewer } from "./spacesViewer"
-export { default as PinsViewer }  from "./pinsViewer.svelte"
+export { PinsViewer }  from "./pinsViewer"
 export { default as ThingSearchboxViewer }  from "./thingSearchboxViewer.svelte"

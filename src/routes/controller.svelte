@@ -13,7 +13,7 @@
     import {
         devMode, fontNames, sessionUuidStore, loadingState, urlStore, 
         leftSideMenuStore, openGraphStore, graphBackgroundImageStore,
-        updateMousePosition, updateRelationshipBeingCreatedEndpoint, landscapeOrientation 
+        updateMousePosition, updateRelationshipBeingCreatedEndpoint, landscapeOrientation, reorderingInfoStore 
     } from "$lib/stores"
     import { onMobile, stringRepresentsInteger, urlHashToObject } from "$lib/shared/utility"
     
@@ -23,6 +23,7 @@
     import { openGraphFile } from "$lib/shared/unigraph"
     
     
+    export let title: string
     export let graph: Graph | null
     export let rePerspectToThingId: (thingId: number, updateHistory?: boolean, zoomAndScroll?: boolean) => Promise<void>
     export let setGraphSpace: (space: Space | number) => void
@@ -35,40 +36,21 @@
     export let urlThingId: number | null
     export let urlSpaceId: number | null
     export let graphBackgroundImageUrl: string | null
+    export let reorderOrientation: "row" | "column" | null = null
     export let handleMouseMove: (event: MouseEvent | TouchEvent) => void = () => {}
+    export let handleTouchStart: (event: TouchEvent) => void = () => {}
     
 
-    // Session UUID.
-    sessionUuidStore.set( uuidv4() )
 
+    /* --------------- Output attributes. --------------- */
 
-    // Starting states for waiting indicator.
-    graphIndicatorStates = {
-        start: {
-            text: "Configuration not loaded yet.",
-            imageName: null
-        },
-        configLoading: {
-            text: "Loading configuration...",
-            imageName: "waiting"
-        },
-        configLoaded: {
-            text: "No Graph loaded yet.",
-            imageName: null
-        },
-        graphLoading: {
-            text: "Loading Graph...",
-            imageName: "waiting"
-        },
-        graphLoaded: {
-            text: "Graph loaded!",
-            imageName: null
-        },
-        error: {
-            text: "Error loading Graph!",
-            imageName: null
-        }
-    }
+    // Page title.
+    title =
+        $openGraphStore ? (
+            $openGraphStore.startsWith("all/") ? $openGraphStore.replace("all/", "") :
+            $openGraphStore
+        ) :
+        "Rig"
 
 
     /** Graph file and URL handling. */
@@ -101,6 +83,35 @@
     $: if (urlSpaceId) setGraphSpaceIfAble(urlSpaceId)
 
 
+    // Starting states for waiting indicator.
+    graphIndicatorStates = {
+        start: {
+            text: "Configuration not loaded yet.",
+            imageName: null
+        },
+        configLoading: {
+            text: "Loading configuration...",
+            imageName: "waiting"
+        },
+        configLoaded: {
+            text: "No Graph loaded yet.",
+            imageName: null
+        },
+        graphLoading: {
+            text: "Loading Graph...",
+            imageName: "waiting"
+        },
+        graphLoaded: {
+            text: "Graph loaded!",
+            imageName: null
+        },
+        error: {
+            text: "Error loading Graph!",
+            imageName: null
+        }
+    }
+
+
     /** Graph appearance. */
 
     // Background image URL.
@@ -109,13 +120,56 @@
         null
 
 
+    /** Dialog widget attributes. */
+
+    // Reorder-Relationship orientation (row or column).
+    $: reorderOrientation = 
+        $reorderingInfoStore.dragStartPosition === null ? null :
+        $reorderingInfoStore.thingCohort?.rowOrColumn() === "row" ? "row" :
+        $reorderingInfoStore.thingCohort?.rowOrColumn() === "column" ? "column" :
+        null
+
+    /**
+     * Handle-mouse-move method.
+     * 
+     * Updates the mouse-position tracker and the endpoint for any in-progress
+     * Relationship-creation operation.
+     */
+    handleMouseMove = ( event: MouseEvent | TouchEvent ) => {
+        const clientX = "clientX" in event ? event.clientX : event.touches.item(0)?.clientX as number
+        const clientY = "clientY" in event ? event.clientY : event.touches.item(0)?.clientY as number
+        updateMousePosition( [clientX, clientY] )
+        updateRelationshipBeingCreatedEndpoint( [clientX, clientY] )
+    }
+
+    /**
+     * Handle-touch-start method.
+     * 
+     * Prevents single-touch events when multi-touch gestures, like pinch-zoom,
+     * are happening.
+     */
+    handleTouchStart = (event) => {
+        if ("touches" in event && event.touches.length > 1) {
+            event.preventDefault()
+            event.stopPropagation()
+        }
+    }
+
+
+
+    /* --------------- Supporting attributes. --------------- */
+
+    // Session UUID.
+    sessionUuidStore.set( uuidv4() )
+
+    
     /**
      * Load-app-config method.
      * 
      * Loads development-mode flag, font names and all config options stored
      * in the app-level config.json file.
      */
-    async function loadAppConfig() {
+     async function loadAppConfig() {
         if (!mounted) return
 
         $loadingState = "configLoading"
@@ -155,19 +209,6 @@
         leftMenuLockedOpen = !!$leftSideMenuStore
         openedSubMenuName = $leftSideMenuStore || "File"
         lockedSubMenuName = $leftSideMenuStore
-    }
-
-    /**
-     * Handle-mouse-move method.
-     * 
-     * Updates the mouse-position tracker and the endpoint for any in-progress
-     * Relationship-creation operation.
-     */
-    handleMouseMove = ( event: MouseEvent | TouchEvent ) => {
-        const clientX = "clientX" in event ? event.clientX : event.touches.item(0)?.clientX as number
-        const clientY = "clientY" in event ? event.clientY : event.touches.item(0)?.clientY as number
-        updateMousePosition( [clientX, clientY] )
-        updateRelationshipBeingCreatedEndpoint( [clientX, clientY] )
     }
 
     /**

@@ -1,0 +1,1 @@
+export { default as PinsViewer } from "./pinsViewer.svelte"
