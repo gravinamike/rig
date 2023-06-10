@@ -1,7 +1,8 @@
 import type { Thing } from "$lib/models/constructModels"
 
 
-export interface HistoryEntryWithThing {
+
+export interface HistoryEntry {
     timestamp: Date,
     thingId: number,
     thing: Thing | null
@@ -27,7 +28,7 @@ function endOfDay(inputDate: Date): Date {
 export function getDatesBetweenTwoDates(startDate: Date, endDate: Date): Date[] {
     const dates: Date[] = []
     let currentDate = startDate
-    while (currentDate <= endDate) {
+    while (currentDate <= endOfDay(endDate)) {
         dates.push(endOfDay(currentDate))
         currentDate = addDaysToDate(currentDate, 1)
     }

@@ -117,7 +117,7 @@
 
     // If the position in the Perspective History has changed, re-Perspect the Graph.
     $: if (graph) {
-        const selectedHistoryThingId = graph.history.entryWithThingAtPosition.thingId
+        const selectedHistoryThingId = graph.history.entryAtPosition.thingId
         
         if (
             !rePerspectInProgressThingId

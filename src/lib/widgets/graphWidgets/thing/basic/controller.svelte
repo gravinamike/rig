@@ -27,6 +27,7 @@
     import { updateThingPerspectiveText, updateThingText } from "$lib/db"
     import type { ThingDbModel } from "$lib/models/dbModels"
     import type { CommandButtonInfo } from "$lib/widgets/layoutWidgets";
+    import type { HistoryEntry } from "$lib/models/constructModels/graph/historyUtility";
 
     /**
      * Create a Thing Widget Model.
@@ -366,7 +367,9 @@
         await unstoreGraphDbModels("Thing", thingId)
 
         // Delete the Thing in the History.
-        const reverseHistory = graph.history._entries.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+        const reverseHistory = graph.history.reverseHistoryWithDateDividers.filter(
+            entry => "thingId" in entry
+        ) as HistoryEntry[]
         for (const historyEntry of reverseHistory) {
             if (historyEntry.thingId !== thingId && graphDbModelInStore("Thing", historyEntry.thingId)) {
                 rePerspectToThingId(historyEntry.thingId)

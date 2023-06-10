@@ -41,7 +41,7 @@ export class Graph {
         this.parentGraph?.childGraphs.push(this)
         this.generations = new Generations(this)
         this.planes = new Planes(this)
-        this.history = new PerspectiveHistory(this)
+        this.history = new PerspectiveHistory()
         this.startingSpace = startingSpace
         this.originalStartingSpace = startingSpace
         this.offAxis = offAxis

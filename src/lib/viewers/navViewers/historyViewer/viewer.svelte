@@ -2,13 +2,18 @@
     // Import types.
     import type { Graph } from "$lib/models/constructModels"
 
+    // Import basic framework resources.
+    import { onMobile } from "$lib/shared/utility"
 
     // Import constants.
     import { dateDividerOptions } from "$lib/shared/constants"
-    import { onMobile } from "$lib/shared/utility";
 
     // Import stores.
-    import { addPin, homeThingIdStore, hoveredThingIdStore, openContextCommandPalette, pinIdsStore, readOnlyMode, removeHomeThing, removePin, setHomeThingId, uIBackgroundColorStore } from "$lib/stores"
+    import {
+        uIBackgroundColorStore, readOnlyMode, pinIdsStore, addPin, removePin,
+        homeThingIdStore, setHomeThingId, removeHomeThing,
+        hoveredThingIdStore, openContextCommandPalette,     
+    } from "$lib/stores"
 
     // Import related widgets.
     import { Toggle } from "$lib/widgets/layoutWidgets"
@@ -16,7 +21,7 @@
 
     /**
      * @param graph - The Graph that this widget shows the history for.
-     * 
+     * @param useTabbedLayout - Whether to use the full or tabbed layout for the viewer.
      * @param rePerspectToThingId - Method to re-Perspect the Graph to a new Thing ID.
      */
     export let graph: Graph
@@ -24,15 +29,18 @@
     export let rePerspectToThingId: (thingId: number) => Promise<void>
 
 
+    // Set up full/unique history toggling.
     let useUniqueHistory = true
     $: graph.history.setUnique(useUniqueHistory)
 
+    // The history to use is the reversed history with date dividers, made
+    // reactive to the full/unique history toggle.
     let historyToUse = graph.history.reverseHistoryWithDateDividers
     $: {
         useUniqueHistory
-
         historyToUse = graph.history.reverseHistoryWithDateDividers
     }
+    
     
     /**
      * Open a context command palette for a History entry.

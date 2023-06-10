@@ -36,7 +36,6 @@
 
 
     // Attributes handled by page controller.
-
     let title = "Rig"
     let urlUsernameAndGraphFolder: string | null = null
     let urlThingId: number | null = null

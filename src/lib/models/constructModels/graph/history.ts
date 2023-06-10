@@ -1,6 +1,5 @@
 // Import types.
-import type { Graph } from "$lib/models/constructModels"
-import type { HistoryEntryWithThing, DateDivider } from "./historyUtility"
+import type { HistoryEntry, DateDivider } from "./historyUtility"
 
 // Import stores and utility functions.
 import { getGraphConstructs, graphDbModelInStore } from "$lib/stores"
@@ -11,35 +10,22 @@ import { getDatesBetweenTwoDates } from "./historyUtility"
 
 /** Class representing the Perspective History of a Graph. */
 export class PerspectiveHistory {
-    // The Graph the History belongs to.
-    _graph: Graph
-
-    // Whether to use the raw or unique history.
-    _useUniqueHistory = true
-
-    // Basic array of Thing IDs by timestamp.
-    _entries: { timestamp: Date, thingId: number }[] = []
+    // Whether to use the full or unique history.
+    #useUniqueHistory = true
     
-    // History arrays for use by the History Viewer.
-    fullHistoryWithThings: HistoryEntryWithThing[] = []
-    uniqueHistoryWithThings: HistoryEntryWithThing[] = []
-    historyWithThings: HistoryEntryWithThing[] = []
-    reverseHistoryWithDateDividers: (HistoryEntryWithThing | DateDivider)[] = []
+    // The full, unique, and to-be-used histories.
+    #fullHistory: HistoryEntry[] = []
+    #uniqueHistory: HistoryEntry[] = []
+    #historyToUse: HistoryEntry[] = []
+
+
+    reverseHistoryWithDateDividers: (HistoryEntry | DateDivider)[] = []
 
     // Position in the history.
     position = 0
 
     // Which Thing ID is currently selected.
     selectedThingId: number | null = null
-
-
-    /**
-     * Create the Perspective History of the Graph.
-     * @param {Graph} graph - The Graph the History belongs to.
-     */
-    constructor(graph: Graph) {
-        this._graph = graph
-    }
 
 
     /**
@@ -54,57 +40,37 @@ export class PerspectiveHistory {
         
         // Construct and add entries to the history entries object.
         const timestamp = new Date()
-        const entries = thingIds.map(
-            (thingId) => { return { timestamp: timestamp, thingId: thingId } }
+        const entries: HistoryEntry[] = thingIds.map(
+            (thingId) => { return {
+                timestamp: timestamp,
+                thingId: thingId,
+                thing: 
+                    graphDbModelInStore("Thing", thingId) ? getGraphConstructs("Thing", thingId) :
+                    null
+            } }
         )
-        this._entries.push(...entries)
+        this.#fullHistory.push(...entries)
         
-        // Rebuild the Graph.
-        this.build()
-
-        // Re-calculate position in history and selected Thing ID.
-        this.position = this.fullHistoryWithThings.length - 1
-        this.selectedThingId = this.entryWithThingAtPosition.thingId
+        // Rebuild the history (setting the position to the end).
+        this.build(true)
     }
 
     /**
-     * Build-full-history-with-Things method.
+     * Build-unique-history method.
      * 
-     * Derive history with things array from base history entries.
+     * Derive unique history array from base history array.
      */
-    buildFullHistoryWithThings(): void {
-        // Derive history with things array from base history entries.
-        const fullHistoryWithThings: HistoryEntryWithThing[] = this._entries.map(
-            (entry) => {
-                return {
-                    timestamp: entry.timestamp,
-                    thingId: entry.thingId,
-                    thing: graphDbModelInStore("Thing", entry.thingId) ? getGraphConstructs("Thing", entry.thingId) : null
-                }
-            }
-        )
-        
-        // Set full-history-with-Things array to this array.
-        this.fullHistoryWithThings = fullHistoryWithThings
-    }
-
-    /**
-     * Build-unique-history-with-Things method.
-     * 
-     * Derive unique history with things array from base history entries.
-     */
-    buildUniqueHistoryWithThings(): void {
-        
-        // Get a list of Thing Ids from the full history (excluding date
+    buildUniqueHistory(): void {
+        // Get a list of Thing IDs from the full history (excluding date
         // dividers).
-        const historyThingIds = this.fullHistoryWithThings.map(
+        const historyThingIds = this.#fullHistory.map(
             visitedThing => "thingId" in visitedThing ? visitedThing.thingId : "divider"
         )
 
-        // Derive unique history with things array from full history with things
-        // array, filtering for only the last instance of each Thing ID.
-        const uniqueHistoryWithThings = 
-            this.fullHistoryWithThings.filter(
+        // Derive unique history array from full history array, filtering for
+        // only the last instance of each Thing ID.
+        const uniqueHistory=
+            this.#fullHistory.filter(
                 (element, index) => {
                     const lastIndexOfId = historyThingIds.lastIndexOf(element.thingId)
                     return lastIndexOfId === index
@@ -112,31 +78,31 @@ export class PerspectiveHistory {
             )
         
         // Set unique-history-with-Things array to this array.
-        this.uniqueHistoryWithThings = uniqueHistoryWithThings
+        this.#uniqueHistory = uniqueHistory
     }
 
 
     /**
      * Reverse-and-add-date-dividers method.
      * 
-     * Create a version of history with things that is reversed and has date
-     * dividers inserted between each day's history entries.
-     * @param historyWithThings - The history-with-things array to be modified.
-     * @returns A reversed version of the history-with-things array, with date dividers added.x
+     * Create a version of history that is reversed and has date dividers
+     * inserted between each day's history entries.
+     * @param historyWithThings - The history array to be modified.
+     * @returns A reversed version of the history array, with date dividers added.
      */
-    reverseAndAddDateDividers(historyWithThings: HistoryEntryWithThing[]): (HistoryEntryWithThing | DateDivider)[] {
+    reverseAndAddDateDividers(history: HistoryEntry[]): (HistoryEntry | DateDivider)[] {
         // Construct a list of date dividers for all dates in the history.
         const datesInHistory =
-            historyWithThings.length ? getDatesBetweenTwoDates(
-                historyWithThings[0].timestamp,
-                historyWithThings[historyWithThings.length - 1].timestamp
+            history.length ? getDatesBetweenTwoDates(
+                history[0].timestamp,
+                history[history.length - 1].timestamp
             ) :
             []
         const dateDividers = datesInHistory.map((date) => {return {timestamp: date}})
 
         // Add the date divider list to the end of the history Thing list.
         const historyWithDateDividers =
-            (historyWithThings as (HistoryEntryWithThing | DateDivider)[]).concat(dateDividers)
+            (history as (HistoryEntry | DateDivider)[]).concat(dateDividers)
 
         // Sort the history Thing/date divider list in reverse order.
         const reverseHistoryWithDateDividers =
@@ -154,18 +120,20 @@ export class PerspectiveHistory {
      * Builds all versions of the history and derives the position and the ID of
      * the selected Thing.
      */
-    build(): void {
-        // Build full, unique, and to-be-used histories, as well as the reversed
-        // history with date dividers.
-        this.buildFullHistoryWithThings()
-        this.buildUniqueHistoryWithThings()
-        this.historyWithThings =
-            this._useUniqueHistory ? this.uniqueHistoryWithThings :
-            this.fullHistoryWithThings
-        this.reverseHistoryWithDateDividers = this.reverseAndAddDateDividers(this.historyWithThings)
+    build(movePositionToEnd = false): void {
+        // Build full, unique, and to-be-used histories.
+        this.buildUniqueHistory()
+        this.#historyToUse =
+            this.#useUniqueHistory ? this.#uniqueHistory :
+            this.#fullHistory
+
+        // Build the reversed history with date dividers.
+        this.reverseHistoryWithDateDividers = this.reverseAndAddDateDividers(this.#historyToUse)
         
-        // Derive the ID of the currently selected Thing.
-        this.selectedThingId = this.entryWithThingAtPosition.thingId
+        // Re-calculate position in history and the ID of the currently-
+        // selected Thing.
+        if (movePositionToEnd) this.position = this.#fullHistory.length - 1
+        this.selectedThingId = this.entryAtPosition.thingId
     }
 
     /**
@@ -175,7 +143,7 @@ export class PerspectiveHistory {
      * @param unique - Whether to use the unique history.
      */
     setUnique(unique: boolean): void {
-        this._useUniqueHistory = unique
+        this.#useUniqueHistory = unique
         this.build()
     }
 
@@ -184,22 +152,22 @@ export class PerspectiveHistory {
         const oldPosition = this.position
 
         // Derive the new position.
-        const newPosition = clampNumber(this.position + delta, 0, this.fullHistoryWithThings.length - 1)
+        const newPosition = clampNumber(this.position + delta, 0, this.#fullHistory.length - 1)
 
         // If the position has changed, update position and selected Thing ID.
         if (newPosition !== oldPosition) {
             this.position = newPosition
-            this.selectedThingId = this.entryWithThingAtPosition.thingId
+            this.selectedThingId = this.entryAtPosition.thingId
         }
     }
 
     /**
-     * Entry-with-Thing-at-position accessor.
+     * Entry-at-position accessor.
      * 
      * Gives the history-entry-with-Thing object at the current position in the
      * history.
      */
-    get entryWithThingAtPosition(): HistoryEntryWithThing {
-        return this.fullHistoryWithThings[this.position]
+    get entryAtPosition(): HistoryEntry {
+        return this.#fullHistory[this.position]
     }
 }
