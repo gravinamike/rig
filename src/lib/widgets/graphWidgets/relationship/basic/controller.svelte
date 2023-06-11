@@ -8,7 +8,7 @@
     // Import constants and utility functions.
     import { mirroringByHalfAxisId, zoomBase } from "$lib/shared/constants"
     import { onMobile, rectOfThingWidgetByThingId } from "$lib/shared/utility"
-    import { addGraphIdsNeedingViewerRefresh, getGraphConstructs, openContextCommandPalette } from "$lib/stores";
+    import { addGraphIdsNeedingViewerRefresh, openContextCommandPalette } from "$lib/stores";
     import type { CommandButtonInfo } from "$lib/widgets/layoutWidgets";
 
 
@@ -36,6 +36,7 @@
     export let sizeOfThingsAlongWidth: number
 
     export let leafGeometry: { bottom: number, top: number, bottomMidline: number, topMidline: number } | null
+    export let showFanSegment: boolean
     export let tweenedScale: Tweened<number>
     export let openCommandPalette: (event: MouseEvent) => void
     export let deleteRelationship: () => void
@@ -185,8 +186,8 @@
      * rotation. It is determined by the half-axis.
      */
     $: offsetAlongLength =
-        [1, 2].includes(halfAxisId) ? offsetsOfRelatedThing.y :
-        offsetsOfRelatedThing.x
+        [1, 2].includes(halfAxisId) ? offsetsOfRelatedThing?.y || 0 :
+        offsetsOfRelatedThing?.x || 0
 
     /**
      * Offset of related Thing along Relationship Cohort width.
@@ -196,8 +197,8 @@
      * rotation. It is determined by the half-axis.
      */
     $: offsetAlongWidth =
-        [1, 2].includes(halfAxisId) ? offsetsOfRelatedThing.x :
-        offsetsOfRelatedThing.y
+        [1, 2].includes(halfAxisId) ? offsetsOfRelatedThing?.x || 0 :
+        offsetsOfRelatedThing?.y || 0
 
     /**
      * Flip.
@@ -242,8 +243,18 @@
      * The horizontal and vertical distances between the start of the
      * Relationship and the related Thing. Used for "non-default" Leaf geometries
      * when the destination Thing is already rendered in the Graph.
+     * If the related Thing is in a sub-Graph, the offsets are set to null.
      */
     $: offsetsOfRelatedThing = getOffsetsOfRelatedThing(cohortMemberWithIndex.member, $tweenedScale)
+
+    /**
+     * Show-fan-segment flag.
+     * 
+     * Indicates whether to show the fan segment. If the offsets of the related
+     * Thing are null (meaning the related Thing doesn't exist or is in a sub-
+     * Graph), this is false.
+     */
+    $: showFanSegment = !!offsetsOfRelatedThing
 
     /**
      * Get-offsets-of-related-Thing method.
@@ -254,19 +265,20 @@
      * 
      * @param member - The Generation Member for the related Thing.
      * @param scale - The current Scale of the Graph.
-     * @returns - An {x, y} object with the horizontal and vertical offsets.
+     * @returns - An {x, y} object with the horizontal and vertical offsets, or null if the related Thing is in a sub-Graph.
      */
-    function getOffsetsOfRelatedThing(member: GenerationMember, scale: number): {x: number, y: number} {
+    function getOffsetsOfRelatedThing(member: GenerationMember, scale: number): {x: number, y: number} | null {
         // Get location of the Relationship's source Thing Widget.
-        const parentDomRect = rectOfThingWidgetByThingId(graph.id, cohort.parentThingId as number)
+        const [parentDomRect, _] = rectOfThingWidgetByThingId(graph, cohort.parentThingId as number)
         const parentRectX = parentDomRect === null ? 0 : parentDomRect.x
         const parentRectY = parentDomRect === null ? 0 : parentDomRect.y
 
         // Get position of the Relationship's destination Thing Widget.
-        const relatedRect = rectOfThingWidgetByThingId(graph.id, member.thingId as number)
+        const [relatedRect, isSubGraph] = rectOfThingWidgetByThingId(graph, member.thingId as number)
+        if (isSubGraph) return null
         const relatedRectX = relatedRect === null ? 0 : relatedRect.x
         const relatedRectY = relatedRect === null ? 0 : relatedRect.y
-
+        
         // Return the component offsets (the differences between the two).
         const offsetLengthX = (relatedRectX - parentRectX) / scale
         const offsetLengthY = (relatedRectY - parentRectY) / scale

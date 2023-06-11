@@ -66,6 +66,7 @@
         bottomMidline: 0,
         topMidline: 0
     }
+    let showFanSegment = false
     let tweenedScale = tweened(1, {duration: 100, easing: cubicOut})
     let openCommandPalette: (event: MouseEvent) => void
     let deleteRelationship: () => void
@@ -86,6 +87,7 @@
     {sizeOfThingsAlongWidth}
 
     bind:leafGeometry
+    bind:showFanSegment
     bind:tweenedScale
     bind:openCommandPalette
     bind:deleteRelationship
@@ -111,15 +113,17 @@
 />
 
 <!-- Relationship fan segment widget -->
-<RelationshipFanSegmentWidget
-    bind:thingIdOfHoveredRelationship
-    tweenedScale={$tweenedScale}
-    {midline}
-    {stemTop}
-    leafGeometry={leafGeometry}
-    cohortMemberWithIndex={cohortMemberWithIndex}
-    {relationshipColor}
-    {relatableForCurrentDrag}
-    {openCommandPalette}
-    {deleteRelationship}
-/>
+{#if showFanSegment}
+    <RelationshipFanSegmentWidget
+        bind:thingIdOfHoveredRelationship
+        tweenedScale={$tweenedScale}
+        {midline}
+        {stemTop}
+        leafGeometry={leafGeometry}
+        cohortMemberWithIndex={cohortMemberWithIndex}
+        {relationshipColor}
+        {relatableForCurrentDrag}
+        {openCommandPalette}
+        {deleteRelationship}
+    />
+{/if}

@@ -1,3 +1,5 @@
+import type { Graph } from "$lib/models/constructModels"
+
 /**
  * Class representing a rectangle.
  */
@@ -81,11 +83,23 @@ export function elementGroupEdges(elementGroup: Element[]): {top: number, right:
  * 
  * Returns the bounding rectangle for a specific Thing widget (or null if no
  * such widget exists for the provided Graph and Thing ID).
- * @param graphId - The Graph that the Thing is in.
+ * @param graph - The Graph that the Thing is in.
  * @param thingId - The ID of the Thing the widget represents.
- * @returns - The bounding rectangle of the Thing widget (or null if none).
+ * @returns - An array containing the bounding rectangle of the Thing widget (or null if none), and a boolean flag indicating whether the Thing widget is in a sub-Graph of the supplied.
  */
-export function rectOfThingWidgetByThingId(graphId: number, thingId: number): DOMRect | null {
+export function rectOfThingWidgetByThingId(graph: Graph, thingId: number, isSubGraph=false): [(DOMRect | null), boolean] {
+    const graphId = graph.id
     const thingWidget = document.getElementById(`graph#${graphId}-thing#${thingId}`)
-    return thingWidget ? thingWidget.getBoundingClientRect() : null
+    const thingWidgetRect = thingWidget?.getBoundingClientRect() || null
+
+    if (thingWidgetRect && thingWidgetRect?.x !== 0 && thingWidgetRect?.y !== 0) {
+        return [thingWidgetRect, isSubGraph]
+    } else {
+        for (const subGraph of graph.childGraphs) {
+            const subGraphThingWidgetRect = rectOfThingWidgetByThingId(subGraph, thingId, true)
+            if (subGraphThingWidgetRect) return subGraphThingWidgetRect
+        }
+    }
+
+    return [null, isSubGraph]
 }
