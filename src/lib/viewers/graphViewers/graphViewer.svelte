@@ -95,10 +95,14 @@
     let openedSubMenuName: string | null
     let rightMenuLockedOpen: boolean
     let lockedSubMenuName: string | null
-    $: sideMenuExtension = 
+    $: sideMenuExtension =
         usePortraitLayout ? window.innerHeight * 0.5 :
         onMobile() ? (window.innerWidth - 187) * 0.5 :
         (window.innerWidth - 250) * 0.5
+    $: sideMenuFullSizeExtension =
+        usePortraitLayout ? window.innerHeight :
+        onMobile() ? (window.innerWidth - 187) :
+        null
 
 
     // Refresh the viewer whenever...
@@ -308,6 +312,7 @@
         bind:lockedOpen={rightMenuLockedOpen}
         bind:lockedSubMenuName
         openExtension={sideMenuExtension}
+        fullSizeExtension={sideMenuFullSizeExtension}
         openTime={500}
         overlapPage={false}
         slideDirection={ usePortraitLayout ? "down" : "left" }

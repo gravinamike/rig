@@ -30,6 +30,7 @@
     export let lockedOpen = false
     export let lockedSubMenuName: string | null = openedSubMenuName
     export let openExtension = 250
+    export let fullSizeExtension: number | null = null
     export let openTime = 500
     export let overlapPage = false
     export let slideDirection: "right" | "left" | "down" | "up" = "right"
@@ -56,11 +57,28 @@
     // closing.
     let closing = false
 
+
+
+
+    let fullSize = false
+    $: extensionToUse = fullSizeExtension && fullSize ? fullSizeExtension : openExtension
+
+
+
     // The "width" attribute is derived from the base width and the tweened
     // "percentOpen" value.
     const percentOpen = tweened( 0.0, { duration: openTime, easing: cubicOut } )
     $: percentOpen.set( open ? 1.0 : 0.0 )
-    $: extension = openExtension * $percentOpen
+    //$: extension = (extensionToUse) * $percentOpen
+
+
+    const extension = tweened( 0, { duration: openTime } )
+    $: extension.set(extensionToUse * $percentOpen)
+
+
+
+
+
 
     // Attributes related to button formatting.
     let buttonSpacingPercent = tweened( -100, { duration: 100, easing: cubicOut } )
@@ -175,8 +193,8 @@
     bind:this={sideMenu}
 
     style={
-        orientation === "horizontal" ? `width: ${extension}px; height: 100%;` :
-        `width: 100%; height: ${extension}px;`
+        orientation === "horizontal" ? `width: ${$extension}px; height: 100%;` :
+        `width: 100%; height: ${$extension}px;`
     }
 
     on:mouseleave={handleMouseLeave}
@@ -188,7 +206,7 @@
 
         on:mouseenter={handleMouseEnter}
     >
-        {#if extension > 0}
+        {#if $extension > 0}
             <div
                 class="content"
                 class:overlap-page={overlapPage}
@@ -196,8 +214,8 @@
                 class:slide-left={slideDirection === "left"}
 
                 style={
-                    orientation === "horizontal" ? `width: ${openExtension}px; height: 100%;` :
-                    `width: 100%; height: ${openExtension}px;`
+                    orientation === "horizontal" ? `width: ${$extension}px; height: 100%;` :
+                    `width: 100%; height: ${$extension}px;`
                 }
             >
                 <slot />
@@ -206,7 +224,7 @@
     </div>
 
     <!-- Hover-open strip. -->
-    {#if !onMobile() && extension === 0 && !mousePressed}
+    {#if !onMobile() && $extension === 0 && !mousePressed}
         <div
             class="hover-open-strip"
             class:slide-right={slideDirection === "right"}
@@ -292,6 +310,42 @@
         {/each}
 
     </div>
+
+    <!-- Full-size button. -->
+    {#if fullSizeExtension}
+        <div
+            class="full-size-button"
+            class:on-mobile={onMobile()}
+
+            style="
+                {
+                    slideDirection === "right" ? "right" :
+                    slideDirection === "left" ? "left" :
+                    slideDirection === "down" ? "bottom" :
+                    "top"
+                }: calc(-10px + {onMobile() ? "0.125rem" : "0.25rem"});
+                {
+                    slideDirection === "right" || slideDirection === "left" ? "top" :
+                    "left"
+                }: calc(50% - 12.5px);
+                transform: scaleY({
+                    fullSize ? -1 : 1
+                }) rotate({
+                    slideDirection === "right" ? 270 :
+                    slideDirection === "left" ? 90 :
+                    slideDirection === "down" ? 0 :
+                    180
+                }deg);
+            "
+
+            on:click={() => {fullSize = !fullSize}}
+            on:keydown={()=>{}}
+        >
+            <svg>
+                <polygon points="8,10 17,10 12.5,15" />
+            </svg>
+        </div>
+    {/if}
 
 </div>
 
@@ -420,5 +474,42 @@
 
     .button:active {
         background-color: lightgrey;
+    }
+
+    .full-size-button {
+        border-radius: 50%;
+
+        position: absolute;
+        width: 25px;
+        height: 25px;
+        background-color: transparent;
+        opacity: 1;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        cursor: pointer;
+    }
+
+    .full-size-button.on-mobile, .full-size-button:hover {
+        opacity: 1;
+    }
+
+    svg {
+        width: 25px;
+        height: 25px;
+        stroke: gainsboro;
+        fill: gainsboro;
+    }
+
+    .full-size-button:hover svg {
+        stroke: #C8C8C8;
+        fill: #C8C8C8;
+    }
+
+    .full-size-button:active svg {
+        stroke: grey;
+        fill: grey;
     }
 </style>
