@@ -6,6 +6,7 @@
 
     export let rePerspectToThingId: (id: number) => Promise<void>
     export let padded = true
+    export let focused = false
 
 
     let unfilteredArray: {id: number, name: string}[] = []
@@ -25,6 +26,13 @@
             rePerspectToThingId(matchedItems[0].id)
         }
     }
+
+
+
+    
+
+
+
 </script>
 
 
@@ -39,6 +47,7 @@
         focusMethod={() => {}}
         {submitMethod}
         maxHeight={500}
+        bind:focused
     />
 
 </div>

@@ -10,6 +10,7 @@
     export let submitMethod: (selectedItem: SearchOption | null, matchedItems: SearchOption[]) => void
     export let maxHeight: number | null = 100
     export let useSubmitButton = false
+    export let focused = false
 
 
     
@@ -148,6 +149,8 @@
 
         style={`font-size: ${fontSize}rem;`}
 
+        on:focus={() => {focused = true}}
+        on:blur={() => {focused = false}}
         on:input={handleInput}
         on:keydown={ (event) => {
             if (showFiltered && event.key === "ArrowDown") {

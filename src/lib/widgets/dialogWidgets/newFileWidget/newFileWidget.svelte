@@ -94,7 +94,7 @@
         on:keyup|stopPropagation={handleEscape}
     >
         <div class="inner-widget">
-            <img src="./icons/new-file.png" alt="link" width=30px height=30px />
+            <img src="./icons/new-file.png" alt="New file" width=30px height=30px />
             <input
                 type="text"
                 placeholder="Enter name for new file..."
