@@ -63,18 +63,12 @@
     let fullSize = false
     $: extensionToUse = fullSizeExtension && fullSize ? fullSizeExtension : openExtension
 
+    $: percentOpen = open ? 1.0 : 0.0
 
+    const extension = tweened( 0, { duration: openTime, easing: cubicOut } )
+    $: extension.set(extensionToUse * percentOpen)
 
-    // The "width" attribute is derived from the base width and the tweened
-    // "percentOpen" value.
-    const percentOpen = tweened( 0.0, { duration: openTime, easing: cubicOut } )
-    $: percentOpen.set( open ? 1.0 : 0.0 )
-    //$: extension = (extensionToUse) * $percentOpen
-
-
-    const extension = tweened( 0, { duration: openTime } )
-    $: extension.set(extensionToUse * $percentOpen)
-
+    $: extensionForContent = Math.max($extension, openExtension)
 
 
 
@@ -214,8 +208,8 @@
                 class:slide-left={slideDirection === "left"}
 
                 style={
-                    orientation === "horizontal" ? `width: ${$extension}px; height: 100%;` :
-                    `width: 100%; height: ${$extension}px;`
+                    orientation === "horizontal" ? `width: ${extensionForContent}px; height: 100%;` :
+                    `width: 100%; height: ${extensionForContent}px;`
                 }
             >
                 <slot />
