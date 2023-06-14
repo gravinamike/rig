@@ -115,6 +115,7 @@
                     {rePerspectToThingId}
                     padded={false}
                     bind:focused={searchBoxFocused}
+                    {searchType}
                 />
 
                 {#if !searchBoxFocused}

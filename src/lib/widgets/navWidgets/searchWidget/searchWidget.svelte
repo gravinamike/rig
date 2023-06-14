@@ -4,6 +4,7 @@
     import { onMobile } from "$lib/shared/utility"
     import EditButton from "$lib/widgets/layoutWidgets/editButton.svelte";
 
+
     export let unfilteredArray: {id: number, name: string}[]
     export let placeholderText: string
     export let focusMethod: (focusedItem: SearchOption | null) => void

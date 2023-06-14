@@ -7,6 +7,7 @@
     export let rePerspectToThingId: (id: number) => Promise<void>
     export let padded = true
     export let focused = false
+    export let searchType: "thing" | "note" = "thing"
 
 
     let unfilteredArray: {id: number, name: string}[] = []
@@ -43,7 +44,7 @@
 
     <SearchWidget
         {unfilteredArray}
-        placeholderText={"Search Things..." }
+        placeholderText={searchType === "thing" ? "Search Things..." : "Search Notes..." }
         focusMethod={() => {}}
         {submitMethod}
         maxHeight={500}
