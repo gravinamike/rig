@@ -204,11 +204,16 @@ export async function queryThingSearchList( thingIds: number[] | null ): Promise
  */
 export async function queryNoteSearchList( noteIds: number[] | null ): Promise<NoteSearchListItemDbModel[]> {
     const queriedNoteSearchListDbModels = noteIds === null ?
-        await RawNoteSearchListItemDbModel.query().orderBy('id') :
+        await RawNoteSearchListItemDbModel.query()
+            .allowGraph('thing')
+            .withGraphFetched('thing')
+            .orderBy('id') :
         await RawNoteSearchListItemDbModel.query()
             .where(
                 (builder) => builder.whereIn('id', noteIds)
             )
+            .allowGraph('thing')
+            .withGraphFetched('thing')
             .orderBy('id')
 
     return stripNoteSearchListItemDbModels(queriedNoteSearchListDbModels)

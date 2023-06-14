@@ -3,7 +3,7 @@ import type { NoteDbModel, NoteSearchListItemDbModel, NoteToThingDbModel } from 
 
 import { Model } from "objection"
 import { v4 as uuidv4 } from "uuid"
-import { RawThingDbModel } from "$lib/server/models"
+import { RawThingDbModel, RawThingSearchListItemDbModel } from "$lib/server/models"
 
 
 /*
@@ -87,20 +87,24 @@ export function getNewNoteInfo(whenCreated: string): NewNoteInfo {
 export class RawNoteSearchListItemDbModel extends Model {
     static tableName = "notes" as const
 
-    id!: number
+    id!: string | number
     guid!: string
     text!: string
     
-    noteToThing!: RawNoteToThingDbModel | null
+    thing!: RawThingSearchListItemDbModel | null
 
     static get relationMappings(): RelationMappings | RelationMappingsThunk {
         return {
-            noteToThing: {
-                relation: Model.HasOneRelation,
-                modelClass: RawNoteToThingDbModel,
+            thing: {
+                relation: Model.HasOneThroughRelation,
+                modelClass: RawThingSearchListItemDbModel,
                 join: {
                     from: 'notes.id',
-                    to: 'notetothing.noteid'
+                    through: {
+                        from: 'notetothing.noteid',
+                        to: 'notetothing.thingid'
+                    },
+                    to: 'things.id'
                 }
             }
         };
@@ -114,10 +118,10 @@ export function stripNoteSearchListItemDbModels(models: RawNoteSearchListItemDbM
     for (const model of models) {
         stripped.push(
             {
-                id: model.id,
+                id: Number(model.id),
                 guid: model.guid,
                 text: model.text,
-                thingId: model.noteToThing?.thingid || null
+                thingId: model.thing ? Number(model.thing.id) : null
             }
         )
     }

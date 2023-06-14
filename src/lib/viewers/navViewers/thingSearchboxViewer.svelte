@@ -29,9 +29,11 @@
     async function buildUnfilteredArray(searchList: (ThingSearchListItem | NoteSearchListItem)[]) {
         unfilteredArray = []
         for (const searchListItem of searchList) {
-            unfilteredArray.push({
-                id: (searchListItem.id as number),
-                text: (searchListItem.text as string)
+            const id = "thingId" in searchListItem ? searchListItem.thingId : searchListItem.id
+            const text = searchListItem.text
+            if (id && text) unfilteredArray.push({
+                id: id,
+                text: text
             })
         }
     }
