@@ -115,10 +115,10 @@
         <SearchWidget
             {unfilteredArray}
             placeholderText={"Search Things..." }
-            {focusMethod}
-            {submitMethod}
             maxHeight={portraitOrientation ? 500 : null}
             useSubmitButton={onMobile() ? true : false}
+            {focusMethod}
+            {submitMethod}
         />
     </div>
 
