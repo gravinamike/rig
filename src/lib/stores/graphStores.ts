@@ -1,6 +1,6 @@
 // Import ypes.
 import type { MenuName } from "$lib/shared/constants"
-import type { ThingSearchListItem } from "$lib/models/constructModels"
+import type { ThingSearchListItem, NoteSearchListItem } from "$lib/models/constructModels"
 
 // Import basic framework resources.
 import { writable, get } from "svelte/store"
@@ -9,7 +9,7 @@ import { writable, get } from "svelte/store"
 import { Graph, Space } from "$lib/models/constructModels"
 
 // Import API methods.
-import { thingSearchListItems } from "$lib/db"
+import { noteSearchListItems, thingSearchListItems } from "$lib/db"
 
 
 
@@ -211,7 +211,7 @@ export async function storeThingSearchList(): Promise<ThingSearchListItem[]> {
         // Update the store with this list.
         updateThingSearchListStore(queriedThingSearchListItems)
         
-        // Return the Thing search List.
+        // Return the Thing search list.
         return queriedThingSearchListItems
     } else {
         return []
@@ -237,7 +237,7 @@ export async function updateThingSearchListStore(
 /**
  * Remove-Thing-search-list-store method.
  * 
- * Removes some Thing search list items to the Thing-search-list-store.
+ * Removes some Thing search list items from the Thing-search-list-store.
  * @param thingSearchListItems - The Thing search list items to remove.
  */
 export async function removeIdsFromThingSearchListStore( thingIds: number | number[] ): Promise<void> {
@@ -265,4 +265,81 @@ export async function removeIdsFromThingSearchListStore( thingIds: number | numb
  */
 export async function clearThingSearchList(): Promise<void> {
     thingSearchListStore.set([])
+}
+
+
+/**
+ * Notes search list store.
+ * 
+ * Stores an array of Notes search list items for use by the Thing search dialog.
+ */
+export const noteSearchListStore = writable( [] as NoteSearchListItem[] )
+
+/**
+ * Store-Notes-search-list method.
+ * 
+ * Stores an array of Notes search list items based on a database search of the
+ * Notes table.
+ * @returns - Array of the stored Notes search list items, if any.
+ */
+export async function storeNotesSearchList(): Promise<NoteSearchListItem[]> {  
+    const queriedNoteSearchListItems = await noteSearchListItems()
+    if (queriedNoteSearchListItems) {
+        // Update the store with this list.
+        updateNoteSearchListStore(queriedNoteSearchListItems)
+        
+        // Return the Note search list.
+        return queriedNoteSearchListItems
+    } else {
+        return []
+    }
+}
+
+/**
+ * Update-Note-search-list-store method.
+ * 
+ * Adds some Note search list items to the Note-search-list-store.
+ * @param noteSearchListItems - The Note search list items to add.
+ */
+export async function updateNoteSearchListStore(
+    noteSearchListItems: NoteSearchListItem | NoteSearchListItem[]
+): Promise<void> {
+    // If necessary, pack a single supplied Note search list item in an array for processing.
+    if (!("length" in noteSearchListItems)) noteSearchListItems = [noteSearchListItems]
+
+    // Update the store with the items.
+    noteSearchListStore.update( (current) => [...current, ...(noteSearchListItems as NoteSearchListItem[]) ] )
+}
+
+/**
+ * Remove-Note-search-list-store method.
+ * 
+ * Removes some Note search list items from the Note-search-list-store.
+ * @param noteSearchListItems - The Note search list items to remove.
+ */
+export async function removeIdsFromNoteSearchListStore( noteIds: number | number[] ): Promise<void> {
+    // If necessary, pack a single supplied Note ID in an array for processing.
+    if (typeof noteIds === "number") noteIds = [noteIds]
+
+    // Remove the items from the store.
+    noteSearchListStore.update( (current) => {
+        for (const noteSearchListItem of current) {
+            if (noteSearchListItem.id && (noteIds as number[]).includes(noteSearchListItem.id)) {
+                const index = current.indexOf(noteSearchListItem)
+                if (index > -1) {
+                    current.splice(index, 1)
+                }
+            }
+        }
+        return current
+    } )
+}
+
+/**
+ * Clear-Note-search-list method.
+ * 
+ * Set the Note-search-list-store to an empty array.
+ */
+export async function clearNoteSearchList(): Promise<void> {
+    noteSearchListStore.set([])
 }

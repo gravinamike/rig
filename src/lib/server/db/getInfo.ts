@@ -1,4 +1,4 @@
-import type { ThingDbModel, ThingSearchListItemDbModel } from "$lib/models/dbModels"
+import type { NoteSearchListItemDbModel, ThingDbModel, ThingSearchListItemDbModel } from "$lib/models/dbModels"
 import {
     RawDirectionDbModel, RawSpaceDbModel,
     RawThingDbModel, RawRelationshipDbModel,
@@ -14,6 +14,8 @@ import {
     stripSpaceDbModels,
     RawDirectionToSpaceDbModel,
     stripDirectionToSpaceDbModels,
+    stripNoteSearchListItemDbModels,
+    RawNoteSearchListItemDbModel,
 } from "$lib/server/models"
 
 
@@ -195,6 +197,21 @@ export async function queryThingSearchList( thingIds: number[] | null ): Promise
             .orderBy('id')
 
     return stripThingSearchListItemDbModels(queriedThingSearchListDbModels)
+}
+
+/*
+ * Query Note search list from the database.
+ */
+export async function queryNoteSearchList( noteIds: number[] | null ): Promise<NoteSearchListItemDbModel[]> {
+    const queriedNoteSearchListDbModels = noteIds === null ?
+        await RawNoteSearchListItemDbModel.query().orderBy('id') :
+        await RawNoteSearchListItemDbModel.query()
+            .where(
+                (builder) => builder.whereIn('id', noteIds)
+            )
+            .orderBy('id')
+
+    return stripNoteSearchListItemDbModels(queriedNoteSearchListDbModels)
 }
 
 /*

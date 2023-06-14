@@ -1,7 +1,7 @@
 <script lang="ts">
-    import type { ThingSearchListItem } from "$lib/models/constructModels"
+    import type { NoteSearchListItem, ThingSearchListItem } from "$lib/models/constructModels"
     import type { SearchOption } from "$lib/widgets/navWidgets/searchWidget"
-    import { thingSearchListStore } from "$lib/stores"
+    import { thingSearchListStore, noteSearchListStore } from "$lib/stores"
     import { SearchWidget } from "$lib/widgets/navWidgets"
 
     export let rePerspectToThingId: (id: number) => Promise<void>
@@ -10,16 +10,30 @@
     export let searchType: "thing" | "note" = "thing"
 
 
-    let unfilteredArray: {id: number, name: string}[] = []
-    
-    async function buildUnfilteredArray(thingSearchList: ThingSearchListItem[]) {
-        unfilteredArray = []
-        for (const thingSearchListItem of thingSearchList) {
-            unfilteredArray.push({id: (thingSearchListItem.id as number), name: (thingSearchListItem.text as string)})
-        }
-    }
-    $: buildUnfilteredArray($thingSearchListStore)
 
+
+
+
+    let unfilteredArray: {id: number, text: string}[] = []
+    
+    async function buildUnfilteredArray(searchList: (ThingSearchListItem | NoteSearchListItem)[]) {
+        unfilteredArray = []
+        for (const searchListItem of searchList) {
+            unfilteredArray.push({id: (searchListItem.id as number), text: (searchListItem.text as string)})
+        }/////////////////////////////////// WILL NEED TO PROCESS TEXT IF IT IS FROM NOTE.
+        ///////////// NEED TO PROCESS SUPER-LONG NOTES TO BE SHORTER AND FOCUSED ON HIGHLIGHT TEXT.
+    }
+    $: if (searchType === "thing") buildUnfilteredArray($thingSearchListStore)
+    $: if (searchType === "note") buildUnfilteredArray($noteSearchListStore)
+
+
+
+
+
+
+
+
+    
     function submitMethod(selectedItem: SearchOption | null, matchedItems: SearchOption[]) {
         if (selectedItem) {
             rePerspectToThingId(selectedItem.id)

@@ -36,7 +36,7 @@
 
     // Set up creation of the "unfiltered array" (an array of ID/text pairs for
     // each Thing Search List item in the store.
-    let unfilteredArray: {id: number, name: string}[] = []
+    let unfilteredArray: {id: number, text: string}[] = []
     $: buildUnfilteredArray($thingSearchListStore)
 
     // Set up Graph creation and removal in response to changes in the
@@ -71,7 +71,7 @@
         for (const thingSearchListItem of thingSearchList) {
             unfilteredArray.push({
                 id: (thingSearchListItem.id),
-                name: (thingSearchListItem.text as string)
+                text: (thingSearchListItem.text as string)
             })
         }
     }

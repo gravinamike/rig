@@ -1,5 +1,5 @@
 import type { RelationMappings, RelationMappingsThunk } from "objection"
-import type { NoteDbModel, NoteToThingDbModel } from "$lib/models/dbModels"
+import type { NoteDbModel, NoteSearchListItemDbModel, NoteToThingDbModel } from "$lib/models/dbModels"
 
 import { Model } from "objection"
 import { v4 as uuidv4 } from "uuid"
@@ -77,6 +77,58 @@ export function getNewNoteInfo(whenCreated: string): NewNoteInfo {
 
     return newThingInfo
 }
+
+
+
+
+/*
+ * Note search list item.
+ */
+export class RawNoteSearchListItemDbModel extends Model {
+    static tableName = "notes" as const
+
+    id!: number
+    guid!: string
+    text!: string
+    
+    noteToThing!: RawNoteToThingDbModel | null
+
+    static get relationMappings(): RelationMappings | RelationMappingsThunk {
+        return {
+            noteToThing: {
+                relation: Model.HasOneRelation,
+                modelClass: RawNoteToThingDbModel,
+                join: {
+                    from: 'notes.id',
+                    to: 'notetothing.noteid'
+                }
+            }
+        };
+    }
+}
+
+// Necessary to strip out the server-only Objection.js model parts before sending client-side.
+export function stripNoteSearchListItemDbModels(models: RawNoteSearchListItemDbModel[]): NoteSearchListItemDbModel[] {
+    const stripped: NoteSearchListItemDbModel[] = []
+
+    for (const model of models) {
+        stripped.push(
+            {
+                id: model.id,
+                guid: model.guid,
+                text: model.text,
+                thingId: model.noteToThing?.thingid || null
+            }
+        )
+    }
+
+    return stripped
+}
+
+
+
+
+
 
 /*
  * NoteToThing model.

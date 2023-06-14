@@ -4,7 +4,8 @@ import { get } from "svelte/store"
 // Import stores.
 import {
     refreshGraphFoldersStore, graphFoldersStore, graphsStore,
-    loadingState, openGraphStore, storeThingSearchList, clearThingSearchList,
+    loadingState, openGraphStore, storeThingSearchList, storeNotesSearchList,
+    clearThingSearchList, clearNoteSearchList,
     perspectiveThingIdStore, perspectiveSpaceIdStore, 
     storeGraphDbModels, clearGraphDbModelStore, sessionUuidStore, rightSideMenuStore, notesEditorLockedStore, homeThingIdStore, pinIdsStore, readOnlyMode, userIdStore
 } from "$lib/stores"
@@ -104,6 +105,7 @@ export async function openGraphFile(username: string, folderName: string, pThing
     await storeGraphDbModels("Direction")
     await storeGraphDbModels("Space")
     await storeThingSearchList()
+    await storeNotesSearchList()
     
     // Update the URL hash if necessary.
     if (updateUrlHash) updateUrlHashMethod({
@@ -144,6 +146,7 @@ export async function closeGraphFile(updateUrlHash = false): Promise<void> {
     await clearGraphDbModelStore("Space")
     await clearGraphDbModelStore("Thing")
     await clearThingSearchList()
+    await clearNoteSearchList()
 
     // Unset the URL hash.
     if (updateUrlHash) updateUrlHashMethod({

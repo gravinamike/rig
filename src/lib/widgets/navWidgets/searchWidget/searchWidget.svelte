@@ -5,7 +5,7 @@
     import EditButton from "$lib/widgets/layoutWidgets/editButton.svelte";
 
 
-    export let unfilteredArray: {id: number, name: string}[]
+    export let unfilteredArray: {id: number, text: string}[]
     export let placeholderText: string
     export let focusMethod: (focusedItem: SearchOption | null) => void
     export let submitMethod: (selectedItem: SearchOption | null, matchedItems: SearchOption[]) => void
@@ -54,11 +54,11 @@
         filtered = []
         unfilteredArray.forEach(
             item => {
-                const index = item.name ? substringIndex(item.name) : null
+                const index = item.text ? substringIndex(item.text) : null
                 if ( index !== null ) {
-                    const matchedText = item.name.substring(index, index + inputText.length)
-                    const highlightedItem = item.name.replace(matchedText, `<strong>${matchedText}</strong>`);
-                    filtered.push( { id: item.id, text: item.name, highlightedText: highlightedItem } )
+                    const matchedText = item.text.substring(index, index + inputText.length)
+                    const highlightedItem = item.text.replace(matchedText, `<strong>${matchedText}</strong>`);
+                    filtered.push( { id: item.id, text: item.text, highlightedText: highlightedItem } )
                 }
             }
         )
