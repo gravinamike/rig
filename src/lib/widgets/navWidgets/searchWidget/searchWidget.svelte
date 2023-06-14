@@ -193,8 +193,7 @@
                     filteredItems.push( { id: item.id, text: item.text, highlightedText: highlightedItem } )
                 }
             }
-        )/////////////////////////////////// WILL NEED TO PROCESS TEXT IF IT IS FROM NOTE.
-        ///////////// NEED TO PROCESS SUPER-LONG NOTES TO BE SHORTER AND FOCUSED ON HIGHLIGHT TEXT.
+        )
 
         // Reset the index of the focused option.
         focusedOptionIndex = null
@@ -209,7 +208,7 @@
      * Call the provided submit method, then reset the input text and
      * hide the filtered item list.
      */
-     function submit() {
+    function submit() {
         submitMethod(selectedItem, matchedItems)
         inputText = ""
         showFiltered = false
@@ -435,5 +434,9 @@
 
     .filtered-item:active {
         background-color: lightgrey;
+    }
+
+    :global(.filtered-item *) {
+        pointer-events: none;
     }
   </style>
