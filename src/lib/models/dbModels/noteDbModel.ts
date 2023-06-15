@@ -17,4 +17,5 @@ export interface NoteSearchListItemDbModel {
     guid: string
     text: string
     thingId: number | null
+    thingText: string | null
 }

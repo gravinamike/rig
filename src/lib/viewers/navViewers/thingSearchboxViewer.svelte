@@ -25,15 +25,28 @@
     // The unfiltered array of search list items is built from either the
     // Thing search list store or the Notes search list store, depending on the
     // search type.
-    let unfilteredArray: {id: number, text: string}[] = []
+    let unfilteredArray: {id: number, thingText: string, noteText: string | null}[] = []
     async function buildUnfilteredArray(searchList: (ThingSearchListItem | NoteSearchListItem)[]) {
         unfilteredArray = []
         for (const searchListItem of searchList) {
-            const id = "thingId" in searchListItem ? searchListItem.thingId : searchListItem.id
-            const text = searchListItem.text
-            if (id && text) unfilteredArray.push({
+
+            let id: number | null
+            let thingText: string | null
+            let noteText: string | null
+            if ("thingId" in searchListItem) {
+                id = searchListItem.thingId
+                thingText = searchListItem.thingText
+                noteText = searchListItem.text
+            } else {
+                id = searchListItem.id
+                thingText = searchListItem.text
+                noteText = null
+            }
+
+            if (id && thingText) unfilteredArray.push({
                 id: id,
-                text: text
+                thingText: thingText,
+                noteText: noteText
             })
         }
     }

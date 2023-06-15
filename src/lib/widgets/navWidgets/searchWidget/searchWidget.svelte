@@ -21,7 +21,7 @@
      * @param focusMethod - Method to call when a filtered item is hovered/focused.
      * @param submitMethod - Method to call when a filtered item is clicked.
      */
-    export let unfilteredArray: {id: number, text: string}[]
+    export let unfilteredArray: {id: number, thingText: string, noteText: string | null}[]
     export let placeholderText: string
     export let maxHeight: number | null = 100
     export let useSubmitButton = false
@@ -69,7 +69,9 @@
         await filter()
         matchedItems = []
         for (const filteredItem of filteredItems) {
-            if (stringMatchesInput(filteredItem.text)) matchedItems.push(filteredItem)
+            if (
+                stringMatchesInput(filteredItem.noteText ? filteredItem.noteText : filteredItem.thingText)
+            ) matchedItems.push(filteredItem)
         }
     }
 
@@ -140,7 +142,7 @@
         selectedItem = filteredItem
 
         // Set the input field's text to the text of the clicked item.
-        inputText = selectedItem.text
+        inputText = selectedItem.noteText || selectedItem.thingText
 
         // If the submit-button setup is in use, call the supplied focus-item
         // method.
@@ -174,27 +176,37 @@
      * Narrows the search array to only those items that contain the input
      * string as a substring.
      */
-     async function filter() {
+    async function filter() {
         // Reset the filtered-items array.
         filteredItems = []
 
         // For each item in the unfiltered-items array,
         unfilteredArray.forEach(
             item => {
+                // Get the text (either from the Notes, if available, or from
+                // the Thing).
+                const text = item.noteText || item.thingText
+
                 // Find the index of the item in the search input, if any.
-                const index = item.text ? substringIndex(item.text) : null
+                const index = substringIndex(text)
 
                 // If the item is a substring in the search input,
                 if ( index !== null ) {
                     // Add an item to the filtered-items array, with the input
                     // string highlighted in bold text.
-                    const matchedText = item.text.substring(index, index + inputText.length)
-                    const highlightedItem = item.text.replace(matchedText, `<strong>${matchedText}</strong>`);
-                    filteredItems.push( { id: item.id, text: item.text, highlightedText: highlightedItem } )
+                    const matchedText = text.substring(index, index + inputText.length)
+                    const highlightedItem = text.replace(matchedText, `<strong>${matchedText}</strong>`);
+                    filteredItems.push( {
+                        id: item.id,
+                        thingText: item.thingText,
+                        highlightedThingText: !item.noteText ? highlightedItem : null,
+                        noteText: item.noteText,
+                        highlightedNoteText: item.noteText ? highlightedItem : null
+                    } )
                 }
             }
         )
-
+        
         // Reset the index of the focused option.
         focusedOptionIndex = null
 
@@ -357,7 +369,16 @@
                     on:click={() => handleOptionClick(filteredItem)}
                     on:keydown={()=>{}}
                 >
-                    {@html filteredItem.highlightedText}
+                    {#if filteredItem.noteText}
+                        <div style="background-color: lightgrey; font-weight: 600;">
+                            {@html filteredItem.thingText}
+                        </div>
+                        <div>
+                            {@html filteredItem.highlightedNoteText}
+                        </div>
+                    {:else}
+                        {@html filteredItem.highlightedThingText}
+                    {/if}
                 </div>
             {/each}
         </div>

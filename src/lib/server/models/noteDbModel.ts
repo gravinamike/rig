@@ -121,7 +121,8 @@ export function stripNoteSearchListItemDbModels(models: RawNoteSearchListItemDbM
                 id: Number(model.id),
                 guid: model.guid,
                 text: model.text,
-                thingId: model.thing ? Number(model.thing.id) : null
+                thingId: model.thing ? Number(model.thing.id) : null,
+                thingText: model.thing ? model.thing.text : null
             }
         )
     }

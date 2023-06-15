@@ -12,6 +12,7 @@ export class NoteSearchListItem {
     guid: string | null
     text: string | null
     thingId: number | null
+    thingText: string | null
 
     /**
      * Create a Note search list item.
@@ -25,5 +26,6 @@ export class NoteSearchListItem {
         this.guid = dbModel.guid
         this.text = dbModel.text
         this.thingId = dbModel.thingId
+        this.thingText = dbModel.thingText
     }
 }
