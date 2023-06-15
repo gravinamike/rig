@@ -6,7 +6,7 @@
     import { onMount } from "svelte"
 
     // Import utility functions.
-    import { clampNumber, onMobile } from "$lib/shared/utility"
+    import { clampNumber, htmlToPlaintext, onMobile } from "$lib/shared/utility"
 
     // Import related widgets.
     import EditButton from "$lib/widgets/layoutWidgets/editButton.svelte"
@@ -296,8 +296,8 @@
      */
     function stringMatchesInput(string: string, caseSensitive=false) {
         const matched = caseSensitive ?
-            string === inputText :
-            string.toLowerCase() === inputText.toLowerCase()
+            htmlToPlaintext(string, false, false) === inputText :
+            htmlToPlaintext(string, false, false).toLowerCase() === inputText.toLowerCase()
         return matched
     }
 </script>
