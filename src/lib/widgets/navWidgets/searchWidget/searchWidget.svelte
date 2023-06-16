@@ -35,6 +35,10 @@
     let inputField: HTMLElement
     
 
+    // Search type (Thing or Note).
+    let searchType: "thing" | "note"
+    $: searchType = unfilteredArray.length && unfilteredArray[0].noteText ? "note" : "thing"
+
     // The text currently input in the search field.
     let inputText = ""
 
@@ -66,6 +70,7 @@
      * the list of items that matches the search input exactly.
      */
     async function handleInput() {
+        if (searchType === "note" && inputText.length < 3) return
         await filter()
         matchedItems = []
         for (const filteredItem of filteredItems) {
@@ -375,6 +380,7 @@
                 <div
                     id="search-option-{i}"
                     class="filtered-item"
+                    class:note={searchType === "note"}
                     class:focusedOption={i === focusedOptionIndex}
 
                     on:mouseenter={() => handleOptionMouseEnter(i)}
@@ -456,9 +462,11 @@
     .filtered-item {
         padding: 0.25rem;
 
-        white-space: nowrap;
-
         cursor: default;
+    }
+
+    .filtered-item:not(.note) {
+        white-space: nowrap;
     }
 
     .filtered-item.focusedOption {
