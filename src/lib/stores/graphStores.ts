@@ -307,8 +307,26 @@ export async function updateNoteSearchListStore(
     // If necessary, pack a single supplied Note search list item in an array for processing.
     if (!("length" in noteSearchListItems)) noteSearchListItems = [noteSearchListItems]
 
-    // Update the store with the items.
-    noteSearchListStore.update( (current) => [...current, ...(noteSearchListItems as NoteSearchListItem[]) ] )
+    // Get the current value of the Note search list store.
+    const currentNoteSearchListStore = get(noteSearchListStore)
+
+    // For each of the supplied Note search list items,
+    for (const noteSearchListItem of noteSearchListItems) {
+        // Get the matching index (if it exists) in the store.
+        const indexOfNoteSearchListItem = currentNoteSearchListStore.findIndex(item => item.id === noteSearchListItem.id)
+
+        // If the item exists in the store already,
+        if (indexOfNoteSearchListItem !== -1) {
+            // Update the store by overwriting the item's text.
+            noteSearchListStore.update( (current) => {
+                current[indexOfNoteSearchListItem].text = noteSearchListItem.text; return current
+            } )
+        // Otherwise,
+        } else {
+            // Update the store by adding the item.
+            noteSearchListStore.update( (current) => [...current, noteSearchListItem] )
+        }
+    }
 }
 
 /**
