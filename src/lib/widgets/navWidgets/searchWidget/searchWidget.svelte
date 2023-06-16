@@ -185,17 +185,29 @@
             item => {
                 // Get the text (either from the Notes, if available, or from
                 // the Thing).
-                const text = item.noteText || item.thingText
-
+                const text = item.noteText ? htmlToPlaintext(item.noteText) : item.thingText
+                
                 // Find the index of the item in the search input, if any.
                 const index = substringIndex(text)
 
                 // If the item is a substring in the search input,
                 if ( index !== null ) {
+
+                    // Get the matching substring.
+                    const matchedText = text.substring(index, index + inputText.length)
+
+                    // Trim the item text to specified maximum padding around
+                    // the matching substring.
+                    const trimPadding = 50
+                    const trimStartIndex = Math.max(index - trimPadding, 0)
+                    const trimEndIndex = Math.min(index + inputText.length + trimPadding, text.length)
+                    const trimmedText = text.substring(trimStartIndex, trimEndIndex)
+
                     // Add an item to the filtered-items array, with the input
                     // string highlighted in bold text.
-                    const matchedText = text.substring(index, index + inputText.length)
-                    const highlightedItem = text.replace(matchedText, `<strong>${matchedText}</strong>`);
+                    const highlightedItem = trimmedText
+                        .replace(matchedText, `<strong>${matchedText}</strong>`)
+                        .replace(/\n/g, "<br>")
                     filteredItems.push( {
                         id: item.id,
                         thingText: item.thingText,

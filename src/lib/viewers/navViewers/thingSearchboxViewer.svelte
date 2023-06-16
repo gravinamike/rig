@@ -29,10 +29,10 @@
     async function buildUnfilteredArray(searchList: (ThingSearchListItem | NoteSearchListItem)[]) {
         unfilteredArray = []
         for (const searchListItem of searchList) {
-
             let id: number | null
             let thingText: string | null
             let noteText: string | null
+
             if ("thingId" in searchListItem) {
                 id = searchListItem.thingId
                 thingText = searchListItem.thingText
