@@ -184,6 +184,7 @@
     class="side-menu"
     class:overlap-page={overlapPage}
     class:slide-left={slideDirection === "left"}
+    class:full-size={fullSize}
     bind:this={sideMenu}
 
     style={
@@ -356,6 +357,10 @@
 
     .side-menu.overlap-page.slide-left {
         right: 0;
+    }
+
+    .side-menu.full-size {
+        overflow: hidden;
     }
 
     .content {
