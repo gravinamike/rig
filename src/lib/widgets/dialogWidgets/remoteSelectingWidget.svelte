@@ -69,7 +69,9 @@
     async function buildUnfilteredArray(thingSearchList: ThingSearchListItem[]) {
         unfilteredArray = []
         for (const thingSearchListItem of thingSearchList) {
-            unfilteredArray.push({
+            const id = thingSearchListItem.id
+            const thingText = thingSearchListItem.text
+            if (id && thingText) unfilteredArray.push({
                 id: (thingSearchListItem.id),
                 thingText: (thingSearchListItem.text as string),
                 noteText: null
