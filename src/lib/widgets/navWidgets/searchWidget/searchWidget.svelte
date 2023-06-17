@@ -70,8 +70,7 @@
      * the list of items that matches the search input exactly.
      */
     async function handleInput() {
-        if (searchType === "note" && inputText.length < 3) return
-        await filter()
+        await filter(searchType === "note" ? 3 : null)
         matchedItems = []
         for (const filteredItem of filteredItems) {
             if (
@@ -181,9 +180,13 @@
      * Narrows the search array to only those items that contain the input
      * string as a substring.
      */
-    async function filter() {
+    async function filter(minimumInputLength: number | null = null) {
         // Reset the filtered-items array.
         filteredItems = []
+
+        // If a minimum input length was specified and hasn't been reached yet,
+        // return with filtered items list empty.
+        if (minimumInputLength && inputText.length < minimumInputLength) return
 
         // For each item in the unfiltered-items array,
         unfilteredArray.forEach(
@@ -211,7 +214,11 @@
                     // Add an item to the filtered-items array, with the input
                     // string highlighted in bold text.
                     const highlightedItem = trimmedText
-                        .replace(matchedText, `<strong>${matchedText}</strong>`)
+                        .replace(
+                            matchedText,
+                            searchType === "thing" ? `<strong>${matchedText}</strong>` :
+                            `<span style="background-color: yellow;">${matchedText}</span>`
+                        )
                         .replace(/\n/g, "<br>")
                     filteredItems.push( {
                         id: item.id,
@@ -388,14 +395,16 @@
                     on:keydown={()=>{}}
                 >
                     {#if filteredItem.noteText}
-                        <div style="background-color: lightgrey; font-weight: 600;">
+                        <div class="note-thing-text">
                             {@html filteredItem.thingText}
                         </div>
-                        <div>
+                        <div class="note-text">
                             {@html filteredItem.highlightedNoteText}
                         </div>
                     {:else}
-                        {@html filteredItem.highlightedThingText}
+                        <div class="thing-text">
+                            {@html filteredItem.highlightedThingText}
+                        </div>
                     {/if}
                 </div>
             {/each}
@@ -460,13 +469,7 @@
     }
 
     .filtered-item {
-        padding: 0.25rem;
-
         cursor: default;
-    }
-
-    .filtered-item:not(.note) {
-        white-space: nowrap;
     }
 
     .filtered-item.focusedOption {
@@ -479,5 +482,25 @@
 
     :global(.filtered-item *) {
         pointer-events: none;
+    }
+
+    .filtered-item.note.focusedOption {
+        box-sizing: border-box;
+        outline-offset: -1px;
+        outline: solid 1px grey;
+    }
+
+    .thing-text, .note-thing-text, .note-text {
+        padding: 0.25rem;
+    }
+
+    .thing-text, .note-thing-text {
+        white-space: nowrap;
+    }
+
+    .note-thing-text {
+        background-color: lightgrey;
+    
+        font-weight: 600;
     }
   </style>
