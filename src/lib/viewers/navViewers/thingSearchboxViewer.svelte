@@ -1,23 +1,68 @@
 <script lang="ts">
-    import type { ThingSearchListItem } from "$lib/models/constructModels"
+    // Import types.
+    import type { NoteSearchListItem, ThingSearchListItem } from "$lib/models/constructModels"
     import type { SearchOption } from "$lib/widgets/navWidgets/searchWidget"
-    import { thingSearchListStore } from "$lib/stores"
+
+    // Import stores.
+    import { thingSearchListStore, noteSearchListStore } from "$lib/stores"
+
+    // Import related widgets.
     import { SearchWidget } from "$lib/widgets/navWidgets"
 
-    export let rePerspectToThingId: (id: number) => Promise<void>
+
+    /**
+     * @param searchType - Whether to search Things or Notes.
+     * @param padded - Whether to put padding around the search field.
+     * @param focused - Whether the search field is currently in focus.
+     * @param rePerspectToThingId - Method to re-Perspect the Graph to a new Thing ID.
+     */
+    export let searchType: "thing" | "note" = "thing"
     export let padded = true
+    export let focused = false
+    export let rePerspectToThingId: (id: number) => Promise<void>
 
 
-    let unfilteredArray: {id: number, name: string}[] = []
-    
-    async function buildUnfilteredArray(thingSearchList: ThingSearchListItem[]) {
+    // The unfiltered array of search list items is built from either the
+    // Thing search list store or the Notes search list store, depending on the
+    // search type.
+    let unfilteredArray: {id: number, thingText: string, noteText: string | null}[] = []
+    async function buildUnfilteredArray(searchList: (ThingSearchListItem | NoteSearchListItem)[]) {
         unfilteredArray = []
-        for (const thingSearchListItem of thingSearchList) {
-            unfilteredArray.push({id: (thingSearchListItem.id as number), name: (thingSearchListItem.text as string)})
+        for (const searchListItem of searchList) {
+            let id: number | null
+            let thingText: string | null
+            let noteText: string | null
+
+            if ("thingId" in searchListItem) {
+                id = searchListItem.thingId
+                thingText = searchListItem.thingText
+                noteText = searchListItem.text
+            } else {
+                id = searchListItem.id
+                thingText = searchListItem.text
+                noteText = null
+            }
+
+            if (id && thingText) unfilteredArray.push({
+                id: id,
+                thingText: thingText,
+                noteText: noteText
+            })
         }
     }
-    $: buildUnfilteredArray($thingSearchListStore)
+    $: if (searchType === "thing") buildUnfilteredArray($thingSearchListStore)
+    $: if (searchType === "note") buildUnfilteredArray($noteSearchListStore)
 
+
+    /**
+     * Submit method.
+     * 
+     * When the user submits a search term through the search widget, re-
+     * Perspects to the selected Thing (or the first match if there is no
+     * selected Thing).
+     * @param selectedItem - The currently-selected search item.
+     * @param matchedItems - Array of items that match the search term.
+     */
     function submitMethod(selectedItem: SearchOption | null, matchedItems: SearchOption[]) {
         if (selectedItem) {
             rePerspectToThingId(selectedItem.id)
@@ -28,19 +73,19 @@
 </script>
 
 
+<!-- Thing searchbox viewer. -->
 <div
     class="thing-searchbox-viewer"
     class:padded
 >
-
     <SearchWidget
         {unfilteredArray}
-        placeholderText={"Search Things..." }
+        placeholderText={searchType === "thing" ? "Search Things..." : "Search Notes..." }
+        maxHeight={500}
+        bind:focused
         focusMethod={() => {}}
         {submitMethod}
-        maxHeight={500}
     />
-
 </div>
 
 

@@ -1,8 +1,8 @@
 import type { AppConfig, GraphConfig } from "$lib/shared/constants"
 import type { LatestConstructInfos } from "$lib/server/db/getInfo"
 import type { RawThingDbModel } from "$lib/server/models"
-import { Thing, ThingSearchListItem } from "$lib/models/constructModels"
-import type { GraphDbModel, ThingSearchListItemDbModel } from "$lib/models/dbModels"
+import { NoteSearchListItem, Thing, ThingSearchListItem } from "$lib/models/constructModels"
+import type { GraphDbModel, NoteSearchListItemDbModel, ThingSearchListItemDbModel } from "$lib/models/dbModels"
 import { sessionSpecificFetch as fetch } from "$lib/db/sessionSpecificFetch"
 
 
@@ -129,6 +129,27 @@ export async function thingSearchListItems(thingIds?: number[]): Promise<ThingSe
             thingSearchList.push( new ThingSearchListItem(model) )
         }
         return thingSearchList
+    } else {
+        res.text().then(text => {throw Error(text)})
+        return false
+    }
+}
+
+/*
+ * Get a search list of Notes.
+ */
+export async function noteSearchListItems(noteIds?: number[]): Promise<NoteSearchListItem[] | false> {
+    const res = noteIds === undefined ?
+        await fetch(`api/db/graphConstructs/noteSearchListItems-all`) :
+        await fetch(`api/db/graphConstructs/noteSearchListItems-${noteIds}`)
+
+    if (res.ok) {
+        const models = await res.json() as NoteSearchListItemDbModel[]
+        const noteSearchList: NoteSearchListItem[] = []
+        for (const model of models) {
+            noteSearchList.push( new NoteSearchListItem(model) )
+        }
+        return noteSearchList
     } else {
         res.text().then(text => {throw Error(text)})
         return false

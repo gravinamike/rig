@@ -13,13 +13,13 @@
         setRelationshipBeingCreatedTrackingMouse,
         pinIdsStore, openContextCommandPalette, addPin, removePin,
         removeIdsFromThingSearchListStore,
+        removeIdsFromNoteSearchListStore,
         reorderingInfoStore,
         storeGraphDbModels,
         readOnlyMode,
         setHomeThingId,
         removeHomeThing,
-        homeThingIdStore
-
+        homeThingIdStore,
     } from "$lib/stores"
 
     import { ThingBaseWidgetController } from "../base"
@@ -377,8 +377,9 @@
             }
         }
 
-        // Delete the Thing in the search list.
+        // Delete the Thing and the Note in the search lists.
         await removeIdsFromThingSearchListStore(thingId)
+        if (thing?.note?.id) await removeIdsFromNoteSearchListStore(thing?.note?.id)
     }
 
     beginEditingText = async () => {

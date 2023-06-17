@@ -9,10 +9,10 @@
     import NotesEditor from "./notesEditor.svelte"
 
     // Import API methods.
-    import { thingsByGuid, addNoteToThingOrGetExistingNoteId, updateNote, markNotesModified } from "$lib/db"
+    import { thingsByGuid, addNoteToThingOrGetExistingNoteId, updateNote, markNotesModified, noteSearchListItems } from "$lib/db"
 
 
-    import { landscapeOrientation, notesBackgroundImageStore, notesEditorLockedStore, readOnlyMode, storeGraphDbModels, uITrimColorStore } from "$lib/stores"
+    import { landscapeOrientation, notesBackgroundImageStore, notesEditorLockedStore, readOnlyMode, storeGraphDbModels, uITrimColorStore, updateNoteSearchListStore } from "$lib/stores"
     import { saveGraphConfig } from "$lib/shared/config"
     import type { ThingDbModel } from "$lib/models/dbModels"
     import { onMobile, removeItemFromArray, sleep } from "$lib/shared/utility";
@@ -175,6 +175,14 @@
         // Update the note in the stores and the Graph.
         if (graph.pThing?.id) await storeGraphDbModels<ThingDbModel>("Thing", graph.pThing.id, true)
         viewerDisplayText = textForDisplay(newText)
+
+
+
+        const queriedNoteSearchListItems = await noteSearchListItems([noteId])
+        if (queriedNoteSearchListItems) updateNoteSearchListStore(queriedNoteSearchListItems)
+
+
+
     }
 
     // Set up custom hyperlink handling for Thing-links.

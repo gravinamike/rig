@@ -49,6 +49,19 @@
     let useTabbedLayout: boolean = false
     let usePortraitLayout: boolean = false
     let closeLeftMenu: () => void
+
+
+
+
+
+
+    let searchType: "thing" | "note" = "thing"
+    let searchBoxFocused = false
+
+
+
+
+
 </script>
 
 
@@ -101,7 +114,32 @@
                 <ThingSearchboxViewer
                     {rePerspectToThingId}
                     padded={false}
+                    bind:focused={searchBoxFocused}
+                    {searchType}
                 />
+
+                {#if !searchBoxFocused}
+                    <div class="search-type-buttons">
+                        <div
+                            class="search-type-button"
+                            class:selected={searchType === "thing"}
+
+                            on:click={() => {searchType = "thing"}}
+                            on:keydown={()=>{}}
+                        >
+                            <img src="./icons/thing.png" alt="Search Things" width=20px height=20px />
+                        </div>
+                        <div
+                            class="search-type-button"
+                            class:selected={searchType === "note"}
+
+                            on:click={() => {searchType = "note"}}
+                            on:keydown={()=>{}}
+                        >
+                            <img src="./icons/notes.png" alt="Search Notes" width=16px height=16px />
+                        </div>
+                    </div>
+                {/if}
             </div>
 
             <div
@@ -342,9 +380,63 @@
     }
 
     .search-container {
+        position: relative;
+
         padding: 0.5rem;
         gap: 0.5rem;
     }
+
+
+
+
+
+    .search-type-buttons {
+        position: absolute;
+        right: 11px;
+        top: 11px;
+        opacity: 0.5;
+
+        display: flex;
+        flex-direction: row;
+    }
+
+    .search-type-buttons:hover {
+        opacity: 1.0;
+    }
+
+    .search-type-button {
+        border-radius: 3px;
+        width: 20px;
+        height: 20px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        cursor: pointer;
+    }
+
+    .search-type-button img {
+        opacity: 0.25;
+    }
+
+    .search-type-button.selected img {
+        opacity: 1.0;
+    }
+    
+    .search-type-button:hover {
+        background: whitesmoke;
+    }
+
+    .search-type-button:active {
+        background: gainsboro;
+    }
+
+
+
+
+
+
 
     .pins-history-container {
         flex: 1 1 auto;

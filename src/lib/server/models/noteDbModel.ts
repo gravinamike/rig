@@ -1,9 +1,9 @@
 import type { RelationMappings, RelationMappingsThunk } from "objection"
-import type { NoteDbModel, NoteToThingDbModel } from "$lib/models/dbModels"
+import type { NoteDbModel, NoteSearchListItemDbModel, NoteToThingDbModel } from "$lib/models/dbModels"
 
 import { Model } from "objection"
 import { v4 as uuidv4 } from "uuid"
-import { RawThingDbModel } from "$lib/server/models"
+import { RawThingDbModel, RawThingSearchListItemDbModel } from "$lib/server/models"
 
 
 /*
@@ -77,6 +77,63 @@ export function getNewNoteInfo(whenCreated: string): NewNoteInfo {
 
     return newThingInfo
 }
+
+
+
+
+/*
+ * Note search list item.
+ */
+export class RawNoteSearchListItemDbModel extends Model {
+    static tableName = "notes" as const
+
+    id!: string | number
+    guid!: string
+    text!: string
+    
+    thing!: RawThingSearchListItemDbModel | null
+
+    static get relationMappings(): RelationMappings | RelationMappingsThunk {
+        return {
+            thing: {
+                relation: Model.HasOneThroughRelation,
+                modelClass: RawThingSearchListItemDbModel,
+                join: {
+                    from: 'notes.id',
+                    through: {
+                        from: 'notetothing.noteid',
+                        to: 'notetothing.thingid'
+                    },
+                    to: 'things.id'
+                }
+            }
+        };
+    }
+}
+
+// Necessary to strip out the server-only Objection.js model parts before sending client-side.
+export function stripNoteSearchListItemDbModels(models: RawNoteSearchListItemDbModel[]): NoteSearchListItemDbModel[] {
+    const stripped: NoteSearchListItemDbModel[] = []
+
+    for (const model of models) {
+        stripped.push(
+            {
+                id: Number(model.id),
+                guid: model.guid,
+                text: model.text,
+                thingId: model.thing ? Number(model.thing.id) : null,
+                thingText: model.thing ? model.thing.text : null
+            }
+        )
+    }
+
+    return stripped
+}
+
+
+
+
+
 
 /*
  * NoteToThing model.

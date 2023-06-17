@@ -36,7 +36,7 @@
 
     // Set up creation of the "unfiltered array" (an array of ID/text pairs for
     // each Thing Search List item in the store.
-    let unfilteredArray: {id: number, name: string}[] = []
+    let unfilteredArray: {id: number, thingText: string, noteText: string | null}[] = []
     $: buildUnfilteredArray($thingSearchListStore)
 
     // Set up Graph creation and removal in response to changes in the
@@ -71,7 +71,8 @@
         for (const thingSearchListItem of thingSearchList) {
             unfilteredArray.push({
                 id: (thingSearchListItem.id),
-                name: (thingSearchListItem.text as string)
+                thingText: (thingSearchListItem.text as string),
+                noteText: null
             })
         }
     }
@@ -115,10 +116,10 @@
         <SearchWidget
             {unfilteredArray}
             placeholderText={"Search Things..." }
-            {focusMethod}
-            {submitMethod}
             maxHeight={portraitOrientation ? 500 : null}
             useSubmitButton={onMobile() ? true : false}
+            {focusMethod}
+            {submitMethod}
         />
     </div>
 

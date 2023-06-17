@@ -11,3 +11,11 @@ export interface NoteToThingDbModel {
     noteid: number
     thingid: number
 }
+
+export interface NoteSearchListItemDbModel {
+    id: number
+    guid: string
+    text: string
+    thingId: number | null
+    thingText: string | null
+}
