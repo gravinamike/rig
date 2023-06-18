@@ -101,7 +101,7 @@
     bind:clientHeight={height}
     
     on:mousemove={handleMouseMove}
-    on:touchmove={handleMouseMove}
+    on:touchmove|preventDefault={handleMouseMove}
     on:touchstart={handleTouchStart}
 >
 
