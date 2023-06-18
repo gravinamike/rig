@@ -101,7 +101,7 @@
         (window.innerWidth - 250) * 0.5
     $: sideMenuFullSizeExtension =
         usePortraitLayout ? window.innerHeight :
-        onMobile() ? (window.innerWidth - 187) :
+        onMobile() ? width :
         null
 
 
@@ -277,12 +277,17 @@
             addGraphIdsNeedingViewerRefresh(graph.id)
         }
     }
+
+
+    let width = 1
 </script>
 
 
 <!-- Graph viewer. -->
 <div
     class="graph-viewer"
+
+    bind:clientWidth={width}
 
     style="flex-direction: {usePortraitLayout ? "column-reverse" : "row"};"
 >

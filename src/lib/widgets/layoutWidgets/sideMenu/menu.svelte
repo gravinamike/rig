@@ -323,14 +323,14 @@
                     slideDirection === "right" || slideDirection === "left" ? "top" :
                     "left"
                 }: calc(50% - 12.5px);
-                transform: scaleY({
-                    fullSize ? -1 : 1
-                }) rotate({
+                transform: rotate({
                     slideDirection === "right" ? 270 :
                     slideDirection === "left" ? 90 :
                     slideDirection === "down" ? 0 :
                     180
-                }deg);
+                }deg) scaleY({
+                    fullSize ? -1 : 1
+                });
             "
 
             on:click={() => {fullSize = !fullSize}}
