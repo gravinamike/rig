@@ -38,6 +38,8 @@
     export let graph: Graph
     export let widget: HTMLElement | null
     export let centralAnchor: Element | null
+    export let widgetWidth: number
+    export let widgetHeight: number
     export let zoomBoundsDiv: Element | null
     export let graphWidgetStyle: GraphWidgetStyle
     
@@ -307,6 +309,12 @@
      * Zooms, then scrolls, the Graph Widget to fit and center the Graph.
      */
      async function zoomAndScroll() {
+
+        // If either the width or height of the Graph widget is non-positive,
+        // abort (to avoid a divide-by-zero error).
+        if (widgetWidth <= 0 || widgetHeight <= 0) return
+
+
         await sleep(10) // Allow time for Graph re-draw before zooming.
         await zoomToFit()
         await sleep(100)

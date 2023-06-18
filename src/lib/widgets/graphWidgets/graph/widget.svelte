@@ -77,6 +77,8 @@
     {graph}
     {widget}
     {centralAnchor}
+    {widgetWidth}
+    {widgetHeight}
     {zoomBoundsDiv}
     bind:graphWidgetStyle
 
@@ -100,7 +102,7 @@
     class="graph-widget"
     bind:this={widget}
     bind:clientWidth={widgetWidth}
-    bind:clientHeight={widgetHeight}    
+    bind:clientHeight={widgetHeight}
 
     on:mousedown={() => {
         if (!$relationshipBeingCreatedInfoStore.sourceThingId) trackingMouse = true
