@@ -2,7 +2,7 @@
     import type { LatestConstructInfos } from "$lib/server/db/getInfo"
 
     import { onMount } from "svelte"
-    import { latestDbConstructs } from "$lib/db/getInfo"
+    import { latestDbConstructs } from "$lib/db"
 
 
     let latestConstructs: LatestConstructInfos | false = false

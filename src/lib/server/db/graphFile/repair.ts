@@ -13,7 +13,7 @@ import { arrayHasDuplicates } from "$lib/shared/utility"
  * Graph-needs-repair method.
  * 
  * Indicates whether the Graph needs repair for issues like multiple Directions
- * being assigned to the same half-axis for a given Direction.
+ * being assigned to the same half-axis for a given Space.
  * @returns - Whether or not the Graph needs repair.
  */
 export async function graphNeedsRepair(): Promise<boolean> {
