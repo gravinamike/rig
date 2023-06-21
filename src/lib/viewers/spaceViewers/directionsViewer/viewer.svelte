@@ -13,6 +13,7 @@
     import { changeIndexInArray, onMobile, sleep } from "$lib/shared/utility"
 
     // Import related widgets.
+    import { Tooltip } from "$lib/widgets/layoutWidgets"
     import { DirectionWidget } from "$lib/widgets/spaceWidgets"
 
     // Import API methods.
@@ -158,6 +159,12 @@
     on:keydown={()=>{}}
 >
     <strong>+</strong>
+
+    <Tooltip
+        text={"Create new Direction."}
+        direction={"up"}
+        lean={"left"}
+    />
 </div>
 
 

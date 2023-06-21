@@ -1,10 +1,23 @@
 <script lang="ts">
+    // Import related widgets.
+    import { Tooltip } from "$lib/widgets/layoutWidgets"
+
+    
     export let toggled = false
+    export let tooltipText: string | null = null
 </script>
 
 
 <div class="toggle {toggled ? "toggled" : ""}" on:click={() => {toggled = !toggled}} on:keydown={()=>{}}>
     <div class="slider {toggled ? "toggled" : ""}" />
+
+    {#if tooltipText}
+        <Tooltip
+            text={tooltipText}
+            direction={"down"}
+            lean={"left"}
+        />
+    {/if}
 </div>
 
   
@@ -13,6 +26,7 @@
         border-radius: 10px;
 
         box-sizing: border-box;
+        position: relative;
         width: 24px;
         height: 16px;
         background-color: lightgrey;

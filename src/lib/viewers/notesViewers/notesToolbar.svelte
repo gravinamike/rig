@@ -5,6 +5,7 @@
     import CommandPalette from "$lib/widgets/layoutWidgets/commandPalette/commandPalette.svelte"
     import { onMobile } from "$lib/shared/utility"
     import { saveGraphConfig } from "$lib/shared/config"
+    import { Tooltip } from "$lib/widgets/layoutWidgets"
 
 
     export let editor: Editor
@@ -385,6 +386,15 @@
                 {:else}
                     +
                 {/if}
+
+                <Tooltip
+                    text={
+                        expanded === false ? "Show function names." :
+                        "Hide function names."
+                    }
+                    direction={"up"}
+                    lean={"left"}
+                />
             </div>
         </div>
     </div>
@@ -481,6 +491,8 @@
     }
 
     .expand-button {
+        position: relative;
+
         font-size: 1.5rem;
         font-weight: 600;
         color: grey;

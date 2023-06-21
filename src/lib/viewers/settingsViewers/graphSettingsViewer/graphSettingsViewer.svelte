@@ -51,6 +51,7 @@
             <SettingWidget
                 labelText={"Read-only mode"}
                 bind:boundValue={readOnlyMode}
+                tooltipText={"Disables editing the Graph."}
                 onChangeFunction={updateReadOnlyMode}
             />
             
@@ -59,6 +60,7 @@
                 bind:boundValue={graph._depth}
                 minValue={0}
                 maxValue={3}
+                tooltipText={`How many Relationship "steps"\nto render from the central Thing.`}
                 onChangeFunction={setGraphDepth}
             />
 
@@ -67,12 +69,14 @@
                 bind:boundValue={graphWidgetStyle.zoom}
                 minValue={-5}
                 maxValue={5}
+                tooltipText={"Zooms the view in and out."}
             />
 
             <SettingWidget
                 labelText={"Relation offset length"}
                 bind:boundValue={graphWidgetStyle.relationDistance}
                 maxValue={1000}
+                tooltipText={"Distance between related Things."}
                 onChangeFunction={updateGraphFormat}
             />
 
@@ -80,6 +84,7 @@
                 labelText={"Thing size"}
                 bind:boundValue={graphWidgetStyle.thingSize}
                 maxValue={1000}
+                tooltipText={"Size of a single Thing."}
                 onChangeFunction={updateGraphFormat}
             />
 
@@ -88,6 +93,7 @@
                 bind:boundValue={graphWidgetStyle.thingSpacingPercent}
                 minValue={-100}
                 maxValue={100}
+                tooltipText={"Distance between sibling Things."}
                 onChangeFunction={updateGraphFormat}
             />
 
@@ -95,6 +101,7 @@
                 labelText={"Relationship text size"}
                 bind:boundValue={graphWidgetStyle.relationshipTextSize}
                 maxValue={100}
+                tooltipText={"Size of Relationship text."}
                 onChangeFunction={updateGraphFormat}
             />
 
@@ -102,6 +109,7 @@
                 labelText={"Thing text size"}
                 bind:boundValue={graphWidgetStyle.thingTextSize}
                 maxValue={100}
+                tooltipText={"Size of Thing text."}
                 onChangeFunction={updateGraphFormat}
             />
         </div>

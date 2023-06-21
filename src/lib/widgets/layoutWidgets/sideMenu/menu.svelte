@@ -10,6 +10,9 @@
     import { saveGraphConfig } from "$lib/shared/config"
     import { openGraphStore } from "$lib/stores"
 
+    // Import related widgets.
+    import { Tooltip }  from "$lib/widgets/layoutWidgets"
+
     
     /**
      * @param subMenuInfos - Nested array of objects configuring the sub-menus.
@@ -23,7 +26,7 @@
      * @param closeOnOutsideClick - Whether to automatically close the menu when clicking outside it.
      * @param close - Method to close the side-menu.
      */
-    export let subMenuInfos: { name: MenuName, icon: string }[][]
+    export let subMenuInfos: { name: MenuName, icon: string, tooltipText: string | null }[][]
     export let defaultOpenSubMenuName: string
     export let openedSubMenuName: string | null
     export let open: boolean = false
@@ -296,6 +299,22 @@
                             width="{buttonSize}px"
                             height="{buttonSize}px"
                         >
+
+                        {#if info.tooltipText}
+                            <Tooltip
+                                text={info.tooltipText}
+                                direction={"down"}
+                                lean={
+                                    buttonGroup.length === 1 ? (
+                                        slideDirection === "left" ? "left" :
+                                        "right"
+                                    ) :
+                                    i === 0 ? "right" :
+                                    i === buttonGroup.length - 1 ? "left" :
+                                    null
+                                }
+                            />
+                        {/if}
                     </div>
 
                 {/each}
@@ -421,7 +440,7 @@
     }
 
     .button-group:hover .button:not(.menu-closed):not(.on-mobile) {
-        opacity: 0.75;
+        opacity: 1;
     }
 
     .button-group {
@@ -437,6 +456,7 @@
 		border-radius: 50%;
 
 		box-sizing: border-box;
+        position: relative;
 		background-color: white;
         opacity: 0.1;
 

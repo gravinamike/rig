@@ -76,20 +76,23 @@
             $devMode ?
                 {
                     name: "Outline",
-                    icon: "outline"
+                    icon: "outline",
+                    tooltipText: "Outline"
                 } :
                 null,
             {
                 name: "Notes",
-                icon: "notes"
+                icon: "notes",
+                tooltipText: "Notes"
             },
             $devMode ?
                 {
                     name: "Attachments",
-                    icon: "attachment"
+                    icon: "attachment",
+                    tooltipText: "Attachments"
                 } :
                 null
-        ].filter(info => info !== null) as { name: MenuName, icon: string }[]
+        ].filter(info => info !== null) as { name: MenuName, icon: string, tooltipText: string | null }[]
     ]
     const defaultOpenSubMenuName = "Notes"
     let openedSubMenuName: string | null

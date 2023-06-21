@@ -16,6 +16,7 @@
     import { saveGraphConfig } from "$lib/shared/config"
     import type { ThingDbModel } from "$lib/models/dbModels"
     import { onMobile, removeItemFromArray, sleep } from "$lib/shared/utility";
+    import { Tooltip } from "$lib/widgets/layoutWidgets"
 
 
     /**
@@ -427,6 +428,16 @@
                 width=20px
                 height=20px
             >
+
+            <Tooltip
+                text={
+                    editing === false ? "Edit Notes." :
+                    editingLocked === false ? "Lock in edit mode." :
+                    "Un-lock edit mode."
+                }
+                direction={"up"}
+                lean={"left"}
+            />
         </div>
     {/if}
     

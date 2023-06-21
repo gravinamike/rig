@@ -16,6 +16,7 @@
     import { DirectionWidget } from "./directionWidget"
     import { DirectionDropdownWidget } from "$lib/widgets/spaceWidgets"
     import DeleteWidget from "$lib/widgets/layoutWidgets/deleteWidget.svelte"
+    import { Tooltip } from "$lib/widgets/layoutWidgets"
     
     // Import API functions.
     import { createSpace, deleteSpace, spaceIsReferenced, updateSpace, updateThingDefaultSpace } from "$lib/db"
@@ -214,7 +215,7 @@
 
     function handlePossibleOutsideClick(event: MouseEvent) {
 		if (event.target !== spaceWidget && !spaceWidget.contains(event.target as Node)) {
-			interactionMode = isSpaceForm ? "editing" : "display"
+			cancel()
             isHovered = false
             confirmDeleteBoxOpen = false
 		}
@@ -223,7 +224,9 @@
 
 
 
-
+    async function cancel() {
+        interactionMode = isSpaceForm ? "editing" : "display"
+    }
 
 
 
@@ -267,7 +270,7 @@
 <svelte:body
     on:click={handlePossibleOutsideClick}
     on:keyup={(event) => {
-        if (event.key === "Escape") interactionMode = "display"
+        if (event.key === "Escape") cancel()
     } }
 />
 
@@ -391,17 +394,28 @@
                 height={onMobile() ? "20px" : "25px"}
                 style={`opacity: ${ defaultPerspectiveSpace ? 75 : 25 }%;`}
             >
+
+            <Tooltip
+                text={"Make default Space for current\nPerspective Thing."}
+                direction={"down"}
+                lean={"right"}
+            />
         </div>
     {/if}
 
     <!-- Mode button. -->
-    {#if !$readOnlyMode && (isHovered || interactionMode === "editing" || interactionMode === "create")}
+    {#if !$readOnlyMode && true || (isHovered || interactionMode === "editing" || interactionMode === "create")}
         <div
             class="container button-container"
             class:editing={interactionMode === "editing"}
         >
             <EditButton
                 {interactionMode}
+                tooltipText={
+                    interactionMode === "display" ? "Edit Space." :
+                    interactionMode === "editing" ? "Submit Space." :
+                    "Create Space"
+                }
                 onClick={handleButton}
             />
         </div>
@@ -418,7 +432,18 @@
         thingHeight={spaceWidgetHeight}
         encapsulatingDepth={0}
         trashIcon={interactionMode !== "editing"}
-        startDelete={() => {confirmDeleteBoxOpen = true}}
+        tooltipText={
+            interactionMode === "display" ? "Delete Space." :
+            interactionMode === "editing" ? "Cancel editing." :
+            null
+        }
+        startDelete={() => {
+            if (interactionMode === "editing") {
+                cancel()
+            } else {
+                confirmDeleteBoxOpen = true
+            }
+        } }
         {completeDelete}
     />
 

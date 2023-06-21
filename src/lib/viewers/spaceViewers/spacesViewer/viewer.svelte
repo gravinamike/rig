@@ -13,6 +13,7 @@
     import { changeIndexInArray, onMobile } from "$lib/shared/utility"
 
     // Import related widgets.
+    import { Tooltip } from "$lib/widgets/layoutWidgets"
     import { SpaceWidget } from "$lib/widgets/spaceWidgets"
 
     // Import API methods.
@@ -152,6 +153,12 @@
     on:keydown={()=>{}}
 >
     <strong>+</strong>
+
+    <Tooltip
+        text={"Create new Space."}
+        direction={"up"}
+        lean={"left"}
+    />
 </div>
 
 

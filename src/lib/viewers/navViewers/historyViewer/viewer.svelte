@@ -104,6 +104,10 @@
         Unique
         <Toggle
             bind:toggled={useUniqueHistory}
+            tooltipText={
+                useUniqueHistory ? "Click to show duplicates in history." :
+                "Click to hide duplicates in history."
+            }
         />
     </div>
 
@@ -236,6 +240,7 @@
         gap: 5px;
 
         font-size: 0.75rem;
+        color: dimgrey;
     }
 
     .history-viewer.on-mobile .unique-toggle {
@@ -245,8 +250,8 @@
         font-size: 0.65rem;
     }
 
-    .unique-toggle.toggled {
-        color: darkgrey;
+    .unique-toggle:not(.toggled) {
+        color: lightgrey;
     }
 
     .content {

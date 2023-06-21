@@ -9,7 +9,7 @@
     
     export let height: number
 
-    export let subMenuInfos: { name: MenuName, icon: string }[][]
+    export let subMenuInfos: { name: MenuName, icon: string, tooltipText: string | null }[][]
     export let defaultOpenSubMenuName: string
     export let useTabbedLayout: boolean
     export let usePortraitLayout: boolean
@@ -24,37 +24,42 @@
         [
             {
                 name: "File",
-                icon: "file"
+                icon: "file",
+                tooltipText: "File menu"
             },
             $loadingState === "graphLoaded" && $devMode ?
                 {
                     name: "Dev",
-                    icon: "dev"
+                    icon: "dev",
+                    tooltipText: "Developer menu"
                 } :
                 null,
             $loadingState === "graphLoaded" ?
                 {
                     name: "Settings",
-                    icon: "settings"
+                    icon: "settings",
+                    tooltipText: "Graph settings"
                 } :
                 null,
             $loadingState === "graphLoaded" ?
                 {
                     name: "Space",
-                    icon: "space"
+                    icon: "space",
+                    tooltipText: "Spaces and Directions"
                 } :
                 null,
             $loadingState === "graphLoaded" ?
                 {
                     name: "Thing",
-                    icon: "thing"
+                    icon: "thing",
+                    tooltipText: "Thing navigation"
                 } :
                 null
         ].filter(
             info => info !== null
             && !($hideMenusStore || []).includes(info.name as MenuName)
         ) as { name: MenuName, icon: string }[]
-    ].filter(infoBlock => infoBlock !== null) as ({ name: MenuName, icon: string }[])[]
+    ].filter(infoBlock => infoBlock !== null) as ({ name: MenuName, icon: string, tooltipText: string | null }[])[]
     
     // Which sub-menu to open after loading.
     $: defaultOpenSubMenuName = $loadingState === "graphLoaded" ? "Thing" : "File"

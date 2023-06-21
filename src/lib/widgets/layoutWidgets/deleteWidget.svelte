@@ -1,12 +1,14 @@
 <script lang="ts">
     import { XButton, ConfirmDeleteBox } from "$lib/widgets/layoutWidgets"
 
+
     export let showDeleteButton: boolean
     export let confirmDeleteBoxOpen: boolean
     export let thingWidth: number
     export let thingHeight: number
     export let encapsulatingDepth: number
     export let trashIcon = false
+    export let tooltipText: string | null = null
     export let startDelete: () => void
     export let completeDelete: () => void
 </script>
@@ -18,6 +20,7 @@
         <XButton
             buttonFunction={startDelete}
             {trashIcon}
+            {tooltipText}
         />
     </div>
 

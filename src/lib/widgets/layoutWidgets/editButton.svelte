@@ -1,5 +1,10 @@
 <script lang="ts">
+    // Import related widgets.
+    import { Tooltip } from "$lib/widgets/layoutWidgets"
+
+
     export let interactionMode: "display" | "editing" | "create"
+    export let tooltipText: string | null = null
     export let onClick: () => void
 </script>
 
@@ -20,6 +25,14 @@
         {:else}
             +
         {/if}
+
+        {#if tooltipText}
+            <Tooltip
+                text={tooltipText}
+                direction={"up"}
+                lean={"left"}
+            />
+        {/if}
     </button>
 </div>
 
@@ -35,6 +48,7 @@
     }
 
     .button-container {
+        position: relative;
         width: 15px;
         height: 15px;
     }

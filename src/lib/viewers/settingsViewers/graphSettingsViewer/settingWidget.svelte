@@ -1,10 +1,16 @@
 <script lang="ts">
+    // Import utility functions.
     import { onMobile } from "$lib/shared/utility"
+
+    // Import related widgets.
+    import { Tooltip } from "$lib/widgets/layoutWidgets"
+
 
     export let labelText: string
     export let boundValue: number | boolean
     export let minValue: number = 0
     export let maxValue: number = 10
+    export let tooltipText: string | null = null
     export let onChangeFunction: () => void = () => {}
 </script>
 
@@ -16,6 +22,13 @@
     style="flex-direction: {typeof boundValue === "boolean" ? "row" : "column"};"
 >
     {labelText}
+
+    {#if tooltipText}
+        <Tooltip
+            text={tooltipText}
+            direction={"down"}
+        />
+    {/if}
 
     {#if typeof boundValue === "boolean"}
 
@@ -46,12 +59,13 @@
         </div>
 
     {/if}
-
 </div>
 
 
 <style>
     .setting-widget {
+        position: relative;
+        
         display: flex;
         justify-content: space-between;
         gap: 0.5rem;
@@ -70,6 +84,10 @@
         display: flex;
         flex-direction: row;
         gap: 0.5rem;
+    }
+
+    input {
+        z-index: 1;
     }
 
     .setting-widget.on-mobile input {

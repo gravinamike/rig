@@ -338,6 +338,11 @@
                 <div class="container button-container">
                     <EditButton
                         {interactionMode}
+                        tooltipText={
+                            interactionMode === "display" ? "Edit Direction." :
+                            interactionMode === "editing" ? "Submit Direction." :
+                            "Create Direction"
+                        }
                         onClick={handleButton}
                     />
                 </div>
@@ -355,13 +360,18 @@
             thingHeight={directionWidgetHeight}
             encapsulatingDepth={0}
             trashIcon={interactionMode !== "editing"}
+            tooltipText={
+                interactionMode === "display" ? "Delete Direction." :
+                interactionMode === "editing" ? "Cancel editing." :
+                null
+            }
             startDelete={() => {
                 if (interactionMode === "editing") {
                     cancel()
                 } else {
                     confirmDeleteBoxOpen = true
                 }
-            }}
+            } }
             {completeDelete}
         />
     {/if}

@@ -1,8 +1,13 @@
 <script lang="ts">
+    // Import related widgets.
+    import { Tooltip } from "$lib/widgets/layoutWidgets"
+
+
     export let buttonFunction: () => void
     export let size = 16
     export let caution = false
     export let trashIcon = false
+    export let tooltipText: string | null = null
 </script>
 
 
@@ -30,6 +35,14 @@
             width={0.95 * size}px
             height={0.95 * size}px
         >
+    {/if}
+
+    {#if tooltipText}
+        <Tooltip
+            text={tooltipText}
+            direction={"down"}
+            lean={"left"}
+        />
     {/if}
 </div>
 

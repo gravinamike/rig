@@ -26,6 +26,7 @@
 
     // Import related widgets.
     import { defaultGraphWidgetStyle } from "$lib/widgets/graphWidgets"
+    import { Tooltip }  from "$lib/widgets/layoutWidgets"
 
     // Import API methods.
     import { onMobile } from "$lib/shared/utility"
@@ -44,7 +45,7 @@
 
 
     // Attributes handled by left-side-menu controller.
-    let subMenuInfos: { name: MenuName, icon: string }[][] = []
+    let subMenuInfos: { name: MenuName, icon: string, tooltipText: string | null }[][] = []
     let defaultOpenSubMenuName: string
     let useTabbedLayout: boolean = false
     let usePortraitLayout: boolean = false
@@ -128,6 +129,11 @@
                             on:keydown={()=>{}}
                         >
                             <img src="./icons/thing.png" alt="Search Things" width=20px height=20px />
+                            <Tooltip
+                                text={"Search by Thing text."}
+                                direction={"down"}
+                                lean={"left"}
+                            />
                         </div>
                         <div
                             class="search-type-button"
@@ -137,6 +143,11 @@
                             on:keydown={()=>{}}
                         >
                             <img src="./icons/notes.png" alt="Search Notes" width=16px height=16px />
+                            <Tooltip
+                                text={"Search by Note text."}
+                                direction={"down"}
+                                lean={"left"}
+                            />
                         </div>
                     </div>
                 {/if}
@@ -406,6 +417,8 @@
 
     .search-type-button {
         border-radius: 3px;
+
+        position: relative;
         width: 20px;
         height: 20px;
 
