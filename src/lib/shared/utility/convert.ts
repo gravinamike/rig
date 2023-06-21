@@ -93,7 +93,13 @@ export function legacyPerspectiveThingsParse(jsonString: string): {[thingId: str
                 .replace(/'}$/g, `"}`)
         
         // Parse the modified string.
-        output = JSON.parse(modifiedJsonString)
+        try {
+            output = JSON.parse(modifiedJsonString)
+    
+        // If all else fails, return an empty object.
+        } catch(err) {
+            console.error("Couldn't parse PerspectiveTexts, falling back on null value:", err)
+        }
 
     }    
     
