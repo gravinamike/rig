@@ -364,7 +364,7 @@
 
         // If animated zoom/scroll is enabled, smooth-scroll to center the zoom
         // bounds.
-        if (graphWidgetStyle.animateZoomAndScroll) {
+        if (widget && graphWidgetStyle.animateZoomAndScroll) {
             zoomBoundsDiv.scrollIntoView({
                 behavior: "smooth",
                 block: "center", inline: "center"})

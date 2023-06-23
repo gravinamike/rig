@@ -18,6 +18,7 @@ export async function graphIsUpdated(): Promise<boolean | null> {
         // Parse and return the boolean.
         const isUpdated = await res.json() as boolean
         return isUpdated
+        
     // Handle errors if needed.
     } else {
         res.text().then(text => {throw Error(text)})

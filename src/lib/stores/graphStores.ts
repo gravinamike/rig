@@ -9,7 +9,7 @@ import { writable, get } from "svelte/store"
 import { Graph, Space } from "$lib/models/constructModels"
 
 // Import API methods.
-import { noteSearchListItems, thingSearchListItems } from "$lib/db"
+import { getNoteSearchListItems, getThingSearchListItems } from "$lib/db"
 
 
 
@@ -206,7 +206,7 @@ export const thingSearchListStore = writable( [] as ThingSearchListItem[] )
  * @returns - Array of the stored Thing search list items, if any.
  */
 export async function storeThingSearchList(): Promise<ThingSearchListItem[]> {  
-    const queriedThingSearchListItems = await thingSearchListItems()
+    const queriedThingSearchListItems = await getThingSearchListItems()
     if (queriedThingSearchListItems) {
         // Update the store with this list.
         updateThingSearchListStore(queriedThingSearchListItems)
@@ -283,7 +283,7 @@ export const noteSearchListStore = writable( [] as NoteSearchListItem[] )
  * @returns - Array of the stored Notes search list items, if any.
  */
 export async function storeNotesSearchList(): Promise<NoteSearchListItem[]> {  
-    const queriedNoteSearchListItems = await noteSearchListItems()
+    const queriedNoteSearchListItems = await getNoteSearchListItems()
     if (queriedNoteSearchListItems) {
         // Update the store with this list.
         updateNoteSearchListStore(queriedNoteSearchListItems)

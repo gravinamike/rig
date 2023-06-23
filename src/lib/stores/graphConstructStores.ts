@@ -10,9 +10,9 @@ import { maxThingsToStore } from "$lib/shared/constants"
 
 
 // Import API methods.
-import { graphDbModels } from "$lib/db"
+import { getGraphConstructDbModels } from "$lib/db"
 import { Direction, Space, Thing } from "$lib/models/constructModels"
-import { isDirectionDbModel, isSpaceDbModel, isThingDbModel, type DirectionDbModel, type GraphDbModel, type SpaceDbModel, type ThingDbModel } from "$lib/models/dbModels"
+import { isDirectionDbModel, isSpaceDbModel, isThingDbModel, type DirectionDbModel, type GraphConstructDbModel, type SpaceDbModel, type ThingDbModel } from "$lib/models/dbModels"
 
 
 
@@ -60,11 +60,11 @@ export const thingIdsNotFoundStore = writable( [] as number[] )
  * Add Graph DB models to the stores.
  * @param  {Type} models - The Graph DB models to add to the store.
  */
-function updateDbModelStore<Type extends GraphDbModel>( models: Type | Type[] ): void {
+function updateDbModelStore<Type extends GraphConstructDbModel>( models: Type | Type[] ): void {
     // If necessary, pack a single supplied model in an array for processing.
     if (!("length" in models)) models = [models]
     // Determine which store to update based on construct type.
-    let store: Writable<{ [id: number]: GraphDbModel }>
+    let store: Writable<{ [id: number]: GraphConstructDbModel }>
     if ( models.length && isDirectionDbModel(models[0]) ) {
         store = directionDbModelsStore
     } else if ( models.length && isSpaceDbModel(models[0]) ) {
@@ -161,7 +161,7 @@ export function graphDbModelInStore(
  * @param  {number | number[]} ids - The construct IDs to fetch and store.
  * @param  allowUpdating - Whether to update or skip DB models that are already in the store.
  */
-export async function storeGraphDbModels<Type extends GraphDbModel>(
+export async function storeGraphDbModels<Type extends GraphConstructDbModel>(
     constructName: "Direction" | "Space" | "Thing",
     ids?: number | number[],
     allowUpdating = false
@@ -178,7 +178,7 @@ export async function storeGraphDbModels<Type extends GraphDbModel>(
     
     // If no IDs were provided, fetch all instances of this Db model.
     if (typeof ids === "undefined") {
-        queriedInstances = await graphDbModels(constructName) as Type[]
+        queriedInstances = await getGraphConstructDbModels(constructName) as Type[]
 
     // Else, if IDs *were* provided, fetch instances based on the IDs.
     } else {
@@ -197,7 +197,7 @@ export async function storeGraphDbModels<Type extends GraphDbModel>(
 
         // Fetch the instances from the API.
         if (!idsToQuery.length) return []
-        queriedInstances = await graphDbModels(constructName, idsToQuery) as Type[]
+        queriedInstances = await getGraphConstructDbModels(constructName, idsToQuery) as Type[]
     }
 
     // Update the store with these instances.
@@ -227,7 +227,7 @@ export async function unstoreGraphDbModels(
     ids: number | number[]
 ): Promise<void> {
     // Determine which store to update based on construct name.
-    const store: Writable<{[id: number]: GraphDbModel}> = {
+    const store: Writable<{[id: number]: GraphConstructDbModel}> = {
         "Direction": directionDbModelsStore,
         "Space": spaceDbModelsStore,
         "Thing": thingDbModelsStore
@@ -249,7 +249,7 @@ export async function unstoreGraphDbModels(
  */
 export async function clearGraphDbModelStore(constructName: "Direction" | "Space" | "Thing"): Promise<void> {
     // Determine which store to clear based on construct name.
-    const store: Writable<{[id: number]: GraphDbModel}> = {
+    const store: Writable<{[id: number]: GraphConstructDbModel}> = {
         "Direction": directionDbModelsStore,
         "Space": spaceDbModelsStore,
         "Thing": thingDbModelsStore
@@ -291,7 +291,7 @@ export function getGraphConstructs<Type extends GraphConstruct>(
     ids: number | number[]
 ): Type[] | Type | null {
     // Determine which store to get DbModel from based on construct name.
-    let storeValue: { [id: number]: GraphDbModel }
+    let storeValue: { [id: number]: GraphConstructDbModel }
     if (constructName === "Direction") {
         storeValue = directionDbModelsStoreValue
     } else if (constructName === "Space") {

@@ -4,19 +4,19 @@ import type { ThingDbModel } from "./thingDbModel"
 import type { RelationshipDbModel } from "./relationshipDbModel"
 
 
-export type GraphDbModel = DirectionDbModel | SpaceDbModel | ThingDbModel | RelationshipDbModel
+export type GraphConstructDbModel = DirectionDbModel | SpaceDbModel | ThingDbModel | RelationshipDbModel
 
 /*
  * Typeguard functions for Graph DB model classes.
  */
-export function isDirectionDbModel(construct: GraphDbModel): construct is DirectionDbModel {
+export function isDirectionDbModel(construct: GraphConstructDbModel): construct is DirectionDbModel {
     return "oppositeid" in construct
 }
 
-export function isSpaceDbModel(construct: GraphDbModel): construct is SpaceDbModel {
+export function isSpaceDbModel(construct: GraphConstructDbModel): construct is SpaceDbModel {
     return "directions" in construct
 }
 
-export function isThingDbModel(construct: GraphDbModel): construct is ThingDbModel {
+export function isThingDbModel(construct: GraphConstructDbModel): construct is ThingDbModel {
     return "note" in construct
 }

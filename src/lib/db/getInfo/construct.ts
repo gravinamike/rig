@@ -1,42 +1,36 @@
 // Import types.
-import type { GraphDbModel } from "$lib/models/dbModels"
-import type { LatestConstructInfos } from "$lib/server/db/getInfo"
+import type { GraphConstructDbModel } from "$lib/models/dbModels"
+import type { LatestGraphConstructInfos } from "$lib/server/db/getInfo"
 
 // Import session-specific fetch.
 import { sessionSpecificFetch as fetch } from "$lib/db/sessionSpecificFetch"
 
 
-/*
- * Retrieve Graph DB models from the database.
+/**
+ * Get-Graph-construct-database-models method.
+ * 
+ * Retrieves an array of Graph models (such as Direction, Space, and Thing
+ * models) from the back-end database by Graph construct type and ID.
+ * @param constructName - The name of the general construct type to retrieve.
+ * @param ids - The IDs of the specific constructs to receive.
+ * @returns - An array of Graph construct models.
  */
-export async function graphDbModels<Type extends GraphDbModel>(
+export async function getGraphConstructDbModels<Type extends GraphConstructDbModel>(
     constructName: "Direction" | "Space" | "Thing",
     ids?: number[]
 ): Promise<Type[]> {
-    let res: Response
-    
-    // If no IDs were provided, fetch all instances of this construct.
-    if (typeof ids === "undefined") {
-        res = await fetch(`api/db/graphConstructs/${ constructName.toLowerCase() }s-all`)
-
-    // Else, if IDs *were* provided,
-    } else {
-        res = await fetch(`api/db/graphConstructs/${ constructName.toLowerCase() }s-${ids.join(",")}`)
-    }
-
-    // If the response is ok,
-    if (res.ok) {
+    const res =
+        // If no IDs were provided, fetch all instances of this construct.
+        typeof ids === "undefined" ? await fetch(`api/db/graphConstructs/${ constructName.toLowerCase() }s-all`) :
         
-        if (constructName === "Direction") {
-            const queriedInstances = await res.json() as Type[]
-            return queriedInstances
-        } else if (constructName === "Space") {
-            const queriedInstances = await res.json() as Type[]
-            return queriedInstances
-        } else {
-            const queriedInstances = await res.json() as Type[]
-            return queriedInstances
-        }
+        // Else, if IDs *were* provided, fetch only those instances that match the IDs.
+        await fetch(`api/db/graphConstructs/${ constructName.toLowerCase() }s-${ids.join(",")}`)
+
+    // If the response is ok, parse and return the array of Graph construct models.
+    if (res.ok) {
+        const queriedInstances = await res.json() as Type[]
+        return queriedInstances
+
     // Handle errors if needed.
     } else {
         res.text().then(text => {throw Error(text)})
@@ -44,15 +38,20 @@ export async function graphDbModels<Type extends GraphDbModel>(
     }
 }
 
-/*
- * Get a information about the latest constructs added to the database.
+/**
+ * Get-latest-Graph-construct-infos method.
+ * 
+ * Retrieves an array of information objects about the latest Graph constructs
+ * to be created.
  */
-export async function latestDbConstructs(): Promise<LatestConstructInfos | false> {
+export async function getLatestGraphConstructInfos(): Promise<LatestGraphConstructInfos | false> {
+    // Query the latest-Graph-constructs API.
     const res = await fetch(`api/db/graphConstructs/latestConstructs`)
 
-    // If the response is ok,
+    // If the response is ok, parse and return the latest Graph construct info
+    // objects.
     if (res.ok) {
-        const latestDbConstructs = await res.json() as LatestConstructInfos
+        const latestDbConstructs = await res.json() as LatestGraphConstructInfos
         return latestDbConstructs
 
     // Handle errors if needed.

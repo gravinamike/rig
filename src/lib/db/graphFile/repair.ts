@@ -18,6 +18,7 @@ export async function graphNeedsRepair(): Promise<boolean | null> {
         // Parse and return the boolean.
         const needsRepair = await res.json() as boolean
         return needsRepair
+        
     // Handle errors if needed.
     } else {
         res.text().then(text => {throw Error(text)})

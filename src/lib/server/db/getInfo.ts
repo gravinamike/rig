@@ -222,7 +222,7 @@ export async function queryNoteSearchList( noteIds: number[] | null ): Promise<N
 /*
  * Get the latest Graph constructs that were added to the database.
  */
-export interface LatestConstructInfos {
+export interface LatestGraphConstructInfos {
     directions: {id: string | number, oppositeid: string | number | null, text: string | null, nameforobjects: string | null}[],
     spaces: {id: string | number | null, text: string | null}[],
     directionToSpaces: {id: string | number | null, directionid: string | number | null, spaceid: string | number | null, halfaxisid: string | number | null}[],
@@ -233,7 +233,7 @@ export interface LatestConstructInfos {
     folders: {id: string | number}[],
     folderToThings: {id: string | number, folderid: number, thingid: number}[]
 }
-export async function getLatestConstructs(): Promise<LatestConstructInfos> {
+export async function getLatestConstructs(): Promise<LatestGraphConstructInfos> {
     // Get latest Directions.
     const rawQueriedDirections = await RawDirectionDbModel.query().orderBy("id", "desc").limit(10)
     const queriedDirections = stripDirectionDbModels(rawQueriedDirections)

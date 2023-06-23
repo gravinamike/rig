@@ -9,7 +9,7 @@
     import NotesEditor from "./notesEditor.svelte"
 
     // Import API methods.
-    import { thingsByGuid, addNoteToThingOrGetExistingNoteId, updateNote, markNotesModified, noteSearchListItems } from "$lib/db"
+    import { getThingsByGuid, addNoteToThingOrGetExistingNoteId, updateNote, markNotesModified, getNoteSearchListItems } from "$lib/db"
 
 
     import { landscapeOrientation, notesBackgroundImageStore, notesEditorLockedStore, readOnlyMode, storeGraphDbModels, uITrimColorStore, updateNoteSearchListStore } from "$lib/stores"
@@ -179,7 +179,7 @@
 
 
 
-        const queriedNoteSearchListItems = await noteSearchListItems([noteId])
+        const queriedNoteSearchListItems = await getNoteSearchListItems([noteId])
         if (queriedNoteSearchListItems) updateNoteSearchListStore(queriedNoteSearchListItems)
 
 
@@ -301,7 +301,7 @@
             const guid = hyperlink.href.split("//")[1]
 
             // Get the Thing ID that corresponds to that GUID.
-            const thingsForGuid = await thingsByGuid([guid])
+            const thingsForGuid = await getThingsByGuid([guid])
             const thingId = thingsForGuid.length ? thingsForGuid[0].id : null
 
             // Re-Perspect to that Thing ID.

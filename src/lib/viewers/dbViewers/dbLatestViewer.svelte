@@ -1,14 +1,14 @@
 <script lang="ts">
-    import type { LatestConstructInfos } from "$lib/server/db/getInfo"
+    import type { LatestGraphConstructInfos } from "$lib/server/db/getInfo"
 
     import { onMount } from "svelte"
-    import { latestDbConstructs } from "$lib/db"
+    import { getLatestGraphConstructInfos } from "$lib/db"
 
 
-    let latestConstructs: LatestConstructInfos | false = false
+    let latestConstructs: LatestGraphConstructInfos | false = false
 
     onMount(async () => {
-        latestConstructs = await latestDbConstructs()
+        latestConstructs = await getLatestGraphConstructInfos()
 	})
 </script>
 

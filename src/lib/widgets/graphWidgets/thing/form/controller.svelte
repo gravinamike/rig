@@ -9,7 +9,7 @@
     import { ThingBaseWidgetController } from "../base"
 
     // Import API methods.
-    import { thingSearchListItems, createNewRelatedThing } from "$lib/db"
+    import { getThingSearchListItems, createNewRelatedThing } from "$lib/db"
     import type { GraphWidgetStyle } from "../../graph";
 
 
@@ -94,7 +94,7 @@
             await graph.build()
             addGraphIdsNeedingViewerRefresh(graph.id)
 
-            const queriedThingSearchListItems = await thingSearchListItems([newRelatedThing.id])
+            const queriedThingSearchListItems = await getThingSearchListItems([newRelatedThing.id])
             if (queriedThingSearchListItems) updateThingSearchListStore(queriedThingSearchListItems)
         }
     }
