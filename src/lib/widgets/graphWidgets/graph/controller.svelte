@@ -15,6 +15,7 @@
 
     // Import stores.
     import { relationshipBeingCreatedInfoStore, reorderingInfoStore } from "$lib/stores"
+    import { scrollElementToElement } from "$lib/shared/animation";
 
 
     /**
@@ -291,13 +292,10 @@
         // If no such element exists for that ID, get the HTML element for the
         // Thing-missing-from-store widget.
         if (!thingWidget) thingWidget = document.getElementsByClassName("thing-missing-from-store-widget")[0] as HTMLElement
-        
-        // If the Thing exists, scroll it into the center of the view.
-        if (thingWidget) thingWidget.scrollIntoView({
-            behavior: graphWidgetStyle.animateZoomAndScroll ? "smooth" : "auto",
-            block: "center",
-            inline: "center"
-        })
+
+        if (widget && thingWidget) {
+            scrollElementToElement(widget, thingWidget, 100)
+        }
 
         // Reset the flag that called for this operation.
         allowScrollToThingId = false
@@ -365,9 +363,7 @@
         // If animated zoom/scroll is enabled, smooth-scroll to center the zoom
         // bounds.
         if (widget && graphWidgetStyle.animateZoomAndScroll) {
-            zoomBoundsDiv.scrollIntoView({
-                behavior: "smooth",
-                block: "center", inline: "center"})
+            scrollElementToElement(widget, zoomBoundsDiv, 100)
 
         // Otherwise, discrete-scroll to center the zoom bounds.
         } else {

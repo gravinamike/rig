@@ -193,7 +193,7 @@
             thingIdToScrollTo = thingId
 
             // Allow for scroll time (since there's no actual feedback from the widget to `await`).
-            await sleep(300) 
+            await sleep(100)
 
             // Re-Perspect the Graph.
             showGraph = false
