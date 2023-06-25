@@ -24,11 +24,13 @@
      * @param currentEditorTextContent - The editor's text content as a string.
      * @param editorTextEditedButNotSynced - Indicates whether the editor's text content has been changed (excluding complete replacement because of a re-Perspect).
      * @param textField - The HTML Element of the text field.
+     * @param fullSize: Whether the viewer's menu is opened to full-size.
      */
     export let currentPThingNoteText: string | null
     export let currentEditorTextContent: string | null
     export let editorTextEditedButNotSynced: boolean
     export let textField: Element
+    export let fullSize: boolean
 
     // HTML element handles.
     let editor: Editor
@@ -199,6 +201,7 @@
     {#if editor}
         <NotesToolbar
             {editor}
+            {fullSize}
             focusEditorMethod={focusEditor}
         />
     {/if}

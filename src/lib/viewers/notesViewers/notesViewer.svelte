@@ -21,9 +21,11 @@
 
     /**
      * @param graph - The Graph that this widget is displaying Notes for.
+     * @param fullSize: Whether the viewer's menu is opened to full-size.
      * @param rePerspectToThingId - Method to re-Perspect the Graph to a given Thing ID.
      */
     export let graph: Graph
+    export let fullSize: boolean
     export let rePerspectToThingId: (thingId: number) => Promise<void>
 
     
@@ -380,6 +382,7 @@
                 bind:currentEditorTextContent
                 bind:editorTextEditedButNotSynced
                 bind:textField={textEditorField}
+                {fullSize}
             />
 
         <!-- Note display. -->

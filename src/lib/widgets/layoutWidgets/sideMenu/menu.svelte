@@ -34,6 +34,7 @@
     export let lockedSubMenuName: string | null = openedSubMenuName
     export let openExtension = 250
     export let fullSizeExtension: number | null = null
+    export let fullSize = false
     export let openTime = 500
     export let overlapPage = false
     export let slideDirection: "right" | "left" | "down" | "up" = "right"
@@ -63,7 +64,6 @@
 
 
 
-    let fullSize = false
     $: extensionToUse = fullSizeExtension && fullSize ? fullSizeExtension : openExtension
 
     $: percentOpen = open ? 1.0 : 0.0
@@ -230,7 +230,7 @@
             class:no-pointer-events={mousePressed}
 
             style="
-                width: {buttonSize + 20}px;
+                width: {30}px;
                 {
                     onMobile() ? "" :
                     `height: calc(100% - ${buttonSize + 20}px); margin-top: ${buttonSize + 20}px;`

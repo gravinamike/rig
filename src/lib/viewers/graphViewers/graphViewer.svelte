@@ -16,13 +16,13 @@
         urlStore,
         getGraphConstructs,
         perspectiveSpaceIdStore,
-
-        landscapeOrientation
-
+        landscapeOrientation,
+        uITrimColorStore,
+        homeThingIdStore
     } from "$lib/stores"
 
     // Import layout elements.
-    import { SideMenu } from "$lib/widgets/layoutWidgets"
+    import { SideMenu, Tooltip } from "$lib/widgets/layoutWidgets"
 
     // Import viewers.
     import { NotesViewer } from "$lib/viewers/notesViewers"
@@ -283,6 +283,7 @@
 
 
     let width = 1
+    let sideMenuFullSize = false
 </script>
 
 
@@ -321,6 +322,7 @@
         bind:lockedSubMenuName
         openExtension={sideMenuExtension}
         fullSizeExtension={sideMenuFullSizeExtension}
+        bind:fullSize={sideMenuFullSize}
         openTime={500}
         overlapPage={false}
         slideDirection={ usePortraitLayout ? "down" : "left" }
@@ -344,6 +346,7 @@
             {#if graph}
                 <NotesViewer
                     {graph}
+                    fullSize={sideMenuFullSize}
                     {rePerspectToThingId}
                 />
             {/if}
@@ -357,6 +360,67 @@
             {/if}
         {/if}
     </SideMenu>
+
+    <!-- Home/back/forward buttons. -->
+    <div
+        class="nav-buttons"
+
+        style="background-color: {$uITrimColorStore};"
+    >
+        <div
+            class="nav-button"
+
+            on:click={forward}
+            on:keydown={()=>{}}
+        >
+            <svg style="transform: rotate(180deg);">
+                <polygon points="6,9 19,9 12.5,19" />
+            </svg>
+
+            <Tooltip
+                text={"Go forward in history."}
+                direction={"up"}
+                lean={"right"}
+            />
+        </div>
+
+        <div
+            class="nav-button"
+
+            on:click={back}
+            on:keydown={()=>{}}
+        >
+            <svg>
+                <polygon points="6,9 19,9 12.5,19" />
+            </svg>
+
+            <Tooltip
+                text={"Go back in history."}
+                direction={"up"}
+                lean={"right"}
+            />
+        </div>
+
+        {#if $homeThingIdStore}
+            <div
+                class="nav-button"
+
+                on:click={() => { if ($homeThingIdStore) rePerspectToThingId($homeThingIdStore) }}
+                on:keydown={()=>{}}
+            >
+                <img
+                    src="./icons/home.png"
+                    alt="Home indicator"
+                >
+
+                <Tooltip
+                    text={"Go to home Thing."}
+                    direction={"up"}
+                    lean={"right"}
+                />
+            </div>
+        {/if}
+    </div>
 
 </div>
 
@@ -378,6 +442,58 @@
         min-height: 0;
 
         position: relative;
+    }
+
+    .nav-buttons {
+        border-radius: 0 16px 0 0;
+
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        z-index: 1;
+
+        display: flex;
+        flex-direction: column;
+        padding: 5px 5px 8px 3px;
+        gap: 8px;
+    }
+
+    .nav-button {
+        border-radius: 50%;
+
+        box-sizing: border-box;
+        position: relative;
+        width: 25px;
+        height: 25px;
+        background-color: white;
+
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .nav-button:hover {
+        background-color: whitesmoke;
+    }
+
+    .nav-button:active {
+        background-color: gainsboro;
+    }
+
+    .nav-button img {
+        margin-top: -1px;
+
+        width: 21px;
+        height: 21px;
+        opacity: 51%;
+    }
+
+    .nav-button svg {
+        width: 25px;
+        height: 25px;
+        stroke: grey;
+        fill: grey;
     }
 
     .graph-outline-widget-container {

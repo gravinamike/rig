@@ -9,6 +9,7 @@
 
 
     export let editor: Editor
+    export let fullSize: boolean
     export let focusEditorMethod: () => void
 
 
@@ -259,11 +260,27 @@
         class="notes-toolbar"
         class:on-mobile={onMobile()}
 
-        style="background-color: {$uIBackgroundColorStore};"
+        style="
+            {onMobile() && fullSize ? "margin-left: 26px;" : ""}
+            background-color: {$uIBackgroundColorStore};
+        "
     >
 
+
+
+
+
+
+        
+
+
+
+
+
         <!-- Font family, size, and header level. -->
-        <div class="button-group">
+        <div
+            class="button-group"
+        >
             <select
                 class="font-picker"
 
@@ -422,7 +439,6 @@
 
     .button-group {
         position: absolute;
-        left: 14px;
         top: 14px;
         z-index: 1;
 
