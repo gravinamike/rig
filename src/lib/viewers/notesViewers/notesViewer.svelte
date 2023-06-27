@@ -17,6 +17,7 @@
     import type { ThingDbModel } from "$lib/models/dbModels"
     import { onMobile, removeItemFromArray, sleep } from "$lib/shared/utility";
     import { Tooltip } from "$lib/widgets/layoutWidgets"
+    import TopBottomJumpButtons from "./topBottomJumpButtons.svelte"
 
 
     /**
@@ -33,6 +34,7 @@
     let editButton: Element
     let notesContainer: Element
     let textField: Element
+    let textFieldScrollTop = 0
     let textEditorField: Element
 
     // Whether Notes are displayed as plain HTML or as an editable interface.
@@ -400,8 +402,15 @@
                     ` :
                     ""
                 }
+
+                on:scroll={() => {textFieldScrollTop = textField.scrollTop}}
             >
                 {@html viewerDisplayText}
+
+                <TopBottomJumpButtons
+                    scrollableDiv={textField}
+                    scrollableDivScrollTop={textFieldScrollTop}
+                />
             </div>
         {/if}
     </div>
@@ -525,6 +534,8 @@
 
     .notes-container {
         flex: 1 1;
+
+        position: relative;
 
         display: flex;
         flex-direction: column;

@@ -265,22 +265,8 @@
             background-color: {$uIBackgroundColorStore};
         "
     >
-
-
-
-
-
-
-        
-
-
-
-
-
         <!-- Font family, size, and header level. -->
-        <div
-            class="button-group"
-        >
+        <div class="button-group">
             <select
                 class="font-picker"
 
@@ -439,6 +425,7 @@
 
     .button-group {
         position: absolute;
+        left: 14px;
         top: 14px;
         z-index: 1;
 

@@ -2,6 +2,9 @@
     // Import framework resources.
     import { onMount, onDestroy } from "svelte"
 
+    // Import stores.
+    import { notesBackgroundImageStore } from "$lib/stores"
+
     // Import Tiptap resources
     import { Editor } from "@tiptap/core"
     import StarterKit from "@tiptap/starter-kit"
@@ -15,8 +18,8 @@
 
     // Import related widgets.
     import NotesToolbar from "./notesToolbar.svelte"
-    import { notesBackgroundImageStore } from "$lib/stores";
-    import { onMobile } from "$lib/shared/utility";
+    import { onMobile } from "$lib/shared/utility"
+    import TopBottomJumpButtons from "./topBottomJumpButtons.svelte"
 
 
     /**
@@ -34,6 +37,7 @@
 
     // HTML element handles.
     let editor: Editor
+    let textFieldScrollTop = 0
 
 
 
@@ -194,7 +198,13 @@
             ` :
             ""
         }
+
+        on:scroll={() => {textFieldScrollTop = textField.scrollTop}}
     >
+        <TopBottomJumpButtons
+            scrollableDiv={textField}
+            scrollableDivScrollTop={textFieldScrollTop}
+        />
     </div>
 
     <!-- Editor toolbar. -->
@@ -233,6 +243,7 @@
         border-radius: 5px;
 
         box-sizing: border-box;
+        position: relative;
         height: 100%;
         background-color: white;
 
