@@ -1,6 +1,6 @@
 <script lang="ts">
     // Import framework resources.
-    import { onMount, onDestroy } from "svelte"
+    import { onMount, onDestroy, tick } from "svelte"
 
     // Import stores.
     import { notesBackgroundImageStore } from "$lib/stores"
@@ -38,6 +38,8 @@
     // HTML element handles.
     let editor: Editor
     let textFieldScrollTop = 0
+    let textFieldClientHeight = 0
+    let textFieldScrollHeight = 0
 
 
 
@@ -102,11 +104,16 @@
 
         // Set the content of the content-tracking string to the supplied string.
         currentEditorTextContent = content
+
+        textFieldScrollHeight = textField?.scrollHeight || 0
     }
 
-    function onContentEdited() {
+    async function onContentEdited() {
         currentEditorTextContent = editor.getHTML()
         editorTextEditedButNotSynced = true
+
+        await tick()
+        textFieldScrollHeight = textField?.scrollHeight || 0
     }
 
 
@@ -186,7 +193,10 @@
         class="text-field"
         class:on-mobile={onMobile()}
         class:ctrlKeyPressed
+
         bind:this={textField}
+        bind:clientHeight={textFieldClientHeight}
+        
         on:click|preventDefault={focusEditor}
         on:wheel|stopPropagation
         on:keydown={()=>{}}
@@ -200,10 +210,17 @@
         }
 
         on:scroll={() => {textFieldScrollTop = textField.scrollTop}}
+    />
+
+    <div
+        class="jump-buttons-container"
+        style="height: {textFieldClientHeight}px;"
     >
         <TopBottomJumpButtons
             scrollableDiv={textField}
             scrollableDivScrollTop={textFieldScrollTop}
+            scrollableDivClientHeight={textFieldClientHeight}
+            scrollableDivScrollHeight={textFieldScrollHeight}
         />
     </div>
 
@@ -243,7 +260,6 @@
         border-radius: 5px;
 
         box-sizing: border-box;
-        position: relative;
         height: 100%;
         background-color: white;
 
@@ -252,6 +268,15 @@
         scrollbar-width: thin;
 
         text-align: left;
+    }
+
+    .jump-buttons-container {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+
+        pointer-events: none;
     }
 
     :global(.ProseMirror) {

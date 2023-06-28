@@ -1,12 +1,14 @@
 <script lang="ts">
     export let scrollableDiv: Element
     export let scrollableDivScrollTop: number
+    export let scrollableDivClientHeight: number
+    export let scrollableDivScrollHeight: number
 
 
-    $: topThreshold = scrollableDiv?.clientHeight || 0
-    $: bottomThreshold = scrollableDiv ? scrollableDiv.scrollHeight - 2 * scrollableDiv.clientHeight : 0
+    $: topThreshold = scrollableDivClientHeight || 0
+    $: bottomThreshold = scrollableDivScrollHeight - 2 * scrollableDivClientHeight
     $: scrollPosition = 
-        scrollableDiv && scrollableDiv.scrollHeight > scrollableDiv.clientHeight ? scrollableDivScrollTop :
+        scrollableDivScrollHeight > scrollableDivClientHeight ? scrollableDivScrollTop :
         null
     $: showTopButton = scrollPosition !== null && scrollPosition > topThreshold
     $: showBottomButton = scrollPosition !== null && scrollPosition < bottomThreshold
@@ -69,6 +71,7 @@
         color: silver;
 
         cursor: pointer;
+        pointer-events: auto;
     }
 
     .jump-to-top-button:hover, .jump-to-bottom-button:hover {

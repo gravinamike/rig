@@ -18,6 +18,7 @@
     import { onMobile, removeItemFromArray, sleep } from "$lib/shared/utility";
     import { Tooltip } from "$lib/widgets/layoutWidgets"
     import TopBottomJumpButtons from "./topBottomJumpButtons.svelte"
+    import { tick } from "svelte";
 
 
     /**
@@ -35,6 +36,8 @@
     let notesContainer: Element
     let textField: Element
     let textFieldScrollTop = 0
+    let textFieldClientHeight = 0
+    let textFieldScrollHeight = 0
     let textEditorField: Element
 
     // Whether Notes are displayed as plain HTML or as an editable interface.
@@ -89,6 +92,8 @@
     async function updateTexts(text: string, scrollToTop=false) {
         currentPThingNoteText = text
         viewerDisplayText = textForDisplay(text)
+        await tick()
+        textFieldScrollHeight = textField?.scrollHeight || 0
 
         if (scrollToTop) {
             textField?.scroll({top: 0})
@@ -330,6 +335,12 @@
     $: notesBackgroundImageUrl =
         $notesBackgroundImageStore ? `customizable/background-images/${$notesBackgroundImageStore}` :
         null
+
+    $: {
+        editing
+
+        textFieldScrollHeight = textField?.scrollHeight || 0
+    }
 </script>
 
 
@@ -394,6 +405,7 @@
                 class:on-mobile={onMobile()}
 
                 bind:this={textField}
+                bind:clientHeight={textFieldClientHeight}
                 
                 style={
                     notesBackgroundImageUrl ? `
@@ -406,12 +418,14 @@
                 on:scroll={() => {textFieldScrollTop = textField.scrollTop}}
             >
                 {@html viewerDisplayText}
-
-                <TopBottomJumpButtons
-                    scrollableDiv={textField}
-                    scrollableDivScrollTop={textFieldScrollTop}
-                />
             </div>
+
+            <TopBottomJumpButtons
+                scrollableDiv={textField}
+                scrollableDivScrollTop={textFieldScrollTop}
+                scrollableDivClientHeight={textFieldClientHeight}
+                scrollableDivScrollHeight={textFieldScrollHeight}
+            />
         {/if}
     </div>
 
