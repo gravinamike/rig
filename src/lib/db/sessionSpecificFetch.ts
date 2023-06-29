@@ -4,6 +4,11 @@ import { v4 as uuidv4 } from "uuid"
 import { sessionUuidStore } from "$lib/stores"
 
 
+// The session-specific fetch carries the session ID along with it, via a
+// temporary cookie (that only lasts as long as the fetch itself). This
+// allows different browser sessions to view and alter different Graphs
+// simultaneously from the same back-end instance without affecting each
+// other.
 export async function sessionSpecificFetch(
     input: RequestInfo | URL,
     init?: RequestInit

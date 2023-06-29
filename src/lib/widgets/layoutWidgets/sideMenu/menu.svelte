@@ -8,7 +8,7 @@
     import { cubicOut } from "svelte/easing"
     import { onMobile, sleep } from "$lib/shared/utility"
     import { saveGraphConfig } from "$lib/shared/config"
-    import { openGraphStore } from "$lib/stores"
+    import { mouseSpeed, openGraphStore } from "$lib/stores"
 
     // Import related widgets.
     import { Tooltip }  from "$lib/widgets/layoutWidgets"
@@ -142,7 +142,11 @@
      * @param name - Name of the menu button that was hovered.
      */
     function handleButtonMouseEnter(name: string) {
-        if (!closing) openedSubMenuName = name
+        if ( !closing ) openedSubMenuName = name
+    }
+
+    function handleButtonMouseLeave() {
+        if ( !closing && mouseSpeed() > 500 ) openedSubMenuName = lockedSubMenuName
     }
 
     /**
@@ -290,6 +294,7 @@
                         }
 
                         on:mouseenter={ () => handleButtonMouseEnter(info.name) }
+                        on:mouseleave={ handleButtonMouseLeave }
                         on:click={ () => { handleButtonClick(info.name) } }
                         on:keydown={()=>{}}
                     >

@@ -58,7 +58,7 @@ export const unigraphFolderStore = writable( null as string | null )
 
 
 
-export const newFileCreationStore = writable(
+export const newGraphFileCreationStore = writable(
     {
         dialogOpen: false,
         username: null,
@@ -67,7 +67,7 @@ export const newFileCreationStore = writable(
 )
 
 export function enableNewFileCreation(username: string): void {
-    newFileCreationStore.set(
+    newGraphFileCreationStore.set(
         {
             dialogOpen: true,
             username: username === "all" ? null : username,
@@ -77,12 +77,12 @@ export function enableNewFileCreation(username: string): void {
 }
 
 export function updateNewFileCreationFileName(newFileName: string): void {
-    newFileCreationStore.update( current => {
+    newGraphFileCreationStore.update( current => {
         current.newFileName = newFileName
         return current
     } )
 }
 
 export function disableNewFileCreation(): void {
-    newFileCreationStore.update( () => nullNewFileCreationInfo )
+    newGraphFileCreationStore.update( () => nullNewFileCreationInfo )
 }

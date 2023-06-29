@@ -1,12 +1,22 @@
+// Import types.
 import type { GraphConfig } from "$lib/shared/constants"
+
+// Import basic framework resources.
 import { get } from "svelte/store"
+
+// Import session-specific fetch.
 import { sessionSpecificFetch as fetch } from "$lib/db/sessionSpecificFetch"
-import { newFileCreationStore } from "$lib/stores"
+
+// Import stores.
+import { newGraphFileCreationStore } from "$lib/stores"
 
 
 
-/*
- * Set the database listening port.
+/**
+ * Set-database-listening-port method.
+ * 
+ * Sets the port which the app uses to communicate with the back-end database,
+ * based on the configuration file.
  */
 export async function setDbPort(): Promise<void> {
     await fetch("/api/db/dbPort", {
@@ -14,8 +24,11 @@ export async function setDbPort(): Promise<void> {
     })
 }
 
-/*
- * Set the base Graphs folder.
+/**
+ * Set-base-Graphs-folder method.
+ * 
+ * Sets the base folder path that Graphs are stored in, based on the
+ * configuration file.
  */
 export async function setGraphsBaseFolder(): Promise<void> {
     await fetch("/api/file/graphsBaseFolder", {
@@ -24,10 +37,11 @@ export async function setGraphsBaseFolder(): Promise<void> {
 }
 
 
-
-
-/*
- * Save the application configuration.
+/**
+ * Save-app-config method.
+ * 
+ * Saves the front-end application configuration settings to a file on the
+ * server.
  */
 export async function saveAppConfig(): Promise<void> {
     await fetch("/api/file/appConfig", {
@@ -35,11 +49,10 @@ export async function saveAppConfig(): Promise<void> {
     })
 }
 
-
-
-
-/*
- * Save the Graph configuration.
+/**
+ * Save-Graph-config method.
+ * 
+ * Saves the front-end Graph configuration settings to a file on the server.
  */
 export async function saveGraphConfig(graphConfig: GraphConfig): Promise<void> {
     await fetch("/api/file/graphConfig", {
@@ -49,8 +62,16 @@ export async function saveGraphConfig(graphConfig: GraphConfig): Promise<void> {
 }
 
 
+/**
+ * Create-Graph method.
+ * 
+ * Creates a new Graph file on the server.
+ * @param newGraphName - The name of the Graph to be created.
+ * @returns - Whether or not the create-Graph operation was successful.
+ */
 export async function createGraph( newGraphName: string ): Promise<boolean> {
-    const username = get(newFileCreationStore).username
+    // Get the username from the new-Graph-file-creation-store.
+    const username = get(newGraphFileCreationStore).username
 
     // Post to the create-new-Graph API.
     const res = await fetch(

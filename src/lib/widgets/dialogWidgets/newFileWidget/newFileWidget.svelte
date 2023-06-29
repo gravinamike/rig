@@ -1,7 +1,7 @@
 <script lang="ts">
     import { sessionSpecificFetch as fetch } from "$lib/db/sessionSpecificFetch"
 
-    import { refreshGraphFoldersStore, newFileCreationStore, updateNewFileCreationFileName, disableNewFileCreation, userIdStore } from "$lib/stores"
+    import { refreshGraphFoldersStore, newGraphFileCreationStore, updateNewFileCreationFileName, disableNewFileCreation, userIdStore } from "$lib/stores"
     import { createGraph } from "$lib/db/makeChanges"
     import { openGraphFile } from "$lib/shared/unigraph"
     import { filenameIsValid } from "$lib/shared/utility";
@@ -32,13 +32,13 @@
             && (
                 !filenameIsValid(newFileNameField.value)
                 || (
-                    !$newFileCreationStore.username
+                    !$newGraphFileCreationStore.username
                     && currentGraphFoldersByUsername["all"].includes(newFileNameField.value)
                 )
                 || (
-                    $newFileCreationStore.username
-                    && $newFileCreationStore.username in currentGraphFoldersByUsername
-                    && currentGraphFoldersByUsername[$newFileCreationStore.username].includes(newFileNameField.value)
+                    $newGraphFileCreationStore.username
+                    && $newGraphFileCreationStore.username in currentGraphFoldersByUsername
+                    && currentGraphFoldersByUsername[$newGraphFileCreationStore.username].includes(newFileNameField.value)
                 )
             )
         )  {
@@ -49,8 +49,8 @@
     }
 
     $: if (
-        $newFileCreationStore.dialogOpen
-        && !$newFileCreationStore.newFileName
+        $newGraphFileCreationStore.dialogOpen
+        && !$newGraphFileCreationStore.newFileName
         && newFileNameField
     ) {
         newFileNameField.focus()
@@ -68,7 +68,7 @@
             updateNewFileCreationFileName(newFileName)
             const graphCreated = await createGraph(newFileName)
             if (graphCreated) {
-                openGraphFile($newFileCreationStore.username || "all", newFileName)
+                openGraphFile($newGraphFileCreationStore.username || "all", newFileName)
             }
             disableNewFileCreation()
             refreshGraphFoldersStore()
@@ -77,7 +77,7 @@
 </script>
 
 
-{#if $newFileCreationStore.dialogOpen && !$newFileCreationStore.newFileName }
+{#if $newGraphFileCreationStore.dialogOpen && !$newGraphFileCreationStore.newFileName }
     <div
         class="disabled-background"
         style="position: absolute; left: 0px; top: 0px; width: 100%; height: 100%; z-index: 1; background-color: grey; opacity: 0.5;"
