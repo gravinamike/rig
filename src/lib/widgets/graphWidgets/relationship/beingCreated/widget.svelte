@@ -283,7 +283,7 @@
         top: 0px;
         width: 100%;
         height: 100%;
-        z-index: 2;
+        z-index: 5;
         background-color: grey;
         opacity: 0.5;
     }
@@ -292,7 +292,7 @@
         position: absolute;
         left: 0px;
         top: 0px;
-        z-index: 2;
+        z-index: 5;
 
         overflow: visible;
 

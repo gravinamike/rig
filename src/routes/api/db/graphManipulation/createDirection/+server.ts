@@ -7,7 +7,7 @@ export const POST: RequestHandler = async ({request}) => {
     try {
         const body = await request.json()
         const newSpaceId = await createDirection(
-            body.directionText,
+            body.relationshipText,
             body.objectText,
             body.oppositeDirectionId
         ) as number

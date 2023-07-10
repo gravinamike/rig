@@ -136,8 +136,8 @@
                 // Reorder the Relationships in the db accordingly.
                 await reorderRelationship(
                     copiedReorderingInfo.thingCohort?.parentThingId as number,
-                    copiedReorderingInfo.thingCohort?.address.directionId as number,
                     copiedReorderingInfo.destThingId as number,
+                    copiedReorderingInfo.thingCohort?.address.directionId as number,
                     copiedReorderingInfo.newIndex
                 )
 

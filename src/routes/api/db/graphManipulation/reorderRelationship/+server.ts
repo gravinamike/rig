@@ -8,8 +8,8 @@ export const POST: RequestHandler = async ({ request }) => {
         const body = await request.json()
         await reorderRelationship(
             body.sourceThingId,
-            body.destThingDirectionId,
             body.destThingId,
+            body.destThingDirectionId,
             body.newIndex
         )
 

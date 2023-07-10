@@ -80,7 +80,7 @@
 {#if $newGraphFileCreationStore.dialogOpen && !$newGraphFileCreationStore.newFileName }
     <div
         class="disabled-background"
-        style="position: absolute; left: 0px; top: 0px; width: 100%; height: 100%; z-index: 1; background-color: grey; opacity: 0.5;"
+        style="position: absolute; left: 0px; top: 0px; width: 100%; height: 100%; z-index: 5; background-color: grey; opacity: 0.5;"
         on:click|stopPropagation={() => {
             disableNewFileCreation()
         }}
@@ -129,7 +129,7 @@
         left: 50%;
         top: 50%;
         transform: translate(-50%, -50%);
-        z-index: 2;
+        z-index: 5;
         box-sizing: border-box;
         background-color: #fafafa;
 

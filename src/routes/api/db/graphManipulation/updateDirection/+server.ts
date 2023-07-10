@@ -8,7 +8,7 @@ export const POST: RequestHandler = async ({ request }) => {
         const body = await request.json()
         await updateDirection(
             body.directionId,
-            body.directionText,
+            body.relationshipText,
             body.nameForObjects,
             body.oppositeId
         )

@@ -69,8 +69,8 @@
                 $relationshipBeingCreatedInfoStore.sourceThingId
                 && !relatableForCurrentDrag
             )
-        // The highlight is soft.
-        ) ? "soft-highlight" :
+        // The highlight is hard.
+        ) ? "hard-highlight" :
 
         // Otherwise, the widget isn't highlighted.
         "no-highlight"

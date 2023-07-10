@@ -2,9 +2,6 @@
     // Import types.
     import type { SearchOption } from "./types"
 
-    // Import basic framework resources.
-    import { onMount } from "svelte"
-
     // Import utility functions.
     import { clampNumber, htmlToPlaintext, onMobile } from "$lib/shared/utility"
 
@@ -55,12 +52,6 @@
 
     // Font size of the search field and items.
     const fontSize = onMobile() ? 0.6 : 0.75
-
-
-    // When the component initializes, put the focus on the search field.
-    onMount(async () => {
-        if (!onMobile()) inputField.focus()
-	})
     
 
     /**
@@ -194,6 +185,23 @@
                 // Get the text (either from the Notes, if available, or from
                 // the Thing).
                 const text = item.noteText ? htmlToPlaintext(item.noteText) : item.thingText
+
+
+                // If the search input is empty,
+                if ( inputText.length === 0 ) {
+                    // Add an item to the filtered-items array.
+                    const processedItem = text.replace(/\n/g, "<br>")
+                    filteredItems.push( {
+                        id: item.id,
+                        thingText: item.thingText,
+                        highlightedThingText: !item.noteText ? processedItem : null,
+                        noteText: item.noteText,
+                        highlightedNoteText: item.noteText ? processedItem : null
+                    } )
+
+                    return
+                }
+
                 
                 // Find the index of the item in the search input, if any.
                 const index = substringIndex(text)
@@ -351,7 +359,7 @@
 
         style={`font-size: ${fontSize}rem;`}
 
-        on:focus={() => {focused = true}}
+        on:focus={() => {focused = true; handleInput()}}
         on:blur={() => {focused = false}}
         on:input={handleInput}
         on:keydown={handleKeyboardEvent}

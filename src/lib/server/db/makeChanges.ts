@@ -24,7 +24,7 @@ import type { OddHalfAxisId } from "$lib/shared/constants"
  * Create a new Direction.
  */
 export async function createDirection(
-    directionText: string,
+    relationshipText: string,
     objectText: string,
     oppositeDirectionId: number | null
 ): Promise<number | false> {
@@ -48,7 +48,7 @@ export async function createDirection(
             // Create new Direction.
             const newDirectionInfo = getNewDirectionInfo(
                 newDirectionId,
-                directionText,
+                relationshipText,
                 objectText,
                 oppositeDirectionId,
                 newOrder
@@ -74,7 +74,7 @@ export async function createDirection(
  */
 export async function updateDirection(
     directionId: number,
-    directionText: string,
+    relationshipText: string,
     nameForObjects: string,
     oppositeId: number | null
 ): Promise<boolean> {
@@ -85,7 +85,7 @@ export async function updateDirection(
             // Update the Direction.
             await RawDirectionDbModel.query()
                 .patch({
-                    text: directionText,
+                    text: relationshipText,
                     nameforobjects: nameForObjects,
                     oppositeid: oppositeId
                 })
@@ -1013,14 +1013,14 @@ interface UpdateRelationshipOrderInfo {
 /**
  * Reorder-Relationship method.
  * @param sourceThingId - The ID of the source Thing of the Relationship to be reordered.
- * @param destThingDirectionId - The ID of the Direction of the destination Thing of the Relationship to be reordered.
  * @param destThingId - The ID of the destination Thing of the Relationship to be reordered.
+ * @param destThingDirectionId - The ID of the Direction of the destination Thing of the Relationship to be reordered.
  * @param newIndex - The new index of the Relationship to be reordered.
  */
 export async function reorderRelationship(
     sourceThingId: number,
-    destThingDirectionId: number,
     destThingId: number,
+    destThingDirectionId: number,
     newIndex: number
 ): Promise<void> {
     // Get info on the Relationships in the Cohort.
