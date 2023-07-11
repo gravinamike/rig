@@ -104,8 +104,8 @@ export async function openGraphFile(username: string, folderName: string, pThing
     // Load starting database models into stores.
     await storeGraphDbModels("Direction")
     await storeGraphDbModels("Space")
-    await storeThingSearchList()
-    await storeNotesSearchList()
+    storeThingSearchList()
+    storeNotesSearchList()
     
     // Update the URL hash if necessary.
     if (updateUrlHash) updateUrlHashMethod({

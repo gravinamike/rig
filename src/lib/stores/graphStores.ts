@@ -206,8 +206,18 @@ export const thingSearchListStore = writable( [] as ThingSearchListItem[] )
  * @returns - Array of the stored Thing search list items, if any.
  */
 export async function storeThingSearchList(): Promise<ThingSearchListItem[]> {  
+
+    const graphWhenStarting = get(openGraphStore)
+
     const queriedThingSearchListItems = await getThingSearchListItems()
-    if (queriedThingSearchListItems) {
+
+    const currentGraph = get(openGraphStore)
+
+    // If search list items were found, and the Graph hasn't changed,
+    if (
+        queriedThingSearchListItems
+        && currentGraph === graphWhenStarting
+    ) {
         // Update the store with this list.
         updateThingSearchListStore(queriedThingSearchListItems)
         
@@ -282,9 +292,19 @@ export const noteSearchListStore = writable( [] as NoteSearchListItem[] )
  * Notes table.
  * @returns - Array of the stored Notes search list items, if any.
  */
-export async function storeNotesSearchList(): Promise<NoteSearchListItem[]> {  
+export async function storeNotesSearchList(): Promise<NoteSearchListItem[]> {
+
+    const graphWhenStarting = get(openGraphStore)
+
     const queriedNoteSearchListItems = await getNoteSearchListItems()
-    if (queriedNoteSearchListItems) {
+
+    const currentGraph = get(openGraphStore)
+
+    // If search list items were found, and the Graph hasn't changed,
+    if (
+        queriedNoteSearchListItems
+        && currentGraph === graphWhenStarting
+    ) {
         // Update the store with this list.
         updateNoteSearchListStore(queriedNoteSearchListItems)
         
