@@ -39,6 +39,7 @@
     export let overlapPage = false
     export let slideDirection: "right" | "left" | "down" | "up" = "right"
     export let stateStore: Writable<string | null> | null = null
+    export let openOnButtonHover = false
     export let closeOnOutsideClick = false
     export let close: () => void
 
@@ -142,11 +143,11 @@
      * @param name - Name of the menu button that was hovered.
      */
     function handleButtonMouseEnter(name: string) {
-        if ( !closing ) openedSubMenuName = name
+        if ( openOnButtonHover && !closing ) openedSubMenuName = name
     }
 
     function handleButtonMouseLeave() {
-        if ( !closing && mouseSpeed() > 500 ) openedSubMenuName = lockedSubMenuName
+        if ( openOnButtonHover && !closing && mouseSpeed() > 500 ) openedSubMenuName = lockedSubMenuName
     }
 
     /**

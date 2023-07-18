@@ -18,6 +18,7 @@
     import { onMobile, removeItemFromArray, sleep } from "$lib/shared/utility";
     import { Tooltip } from "$lib/widgets/layoutWidgets"
     import TopBottomJumpButtons from "./topBottomJumpButtons.svelte"
+    import SavingIndicator from "./savingIndicator.svelte"
     import { tick } from "svelte";
 
 
@@ -126,27 +127,32 @@
     }
 
 
+    let noteDbCreationAttemptTimestamps: string[] = []
+    let noteDbSaveOperationTimestamps: string[] = []
 
-    let noteCreationAttemptTimestamps: string[] = []
+    $: savingNotesToDb = noteDbSaveOperationTimestamps.length > 0 ? true : false
+
     async function createAndUpdateNote(currentEditorTextContent: string): Promise<void> {
+
         // If there are any Note-creation attempts in progress, delay the
         // update a bit before trying again.
-        if (noteCreationAttemptTimestamps.length > 0) {
+        if (noteDbCreationAttemptTimestamps.length > 0) {
             await sleep(100)
             createAndUpdateNote(currentEditorTextContent)
 
         // Otherwise, (create if necessary, then) update the Note.
         } else {
+
             let noteIdToUpdate: number | null = pThingNoteId
 
             // Create the node if necessary.
             if (noteIdToUpdate === null) {
                 const noteCreationAttemptTimestamp = (new Date()).toISOString()
-                noteCreationAttemptTimestamps.push(noteCreationAttemptTimestamp)
+                noteDbCreationAttemptTimestamps.push(noteCreationAttemptTimestamp)
 
                 noteIdToUpdate = await createNoteIfNecessary() || null
 
-                removeItemFromArray(noteCreationAttemptTimestamps, noteCreationAttemptTimestamp)
+                removeItemFromArray(noteDbCreationAttemptTimestamps, noteCreationAttemptTimestamp)
             }
 
             // Update the note.
@@ -177,8 +183,19 @@
      * the editor, then refresh the front-end to show the new Note.
      */
     async function updateAndRefreshNote(noteId: number, newText: string) {
+        const noteSaveOperationTimestamp = (new Date()).toISOString()
+        noteDbSaveOperationTimestamps = [...noteDbSaveOperationTimestamps, noteSaveOperationTimestamp]
+
         // Update the Note and mark the Thing as modified in the database.
-        await updateNote(noteId, newText)
+        const updated = await updateNote(noteId, newText)
+        if (!updated) return
+
+        (async () => {
+            await sleep(500)
+            removeItemFromArray(noteDbSaveOperationTimestamps, noteSaveOperationTimestamp)
+            noteDbSaveOperationTimestamps = noteDbSaveOperationTimestamps
+        })()
+        
         await markNotesModified(noteId)
         pThingNoteId = noteId
 
@@ -186,13 +203,8 @@
         if (graph.pThing?.id) await storeGraphDbModels<ThingDbModel>("Thing", graph.pThing.id, true)
         viewerDisplayText = textForDisplay(newText)
 
-
-
         const queriedNoteSearchListItems = await getNoteSearchListItems([noteId])
         if (queriedNoteSearchListItems) updateNoteSearchListStore(queriedNoteSearchListItems)
-
-
-
     }
 
     // Set up custom hyperlink handling for Thing-links.
@@ -427,6 +439,10 @@
                 scrollableDivScrollHeight={textFieldScrollHeight}
             />
         {/if}
+
+        <SavingIndicator
+            show={savingNotesToDb}
+        />
     </div>
 
     <!-- Edit button. -->
