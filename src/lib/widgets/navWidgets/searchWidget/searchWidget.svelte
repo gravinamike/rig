@@ -26,7 +26,7 @@
     export let focusMethod: (focusedItem: SearchOption | null) => void
     export let submitMethod: (selectedItem: SearchOption | null, matchedItems: SearchOption[]) => void
 
-
+    
     // HTML element handlers.
     let thingSearchbox: HTMLElement
     let inputField: HTMLElement

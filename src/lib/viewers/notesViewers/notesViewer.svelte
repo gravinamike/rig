@@ -191,7 +191,7 @@
         if (!updated) return
 
         (async () => {
-            await sleep(500)
+            await sleep(1000)
             removeItemFromArray(noteDbSaveOperationTimestamps, noteSaveOperationTimestamp)
             noteDbSaveOperationTimestamps = noteDbSaveOperationTimestamps
         })()

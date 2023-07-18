@@ -206,7 +206,7 @@ export const thingSearchListStore = writable( [] as ThingSearchListItem[] )
  * @returns - Array of the stored Thing search list items, if any.
  */
 export async function storeThingSearchList(): Promise<ThingSearchListItem[]> {  
-
+    console.log("STORING")
     const graphWhenStarting = get(openGraphStore)
 
     const queriedThingSearchListItems = await getThingSearchListItems()

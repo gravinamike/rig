@@ -13,7 +13,7 @@
     import {
         devMode, fontNames, sessionUuidStore, loadingState, urlStore, 
         leftSideMenuStore, openGraphStore, graphBackgroundImageStore,
-        updateMousePosition, updateRelationshipBeingCreatedEndpoint, landscapeOrientation, reorderingInfoStore 
+        updateMousePosition, updateRelationshipBeingCreatedEndpoint, landscapeOrientation, reorderingInfoStore
     } from "$lib/stores"
     import { onMobile, stringRepresentsInteger, urlHashToObject } from "$lib/shared/utility"
     
@@ -71,7 +71,7 @@
 
     // Set up reactive Graph loading when the Graph parameter in the URL
     // changes.
-    $: if (urlUsernameAndGraphFolder) {
+    $: if (urlUsernameAndGraphFolder && urlUsernameAndGraphFolder !== $openGraphStore) {
         const [username, graphFolder] = urlUsernameAndGraphFolder.split("/")
         openGraph(username, graphFolder)
     }
