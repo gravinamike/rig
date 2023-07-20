@@ -131,6 +131,7 @@
     let noteDbSaveOperationTimestamps: string[] = []
 
     $: savingNotesToDb = noteDbSaveOperationTimestamps.length > 0 ? true : false
+    let savingNotesError = false
 
     async function createAndUpdateNote(currentEditorTextContent: string): Promise<void> {
 
@@ -188,7 +189,12 @@
 
         // Update the Note and mark the Thing as modified in the database.
         const updated = await updateNote(noteId, newText)
-        if (!updated) return
+        if (updated) {
+            savingNotesError = false
+        } else {
+            savingNotesError = true
+            return
+        }
 
         (async () => {
             await sleep(1000)
@@ -441,7 +447,8 @@
         {/if}
 
         <SavingIndicator
-            show={savingNotesToDb}
+            saving={savingNotesToDb}
+            error={savingNotesError}
         />
     </div>
 

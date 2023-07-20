@@ -39,7 +39,7 @@
                     {#each folders as folder}
                         <div
                             class="button graph-folder-button { folder === $openGraphStore ? "opened" : "" }"
-                            on:click={() => {console.log("FILE MENU"), openGraphFile(username, folder, null, true)}}
+                            on:click={() => {openGraphFile(username, folder, null, true)}}
                             on:keydown={()=>{}}
                         >
                             {folder}

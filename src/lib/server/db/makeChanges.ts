@@ -18,6 +18,7 @@ import { createFolder } from "$lib/shared/fileSystem"
 import { changeIndexInArray, legacyPerspectiveThingsParse } from "$lib/shared/utility"
 import type { Knex } from "knex"
 import type { OddHalfAxisId } from "$lib/shared/constants"
+import { error } from "@sveltejs/kit"
 
 
 /*
@@ -663,7 +664,9 @@ export async function addNoteToThingOrGetExistingNoteId(thingId: number): Promis
 /*
  * Update the text of a Note.
  */
-export async function updateNote(noteId: number, text: string): Promise<void> {
+export async function updateNote(noteId: number, text: string): Promise< boolean | Error > {
+    let success: boolean | Error = false
+
     // Get parameters for SQL query.
     const whenModded = (new Date()).toISOString()
 
@@ -678,11 +681,14 @@ export async function updateNote(noteId: number, text: string): Promise<void> {
 
     // Report on the response.
     .then(function() {
-        console.log('Transaction complete.')
+        success = true
     })
     .catch(function(err: Error) {
-        console.error(err)
+        // A LOGGER CALL SHOULD GO HERE WHEN LOGGING IS IMPLEMENTED.
+        success = err
     })
+
+    return success
 }
 
 /*
