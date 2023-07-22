@@ -1,14 +1,15 @@
 # Rig
 
 
-[![Screen-capture of the Rig application, showing the basic parts of the interface.](static/screencap.png)
+![Screen-capture of the Rig application, showing the basic parts of the interface.](static/screencap.png)
+
 
 
 ## What is this?
 
 Rig is an application that is focused on describing the connections between things. It's meant to be very general purpose so it can represent *any* topic as a set of "Things" connected together by "Relationships".
 
-Rig was built by Mike Gravina (me), and it's still in active development. Right now it's useful, but basic. I'm hoping to eventually take it much further.
+Rig was built by Mike Gravina (me), and it's still in active development. Right now it's very basic, but useful if you want a way to show how complex ideas or topics relate to each other. I'm hoping to eventually take it much further.
 
 If you're interested in learning more about Rig before trying it, check out this [introductory video](https://www.dropbox.com/s/endhnqfxm86bfs6/How_to_use_Rig.mp4?dl=0).
 
@@ -20,12 +21,23 @@ If you need help setting up a copy of Rig, or are interested in contributing to 
 
 
 
+## Platforms
+
+Rig can be installed on a web server as a regular website (Linux is best), or it can be run locally on your computer as a desktop app (Windows only). See below for details on how to use it in both these ways.
+
+
+
 ## Setup
 
 
 ### Installation
 
 After cloning the site, run `npm i` to install dependencies and `npm run build` to build.
+
+
+### Setting up Java
+
+Rig requires Java for its back-end database. If you don't have it, you can get it [here](https://www.java.com/).
 
 
 ### Setting up the environment file
@@ -58,9 +70,19 @@ The /static/customizable folder contains two files in template form (with filena
 
 ### Running the application
 
+#### As a website
+
 If you are setting up on a Linux system, we recommend using [pm2](https://pm2.keymetrics.io/) to manage both the the front-end and back-end processes.  
+
 Once pm2 has been installed, copy and paste the file named `/static/app/start_db_template.sh`, removing the "_template" from the copy. You can edit this file to change the port that the database back-end runs on if you prefer.
+
 To start both the frontend and backend processes, run `pm2 start pm2.config.cjs` from the base folder of the repository.
+
+#### As a desktop application
+
+To run Rig as a desktop application (Windows only), execute the batch file located at `/static/app/start.bat`. (You can create a shortcut to this file if you want.)
+
+When running in desktop mode, you will see taskbar icons for the back-end server (Java) and the front-end server (Node). The app UI will open in your default web browser. When closing the app, be sure to close both servers along with the web page.
 
 
 
@@ -102,7 +124,7 @@ Direction's own Opposite Direction is the first Direction.
 * **Reciprocal Direction**
 In rare cases, a Direction can be its own Opposite Direction. A good example is
 the root Direction, "is related to", since by definition, if one Thing is related
-to a second Thing, then the second Thing is also related to the first). A Direction
+to a second Thing, then the second Thing is also related to the first. A Direction
 that is its own Opposite Direction is called a "Reciprocal Direction".
 
 * **Space**: 
