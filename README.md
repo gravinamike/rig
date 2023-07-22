@@ -1,6 +1,23 @@
 # Rig
 
-This is Mike Gravina's attempt at building a domain-general, high-dimensional semantic medium.
+
+[![Screen-capture of the Rig application, showing the basic parts of the interface.](static/screencap.png)
+
+
+## What is this?
+
+Rig is an application that is focused on describing the connections between things. It's meant to be very general purpose so it can represent *any* topic as a set of "Things" connected together by "Relationships".
+
+Rig was built by Mike Gravina (me), and it's still in active development. Right now it's useful, but basic. I'm hoping to eventually take it much further.
+
+If you're interested in learning more about Rig before trying it, check out this [introductory video](https://www.dropbox.com/s/endhnqfxm86bfs6/How_to_use_Rig.mp4?dl=0).
+
+
+
+## Getting in contact
+
+If you need help setting up a copy of Rig, or are interested in contributing to the project, send me a message through GitHub or [email me directly](mailto:mtgravina@gmail.com).
+
 
 
 ## Setup

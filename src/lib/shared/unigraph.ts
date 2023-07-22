@@ -41,7 +41,16 @@ export async function openGraphFile(username: string, folderName: string, pThing
     if (
         username !== "all" && userIdStoreValue !== username
     ) {
-        alert(`User ${userIdStoreValue} can only access their own Graph files and common Graph files.`)
+        alert(
+            `You're trying to access a Graph belonging to ${
+                username
+            }, but you're ${
+                userIdStoreValue === null ? "not logged in" :
+                `logged in as ${userIdStoreValue}`
+            }. To open this Graph, you'll have to log in as ${
+                username
+            }.`
+        )
         await closeGraphFile()
         loadingState.set("configLoaded")
         return
