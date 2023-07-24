@@ -203,7 +203,7 @@
         
         // Open the Graph.
         await openGraphFile(username, graphName, pThingId, true)
-
+        console.log("Calling openGraphFile() from controller.svelte")
         // Configure the left side-menu based on the Graph.
         leftMenuOpen = !(onMobile() && !$landscapeOrientation) && !!$leftSideMenuStore
         leftMenuLockedOpen = !!$leftSideMenuStore

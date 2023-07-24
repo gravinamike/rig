@@ -21,13 +21,13 @@ export async function sessionSpecificFetch(
     const fetchUuid = uuidv4()
 
     // Set the session UUID cookie from the store.
-    document.cookie = `sessionUuid-${fetchUuid}=${get(sessionUuidStore)}; SameSite=Strict;`
+    document.cookie = `sessionUuid-${fetchUuid}=${get(sessionUuidStore)}; expires = Thu, 01 Jan 2099 00:00:01 GMT; path=/; SameSite=Strict;`
     
     // Get a response using the window's native fetch.
     const res = await fetch(input, init)
 
     // Clear the session UUID cookie.
-    document.cookie = `sessionUuid-${fetchUuid}= ; expires = Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict;`
+    document.cookie = `sessionUuid-${fetchUuid}= ; expires = Thu, 01 Jan 1970 00:00:01 GMT; path=/; SameSite=Strict;`
 
     // Return the response.
     return res

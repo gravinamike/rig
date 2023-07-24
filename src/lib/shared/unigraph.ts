@@ -68,7 +68,8 @@ export async function openGraphFile(username: string, folderName: string, pThing
     }
 
     // Set the Graph name in the cookies and store.
-    document.cookie = `session-${get(sessionUuidStore)}-graphName=${username}/${folderName}; SameSite=Strict;`
+    console.log("Setting Graph name in cookies and store:", username, folderName)
+    document.cookie = `session-${get(sessionUuidStore)}-graphName=${username}/${folderName}; path=/; SameSite=Strict;`
     openGraphStore.set(`${username}/${folderName}`)
     
     // If the Graph isn't updated, give user the option to abort, then update
@@ -117,6 +118,7 @@ export async function openGraphFile(username: string, folderName: string, pThing
     storeNotesSearchList()
     
     // Update the URL hash if necessary.
+    console.log("openGraphFile() is changing hash to:", `${typeof username !== 'undefined' ? username : null}/${typeof folderName !== 'undefined' ? folderName : null}`)
     if (updateUrlHash) updateUrlHashMethod({
         graph: `${username}/${folderName}`,
         thingId: get(perspectiveThingIdStore) ? String(get(perspectiveThingIdStore)) : null,
