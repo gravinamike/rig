@@ -62,6 +62,7 @@
     let urlHashParams: { [key: string]: string } = {}
     $: urlHashParams = urlHashToObject($urlStore.hash)
     $: urlUsernameAndGraphFolder = "graph" in urlHashParams ? urlHashParams["graph"] : null
+    $: console.log("urlUsernameAndGraphFolder changed:", urlUsernameAndGraphFolder)
     $: urlThingId =
         "thingId" in urlHashParams && stringRepresentsInteger(urlHashParams["thingId"]) ? parseInt(urlHashParams["thingId"]) :
         null
@@ -71,10 +72,15 @@
 
     // Set up reactive Graph loading when the Graph parameter in the URL
     // changes.
-    $: if (urlUsernameAndGraphFolder && urlUsernameAndGraphFolder !== $openGraphStore) {
+    function openGraphWhenURLChanges(urlUsernameAndGraphFolder: string | null) {
+        if (urlUsernameAndGraphFolder === null || urlUsernameAndGraphFolder === $openGraphStore) return
         const [username, graphFolder] = urlUsernameAndGraphFolder.split("/")
+        console.log("Calling openGraph() reactively in controller.svelte:", urlUsernameAndGraphFolder, $openGraphStore)
         openGraph(username, graphFolder)
     }
+    $: openGraphWhenURLChanges(urlUsernameAndGraphFolder)
+        
+
     // Set up reactive re-Perspecting when the Thing ID parameter in the URL
     // changes.
     $: if (urlThingId) rePerspectIfAble(urlThingId)
@@ -200,10 +206,10 @@
 
         // Close any existing Graph.
         graph = null
-        
+        console.log("Calling openGraphFile() from controller.svelte")
         // Open the Graph.
         await openGraphFile(username, graphName, pThingId, true)
-        console.log("Calling openGraphFile() from controller.svelte")
+        
         // Configure the left side-menu based on the Graph.
         leftMenuOpen = !(onMobile() && !$landscapeOrientation) && !!$leftSideMenuStore
         leftMenuLockedOpen = !!$leftSideMenuStore
@@ -253,6 +259,7 @@
         // Open the Graph currently specified in the store.
         if (urlUsernameAndGraphFolder) {
             const [username, graphFolder] = urlUsernameAndGraphFolder.split("/")
+            console.log("Calling openGraph() during onMount() of controller.svelte")
             await openGraph(username, graphFolder, urlThingId)
         } else {
             leftSideMenuStore.set("File")

@@ -38,6 +38,7 @@ export async function sessionSpecificFetch(
 export function retrieveSessionSpecificCookie(request: Request, cookieName: string) {
     const cookies = parse(request.headers.get("cookie") || "")
     const sessionUuidCookies = Object.entries(cookies).filter(entry => entry[0].includes("sessionUuid"))
+    //console.log("SESSION COOKIES:", JSON.stringify(sessionUuidCookies))
     const sessionUuid = sessionUuidCookies.length ? sessionUuidCookies[0][1] : null
     const cookieValue = cookies[`session-${sessionUuid}-${cookieName}`] || null
 

@@ -68,6 +68,7 @@
             updateNewFileCreationFileName(newFileName)
             const graphCreated = await createGraph(newFileName)
             if (graphCreated) {
+                console.log("Calling openGraphFile() from newFileWidget.svelte")
                 openGraphFile($newGraphFileCreationStore.username || "all", newFileName)
             }
             disableNewFileCreation()
