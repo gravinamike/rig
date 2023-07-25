@@ -17,7 +17,7 @@
                                            @%@%@%@%@%@
 `
     function displaySecret() {
-        alert(`\n${catPic}\n\n`);
+        alert(`\n${catPic}\n\n`)
     }
 </script>
 
