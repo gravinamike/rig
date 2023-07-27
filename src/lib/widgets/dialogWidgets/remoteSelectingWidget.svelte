@@ -120,6 +120,7 @@
             placeholderText={"Search Things..." }
             maxHeight={portraitOrientation ? 500 : null}
             useSubmitButton={onMobile() ? true : false}
+            startFocused={true}
             {focusMethod}
             {submitMethod}
         />

@@ -104,9 +104,9 @@ async function requestIsForbidden(
 	if ( graphRestrictedPaths.some(path => {return event.url.pathname.startsWith(path)}) ) {
 		// Get the Graph name and its owner's username from the session-
 		// specific cookie.
-		const graphName = retrieveSessionSpecificCookie(event.request, "graphName")
+		const graphName = retrieveSessionSpecificCookie(event.request, "graphName")/////////////////// Graph name is null... STILL HAVING AN ISSUE WITH PERSISTENT COOKIES.
 		const usernameFromGraphName = graphName?.split("/")[0] || null
-
+		
 		// If...
 		if (
 			// ...there is no Graph currently open...

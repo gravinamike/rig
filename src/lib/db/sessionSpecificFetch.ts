@@ -21,13 +21,13 @@ export async function sessionSpecificFetch(
     const fetchUuid = uuidv4()
 
     // Set the session UUID cookie from the store.
-    document.cookie = `sessionUuid-${fetchUuid}=${get(sessionUuidStore)}; SameSite=Strict;`
+    document.cookie = `sessionUuid-${fetchUuid}=${get(sessionUuidStore)}; expires = Thu, 01 Jan 2099 00:00:01 GMT; path=/; SameSite=Strict;`
     
     // Get a response using the window's native fetch.
     const res = await fetch(input, init)
 
     // Clear the session UUID cookie.
-    document.cookie = `sessionUuid-${fetchUuid}= ; expires = Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict;`
+    document.cookie = `sessionUuid-${fetchUuid}= ; expires = ${(new Date()).toUTCString()}; path=/; SameSite=Strict;`
 
     // Return the response.
     return res
@@ -38,6 +38,7 @@ export async function sessionSpecificFetch(
 export function retrieveSessionSpecificCookie(request: Request, cookieName: string) {
     const cookies = parse(request.headers.get("cookie") || "")
     const sessionUuidCookies = Object.entries(cookies).filter(entry => entry[0].includes("sessionUuid"))
+    //console.log("SESSION COOKIES:", JSON.stringify(sessionUuidCookies))
     const sessionUuid = sessionUuidCookies.length ? sessionUuidCookies[0][1] : null
     const cookieValue = cookies[`session-${sessionUuid}-${cookieName}`] || null
 

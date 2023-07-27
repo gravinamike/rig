@@ -131,7 +131,7 @@
 
         if (stateStore) {
             stateStore.set(lockedSubMenuName)
-            if ($openGraphStore) saveGraphConfig()
+            if ($openGraphStore && lockedSubMenuName !== "File") saveGraphConfig()
         }
     }
 

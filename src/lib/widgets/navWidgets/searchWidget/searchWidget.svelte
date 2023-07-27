@@ -2,6 +2,9 @@
     // Import types.
     import type { SearchOption } from "./types"
 
+    // Import basic framework resources.
+    import { onMount } from "svelte"
+
     // Import utility functions.
     import { clampNumber, htmlToPlaintext, onMobile } from "$lib/shared/utility"
 
@@ -14,6 +17,7 @@
      * @param placeholderText - Instructive text to show if nothing has been entered yet.
      * @param maxHeight - The maximum height that the list of filtered items can be.
      * @param useSubmitButton - Whether to override the usual submission behavior and submit using a button instead.
+     * @param startFocused - Whether to put focus on the search field when it is first rendered.
      * @param focused - Whether the search field is currently in focus.
      * @param focusMethod - Method to call when a filtered item is hovered/focused.
      * @param submitMethod - Method to call when a filtered item is clicked.
@@ -22,6 +26,7 @@
     export let placeholderText: string
     export let maxHeight: number | null = 100
     export let useSubmitButton = false
+    export let startFocused = false
     export let focused = false
     export let focusMethod: (focusedItem: SearchOption | null) => void
     export let submitMethod: (selectedItem: SearchOption | null, matchedItems: SearchOption[]) => void
@@ -332,6 +337,12 @@
             htmlToPlaintext(string, false, false).toLowerCase() === inputText.toLowerCase()
         return matched
     }
+
+
+
+    onMount(async () => {
+        if (startFocused) inputField.focus()
+    })
 </script>
 
 

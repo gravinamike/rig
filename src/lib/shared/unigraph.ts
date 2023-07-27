@@ -68,12 +68,23 @@ export async function openGraphFile(username: string, folderName: string, pThing
     }
 
     // Set the Graph name in the cookies and store.
-    document.cookie = `session-${get(sessionUuidStore)}-graphName=${username}/${folderName}; SameSite=Strict;`
+    document.cookie = `session-${get(sessionUuidStore)}-graphName=${username}/${folderName}; path=/; SameSite=Strict;`
     openGraphStore.set(`${username}/${folderName}`)
     
+    
+    // Try to determine if the Graph is updated. If there's an error connecting
+    // to the database, inform the user and abort.
+    const isUpdated = await graphIsUpdated()
+    if (isUpdated === null) {
+        alert(`Rig can't access the file right now (there was an error when trying to connect).`)
+        console.log(`Error when attempting to load Graph.`)
+        await closeGraphFile()
+        loadingState.set("configLoaded")
+        return
+    }
+
     // If the Graph isn't updated, give user the option to abort, then update
     // the Graph if they don't.
-    const isUpdated = await graphIsUpdated()
     if (!isUpdated) {
         if (confirm(`This Graph's database needs to be updated to work with this version of Rig. Do you want to update it now? (It's a good idea to make a backup copy of the Graph first, and you should also make sure that nobody else is accessing this file while it is being updated.)`)) {
             await updateGraph()
@@ -84,9 +95,6 @@ export async function openGraphFile(username: string, folderName: string, pThing
             return
         }
     }
-
-
-
 
     // If the Graph needs repair, give user the option to abort, then update
     // the Graph if they don't.

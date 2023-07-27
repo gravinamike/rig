@@ -71,10 +71,14 @@
 
     // Set up reactive Graph loading when the Graph parameter in the URL
     // changes.
-    $: if (urlUsernameAndGraphFolder && urlUsernameAndGraphFolder !== $openGraphStore) {
+    function openGraphWhenURLChanges(urlUsernameAndGraphFolder: string | null) {
+        if (urlUsernameAndGraphFolder === null || urlUsernameAndGraphFolder === $openGraphStore) return
         const [username, graphFolder] = urlUsernameAndGraphFolder.split("/")
         openGraph(username, graphFolder)
     }
+    $: openGraphWhenURLChanges(urlUsernameAndGraphFolder)
+        
+
     // Set up reactive re-Perspecting when the Thing ID parameter in the URL
     // changes.
     $: if (urlThingId) rePerspectIfAble(urlThingId)
@@ -200,15 +204,24 @@
 
         // Close any existing Graph.
         graph = null
-        
+
         // Open the Graph.
         await openGraphFile(username, graphName, pThingId, true)
+    }
 
-        // Configure the left side-menu based on the Graph.
-        leftMenuOpen = !(onMobile() && !$landscapeOrientation) && !!$leftSideMenuStore
+
+    function configureLeftSideMenuAfterStoreChanges(forceOpen=false) {
+        leftMenuOpen = (!(onMobile() && !$landscapeOrientation) || forceOpen) && !!$leftSideMenuStore
         leftMenuLockedOpen = !!$leftSideMenuStore
         openedSubMenuName = $leftSideMenuStore || "File"
         lockedSubMenuName = $leftSideMenuStore
+    }
+
+
+    $: {
+        $leftSideMenuStore
+
+        configureLeftSideMenuAfterStoreChanges()
     }
 
     /**
@@ -257,9 +270,6 @@
         } else {
             leftSideMenuStore.set("File")
             leftMenuOpen = !!$leftSideMenuStore
-            leftMenuLockedOpen = !!$leftSideMenuStore
-            openedSubMenuName = $leftSideMenuStore
-            lockedSubMenuName = $leftSideMenuStore
         }
 	})
 </script>
