@@ -21,8 +21,9 @@
         await saveGraphConfig()
     }
     
+    let graphDepth = graph.depth
     async function setGraphDepth() {
-        await graph.generations.adjustToDepth(graph._depth)
+        await graph.setDepth(graphDepth)
         allowZoomAndScrollToFit = true
         addGraphIdsNeedingViewerRefresh(graph.id)
     }
@@ -30,6 +31,10 @@
     function updateGraphFormat() {
         addGraphIdsNeedingViewerRefresh(graph.id)
     }
+
+
+
+    
 </script>
 
 
@@ -57,7 +62,7 @@
             
             <SettingWidget
                 labelText={"Graph Depth"}
-                bind:boundValue={graph._depth}
+                bind:boundValue={graphDepth}
                 minValue={0}
                 maxValue={3}
                 tooltipText={`How many Relationship "steps"\nto render from the central Thing.`}

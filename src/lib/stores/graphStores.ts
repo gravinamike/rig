@@ -57,7 +57,7 @@ export async function addGraph(
     const newGraphId = allGraphIds.length ? Math.max(...allGraphIds) + 1 : 1
 
     // Create and build the new Graph.
-    const graph = new Graph(newGraphId, pThingIds, depth, parentGraph, offAxis, isSearchMenu, startingSpace)
+    const graph = new Graph(newGraphId, parentGraph, offAxis, isSearchMenu, pThingIds, depth, startingSpace)
     await graph.build()
 
     // Add the Graph to the Graphs store if it's not already there.
