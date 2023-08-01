@@ -53,7 +53,7 @@
     const buttonSize = 30
 
     // Initialize the open submenu to the default.
-    openedSubMenuName = defaultOpenSubMenuName
+    $: openedSubMenuName = defaultOpenSubMenuName
 
     // Mouse-pressed flag tracks whether the mouse button is currently being held down.
     let mousePressed = false
@@ -120,7 +120,6 @@
     async function handleButtonClick(name: string) {
         if (lockedOpen && lockedSubMenuName === name && open) {
             lockedOpen = false
-            lockedSubMenuName = null
             close()
         } else {
             openedSubMenuName = name
@@ -261,7 +260,7 @@
 
         <!-- Menu button groups. -->
         {#each subMenuInfos as buttonGroup}
-
+            
             <div
                 class="button-group"
 
@@ -273,7 +272,7 @@
 
                 <!-- Menu button group. -->
                 {#each buttonGroup as info, i}
-
+                    
                     <!-- Menu button. -->
                     <div
                         class="button"
