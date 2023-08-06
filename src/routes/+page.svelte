@@ -19,7 +19,8 @@
     import { WaitingIndicator, ContextCommandPalette } from "$lib/widgets/layoutWidgets"
     import { LeftSideMenu } from "./leftSideMenu"
     import { 
-        NewFileWidget, RemoteRelatingWidget, ThingLinkingWidget, TextHyperlinkingWidget, RelationshipReorderController
+        NewFileWidget, RemoteRelatingWidget, ThingLinkingWidget,
+        RelationshipReorderController, TextHyperlinkingWidget
     } from "$lib/widgets/dialogWidgets"
     import { GraphViewer } from "$lib/viewers/graphViewers"
     import { defaultGraphWidgetStyle, RelationshipBeingCreatedWidget } from "$lib/widgets/graphWidgets"

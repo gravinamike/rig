@@ -1,241 +1,355 @@
-// Type imports.
+// Import types.
+import type { ThingDbModel } from "$lib/models/dbModels"
 import type { Thing } from "$lib/models/constructModels"
 
-// Store imports.
+// Import stores.
 import { storeGraphDbModels } from "$lib/stores"
 
-// Utility imports.
+// Import utility functions.
 import { makeArrayUnique } from "$lib/shared/utility"
 
-// Model imports.
+// Import Graph construct models.
 import { Graph, Generation } from "$lib/models/constructModels"
-import type { ThingDbModel } from "$lib/models/dbModels"
 
 
-/** Class representing the set of Generations belonging to a Graph. */
+
+/**
+ * Generations class.
+ * 
+ * Represents a collection of a Graph's Generations, meaning sets of Things
+ * that are added step-wise to the Graph as it is built out from the
+ * Perspective Thing.
+ */
 export class Generations {
-    _graph: Graph
-    _members: Generation[] = []
-    _relationshipsOnlyMember: Generation | null = null
+    // The Graph that these Generations belong to.
+    #graph: Graph
 
+    // The member Generations of this Generations object.
+    #members: Generation[] = []
+
+    // The Relationships-only Generation (the last Generation of the set, which
+    // contains no Things, but only Relationships between existing Things).
+    #relationshipsOnlyMember: Generation | null = null
+
+    
     /**
-     * Create the set of Generations belonging to a Graph.
+     * Generations constructor.
+     * 
+     * Creates the set of Generations belonging to a Graph.
      * @param {Graph} graph - The Graph the Generations belong to.
      */
     constructor(graph: Graph) {
-        this._graph = graph
+        this.#graph = graph
     }
 
 
-    /* Methods to access or set major features of the Generations. */
+    /* Basic getters and setters. */
 
     /**
-     * Get the Generations as an array.
+     * Generations-as-array getter.
+     * 
+     * Gets the Generations as an array (as an attribute of Generations).
      */
     get asArray(): Generation[] {
-        return this._members
+        return this.#members
     }
 
     /**
-     * Get one of the Generations by ID. (ID is equal to the index.)
-     * @param  {number} generationId - The ID of the Generation to retrieve.
+     * Generation-by-ID method.
      * 
-     * @return {Generation | null}   - The specified Generation (or null if it doesn't exist).
+     * Get one of the Generations by ID. (Its ID is equal to its index in
+     * this.#members).
+     * @param generationId - The ID (index) of the Generation to retrieve.
+     * @returns - The specified Generation (or null if it doesn't exist).
      */
     byId( generationId: number ): Generation | null {
-        return 0 <= generationId && generationId < this._members.length ?
-            this._members[generationId] :
+        const generation =
+            ( 0 <= generationId && generationId < this.#members.length ) ? this.#members[generationId] :
             null
+        return generation
     }
 
     /**
-     * Get the final, Relationships-only Generation if it has been built.
+     * Relationships-only-Generation getter.
+     * 
+     * Retrieves the Relationships-only-Generation as an attribute.
+     * @returns - The Relationships-only Generation (or null if it hasn't been created yet).
      */
     get relationshipsOnlyGeneration(): Generation | null {
-        return this._relationshipsOnlyMember
+        return this.#relationshipsOnlyMember
     }
 
     /**
-     * Set the final, Relationships-only Generation if it has been built.
+     * Relationships-only-Generation setter.
+     * 
+     * Sets the Relationships-only Generation as an attribute.
      */
     set relationshipsOnlyGeneration(generation: Generation | null) {
-        this._relationshipsOnlyMember = generation
+        this.#relationshipsOnlyMember = generation
     }
 
-
-    /* Methods to Set major features of the Generations.
-
     /**
-     * Reset the Generations to their initial, empty state.
+     * Reset-Generations method.
+     * 
+     * Resets the Generations to their initial, empty state.
      */
     reset(): void {
-        this._members = []
-        this._relationshipsOnlyMember = null
+        this.#members = []
+        this.#relationshipsOnlyMember = null
     }
 
 
     /* Methods to access information for building/stripping the Generations. */
 
     /**
-     * Get the ID of the next Generation to be built.
-     * @return {number} - The ID of the next Generation to be built.
+     * Generation-ID-to-build getter.
+     * 
+     * Gets the ID of the next Generation to be built, as an attribute.
+     * @returns - The ID of the next Generation to be built.
      */
     get idToBuild(): number {
-        const reversedGenerations = this._members.slice().reverse()
+        // Go through the Generations in reverse, from latest to earliest. For
+        // each one,
+        const reversedGenerations = this.#members.slice().reverse()
         for (const generation of reversedGenerations) {
-            if (["new", "building"].includes(generation.lifecycleStatus)) return this._members.indexOf(generation)
+            // If the Generation is in the "new" or "building" lifecycle
+            // stages, return it (it's the Generation to build).
+            if (["new", "building"].includes(generation.lifecycleStatus)) {
+                return this.#members.indexOf(generation)
+            }
         }
-        return this._members.length
+
+        // If no Generation was found in the "new" or "building" lifecycle
+        // stages, then return the ID (index) of the as-yet-unbuilt next
+        // Generation.
+        return this.#members.length
     }
 
     /**
-     * Get the ID of the next Generation to be stripped.
-     * @return {number} - The ID of the next Generation to be stripped.
+     * Generation-ID-to-strip getter.
+     * 
+     * Gets the ID of the next Generation to be stripped, as an attribute.
+     * @returns - The ID of the next Generation to be stripped.
      */
     get idToStrip(): number {
-        const reversedGenerations = this._members.slice().reverse()
+        // Go through the Generations in reverse, from latest to earliest. For
+        // each one,
+        const reversedGenerations = this.#members.slice().reverse()
         for (const generation of reversedGenerations) {
-            if (["built"].includes(generation.lifecycleStatus)) return this._members.indexOf(generation)
+            // If the Generation is in the "built" lifecycle stage, return it
+            // (it's the Generation to strip).
+            if (["built"].includes(generation.lifecycleStatus)) {
+                return this.#members.indexOf(generation)
+            }
         }
-        return this._members.length - 1
+
+        // If no Generation was found in the "built" lifecycle stage, then
+        // return the ID (index) of the latest Generation.
+        return this.#members.length - 1
     }
 
     /**
-     * Get the "seed" Generation, which supplies the Things from which the next Generation is built.
-     * In practice, the seed Generation is the last Generation in the set of Generations.
-     * @return {Generation | null} - The seed Generation (or null if there are no Generations).
+     * Seed-Generation getter.
+     * 
+     * Gets the "seed" Generation, which supplies the Things from which the
+     * next Generation is built, as an attribute. (In practice, the seed
+     * Generation is the last Generation in the set of Generations.)
+     * @returns - The seed Generation (or null if there are no Generations).
      */
     get seedGeneration(): Generation | null {
-        return this._members.length ?
-            this._members[this._members.length - 1] :
+        const seedGeneration =
+            this.#members.length ? this.#members[this.#members.length - 1] :
             null
+        return seedGeneration
     }
 
+    /**
+     * Seed-Generation-Things getter.
+     * 
+     * Gets an array of the Things that belong to the seed Generation, as an
+     * attribute.
+     * @returns - An array of the Things that belong to the seed Generation.
+     */
     get seedGenerationThings(): Thing[] {
         return this.seedGeneration?.things() || [] // Note for the future: When adding Perspective depth deltas, filter the seedThings list based on depth deltas.
     }
 
+    /**
+     * Seed-Generation-related-Thing-IDs getter.
+     * 
+     * Gets an array of IDs for all Things that are related to the Things in
+     * the seed Generation, as an attribute.
+     * @returns - An array of IDs for all Things that are related to the Things in the seed Generation.
+     */
     get seedGenerationRelatedThingIds(): number[] {
-        const seedGenerationRelatedThingIdsAndNulls = makeArrayUnique(this.seedGenerationThings.map(thingWidgetModel => thingWidgetModel.relatedThingIds).flat())
+        // Get an array of Things that are related to the Things in the seed
+        // Generation.
+        const seedGenerationRelatedThingIdsAndNulls = makeArrayUnique(
+            this.seedGenerationThings.map(thing => thing.relatedThingIds).flat()
+        )
+
+        // Get an array of IDs for those Things.
         const seedGenerationRelatedThingIds = seedGenerationRelatedThingIdsAndNulls.filter(id => !!id) as number[]
+
+        // Return that array.
         return seedGenerationRelatedThingIds
     }
     
-
     /**
-     * Get the IDs of all the Things in a to-be-built Generation, by the Generation's ID.
+     * New-Generation-Thing-IDs method.
      * 
-     * @return {number} - The IDs of all the Things for the to-be-built Generation.
+     * Gets an array of IDs of all the Things in the to-be-built Generation.
+     * @returns - An array of IDs of all the Things for the to-be-built Generation.
      */
     newGenerationThingIds(): number[] {
-        return this.idToBuild === 0 ?
+        // Get an array of the new Generation Thing IDs.
+        const newGenerationThingIds =
             // For generation 0, start from the Perspective Thing IDs.
-            this._graph.pThingIds :
-            // For generations > 1, start from the IDs of the last generation's Relation Things.
+            this.idToBuild === 0 ? this.#graph.pThingIds :
+            // For generations 1 and above, start from the IDs of the last
+            // generation's Relation Things.
             this.seedGenerationRelatedThingIds
+
+        // Return that array.
+        return newGenerationThingIds
     }
     
-
     /**
-     * Get all of the Things across the Generations.
-     * @return {Thing[]} - An array of the Graph's Thingss.
+     * Things getter.
+     * 
+     * Gets an array of all the Graph's Things across all Generations, as an
+     * attribute.
+     * @return - An array of all the Graph's Things.
      */
     get things(): Thing[] {
-        return this._members.map(member => member.things()).flat()
+        return this.#members.map(member => member.things()).flat()
     }
 
 
     /* Methods for building/stripping Generations. */
 
     /**
-     * Add the Things required for the next Generation to the application's Thing Store.
+     * Store-next-Generation-Things method.
+     * 
+     * Adds the Things required for the next Generation to the application's
+     * Thing Store.
      */
     async storeNextGenerationThings(): Promise<void> {
-        // Filter out Thing IDs already represented in the Graph (to avoid recursion).
+        // Get an array of Thing IDs to be stored. These correspond to the
+        // new Generation Thing IDs, with any Thing IDs already represented in
+        // in the Graph filtered out (to avoid recursion).
         const thingIdsOfGraph = this.things.map(thing => thing.id)
         const thingIdsToStore = this.newGenerationThingIds().filter( id => !thingIdsOfGraph.includes(id) )
 
-        // Store Things from the IDs.
+        // Store Things from these IDs.
         await storeGraphDbModels<ThingDbModel>("Thing", thingIdsToStore)
     }
 
     /**
-     * Build a new Generation onto the Graph.
+     * Build-Generation method.
+     * 
+     * Builds a new Generation onto the graph. (This includes both
+     * Relationships and Things, so is not to be used for the last,
+     * Relationships-only Generation.)
      */
     async buildGeneration(): Promise<void> {
-        // Store Things for new Generation.
+        // Create the new, empty Generation and add it to the Generations
+        // object.
+        const newGeneration = new Generation(this.#graph, this.idToBuild)
+        this.#members.push(newGeneration)
+
+        // Store the Things for the new Generation.
         await this.storeNextGenerationThings()
 
-        // Create a Thing Widget (or placeholder) Model for each Thing ID in the new Generation.
-        const memberIdsForGeneration = this.newGenerationThingIds()
+        // Get the IDs of the Things for the new Generation, and then build the
+        // Generation using those IDs.
+        const thingIdsForGeneration = this.newGenerationThingIds()
+        await newGeneration.build(thingIdsForGeneration)
+    }
 
-        // Create the new Generation and add it to the Generations.
-        const newGeneration = new Generation(this._graph, this.idToBuild)
-        this._members.push(newGeneration)
+    /**
+     * Build-Relationships-only-Generation method.
+     * 
+     * Builds the last, Relationships-only Generation onto the Graph.
+     */
+    async buildRelationshipsOnlyGeneration(): Promise<void> {
+        // Get the ID of the to-be-built Relationships-only Generation.
+        const generationIdToBuild = this.#members.length
 
-        // Build the new Generation.
+        // Create the new, empty Generation and add it to the Generations
+        // object as the Relationships-only Generation.
+        const newGeneration = new Generation(this.#graph, generationIdToBuild)
+        newGeneration.isRelationshipsOnly = true
+        this.#relationshipsOnlyMember = newGeneration
+
+        // Get the IDs of the Things for the new Generation, and then build the
+        // Generation using those IDs.
+        const memberIdsForGeneration =
+            this.newGenerationThingIds()
+                .filter( id => this.#graph.thingIdsAlreadyInGraph.includes(id) )
         await newGeneration.build(memberIdsForGeneration)
     }
 
     /**
+     * Strip-Generation method.
+     * 
      * Strip the most recent Generation from the Graph.
      */
     async stripGeneration(): Promise<void> {
+        // Get the ID of the Generation to strip. If there is none, abort.
         const generationToStrip = this.byId(this.idToStrip)
+        if (!generationToStrip) return
 
-        if (!generationToStrip) {
-            return
-        } else {
-            // Mark the Generation as stripping.
-            generationToStrip.lifecycleStatus = "stripping"
+        // Mark the Generation as in the process of stripping.
+        generationToStrip.lifecycleStatus = "stripping"
 
-            // For each ThingWidgetModel of the parent Generation,
-            for (const thing of generationToStrip.parentGeneration?.things() || []) {
-                // For each Cohort of that ThingWidgetModel's cohorts,
-                for (const cohort of thing.childThingCohorts) {
-                    // Clear the Cohort's members.
-                    cohort.members = []
-                    // Remove the Cohort from its Generation and its Plane.
-                    cohort.removeFromGroups()
-                }
+        // For each Thing of the parent Generation,
+        for (const thing of generationToStrip.parentGeneration?.things() || []) {
+            // For each Thing Cohort of that Thing's child Thing Cohorts,
+            for (const cohort of thing.childThingCohorts) {
+                // Clear the Thing Cohort's members.
+                cohort.members = []
+                // Remove the Cohort from its Generation and its Plane.
+                cohort.removeFromGroups()
             }
-            // Remove the Generation from the graph.
-            const index = this._members.indexOf(generationToStrip)
-            if (index > -1) this._members.splice(index, 1)
+        }
 
-            // Mark the Generation as stripped.
-            generationToStrip.lifecycleStatus = "stripped"
-        }     
-    }
+        // Remove the Generation from the graph.
+        const index = this.#members.indexOf(generationToStrip)
+        if (index > -1) this.#members.splice(index, 1)
 
-    async buildRelationshipsOnlyGeneration(): Promise<void> {
-        const generationIdToBuild = this._members.length
-
-        const memberIdsForGeneration = this.newGenerationThingIds()
-            .filter(id => this._graph.thingIdsAlreadyInGraph.includes(id))
-
-        // Add the new, empty Generation as the Relationships-only Generation.
-        const newGeneration = new Generation(this._graph, generationIdToBuild)
-        newGeneration.isRelationshipsOnly = true
-        this._relationshipsOnlyMember = newGeneration
-
-        // Build the Generation.
-        await newGeneration.build(memberIdsForGeneration)
+        // Mark the Generation as stripped.
+        generationToStrip.lifecycleStatus = "stripped"
     }
 
     /**
-     * Either build or strip Generations as needed to bring the Graph to its specified Depth.
+     * Adjust-Generations-to-Graph-depth method.
+     * 
+     * Either build or strip Generations as needed to bring the Graph to its specified depth.
      */
     async adjustToDepth(depth: number): Promise<void> {
-        let difference = this._members.length - (depth + 1)
+        // Get the difference between the Graph's current depth and its
+        // specified depth.
+        let difference = this.#members.length - (depth + 1)
+
+        // While the difference still exists, build or strip Generations to
+        // correct it.
         while (difference) {
-            if (difference < 0) {
-                await this.buildGeneration()
-            } else {
-                await this.stripGeneration()
-            }
-            difference = this._members.length - (depth + 1)
+            // If there are fewer Generations than specified, build a new
+            // Generation.
+            if (difference < 0) await this.buildGeneration()
+
+            // If there are more Generations than specified, strip a
+            // Generation.
+            else await this.stripGeneration()
+
+            // Adjust the difference based on the newly added/stripped
+            // Generation.
+            difference = this.#members.length - (depth + 1)
         }
+
+        // Once the actual number of Generations is equal to the specified
+        // number, build (or re-build) the Relationships-only Generation.
         this.buildRelationshipsOnlyGeneration()
     }
 }
