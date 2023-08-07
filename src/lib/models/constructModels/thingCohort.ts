@@ -39,8 +39,8 @@ export class ThingCohort {
         this.generation = this.address.generationId === this.address.graph.generations.asArray.length ?
             this.address.graph.generations.relationshipsOnlyGeneration :
             this.address.graph.generations.byId(this.address.generationId)
-        this.generation?.cohorts.push(this)
-        if (this.generation && !this.generation._isRelationshipsOnly) this.address.graph.planes.addCohortToPlane(this, planeId)
+        this.generation?.thingCohorts.push(this)
+        if (this.generation && !this.generation.isRelationshipsOnly) this.address.graph.planes.addCohortToPlane(this, planeId)
 
         // Encapsulation depth.
         const parentEncapsulatingDepth = this.parentCohort()?.encapsulatingDepth || 0
@@ -109,8 +109,8 @@ export class ThingCohort {
     removeFromGroups(): void {
         const generation = this.address.graph.generations.byId(this.address.generationId)
         if (generation) {
-            const index = generation.cohorts.indexOf(this)
-            if (index > -1) generation.cohorts.splice(index, 1)
+            const index = generation.thingCohorts.indexOf(this)
+            if (index > -1) generation.thingCohorts.splice(index, 1)
         }
         if (this.plane) {
             this.plane.removeCohort(this)

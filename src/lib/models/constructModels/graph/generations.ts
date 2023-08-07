@@ -229,19 +229,19 @@ export class Generations {
     /* Methods for building/stripping Generations. */
 
     /**
-     * Store-next-Generation-Things method.
+     * Store-next-Generation-Thing-DB-models method.
      * 
-     * Adds the Things required for the next Generation to the application's
-     * Thing Store.
+     * Adds the Thing database models required for the next Generation to the
+     * application's Thing Store.
      */
-    async storeNextGenerationThings(): Promise<void> {
+    async storeNextGenerationThingDbModels(): Promise<void> {
         // Get an array of Thing IDs to be stored. These correspond to the
         // new Generation Thing IDs, with any Thing IDs already represented in
         // in the Graph filtered out (to avoid recursion).
         const thingIdsOfGraph = this.things.map(thing => thing.id)
         const thingIdsToStore = this.newGenerationThingIds().filter( id => !thingIdsOfGraph.includes(id) )
 
-        // Store Things from these IDs.
+        // Store ThingDBModels from these IDs.
         await storeGraphDbModels<ThingDbModel>("Thing", thingIdsToStore)
     }
 
@@ -255,11 +255,11 @@ export class Generations {
     async buildGeneration(): Promise<void> {
         // Create the new, empty Generation and add it to the Generations
         // object.
-        const newGeneration = new Generation(this.#graph, this.idToBuild)
+        const newGeneration = new Generation(this.idToBuild, this.#graph)
         this.#members.push(newGeneration)
 
-        // Store the Things for the new Generation.
-        await this.storeNextGenerationThings()
+        // Store the Thing database models for the new Generation.
+        await this.storeNextGenerationThingDbModels()
 
         // Get the IDs of the Things for the new Generation, and then build the
         // Generation using those IDs.
@@ -278,7 +278,7 @@ export class Generations {
 
         // Create the new, empty Generation and add it to the Generations
         // object as the Relationships-only Generation.
-        const newGeneration = new Generation(this.#graph, generationIdToBuild)
+        const newGeneration = new Generation(generationIdToBuild, this.#graph)
         newGeneration.isRelationshipsOnly = true
         this.#relationshipsOnlyMember = newGeneration
 
