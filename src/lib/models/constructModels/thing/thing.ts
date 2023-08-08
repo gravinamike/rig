@@ -87,9 +87,6 @@ export class Thing {
 
     /* Related Graph structures (derived during the Graph build). */
 
-    // The Thing's coordinates on the Euclidean grid.
-    gridCoordinates: [number, number, number] | null = null
-
     // The Thing's child Thing Cohorts, sorted by the ID of their Direction.
     childThingCohortsByDirectionId: { [directionId: number]: ThingCohort } = {}
 

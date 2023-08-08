@@ -15,6 +15,8 @@ export class ThingCohort {
     kind = "thingCohort"
 
     address: CohortAddress
+    // The Thing's coordinates on the Euclidean grid.
+    gridCoordinates: [number, number, number] | null = null
     generation: Generation | null
     parentThing: Thing | null = null
     members: GenerationMember[]

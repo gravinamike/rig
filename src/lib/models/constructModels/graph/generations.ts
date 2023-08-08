@@ -187,7 +187,7 @@ export class Generations {
         const seedGenerationRelatedThingIdsAndNulls = makeArrayUnique(
             this.seedGenerationThings.map(thing => thing.relatedThingIds).flat()
         )
-
+        
         // Get an array of IDs for those Things.
         const seedGenerationRelatedThingIds = seedGenerationRelatedThingIdsAndNulls.filter(id => !!id) as number[]
 
@@ -253,17 +253,19 @@ export class Generations {
      * Relationships-only Generation.)
      */
     async buildGeneration(): Promise<void> {
-        // Create the new, empty Generation and add it to the Generations
-        // object.
+        // Create the new, empty Generation.
         const newGeneration = new Generation(this.idToBuild, this.#graph)
-        this.#members.push(newGeneration)
 
         // Store the Thing database models for the new Generation.
         await this.storeNextGenerationThingDbModels()
 
-        // Get the IDs of the Things for the new Generation, and then build the
-        // Generation using those IDs.
+        // Get the IDs of the Things for the new Generation.
         const thingIdsForGeneration = this.newGenerationThingIds()
+
+        // Add the new Generation to the Generations object.
+        this.#members.push(newGeneration)
+
+        // Build the new Generation using its Thing IDs.
         await newGeneration.build(thingIdsForGeneration)
     }
 

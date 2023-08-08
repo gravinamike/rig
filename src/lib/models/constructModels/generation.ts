@@ -275,4 +275,4 @@ export class Generation {
 
     }
     
-}///////////////////////////////// COORDINATES SHOULD BE IN THE COHORT, NOT THE THING.
+}
