@@ -106,7 +106,7 @@
      * associated flags and refreshing the Graph.
     */
     cancel = async () => {
-        thing.parentCohort?.removeMemberById(thing.id as number)
+        thing.parentThingCohort?.removeMemberById(thing.id as number)
         cohortMembersToDisplay.pop()
         graph.formActive = false
         addGraphIdsNeedingViewerRefresh(graph.id)

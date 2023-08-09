@@ -253,7 +253,7 @@
         const clientY = "clientY" in event ? event.clientY : event.touches.item(0)?.clientY as number
 
         if (
-            thing?.parentCohort
+            thing?.parentThingCohort
             && dragStartPosition
             && Math.hypot(clientX - dragStartPosition[0], clientX - dragStartPosition[0]) > 5
             && !$relationshipBeingCreatedInfoStore.sourceThingId
@@ -264,7 +264,7 @@
                 thingId,
                 opacity,
                 halfAxisId,
-                thing.parentCohort.direction,
+                thing.parentThingCohort.direction,
                 dragStartPosition
             )
         }

@@ -1,5 +1,5 @@
 // Import types.
-import type { Graph, Space, CohortAddress } from "$lib/models/constructModels"
+import type { Graph, Space, ThingCohortAddress } from "$lib/models/constructModels"
 // Import constants.
 import { cartesianHalfAxisIds } from "$lib/shared/constants"
 // Import stores.
@@ -163,7 +163,7 @@ export class Generation {
         // which serves as the starting point of the Graph.
         if (this.id === 0) {
             // Get the address of the root Thing Cohort.
-            const addressForCohort: CohortAddress = {
+            const addressForCohort: ThingCohortAddress = {
                 graph: this.graph,
                 generationId: this.id,
                 parentThingId: null,
@@ -231,6 +231,7 @@ export class Generation {
 
                     // Add a new, empty Thing Cohort on that half-axis.
                     const childThingCohort = new ThingCohort(addressForCohort, [])
+                    //////////////////////////////////////////////////////// THIS IS WHERE TO SET THE COHORT'S GRID COORDINATES. AS AN ARGUMENT, JUST LIKE ADDRESSFORCOHORT.)
 
                     // Get the IDs of the Things in that half axis' Thing
                     // Cohort.

@@ -183,7 +183,7 @@
      * the parent Thing of the parent Thing Cohort of the Thing Cohort, assuming
      * each of those exist (otherwise the default is null).
      */
-    $: grandparentThingId = thingCohort.parentCohort()?.address.parentThingId || null
+    $: grandparentThingId = thingCohort.parentThingCohort()?.address.parentThingId || null
 
     /*
      * Parent Thing's offset to grandparent Thing.
@@ -245,5 +245,5 @@
      * opposite of the half-axis of the Thing Cohort.
      */
     $: isDoubledBackHalfAxis =
-        thingCohort.parentCohort()?.halfAxisId === halfAxisOppositeIds[thingCohort.halfAxisId]
+        thingCohort.parentThingCohort()?.halfAxisId === halfAxisOppositeIds[thingCohort.halfAxisId]
 </script>

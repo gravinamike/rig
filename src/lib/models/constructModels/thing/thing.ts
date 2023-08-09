@@ -67,7 +67,7 @@ export class Thing {
     graph: Graph | null = null
 
     // The Thing Cohort that the Thing is part of.
-    parentCohort: ThingCohort | null = null
+    parentThingCohort: ThingCohort | null = null
 
 
     /* Related Graph structures (specified by the database). */
@@ -141,15 +141,15 @@ export class Thing {
     get address(): ThingAddress | null {
         // If the Thing has no ID or parent Thing Cohort (it's not yet part of
         // a Graph), return null.
-        if (!this.id || !this.parentCohort) return null
+        if (!this.id || !this.parentThingCohort) return null
 
         // Construct the address.
         const address = {
-            graph: this.parentCohort.address.graph,
-            generationId: this.parentCohort.address.generationId,
-            parentThingId: this.parentCohort.address.parentThingId,
-            halfAxisId: this.parentCohort.halfAxisId,
-            indexInCohort: this.parentCohort.indexOfMemberById(this.id) || -1
+            graph: this.parentThingCohort.address.graph,
+            generationId: this.parentThingCohort.address.generationId,
+            parentThingId: this.parentThingCohort.address.parentThingId,
+            halfAxisId: this.parentThingCohort.halfAxisId,
+            indexInCohort: this.parentThingCohort.indexOfMemberById(this.id) || -1
         }
 
         // Return the address.
@@ -162,7 +162,7 @@ export class Thing {
      * The Thing that this Thing is a child of (or null if there is none).
      */
     get parentThing(): Thing | null {
-        return this.parentCohort?.parentThing || null
+        return this.parentThingCohort?.parentThing || null
     }
 
 
