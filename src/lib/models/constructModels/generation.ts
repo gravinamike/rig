@@ -1,5 +1,6 @@
 // Import types.
-import type { Graph, Space, ThingCohortAddress } from "$lib/models/constructModels"
+import type { HalfAxisId } from "$lib/shared/constants"
+import type { Graph, Space, ThingCohortAddress, GridCoordinates } from "$lib/models/constructModels"
 // Import constants.
 import { cartesianHalfAxisIds } from "$lib/shared/constants"
 // Import stores.
@@ -170,8 +171,11 @@ export class Generation {
                 directionId: null
             }
 
+            // Get the grid coordinates of the root Thing Cohort.
+            const gridCoordinatesForCohort: GridCoordinates = [0, 0, 0, 0]
+
             // Create a new, empty root Thing Cohort.
-            this.graph.rootCohort = new ThingCohort(addressForCohort, [])
+            this.graph.rootCohort = new ThingCohort(addressForCohort, gridCoordinatesForCohort, [])
 
             // For each Thing ID to be added to the Generation,
             for (const thingId of thingIdsForGeneration) {
@@ -229,9 +233,23 @@ export class Generation {
                         directionId: directionId
                     }
 
+                    // Get the grid coordinates for that half axis' Thing Cohort.
+                    const parentThingsThingCohort = prevThing.parentThingCohort
+                    const halfAxisId = prevThing.space?.halfAxisIdByDirectionId[directionId] as HalfAxisId
+                    const coordinateIndexToUpdate =
+                        [1, 2].includes(halfAxisId) ? 0 :
+                        [3, 4].includes(halfAxisId) ? 1 :
+                        [5, 6].includes(halfAxisId) ? 2 :
+                        [7, 8].includes(halfAxisId) ? 3 :
+                        0
+                    const coordinateIncrement = halfAxisId % 2 !== 0 ? 1 : -1
+                    const gridCoordinatesForCohort = [
+                        ...(parentThingsThingCohort?.gridCoordinates as GridCoordinates)
+                    ] as GridCoordinates
+                    gridCoordinatesForCohort[coordinateIndexToUpdate] += coordinateIncrement
+                    
                     // Add a new, empty Thing Cohort on that half-axis.
-                    const childThingCohort = new ThingCohort(addressForCohort, [])
-                    //////////////////////////////////////////////////////// THIS IS WHERE TO SET THE COHORT'S GRID COORDINATES. AS AN ARGUMENT, JUST LIKE ADDRESSFORCOHORT.)
+                    const childThingCohort = new ThingCohort(addressForCohort, gridCoordinatesForCohort, [])
 
                     // Get the IDs of the Things in that half axis' Thing
                     // Cohort.
@@ -275,5 +293,13 @@ export class Generation {
         this.lifecycleStatus = "built"
 
     }
+    
+
+
+
+
+
+
+
     
 }

@@ -12,7 +12,8 @@ import { getGraphConstructs } from "$lib/stores"
 /**
  * Thing Cohort address type.
  * 
- * Represents the unique location of a Thing Cohort in the Graph it is part of.
+ * Represents the unique location of a Thing Cohort in the Graph it is part of,
+ * in terms of Graph, Generation, parent Thing, and Direction.
  */
 export type ThingCohortAddress = {
     graph: Graph,
@@ -20,6 +21,18 @@ export type ThingCohortAddress = {
     parentThingId: number | null,
     directionId: number | null
 }
+
+/**
+ * Grid coordinates type.
+ * 
+ * Represents the unique location of a Thing Cohort in the Graph it is part of,
+ * in terms of coordinates on the "Euclidean" axes (where each relational step
+ * in the same Direction increments the coordinate on the corresponding axis).
+ * The three numbers represent the vertical, horizontal, perpendicular-to-the-
+ * screen, and encapsulating axes. "Positive" coordinates are down, right,
+ * away, and inwards.
+ */
+export type GridCoordinates = [number, number, number, number]
 
 /**
  * Thing Cohort class.
@@ -35,7 +48,7 @@ export class ThingCohort {
     address: ThingCohortAddress
 
     // The Thing Cohort's coordinates on the Euclidean grid.
-    gridCoordinates: [number, number, number] | null = null
+    gridCoordinates: GridCoordinates
 
     // The Generation that the Thing Cohort belongs to.
     generation: Generation | null
@@ -65,12 +78,14 @@ export class ThingCohort {
      * 
      * Creates a Thing Cohort.
      * @param address - The unique address of the Thing Cohort in its Graph.
+     * @param gridCoordinates - The unique coordinates of the Thing Cohort in its Graph.
      * @param members - An array of the Thing's Generation Members.
      */
-    constructor(address: ThingCohortAddress, members: GenerationMember[]) {
-        // Set the address and members, and set this Thing Cohort as the parent
-        // Thing Cohort for each of the member Things.
+    constructor(address: ThingCohortAddress, gridCoordinates: GridCoordinates, members: GenerationMember[]) {
+        // Set the address, coordinates and members, and set this Thing Cohort
+        // as the parent Thing Cohort for each of the member Things.
         this.address = address
+        this.gridCoordinates = gridCoordinates
         this.members = members
         for (const member of members) if (member.thing) member.thing.parentThingCohort = this
 
