@@ -79,6 +79,12 @@ export class Graph {
     formActive: boolean
 
 
+
+    buildMethod: "radial" | "grid" = "grid"
+
+
+
+
     /**
      * Graph constructor.
      * 

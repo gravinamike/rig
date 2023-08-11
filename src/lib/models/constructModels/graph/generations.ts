@@ -336,14 +336,43 @@ export class Generations {
 
         // While the difference still exists, build or strip Generations to
         // correct it.
-        while (difference) {
+
+
+
+
+
+        /////////////////////////////////////////////////////////////
+        
+        while (
+            
+            (
+                this.#graph.buildMethod === "radial"
+                && difference
+            )
+
+            || (
+                this.#graph.buildMethod === "grid"
+                && (
+                    this.#members.length === 0
+                    || this.seedGenerationThings.length > 0
+                )
+            )
+
+
+        ) {
             // If there are fewer Generations than specified, build a new
             // Generation.
-            if (difference < 0) await this.buildGeneration()
+            if (
+                (
+                    this.#graph.buildMethod === "radial"
+                    && difference < 0
+                )
+                || this.#graph.buildMethod === "grid"
+            ) await this.buildGeneration()
 
             // If there are more Generations than specified, strip a
             // Generation.
-            else await this.stripGeneration()
+            //else await this.stripGeneration()/////////////////////////////////////// HAVE TO RESTORE THIS
 
             // Adjust the difference based on the newly added/stripped
             // Generation.

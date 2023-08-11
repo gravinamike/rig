@@ -170,7 +170,7 @@ export class Generation {
                 parentThingId: null,
                 directionId: null
             }
-
+            
             // Get the grid coordinates of the root Thing Cohort.
             const gridCoordinatesForCohort: GridCoordinates = [0, 0, 0, 0]
 
@@ -209,6 +209,7 @@ export class Generation {
         } else {
             // For each Thing in the previous Generation (excluding null
             // "placeholders"),
+
             for (const prevThing of this.parentGeneration?.things() || []) {
                 // Get the IDs of the Directions on that Thing's "Cartesian" axes.
                 const cartesianDirectionIds: number[] = []
@@ -235,6 +236,7 @@ export class Generation {
 
                     // Get the grid coordinates for that half axis' Thing Cohort.
                     const parentThingsThingCohort = prevThing.parentThingCohort
+                    const parentThingsThingCohortGridCoordinates = parentThingsThingCohort?.gridCoordinates as GridCoordinates
                     const halfAxisId = prevThing.space?.halfAxisIdByDirectionId[directionId] as HalfAxisId
                     const coordinateIndexToUpdate =
                         [1, 2].includes(halfAxisId) ? 0 :
@@ -243,48 +245,81 @@ export class Generation {
                         [7, 8].includes(halfAxisId) ? 3 :
                         0
                     const coordinateIncrement = halfAxisId % 2 !== 0 ? 1 : -1
-                    const gridCoordinatesForCohort = [
-                        ...(parentThingsThingCohort?.gridCoordinates as GridCoordinates)
-                    ] as GridCoordinates
-                    gridCoordinatesForCohort[coordinateIndexToUpdate] += coordinateIncrement
                     
-                    // Add a new, empty Thing Cohort on that half-axis.
-                    const childThingCohort = new ThingCohort(addressForCohort, gridCoordinatesForCohort, [])
+                    const gridCoordinatesForCohort = [...parentThingsThingCohortGridCoordinates] as GridCoordinates
+                    gridCoordinatesForCohort[coordinateIndexToUpdate] += coordinateIncrement
 
-                    // Get the IDs of the Things in that half axis' Thing
-                    // Cohort.
-                    const childThingCohortThingIds = prevThing.relatedThingIdsByDirectionId[directionId] || []
-                    const thingIdsForChildThingCohort =
-                        childThingCohortThingIds.length ? thingIdsForGeneration
-                            .filter( thingId => {if (childThingCohortThingIds.includes(thingId)) return true} ) :
-                        []
 
-                    // For each of those Thing IDs,
-                    for (const thingId of thingIdsForChildThingCohort) {
-                        // Construct a new Thing based on the Thing database
-                        // model in the store (or null if there is none).
-                        const thing =
-                            graphDbModelInStore("Thing", thingId) ? getGraphConstructs<Thing>("Thing", thingId) :
-                            null
 
-                        // Determine if the new Thing already exists in the
-                        // Graph.
-                        const alreadyRendered = this.graph.thingIdsAlreadyInGraph.includes(thingId)
-                        
-                        // Wrap the new Thing in a Generation member object.
-                        const member: GenerationMember = {
-                            thingId: thingId,
-                            thing: thing,
-                            alreadyRendered: alreadyRendered
+
+
+
+                    // We want to add a Thing Cohort when ////////////////////////////////////////
+                    if (
+                        // The Graph is using the radial build method, or
+                        this.graph.buildMethod === "radial"
+
+                        || (
+                            // The Graph is using the grid build method, and...
+                            this.graph.buildMethod === "grid"
+
+                            
+
+                            && (
+                                // The absolute value of the grid coordinate for this grid axis is greater
+                                // than the absolute value of the parent Thing Cohort's grid coordinate for this grid axis,
+                                (
+                                    Math.abs(gridCoordinatesForCohort[coordinateIndexToUpdate])
+                                    > Math.abs(parentThingsThingCohortGridCoordinates[coordinateIndexToUpdate])
+                                )
+
+                                // ...the grid coordinate for this grid axis isn't
+                                // greater than the Graph's depth, and...
+                                && gridCoordinatesForCohort[coordinateIndexToUpdate] <= this.graph.depth
+                            )
+                            
+                        )
+                    ) {
+
+                        // Add a new, empty Thing Cohort on that half-axis.
+                        const childThingCohort = new ThingCohort(addressForCohort, gridCoordinatesForCohort, [])
+
+                        // Get the IDs of the Things in that half axis' Thing
+                        // Cohort.
+                        const childThingCohortThingIds = prevThing.relatedThingIdsByDirectionId[directionId] || []
+                        const thingIdsForChildThingCohort =
+                            childThingCohortThingIds.length ? thingIdsForGeneration
+                                .filter( thingId => {if (childThingCohortThingIds.includes(thingId)) return true} ) :
+                            []
+
+                        // For each of those Thing IDs,
+                        for (const thingId of thingIdsForChildThingCohort) {
+                            // Construct a new Thing based on the Thing database
+                            // model in the store (or null if there is none).
+                            const thing =
+                                graphDbModelInStore("Thing", thingId) ? getGraphConstructs<Thing>("Thing", thingId) :
+                                null
+
+                            // Determine if the new Thing already exists in the
+                            // Graph.
+                            const alreadyRendered = this.graph.thingIdsAlreadyInGraph.includes(thingId)
+                            
+                            // Wrap the new Thing in a Generation member object.
+                            const member: GenerationMember = {
+                                thingId: thingId,
+                                thing: thing,
+                                alreadyRendered: alreadyRendered
+                            }
+                            
+                            // Add the Generation member to the child Thing Cohort.
+                            childThingCohort.addMember(member)
                         }
-                        
-                        // Add the Generation member to the child Thing Cohort.
-                        childThingCohort.addMember(member)
-                    }
 
-                    // Add the new Thing Cohort to the previous Thing, keyed
-                    // by Direction ID.
-                    prevThing.childThingCohortByDirectionID(directionId, childThingCohort)
+                        // Add the new Thing Cohort to the previous Thing, keyed
+                        // by Direction ID.
+                        prevThing.childThingCohortByDirectionID(directionId, childThingCohort)
+
+                    }
                 }
             }
         }
@@ -293,13 +328,5 @@ export class Generation {
         this.lifecycleStatus = "built"
 
     }
-    
-
-
-
-
-
-
-
     
 }
