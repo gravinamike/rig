@@ -40,13 +40,6 @@ export const landscapeOrientation = writable( false )
  */
 export const devMode = writable( false )
 
-/**
- * Read-only-mode flag store.
- * 
- * Holds a boolean specifying whether the app is running in read-only-mode.
- */
-export const readOnlyMode = writable( false )
-
 
 /**
  * Loading state store.
@@ -58,6 +51,22 @@ export const loadingState = writable(
         "start" | "configLoading" | "configLoaded" | "graphLoading" | "graphLoaded" | "error"
     )
 )
+
+
+/**
+ * Read-only-mode flag store.
+ * 
+ * Holds a boolean specifying whether the app is running in read-only-mode.
+ */
+export const readOnlyMode = writable( false )
+
+
+/**
+ * Build-method store.
+ * 
+ * Holds a string specifying the current build method for Graphs in the app.
+ */
+export const buildMethod = writable( "radial" as "radial" | "grid" )
 
 
 /**

@@ -7,6 +7,7 @@ import type {
 import { offsetsByHalfAxisId } from "$lib/shared/constants"
 // Import stores.
 import { getGraphConstructs } from "$lib/stores"
+import type { GridLayer } from "./gridLayer"
 
 
 /**
@@ -49,6 +50,8 @@ export class ThingCohort {
 
     // The Thing Cohort's coordinates on the Euclidean grid.
     gridCoordinates: GridCoordinates
+
+    gridLayer: GridLayer | null = null
 
     // The Generation that the Thing Cohort belongs to.
     generation: Generation | null
@@ -312,6 +315,10 @@ export class ThingCohort {
             const index = generation.thingCohorts.indexOf(this)
             if (index > -1) generation.thingCohorts.splice(index, 1)
         }
+
+        // If the Thing Cohort is part of a Grid Layer, remove it from that
+        // Grid Layer.
+        if (this.gridLayer) this.address.graph.gridLayers.removeThingCohortFromGridLayer(this, this.gridLayer.id)
 
         // If this Thing Cohort is part of a Plane, remove it from that Plane.
         if (this.plane) this.plane.removeCohort(this)

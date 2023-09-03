@@ -5,12 +5,14 @@ import type { Space, Thing, ThingCohort } from "$lib/models/constructModels"
 import { storeGraphDbModels, getGraphConstructs, unstoreGraphDbModels, perspectiveSpaceIdStore } from "$lib/stores"
 // Import Graph-related structures.
 import { Generations } from "./generations"
+import { GridLayers } from "./gridLayers"
 import { Planes } from "./planes"
 import { PerspectiveHistory } from "./history"
 // Import utility functions.
 import { updateUrlHash } from "$lib/shared/utility"
 // Import API methods.
 import { deleteThing, deleteRelationship } from "$lib/db/makeChanges"
+
 
 
 /**
@@ -52,10 +54,14 @@ export class Graph {
     // The number of Relationship "steps" to render from the Perspective Thing.
     #depth: number
 
-    // The Graphs Generations, arrays of Things added to the Graph step-wise,
+    // The Graph's Generations, arrays of Things added to the Graph step-wise,
     // each building out a distance of 1 Relationship from the Things in the
     // previous Generation.
     generations: Generations
+
+    // The Graph's Grid Layers, meaning the concentric squares of Things around
+    // the Graph's center when it is built using the "grid" method.
+    gridLayers: GridLayers
 
     // The Graph's Planes, flat surfaces perpendicular to the screen which
     // contain all the Things at that visual distance.
@@ -77,12 +83,6 @@ export class Graph {
 
     // Whether a Thing Form is currently active in the Graph.
     formActive: boolean
-
-
-
-    buildMethod: "radial" | "grid" = "grid"
-
-
 
 
     /**
@@ -109,6 +109,7 @@ export class Graph {
         this.#pThingIds = pThingIds
         this.#depth = depth
         this.generations = new Generations(this)
+        this.gridLayers = new GridLayers(this)
         this.planes = new Planes(this)
         this.#startingSpace = startingSpace
         this.originalStartingSpace = startingSpace
@@ -223,6 +224,7 @@ export class Graph {
         // Set (or reset) build attributes to their starting values.
         this.rootCohort = null
         this.generations.reset()
+        this.gridLayers.reset()
         this.planes.reset()
         if (!keepCurrentSpace) this.#startingSpace = this.originalStartingSpace
         this.formActive = false

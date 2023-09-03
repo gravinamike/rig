@@ -1,65 +1,135 @@
 <script lang="ts">
+    // Import types.
     import type { Graph } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
-    import { addGraphIdsNeedingViewerRefresh, landscapeOrientation, mobileMenuTrimColorStore, readOnlyMode as readOnlyModeStore, uIBackgroundColorStore, uITrimColorStore } from "$lib/stores"
-    import SettingWidget from "./settingWidget.svelte"
-    import { saveGraphConfig } from "$lib/shared/config"
-    import { onMobile } from "$lib/shared/utility";
 
+    // Import basic framework resources.
+    import { onMobile } from "$lib/shared/utility"
+
+    // Import stores and store-related methods.
+    import {
+        uIBackgroundColorStore, uITrimColorStore, mobileMenuTrimColorStore,
+        landscapeOrientation, readOnlyMode as readOnlyModeStore, buildMethod as buildMethodStore,
+        addGraphIdsNeedingViewerRefresh
+    } from "$lib/stores"
+    
+    // Import associated widgets.
+    import SettingWidget from "./settingWidget.svelte"
+
+    // Import API methods.
+    import { saveGraphConfig } from "$lib/shared/config"
+    
 
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
     export let allowZoomAndScrollToFit: boolean
 
 
+    // Proxy flag for read-only mode.
     let readOnlyMode = false
     $: readOnlyMode = $readOnlyModeStore
 
+    // Proxy variable for Graph build method.
+    let buildMethod: "radial" | "grid" = "radial"
+    $: buildMethod = $buildMethodStore
 
+    // Proxy variable for the Graph's relational depth.
+    let graphDepth = graph.depth
+
+
+    /**
+     * Update-read-only-mode method.
+     * 
+     * Sets the read-only-mode store and configuration option based on the
+     * current value of the proxy flag in this component.
+     */
     async function updateReadOnlyMode() {
         readOnlyModeStore.set(readOnlyMode)
         await saveGraphConfig()
     }
+
+    /**
+     * Update-build-method method.
+     * 
+     * Sets the build method and configuration option based on the
+     * current value of the proxy variable in this component, then re-builds
+     * and refreshes the Graph.
+     */
+     async function updateBuildMethod() {
+        // Set the build method and corresponding configuration option.
+        buildMethodStore.set(buildMethod)
+        await saveGraphConfig()//////////////////////////////// IMPLEMENT
+
+        // Re-build and refresh theGraph.
+        await graph.build()
+        addGraphIdsNeedingViewerRefresh(graph.id)
+    }
     
-    let graphDepth = graph.depth
+    /**
+     * Set-Graph-depth method.
+     * 
+     * Sets the Graph's depth based on the proxy variable in this component,
+     * then refreshes the Graph.
+     */
     async function setGraphDepth() {
+        // Set the Graph's depth.
         await graph.setDepth(graphDepth)
+
+        // Refresh the Graph.
         allowZoomAndScrollToFit = true
         addGraphIdsNeedingViewerRefresh(graph.id)
     }
 
+    /**
+     * Update-Graph-format method.
+     * 
+     * Used to refresh the Graph after one of the settings has changed.
+     */
     function updateGraphFormat() {
         addGraphIdsNeedingViewerRefresh(graph.id)
     }
-
-
-
-    
 </script>
 
 
+<!-- Graph settings viewer. -->
 <div
     class="graph-settings-viewer"
     class:on-mobile={onMobile()}
 
-    style="background-color: {onMobile() && !$landscapeOrientation ? $mobileMenuTrimColorStore : $uITrimColorStore};"
+    style="background-color: {
+        onMobile() && !$landscapeOrientation ? $mobileMenuTrimColorStore :
+        $uITrimColorStore
+    };"
 >
-
+    <!-- Viewer content. -->
     <div
         class="content"
 
         style="background-color: {$uIBackgroundColorStore};"
     >
+        <!-- Title. -->
         <h4>Graph settings</h4>
 
+        <!-- Setting widgets. -->
         <div class="setting-widgets">
+            <!-- Read-only mode. -->
             <SettingWidget
                 labelText={"Read-only mode"}
                 bind:boundValue={readOnlyMode}
                 tooltipText={"Disables editing the Graph."}
                 onChangeFunction={updateReadOnlyMode}
             />
+
+            <!-- Build method. -->
+            <SettingWidget
+                labelText={"Build method"}
+                bind:boundValue={buildMethod}
+                radioOptions={["radial", "grid"]}
+                tooltipText={`Determines whether the Graph\nis constructed in a "radial" or\n"grid" pattern.`}
+                onChangeFunction={updateBuildMethod}
+            />
             
+            <!-- Graph depth. -->
             <SettingWidget
                 labelText={"Graph Depth"}
                 bind:boundValue={graphDepth}
@@ -69,6 +139,7 @@
                 onChangeFunction={setGraphDepth}
             />
 
+            <!-- Zoom level. -->
             <SettingWidget
                 labelText={"Zoom"}
                 bind:boundValue={graphWidgetStyle.zoom}
@@ -77,6 +148,7 @@
                 tooltipText={"Zooms the view in and out."}
             />
 
+            <!-- Relation offset length. -->
             <SettingWidget
                 labelText={"Relation offset length"}
                 bind:boundValue={graphWidgetStyle.relationDistance}
@@ -85,6 +157,7 @@
                 onChangeFunction={updateGraphFormat}
             />
 
+            <!-- Thing size. -->
             <SettingWidget
                 labelText={"Thing size"}
                 bind:boundValue={graphWidgetStyle.thingSize}
@@ -93,6 +166,7 @@
                 onChangeFunction={updateGraphFormat}
             />
 
+            <!-- Percent Thing spacing. -->
             <SettingWidget
                 labelText={"% Thing spacing"}
                 bind:boundValue={graphWidgetStyle.thingSpacingPercent}
@@ -102,6 +176,7 @@
                 onChangeFunction={updateGraphFormat}
             />
 
+            <!-- Relationship text size. -->
             <SettingWidget
                 labelText={"Relationship text size"}
                 bind:boundValue={graphWidgetStyle.relationshipTextSize}
@@ -110,6 +185,7 @@
                 onChangeFunction={updateGraphFormat}
             />
 
+            <!-- Thing text size. -->
             <SettingWidget
                 labelText={"Thing text size"}
                 bind:boundValue={graphWidgetStyle.thingTextSize}
@@ -118,9 +194,7 @@
                 onChangeFunction={updateGraphFormat}
             />
         </div>
-
     </div>
-
 </div>
 
 

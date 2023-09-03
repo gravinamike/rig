@@ -2,8 +2,11 @@
 import type { ThingDbModel } from "$lib/models/dbModels"
 import type { Thing } from "$lib/models/constructModels"
 
+// Import basic framework resources.
+import { get } from "svelte/store"
+
 // Import stores.
-import { storeGraphDbModels } from "$lib/stores"
+import { buildMethod, storeGraphDbModels } from "$lib/stores"
 
 // Import utility functions.
 import { makeArrayUnique } from "$lib/shared/utility"
@@ -324,6 +327,51 @@ export class Generations {
         generationToStrip.lifecycleStatus = "stripped"
     }
 
+    
+    
+
+
+
+
+    async stripGridLayer(): Promise<void> {
+
+        
+
+
+        // Get the ID of the Generation to strip. If there is none, abort.
+        const generationToStrip = this.byId(this.idToStrip)
+        if (!generationToStrip) return
+
+        // Mark the Generation as in the process of stripping.
+        generationToStrip.lifecycleStatus = "stripping"
+
+        // For each Thing of the parent Generation,
+        for (const thing of generationToStrip.parentGeneration?.things() || []) {
+            // For each Thing Cohort of that Thing's child Thing Cohorts,
+            for (const cohort of thing.childThingCohorts) {
+                // Clear the Thing Cohort's members.
+                cohort.members = []
+                // Remove the Cohort from its Generation and its Plane.
+                cohort.removeFromGroups()
+            }
+        }
+
+        // Remove the Generation from the graph.
+        const index = this.#members.indexOf(generationToStrip)
+        if (index > -1) this.#members.splice(index, 1)
+
+        // Mark the Generation as stripped.
+        generationToStrip.lifecycleStatus = "stripped"
+    }
+
+
+
+
+
+
+
+
+
     /**
      * Adjust-Generations-to-Graph-depth method.
      * 
@@ -346,12 +394,12 @@ export class Generations {
         while (
             
             (
-                this.#graph.buildMethod === "radial"
+                get(buildMethod) === "radial"
                 && difference
             )
 
             || (
-                this.#graph.buildMethod === "grid"
+                get(buildMethod) === "grid"
                 && (
                     this.#members.length === 0
                     || this.seedGenerationThings.length > 0
@@ -364,15 +412,27 @@ export class Generations {
             // Generation.
             if (
                 (
-                    this.#graph.buildMethod === "radial"
+                    get(buildMethod) === "radial"
                     && difference < 0
                 )
-                || this.#graph.buildMethod === "grid"
-            ) await this.buildGeneration()
+                || (
+                    get(buildMethod) === "grid"
+                    && (
+                        this.#members.length === 0
+                        || this.seedGenerationThings.length > 0
+                    )
+                )
+            ) {
+                await this.buildGeneration()
 
             // If there are more Generations than specified, strip a
             // Generation.
-            //else await this.stripGeneration()/////////////////////////////////////// HAVE TO RESTORE THIS
+            } else if (
+                get(buildMethod) === "radial"
+                || get(buildMethod) === "grid"
+            ) {
+                await this.stripGeneration()
+            }
 
             // Adjust the difference based on the newly added/stripped
             // Generation.

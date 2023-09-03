@@ -65,7 +65,7 @@
         }px;
     "
 >        
-
+    <div style="position: absolute; left: 0; top: 0; z-index: 1; background-color: white;">{thingCohort.gridLayer? thingCohort.gridLayer.id : "NONE"}</div>
     <!-- Member widgets (either Clade widgets or various Thing-placeholder widgets). -->
     {#if showMembers}
 

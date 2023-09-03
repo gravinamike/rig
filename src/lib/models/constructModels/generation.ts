@@ -4,9 +4,10 @@ import type { Graph, Space, ThingCohortAddress, GridCoordinates } from "$lib/mod
 // Import constants.
 import { cartesianHalfAxisIds } from "$lib/shared/constants"
 // Import stores.
-import { graphDbModelInStore, getGraphConstructs } from "$lib/stores"
+import { graphDbModelInStore, getGraphConstructs, buildMethod } from "$lib/stores"
 // Import Graph constructs.
 import { Thing, ThingCohort } from "$lib/models/constructModels"
+import { get } from "svelte/store"
 
 
 /**
@@ -42,7 +43,7 @@ export class Generation {
     // The Generation's Thing Cohorts.
     thingCohorts: ThingCohort[] = []
 
-    // Which lifecycle stage the Generaton is currently in.
+    // Which lifecycle stage the Generation is currently in.
     lifecycleStatus: "new" | "building" | "built" | "stripping" | "stripped" = "new"
 
 
@@ -150,14 +151,13 @@ export class Generation {
         return things
     }
 
-    
-
 
     /**
      * Build-Generation method.
      * 
      * Builds (or re-builds) the Generation from an empty state.
-     * @param thingIdsForGeneration - The IDs of the Generation's member Things, which are used to access and add these Things to the Generation.
+     * @param thingIdsForGeneration - The IDs of the Generation's member Things, which are used to
+     *                                access and add these Things to the Generation.
      */
     async build(thingIdsForGeneration: number[]): Promise<void> {
         // For Generation 0, add the Things to the Graph's "root" Thing Cohort,
@@ -188,7 +188,7 @@ export class Generation {
                 // Determine if the new Thing already exists in the Graph.
                 const alreadyRendered = this.graph.thingIdsAlreadyInGraph.includes(thingId)
                 
-                
+                // Create a Generation Member wrapper for the Thing.
                 const member: GenerationMember = {
                     thingId: thingId,
                     thing: thing,
@@ -202,6 +202,9 @@ export class Generation {
             // Add the new root Thing Cohort to the Graph's Plane 0.
             this.graph.planes.addCohortToPlane(this.graph.rootCohort, 0)
 
+            // Add the new root Thing Cohort to the Graph's Grid Layer 0.
+            await this.graph.gridLayers.addThingCohortToGridLayer(this.graph.rootCohort, 0)
+
 
         // For all Generations after 0, hook up that Generation's members,
         // packaged in Thing Cohorts, to the parent Things of the previous
@@ -209,7 +212,6 @@ export class Generation {
         } else {
             // For each Thing in the previous Generation (excluding null
             // "placeholders"),
-
             for (const prevThing of this.parentGeneration?.things() || []) {
                 // Get the IDs of the Directions on that Thing's "Cartesian" axes.
                 const cartesianDirectionIds: number[] = []
@@ -245,25 +247,18 @@ export class Generation {
                         [7, 8].includes(halfAxisId) ? 3 :
                         0
                     const coordinateIncrement = halfAxisId % 2 !== 0 ? 1 : -1
-                    
                     const gridCoordinatesForCohort = [...parentThingsThingCohortGridCoordinates] as GridCoordinates
                     gridCoordinatesForCohort[coordinateIndexToUpdate] += coordinateIncrement
 
 
-
-
-
-
-                    // We want to add a Thing Cohort when ////////////////////////////////////////
+                    // If...
                     if (
-                        // The Graph is using the radial build method, or
-                        this.graph.buildMethod === "radial"
+                        // ...the Graph is using the radial build method, or...
+                        get(buildMethod) === "radial"
 
                         || (
-                            // The Graph is using the grid build method, and...
-                            this.graph.buildMethod === "grid"
-
-                            
+                            // ...the Graph is using the grid build method, and...
+                            get(buildMethod) === "grid"
 
                             && (
                                 // The absolute value of the grid coordinate for this grid axis is greater
@@ -277,10 +272,8 @@ export class Generation {
                                 // greater than the Graph's depth, and...
                                 && gridCoordinatesForCohort[coordinateIndexToUpdate] <= this.graph.depth
                             )
-                            
                         )
                     ) {
-
                         // Add a new, empty Thing Cohort on that half-axis.
                         const childThingCohort = new ThingCohort(addressForCohort, gridCoordinatesForCohort, [])
 
@@ -319,6 +312,12 @@ export class Generation {
                         // by Direction ID.
                         prevThing.childThingCohortByDirectionID(directionId, childThingCohort)
 
+
+                        // Add the new Thing Cohort to the appropriate Grid Layer.
+                        const childThingCohortGridLayerId = Math.max(
+                            ...gridCoordinatesForCohort.map(coordinate => Math.abs(coordinate))
+                        )
+                        await this.graph.gridLayers.addThingCohortToGridLayer(childThingCohort, childThingCohortGridLayerId)
                     }
                 }
             }
@@ -326,7 +325,5 @@ export class Generation {
 
         // Mark the Generation as built.
         this.lifecycleStatus = "built"
-
     }
-    
 }
