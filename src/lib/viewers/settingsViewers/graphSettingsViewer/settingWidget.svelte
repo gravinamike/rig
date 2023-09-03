@@ -7,9 +7,10 @@
 
 
     export let labelText: string
-    export let boundValue: number | boolean
+    export let boundValue: number | boolean | string
     export let minValue: number = 0
     export let maxValue: number = 10
+    export let radioOptions: string[] = []
     export let tooltipText: string | null = null
     export let onChangeFunction: () => void = () => {}
 </script>
@@ -34,26 +35,49 @@
 
         <input
             type=checkbox
+
             bind:checked={boundValue}
+
             on:change={onChangeFunction}
         >
+
+    {:else if typeof boundValue === "string"}
+
+        {#each radioOptions as option}
+            <div class="radio-option">
+                <label for={`${option}-radio-button`}>{option}</label>
+                <input
+                    id={`${option}-radio-button`}
+                    type=radio
+                    value={option}
+
+                    bind:group={boundValue}
+                    
+                    on:change={onChangeFunction}
+                >
+            </div>
+        {/each}
 
     {:else}
 
         <div class="inputs">
             <input class="number-input"
                 type=number
-                bind:value={boundValue}
                 min={minValue}
                 max={maxValue}
+
+                bind:value={boundValue}
+
                 on:change={onChangeFunction}
             >
 
             <input class="range-input"
                 type=range
-                bind:value={boundValue}
                 min={minValue}
                 max={maxValue}
+
+                bind:value={boundValue}
+                
                 on:change={onChangeFunction}
             >
         </div>
@@ -100,5 +124,11 @@
 
     .range-input {
         width: 66%;
+    }
+
+    .radio-option {
+        display: flex;
+        flex-direction: row;
+        justify-content: end;
     }
 </style>

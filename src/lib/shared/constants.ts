@@ -69,6 +69,7 @@ export interface GraphConfig {
     graphBackgroundImage?: string | null
     notesBackgroundImage?: string | null
     readOnlyMode: boolean
+    buildMethod: "radial" | "grid"
     hideMenus: MenuName[]
     leftSideMenu: string | null
     rightSideMenu: string | null

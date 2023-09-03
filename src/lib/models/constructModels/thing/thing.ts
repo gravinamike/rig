@@ -11,7 +11,9 @@ import { graphDbModelInStore, getGraphConstructs } from "$lib/stores"
 import { readOnlyArrayToArray } from "$lib/shared/utility"
 
 // Import Graph constructs.
-import { Graph, Space, Note, Folder, Relationship, NoteToThing, FolderToThing, ThingCohort } from "$lib/models/constructModels"
+import {
+    Graph, Space, ThingCohort, Relationship, Note, NoteToThing, Folder, FolderToThing
+} from "$lib/models/constructModels"
 
 
 
@@ -19,43 +21,81 @@ import { Graph, Space, Note, Folder, Relationship, NoteToThing, FolderToThing, T
  * Thing model.
  *
  * Class representing the defining attributes of a Thing. Generally derived
- * from the database model equivalent, ThingDbModel.
+ * from the database model equivalent, `ThingDbModel`.
  */
 export class Thing {
+    /* Intrinsic attributes. */
+
+    // String identifier for this type of Graph construct.
     kind = "thing"
 
+    // Database model that the Thing is based on.
     dbModel: ThingDbModel | null = null
 
-    // Intrinsic attributes.
+    // The Thing's numerical ID.
     id: number | null = null
+
+    // The Thing's GUID (used to uniquely identify it across Graphs).
     guid: string | null = null
+
+    // The Thing's text (displayed in the Graph view).
     text: string | null = null
+
+    // When the Thing was created, last modified, and last visited.
     whencreated: Date | null = null
     whenmodded: Date | null = null
     whenvisited: Date | null = null
+
+    // The ID of the Thing's default Space.
     defaultSpaceId: number | null = null
-    perspectivedepths = "{}"// Default is "{}"
+
+    // Whether the Thing should inherit the Space of its parent Thing. Located
+    // here for now; will be stored in db in the future.
+    inheritSpace = true
+
+    // Perspective texts (texts that are used in place of other Things' default
+    // texts when this Thing is the Perspective Thing).
     perspectivetexts = "{}"// Default is "{}"
-    inheritSpace = true // For now; will be stored in db in the future.
 
-    // Structures that the Thing is part of.
+    // Perspective depths (not yet in use).
+    perspectivedepths = "{}"// Default is "{}"
+
+
+    /* Structures that the Thing is part of. */
+
+    // The Graph that the Thing is part of.
     graph: Graph | null = null
-    parentCohort: ThingCohort | null = null
 
-    // Related structures, specified by the database.
+    // The Thing Cohort that the Thing is part of.
+    parentThingCohort: ThingCohort | null = null
+
+
+    /* Related Graph structures (specified by the database). */
+
+    // The Thing's Note and the linker to it.
     note: Note | null = null
-    folder: Folder | null = null
-    a_relationships: Relationship[] = []
-    b_relationships: Relationship[] = []
     noteToThing: NoteToThing | null = null
+
+    // The Thing's attachments folder and the linker to it.
+    folder: Folder | null = null
     folderToThing: FolderToThing | null = null
 
-    // Related structures, derived during build.
+    // Relationships that start from, or end on, the Thing.
+    a_relationships: Relationship[] = []
+    b_relationships: Relationship[] = []
+
+
+    /* Related Graph structures (derived during the Graph build). */
+
+    // The Thing's child Thing Cohorts, sorted by the ID of their Direction.
     childThingCohortsByDirectionId: { [directionId: number]: ThingCohort } = {}
 
 
+
     /**
-     * Create a Thing.
+     * Thing constructor.
+     * 
+     * Creates a new Thing.
      * @param dbModel - The database model that the Thing is derived from, or null for a "blank" Thing.
      */
     constructor(dbModel: ThingDbModel | null) {
@@ -77,15 +117,15 @@ export class Thing {
 
             // Its related structures.
             this.note = dbModel.note ? new Note(dbModel.note) : null
-            this.folder = dbModel.folder ? new Folder(dbModel.folder) : null     
+            this.noteToThing = dbModel.noteToThing ? new NoteToThing(dbModel.noteToThing) : null
+            this.folder = dbModel.folder ? new Folder(dbModel.folder) : null
+            this.folderToThing = dbModel.folderToThing ? new FolderToThing(dbModel.folderToThing) : null    
             for (const relationshipDbModel of dbModel.a_relationships) {
                 this.a_relationships.push( new Relationship(relationshipDbModel) )
             }
             for (const relationshipDbModel of dbModel.b_relationships) {
                 this.b_relationships.push( new Relationship(relationshipDbModel) )
             }
-            this.noteToThing = dbModel.noteToThing ? new NoteToThing(dbModel.noteToThing) : null
-            this.folderToThing = dbModel.folderToThing ? new FolderToThing(dbModel.folderToThing) : null
         }
     }
 
@@ -101,15 +141,15 @@ export class Thing {
     get address(): ThingAddress | null {
         // If the Thing has no ID or parent Thing Cohort (it's not yet part of
         // a Graph), return null.
-        if (!this.id || !this.parentCohort) return null
+        if (!this.id || !this.parentThingCohort) return null
 
         // Construct the address.
         const address = {
-            graph: this.parentCohort.address.graph,
-            generationId: this.parentCohort.address.generationId,
-            parentThingId: this.parentCohort.address.parentThingId,
-            halfAxisId: this.parentCohort.halfAxisId,
-            indexInCohort: this.parentCohort.indexOfMemberById(this.id) || -1
+            graph: this.parentThingCohort.address.graph,
+            generationId: this.parentThingCohort.address.generationId,
+            parentThingId: this.parentThingCohort.address.parentThingId,
+            halfAxisId: this.parentThingCohort.halfAxisId,
+            indexInCohort: this.parentThingCohort.indexOfMemberById(this.id) || -1
         }
 
         // Return the address.
@@ -122,7 +162,7 @@ export class Thing {
      * The Thing that this Thing is a child of (or null if there is none).
      */
     get parentThing(): Thing | null {
-        return this.parentCohort?.parentThing || null
+        return this.parentThingCohort?.parentThing || null
     }
 
 

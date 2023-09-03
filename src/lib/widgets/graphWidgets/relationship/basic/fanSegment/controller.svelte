@@ -90,7 +90,7 @@
 
 
 
-    $: halfAxisId = cohortMemberWithIndex.member.thing?.parentCohort?.halfAxisId || null
+    $: halfAxisId = cohortMemberWithIndex.member.thing?.parentThingCohort?.halfAxisId || null
     
     /**
      * Rotation.

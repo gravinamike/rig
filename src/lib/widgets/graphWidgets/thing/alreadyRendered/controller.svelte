@@ -57,10 +57,10 @@
     $: overlapMarginStyleText =
         // If the root Thing has no parent Cohort or address, (it hasn't yet
         // been built into a Graph), use an empty string (no formatting).
-        !thing?.address || !thing.parentCohort ? "" :
+        !thing?.address || !thing.parentThingCohort ? "" :
         // If there is only 1 Thing in the Thing Cohort, use an empty string
         // (no formatting).
-        thing.parentCohort.members.length === 1 ? "" :
+        thing.parentThingCohort.members.length === 1 ? "" :
         // Else, if the Thing is the first in the Thing Cohort, use only a
         // right or bottom overlap margin.
         thing.address.indexInCohort === 0 ? (
@@ -69,7 +69,7 @@
         ) :
         // Else, if the Thing is the last in the Thing Cohort, use only a left
         // or top overlap margin.
-        thing.address.indexInCohort === thing.parentCohort.members.length - 1 ? (
+        thing.address.indexInCohort === thing.parentThingCohort.members.length - 1 ? (
             rowOrColumn === "row" ? `margin-left: ${overlapMargin}px;` :
             `margin-top: ${overlapMargin}px;`
         // Else, use overlap margins on both sides (left/right or top/bottom).

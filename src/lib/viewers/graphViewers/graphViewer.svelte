@@ -128,7 +128,7 @@
         
         if (
             !rePerspectInProgressThingId
-            && selectedHistoryThingId !== graph._pThingIds[0]
+            && selectedHistoryThingId !== graph.pThingIds[0]
         ) rePerspectToThingId(selectedHistoryThingId, false, false)
     }
 

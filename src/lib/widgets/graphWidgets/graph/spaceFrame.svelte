@@ -251,14 +251,12 @@
                     optionHoveredFunction={async (_, option) => {
                         if (currentSpace) {
                             const newSpace = alteredSpace(currentSpace, option, arrowInfo.halfAxisId)
-                            graph.startingSpace = newSpace
-                            await graph.build()
+                            if (newSpace) await graph.setSpace(newSpace)
                             addGraphIdsNeedingViewerRefresh(graph.id)
                         }
                     }}
                     exitOptionHoveredFunction={async () => {
-                        graph.startingSpace = originalSpace
-                        await graph.build()
+                        if (originalSpace) await graph.setSpace(originalSpace)
                         addGraphIdsNeedingViewerRefresh(graph.id)
                     }}
                 />
