@@ -111,9 +111,10 @@ export class Generations {
      * @returns - The ID of the next Generation to be built.
      */
     get idToBuild(): number {
-        // Go through the Generations in reverse, from latest to earliest. For
-        // each one,
+        // Go through the Generations in reverse, from latest to earliest.
         const reversedGenerations = this.#members.slice().reverse()
+
+        // For each one,
         for (const generation of reversedGenerations) {
             // If the Generation is in the "new" or "building" lifecycle
             // stages, return it (it's the Generation to build).
@@ -135,9 +136,10 @@ export class Generations {
      * @returns - The ID of the next Generation to be stripped.
      */
     get idToStrip(): number {
-        // Go through the Generations in reverse, from latest to earliest. For
-        // each one,
+        // Go through the Generations in reverse, from latest to earliest.
         const reversedGenerations = this.#members.slice().reverse()
+
+        // For each one,
         for (const generation of reversedGenerations) {
             // If the Generation is in the "built" lifecycle stage, return it
             // (it's the Generation to strip).
@@ -174,7 +176,7 @@ export class Generations {
      * @returns - An array of the Things that belong to the seed Generation.
      */
     get seedGenerationThings(): Thing[] {
-        return this.seedGeneration?.things(false) || [] // Note for the future: When adding Perspective depth deltas, filter the seedThings list based on depth deltas.
+        return this.seedGeneration?.things() || [] // Note for the future: When adding Perspective depth deltas, filter the seedThings list based on depth deltas.
     }
 
     /**
@@ -258,7 +260,7 @@ export class Generations {
     async buildGeneration(): Promise<void> {
         // Create the new, empty Generation.
         const newGeneration = new Generation(this.idToBuild, this.#graph)
-        console.log("BUILDING GEN", this.idToBuild)
+
         // Store the Thing database models for the new Generation.
         await this.storeNextGenerationThingDbModels()
 
@@ -380,12 +382,7 @@ export class Generations {
     async adjustToDepth(depth: number): Promise<void> {
         // While the the difference between the Graph's current depth and its
         // specified depth still exists, correct it.
-        console.log(" ")
-        console.log("ADJUSTING TO DEPTH ========================================================")
         while (this.needAdjustment(depth) && this.#members.length < 5) {
-            console.log(" ")
-            console.log("SEED GEN IS", this.seedGeneration?.id, "WITH", this.seedGenerationThings.length, "SEED THINGS")
-
             const buildOrStrip = this.needBuildOrStrip(depth)
 
             if (buildOrStrip === "build") await this.buildGeneration()
@@ -394,7 +391,7 @@ export class Generations {
 
         // Once the actual number of Generations is equal to the specified
         // number, build (or re-build) the Relationships-only Generation.
-        this.buildRelationshipsOnlyGeneration()
+        await this.buildRelationshipsOnlyGeneration()
     }
 
 
