@@ -313,7 +313,7 @@ export class Generation {
                             // Add the Generation member to the child Thing Cohort.
                             childThingCohort.addMember(member)
                         }
-
+                        
                         // Add the new Thing Cohort to the previous Thing, keyed
                         // by Direction ID.
                         prevThing.childThingCohortByDirectionID(directionId, childThingCohort)
