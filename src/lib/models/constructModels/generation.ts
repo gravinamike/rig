@@ -140,13 +140,22 @@ export class Generation {
      * Things method.
      * 
      * Gets an array of all the Things in this Generation. Filters out any null
-     * "placeholder" Things.
+     * "placeholder" Things or Things which have already been rendered in the
+     * Graph.
      * @returns - An array of all the Things in this Generation.
      */
-    things(): Thing[] {
+    things(includeAlreadyRendered=true): Thing[] {
         const things =
             this.members
-                .filter(member => member.thing !== null)
+                .filter(member => {
+                    return (
+                        member.thing !== null
+                        && (
+                            includeAlreadyRendered === true
+                            || member.alreadyRendered === false
+                        )
+                    )
+                })
                 .map(member => member.thing) as Thing[]
         return things
     }
@@ -160,6 +169,7 @@ export class Generation {
      *                                access and add these Things to the Generation.
      */
     async build(thingIdsForGeneration: number[]): Promise<void> {
+        console.log("BUILDING GEN:", this.id)
         // For Generation 0, add the Things to the Graph's "root" Thing Cohort,
         // which serves as the starting point of the Graph.
         if (this.id === 0) {
@@ -306,6 +316,7 @@ export class Generation {
                             
                             // Add the Generation member to the child Thing Cohort.
                             childThingCohort.addMember(member)
+                            if (member.thing) console.log("ADDING THING", member.thingId)
                         }
 
                         // Add the new Thing Cohort to the previous Thing, keyed
