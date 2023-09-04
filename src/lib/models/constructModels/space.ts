@@ -67,7 +67,10 @@ export class Space {
         const halfAxisIds = Object.keys(this.directionIdByHalfAxisId).map(k => Number(k) as HalfAxisId)
         for (const halfAxisId of halfAxisIds) {
             const directionId = this.directionIdByHalfAxisId[halfAxisId]
-            if (directionId) halfAxisIdByDirectionId[directionId] = halfAxisId
+            if (
+                directionId
+                && !(directionId in halfAxisIdByDirectionId)
+            ) halfAxisIdByDirectionId[directionId] = halfAxisId
         }
         return halfAxisIdByDirectionId
     }

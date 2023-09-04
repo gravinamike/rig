@@ -470,6 +470,7 @@
      * a Thing, rather than null, since Relationship Cohort Widgets are only
      * "spawned" from Clades (which in turn always have root Things).
      */
+    let parentThing = cohort.parentThing as Thing
     $: parentThing = cohort.parentThing as Thing
     
     /**

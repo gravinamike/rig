@@ -111,9 +111,10 @@ export class Generations {
      * @returns - The ID of the next Generation to be built.
      */
     get idToBuild(): number {
-        // Go through the Generations in reverse, from latest to earliest. For
-        // each one,
+        // Go through the Generations in reverse, from latest to earliest.
         const reversedGenerations = this.#members.slice().reverse()
+
+        // For each one,
         for (const generation of reversedGenerations) {
             // If the Generation is in the "new" or "building" lifecycle
             // stages, return it (it's the Generation to build).
@@ -135,9 +136,10 @@ export class Generations {
      * @returns - The ID of the next Generation to be stripped.
      */
     get idToStrip(): number {
-        // Go through the Generations in reverse, from latest to earliest. For
-        // each one,
+        // Go through the Generations in reverse, from latest to earliest.
         const reversedGenerations = this.#members.slice().reverse()
+
+        // For each one,
         for (const generation of reversedGenerations) {
             // If the Generation is in the "built" lifecycle stage, return it
             // (it's the Generation to strip).
@@ -258,7 +260,7 @@ export class Generations {
     async buildGeneration(): Promise<void> {
         // Create the new, empty Generation.
         const newGeneration = new Generation(this.idToBuild, this.#graph)
-
+        
         // Store the Thing database models for the new Generation.
         await this.storeNextGenerationThingDbModels()
 
@@ -280,7 +282,7 @@ export class Generations {
     async buildRelationshipsOnlyGeneration(): Promise<void> {
         // Get the ID of the to-be-built Relationships-only Generation.
         const generationIdToBuild = this.#members.length
-
+        
         // Create the new, empty Generation and add it to the Generations
         // object as the Relationships-only Generation.
         const newGeneration = new Generation(generationIdToBuild, this.#graph)
@@ -292,6 +294,7 @@ export class Generations {
         const memberIdsForGeneration =
             this.newGenerationThingIds()
                 .filter( id => this.#graph.thingIdsAlreadyInGraph.includes(id) )
+        
         await newGeneration.build(memberIdsForGeneration)
     }
 
@@ -304,7 +307,7 @@ export class Generations {
         // Get the ID of the Generation to strip. If there is none, abort.
         const generationToStrip = this.byId(this.idToStrip)
         if (!generationToStrip) return
-
+        
         // Mark the Generation as in the process of stripping.
         generationToStrip.lifecycleStatus = "stripping"
 
@@ -378,26 +381,48 @@ export class Generations {
      * Either build or strip Generations as needed to bring the Graph to its specified depth.
      */
     async adjustToDepth(depth: number): Promise<void> {
+        // While the the difference between the Graph's current depth and its
+        // specified depth still exists, correct it.
+        while (this.needAdjustment(depth)) {
+            const buildOrStrip = this.needBuildOrStrip(depth)
+
+            if (buildOrStrip === "build") await this.buildGeneration()
+            else await this.stripGeneration()
+        }
+
+        // If the last Generation added was empty (which can happen when using the Grid build
+        // method), strip it.
+        if (this.seedGeneration && !this.seedGeneration.thingCohorts.length) await this.stripGeneration()
+
+        // Once the actual number of Generations is equal to the specified
+        // number, build (or re-build) the Relationships-only Generation.
+        await this.buildRelationshipsOnlyGeneration()
+    }
+
+
+
+
+
+
+
+
+    needAdjustment(depth: number) {
+
         // Get the difference between the Graph's current depth and its
         // specified depth.
-        let difference = this.#members.length - (depth + 1)
+        const difference = this.#members.length - (depth + 1)
 
-        // While the difference still exists, build or strip Generations to
-        // correct it.
-
-
-
-
-
-        /////////////////////////////////////////////////////////////
+        if (
         
-        while (
-            
+            // ...the build mode is "radial" and there is still a difference between the specified
+            // and actual number of Generations, or...
             (
                 get(buildMethod) === "radial"
                 && difference
             )
 
+            // ...the build mode is "grid" and either Generation 0 is being built or the previous,
+            // "seed" Generation contains Things to build from,
             || (
                 get(buildMethod) === "grid"
                 && (
@@ -406,41 +431,56 @@ export class Generations {
                 )
             )
 
-
         ) {
-            // If there are fewer Generations than specified, build a new
-            // Generation.
-            if (
-                (
-                    get(buildMethod) === "radial"
-                    && difference < 0
-                )
-                || (
-                    get(buildMethod) === "grid"
-                    && (
-                        this.#members.length === 0
-                        || this.seedGenerationThings.length > 0
-                    )
-                )
-            ) {
-                await this.buildGeneration()
+            return true
+        } else {
+            return false
+        }
+    }
 
-            // If there are more Generations than specified, strip a
-            // Generation.
-            } else if (
+
+
+
+
+    needBuildOrStrip(depth: number) {
+
+        // Get the difference between the Graph's current depth and its
+        // specified depth.
+        const difference = this.#members.length - (depth + 1)
+
+        // If there are fewer Generations than specified, build a new
+        // Generation.
+        if (
+            (
                 get(buildMethod) === "radial"
-                || get(buildMethod) === "grid"
-            ) {
-                await this.stripGeneration()
-            }
+                && difference < 0
+            )
+            || (
+                get(buildMethod) === "grid"
+                && (
+                    this.#members.length === 0
+                    || this.seedGenerationThings.length > 0
+                )
+            )
+        ) {
+            return "build"
 
-            // Adjust the difference based on the newly added/stripped
-            // Generation.
-            difference = this.#members.length - (depth + 1)
+        // If there are more Generations than specified, strip a
+        // Generation.
+        } else if (
+            get(buildMethod) === "radial"
+            || get(buildMethod) === "grid"
+        ) {
+            return "strip"
         }
 
-        // Once the actual number of Generations is equal to the specified
-        // number, build (or re-build) the Relationships-only Generation.
-        this.buildRelationshipsOnlyGeneration()
+
     }
+
+    
+
+
+
+
+
 }

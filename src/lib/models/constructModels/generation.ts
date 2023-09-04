@@ -140,13 +140,19 @@ export class Generation {
      * Things method.
      * 
      * Gets an array of all the Things in this Generation. Filters out any null
-     * "placeholder" Things.
+     * "placeholder" Things or Things which have already been rendered in the
+     * Graph.
      * @returns - An array of all the Things in this Generation.
      */
     things(): Thing[] {
         const things =
             this.members
-                .filter(member => member.thing !== null)
+                .filter(member => {
+                    return (
+                        member.thing !== null
+                        && member.alreadyRendered === false
+                    )
+                })
                 .map(member => member.thing) as Thing[]
         return things
     }
@@ -253,8 +259,12 @@ export class Generation {
 
                     // If...
                     if (
-                        // ...the Graph is using the radial build method, or...
-                        get(buildMethod) === "radial"
+                        // ...the Graph is using the radial build method, or this is the
+                        // Relationships-only Generation, or...
+                        (
+                            get(buildMethod) === "radial"
+                            || this.isRelationshipsOnly
+                        )
 
                         || (
                             // ...the Graph is using the grid build method, and...
@@ -268,15 +278,16 @@ export class Generation {
                                     > Math.abs(parentThingsThingCohortGridCoordinates[coordinateIndexToUpdate])
                                 )
 
-                                // ...the grid coordinate for this grid axis isn't
-                                // greater than the Graph's depth, and...
-                                && gridCoordinatesForCohort[coordinateIndexToUpdate] <= this.graph.depth
+                                // ...none of the Grid coordinates are outside of the Graph's depth, and...
+                                && Math.max(
+                                    ...gridCoordinatesForCohort.map(coordinate => Math.abs(coordinate))
+                                ) <= this.graph.depth
                             )
                         )
                     ) {
                         // Add a new, empty Thing Cohort on that half-axis.
                         const childThingCohort = new ThingCohort(addressForCohort, gridCoordinatesForCohort, [])
-
+                        
                         // Get the IDs of the Things in that half axis' Thing
                         // Cohort.
                         const childThingCohortThingIds = prevThing.relatedThingIdsByDirectionId[directionId] || []
@@ -307,7 +318,7 @@ export class Generation {
                             // Add the Generation member to the child Thing Cohort.
                             childThingCohort.addMember(member)
                         }
-
+                        
                         // Add the new Thing Cohort to the previous Thing, keyed
                         // by Direction ID.
                         prevThing.childThingCohortByDirectionID(directionId, childThingCohort)
