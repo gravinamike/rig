@@ -260,7 +260,7 @@ export class Generations {
     async buildGeneration(): Promise<void> {
         // Create the new, empty Generation.
         const newGeneration = new Generation(this.idToBuild, this.#graph)
-
+        
         // Store the Thing database models for the new Generation.
         await this.storeNextGenerationThingDbModels()
 
@@ -282,7 +282,7 @@ export class Generations {
     async buildRelationshipsOnlyGeneration(): Promise<void> {
         // Get the ID of the to-be-built Relationships-only Generation.
         const generationIdToBuild = this.#members.length
-
+        
         // Create the new, empty Generation and add it to the Generations
         // object as the Relationships-only Generation.
         const newGeneration = new Generation(generationIdToBuild, this.#graph)
@@ -294,6 +294,7 @@ export class Generations {
         const memberIdsForGeneration =
             this.newGenerationThingIds()
                 .filter( id => this.#graph.thingIdsAlreadyInGraph.includes(id) )
+        
         await newGeneration.build(memberIdsForGeneration)
     }
 
@@ -306,7 +307,7 @@ export class Generations {
         // Get the ID of the Generation to strip. If there is none, abort.
         const generationToStrip = this.byId(this.idToStrip)
         if (!generationToStrip) return
-
+        
         // Mark the Generation as in the process of stripping.
         generationToStrip.lifecycleStatus = "stripping"
 
@@ -382,12 +383,16 @@ export class Generations {
     async adjustToDepth(depth: number): Promise<void> {
         // While the the difference between the Graph's current depth and its
         // specified depth still exists, correct it.
-        while (this.needAdjustment(depth) && this.#members.length < 5) {
+        while (this.needAdjustment(depth)) {
             const buildOrStrip = this.needBuildOrStrip(depth)
 
             if (buildOrStrip === "build") await this.buildGeneration()
             else await this.stripGeneration()
         }
+
+        // If the last Generation added was empty (which can happen when using the Grid build
+        // method), strip it.
+        if (this.seedGeneration && !this.seedGeneration.thingCohorts.length) await this.stripGeneration()
 
         // Once the actual number of Generations is equal to the specified
         // number, build (or re-build) the Relationships-only Generation.

@@ -259,8 +259,12 @@ export class Generation {
 
                     // If...
                     if (
-                        // ...the Graph is using the radial build method, or...
-                        get(buildMethod) === "radial"
+                        // ...the Graph is using the radial build method, or this is the
+                        // Relationships-only Generation, or...
+                        (
+                            get(buildMethod) === "radial"
+                            || this.isRelationshipsOnly
+                        )
 
                         || (
                             // ...the Graph is using the grid build method, and...
@@ -282,7 +286,7 @@ export class Generation {
                     ) {
                         // Add a new, empty Thing Cohort on that half-axis.
                         const childThingCohort = new ThingCohort(addressForCohort, gridCoordinatesForCohort, [])
-
+                        
                         // Get the IDs of the Things in that half axis' Thing
                         // Cohort.
                         const childThingCohortThingIds = prevThing.relatedThingIdsByDirectionId[directionId] || []
