@@ -278,9 +278,10 @@ export class Generation {
                                     > Math.abs(parentThingsThingCohortGridCoordinates[coordinateIndexToUpdate])
                                 )
 
-                                // ...the grid coordinate for this grid axis isn't
-                                // greater than the Graph's depth, and...
-                                && gridCoordinatesForCohort[coordinateIndexToUpdate] <= this.graph.depth
+                                // ...none of the Grid coordinates are outside of the Graph's depth, and...
+                                && Math.max(
+                                    ...gridCoordinatesForCohort.map(coordinate => Math.abs(coordinate))
+                                ) <= this.graph.depth
                             )
                         )
                     ) {
