@@ -70,7 +70,7 @@
             top: {leafGeometry.bottom}px;
             width: 20px;
             height: 20px;
-            transform: translate(-10px, -10px) rotate({deleteButtonRotation}deg) ;
+            transform: translate(-10px, -10px) rotate({deleteButtonRotation}deg);
         "
 
         on:mouseenter={()=>{
@@ -190,6 +190,7 @@
 
     .delete-button-group {
         position: absolute;
+        z-index: 2;
 
         pointer-events: auto;
         cursor: pointer;
