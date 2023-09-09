@@ -143,6 +143,16 @@
                     width: {zoomBounds.width}px; height: {zoomBounds.height}px;
                 "
             />
+
+            <div
+                class="perspective-reticle"
+                style="
+                    width: {graphWidgetStyle.relationDistance}px;
+                    height: {graphWidgetStyle.relationDistance}px;
+                "
+            >
+
+            </div>
             
             <!-- Root Cohort Widget (from which the rest of the Graph automatically "grows"). -->
             {#if graph.rootCohort && graph.lifecycleStatus === "built"}
@@ -213,6 +223,16 @@
 
     .zoom-bounds {
         position: absolute;
+    }
+
+    .perspective-reticle {
+        border-radius: 50%;
+
+        outline: solid 4px lightgrey;
+
+        position: absolute;
+        transform: translate(-50%, -50%);
+        opacity: 0.25;
     }
 
     .plane-controls-container {

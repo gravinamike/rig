@@ -27,7 +27,7 @@
      * @param halfAxisId - The ID of the half-axis the Relationship is on.
      * @param thingWidth - The width of a Thing widget.
      * @param thingHeight - The height of a Thing widget.
-     * @param relationshupsLength - The edge-to-edge distance between the Relationship's source and destination Things.
+     * @param relationshipsLength - The edge-to-edge distance between the Relationship's source and destination Things.
      * @param sizeOfThingsALongWidth - The size of a Thing widget along the side-to-side dimension of the Relationship Cohort widget.
      * @param relationshipColor - The color of the Relationship widget, based on the half-axis.
      * @param mirroring - Whether to flip the Relationship Cohort widget relative to the Graph centerline.
