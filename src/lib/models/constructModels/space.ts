@@ -15,8 +15,9 @@ export class Space {
 
     id: number | null
     text: string | null
-    directions: Direction[] = []
     spaceorder: number | null
+    buildmethod: string | null
+    directions: Direction[] = []
 
     constructor(dbModel: SpaceDbModel) {
         this.dbModel = dbModel
@@ -24,6 +25,7 @@ export class Space {
         this.id = Number(dbModel.id)
         this.text = dbModel.text
         this.spaceorder = dbModel.spaceorder
+        this.buildmethod = dbModel.buildmethod
 
         for (const directionDbModel of dbModel.directions) {
             this.directions.push( new Direction(directionDbModel) )
@@ -89,6 +91,7 @@ export function copiedSpace(startingSpace: Space): Space {
     copiedSpace.dbModel = null
     copiedSpace.id = null
     copiedSpace.text = null
+    copiedSpace.buildmethod = null
     copiedSpace.directions = []
     for (const direction of startingSpace.directions) copiedSpace.directions.push(direction)
 

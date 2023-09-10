@@ -4,10 +4,9 @@ import type { Graph, Space, ThingCohortAddress, GridCoordinates } from "$lib/mod
 // Import constants.
 import { cartesianHalfAxisIds } from "$lib/shared/constants"
 // Import stores.
-import { graphDbModelInStore, getGraphConstructs, buildMethod } from "$lib/stores"
+import { graphDbModelInStore, getGraphConstructs } from "$lib/stores"
 // Import Graph constructs.
 import { Thing, ThingCohort } from "$lib/models/constructModels"
-import { get } from "svelte/store"
 
 
 /**
@@ -211,6 +210,10 @@ export class Generation {
             // Add the new root Thing Cohort to the Graph's Grid Layer 0.
             await this.graph.gridLayers.addThingCohortToGridLayer(this.graph.rootCohort, 0)
 
+            // Set the Graph's Perspective Thing to the (ideally only!) Thing in the root Thing
+            // Cohort.
+            this.graph.pThing = this.graph.rootCohort.members[0].thing
+
 
         // For all Generations after 0, hook up that Generation's members,
         // packaged in Thing Cohorts, to the parent Things of the previous
@@ -262,13 +265,13 @@ export class Generation {
                         // ...the Graph is using the radial build method, or this is the
                         // Relationships-only Generation, or...
                         (
-                            get(buildMethod) === "radial"
+                            this.graph.pThing?.space?.buildmethod === "radial"
                             || this.isRelationshipsOnly
                         )
 
                         || (
                             // ...the Graph is using the grid build method, and...
-                            get(buildMethod) === "grid"
+                            this.graph.pThing?.space?.buildmethod === "grid"
 
                             && (
                                 // The absolute value of the grid coordinate for this grid axis is greater

@@ -7,7 +7,7 @@
 
     // Import contants and utilty functions.
     import { oddHalfAxisIds } from "$lib/shared/constants"
-    import { onMobile, sleep } from "$lib/shared/utility"
+    import { capitalizeFirstLetter, onMobile, sleep } from "$lib/shared/utility"
 
     // Import stores.
     import { addGraphIdsNeedingViewerRefresh, addSpaceIdToEditingInProgressStore, getGraphConstructs, readOnlyMode, removeSpaceIdFromEditingInProgressStore, spaceDbModelsStore, storeGraphDbModels } from "$lib/stores"
@@ -42,6 +42,7 @@
     let spaceWidgetWidth = 1
     let spaceWidgetHeight = 1
     let spaceNameInput: HTMLInputElement
+    let spaceBuildMethod: "radial" | "grid" = space?.buildmethod as ("radial" | "grid") || "radial"
 
     // Flags describing type of widget.
     let isSpaceForm = (space === null)
@@ -110,6 +111,7 @@
             // Populate the fields and focus the Space name field.
             buildHalfAxisInfos()
             spaceNameInput.value = space?.text || ""
+            spaceBuildMethod = space?.buildmethod as ("radial" | "grid") || "radial"
             await tick()
             spaceNameInput.focus()
 
@@ -192,13 +194,22 @@
 
         // Update (or create) the Space in the database, store, and this widget.
         if (isSpaceForm) {
-            const newSpaceId = await createSpace(spaceNameInput.value, halfAxisIdsAndDirections) || null
+            const newSpaceId = await createSpace(
+                spaceNameInput.value,
+                spaceBuildMethod,
+                halfAxisIdsAndDirections
+            ) || null
             await storeGraphDbModels("Space")
             space = getGraphConstructs("Space", newSpaceId as number) as Space
             isSpaceForm = false
             parentScrollArea.scrollTo({top: parentScrollArea.scrollHeight, behavior: "smooth"})
         } else {
-            await updateSpace(space?.id as number, spaceNameInput.value, halfAxisIdsAndDirections)
+            await updateSpace(
+                space?.id as number,
+                spaceNameInput.value,
+                spaceBuildMethod,
+                halfAxisIdsAndDirections
+            )
             await storeGraphDbModels("Space")
             space = getGraphConstructs("Space", space?.id as number) as Space
         }
@@ -376,6 +387,41 @@
             {/if}
         {/each}
     </div>
+
+    <!-- Space build method field. -->
+    {#if interactionMode !== "display"}
+        <div class="space-build-method" style="
+            padding: 0 5px 0 10px;
+
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        ">
+        
+            Graph build method:
+            <div style="
+                display: flex;
+                flex-direction: column;
+                align-items: flex-end;
+            ">
+                {#each ["radial", "grid"] as buildMethodOption}
+                    <div style="
+                        display: flex;
+                        flex-direction: row;
+                    ">
+                        <label for={buildMethodOption}>{capitalizeFirstLetter(buildMethodOption)}</label>
+                        <input
+                            type="radio"
+                            id={buildMethodOption}
+                            value={buildMethodOption}
+                            bind:group={spaceBuildMethod}
+                        />
+                    </div>
+                {/each}
+            </div>
+
+        </div>
+    {/if}
 
     <!-- Perspective-Space button. -->
     {#if interactionMode === "display" && (defaultPerspectiveSpace || (!$readOnlyMode && isHovered))}

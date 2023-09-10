@@ -35,6 +35,7 @@
             {#each latestConstructs.spaces as info}
                 <strong>ID</strong> {info.id}&nbsp;&nbsp;
                 <strong>TEXT</strong> {info.text}&nbsp;&nbsp;
+                <strong>BUILD METHOD</strong> {info.buildmethod}&nbsp;&nbsp;
                 <br>
             {/each}
             <br>

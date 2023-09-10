@@ -9,8 +9,7 @@
     // Import stores and store-related methods.
     import {
         uIBackgroundColorStore, uITrimColorStore, mobileMenuTrimColorStore,
-        landscapeOrientation, readOnlyMode as readOnlyModeStore, buildMethod as buildMethodStore,
-        addGraphIdsNeedingViewerRefresh
+        landscapeOrientation, readOnlyMode as readOnlyModeStore, addGraphIdsNeedingViewerRefresh
     } from "$lib/stores"
     
     // Import associated widgets.
@@ -29,10 +28,6 @@
     let readOnlyMode = false
     $: readOnlyMode = $readOnlyModeStore
 
-    // Proxy variable for Graph build method.
-    let buildMethod: "radial" | "grid" = "radial"
-    $: buildMethod = $buildMethodStore
-
     // Proxy variable for the Graph's relational depth.
     let graphDepth = graph.depth
 
@@ -46,23 +41,6 @@
     async function updateReadOnlyMode() {
         readOnlyModeStore.set(readOnlyMode)
         await saveGraphConfig()
-    }
-
-    /**
-     * Update-build-method method.
-     * 
-     * Sets the build method and configuration option based on the
-     * current value of the proxy variable in this component, then re-builds
-     * and refreshes the Graph.
-     */
-     async function updateBuildMethod() {
-        // Set the build method and corresponding configuration option.
-        buildMethodStore.set(buildMethod)
-        await saveGraphConfig()//////////////////////////////// IMPLEMENT
-
-        // Re-build and refresh theGraph.
-        await graph.build()
-        addGraphIdsNeedingViewerRefresh(graph.id)
     }
     
     /**
@@ -118,15 +96,6 @@
                 bind:boundValue={readOnlyMode}
                 tooltipText={"Disables editing the Graph."}
                 onChangeFunction={updateReadOnlyMode}
-            />
-
-            <!-- Build method. -->
-            <SettingWidget
-                labelText={"Build method"}
-                bind:boundValue={buildMethod}
-                radioOptions={["radial", "grid"]}
-                tooltipText={`Determines whether the Graph\nis constructed in a "radial" or\n"grid" pattern.`}
-                onChangeFunction={updateBuildMethod}
             />
             
             <!-- Graph depth. -->

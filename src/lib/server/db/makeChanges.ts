@@ -18,7 +18,7 @@ import { createFolder } from "$lib/shared/fileSystem"
 import { changeIndexInArray, legacyPerspectiveThingsParse } from "$lib/shared/utility"
 import type { Knex } from "knex"
 import type { OddHalfAxisId } from "$lib/shared/constants"
-import { error } from "@sveltejs/kit"
+
 
 
 /*
@@ -219,6 +219,7 @@ export async function deleteDirection(directionId: number): Promise<void> {
  */
 export async function createSpace(
     spaceText: string,
+    spaceBuildMethod: "radial" | "grid",
     halfAxisIdsAndDirections: [OddHalfAxisId, (Direction | null)][]
 ): Promise<number | false> {
     try {
@@ -239,7 +240,7 @@ export async function createSpace(
             const newOrder = maxOrder + 1
 
             // Create new Space.
-            const newSpaceInfo = getNewSpaceInfo(newSpaceId, spaceText, newOrder)
+            const newSpaceInfo = getNewSpaceInfo(newSpaceId, spaceText, newOrder, spaceBuildMethod)
             const querystring1 = RawSpaceDbModel.query().insert(newSpaceInfo).toKnexQuery().toString()
             const newSpaceDbModel = await alterQuerystringForH2AndRun(querystring1, transaction, "", "Space") as RawSpaceDbModel
 
@@ -280,6 +281,7 @@ export async function createSpace(
 export async function updateSpace(
     spaceId: number,
     spaceText: string,
+    spaceBuildMethod: "radial" | "grid",
     halfAxisIdsAndDirections: [OddHalfAxisId, (Direction | null)][]
 ): Promise<boolean> {
     try {
@@ -289,7 +291,8 @@ export async function updateSpace(
             // Update the Space text.
             await RawSpaceDbModel.query()
                 .patch({
-                    text: spaceText
+                    text: spaceText,
+                    buildmethod: spaceBuildMethod
                 })
                 .where('id', spaceId)
                 .transacting(transaction)

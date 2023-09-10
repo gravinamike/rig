@@ -5,6 +5,7 @@ export interface SpaceDbModel {
     id: string | number | null
     text: string | null
     spaceorder: number | null
+    buildmethod: string | null
     directions: DirectionDbModel[]
 }
 

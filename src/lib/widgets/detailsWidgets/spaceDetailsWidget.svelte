@@ -11,6 +11,8 @@
 
         <h4>{`${spaceDbModel.id} ${spaceDbModel.text}`}</h4>
 
+        Build method: {spaceDbModel.buildmethod}
+
         <Collapser headerText={"Directions"}>
             <div class="directions-list">
                 {#each spaceDbModel.directions as { id, oppositeid, text, nameforobjects }}

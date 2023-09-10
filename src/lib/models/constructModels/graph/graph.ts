@@ -233,10 +233,6 @@ export class Graph {
         // Adjust (build) the Generations to the Graph's specified Depth.
         this.lifecycleStatus = "building"
         await this.generations.adjustToDepth(this.#depth)
-
-        // Set the Perspective Thing to the (ideally only!) Thing in the root
-        // Thing Cohort.
-        this.pThing = (this.rootCohort as unknown as ThingCohort).members[0].thing
         
         // If the Graph is the top-level Graph (rather than a child Graph or a
         // search-interface Graph),

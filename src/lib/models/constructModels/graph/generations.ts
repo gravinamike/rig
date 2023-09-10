@@ -2,11 +2,8 @@
 import type { ThingDbModel } from "$lib/models/dbModels"
 import type { Thing } from "$lib/models/constructModels"
 
-// Import basic framework resources.
-import { get } from "svelte/store"
-
 // Import stores.
-import { buildMethod, storeGraphDbModels } from "$lib/stores"
+import { storeGraphDbModels } from "$lib/stores"
 
 // Import utility functions.
 import { makeArrayUnique } from "$lib/shared/utility"
@@ -260,13 +257,13 @@ export class Generations {
     async buildGeneration(): Promise<void> {
         // Create the new, empty Generation.
         const newGeneration = new Generation(this.idToBuild, this.#graph)
-        
+
         // Store the Thing database models for the new Generation.
         await this.storeNextGenerationThingDbModels()
 
         // Get the IDs of the Things for the new Generation.
         const thingIdsForGeneration = this.newGenerationThingIds()
-
+        
         // Add the new Generation to the Generations object.
         this.#members.push(newGeneration)
 
@@ -385,7 +382,6 @@ export class Generations {
         // specified depth still exists, correct it.
         while (this.needAdjustment(depth)) {
             const buildOrStrip = this.needBuildOrStrip(depth)
-
             if (buildOrStrip === "build") await this.buildGeneration()
             else await this.stripGeneration()
         }
@@ -407,24 +403,24 @@ export class Generations {
 
 
     needAdjustment(depth: number) {
-
         // Get the difference between the Graph's current depth and its
         // specified depth.
         const difference = this.#members.length - (depth + 1)
-
-        if (
         
+        if (
+            !this.#graph.pThing
+
             // ...the build mode is "radial" and there is still a difference between the specified
             // and actual number of Generations, or...
-            (
-                get(buildMethod) === "radial"
+            || (
+                this.#graph.pThing?.space?.buildmethod === "radial"
                 && difference
             )
 
             // ...the build mode is "grid" and either Generation 0 is being built or the previous,
             // "seed" Generation contains Things to build from,
             || (
-                get(buildMethod) === "grid"
+                this.#graph.pThing?.space?.buildmethod === "grid"
                 && (
                     this.#members.length === 0
                     || this.seedGenerationThings.length > 0
@@ -451,12 +447,13 @@ export class Generations {
         // If there are fewer Generations than specified, build a new
         // Generation.
         if (
-            (
-                get(buildMethod) === "radial"
+            !this.#graph.pThing
+            ||(
+                (this.#graph.pThing?.space?.buildmethod === "radial")
                 && difference < 0
             )
             || (
-                get(buildMethod) === "grid"
+                this.#graph.pThing?.space?.buildmethod === "grid"
                 && (
                     this.#members.length === 0
                     || this.seedGenerationThings.length > 0
@@ -468,8 +465,8 @@ export class Generations {
         // If there are more Generations than specified, strip a
         // Generation.
         } else if (
-            get(buildMethod) === "radial"
-            || get(buildMethod) === "grid"
+            this.#graph.pThing?.space?.buildmethod === "radial"
+            || this.#graph.pThing?.space?.buildmethod === "grid"
         ) {
             return "strip"
         }

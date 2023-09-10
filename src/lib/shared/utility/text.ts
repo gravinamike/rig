@@ -31,3 +31,8 @@ export function htmlToPlaintext(htmlString: string, replaceWithSimilar=true, scr
 
     return plaintextString
 }
+
+export function capitalizeFirstLetter(stringToCapitalize: string) {
+    const capitalizedString = stringToCapitalize.charAt(0).toUpperCase() + stringToCapitalize.slice(1)
+    return capitalizedString
+}

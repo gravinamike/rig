@@ -6,7 +6,7 @@ import { get } from "svelte/store"
 
 // Import stores.
 import {
-    readOnlyMode as readOnlyModeStore, buildMethod as buildMethodStore, perspectiveThingIdStore, leftSideMenuStore, rightSideMenuStore, notesEditorLockedStore,
+    readOnlyMode as readOnlyModeStore, perspectiveThingIdStore, leftSideMenuStore, rightSideMenuStore, notesEditorLockedStore,
     homeThingIdStore, pinIdsStore, uIBackgroundColorStore, uITrimColorStore, mobileMenuTrimColorStore, graphBackgroundImageStore, notesBackgroundImageStore, hideMenusStore, notesToolbarExpandedStore,
 } from "$lib/stores"
 
@@ -65,7 +65,6 @@ export async function storeGraphConfig(pThingId: number | null = null): Promise<
         graphConfig.notesBackgroundImage || null
     )
     readOnlyModeStore.set(graphConfig.readOnlyMode)
-    buildMethodStore.set(graphConfig.buildMethod)
     hideMenusStore.set(graphConfig.hideMenus)
     leftSideMenuStore.set(graphConfig.leftSideMenu)
     rightSideMenuStore.set(graphConfig.rightSideMenu)
@@ -104,7 +103,6 @@ export async function saveGraphConfig(): Promise<void> {
     const graphBackgroundImage = get(graphBackgroundImageStore)
     const notesBackgroundImage = get(notesBackgroundImageStore)
     const readOnlyMode = get(readOnlyModeStore)
-    const buildMethod = get(buildMethodStore)
     const hideMenus = get(hideMenusStore)
     const leftSideMenu = get(leftSideMenuStore)
     const rightSideMenu = get(rightSideMenuStore)
@@ -122,7 +120,6 @@ export async function saveGraphConfig(): Promise<void> {
         graphBackgroundImage: graphBackgroundImage,
         notesBackgroundImage: notesBackgroundImage,
         readOnlyMode: readOnlyMode,
-        buildMethod: buildMethod,
         hideMenus: hideMenus,
         leftSideMenu: leftSideMenu,
         rightSideMenu: rightSideMenu,

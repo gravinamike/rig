@@ -153,11 +153,13 @@ export async function deleteDirection( directionIdToDelete: number ): Promise<bo
  * 
  * Creates a new Space in the database.
  * @param spaceText - The text (or "name") of the new Space.
+ * @param spaceBuildMethod - The build method to use for Graphs in this Space.
  * @param halfAxisIdsAndDirections - An object mapping the Space's Directions to half-axes by ID.
  * @returns - A boolean indicating whether the create-Space method was successful.
  */
 export async function createSpace(
     spaceText: string,
+    spaceBuildMethod: "radial" | "grid",
     halfAxisIdsAndDirections: [OddHalfAxisId, (Direction | null)][]
 ): Promise<number | false> {
     // Post to the create-Space API.
@@ -168,6 +170,7 @@ export async function createSpace(
 
             body: JSON.stringify({
                 spaceText: spaceText,
+                spaceBuildMethod: spaceBuildMethod,
                 halfAxisIdsAndDirections: halfAxisIdsAndDirections
             })
         }
@@ -196,6 +199,7 @@ export async function createSpace(
 export async function updateSpace(
     spaceId: number,
     spaceText: string,
+    spaceBuildMethod: "radial" | "grid",
     halfAxisIdsAndDirections: [OddHalfAxisId, (Direction | null)][]
 ): Promise<boolean> {
     // Post to the update-Space API.
@@ -207,6 +211,7 @@ export async function updateSpace(
             body: JSON.stringify({
                 spaceId: spaceId,
                 spaceText: spaceText,
+                spaceBuildMethod: spaceBuildMethod,
                 halfAxisIdsAndDirections: halfAxisIdsAndDirections
             })
         }

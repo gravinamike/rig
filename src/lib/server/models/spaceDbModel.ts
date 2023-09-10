@@ -16,6 +16,7 @@ export class RawSpaceDbModel extends Model {
     id!: string | number | null
     text!: string | null
     spaceorder!: number | null
+    buildmethod!: string | null
     directions!: RawDirectionDbModel[]
 
     directionToSpaces!: RawDirectionToSpaceDbModel[]
@@ -58,15 +59,17 @@ interface NewSpaceInfo {
     whencreated: null
     whenmodded: null
     spaceorder: number
+    buildmethod: string
 }
 
-export function getNewSpaceInfo(id: number, text: string, spaceOrder: number): NewSpaceInfo {
+export function getNewSpaceInfo(id: number, text: string, spaceOrder: number, buildMethod: "radial" | "grid"): NewSpaceInfo {
     const newSpaceInfo = {
         id: id,
         text: text,
         whencreated: null,
         whenmodded: null,
-        spaceorder: spaceOrder
+        spaceorder: spaceOrder,
+        buildmethod: buildMethod
     }
 
     return newSpaceInfo
@@ -83,6 +86,7 @@ export function stripSpaceDbModels(models: RawSpaceDbModel[]): SpaceDbModel[] {
                 id: model.id,
                 text: model.text,
                 spaceorder: model.spaceorder,
+                buildmethod: model.buildmethod,
                 directions: model.directions ? stripDirectionDbModels(model.directions) : []
             }
         )

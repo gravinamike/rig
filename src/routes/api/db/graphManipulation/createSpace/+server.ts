@@ -8,6 +8,7 @@ export const POST: RequestHandler = async ({request}) => {
         const body = await request.json()
         const newSpaceId = await createSpace(
             body.spaceText,
+            body.spaceBuildMethod,
             body.halfAxisIdsAndDirections
         ) as number
         

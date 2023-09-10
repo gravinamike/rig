@@ -224,7 +224,7 @@ export async function queryNoteSearchList( noteIds: number[] | null ): Promise<N
  */
 export interface LatestGraphConstructInfos {
     directions: {id: string | number, oppositeid: string | number | null, text: string | null, nameforobjects: string | null}[],
-    spaces: {id: string | number | null, text: string | null}[],
+    spaces: {id: string | number | null, text: string | null, buildmethod: string | null}[],
     directionToSpaces: {id: string | number | null, directionid: string | number | null, spaceid: string | number | null, halfaxisid: string | number | null}[],
     things: {id: string | number, text: string}[],
     relationships: {id: string | number, thingaid: number | null, thingbid: number | null}[],
@@ -265,7 +265,7 @@ export async function getLatestConstructs(): Promise<LatestGraphConstructInfos> 
     // Return an object containing all the above.
     return {
         directions: queriedDirections.map(x => {return {id: x.id, oppositeid: x.oppositeid, text: x.text, nameforobjects: x.nameforobjects}}),
-        spaces: queriedSpaces.map(x => {return {id: x.id, text: x.text}}),
+        spaces: queriedSpaces.map(x => {return {id: x.id, text: x.text, buildmethod: x.buildmethod}}),
         directionToSpaces: queriedDirectionToSpaces.map(x => {return {id: x.id, directionid: x.directionid, spaceid: x.spaceid, halfaxisid: x.halfaxisid}}),
         things: queriedThings.map(x => {return {id: x.id, text: x.text}}),
         relationships: queriedRelationships.map(x => {return {id: x.id, thingaid: x.thingaid, thingbid: x.thingbid}}),

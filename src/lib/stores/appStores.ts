@@ -62,14 +62,6 @@ export const readOnlyMode = writable( false )
 
 
 /**
- * Build-method store.
- * 
- * Holds a string specifying the current build method for Graphs in the app.
- */
-export const buildMethod = writable( "radial" as "radial" | "grid" )
-
-
-/**
  * Hovered Thing ID store.
  * 
  * Holds the ID of the Thing that the mouse is hovered over.

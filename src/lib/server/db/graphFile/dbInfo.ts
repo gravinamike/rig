@@ -68,21 +68,23 @@ export function getDbInfo(): DbInfo {
                 "text": "varchar(255)",
                 "whencreated": "timestamp",
                 "whenmodded": "timestamp",
-                "spaceorder": "integer"
+                "spaceorder": "integer",
+                "buildmethod": "varchar(255)"
             },
             "defaultValues": {
                 "text": noneText,
                 "whencreated": "NULL",
                 "whenmodded": "NULL",
-                "spaceorder": 0
+                "spaceorder": 0,
+                "buildmethod": "radial"
             },
             "constraints": {
                 "id": "PRIMARY KEY"
             },
             'entries': [
-                [1, 'Definition', dateTimeStamp, dateTimeStamp, 1],
-                [2, 'Cause/Composition', dateTimeStamp, dateTimeStamp, 2],
-                [3, 'Composition/Abstraction', dateTimeStamp, dateTimeStamp, 3]
+                [1, 'Definition', dateTimeStamp, dateTimeStamp, 1, "radial"],
+                [2, 'Cause/Composition', dateTimeStamp, dateTimeStamp, 2, "radial"],
+                [3, 'Composition/Abstraction', dateTimeStamp, dateTimeStamp, 3, "radial"]
             ]
         },
 
