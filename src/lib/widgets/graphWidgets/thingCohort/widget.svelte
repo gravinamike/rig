@@ -11,18 +11,19 @@
 
 
     /**
-     * @param {ThingCohort} thingCohort - The Thing Cohort that the widget is based on.
-     * @param {Graph} graph - The Graph that contains the Thing Cohort.
-     * @param {GraphWidgetStyle} graphWidgetStyle - Controls the style of the Graph widget.
-     * @param {(thingId: number) => Promise<void>} rePerspectToThingId - A function that re-perspects the Graph to a given Thing ID.
+     * @param thingCohort - The Thing Cohort that the widget is based on.
+     * @param graph - The Graph that contains the Thing Cohort.
+     * @param graphWidgetStyle - Controls the style of the Graph widget.
+     * @param offsetToAlignToGrid - The offset, in pixels, needed to align the Relationships to the grid (if in use).
+     * @param rePerspectToThingId - A function that re-perspects the Graph to a given Thing ID.
      */
     export let thingCohort: ThingCohort
     export let cohortMembersToDisplay: GenerationMember[]
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
+    export let offsetToAlignToGrid = 0
     export let perspectiveTexts: {[thingId: string]: string}
-    export let rePerspectToThingId: (thingId: number) => Promise<void>
-        
+    export let rePerspectToThingId: (thingId: number) => Promise<void>        
     
     // Attributes managed by the widget controller.
     let xYOffsets: { x: number, y: number } = { x: 0, y: 0 }
@@ -40,7 +41,8 @@
     {thingCohort}
     graphWidgetStyle={graphWidgetStyle}
     planesOffsets={graph.planes.offsets}
-
+    {offsetToAlignToGrid}
+    
     bind:xYOffsets
     bind:zIndex
     bind:rowOrColumn

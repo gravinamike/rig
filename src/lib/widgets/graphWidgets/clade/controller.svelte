@@ -15,6 +15,8 @@
     /**
      * @param rootThing - The Thing that forms the root of the Clade.
      * @param graphWidgetStyle - Controls the style of the Graph widget.
+     * @param rootThingWidth - The width of the Clade's root Thing.
+     * @param rootThingHeight - The height of the Clade's root Thing.
      * @param overlapMarginStyleText - The CSS text to handle the overlap between the widgets.
      * @param thingCohorts - The Thing Cohorts included in the Clade.
      * @param cartesianThingCohorts - The Thing Cohorts that are on the Cartesian half-axes.
@@ -24,9 +26,12 @@
      * @param showCladeRootThing - Whether to display the root Thing of the Clade.
      * @param expandable - Whether the Clade can be collapsed to hide children or expanded to show them.
      * @param expanded - Whether the Clade is collapsed to hide children or expanded to show them.
+     * @param rootThingOffsetFromCenterOfThingCohort - The offset (in pixels) betwen the root Thing and the center of its Thing Cohort.
      */
     export let rootThing: Thing
     export let graphWidgetStyle: GraphWidgetStyle
+    export let rootThingWidth = 0
+    export let rootThingHeight = 0
     export let overlapMarginStyleText: string = ""
     export let thingCohorts: ThingCohort[] = []
     export let cartesianThingCohorts: ThingCohort[] = []
@@ -36,6 +41,7 @@
     export let showCladeRootThing = true
     export let expandable = false
     export let expanded = false
+    export let rootThingOffsetFromCenterOfThingCohort = 0
 
     
     /* --------------- Output attributes. --------------- */
@@ -160,7 +166,43 @@
     $: expanded =
         expandable && rootThing.address?.generationId === 0 ? true :
         false
-    
+
+    /**
+     * Root Thing offset from center of Thing Cohort.
+     * 
+     * The offset (in pixels) betwen the root Thing and the center of its Thing Cohort. Used to
+     * calculate offsets of child Thing Cohorts and Relationships when adjusting to fit a grid.
+     */
+    $: rootThingOffsetFromCenterOfThingCohort =    
+        // If the root Thing's Thing Cohort or address are null,
+        (
+            !rootThing.parentThingCohort
+            || !rootThing.address
+
+        // The offset is 0.
+        ) ? 0 :
+
+        // Otherwise the offset is...
+        (
+            // ...the difference between the index of the Thing in its Thing Cohort and the halfway
+            // index of that Thing Cohort...
+            (
+                rootThing.address.indexInCohort
+                - (rootThing.parentThingCohort.members.length - 1) / 2
+            )
+
+            // ...multiplied by either the Thing width or height (depending on the half-axis) plus
+            // the spacing between Things in the Thing Cohort.
+            * (
+                (
+                    rootThing.parentThingCohort.halfAxisId && [1, 2].includes(
+                        rootThing.parentThingCohort.halfAxisId
+                    ) ? rootThingWidth :
+                    rootThingHeight
+                )
+                + graphWidgetStyle.betweenThingSpacing
+            )
+        )
     
     
     /* --------------- Supporting attributes. --------------- */

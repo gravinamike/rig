@@ -149,7 +149,11 @@ export class Thing {
             generationId: this.parentThingCohort.address.generationId,
             parentThingId: this.parentThingCohort.address.parentThingId,
             halfAxisId: this.parentThingCohort.halfAxisId,
-            indexInCohort: this.parentThingCohort.indexOfMemberById(this.id) || -1
+            indexInCohort: (
+                this.parentThingCohort.indexOfMemberById(this.id) !== null ?
+                    this.parentThingCohort.indexOfMemberById(this.id) as number :
+                    -1
+            )
         }
 
         // Return the address.

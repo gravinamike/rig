@@ -5,22 +5,24 @@
 
     /**
      * Create a Graph Widget Model.
-     * @param {ThingCohort} thingcohort - The Thing Cohort that the widget is based on.
-     * @param {GraphWidgetStyle} graphWidgetStyle - Controls the style of the Graph widget.
-     * @param {[number, number]} planesOffsets - The per-Plane X and Y offsets.
-     * @param {{ x: number, y: number }} xYOffsets - The X and Y offsets of the widget relative to its parent Clade widget.
-     * @param {number} zIndex - The stacking order of the widget relative to other HTML elements.
-     * @param {"row" | "column"} rowOrColumn - Whether the Things are arranged in a row or column.
-     * @param {number | null} indexOfGrandparentThing - The index of the Thing Cohort's grandparent Thing if it is included the Thing Cohort.
-     * @param {number} offsetToGrandparentThingX - The X component of the offset between the center of the Thing Cohort and the grandparent Thing.
-     * @param {number} offsetToGrandparentThingY - The Y component of the offset between the center of the Thing Cohort and the grandparent Thing.
-     * @param {boolean} showMembers - Whether to display the member Things of the Thing Cohort.
+     * @param thingcohort - The Thing Cohort that the widget is based on.
+     * @param graphWidgetStyle - Controls the style of the Graph widget.
+     * @param planesOffsets - The per-Plane X and Y offsets.
+     * @param offsetToAlignToGrid - The offset, in pixels, needed to align the Relationships to the grid (if in use).
+     * @param xYOffsets - The X and Y offsets of the widget relative to its parent Clade widget.
+     * @param zIndex - The stacking order of the widget relative to other HTML elements.
+     * @param rowOrColumn - Whether the Things are arranged in a row or column.
+     * @param indexOfGrandparentThing - The index of the Thing Cohort's grandparent Thing if it is included the Thing Cohort.
+     * @param offsetToGrandparentThingX - The X component of the offset between the center of the Thing Cohort and the grandparent Thing.
+     * @param offsetToGrandparentThingY - The Y component of the offset between the center of the Thing Cohort and the grandparent Thing.
+     * @param showMembers - Whether to display the member Things of the Thing Cohort.
      */
     
     // Input props.
     export let thingCohort: ThingCohort
     export let graphWidgetStyle: GraphWidgetStyle
     export let planesOffsets: [number, number]
+    export let offsetToAlignToGrid: number
 
     // Output props.
     export let xYOffsets: { x: number, y: number }
@@ -54,12 +56,12 @@
             x: (
                 // ...the "orbit" distance of related Things from their
                 // parents, in the appropriate direction for the half-axis...
-                graphWidgetStyle.relationDistance * offsetSigns[0]
+                (graphWidgetStyle.relationDistance + offsetToAlignToGrid) * offsetSigns[0]
                 // ...plus any offset for the Plane the Thing is in.
                 + planesOffsets[0] * planeId
             ),
             y: (
-                graphWidgetStyle.relationDistance * offsetSigns[1]
+                (graphWidgetStyle.relationDistance + offsetToAlignToGrid) * offsetSigns[1]
                 + planesOffsets[1] * planeId
             )
         }

@@ -25,6 +25,7 @@
      * @param graphWidgetStyle - Controls the style of the Graph widget.
      * @param thingWidth - The width of a Thing widget.
      * @param thingHeight - The height of a Thing widget.
+     * @param offsetToAlignToGrid - The offset, in pixels, needed to align the Relationships to the grid (if in use).
      */
     export let cohort: ThingCohort
     export let cohortMembersToDisplay: GenerationMember[]
@@ -32,6 +33,7 @@
     export let graphWidgetStyle: GraphWidgetStyle
     export let thingWidth: number
     export let thingHeight: number
+    export let offsetToAlignToGrid: number
 
     
     // Attributes managed by widget controller.
@@ -77,6 +79,7 @@
     {stemHovered}
     {thingWidth}
     {thingHeight}
+    {offsetToAlignToGrid}
     
     bind:widgetOffsetX
     bind:widgetOffsetY

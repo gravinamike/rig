@@ -32,6 +32,7 @@
      * @param graphWidgetStyle - Controls the style of the Graph widget.
      * @param thingIdOfHoveredRelationship - The ID of the Thing corresponding to the currently-hovered Relationship, if there is one.
      * @param stemHovered - Whether or not the mouse is hovered over the Relationship stem widget.
+     * @param offsetToAlignToGrid - The offset, in pixels, needed to align the Relationships to the grid (if in use).
      * @param widgetOffsetX - The horizontal offset of the widget relative to its parent Clade.
      * @param widgetOffsetY - The vertical offset of the widget relative to its parent Clade.
      * @param zIndex - The stacking order of the widget relative to other HTML elements.
@@ -65,6 +66,7 @@
     export let stemHovered = false
     export let thingWidth = 0
     export let thingHeight = 0
+    export let offsetToAlignToGrid = 0
     export let widgetOffsetX = 0
     export let widgetOffsetY = 0
     export let zIndex = 0
@@ -307,7 +309,7 @@
      * the spacing between each Thing in a Thing Cohort.
      */
     $: relationshipsLength =
-        graphWidgetStyle.relationDistance - (
+        (graphWidgetStyle.relationDistance + offsetToAlignToGrid) - (
             halfAxisId && [1, 2].includes(halfAxisId) ? thingHeight :
             thingWidth
         ) * cohort.axialElongation
@@ -413,7 +415,7 @@
      * based on the half-axis. Does not take the offset of the grandparent Thing
      * into account.
      */
-    $: xOffset = 0.5 * graphWidgetStyle.relationDistance * offsetsByHalfAxisId[halfAxisId || 0][0]
+    $: xOffset = 0.5 * (graphWidgetStyle.relationDistance + offsetToAlignToGrid) * offsetsByHalfAxisId[halfAxisId || 0][0]
 
     /**
      * Y offset.
@@ -422,7 +424,7 @@
      * based on the half-axis. Does not take the offset of the grandparent Thing
      * into account.
      */
-    $: yOffset = 0.5 * graphWidgetStyle.relationDistance * offsetsByHalfAxisId[halfAxisId || 0][1]
+    $: yOffset = 0.5 * (graphWidgetStyle.relationDistance + offsetToAlignToGrid) * offsetsByHalfAxisId[halfAxisId || 0][1]
 
     /**
      * X offset to grandparent Thing.

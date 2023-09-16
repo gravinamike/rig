@@ -33,6 +33,7 @@
     // Attributes managed by the widget controller.
     let cartesianThingCohorts: ThingCohort[] = []
     let overlapMarginStyleText: string
+    let rootThingOffsetFromCenterOfThingCohort: number
 
     // Attributes managed by sub-widgets.
     let rootThingWidth: number = 0
@@ -44,9 +45,12 @@
 <CladeWidgetController
     {rootThing}
     {graphWidgetStyle}
+    {rootThingWidth}
+    {rootThingHeight}
 
     bind:cartesianThingCohorts
     bind:overlapMarginStyleText
+    bind:rootThingOffsetFromCenterOfThingCohort
 />
 
 
@@ -89,6 +93,7 @@
             bind:perspectiveTexts
             {rootThingWidth}
             {rootThingHeight}
+            parentCladeOffsetFromCenterOfThingCohort={rootThingOffsetFromCenterOfThingCohort}
             {rePerspectToThingId}
         />
     {/each}
