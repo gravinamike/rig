@@ -5,13 +5,16 @@
 
     // Import widget controller.
     import ThingAlreadyRenderedWidgetController from "./controller.svelte"
-    import type { Graph } from "$lib/models/constructModels";
+    import type { Graph, Thing } from "$lib/models/constructModels";
     
 
     export let thingId: number
     export let cohortHalfAxisId: HalfAxisId | 0
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
+
+    export let getThingOverlapMarginStyleText: (thing: Thing, thingOverlapMargin: number) => string = () => ""
+    export let thingOverlapMargin: number = 0
 
 
     let hoveredThingIdStoreValue: number | null = null
@@ -25,6 +28,11 @@
     let overlapMarginStyleText = ""
     let relationshipColor = "#000000"
     let isHoveredThing = false
+    let thing: Thing | null
+
+
+
+    $: overlapMarginStyleText = thing ? getThingOverlapMarginStyleText(thing, thingOverlapMargin) : ""
 </script>
 
 
@@ -39,9 +47,9 @@
     bind:encapsulatingDepth
     bind:thingWidth
     bind:thingHeight
-    bind:overlapMarginStyleText
     bind:relationshipColor
     bind:isHoveredThing
+    bind:thing
 />
 
 

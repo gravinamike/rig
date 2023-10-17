@@ -16,15 +16,14 @@
 
     /**
      * Create a Thing-already-rendered widget controller.
-     * @param {number | null} thingId - The ID of the Thing the widget is based on.
-     * @param {HalfAxisId} cohortHalfAxisId - The half-axis of the Thing Cohort the Thing is part of.
-     * @param {GraphWidgetStyle} graphWidgetStyle - Controls the style of the Graph widget.
-     * @param {number} encapsulatingDepth - The number of encapsulations between the Perspective Thing and the Thing.
-     * @param {number} thingWidth - The width of the Thing widget.
-     * @param {number} thingHeight - The height of the Thing widget.
-     * @param {string} overlapMarginStyleText - The CSS text to handle the overlap between the widgets.
-     * @param {string} relationshipColor - The color of the Relationship from the parent Thing to this Thing.
-     * @param {boolean} isHoveredThing - Whether the mouse is hovered over the Thing (or another widget representing the same Thing).
+     * @param thingId - The ID of the Thing the widget is based on.
+     * @param cohortHalfAxisId - The half-axis of the Thing Cohort the Thing is part of.
+     * @param graphWidgetStyle - Controls the style of the Graph widget.
+     * @param encapsulatingDepth - The number of encapsulations between the Perspective Thing and the Thing.
+     * @param thingWidth - The width of the Thing widget.
+     * @param thingHeight - The height of the Thing widget.
+     * @param relationshipColor - The color of the Relationship from the parent Thing to this Thing.
+     * @param isHoveredThing - Whether the mouse is hovered over the Thing (or another widget representing the same Thing).
      */
     export let thingId: number
     export let cohortHalfAxisId: HalfAxisId
@@ -34,49 +33,17 @@
     export let encapsulatingDepth: number
     export let thingWidth: number
     export let thingHeight: number
-    export let overlapMarginStyleText: string
     export let relationshipColor: string
     export let isHoveredThing: boolean
+
+    export let thing: Thing | null
 
 
     // Attributes managed by the base widget controller.
     let halfAxisId: HalfAxisId
-    let thing: Thing | null
 
 
     /* --------------- Output attributes. --------------- */
-
-    /**
-     * Overlap-margin style text.
-     * 
-     * When Things are styled to overlap, the effect is accomplished through CSS
-     * margins. This attribute provides the CSS text to style the Thing based
-     * on its position in the Thing Cohort and whether the Thing Cohort is
-     * arranged in a row or column.
-     */
-    $: overlapMarginStyleText =
-        // If the root Thing has no parent Cohort or address, (it hasn't yet
-        // been built into a Graph), use an empty string (no formatting).
-        !thing?.address || !thing.parentThingCohort ? "" :
-        // If there is only 1 Thing in the Thing Cohort, use an empty string
-        // (no formatting).
-        thing.parentThingCohort.members.length === 1 ? "" :
-        // Else, if the Thing is the first in the Thing Cohort, use only a
-        // right or bottom overlap margin.
-        thing.address.indexInCohort === 0 ? (
-            rowOrColumn === "row" ? `margin-right: ${overlapMargin}px;` :
-            `margin-bottom: ${overlapMargin}px;`
-        ) :
-        // Else, if the Thing is the last in the Thing Cohort, use only a left
-        // or top overlap margin.
-        thing.address.indexInCohort === thing.parentThingCohort.members.length - 1 ? (
-            rowOrColumn === "row" ? `margin-left: ${overlapMargin}px;` :
-            `margin-top: ${overlapMargin}px;`
-        // Else, use overlap margins on both sides (left/right or top/bottom).
-        ) : (
-            rowOrColumn === "row" ? `margin-left: ${overlapMargin}px; margin-right: ${overlapMargin}px;` :
-            `margin-top: ${overlapMargin}px; margin-bottom: ${overlapMargin}px;`
-        )
 
     /**
      * Relationship color.
@@ -113,7 +80,9 @@
      * Provides the number of pixels by which the Thing should overlap its
      * neighbors in the Thing Cohort.
      */
-    $: overlapMargin = graphWidgetStyle.betweenThingOverlap / 2
+    /*$: overlapMargin =
+        thingCohortExpanded ? graphWidgetStyle.betweenThingOverlap / 2 :
+        - graphWidgetStyle.thingSize / 2*/
 </script>
 
 

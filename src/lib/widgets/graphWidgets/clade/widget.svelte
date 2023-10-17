@@ -20,6 +20,7 @@
      * @param graphWidgetStyle - Controls the style of the Graph widget.
      * @param perspectiveTexts - Object containing texts for Things rendered from the root Thing's Perspective.
      * @param rootThingThingCohortMembers - Array containing all members of the Thing Cohort containing the root Thing.
+     * @param rootThingThingCohortExpanded - Whether the Thing Cohort this is part of is expanded or collapsed.
      * @param rePerspectToThingId - A function that re-perspects the Graph to a given Thing ID.
      */
     export let rootThing: Thing
@@ -28,6 +29,16 @@
     export let perspectiveTexts: {[thingId: string]: string}
     export let rootThingThingCohortMembers: GenerationMember[]
     export let rePerspectToThingId: (id: number) => Promise<void>
+
+    export let getThingOverlapMarginStyleText: (
+        thing: Thing,
+        thingOverlapMargin: number,
+        thingCohortRowOrColumn: "row" | "column"
+    ) => string
+    export let thingOverlapMargin: number
+    export let thingCohortRowOrColumn: "row" | "column"
+
+    export let rootThingThingCohortExpanded: boolean
 
 
     // Attributes managed by the widget controller.
@@ -38,6 +49,10 @@
     // Attributes managed by sub-widgets.
     let rootThingWidth: number = 0
     let rootThingHeight: number = 0
+
+
+
+    $: overlapMarginStyleText = getThingOverlapMarginStyleText(rootThing, thingOverlapMargin, thingCohortRowOrColumn)
 </script>
 
 
@@ -49,7 +64,6 @@
     {rootThingHeight}
 
     bind:cartesianThingCohorts
-    bind:overlapMarginStyleText
     bind:rootThingOffsetFromCenterOfThingCohort
 />
 
@@ -93,6 +107,7 @@
             bind:perspectiveTexts
             {rootThingWidth}
             {rootThingHeight}
+            parentThingCohortExpanded={rootThingThingCohortExpanded}
             parentCladeOffsetFromCenterOfThingCohort={rootThingOffsetFromCenterOfThingCohort}
             {rePerspectToThingId}
         />

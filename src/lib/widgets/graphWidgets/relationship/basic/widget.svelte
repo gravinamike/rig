@@ -28,7 +28,7 @@
      * @param thingWidth - The width of a Thing widget.
      * @param thingHeight - The height of a Thing widget.
      * @param relationshipsLength - The edge-to-edge distance between the Relationship's source and destination Things.
-     * @param sizeOfThingsALongWidth - The size of a Thing widget along the side-to-side dimension of the Relationship Cohort widget.
+     * @param sizeOfThingsAlongWidth - The size of a Thing widget along the side-to-side dimension of the Relationship Cohort widget.
      * @param relationshipColor - The color of the Relationship widget, based on the half-axis.
      * @param mirroring - Whether to flip the Relationship Cohort widget relative to the Graph centerline.
      * @param rotation - The rotation of the Relationship Cohort widget, based on the half-axis.
@@ -52,6 +52,8 @@
     export let rotation: number
     export let direction: Direction | null = null
     export let relatableForCurrentDrag = false
+
+    export let thingCohortExpanded: boolean
 
 
     // Attributes handled by the widget controller.
@@ -91,6 +93,8 @@
     bind:tweenedScale
     bind:openCommandPalette
     bind:deleteRelationship
+
+    {thingCohortExpanded}
 />
 
 

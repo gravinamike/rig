@@ -1,13 +1,15 @@
 <script lang="ts">
     /* Import types. */
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
-    import type { GenerationMember, Graph, ThingCohort } from "$lib/models/constructModels"
+    import type { GenerationMember, Graph, Thing, ThingCohort } from "$lib/models/constructModels"
 
     /* Import widget controller. */
     import ThingCohortWidgetController from "./controller.svelte"
 
     /* Import widgets. */
     import { ThingMissingFromStoreWidget, ThingAlreadyRenderedWidget, CladeWidget } from "$lib/widgets/graphWidgets"
+    import { tweened } from "svelte/motion";
+    import { cubicOut } from "svelte/easing";
 
 
     /**
@@ -23,7 +25,17 @@
     export let graphWidgetStyle: GraphWidgetStyle
     export let offsetToAlignToGrid = 0
     export let perspectiveTexts: {[thingId: string]: string}
-    export let rePerspectToThingId: (thingId: number) => Promise<void>        
+    export let rePerspectToThingId: (thingId: number) => Promise<void>   
+        
+    export let expanded = false
+    export let getThingOverlapMarginStyleText: (
+        thing: Thing,
+        thingOverlapMargin: number,
+        thingCohortRowOrColumn: "row" | "column"
+    ) => string = () => ""
+    export let thingOverlapMargin: number = 0
+
+
     
     // Attributes managed by the widget controller.
     let xYOffsets: { x: number, y: number } = { x: 0, y: 0 }
@@ -33,6 +45,61 @@
     let offsetToGrandparentThingX: number = 0
     let offsetToGrandparentThingY: number = 0
     let showMembers = true
+
+
+    ///////////// MOVE INTO CONTROLLER
+    $: sizeAlongLongAxis =
+        expanded ? (
+            thingCohort.members.length * graphWidgetStyle.thingSize
+            + (thingCohort.members.length - 1) * graphWidgetStyle.betweenThingSpacing
+        ) :
+        graphWidgetStyle.thingSize
+    const tweenedSizeAlongLongAxis = tweened( 1, { duration: 100, easing: cubicOut } )
+    $: tweenedSizeAlongLongAxis.set(sizeAlongLongAxis)   
+
+
+
+    $: widgetWidthMinusBorder =
+        thingCohort.rowOrColumn() === "row" ? $tweenedSizeAlongLongAxis :
+        graphWidgetStyle.thingSize
+        
+    $: widgetHeightMinusBorder =
+        thingCohort.rowOrColumn() === "column" ? $tweenedSizeAlongLongAxis :
+        graphWidgetStyle.thingSize
+
+
+    
+
+    function toggleExpanded() {
+        expanded = !expanded
+    }
+
+
+
+
+
+
+
+
+
+    $: gap =
+        [5, 6, 7, 8].includes(thingCohort.halfAxisId) ? 4 :
+        expanded ? graphWidgetStyle.betweenThingGap:
+        0
+    const tweenedGap = tweened( 1, { duration: 100, easing: cubicOut } )
+    $: tweenedGap.set(gap)   
+
+
+
+    
+
+
+
+
+
+
+
+
 </script>
 
 
@@ -56,17 +123,31 @@
 <!-- Thing Cohort Widget. -->
 <div
     class="thing-cohort-widget"
+
     style="
         left: calc({xYOffsets.x}px + 50% + {offsetToGrandparentThingX}px);
         top: calc({xYOffsets.y}px + 50% + {offsetToGrandparentThingY}px);
         z-index: {zIndex};
         flex-direction: {rowOrColumn};
-        gap: {
-            [5, 6, 7, 8].includes(thingCohort.halfAxisId) ? 4 :
-            graphWidgetStyle.betweenThingGap
-        }px;
+        gap: {gap}px;
     "
->        
+>
+    {#if showMembers && cohortMembersToDisplay.length > 1}
+        <div
+            class="thing-cohort-border"
+
+            style="
+                width: {widgetWidthMinusBorder + 50}px;
+                height: {widgetHeightMinusBorder + 50}px;
+            "
+
+            on:click={toggleExpanded}
+            on:keydown={()=>{}}
+        />
+    {/if}
+
+
+
     <!-- Member widgets (either Clade widgets or various Thing-placeholder widgets). -->
     {#if showMembers}
 
@@ -87,6 +168,9 @@
                     cohortHalfAxisId={thingCohort.halfAxisId}
                     {graph}
                     {graphWidgetStyle}
+                    {getThingOverlapMarginStyleText}
+                    {thingOverlapMargin}
+                    thingCohortRowOrColumn={rowOrColumn}
                 />
 
             <!-- Otherwise show a Clade Widget. -->
@@ -98,6 +182,10 @@
                     bind:perspectiveTexts
                     rootThingThingCohortMembers={cohortMembersToDisplay}
                     {rePerspectToThingId}
+                    {getThingOverlapMarginStyleText}
+                    {thingOverlapMargin}
+                    thingCohortRowOrColumn={rowOrColumn}
+                    rootThingThingCohortExpanded={expanded}
                 />
             {/if}
             
@@ -116,4 +204,23 @@
 
         pointer-events: none;
     }
+
+    .thing-cohort-border {
+        border-radius: 10px;
+
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        opacity: 33%;
+
+        pointer-events: auto;
+        cursor: default;
+    }
+
+
+    .thing-cohort-border:hover {
+        outline: dashed 2px grey;
+    }
+
 </style>

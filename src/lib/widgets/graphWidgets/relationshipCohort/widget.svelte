@@ -35,6 +35,9 @@
     export let thingHeight: number
     export let offsetToAlignToGrid: number
 
+
+    export let thingCohortExpanded: boolean
+
     
     // Attributes managed by widget controller.
     let widgetOffsetX = 0
@@ -180,6 +183,8 @@
                             {rotation}
                             {direction}
                             {relatableForCurrentDrag}
+
+                            {thingCohortExpanded}
                         />
                     {/if}
                 {/each}

@@ -17,7 +17,6 @@
      * @param graphWidgetStyle - Controls the style of the Graph widget.
      * @param rootThingWidth - The width of the Clade's root Thing.
      * @param rootThingHeight - The height of the Clade's root Thing.
-     * @param overlapMarginStyleText - The CSS text to handle the overlap between the widgets.
      * @param thingCohorts - The Thing Cohorts included in the Clade.
      * @param cartesianThingCohorts - The Thing Cohorts that are on the Cartesian half-axes.
      * @param orderedThingCohorts - The Thing Cohorts in the order they are to be displayed in the outline version of the widget.
@@ -32,7 +31,6 @@
     export let graphWidgetStyle: GraphWidgetStyle
     export let rootThingWidth = 0
     export let rootThingHeight = 0
-    export let overlapMarginStyleText: string = ""
     export let thingCohorts: ThingCohort[] = []
     export let cartesianThingCohorts: ThingCohort[] = []
     export let orderedThingCohorts: ThingCohort[] = []
@@ -46,37 +44,6 @@
     
     /* --------------- Output attributes. --------------- */
 
-    /**
-     * Overlap-margin style text.
-     * 
-     * When Things are styled to overlap, the effect is accomplished through CSS
-     * margins. This attribute provides the CSS text to style the Thing based
-     * on its position in the Thing Cohort and whether the Thing Cohort is
-     * arranged in a row or column.
-     */
-    $: overlapMarginStyleText =
-        // If the root Thing has no parent Cohort or address, (it hasn't yet
-        // been built into a Graph), use an empty string (no formatting).
-        !rootThing.parentThingCohort || !rootThing.address ? "" :
-        // If there is only 1 Thing in the Thing Cohort, use an empty string
-        // (no formatting).
-        rootThing.parentThingCohort.members.length === 1 ? "" :
-        // Else, if the Thing is the first in the Thing Cohort, use only a
-        // right or bottom overlap margin.
-        rootThing.address.indexInCohort === 0 ? (
-            rowOrColumn === "row" ? `margin-right: ${overlapMargin}px;` :
-            `margin-bottom: ${overlapMargin}px;`
-        ) :
-        // Else, if the Thing is the last in the Thing Cohort, use only a left
-        // or top overlap margin.
-        rootThing.address.indexInCohort === rootThing.parentThingCohort.members.length - 1 ? (
-            rowOrColumn === "row" ? `margin-left: ${overlapMargin}px;` :
-            `margin-top: ${overlapMargin}px;`
-        // Else, use overlap margins on both sides (left/right or top/bottom).
-        ) : (
-            rowOrColumn === "row" ? `margin-left: ${overlapMargin}px; margin-right: ${overlapMargin}px;` :
-            `margin-top: ${overlapMargin}px; margin-bottom: ${overlapMargin}px;`
-        )
 
 
     /* --------------- Output attributes for outline version of the widget. --------------- */
@@ -213,7 +180,7 @@
      * Indicates whether the root Thing's Thing Cohort is arranged as a row or a
      * column.
      */
-    $: rowOrColumn = rootThing.parentThingCohort?.rowOrColumn() || "row"
+    //$: rowOrColumn = rootThing.parentThingCohort?.rowOrColumn() || "row"
     
     /**
      * Overlap margin.
@@ -221,7 +188,9 @@
      * Provides the number of pixels by which the root Thing should overlap its
      * neighbors in the Thing Cohort.
      */
-    $: overlapMargin = graphWidgetStyle.betweenThingOverlap / 2
+    /*$: overlapMargin = 
+        rootThingThingCohortExpanded ? graphWidgetStyle.betweenThingOverlap / 2 :
+        - graphWidgetStyle.thingSize / 2*/
     
 
     /* --------------- Support attributes for outline version of the widget. --------------- */

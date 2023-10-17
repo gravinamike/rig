@@ -1,6 +1,6 @@
 <script lang="ts">
     // Import types.
-    import type { Tweened } from "svelte/motion"
+    import { tweened, type Tweened } from "svelte/motion"
     import type { HalfAxisId } from "$lib/shared/constants"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
     import type { Graph, GenerationMember, ThingCohort, Thing } from "$lib/models/constructModels"
@@ -10,6 +10,7 @@
     import { onMobile, rectOfThingWidgetByThingId } from "$lib/shared/utility"
     import { addGraphIdsNeedingViewerRefresh, openContextCommandPalette } from "$lib/stores";
     import type { CommandButtonInfo } from "$lib/widgets/layoutWidgets";
+    import { cubicOut } from "svelte/easing";
 
 
     /**
@@ -40,6 +41,8 @@
     export let tweenedScale: Tweened<number>
     export let openCommandPalette: (event: MouseEvent) => void
     export let deleteRelationship: () => void
+
+    export let thingCohortExpanded: boolean
 
 
 
@@ -93,8 +96,8 @@
             // The midlines (both bottom and top) are the "default" values,
             // which are used when a Thing is in its typical position in the
             // Thing Cohort rather than somewhere else already rendered.
-            bottomMidline: defaultLeafMidline,
-            topMidline: defaultLeafMidline
+            bottomMidline: $tweenedDefaultLeafMidline,
+            topMidline: $tweenedDefaultLeafMidline
         }
     
     /**
@@ -110,7 +113,7 @@
      * 
      * @param event - The right-click mouse event that triggered the context command palette.
      */
-     openCommandPalette = (event: MouseEvent) => {
+    openCommandPalette = (event: MouseEvent) => {
         const position = [event.clientX, event.clientY] as [number, number]
         const buttonInfos =[
             onMobile() ?
@@ -216,17 +219,21 @@
      * The horizontal midline position to be used when a Thing is in its typical
      * position in the Thing Cohort rather than somewhere else already rendered.
      */
-    $: defaultLeafMidline = (
-        // The sum of half of a Thing's size...
-        0.5 * sizeOfThingsAlongWidth
-        // ...plus the sum of a Thing's size and the spacing between Things...
-        + (
-            sizeOfThingsAlongWidth
-            + graphWidgetStyle.betweenThingSpacing
-        )
-        // ...multiplied by the index of the associated Thing in its Thing Cohort.
-        * cohortMemberWithIndex.index
-    )
+    $: defaultLeafMidline = 
+        thingCohortExpanded ? (
+            // The sum of half of a Thing's size...
+            0.5 * sizeOfThingsAlongWidth
+            // ...plus the sum of a Thing's size and the spacing between Things...
+            + (
+                sizeOfThingsAlongWidth
+                + graphWidgetStyle.betweenThingSpacing
+            )
+            // ...multiplied by the index of the associated Thing in its Thing Cohort.
+            * cohortMemberWithIndex.index
+        ) :
+        midline
+    const tweenedDefaultLeafMidline = tweened( 1, { duration: 100, easing: cubicOut } )
+    $: tweenedDefaultLeafMidline.set(defaultLeafMidline)   
 
     /**
      * Scale.
