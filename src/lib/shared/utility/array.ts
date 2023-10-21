@@ -19,9 +19,11 @@ export function removeItemFromArray<Type>( array: Type[], item: Type ): void {
  * @param newIndex - The destination index to move the item to.
  * @returns - The rearranged array (or null if the destination index is invalid.)
  */
-export function changeIndexInArray<Type>(array: Type[], currentIndex: number, newIndex: number): Type[] | null {
+export function changeIndexInArray<Type>(array: Type[], currentIndex: number, newIndex: number): Type[] {
     // If the destination index is invalid (outside the bounds of the array), return null.
-    if ( newIndex < 0 || array.length <= newIndex ) return null
+    if ( newIndex < 0 || array.length <= newIndex ) {
+        throw Error("Tried to change position in array to nonexistent index.")
+    }
     const newArray = [...array]
 
     // Move the specified item to the destination index.

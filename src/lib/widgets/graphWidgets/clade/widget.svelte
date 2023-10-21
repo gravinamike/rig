@@ -7,11 +7,8 @@
     import CladeWidgetController from "./controller.svelte"
 
     // Import related widgets.
-    import {
-        ThingWidget, ThingFormWidget,
-        HalfAxisWidget,
-        OffAxisRelationsWidget
-    } from "$lib/widgets/graphWidgets"
+    import { HalfAxisWidget, ThingWidget, ThingFormWidget, OffAxisRelationsWidget } from "$lib/widgets/graphWidgets"
+    
     
 
     /**
@@ -21,6 +18,9 @@
      * @param perspectiveTexts - Object containing texts for Things rendered from the root Thing's Perspective.
      * @param rootThingThingCohortMembers - Array containing all members of the Thing Cohort containing the root Thing.
      * @param rootThingThingCohortExpanded - Whether the Thing Cohort this is part of is expanded or collapsed.
+     * @param thingOverlapMargin - The amount to overlap sibling Things (in pixels) if the overlap percentage is negative.
+     * @param parentThingCohortRowOrColumn - Whether the Clade's parent Thing Cohort is arranged as a row or column.
+     * @param getThingOverlapMarginStyleText - Function to get the style text to implement the desired overlap between sibling Things.
      * @param rePerspectToThingId - A function that re-perspects the Graph to a given Thing ID.
      */
     export let rootThing: Thing
@@ -28,50 +28,58 @@
     export let graphWidgetStyle: GraphWidgetStyle
     export let perspectiveTexts: {[thingId: string]: string}
     export let rootThingThingCohortMembers: GenerationMember[]
-    export let rePerspectToThingId: (id: number) => Promise<void>
-
+    export let rootThingThingCohortExpanded: boolean
+    export let thingOverlapMargin: number
+    export let parentThingCohortRowOrColumn: "row" | "column"
+    export let parentThingCohortMemberOnTopIndex: number
     export let getThingOverlapMarginStyleText: (
         thing: Thing,
         thingOverlapMargin: number,
         thingCohortRowOrColumn: "row" | "column"
     ) => string
-    export let thingOverlapMargin: number
-    export let thingCohortRowOrColumn: "row" | "column"
-
-    export let rootThingThingCohortExpanded: boolean
+    export let rePerspectToThingId: (id: number) => Promise<void>
+    
 
 
     // Attributes managed by the widget controller.
     let cartesianThingCohorts: ThingCohort[] = []
-    let overlapMarginStyleText: string
+    let overlapMarginStyleText = ""
     let rootThingOffsetFromCenterOfThingCohort: number
+    let showAsCollapsed: boolean
 
     // Attributes managed by sub-widgets.
     let rootThingWidth: number = 0
     let rootThingHeight: number = 0
-
-
-
-    $: overlapMarginStyleText = getThingOverlapMarginStyleText(rootThing, thingOverlapMargin, thingCohortRowOrColumn)
 </script>
 
 
 <!-- Widget controller. -->
 <CladeWidgetController
+    {thingOverlapMargin}
+    {parentThingCohortRowOrColumn}
+    {getThingOverlapMarginStyleText}
     {rootThing}
     {graphWidgetStyle}
     {rootThingWidth}
     {rootThingHeight}
+    {rootThingThingCohortMembers}
+    {rootThingThingCohortExpanded}
 
-    bind:cartesianThingCohorts
+    bind:overlapMarginStyleText
     bind:rootThingOffsetFromCenterOfThingCohort
+    bind:cartesianThingCohorts
+    bind:showAsCollapsed
 />
 
 
 <!-- Clade widget.-->
 <div
     class="clade-widget"
+    class:on-top-in-thing-cohort={parentThingCohortMemberOnTopIndex === rootThing.address?.indexInCohort || 0}
+
     style="{overlapMarginStyleText}"
+
+    on:mouseenter={() => {parentThingCohortMemberOnTopIndex = rootThing.address?.indexInCohort || 0}}
 >
 
     <!-- If the root Thing is specified, show a Thing Widget. -->
@@ -82,6 +90,7 @@
             bind:graph
             {graphWidgetStyle}
             bind:perspectiveTexts
+            {showAsCollapsed}
             {rePerspectToThingId}
             bind:thingWidth={rootThingWidth}
             bind:thingHeight={rootThingHeight}
@@ -104,11 +113,11 @@
             {thingCohort}
             bind:graph
             {graphWidgetStyle}
-            bind:perspectiveTexts
             {rootThingWidth}
             {rootThingHeight}
             parentThingCohortExpanded={rootThingThingCohortExpanded}
             parentCladeOffsetFromCenterOfThingCohort={rootThingOffsetFromCenterOfThingCohort}
+            bind:perspectiveTexts
             {rePerspectToThingId}
         />
     {/each}
@@ -128,7 +137,7 @@
         position: relative;
     }
 
-    .clade-widget:hover {
+    .clade-widget.on-top-in-thing-cohort {
         z-index: 1;
     }
 </style>

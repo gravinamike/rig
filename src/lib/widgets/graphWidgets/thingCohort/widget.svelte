@@ -8,16 +8,19 @@
 
     /* Import widgets. */
     import { ThingMissingFromStoreWidget, ThingAlreadyRenderedWidget, CladeWidget } from "$lib/widgets/graphWidgets"
-    import { tweened } from "svelte/motion";
-    import { cubicOut } from "svelte/easing";
 
+    
 
     /**
      * @param thingCohort - The Thing Cohort that the widget is based on.
      * @param graph - The Graph that contains the Thing Cohort.
      * @param graphWidgetStyle - Controls the style of the Graph widget.
      * @param offsetToAlignToGrid - The offset, in pixels, needed to align the Relationships to the grid (if in use).
+     * @param perspectiveTexts - Array of perspective-specific texts for the Things in the Thing Cohort.
      * @param rePerspectToThingId - A function that re-perspects the Graph to a given Thing ID.
+     * @param expanded - Whether the Thing Cohort is expanded or collapsed.
+     * @param thingOverlapMargin - The amount to overlap sibling Things in the Thing Cohort if the percent overlap is negative.
+     * @param getThingOverlapMarginStyleText - Function to get the style text to implement the desired overlap margin.
      */
     export let thingCohort: ThingCohort
     export let cohortMembersToDisplay: GenerationMember[]
@@ -25,81 +28,37 @@
     export let graphWidgetStyle: GraphWidgetStyle
     export let offsetToAlignToGrid = 0
     export let perspectiveTexts: {[thingId: string]: string}
-    export let rePerspectToThingId: (thingId: number) => Promise<void>   
-        
+    export let rePerspectToThingId: (thingId: number) => Promise<void>
     export let expanded = false
+    export let thingOverlapMargin: number = 0
     export let getThingOverlapMarginStyleText: (
         thing: Thing,
         thingOverlapMargin: number,
         thingCohortRowOrColumn: "row" | "column"
     ) => string = () => ""
-    export let thingOverlapMargin: number = 0
-
+    
 
     
     // Attributes managed by the widget controller.
     let xYOffsets: { x: number, y: number } = { x: 0, y: 0 }
     let zIndex: number = 0
     let rowOrColumn: "row" | "column" = "row"
+    let gap: number = 0
     let indexOfGrandparentThing: number | null = null
     let offsetToGrandparentThingX: number = 0
     let offsetToGrandparentThingY: number = 0
+    let widgetWidthMinusBorder = 1
+    let widgetHeightMinusBorder = 1
     let showMembers = true
 
 
-    ///////////// MOVE INTO CONTROLLER
-    $: sizeAlongLongAxis =
-        expanded ? (
-            thingCohort.members.length * graphWidgetStyle.thingSize
-            + (thingCohort.members.length - 1) * graphWidgetStyle.betweenThingSpacing
-        ) :
-        graphWidgetStyle.thingSize
-    const tweenedSizeAlongLongAxis = tweened( 1, { duration: 100, easing: cubicOut } )
-    $: tweenedSizeAlongLongAxis.set(sizeAlongLongAxis)   
+    // Lock-expanded flag (determines whether the Thing Cohort is locked in the "expanded"
+    // configuration).
+    let lockExpanded = false
 
-
-
-    $: widgetWidthMinusBorder =
-        thingCohort.rowOrColumn() === "row" ? $tweenedSizeAlongLongAxis :
-        graphWidgetStyle.thingSize
-        
-    $: widgetHeightMinusBorder =
-        thingCohort.rowOrColumn() === "column" ? $tweenedSizeAlongLongAxis :
-        graphWidgetStyle.thingSize
-
-
-    
-
-    function toggleExpanded() {
-        expanded = !expanded
-    }
-
-
-
-
-
-
-
-
-
-    $: gap =
-        [5, 6, 7, 8].includes(thingCohort.halfAxisId) ? 4 :
-        expanded ? graphWidgetStyle.betweenThingGap:
-        0
-    const tweenedGap = tweened( 1, { duration: 100, easing: cubicOut } )
-    $: tweenedGap.set(gap)   
-
-
-
-    
-
-
-
-
-
-
-
-
+    // Index of the Thing Cohort member that is brought to the top or front of the stacking order
+    // (by hovering over it).
+    let memberOnTopIndex = 0
 </script>
 
 
@@ -109,13 +68,17 @@
     graphWidgetStyle={graphWidgetStyle}
     planesOffsets={graph.planes.offsets}
     {offsetToAlignToGrid}
+    {expanded}
     
     bind:xYOffsets
     bind:zIndex
     bind:rowOrColumn
+    bind:gap
     bind:indexOfGrandparentThing
     bind:offsetToGrandparentThingX
     bind:offsetToGrandparentThingY
+    bind:widgetWidthMinusBorder
+    bind:widgetHeightMinusBorder
     bind:showMembers
 />
 
@@ -131,8 +94,18 @@
         flex-direction: {rowOrColumn};
         gap: {gap}px;
     "
+
+    on:mouseenter={() => {
+        if (!lockExpanded) expanded = true
+    }}
+    on:mouseleave={() => {
+        if (!lockExpanded) expanded = false
+    }}
+    on:keydown={()=>{}}
 >
+    <!-- Thing Cohort bounding border. -->
     {#if showMembers && cohortMembersToDisplay.length > 1}
+
         <div
             class="thing-cohort-border"
 
@@ -141,12 +114,19 @@
                 height: {widgetHeightMinusBorder + 50}px;
             "
 
-            on:click={toggleExpanded}
+            on:click={() => {
+                if (!lockExpanded) {
+                    expanded = true
+                    lockExpanded = true
+                } else {
+                    expanded = false
+                    lockExpanded = false
+                }
+            }}
             on:keydown={()=>{}}
         />
+
     {/if}
-
-
 
     <!-- Member widgets (either Clade widgets or various Thing-placeholder widgets). -->
     {#if showMembers}
@@ -181,11 +161,12 @@
                     {graphWidgetStyle}
                     bind:perspectiveTexts
                     rootThingThingCohortMembers={cohortMembersToDisplay}
+                    rootThingThingCohortExpanded={expanded}
+                    {thingOverlapMargin}
+                    parentThingCohortRowOrColumn={rowOrColumn}
+                    bind:parentThingCohortMemberOnTopIndex={memberOnTopIndex}
                     {rePerspectToThingId}
                     {getThingOverlapMarginStyleText}
-                    {thingOverlapMargin}
-                    thingCohortRowOrColumn={rowOrColumn}
-                    rootThingThingCohortExpanded={expanded}
                 />
             {/if}
             
@@ -206,7 +187,7 @@
     }
 
     .thing-cohort-border {
-        border-radius: 10px;
+        border-radius: 16px;
 
         position: absolute;
         left: 50%;
@@ -218,9 +199,7 @@
         cursor: default;
     }
 
-
     .thing-cohort-border:hover {
-        outline: dashed 2px grey;
+        border: dashed 2px grey;
     }
-
 </style>

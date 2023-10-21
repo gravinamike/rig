@@ -10,7 +10,7 @@
     import { onMobile, rectOfThingWidgetByThingId } from "$lib/shared/utility"
     import { addGraphIdsNeedingViewerRefresh, openContextCommandPalette } from "$lib/stores";
     import type { CommandButtonInfo } from "$lib/widgets/layoutWidgets";
-    import { cubicOut } from "svelte/easing";
+    import { cubicOut } from "svelte/easing"
 
 
     /**

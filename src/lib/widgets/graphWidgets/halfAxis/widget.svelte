@@ -15,17 +15,22 @@
     import { cubicOut } from "svelte/easing";
 
 
+
     export let thingCohort: ThingCohort
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
     export let rootThingWidth: number
     export let rootThingHeight: number
-    export let perspectiveTexts: {[thingId: string]: string}
     export let parentThingCohortExpanded: boolean
     export let parentCladeOffsetFromCenterOfThingCohort: number
+    export let perspectiveTexts: {[thingId: string]: string}
     export let rePerspectToThingId: (id: number) => Promise<void>
 
 
+
+    // Whether the Thing Cohort on this half-axis is expanded or collapsed.
+    let thingCohortExpanded = false
+    
     // The array of Thing Cohort members that have Relationships displayed for
     // them starts as the inputted Thing Cohort prop's members, but may change
     // because of Relationship-reordering operations.
@@ -39,7 +44,7 @@
     ) {
         // Reorder the array of Thing Cohort members on which this Relationship
         // Cohort is based.
-        const reorderedMembers = changeIndexInArray(///////// Change this function to produce an error instead of void.
+        const reorderedMembers = changeIndexInArray(
             thingCohort.members,
             $reorderingInfoStore.startIndex as number,
             $reorderingInfoStore.newIndex
@@ -95,36 +100,44 @@
             )
         )
 
+    // Tweened version of `offsetToAlignToGrid`, for animation.
     const tweenedOffsetToAlignToGrid = tweened(
         1,
         {duration: 100, easing: cubicOut}
     )
     $: tweenedOffsetToAlignToGrid.set(offsetToAlignToGrid)
 
-    
-
-
-
-
-
-
-    let thingCohortExpanded = false
+    /**
+     * Thing-overlap margin.
+     * 
+     * Provides the number of pixels by which the root Thing should overlap its neighbor siblings
+     * in its Thing Cohort.
+     */
+    $: thingOverlapMargin =
+        thingCohortExpanded ? graphWidgetStyle.betweenThingOverlap / 2 :
+        - graphWidgetStyle.thingSize / 2
+        
+    // Tweened version of `thingOverlapMargin`, for animation.
+    const tweenedThingOverlapMargin = tweened( 1, { duration: 100, easing: cubicOut } )
+    $: tweenedThingOverlapMargin.set(thingOverlapMargin)
 
 
     /**
-     * Overlap-margin style text./////////////////////////////
+     * Get-overlap-margin style text method.
      * 
-     * When Things are styled to overlap, the effect is accomplished through CSS
-     * margins. This attribute provides the CSS text to style the Thing based
-     * on its position in the Thing Cohort and whether the Thing Cohort is
-     * arranged in a row or column.
+     * When Things are styled to overlap, the effect is accomplished through CSS margins. This
+     * method provides the CSS text to style a Thing based on its position in the Thing Cohort and
+     * whether the Thing Cohort is arranged in a row or column.
+     * @param thing - The Thing to style.
+     * @param thingOverlapMargin - The desired overlap margin between Things, in pixels.
+     * @param thingCohortRowOrColumn - Whether the Thing Cohort the Thing belongs to is arranged as a row or column.
      */
     function getThingOverlapMarginStyleText(
         thing: Thing,
         thingOverlapMargin: number,
         thingCohortRowOrColumn: "row" | "column"
     ) {
-
+        // Construct the Thing overlap-margin style text string.
         const thingOverlapMarginStyleText =
             // If the root Thing has no parent Cohort or address, (it hasn't yet
             // been built into a Graph), use an empty string (no formatting).
@@ -154,25 +167,9 @@
                 `margin-top: ${thingOverlapMargin}px; margin-bottom: ${thingOverlapMargin}px;`
             )
 
+        // Return the Thing overlap-margin style text string.
         return thingOverlapMarginStyleText
     }
-        
-    /**
-     * Overlap margin.//////////////////////////////////////////////////////////////
-     * 
-     * Provides the number of pixels by which the root Thing should overlap its
-     * neighbors in the Thing Cohort.
-     */
-    $: thingOverlapMargin =
-        thingCohortExpanded ? graphWidgetStyle.betweenThingOverlap / 2 :
-        - graphWidgetStyle.thingSize / 2
-    const tweenedThingOverlapMargin = tweened( 1, { duration: 100, easing: cubicOut } )
-    $: tweenedThingOverlapMargin.set(thingOverlapMargin)
-
-
-
-
-
 </script>
 
 
@@ -186,10 +183,9 @@
         offsetToAlignToGrid={$tweenedOffsetToAlignToGrid}
         bind:perspectiveTexts
         {rePerspectToThingId}
-
         bind:expanded={thingCohortExpanded}
-        {getThingOverlapMarginStyleText}
         thingOverlapMargin={$tweenedThingOverlapMargin}
+        {getThingOverlapMarginStyleText}
     />
 {/if}
 
@@ -202,8 +198,7 @@
         {graphWidgetStyle}
         thingWidth={rootThingWidth}
         thingHeight={rootThingHeight}
-        offsetToAlignToGrid={$tweenedOffsetToAlignToGrid}
-
         {thingCohortExpanded}
+        offsetToAlignToGrid={$tweenedOffsetToAlignToGrid}
     />
 {/if}

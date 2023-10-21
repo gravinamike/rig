@@ -17,7 +17,8 @@
     import RelationshipCohortWidgetController from "./controller.svelte"
     
     import type { Direction, GenerationMember, Graph, ThingCohort } from "$lib/models/constructModels"
-    
+
+
 
     /**
      * @param thingCohort - The Thing Cohort that is associated with this Relationship Cohort.
@@ -25,6 +26,7 @@
      * @param graphWidgetStyle - Controls the style of the Graph widget.
      * @param thingWidth - The width of a Thing widget.
      * @param thingHeight - The height of a Thing widget.
+     * @param thingCohortExpanded - Whether the corresponding Thing Cohort is expanded or collapsed.
      * @param offsetToAlignToGrid - The offset, in pixels, needed to align the Relationships to the grid (if in use).
      */
     export let cohort: ThingCohort
@@ -33,10 +35,9 @@
     export let graphWidgetStyle: GraphWidgetStyle
     export let thingWidth: number
     export let thingHeight: number
+    export let thingCohortExpanded: boolean
     export let offsetToAlignToGrid: number
 
-
-    export let thingCohortExpanded: boolean
 
     
     // Attributes managed by widget controller.
@@ -113,7 +114,6 @@
 
 
 <!-- Outer Relationships Widget (doesn't rotate, but takes up appropriate dimensions). -->
-
 <div
     class="relationship-cohort-widget"
     style="

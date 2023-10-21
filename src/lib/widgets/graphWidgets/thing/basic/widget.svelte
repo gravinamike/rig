@@ -7,14 +7,10 @@
     import { onMount } from "svelte"
 
     /* Import stores. */
-    import {
-        readOnlyMode, hoveredThingIdStore, hoveredRelationshipTarget,
-        relationshipBeingCreatedInfoStore, setRelationshipBeingCreatedDestThingId,
-        disableRelationshipBeingCreated, homeThingIdStore
-    } from "$lib/stores"
+    import { readOnlyMode, homeThingIdStore } from "$lib/stores"
 
     // Import utility methods.
-    import { elementUnderTouchEvent, hexToRgba } from "$lib/shared/utility"
+    import { hexToRgba } from "$lib/shared/utility"
 
     /* Import related widgets. */
     import ThingWidgetController from "./controller.svelte"
@@ -31,6 +27,7 @@
      * @param thingWidth - The width of the Thing widget.
      * @param thingHeight - The height of the Thing widget.
      * @param perspectiveTexts - Object specifying texts to use for specific Things based on the Perspective Thing.
+     * @param parentThingCohortExpanded - Whether the Thing's parent Thing Cohort is expanded or collapsed.
      * @param rePerspectToThingId - A function that re-perspects the Graph to a given Thing ID.
      */
     export let thingId: number
@@ -40,6 +37,7 @@
     export let thingWidth: number
     export let thingHeight: number
     export let perspectiveTexts: {[thingId: string]: string}
+    export let showAsCollapsed: boolean
     export let rePerspectToThingId: (id: number) => Promise<void>
 
 
@@ -58,7 +56,10 @@
     const showContent = false // Content is in development - so `showContent` will eventually be a variable.
     let elongationCategory: "vertical" | "horizontal" | "neutral"
     let isEncapsulating: boolean
+    let showText: boolean
     let textFontSize: number
+    let sliderOpen: boolean
+    let sliderPercentage: number
     let showDeleteButton: boolean
     let editingText: boolean
     let textBeingEdited: string
@@ -68,38 +69,25 @@
     let handleMouseDown: (event: MouseEvent | TouchEvent) => void
     let handleMouseDrag: (event: MouseEvent | TouchEvent) => void
     let onBodyMouseUp: (event: MouseEvent | TouchEvent) => void
+    let onMouseEnter: () => void
+    let onMouseLeave: () => void
+    let onClick: (event: MouseEvent) => void
+    let onMouseUp: () => void
+    let onTouchEnd: (event: TouchEvent) => void
     let openCommandPalette: (event: MouseEvent) => void
     let startDelete: () => void
     let completeDelete: () => void
+    let toggleSlider: () => void
     let beginEditingText: () => void
     let submitEditedText: () => void
     let cancelEditingText: () => void
 
-
-    let sliderOpen = false
+    
+    // When the component first loads,
     onMount(async () => {
+        // Set whether the Perspective-text slider is open.
         sliderOpen = !hasPerspectiveText || (hasPerspectiveText && !usePerspectiveText)
 	})
-    $: {
-        thingId
-
-        sliderOpen = !hasPerspectiveText
-    }
-    
-    $: usePerspectiveText = !sliderOpen
-
-    let sliderPosition = 0
-    $: if (!sliderOpen) sliderPosition = 0
-    $: if (sliderOpen) sliderPosition = 100
-    $: sliderPercentage = 0.87 * sliderPosition
-
-    let showText = true
-
-    async function toggleSlider() {
-        showText = false
-        sliderOpen = !sliderOpen
-        showText = true
-    }
 </script>
 
 
@@ -128,7 +116,10 @@
     bind:relatableForCurrentDrag
     bind:elongationCategory
     bind:isEncapsulating
+    bind:showText
     bind:textFontSize
+    bind:sliderOpen
+    bind:sliderPercentage
     bind:showDeleteButton
     bind:editingText
     bind:textBeingEdited
@@ -136,9 +127,15 @@
     bind:handleMouseDown
     bind:handleMouseDrag
     bind:onBodyMouseUp
+    bind:onMouseEnter
+    bind:onMouseLeave
+    bind:onClick
+    bind:onMouseUp
+    bind:onTouchEnd
     bind:openCommandPalette
     bind:startDelete
     bind:completeDelete
+    bind:toggleSlider
     bind:beginEditingText
     bind:submitEditedText
     bind:cancelEditingText
@@ -147,8 +144,8 @@
 
 <!-- Set up mouse-event handlers on page body. -->
 <svelte:body
-    on:mousemove={ (event) => { if (!$readOnlyMode) handleMouseDrag(event) } }
-    on:touchmove={ (event) => { if (!$readOnlyMode) handleMouseDrag(event) } }
+    on:mousemove={ event => { if (!$readOnlyMode) handleMouseDrag(event) } }
+    on:touchmove={ event => { if (!$readOnlyMode) handleMouseDrag(event) } }
     on:mouseup={onBodyMouseUp}
     on:touchend={onBodyMouseUp}
 />
@@ -164,8 +161,8 @@
         style="
             border-radius: {10 + 4 * encapsulatingDepth}px;
             {
-                highlighted ? `box-shadow: 0px 0px 10px 6px ${hexToRgba(shadowColor, 0.15)};` :
-                `box-shadow: 0px 0px 10px 2px ${hexToRgba(shadowColor, 0.15)};`
+                highlighted ? `box-shadow: 0px 0px ${showAsCollapsed ? 20 : 10}px 6px ${hexToRgba(shadowColor, 0.15)};` :
+                `box-shadow: 0px 0px ${showAsCollapsed ? 20 : 10}px 2px ${hexToRgba(shadowColor, 0.15)};`
             }
             width: {thingWidth}px; height: {thingHeight}px;
             opacity: {opacity};
@@ -175,80 +172,20 @@
             };
         "
 
-        on:mouseenter={ ()=>{
-            hoveredThingIdStore.set(thingId)
-            isHoveredWidget = true, hoveredRelationshipTarget.set(thing)
-        } }
-        on:mouseleave={ ()=>{
-            hoveredThingIdStore.set(null)
-            isHoveredWidget = false
-            confirmDeleteBoxOpen = false, hoveredRelationshipTarget.set(null)
-        } }
-        on:mousedown={ event => {
-            if (event.button === 0) {
-                handleMouseDown(event)
-            }
-        } }
-        on:touchstart={ event => {
-            handleMouseDown(event)
-        } }
-        on:click={ event => {
-            if (
-                !editingText
-                && $relationshipBeingCreatedInfoStore.sourceThingId === null
-            ) {
-                if (event.button === 0 && event.ctrlKey) {
-                    beginEditingText()
-                } else {
-                    rePerspectToThingId(thingId)
-                }
-            }
-        } }
+        on:mouseenter={onMouseEnter}
+        on:mouseleave={onMouseLeave}
+        on:mousedown={ event => { if (event.button === 0) { handleMouseDown(event) } } }
+        on:touchstart={ event => { handleMouseDown(event) } }
+        on:click={ event => onClick(event) }
         on:keydown={()=>{}}
-        on:mouseup={ () => {
-            if (relatableForCurrentDrag) {
-                setRelationshipBeingCreatedDestThingId(thingId)
-            } else {
-                disableRelationshipBeingCreated()
-            }
-        } }
-        on:touchend={ (event) => {
-
-
-            const endingElement = elementUnderTouchEvent(event)
-
-
-            if (
-                endingElement?.className.includes("thing-widget")
-                || endingElement?.className.includes("relationship-stem")
-            ) {
-
-                const targetThingId = Number(endingElement.id.split("-")[1].split("#")[1])
-
-                const targetThingRelatableForCurrentDrag =
-                    // The flag is true if...
-                    (
-                        // ...there is a drag-relate in progress...
-                        $relationshipBeingCreatedInfoStore.sourceThingId
-                        // ...and the source of the drag-relate is not *this* Thing.
-                        && $relationshipBeingCreatedInfoStore.sourceThingId !== targetThingId
-                    ) ?
-                        true :
-                        false
-
-                if (targetThingRelatableForCurrentDrag) {
-                    setRelationshipBeingCreatedDestThingId(targetThingId)
-                } else {
-                    disableRelationshipBeingCreated()
-                }
-            }
-
-        } }
+        on:mouseup={onMouseUp}
+        on:touchend={ event => { onTouchEnd(event) } }
         on:contextmenu|preventDefault={ (event) => {if (!$readOnlyMode) openCommandPalette(event)} }
     >
 
         <!-- Perspective-text slider. -->
         {#if hasPerspectiveText || editingText}
+            <!-- Slider backfield. -->
             <div
                 class="slider-backfield"
 
@@ -257,6 +194,7 @@
                 "
             />
 
+            <!-- Slider toggle. -->
             <div
                 class="slider-toggle"
 
@@ -315,7 +253,6 @@
 
         {/if}
         
-
         <!-- Content box. -->
         {#if showContent && thing.dbModel}
             <div 
