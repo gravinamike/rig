@@ -9,7 +9,7 @@
 
     // Track the orientation of the screen.
     $: if (mounted && width && height) {
-        if (screen.orientation.type.includes("landscape") ) {
+        if ( screen.orientation.type.includes("landscape") ) {
             landscapeOrientation.set(true)
         } else {
             landscapeOrientation.set(false)

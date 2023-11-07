@@ -17,8 +17,8 @@
     
 
     /**
-     * @param cohortMemberWithIndex: Object containing the index and the Generation Member the widget is based on.
-     * @param cohort: The Thing Cohort containing the destination Thing that the Relationship is associated with.
+     * @param thingCohortMemberWithIndex: Object containing the index and the Generation Member the widget is based on.
+     * @param thingCohort: The Thing Cohort containing the destination Thing that the Relationship is associated with.
      * @param graph - The Graph that the Relationship is in.
      * @param graphWidgetStyle - Controls the style of the Graph widget.
      * @param midline - The horizontal mid-line position of the Relationship stem.
@@ -35,8 +35,8 @@
      * @param direction - The Direction of the Relationship.
      * @param relatableForCurrentDrag - Whether the widget is a valid end target for an in-progress drag-relate operation.
      */
-    export let cohortMemberWithIndex: { index: number, member: GenerationMember }
-    export let cohort: ThingCohort
+    export let thingCohortMemberWithIndex: { index: number, member: GenerationMember }
+    export let thingCohort: ThingCohort
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
     export let midline: number
@@ -47,14 +47,14 @@
     export let thingHeight: number
     export let relationshipsLength: number
     export let sizeOfThingsAlongWidth: number
+    export let thingCohortExpanded: boolean
     export let relationshipColor: string
     export let mirroring: -1 | 1
     export let rotation: number
     export let direction: Direction | null = null
     export let relatableForCurrentDrag = false
 
-    export let thingCohortExpanded: boolean
-
+    
 
     // Attributes handled by the widget controller.
     let leafGeometry: {
@@ -77,8 +77,8 @@
 
 <!-- Widget controller. -->
 <RelationshipWidgetController
-    {cohortMemberWithIndex}
-    {cohort}
+    {thingCohortMemberWithIndex}
+    {thingCohort}
     {graph}
     {graphWidgetStyle}
     {midline}
@@ -87,25 +87,24 @@
     {thingHeight}
     {relationshipsLength}
     {sizeOfThingsAlongWidth}
+    {thingCohortExpanded}
 
     bind:leafGeometry
     bind:showFanSegment
     bind:tweenedScale
     bind:openCommandPalette
     bind:deleteRelationship
-
-    {thingCohortExpanded}
 />
 
 
 <!-- Relationship leaf widget. -->
 <RelationshipLeafWidget
     bind:graph
-    {cohort}
+    {thingCohort}
     bind:thingIdOfHoveredRelationship
     tweenedScale={$tweenedScale}
     leafGeometry={leafGeometry}
-    cohortMemberWithIndex={cohortMemberWithIndex}
+    {thingCohortMemberWithIndex}
     {relationshipColor}
     {mirroring}
     {rotation}
@@ -124,7 +123,7 @@
         {midline}
         {stemTop}
         leafGeometry={leafGeometry}
-        cohortMemberWithIndex={cohortMemberWithIndex}
+        {thingCohortMemberWithIndex}
         {relationshipColor}
         {relatableForCurrentDrag}
         {openCommandPalette}

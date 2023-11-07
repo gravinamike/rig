@@ -62,18 +62,18 @@
     export let editingText = false
     export let textBeingEdited: string = ""
     export let perspectiveTextBeingEdited: string | null = null
-    export let handleMouseDown: (event: MouseEvent | TouchEvent) => void
-    export let handleMouseDrag: (event: MouseEvent | TouchEvent) => void
-    export let onBodyMouseUp: (event: MouseEvent | TouchEvent) => void
-    export let onMouseEnter: () => void
-    export let onMouseLeave: () => void
-    export let onClick: (event: MouseEvent) => void
-    export let onMouseUp: () => void
-    export let onTouchEnd: (event: TouchEvent) => void
-    export let openCommandPalette: (event: MouseEvent) => void
-    export let startDelete: () => void
-    export let completeDelete: () => void
-    export let toggleSlider: () => void
+    export let handleMouseDown: (event: MouseEvent | TouchEvent) => void = () => {}
+    export let handleMouseDrag: (event: MouseEvent | TouchEvent) => void = () => {}
+    export let onBodyMouseUp: (event: MouseEvent | TouchEvent) => void = () => {}
+    export let onMouseEnter: () => void = () => {}
+    export let onMouseLeave: () => void = () => {}
+    export let onClick: (event: MouseEvent) => void = () => {}
+    export let onMouseUp: () => void = () => {}
+    export let onTouchEnd: (event: TouchEvent) => void = () => {}
+    export let openCommandPalette: (event: MouseEvent) => void = () => {}
+    export let startDelete: () => void = () => {}
+    export let completeDelete: () => void = () => {}
+    export let toggleSlider: () => void = () => {}
     export let beginEditingText: () => void = () => {}
     export let submitEditedText: () => void = () => {}
     export let cancelEditingText: () => void = () => {}

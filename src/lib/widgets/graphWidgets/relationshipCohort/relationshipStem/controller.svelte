@@ -13,7 +13,7 @@
 
     /**
      * Create a Relationship Stem Widget controller.
-     * @param cohort - The Thing Cohort that is associated with the Relationship Cohort.
+     * @param thingCohort - The Thing Cohort that is associated with the Relationship Cohort.
      * @param graph - The Graph that the Cohort is in.
      * @param thingIdOfHoveredRelationship - The ID of the destination Thing of the currently hovered Relationship.
      * @param ofPerspectiveThing - Whether this Stem widget belongs to the Graph's Perspective Thing.
@@ -23,10 +23,10 @@
      * @param isDragRelateSource - Whether the Stem widget is the source of an in-progress drag-relate operation.
      * @param addThingForm - A method that adds a Thing Form widget to the Thing Cohort associated with the Stem widget.
      */
-    export let cohort: ThingCohort
+    export let thingCohort: ThingCohort
     export let graph: Graph
     export let thingIdOfHoveredRelationship: number | null
-    export let cohortMembersToDisplay: GenerationMember[]
+    export let thingCohortMembersToDisplay: GenerationMember[]
 
     export let ofPerspectiveThing: boolean
     export let relationshipsExist: boolean
@@ -44,7 +44,7 @@
      * Is true if this Stem widget belongs to the Graph's Perspective Thing.
      */
     $: ofPerspectiveThing =
-        cohort.parentThing && cohort.parentThing.address?.generationId === 0 ? true :
+        thingCohort.parentThing && thingCohort.parentThing.address?.generationId === 0 ? true :
         false
 
     /**
@@ -53,7 +53,7 @@
      * Is true if there are any relationships in this Stem widget's Direction.
      */
     $: relationshipsExist =
-        cohort.members.length ? true :
+        thingCohort.members.length ? true :
         false
     
     /**
@@ -65,7 +65,7 @@
     $: relationshipHovered =
         (
             thingIdOfHoveredRelationship !== null
-            && cohort.members.map(member => member.thingId).includes(thingIdOfHoveredRelationship)
+            && thingCohort.members.map(member => member.thingId).includes(thingIdOfHoveredRelationship)
         ) ? true :
         false
 
@@ -78,7 +78,7 @@
     $: thingHovered =
         (
             $hoveredThingIdStore !== null
-            && cohort.members.map(member =>  member.thingId).includes($hoveredThingIdStore)
+            && thingCohort.members.map(member =>  member.thingId).includes($hoveredThingIdStore)
         ) ? true :
         false
 
@@ -89,8 +89,8 @@
      * operation.
      */
     $: isDragRelateSource = (
-        $relationshipBeingCreatedInfoStore.sourceThingId === cohort.parentThingId
-        && $relationshipBeingCreatedInfoStore.sourceHalfAxisId === cohort.halfAxisId
+        $relationshipBeingCreatedInfoStore.sourceThingId === thingCohort.parentThingId
+        && $relationshipBeingCreatedInfoStore.sourceHalfAxisId === thingCohort.halfAxisId
     ) ? true :
         false
     
@@ -104,9 +104,9 @@
         // If there is not yet a Thing Form in the Graph, add one.
         if (graph.formActive === false) {
             const newThing = new Thing(null)
-            cohort.addMember({thingId: null, thing: newThing, alreadyRendered: false})
-            cohort = cohort // Needed for reactivity.
-            cohortMembersToDisplay.push({
+            thingCohort.addMember({thingId: null, thing: newThing, alreadyRendered: false})
+            thingCohort = thingCohort // Needed for reactivity.
+            thingCohortMembersToDisplay.push({
                 thingId: null,
                 thing: newThing,
                 alreadyRendered: false

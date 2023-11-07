@@ -23,7 +23,7 @@
      * @param getThingOverlapMarginStyleText - Function to get the style text to implement the desired overlap margin.
      */
     export let thingCohort: ThingCohort
-    export let cohortMembersToDisplay: GenerationMember[]
+    export let thingCohortMembersToDisplay: GenerationMember[] = []
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
     export let offsetToAlignToGrid = 0
@@ -104,7 +104,7 @@
     on:keydown={()=>{}}
 >
     <!-- Thing Cohort bounding border. -->
-    {#if showMembers && cohortMembersToDisplay.length > 1}
+    {#if showMembers && thingCohortMembersToDisplay.length > 1}
 
         <div
             class="thing-cohort-border"
@@ -131,7 +131,7 @@
     <!-- Member widgets (either Clade widgets or various Thing-placeholder widgets). -->
     {#if showMembers}
 
-        {#each cohortMembersToDisplay as member}
+        {#each thingCohortMembersToDisplay as member}
 
             <!-- If no Thing was found in the store for the Thing ID, show a Thing Missing From Store Widget. -->
             {#if member.thingId && !member.thing?.id}
@@ -145,7 +145,6 @@
             {:else if member.thingId && member.alreadyRendered === true}
                 <ThingAlreadyRenderedWidget
                     thingId={member.thingId}
-                    cohortHalfAxisId={thingCohort.halfAxisId}
                     {graph}
                     {graphWidgetStyle}
                     {getThingOverlapMarginStyleText}
@@ -160,7 +159,7 @@
                     bind:graph
                     {graphWidgetStyle}
                     bind:perspectiveTexts
-                    rootThingThingCohortMembers={cohortMembersToDisplay}
+                    rootThingThingCohortMembers={thingCohortMembersToDisplay}
                     rootThingThingCohortExpanded={expanded}
                     {thingOverlapMargin}
                     parentThingCohortRowOrColumn={rowOrColumn}

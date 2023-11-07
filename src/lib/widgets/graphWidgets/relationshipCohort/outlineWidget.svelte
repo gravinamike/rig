@@ -43,7 +43,7 @@
 
 <!-- Widget controller. -->
 <RelationshipCohortWidgetController
-    cohort={thingCohort}
+    {thingCohort}
     {graph}
     {graphWidgetStyle}
     

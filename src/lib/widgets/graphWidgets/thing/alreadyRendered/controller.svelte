@@ -14,36 +14,57 @@
     import { ThingBaseWidgetController } from "../base"
 
 
+
     /**
-     * Create a Thing-already-rendered widget controller.
      * @param thingId - The ID of the Thing the widget is based on.
-     * @param cohortHalfAxisId - The half-axis of the Thing Cohort the Thing is part of.
+     * @param thing - The Thing the widget is based on.
      * @param graphWidgetStyle - Controls the style of the Graph widget.
+     * @param thingCohortRowOrColumn - Whether the Thing Cohort that this is a member of is arranged horizontally or vertically.
+     * @param thingOverlapMargin - How much sibling Things should overlap each other, in pixels.
+     * @param getThingOverlapMarginStyleText - Method to generate the text that implements the overlap of sibling Things through the CSS margin property.
      * @param encapsulatingDepth - The number of encapsulations between the Perspective Thing and the Thing.
      * @param thingWidth - The width of the Thing widget.
      * @param thingHeight - The height of the Thing widget.
+     * @param overlapMarginStyleText - The CSS style text that implements the overlap effect between sibling Things.
      * @param relationshipColor - The color of the Relationship from the parent Thing to this Thing.
      * @param isHoveredThing - Whether the mouse is hovered over the Thing (or another widget representing the same Thing).
      */
     export let thingId: number
-    export let cohortHalfAxisId: HalfAxisId
+    export let thing: Thing | null
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
+    export let thingCohortRowOrColumn: "row" | "column" = "row"
+    export let thingOverlapMargin: number = 0
+    export let getThingOverlapMarginStyleText: (
+        thing: Thing,
+        thingOverlapMargin: number,
+        thingCohortRowOrColumn: "row" | "column"
+    ) => string = () => ""
 
     export let encapsulatingDepth: number
     export let thingWidth: number
     export let thingHeight: number
+    export let overlapMarginStyleText: string = ""
     export let relationshipColor: string
     export let isHoveredThing: boolean
 
-    export let thing: Thing | null
 
 
     // Attributes managed by the base widget controller.
     let halfAxisId: HalfAxisId
 
 
+    
     /* --------------- Output attributes. --------------- */
+
+    /**
+     * Overlap-margin style text.
+     * 
+     * The CSS style text that implements the overlap effect between sibling Things.
+     */
+    $: overlapMarginStyleText =
+        thing ? getThingOverlapMarginStyleText(thing, thingOverlapMargin, thingCohortRowOrColumn) :
+        ""
 
     /**
      * Relationship color.
@@ -62,27 +83,6 @@
      * over another widget representing the same Thing.
      */
     $: isHoveredThing = thingId === $hoveredThingIdStore ? true : false
-
-
-    /* --------------- Supporting attributes. --------------- */
-
-    /**
-     * Row-or-column attribute.
-     * 
-     * Indicates whether the Thing's Thing Cohort is arranged as a row or a
-     * column.
-     */
-    $: rowOrColumn = [1, 2].includes(cohortHalfAxisId) ? "row" : "column"
-    
-    /**
-     * Overlap margin.
-     * 
-     * Provides the number of pixels by which the Thing should overlap its
-     * neighbors in the Thing Cohort.
-     */
-    /*$: overlapMargin =
-        thingCohortExpanded ? graphWidgetStyle.betweenThingOverlap / 2 :
-        - graphWidgetStyle.thingSize / 2*/
 </script>
 
 

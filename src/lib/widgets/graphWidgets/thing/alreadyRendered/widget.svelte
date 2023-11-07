@@ -1,6 +1,5 @@
 <script lang="ts">
     // Import types.
-    import type { HalfAxisId } from "$lib/shared/constants"
     import type { Graph, Thing } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
@@ -13,53 +12,51 @@
 
     /**
      * @param thingId - The ID of the Thing the widget is based on.
-     * @param cohortHalfAxisId - The ID of the half-axis the Thing's Thing Cohort is on.
      * @param graph - The Graph that the Thing is part of.
      * @param graphWidgetStyle - Controls the style of the Graph widget.
-     * @param thingCohortExpanded - Whether the Thing Cohort this is part of is expanded or collapsed.
+     * @param thingCohortRowOrColumn - Whether the Thing Cohort that this is a member of is arranged horizontally or vertically.
+     * @param thingOverlapMargin - How much sibling Things should overlap each other, in pixels.
+     * @param getThingOverlapMarginStyleText - Method to generate the text that implements the overlap of sibling Things through the CSS margin property.
      */
     export let thingId: number
-    export let cohortHalfAxisId: HalfAxisId
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
-
+    export let thingCohortRowOrColumn: "row" | "column"
+    export let thingOverlapMargin: number
     export let getThingOverlapMarginStyleText: (
         thing: Thing,
         thingOverlapMargin: number,
         thingCohortRowOrColumn: "row" | "column"
     ) => string
-    export let thingOverlapMargin: number
-    export let thingCohortRowOrColumn: "row" | "column"
 
 
     // Attributes managed by the widget controller.
+    let thing: Thing | null
     let encapsulatingDepth = 0
     let thingWidth = 0
     let thingHeight = 0
     let overlapMarginStyleText = ""
     let relationshipColor = "#000000"
     let isHoveredThing = false
-
-    let thing: Thing | null
-    
-
-    $: overlapMarginStyleText = thing ? getThingOverlapMarginStyleText(thing, thingOverlapMargin, thingCohortRowOrColumn) : ""
 </script>
 
 
 <!-- Widget controller. -->
 <ThingAlreadyRenderedWidgetController
     {thingId}
-    {cohortHalfAxisId}
     {graph}
     {graphWidgetStyle}
+    {thingCohortRowOrColumn}
+    {thingOverlapMargin}
+    {getThingOverlapMarginStyleText}
 
+    bind:thing
     bind:encapsulatingDepth
     bind:thingWidth
     bind:thingHeight
+    bind:overlapMarginStyleText
     bind:relationshipColor
     bind:isHoveredThing
-    bind:thing
 />
 
 
@@ -69,7 +66,10 @@
     style="
         border-radius: {10 + 4 * encapsulatingDepth}px;
         {
-            isHoveredThing && !$reorderingInfoStore.reorderInProgress ? `border: solid 1px ${relationshipColor}; border-style: dashed; ` :
+            (
+                isHoveredThing
+                && !$reorderingInfoStore.reorderInProgress
+            ) ? `border: solid 1px ${relationshipColor}; border-style: dashed; ` :
             ""
         }
         width: {thingWidth}px;

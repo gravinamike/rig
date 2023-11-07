@@ -45,8 +45,8 @@
     export let graphWidgetStyle: GraphWidgetStyle
     export let rootThingWidth = 0
     export let rootThingHeight = 0
-    export let rootThingThingCohortMembers: GenerationMember[]
-    export let rootThingThingCohortExpanded: boolean
+    export let rootThingThingCohortMembers: GenerationMember[] = []
+    export let rootThingThingCohortExpanded: boolean = false
     export let thingCohorts: ThingCohort[] = []
     export let orderedThingCohorts: ThingCohort[] = []
     export let orderedThingCohortsWithMembers: ThingCohort[] = []

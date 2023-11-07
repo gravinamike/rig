@@ -27,7 +27,7 @@
     
 
     /**
-     * @param cohort - The Thing Cohort that is associated with the Relationship Cohort.
+     * @param thingCohort - The Thing Cohort that is associated with the Relationship Cohort.
      * @param graph - The Graph that the Cohort is in.
      * @param graphWidgetStyle - Controls the style of the Graph widget.
      * @param thingIdOfHoveredRelationship - The ID of the Thing corresponding to the currently-hovered Relationship, if there is one.
@@ -46,7 +46,6 @@
      * @param showDirection - Whether to display the Direction selector widget.
      * @param direction - The Direction of the Relationship Cohort.
      * @param directionWidgetRotation - The rotation, in degrees, of the Direction selector widget.
-     * @param changeRelationshipsDirection - A function that changes the Direction of the Relationships based on the supplied ID.
      * @param relationshipsWidth - The width of the Relationship Cohort widget.
      * @param relationshipsHeight - The height of the Relationship Cohort widget.
      * @param tweenedScale - The HTML scale of the Graph widget, smoothly interpolated. Used for zooming.
@@ -57,8 +56,9 @@
      * @param relationshipColor - The color of the Relationship widget, determined by the half-axis.
      * @param sizeOfThingsAlongWidth - The size of a Thing widget along the "width" dimension of its Thing Cohort widget.
      * @param relatableForCurrentDrag - Whether the Stem widget is a valid end target for an in-progress drag-relate operation.
+     * @param changeRelationshipsDirection - A function that changes the Direction of the Relationships based on the supplied ID.
      */
-    export let cohort: ThingCohort
+    export let thingCohort: ThingCohort
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
 
@@ -80,7 +80,6 @@
     export let showDirection = false
     export let direction: Direction | null
     export let directionWidgetRotation = 0
-    export let changeRelationshipsDirection: (directionId: number) => void = () => {}
     export let relationshipsWidth = 0
     export let relationshipsLength = 0
     export let tweenedScale: Tweened<number> = tweened(1)
@@ -92,6 +91,7 @@
     export let halfAxisId: HalfAxisId | null
     export let sizeOfThingsAlongWidth = 0
     export let relatableForCurrentDrag = false
+    export let changeRelationshipsDirection: (directionId: number) => void = () => {}
 
     
     /* --------------- Output attributes. --------------- */
@@ -231,7 +231,7 @@
      * The Direction of the Relationships Cohort. Retrieved by Direction ID from
      * the store.
      */
-    $: direction = getGraphConstructs("Direction", cohort.address.directionId as number) as Direction
+    $: direction = getGraphConstructs("Direction", thingCohort.address.directionId as number) as Direction
 
     /**
      * Direction widget rotation.
@@ -257,7 +257,7 @@
     changeRelationshipsDirection = async (directionId: number) => {
         // Get the IDs of the source Thing and all the destination Things.
         const sourceThingId = parentThing.id as number
-        const destThingIds = cohort.members.map(member => member.thingId).filter(id => id !== null) as number[]
+        const destThingIds = thingCohort.members.map(member => member.thingId).filter(id => id !== null) as number[]
 
         // Construct an array containing informational objects for each Relationship.
         const relationshipInfos: {
@@ -292,12 +292,12 @@
      * axis and the spacing between each Thing in a Thing Cohort.
      */
     $: relationshipsWidth =
-        Math.max(cohort.members.length, 1)
+        Math.max(thingCohort.members.length, 1)
         * (
             halfAxisId && [1, 2].includes(halfAxisId) ? thingWidth :
             thingHeight
         )
-        + (Math.max(cohort.members.length, 1) - 1)
+        + (Math.max(thingCohort.members.length, 1) - 1)
         * graphWidgetStyle.betweenThingSpacing
 
     /**
@@ -312,7 +312,7 @@
         (graphWidgetStyle.relationDistance + offsetToAlignToGrid) - (
             halfAxisId && [1, 2].includes(halfAxisId) ? thingHeight :
             thingWidth
-        ) * cohort.axialElongation
+        ) * thingCohort.axialElongation
 
     /**
      * Tweened scale.
@@ -358,8 +358,8 @@
      * member of the associated Thing Cohort is a looped-back grandparent Thing.
      */
     $: showRelationships = !(
-        cohort.members.length === 1
-        && cohort.indexOfGrandparentThing !== null
+        thingCohort.members.length === 1
+        && thingCohort.indexOfGrandparentThing !== null
     )
 
     /**
@@ -368,7 +368,7 @@
      * The ID of the half-axis the Relationship Cohort is on. Taken from the
      * associated Thing Cohort's attribute.
      */
-    $: halfAxisId = cohort.halfAxisId
+    $: halfAxisId = thingCohort.halfAxisId
 
     /**
      * Size of Things along width.
@@ -380,8 +380,6 @@
     $: sizeOfThingsAlongWidth =
         halfAxisId && [1, 2].includes(halfAxisId) ? thingWidth :
         thingHeight
-
-
 
     /**
      * Is-relatable-for-current-drag flag.
@@ -395,15 +393,13 @@
      */
     $: relatableForCurrentDrag =
         (
-            $relationshipBeingCreatedInfoStore.sourceThingId !== cohort.parentThingId
+            $relationshipBeingCreatedInfoStore.sourceThingId !== thingCohort.parentThingId
             && (
                 !$inferredRelationshipBeingCreatedDirection ||
-                cohort.direction && $inferredRelationshipBeingCreatedDirection.id === cohort.direction.oppositeid
+                thingCohort.direction && $inferredRelationshipBeingCreatedDirection.id === thingCohort.direction.oppositeid
             )
         ) ? true :
         false
-
-
 
     
     /* --------------- Supporting attributes. --------------- */
@@ -434,7 +430,7 @@
      * the half-axis is arranged as a row. Otherwise is 0.
      */
     $: xOffsetToGrandparentThing =
-        cohort.rowOrColumn() === "row" ? offsetToGrandparentThing() :
+        thingCohort.rowOrColumn() === "row" ? offsetToGrandparentThing() :
         0
 
     /**
@@ -445,7 +441,7 @@
      * the half-axis is arranged as a column. Otherwise is 0.
      */
     $: yOffsetToGrandparentThing =
-        cohort.rowOrColumn() === "column" ? offsetToGrandparentThing() :
+        thingCohort.rowOrColumn() === "column" ? offsetToGrandparentThing() :
         0
 
     /**
@@ -454,7 +450,7 @@
      * The ID of the Generation the Relationship Cohort is in. Taken from the
      * associated Thing Cohort's attribute.
      */
-    $: generationId = cohort.address.generationId
+    $: generationId = thingCohort.address.generationId
 
     /**
      * Distance from focal Plane.
@@ -472,8 +468,8 @@
      * a Thing, rather than null, since Relationship Cohort Widgets are only
      * "spawned" from Clades (which in turn always have root Things).
      */
-    let parentThing = cohort.parentThing as Thing
-    $: parentThing = cohort.parentThing as Thing
+    let parentThing = thingCohort.parentThing as Thing
+    $: parentThing = thingCohort.parentThing as Thing
     
     /**
      * Offset to grandparent Thing.
@@ -486,8 +482,8 @@
         // If there is no grandparent Thing or the Generation is the last,
         // Relationships-only Generation, default to 0.
         if (
-            cohort.indexOfGrandparentThing === null
-            || cohort.isInRelationshipsOnlyGeneration
+            thingCohort.indexOfGrandparentThing === null
+            || thingCohort.isInRelationshipsOnlyGeneration
         ) {
             return 0
         // Otherwise,
@@ -497,8 +493,8 @@
             // (as represented in the associated Thing Cohort) and the halfway
             // index of the associated Thing Cohort...
             const part1 = (
-                (cohort.members.length - 1) / 2
-                - cohort.indexOfGrandparentThing
+                (thingCohort.members.length - 1) / 2
+                - thingCohort.indexOfGrandparentThing
             )
             // ...multiplied by either the Thing width or height (depending on
             // the half-axis) plus the spacing between Things in the Thing
@@ -539,7 +535,7 @@
      * The ID of the Plane that the Relationship Cohort is in. Taken from the
      * associated Thing Cohort's attribute (defaults to 0 if there is none).
      */
-    $: planeId = cohort.plane?.id || 0
+    $: planeId = thingCohort.plane?.id || 0
     
     /**
      * Scale.

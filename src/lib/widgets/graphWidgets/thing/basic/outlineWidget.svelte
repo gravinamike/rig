@@ -84,6 +84,7 @@
 
 <ThingWidgetController
     {thingId}
+    bind:thing
     {graph}
     {graphWidgetStyle}
     {isHoveredWidget}
@@ -96,7 +97,6 @@
     bind:confirmDeleteBoxOpen
 
     bind:thingWidgetId
-    bind:thing
     bind:textFontSize
     bind:showDeleteButton
     bind:elongationCategory

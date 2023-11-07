@@ -14,7 +14,7 @@
 
 
     /**
-     * @param cohortMemberWithIndex - Object containing the index and the Generation Member the widget is based on.
+     * @param thingCohortMemberWithIndex - Object containing the index and the Generation Member the widget is based on.
      * @param thingIdOfHoveredRelationship - ID of any Thing that the mouse is hovering over.
      * @param relatableForCurrentDrag - Whether the widget is a valid target for an in-progress drag-relate operation.
      * @param tweenedScale - The scale of the Graph widget, smoothly interpolated across changes.
@@ -23,7 +23,7 @@
      * @param leafGeometry - The coordinates of the points of the Relationship Leaf.
      * @param relationshipColor - The color of the Relationship widget.
      */
-    export let cohortMemberWithIndex: { index: number, member: GenerationMember }
+    export let thingCohortMemberWithIndex: { index: number, member: GenerationMember }
     export let thingIdOfHoveredRelationship: number | null
     export let relatableForCurrentDrag: boolean
     export let tweenedScale: number
@@ -47,7 +47,7 @@
 
 
 <RelationshipFanSegmentWidgetController
-    {cohortMemberWithIndex}
+    {thingCohortMemberWithIndex}
     {thingIdOfHoveredRelationship}
     {relatableForCurrentDrag}
     {fanSegmentHovered}
@@ -85,7 +85,7 @@
             !($relationshipBeingCreatedInfoStore.sourceThingId && !relatableForCurrentDrag)
             && !$reorderingInfoStore.reorderInProgress
             && relationshipHovered
-            && cohortMemberWithIndex.member
+            && thingCohortMemberWithIndex.member
         )}
             <XButton
                 size={20}

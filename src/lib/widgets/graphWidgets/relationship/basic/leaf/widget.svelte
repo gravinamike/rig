@@ -12,8 +12,8 @@
 
 
     /**
-     * @param cohortMemberWithIndex -  Object containing the index and the Generation Member the widget is based on.
-     * @param cohort - The Thing Cohort associated with this Relationship Cohort.
+     * @param thingCohortMemberWithIndex -  Object containing the index and the Generation Member the widget is based on.
+     * @param thingCohort - The Thing Cohort associated with this Relationship Cohort.
      * @param graph - The Graph which this Relationship is part of.
      * @param graphWidgetStyle - Controls the visual style of the Graph.
      * @param thingIdOfHoveredRelationship - The ID of the Thing associated with any currently-hovered Relationship.
@@ -24,9 +24,10 @@
      * @param mirroring - Multiplication factor to flip the widget relative to the Graph center.
      * @param halfAxisId - The ID of the half-axis of the Relationship.
      * @param direction - The Direction of the Relationship.
+     * @param openCommandPalette - Method to open a context-command palette for this Relationship.
      */
-    export let cohortMemberWithIndex: { index: number, member: GenerationMember }
-    export let cohort: ThingCohort
+    export let thingCohortMemberWithIndex: { index: number, member: GenerationMember }
+    export let thingCohort: ThingCohort
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
     export let thingIdOfHoveredRelationship: number | null
@@ -56,8 +57,8 @@
 
 <!-- Widget controller. -->
 <RelationshipLeafWidgetController
-    {cohortMemberWithIndex}
-    {cohort}
+    {thingCohortMemberWithIndex}
+    {thingCohort}
     {graph}
     {graphWidgetStyle}
     {thingIdOfHoveredRelationship}
@@ -103,8 +104,8 @@
         <!-- Hoverable zone of leaf. -->
         <line
             class="leaf-hover-zone"
-            class:rowCohort={ cohort?.rowOrColumn() === "row" }
-            class:columnCohort={ cohort?.rowOrColumn() === "column" }
+            class:rowCohort={ thingCohort?.rowOrColumn() === "row" }
+            class:columnCohort={ thingCohort?.rowOrColumn() === "column" }
             class:read-only-mode={$readOnlyMode}
 
             x1="{leafGeometry.bottomMidline}" y1="{leafGeometry.bottom - 10}"
@@ -134,6 +135,7 @@
             
             x1="{leafGeometry.bottomMidline}" y1="{leafGeometry.bottom}"
             x2="{leafGeometry.topMidline}" y2="{leafGeometry.top}"
+            
             style="stroke-width: {3 / tweenedScale};"
         />
 

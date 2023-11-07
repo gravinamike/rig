@@ -2,6 +2,7 @@
     // Import types.
     import type { Tweened } from "svelte/motion"
     import type { HalfAxisId } from "$lib/shared/constants"
+    import type { Direction, GenerationMember, Graph, ThingCohort } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
     // Import basic framework resources.
@@ -15,13 +16,12 @@
 
     // Import widget controller.
     import RelationshipCohortWidgetController from "./controller.svelte"
-    
-    import type { Direction, GenerationMember, Graph, ThingCohort } from "$lib/models/constructModels"
 
 
 
     /**
      * @param thingCohort - The Thing Cohort that is associated with this Relationship Cohort.
+     * @param thingCohortMembersToDisplay - Array of the Thign Cohort members which should be rendered.
      * @param graph - The Graph that the Relationship Cohort is part of
      * @param graphWidgetStyle - Controls the style of the Graph widget.
      * @param thingWidth - The width of a Thing widget.
@@ -29,8 +29,8 @@
      * @param thingCohortExpanded - Whether the corresponding Thing Cohort is expanded or collapsed.
      * @param offsetToAlignToGrid - The offset, in pixels, needed to align the Relationships to the grid (if in use).
      */
-    export let cohort: ThingCohort
-    export let cohortMembersToDisplay: GenerationMember[]
+    export let thingCohort: ThingCohort
+    export let thingCohortMembersToDisplay: GenerationMember[]
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
     export let thingWidth: number
@@ -54,7 +54,6 @@
     let showDirection = false
     let direction: Direction | null = null
     let directionWidgetRotation = 0
-    let changeRelationshipsDirection: (directionId: number) => void
     let relationshipsWidth = 0
     let relationshipsLength = 0
     let tweenedScale: Tweened<number> = tweened( 1, { duration: 100, easing: cubicOut } )
@@ -66,6 +65,7 @@
     let halfAxisId: HalfAxisId = 0
     let sizeOfThingsAlongWidth = 0
     let relatableForCurrentDrag = false
+    let changeRelationshipsDirection: (directionId: number) => void
 
     // Attributes managed by sub-widgets.
     let thingIdOfHoveredRelationship: number | null = null
@@ -76,7 +76,7 @@
 
 <!-- Widget controller. -->
 <RelationshipCohortWidgetController
-    {cohort}
+    {thingCohort}
     {graphWidgetStyle}
     {graph}
     {thingIdOfHoveredRelationship}
@@ -98,7 +98,6 @@
     bind:showDirection
     bind:direction
     bind:directionWidgetRotation
-    bind:changeRelationshipsDirection
     bind:relationshipsWidth
     bind:relationshipsLength
     bind:tweenedScale
@@ -110,6 +109,7 @@
     bind:halfAxisId
     bind:sizeOfThingsAlongWidth
     bind:relatableForCurrentDrag
+    bind:changeRelationshipsDirection
 />
 
 
@@ -144,10 +144,10 @@
             "
         >
             <!-- Relationship stem. -->
-            {#if cohort.indexOfGrandparentThing === null}
+            {#if thingCohort.indexOfGrandparentThing === null}
                 <RelationshipStemWidget
-                    {cohort}
-                    {cohortMembersToDisplay}
+                    {thingCohort}
+                    {thingCohortMembersToDisplay}
                     bind:graph
                     {graphWidgetStyle}
                     {thingIdOfHoveredRelationship}
@@ -163,11 +163,11 @@
 
             <!-- Relationship image. -->    
             {#if showRelationships}
-                {#each Array.from(cohortMembersToDisplay.entries()) as [index, member]}
-                    {#if cohort.indexOfGrandparentThing !== index}<!-- Don't re-draw the existing Relationship to a parent Thing. -->                
+                {#each Array.from(thingCohortMembersToDisplay.entries()) as [index, member]}
+                    {#if thingCohort.indexOfGrandparentThing !== index}<!-- Don't re-draw the existing Relationship to a parent Thing. -->                
                         <RelationshipWidget
-                            cohortMemberWithIndex={ {index: index, member: member} }
-                            {cohort}
+                            thingCohortMemberWithIndex={ {index: index, member: member} }
+                            {thingCohort}
                             {graph}
                             {graphWidgetStyle}
                             {midline}
@@ -178,13 +178,12 @@
                             {thingHeight}
                             {relationshipsLength}
                             {sizeOfThingsAlongWidth}
+                            {thingCohortExpanded}
                             {relationshipColor}
                             {mirroring}
                             {rotation}
                             {direction}
                             {relatableForCurrentDrag}
-
-                            {thingCohortExpanded}
                         />
                     {/if}
                 {/each}
@@ -204,7 +203,7 @@
             >
                 <DirectionDropdownWidget
                     startingDirection={direction}
-                    halfAxisId={cohort.halfAxisId}
+                    halfAxisId={thingCohort.halfAxisId}
                     {graphWidgetStyle}
                     optionClickedFunction={(direction, _, __) => {
                         if (direction?.id) changeRelationshipsDirection(direction.id)
