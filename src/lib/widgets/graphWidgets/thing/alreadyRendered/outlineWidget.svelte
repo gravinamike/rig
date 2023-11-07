@@ -1,21 +1,21 @@
 <script lang="ts">
-    import { hoveredThingIdStore } from "$lib/stores"
-    import type { HalfAxisId } from "$lib/shared/constants"
+    // Import types.
+    import type { Graph, Thing } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
+
+    // Import stores.
+    import { hoveredThingIdStore } from "$lib/stores"
 
     // Import widget controller.
     import ThingAlreadyRenderedWidgetController from "./controller.svelte"
-    import type { Graph } from "$lib/models/constructModels";
     
 
+
     export let thingId: number
-    export let cohortHalfAxisId: HalfAxisId | 0
+    export let thing: Thing | null
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
-
-
-    let hoveredThingIdStoreValue: number | null = null
-    hoveredThingIdStore.subscribe(value => {hoveredThingIdStoreValue = value})
+    
 
 
     // Attributes managed by the widget controller.
@@ -32,44 +32,40 @@
 <!-- Widget controller. -->
 <ThingAlreadyRenderedWidgetController
     {thingId}
-    {cohortHalfAxisId}
+    {thing}
     {graph}
     {graphWidgetStyle}
 
     bind:encapsulatingDepth
     bind:thingWidth
     bind:thingHeight
-    bind:overlapMarginStyleText
     bind:relationshipColor
     bind:isHoveredThing
 />
 
 
-
+<!-- Thing-already-rendered widget (outline version). -->
 <div
     class="thing-outline-already-rendered-widget"
->
-    <div
-        class="box"
-        style="
-            {overlapMarginStyleText}
-            {
-                thingId === hoveredThingIdStoreValue ?
-                    `border: solid 1px ${relationshipColor}; border-style: dashed; ` :
-                    ""
-            }
-            border-radius: {10 + 4 * encapsulatingDepth}px;
-            width: {thingWidth}px; height: {thingHeight}px;
-        "
+    
+    style="
+        {overlapMarginStyleText}
+        {
+            thingId === $hoveredThingIdStore ?
+                `border: solid 1px ${relationshipColor}; border-style: dashed; ` :
+                ""
+        }
+        border-radius: {10 + 4 * encapsulatingDepth}px;
+        width: {thingWidth}px; height: {thingHeight}px;
+    "
 
-        on:mouseenter={()=>{hoveredThingIdStore.set(thingId)}}
-        on:mouseleave={()=>{hoveredThingIdStore.set(null)}}
-    />
-</div>
+    on:mouseenter={()=>{hoveredThingIdStore.set(thingId)}}
+    on:mouseleave={()=>{hoveredThingIdStore.set(null)}}
+/>
 
 
 <style>
-    .box {
+    .thing-outline-already-rendered-widget {
         outline-offset: -1px;
 
         box-sizing: border-box;

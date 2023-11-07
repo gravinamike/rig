@@ -20,8 +20,8 @@
     import { elementUnderTouchEvent } from "$lib/shared/utility";
     
 
-    export let cohort: ThingCohort
-    export let cohortMembersToDisplay: GenerationMember[]
+    export let thingCohort: ThingCohort
+    export let thingCohortMembersToDisplay: GenerationMember[]
     export let graphWidgetStyle: GraphWidgetStyle
     export let graph: Graph
 
@@ -57,10 +57,10 @@
 
 <!-- Widget controller. -->
 <RelationshipStemWidgetController
-    bind:cohort
+    bind:thingCohort
     {graph}
     {thingIdOfHoveredRelationship}
-    {cohortMembersToDisplay}
+    {thingCohortMembersToDisplay}
 
     bind:ofPerspectiveThing
     bind:relationshipsExist
@@ -72,7 +72,7 @@
 
 <!-- Relationship Stem widget. -->
 <svg
-    id={`graph#${ graph.id }-thing#${ cohort.parentThingId }-halfAxis#${ cohort.halfAxisId }`}
+    id={`graph#${ graph.id }-thing#${ thingCohort.parentThingId }-halfAxis#${ thingCohort.halfAxisId }`}
     class="relationship-stem"
     style="
         stroke: {relationshipColor};
@@ -93,7 +93,7 @@
 
         on:mouseenter={ () => {
             stemHovered = true
-            hoveredRelationshipTarget.set(cohort)
+            hoveredRelationshipTarget.set(thingCohort)
         }}
         on:mouseleave={ () => {
             stemHovered = false
@@ -102,13 +102,13 @@
         }}
         on:mousedown={ event => {
             stemClicked = true
-            if (cohort.parentThingId) enableRelationshipBeingCreated(
+            if (thingCohort.parentThingId) enableRelationshipBeingCreated(
                 graph,
                 graphWidgetStyle,
-                cohort.parentThingId,
+                thingCohort.parentThingId,
                 1,
-                cohort.halfAxisId,
-                cohort.direction,
+                thingCohort.halfAxisId,
+                thingCohort.direction,
                 [event.clientX, event.clientY]
             )
         }}
@@ -117,20 +117,20 @@
             // Get X and Y coordinates.
             const clientX = event.touches.item(0)?.clientX
             const clientY = event.touches.item(0)?.clientY
-            if (cohort.parentThingId && clientX && clientY) enableRelationshipBeingCreated(
+            if (thingCohort.parentThingId && clientX && clientY) enableRelationshipBeingCreated(
                 graph,
                 graphWidgetStyle,
-                cohort.parentThingId,
+                thingCohort.parentThingId,
                 1,
-                cohort.halfAxisId,
-                cohort.direction,
+                thingCohort.halfAxisId,
+                thingCohort.direction,
                 [clientX, clientY]
             )
         }}
         on:mouseup={ () => {
             stemClicked = false
             if (relatableForCurrentDrag) {
-                setRelationshipBeingCreatedDestThingId(cohort.parentThingId)
+                setRelationshipBeingCreatedDestThingId(thingCohort.parentThingId)
             } else {
                 disableRelationshipBeingCreated()
             }

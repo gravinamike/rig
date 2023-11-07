@@ -1,6 +1,6 @@
 <script lang="ts">
     // Import types.
-    import type { ThingCohort, Thing } from "$lib/models/constructModels"
+    import type { ThingCohort, GenerationMember, Thing } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
     // Import utility functions.
@@ -11,25 +11,43 @@
             cartesianHalfAxisIds, orderedCartesianHalfAxisIds, orderedNonCartesianHalfAxisIds
     } from "$lib/shared/constants"
 
+    
 
     /**
+     * @param thingOverlapMargin - The amount to overlap sibling Things (in pixels) if the overlap percentage is negative.
+     * @param parentThingCohortRowOrColumn - Whether the Clade's parent Thing Cohort is arranged as a row or column.
+     * @param getThingOverlapMarginStyleText - Function to get the style text to implement the desired overlap between sibling Things.
      * @param rootThing - The Thing that forms the root of the Clade.
      * @param graphWidgetStyle - Controls the style of the Graph widget.
-     * @param overlapMarginStyleText - The CSS text to handle the overlap between the widgets.
+     * @param rootThingWidth - The width of the Clade's root Thing.
+     * @param rootThingHeight - The height of the Clade's root Thing.
+     * @param rootThingThingCohortMembers - Array containing all members of the Thing Cohort containing the root Thing.
+     * @param rootThingThingCohortExpanded - Whether the Thing Cohort this is part of is expanded or collapsed.
      * @param thingCohorts - The Thing Cohorts included in the Clade.
-     * @param cartesianThingCohorts - The Thing Cohorts that are on the Cartesian half-axes.
      * @param orderedThingCohorts - The Thing Cohorts in the order they are to be displayed in the outline version of the widget.
      * @param orderedThingCohortsWithMembers - The ordered Thing Cohorts that have members.
      * @param childThings - All child Things in the Clade.
      * @param showCladeRootThing - Whether to display the root Thing of the Clade.
      * @param expandable - Whether the Clade can be collapsed to hide children or expanded to show them.
      * @param expanded - Whether the Clade is collapsed to hide children or expanded to show them.
+     * @param rootThingOffsetFromCenterOfThingCohort - The offset (in pixels) betwen the root Thing and the center of its Thing Cohort.
+     * @param cartesianThingCohorts - The Thing Cohorts that are on the Cartesian half-axes.
+     * @param showAsCollapsed - Whether to format the Clade widget to indicate its parent Thing Cohort is collapsed.
      */
+    export let thingOverlapMargin: number = 0
+    export let parentThingCohortRowOrColumn: "row" | "column" = "row"
+    export let getThingOverlapMarginStyleText: (
+        thing: Thing,
+        thingOverlapMargin: number,
+        thingCohortRowOrColumn: "row" | "column"
+    ) => string = () => ""
     export let rootThing: Thing
     export let graphWidgetStyle: GraphWidgetStyle
-    export let overlapMarginStyleText: string = ""
+    export let rootThingWidth = 0
+    export let rootThingHeight = 0
+    export let rootThingThingCohortMembers: GenerationMember[] = []
+    export let rootThingThingCohortExpanded: boolean = false
     export let thingCohorts: ThingCohort[] = []
-    export let cartesianThingCohorts: ThingCohort[] = []
     export let orderedThingCohorts: ThingCohort[] = []
     export let orderedThingCohortsWithMembers: ThingCohort[] = []
     export let childThings: Thing[] = []
@@ -37,50 +55,58 @@
     export let expandable = false
     export let expanded = false
 
+    export let overlapMarginStyleText: string = ""
+    export let rootThingOffsetFromCenterOfThingCohort = 0
+    export let cartesianThingCohorts: ThingCohort[] = []
+    export let showAsCollapsed = false
+
+
     
     /* --------------- Output attributes. --------------- */
 
     /**
      * Overlap-margin style text.
      * 
-     * When Things are styled to overlap, the effect is accomplished through CSS
-     * margins. This attribute provides the CSS text to style the Thing based
-     * on its position in the Thing Cohort and whether the Thing Cohort is
-     * arranged in a row or column.
+     * The style text that implements the desired overlap between sibling Things.
      */
-    $: overlapMarginStyleText =
-        // If the root Thing has no parent Cohort or address, (it hasn't yet
-        // been built into a Graph), use an empty string (no formatting).
-        !rootThing.parentThingCohort || !rootThing.address ? "" :
-        // If there is only 1 Thing in the Thing Cohort, use an empty string
-        // (no formatting).
-        rootThing.parentThingCohort.members.length === 1 ? "" :
-        // Else, if the Thing is the first in the Thing Cohort, use only a
-        // right or bottom overlap margin.
-        rootThing.address.indexInCohort === 0 ? (
-            rowOrColumn === "row" ? `margin-right: ${overlapMargin}px;` :
-            `margin-bottom: ${overlapMargin}px;`
-        ) :
-        // Else, if the Thing is the last in the Thing Cohort, use only a left
-        // or top overlap margin.
-        rootThing.address.indexInCohort === rootThing.parentThingCohort.members.length - 1 ? (
-            rowOrColumn === "row" ? `margin-left: ${overlapMargin}px;` :
-            `margin-top: ${overlapMargin}px;`
-        // Else, use overlap margins on both sides (left/right or top/bottom).
-        ) : (
-            rowOrColumn === "row" ? `margin-left: ${overlapMargin}px; margin-right: ${overlapMargin}px;` :
-            `margin-top: ${overlapMargin}px; margin-bottom: ${overlapMargin}px;`
-        )
-
-
-    /* --------------- Output attributes for outline version of the widget. --------------- */
+    $: overlapMarginStyleText = getThingOverlapMarginStyleText(rootThing, thingOverlapMargin, parentThingCohortRowOrColumn)
 
     /**
-     * Thing Cohorts.
+     * Root Thing offset from center of Thing Cohort.
      * 
-     * The Thing Cohorts included in the Clade.
+     * The offset (in pixels) betwen the root Thing and the center of its Thing Cohort. Used to
+     * calculate offsets of child Thing Cohorts and Relationships when adjusting to fit a grid.
      */
-    $: thingCohorts = rootThing.childThingCohorts
+     $: rootThingOffsetFromCenterOfThingCohort =    
+        // If the root Thing's Thing Cohort or address are null,
+        (
+            !rootThing.parentThingCohort
+            || !rootThing.address
+
+        // The offset is 0.
+        ) ? 0 :
+
+        // Otherwise the offset is...
+        (
+            // ...the difference between the index of the Thing in its Thing Cohort and the halfway
+            // index of that Thing Cohort...
+            (
+                rootThing.address.indexInCohort
+                - (rootThing.parentThingCohort.members.length - 1) / 2
+            )
+
+            // ...multiplied by either the Thing width or height (depending on the half-axis) plus
+            // the spacing between Things in the Thing Cohort.
+            * (
+                (
+                    rootThing.parentThingCohort.halfAxisId && [1, 2].includes(
+                        rootThing.parentThingCohort.halfAxisId
+                    ) ? rootThingWidth :
+                    rootThingHeight
+                )
+                + graphWidgetStyle.betweenThingSpacing
+            )
+        )
 
     /**
      * Cartesian Thing Cohorts.
@@ -91,6 +117,23 @@
     $: cartesianThingCohorts = rootThing.childThingCohorts.filter(
         cohort => readOnlyArrayToArray(cartesianHalfAxisIds).includes(cohort.halfAxisId)
     )
+
+    /**
+     * Show-as-collapsed indicator.
+     * 
+     * Whether to format the Clade widget to indicate its parent Thing Cohort is collapsed.
+     */
+    $: showAsCollapsed = rootThingThingCohortMembers.length > 1 && !rootThingThingCohortExpanded
+
+
+    /* --------------- Output attributes for outline version of the widget. --------------- */
+
+    /**
+     * Thing Cohorts.
+     * 
+     * The Thing Cohorts included in the Clade.
+     */
+    $: thingCohorts = rootThing.childThingCohorts
 
     /**
      * Ordered Thing Cohorts.
@@ -140,7 +183,7 @@
      * Determines whether the Clade can be collapsed to hide children or
      * expanded to show them.
      */
-     $: expandable = (
+    $: expandable = (
         // The Clade is expandable if there are Thing Cohorts...
         thingCohorts.length
         // ... the Cohorts have a Generation...
@@ -162,24 +205,7 @@
         false
     
     
-    
     /* --------------- Supporting attributes. --------------- */
-
-    /**
-     * Row-or-column attribute.
-     * 
-     * Indicates whether the root Thing's Thing Cohort is arranged as a row or a
-     * column.
-     */
-    $: rowOrColumn = rootThing.parentThingCohort?.rowOrColumn() || "row"
-    
-    /**
-     * Overlap margin.
-     * 
-     * Provides the number of pixels by which the root Thing should overlap its
-     * neighbors in the Thing Cohort.
-     */
-    $: overlapMargin = graphWidgetStyle.betweenThingOverlap / 2
     
 
     /* --------------- Support attributes for outline version of the widget. --------------- */

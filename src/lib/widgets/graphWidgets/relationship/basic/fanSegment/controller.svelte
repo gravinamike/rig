@@ -11,7 +11,7 @@
     
     
     /**
-     * @param cohortMemberWithIndex - Object containing the index and the Generation Member the widget is based on.
+     * @param thingCohortMemberWithIndex - Object containing the index and the Generation Member the widget is based on.
      * @param thingIdOfHoveredRelationship - ID of any Thing that the mouse is hovering over.
      * @param relatableForCurrentDrag - Whether the widget is a valid target for an in-progress drag-relate operation.
      * @param fanSegmentHovered - Whether mouse is hovering over the widget.
@@ -23,7 +23,7 @@
      * @param willBeDeleted - Whether this Relationship will be deleted if a to-be-created-Relationship is created.
      * @param deleteRelationship - Method to delete this Relationship.
      */
-    export let cohortMemberWithIndex: { index: number, member: GenerationMember }
+    export let thingCohortMemberWithIndex: { index: number, member: GenerationMember }
     export let thingIdOfHoveredRelationship: number | null
     export let relatableForCurrentDrag: boolean
     export let fanSegmentHovered: boolean
@@ -42,7 +42,7 @@
      * 
      * The Thing associated with this Relationship.
      */
-    $: thing = cohortMemberWithIndex.member.thing as Thing
+    $: thing = thingCohortMemberWithIndex.member.thing as Thing
 
     /**
      * Highlight level.
@@ -55,7 +55,7 @@
             // ...the widget is clicked...  
             fanSegmentClicked
             // ...or the Relationship is being reordered...
-            || $reorderingInfoStore.destThingId === cohortMemberWithIndex.member.thingId
+            || $reorderingInfoStore.destThingId === thingCohortMemberWithIndex.member.thingId
         // The highlight is hard.
         ) ? "hard-highlight" :
 
@@ -90,7 +90,7 @@
 
 
 
-    $: halfAxisId = cohortMemberWithIndex.member.thing?.parentThingCohort?.halfAxisId || null
+    $: halfAxisId = thingCohortMemberWithIndex.member.thing?.parentThingCohort?.halfAxisId || null
     
     /**
      * Rotation.

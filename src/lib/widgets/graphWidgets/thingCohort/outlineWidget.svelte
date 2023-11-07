@@ -39,7 +39,7 @@
             {#if cohortMember.alreadyRendered && cohortMember.thingId}
                 <ThingOutlineAlreadyRenderedWidget
                     thingId={cohortMember.thingId}
-                    cohortHalfAxisId={thingCohort.halfAxisId}
+                    thing={cohortMember.thing}
                     {graph}
                     {graphWidgetStyle}
                 />

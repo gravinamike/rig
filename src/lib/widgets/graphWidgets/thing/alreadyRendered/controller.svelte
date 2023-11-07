@@ -14,69 +14,57 @@
     import { ThingBaseWidgetController } from "../base"
 
 
+
     /**
-     * Create a Thing-already-rendered widget controller.
-     * @param {number | null} thingId - The ID of the Thing the widget is based on.
-     * @param {HalfAxisId} cohortHalfAxisId - The half-axis of the Thing Cohort the Thing is part of.
-     * @param {GraphWidgetStyle} graphWidgetStyle - Controls the style of the Graph widget.
-     * @param {number} encapsulatingDepth - The number of encapsulations between the Perspective Thing and the Thing.
-     * @param {number} thingWidth - The width of the Thing widget.
-     * @param {number} thingHeight - The height of the Thing widget.
-     * @param {string} overlapMarginStyleText - The CSS text to handle the overlap between the widgets.
-     * @param {string} relationshipColor - The color of the Relationship from the parent Thing to this Thing.
-     * @param {boolean} isHoveredThing - Whether the mouse is hovered over the Thing (or another widget representing the same Thing).
+     * @param thingId - The ID of the Thing the widget is based on.
+     * @param thing - The Thing the widget is based on.
+     * @param graphWidgetStyle - Controls the style of the Graph widget.
+     * @param thingCohortRowOrColumn - Whether the Thing Cohort that this is a member of is arranged horizontally or vertically.
+     * @param thingOverlapMargin - How much sibling Things should overlap each other, in pixels.
+     * @param getThingOverlapMarginStyleText - Method to generate the text that implements the overlap of sibling Things through the CSS margin property.
+     * @param encapsulatingDepth - The number of encapsulations between the Perspective Thing and the Thing.
+     * @param thingWidth - The width of the Thing widget.
+     * @param thingHeight - The height of the Thing widget.
+     * @param overlapMarginStyleText - The CSS style text that implements the overlap effect between sibling Things.
+     * @param relationshipColor - The color of the Relationship from the parent Thing to this Thing.
+     * @param isHoveredThing - Whether the mouse is hovered over the Thing (or another widget representing the same Thing).
      */
     export let thingId: number
-    export let cohortHalfAxisId: HalfAxisId
+    export let thing: Thing | null
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
+    export let thingCohortRowOrColumn: "row" | "column" = "row"
+    export let thingOverlapMargin: number = 0
+    export let getThingOverlapMarginStyleText: (
+        thing: Thing,
+        thingOverlapMargin: number,
+        thingCohortRowOrColumn: "row" | "column"
+    ) => string = () => ""
 
     export let encapsulatingDepth: number
     export let thingWidth: number
     export let thingHeight: number
-    export let overlapMarginStyleText: string
+    export let overlapMarginStyleText: string = ""
     export let relationshipColor: string
     export let isHoveredThing: boolean
 
 
+
     // Attributes managed by the base widget controller.
     let halfAxisId: HalfAxisId
-    let thing: Thing | null
 
 
+    
     /* --------------- Output attributes. --------------- */
 
     /**
      * Overlap-margin style text.
      * 
-     * When Things are styled to overlap, the effect is accomplished through CSS
-     * margins. This attribute provides the CSS text to style the Thing based
-     * on its position in the Thing Cohort and whether the Thing Cohort is
-     * arranged in a row or column.
+     * The CSS style text that implements the overlap effect between sibling Things.
      */
     $: overlapMarginStyleText =
-        // If the root Thing has no parent Cohort or address, (it hasn't yet
-        // been built into a Graph), use an empty string (no formatting).
-        !thing?.address || !thing.parentThingCohort ? "" :
-        // If there is only 1 Thing in the Thing Cohort, use an empty string
-        // (no formatting).
-        thing.parentThingCohort.members.length === 1 ? "" :
-        // Else, if the Thing is the first in the Thing Cohort, use only a
-        // right or bottom overlap margin.
-        thing.address.indexInCohort === 0 ? (
-            rowOrColumn === "row" ? `margin-right: ${overlapMargin}px;` :
-            `margin-bottom: ${overlapMargin}px;`
-        ) :
-        // Else, if the Thing is the last in the Thing Cohort, use only a left
-        // or top overlap margin.
-        thing.address.indexInCohort === thing.parentThingCohort.members.length - 1 ? (
-            rowOrColumn === "row" ? `margin-left: ${overlapMargin}px;` :
-            `margin-top: ${overlapMargin}px;`
-        // Else, use overlap margins on both sides (left/right or top/bottom).
-        ) : (
-            rowOrColumn === "row" ? `margin-left: ${overlapMargin}px; margin-right: ${overlapMargin}px;` :
-            `margin-top: ${overlapMargin}px; margin-bottom: ${overlapMargin}px;`
-        )
+        thing ? getThingOverlapMarginStyleText(thing, thingOverlapMargin, thingCohortRowOrColumn) :
+        ""
 
     /**
      * Relationship color.
@@ -95,25 +83,6 @@
      * over another widget representing the same Thing.
      */
     $: isHoveredThing = thingId === $hoveredThingIdStore ? true : false
-
-
-    /* --------------- Supporting attributes. --------------- */
-
-    /**
-     * Row-or-column attribute.
-     * 
-     * Indicates whether the Thing's Thing Cohort is arranged as a row or a
-     * column.
-     */
-    $: rowOrColumn = [1, 2].includes(cohortHalfAxisId) ? "row" : "column"
-    
-    /**
-     * Overlap margin.
-     * 
-     * Provides the number of pixels by which the Thing should overlap its
-     * neighbors in the Thing Cohort.
-     */
-    $: overlapMargin = graphWidgetStyle.betweenThingOverlap / 2
 </script>
 
 

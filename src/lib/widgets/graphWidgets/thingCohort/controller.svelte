@@ -1,38 +1,54 @@
 <script lang="ts">
+    // Import types.
     import type { ThingCohort } from "$lib/models/constructModels"
-    import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets";
+    import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
+
+    // Import basic SvelteKit framework resources.
+    import { tweened } from "svelte/motion"
+    import { cubicOut } from "svelte/easing"
+
+    // Import constants.
     import { halfAxisOppositeIds, offsetsByHalfAxisId } from "$lib/shared/constants"
 
+
+    
     /**
      * Create a Graph Widget Model.
-     * @param {ThingCohort} thingcohort - The Thing Cohort that the widget is based on.
-     * @param {GraphWidgetStyle} graphWidgetStyle - Controls the style of the Graph widget.
-     * @param {[number, number]} planesOffsets - The per-Plane X and Y offsets.
-     * @param {{ x: number, y: number }} xYOffsets - The X and Y offsets of the widget relative to its parent Clade widget.
-     * @param {number} zIndex - The stacking order of the widget relative to other HTML elements.
-     * @param {"row" | "column"} rowOrColumn - Whether the Things are arranged in a row or column.
-     * @param {number | null} indexOfGrandparentThing - The index of the Thing Cohort's grandparent Thing if it is included the Thing Cohort.
-     * @param {number} offsetToGrandparentThingX - The X component of the offset between the center of the Thing Cohort and the grandparent Thing.
-     * @param {number} offsetToGrandparentThingY - The Y component of the offset between the center of the Thing Cohort and the grandparent Thing.
-     * @param {boolean} showMembers - Whether to display the member Things of the Thing Cohort.
+     * @param thingcohort - The Thing Cohort that the widget is based on.
+     * @param graphWidgetStyle - Controls the style of the Graph widget.
+     * @param planesOffsets - The per-Plane X and Y offsets.
+     * @param offsetToAlignToGrid - The offset, in pixels, needed to align the Relationships to the grid (if in use).
+     * @param expanded - Whether the Thing Cohort is expanded or collapsed.
+     * @param xYOffsets - The X and Y offsets of the widget relative to its parent Clade widget.
+     * @param zIndex - The stacking order of the widget relative to other HTML elements.
+     * @param rowOrColumn - Whether the Things are arranged in a row or column.
+     * @param indexOfGrandparentThing - The index of the Thing Cohort's grandparent Thing if it is included the Thing Cohort.
+     * @param offsetToGrandparentThingX - The X component of the offset between the center of the Thing Cohort and the grandparent Thing.
+     * @param offsetToGrandparentThingY - The Y component of the offset between the center of the Thing Cohort and the grandparent Thing.
+     * @param widgetWidthMinusBorder - The width of the widget, disregarding the Thing-Cohort-bounding border.
+     * @param widgetHeightMinusBorder - The height of the widget, disregarding the Thing-Cohort-bounding border.
+     * @param showMembers - Whether to display the member Things of the Thing Cohort.
      */
     
     // Input props.
     export let thingCohort: ThingCohort
     export let graphWidgetStyle: GraphWidgetStyle
     export let planesOffsets: [number, number]
+    export let offsetToAlignToGrid: number
+    export let expanded = false
 
     // Output props.
     export let xYOffsets: { x: number, y: number }
     export let zIndex: number
-
     export let rowOrColumn: "row" | "column"
-
+    export let gap: number
     export let indexOfGrandparentThing: number | null
     export let offsetToGrandparentThingX: number
     export let offsetToGrandparentThingY: number
-
+    export let widgetWidthMinusBorder: number
+    export let widgetHeightMinusBorder: number
     export let showMembers: boolean
+
 
 
     /* --------------- Output attributes. --------------- */
@@ -45,7 +61,7 @@
      */
     $: xYOffsets = 
         // For Inward and Outward half-axes, there is no offset.
-        [7, 8].includes(thingCohort.halfAxisId) ? { 
+        [7, 8].includes(thingCohort.halfAxisId) ? {
             x: 0,
             y: 0
         } :
@@ -54,12 +70,12 @@
             x: (
                 // ...the "orbit" distance of related Things from their
                 // parents, in the appropriate direction for the half-axis...
-                graphWidgetStyle.relationDistance * offsetSigns[0]
+                (graphWidgetStyle.relationDistance + offsetToAlignToGrid) * offsetSigns[0]
                 // ...plus any offset for the Plane the Thing is in.
                 + planesOffsets[0] * planeId
             ),
             y: (
-                graphWidgetStyle.relationDistance * offsetSigns[1]
+                (graphWidgetStyle.relationDistance + offsetToAlignToGrid) * offsetSigns[1]
                 + planesOffsets[1] * planeId
             )
         }
@@ -90,6 +106,26 @@
         thingCohort.halfAxisId && [3, 4, 5, 6, 7, 8].includes(thingCohort.halfAxisId) ? "column" :
         // For all other half-axes, align things in a row.
         "row"
+
+    /**
+     * Gap.
+     * 
+     * The gap between sibling Things in the Thing Cohort, in pixels.
+     */
+    $: gap =
+        // If the half-axis is not down, up, right or left, the gap is 4.
+        [5, 6, 7, 8].includes(thingCohort.halfAxisId) ? 4 :
+
+        // Otherwise, if the Thing Cohort is expanded, the gap is set by the Graph Widget style
+        // object.
+        expanded ? graphWidgetStyle.betweenThingGap:
+
+        // Otherwise (if it's collapsed), the gap is 0.
+        0
+
+    // Tweened version of `gap`, for animation.
+    const tweenedGap = tweened( 1, { duration: 100, easing: cubicOut } )
+    $: tweenedGap.set(gap)
 
     /**
      * Index of grandparent Thing.
@@ -143,6 +179,17 @@
         rowOrColumn === "column" ? offsetToGrandparentThing :
         0
 
+    /**
+     * Widget width and height, minus border.
+     * 
+     * The width and height of the widget, disregarding the Thing-Cohort-bounding border.
+     */
+    $: widgetWidthMinusBorder =
+        thingCohort.rowOrColumn() === "row" ? $tweenedSizeAlongLongAxis :
+        graphWidgetStyle.thingSize
+    $: widgetHeightMinusBorder =
+        thingCohort.rowOrColumn() === "column" ? $tweenedSizeAlongLongAxis :
+        graphWidgetStyle.thingSize
 
     /**
      * Show-members flag.
@@ -235,6 +282,26 @@
         ) :
         // Otherwise, the offset is 0.
         0
+
+    /**
+     * Size along long axis.
+     * 
+     * The size of the Thing Cohort widget along whichever axis is longer.
+     */
+    $: sizeAlongLongAxis =
+        // If the Thing Cohort widget is expanded, the size is the sum of the sizes of the
+        // constituent Things plus the gaps between them.
+        expanded ? (
+            thingCohort.members.length * graphWidgetStyle.thingSize
+            + (thingCohort.members.length - 1) * graphWidgetStyle.betweenThingSpacing
+        ) :
+
+        // Otherwise (if it is collapsed), the size is equivalent to one Thing's size.
+        graphWidgetStyle.thingSize
+
+    // Tweened version of `sizeAlongAxis`, for animation.
+    const tweenedSizeAlongLongAxis = tweened( 1, { duration: 100, easing: cubicOut } )
+    $: tweenedSizeAlongLongAxis.set(sizeAlongLongAxis)  
 
     /*
      * Is-doubled-back-half-axis flag.

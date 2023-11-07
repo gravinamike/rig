@@ -4,17 +4,26 @@
     import type { HalfAxisId } from "$lib/shared/constants"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
     import type { Graph, GenerationMember, ThingCohort, Thing } from "$lib/models/constructModels"
+    import type { CommandButtonInfo } from "$lib/widgets/layoutWidgets"
 
-    // Import constants and utility functions.
+    // Import basic SvelteKit framework resources.
+    import { tweened } from "svelte/motion"
+    import { cubicOut } from "svelte/easing"
+
+    // Import constants.
     import { mirroringByHalfAxisId, zoomBase } from "$lib/shared/constants"
-    import { onMobile, rectOfThingWidgetByThingId } from "$lib/shared/utility"
-    import { addGraphIdsNeedingViewerRefresh, openContextCommandPalette } from "$lib/stores";
-    import type { CommandButtonInfo } from "$lib/widgets/layoutWidgets";
 
+    // Import stores.
+    import { addGraphIdsNeedingViewerRefresh, openContextCommandPalette } from "$lib/stores"
+
+    // Import utility functions.
+    import { onMobile, rectOfThingWidgetByThingId } from "$lib/shared/utility"
+    
+    
 
     /**
-     * @param cohortMemberWithIndex: Object containing the index and the Generation Member the widget is based on.
-     * @param cohort: The Thing Cohort containing the destination Thing that the Relationship is associated with.
+     * @param thingCohortMemberWithIndex: Object containing the index and the Generation Member the widget is based on.
+     * @param thingCohort: The Thing Cohort containing the destination Thing that the Relationship is associated with.
      * @param graph - The Graph that the Relationship is in.
      * @param graphWidgetStyle - Controls the style of the Graph widget.
      * @param midline - The horizontal mid-line position of the Relationship stem.
@@ -23,9 +32,15 @@
      * @param thingHeight - The height of a Thing widget.
      * @param relationshupsLength - The edge-to-edge distance between the Relationship's source and destination Things.
      * @param sizeOfThingsAlongWidth - The size of a Thing widget along the side-to-side dimension of the Relationship Cohort widget.
+     * @param thingCohortExpanded - Whether the Thing Cohort of the Thing associated with this Relationship is expanded.
+     * @param leafGeometry - Object describing the point geometry of the Relationship's terminal segment (the "leaf").
+     * @param showFanSegment - Whether to render the fan segment of the Relationship.
+     * @param tweenedScale - The scale of the Graph, tweened for animation.
+     * @param openCommandPalette - Method to open a context command palette for the Relationship.
+     * @param deleteRelationship - Method to delete this Relationship.
      */
-    export let cohortMemberWithIndex: { index: number, member: GenerationMember }
-    export let cohort: ThingCohort
+    export let thingCohortMemberWithIndex: { index: number, member: GenerationMember }
+    export let thingCohort: ThingCohort
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
     export let midline: number
@@ -34,6 +49,7 @@
     export let thingHeight: number
     export let relationshipsLength: number
     export let sizeOfThingsAlongWidth: number
+    export let thingCohortExpanded: boolean
 
     export let leafGeometry: { bottom: number, top: number, bottomMidline: number, topMidline: number } | null
     export let showFanSegment: boolean
@@ -54,7 +70,7 @@
      */
     $: leafGeometry =
         // If the Thing is already rendered in the Graph,
-        cohortMemberWithIndex.member.alreadyRendered ? {
+        thingCohortMemberWithIndex.member.alreadyRendered ? {
             // The Leaf is collapsed to a point with the same bottom and top
             // coordinate. This is calculated starting at the bottom of the
             // widget (which is the "full length", since the coordinate system
@@ -71,6 +87,7 @@
                 + 0.5 * sizeOfThingsAlongLength
                 + 0.5 * offsetAlongLength * flip
             ),
+
             // The Leaf midline starts from the Relationship Cohort midline, and
             // is displaced half the way towards the offset to the destination
             // Thing along the Relationship Cohort's width.
@@ -83,6 +100,7 @@
                 + 0.5 * offsetAlongWidth
             )
         } :
+
         // Otherwise, for a first-time-rendered Thing,
         {
             // The top of the leaf is the top of the widget (which is the 0
@@ -90,12 +108,22 @@
             // of the leaf is 1/3 of the way towards the source Thing.
             bottom: relationshipsLength * 1/3,
             top: 0,
+
             // The midlines (both bottom and top) are the "default" values,
             // which are used when a Thing is in its typical position in the
             // Thing Cohort rather than somewhere else already rendered.
-            bottomMidline: defaultLeafMidline,
-            topMidline: defaultLeafMidline
+            bottomMidline: $tweenedDefaultLeafMidline,
+            topMidline: $tweenedDefaultLeafMidline
         }
+
+    /**
+     * Show-fan-segment flag.
+     * 
+     * Indicates whether to show the fan segment. If the offsets of the related
+     * Thing are null (meaning the related Thing doesn't exist or is in a sub-
+     * Graph), this is false.
+     */
+     $: showFanSegment = !!offsetsOfRelatedThing
     
     /**
      * Tweened scale.
@@ -110,7 +138,7 @@
      * 
      * @param event - The right-click mouse event that triggered the context command palette.
      */
-     openCommandPalette = (event: MouseEvent) => {
+    openCommandPalette = (event: MouseEvent) => {
         const position = [event.clientX, event.clientY] as [number, number]
         const buttonInfos =[
             onMobile() ?
@@ -216,17 +244,21 @@
      * The horizontal midline position to be used when a Thing is in its typical
      * position in the Thing Cohort rather than somewhere else already rendered.
      */
-    $: defaultLeafMidline = (
-        // The sum of half of a Thing's size...
-        0.5 * sizeOfThingsAlongWidth
-        // ...plus the sum of a Thing's size and the spacing between Things...
-        + (
-            sizeOfThingsAlongWidth
-            + graphWidgetStyle.betweenThingSpacing
-        )
-        // ...multiplied by the index of the associated Thing in its Thing Cohort.
-        * cohortMemberWithIndex.index
-    )
+    $: defaultLeafMidline = 
+        thingCohortExpanded ? (
+            // The sum of half of a Thing's size...
+            0.5 * sizeOfThingsAlongWidth
+            // ...plus the sum of a Thing's size and the spacing between Things...
+            + (
+                sizeOfThingsAlongWidth
+                + graphWidgetStyle.betweenThingSpacing
+            )
+            // ...multiplied by the index of the associated Thing in its Thing Cohort.
+            * thingCohortMemberWithIndex.index
+        ) :
+        midline
+    const tweenedDefaultLeafMidline = tweened( 1, { duration: 100, easing: cubicOut } )
+    $: tweenedDefaultLeafMidline.set(defaultLeafMidline)   
 
     /**
      * Scale.
@@ -245,16 +277,7 @@
      * when the destination Thing is already rendered in the Graph.
      * If the related Thing is in a sub-Graph, the offsets are set to null.
      */
-    $: offsetsOfRelatedThing = getOffsetsOfRelatedThing(cohortMemberWithIndex.member, $tweenedScale)
-
-    /**
-     * Show-fan-segment flag.
-     * 
-     * Indicates whether to show the fan segment. If the offsets of the related
-     * Thing are null (meaning the related Thing doesn't exist or is in a sub-
-     * Graph), this is false.
-     */
-    $: showFanSegment = !!offsetsOfRelatedThing
+    $: offsetsOfRelatedThing = getOffsetsOfRelatedThing(thingCohortMemberWithIndex.member, $tweenedScale)
 
     /**
      * Get-offsets-of-related-Thing method.
@@ -269,7 +292,7 @@
      */
     function getOffsetsOfRelatedThing(member: GenerationMember, scale: number): {x: number, y: number} | null {
         // Get location of the Relationship's source Thing Widget.
-        const [parentDomRect, _] = rectOfThingWidgetByThingId(graph, cohort.parentThingId as number)
+        const [parentDomRect, _] = rectOfThingWidgetByThingId(graph, thingCohort.parentThingId as number)
         const parentRectX = parentDomRect === null ? 0 : parentDomRect.x
         const parentRectY = parentDomRect === null ? 0 : parentDomRect.y
 
@@ -290,5 +313,5 @@
      * 
      * The destination Thing of this Relationship.
      */
-    $: thing = cohortMemberWithIndex.member.thing as Thing
+    $: thing = thingCohortMemberWithIndex.member.thing as Thing
 </script>

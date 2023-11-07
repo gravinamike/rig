@@ -1,38 +1,36 @@
 <script lang="ts">
-    import { relationshipColorByHalfAxisId, type HalfAxisId } from "$lib/shared/constants"
+    // Import types.
+    import type { HalfAxisId } from "$lib/shared/constants"
+    import type { ThingDbModel } from "$lib/models/dbModels"
     import type { Graph, Thing } from "$lib/models/constructModels"
+    import type { HistoryEntry } from "$lib/models/constructModels/graph/historyUtility"
+    import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
+    import type { CommandButtonInfo } from "$lib/widgets/layoutWidgets"
 
-    // Import utility functions.
-    import { onMobile, sleep } from "$lib/shared/utility"
+    // Import constants.
+    import { relationshipColorByHalfAxisId } from "$lib/shared/constants"
 
-    /* Store imports. */
+    // Import stores.
     import {
-        graphDbModelInStore, unstoreGraphDbModels,
-        hoveredThingIdStore, 
-        relationshipBeingCreatedInfoStore, enableRelationshipBeingCreated,
-        setRelationshipBeingCreatedTrackingMouse,
-        pinIdsStore, openContextCommandPalette, addPin, removePin,
-        removeIdsFromThingSearchListStore,
-        removeIdsFromNoteSearchListStore,
-        reorderingInfoStore,
-        storeGraphDbModels,
-        readOnlyMode,
-        setHomeThingId,
-        removeHomeThing,
-        homeThingIdStore,
+        graphDbModelInStore, storeGraphDbModels, unstoreGraphDbModels,
+        readOnlyMode, hoveredThingIdStore, reorderingInfoStore,
+        openContextCommandPalette, pinIdsStore, addPin, removePin, homeThingIdStore, setHomeThingId, removeHomeThing,
+        removeIdsFromThingSearchListStore, removeIdsFromNoteSearchListStore,
+        relationshipBeingCreatedInfoStore, enableRelationshipBeingCreated, setRelationshipBeingCreatedTrackingMouse,
+        hoveredRelationshipTarget, setRelationshipBeingCreatedDestThingId, disableRelationshipBeingCreated
     } from "$lib/stores"
 
-    import { ThingBaseWidgetController } from "../base"
-    import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
-    import { updateThingPerspectiveText, updateThingText } from "$lib/db"
-    import type { ThingDbModel } from "$lib/models/dbModels"
-    import type { CommandButtonInfo } from "$lib/widgets/layoutWidgets";
-    import type { HistoryEntry } from "$lib/models/constructModels/graph/historyUtility";
+    // Import utility functions.
+    import { elementUnderTouchEvent, onMobile, sleep } from "$lib/shared/utility"
 
-    /**
-     * Create a Thing Widget Model.
-     * @param {number} thingId - The ID of the Thing that the widget is based on.
-     */
+    // Import base Thing Widget controller.
+    import { ThingBaseWidgetController } from "../base"
+    
+    // Import API methods.
+    import { updateThingPerspectiveText, updateThingText } from "$lib/db"
+    
+
+
     export let thingId: number
     export let thing: Thing | null = null
     export let graph: Graph
@@ -56,21 +54,31 @@
     export let relatableForCurrentDrag = false
     export let elongationCategory: "vertical" | "horizontal" | "neutral" = "neutral"
     export let isEncapsulating = false
+    export let showText = true
     export let textFontSize = 10
+    export let sliderOpen = false
+    export let sliderPercentage = 100
     export let showDeleteButton = false
     export let editingText = false
     export let textBeingEdited: string = ""
     export let perspectiveTextBeingEdited: string | null = null
-    export let handleMouseDown: (event: MouseEvent | TouchEvent) => void
-    export let handleMouseDrag: (event: MouseEvent | TouchEvent) => void
-    export let onBodyMouseUp: (event: MouseEvent | TouchEvent) => void
-    export let openCommandPalette: (event: MouseEvent) => void
-    export let startDelete: () => void
-    export let completeDelete: () => void
+    export let handleMouseDown: (event: MouseEvent | TouchEvent) => void = () => {}
+    export let handleMouseDrag: (event: MouseEvent | TouchEvent) => void = () => {}
+    export let onBodyMouseUp: (event: MouseEvent | TouchEvent) => void = () => {}
+    export let onMouseEnter: () => void = () => {}
+    export let onMouseLeave: () => void = () => {}
+    export let onClick: (event: MouseEvent) => void = () => {}
+    export let onMouseUp: () => void = () => {}
+    export let onTouchEnd: (event: TouchEvent) => void = () => {}
+    export let openCommandPalette: (event: MouseEvent) => void = () => {}
+    export let startDelete: () => void = () => {}
+    export let completeDelete: () => void = () => {}
+    export let toggleSlider: () => void = () => {}
     export let beginEditingText: () => void = () => {}
     export let submitEditedText: () => void = () => {}
     export let cancelEditingText: () => void = () => {}
 
+    
 
     // Attributes handled by the base widget controller.
     let planeId: number | null = null
@@ -82,6 +90,13 @@
     /* --------------- Output attributes. --------------- */
 
     /**
+     * Use-Perspective-text flag.
+     * 
+     * Indicates whether to use the Perspective-specific text (instead of the Thing's default text).
+     */
+    $: usePerspectiveText = !sliderOpen
+    
+    /**
      * Thing Widget ID.
      * 
      * A unique ID for each Thing Widget, constructed from the Graph ID and the
@@ -89,15 +104,22 @@
      */
     $: thingWidgetId = `graph#${ graph.id }-thing#${ thingId }`
 
-    $: perspectiveText =
-        String(thingId) in perspectiveTexts ? perspectiveTexts[String(thingId)] :
-        null
-
-    $: hasPerspectiveText = !!perspectiveText
-
+    /**
+     * Thing text.
+     * 
+     * The main text of the Thing, either derived from the Thing's database record or replaced by a
+     * Perspective-specific alternative. 
+     */
     $: text =
         usePerspectiveText && perspectiveText ? perspectiveText :
         thing?.text || ""
+
+    /**
+     * Has-Perspective-text flag.
+     * 
+     * Indicates whether this Thing has Perspective-specific alternative text.
+     */
+    $: hasPerspectiveText = !!perspectiveText
 
     /**
      * Highlighted flag.
@@ -109,13 +131,17 @@
         (
             // The Thing (either the widget or another instance) is hovered,
             isHoveredThing
+
             // And the widget is not relatable for any in-progress drag-relate
             // operation,
             && !(relationshipBeingCreated && !relatableForCurrentDrag)
+
             // And there is no reordering operation in progress,
             && !$reorderingInfoStore.reorderInProgress
+
         // Highlight the widget.
         ) ? true :
+
         // Else, don't highlight the widget.
         false
     
@@ -284,12 +310,121 @@
     }
 
     /**
+     * On-mouse-enter method.
+     * 
+     * Handles mouse entry into the Thing widget, setting hovered-Thing stores and flags.
+     */
+    onMouseEnter = () => {
+        hoveredThingIdStore.set(thingId)
+        isHoveredWidget = true
+        hoveredRelationshipTarget.set(thing)
+    }
+
+    /**
+     * On-mouse-leave method.
+     * 
+     * Handles mouse exit from the Thing widget, un-setting hovered-Thing and confirm-delete-box
+     * stores and flags.
+     */
+    onMouseLeave = () => {
+        hoveredThingIdStore.set(null)
+        isHoveredWidget = false
+        confirmDeleteBoxOpen = false
+        hoveredRelationshipTarget.set(null)
+    }
+
+    /**
+     * On-click method.
+     * 
+     * Handles mouse clicks on the Thing Widget, which may trigger text-editing or re-Perspecting.
+     */
+    onClick = (event: MouseEvent) => {
+        // If the Thing-text field isn't already open and there is no create-Relationship operation
+        // in progress,
+        if (
+            !editingText
+            && $relationshipBeingCreatedInfoStore.sourceThingId === null
+        ) {
+            // If this is a Ctrl-rightmouse event, begin editing the Thing's text.
+            if (event.button === 0 && event.ctrlKey) {
+                beginEditingText()
+
+            // Otherwise, re-Perspect to this Thing.
+            } else {
+                rePerspectToThingId(thingId)
+            }
+        }
+    }
+
+    /**
+     * On-mpuse-up method.
+     * 
+     * Handles mouse-up events on the Thing widget, which may complete or disable a create-
+     * Relationship operation.
+     */
+    onMouseUp = () => {
+        // If the Thing is relatable for an in-progress create-Relationship drag operation, set its
+        // ID as the destination for that operation.
+        if (relatableForCurrentDrag) {
+            setRelationshipBeingCreatedDestThingId(thingId)
+
+        // Otherwise, disable any in-progress create-Relationship drag operation.
+        } else {
+            disableRelationshipBeingCreated()
+        }
+    }
+
+    /**
+     * On-touch-end method.
+     * 
+     * Handles touch-end events on the Thing widget, which may complete or disable a create-
+     * Relationship operation.
+     */
+    onTouchEnd = (event: TouchEvent) => {
+        // Get the element under the touch event.
+        const endingElement = elementUnderTouchEvent(event)
+
+        // If that element is a Thing widget or Relationship Stem widget,
+        if (
+            endingElement?.className.includes("thing-widget")
+            || endingElement?.className.includes("relationship-stem")
+        ) {
+            // Get the ID of the associated Thing.
+            const targetThingId = Number(endingElement.id.split("-")[1].split("#")[1])
+
+            // Determine if that Thing is a valid target for any drag-relate in progress.
+            const targetThingRelatableForCurrentDrag =
+                // The flag is true if...
+                (
+                    // ...there is a drag-relate in progress...
+                    $relationshipBeingCreatedInfoStore.sourceThingId
+                    // ...and the source of the drag-relate is not *this* Thing.
+                    && $relationshipBeingCreatedInfoStore.sourceThingId !== targetThingId
+                ) ? true :
+                false
+
+            // If the Thing is relatable for an in-progress create-Relationship drag operation, set its
+            // ID as the destination for that operation.
+            if (targetThingRelatableForCurrentDrag) {
+                setRelationshipBeingCreatedDestThingId(targetThingId)
+
+            // Otherwise, disable any in-progress create-Relationship drag operation.
+            } else {
+                disableRelationshipBeingCreated()
+            }
+        }
+    }
+
+    /**
      * Open a context command palette for this Thing.
      * 
      * @param event - The right-click mouse event that triggered the context command palette.
      */
     openCommandPalette = (event: MouseEvent) => {
+        // Get the position of the right-click event.
         const position = [event.clientX, event.clientY] as [number, number]
+
+        // Configure the buttons for the context menu.
         const buttonInfos =[
             {
                 text: "Change Thing text",
@@ -342,6 +477,8 @@
         ].filter(
             info => info !== null
         ) as CommandButtonInfo[]
+
+        // Open a context command palette at that position, with those buttons.
         openContextCommandPalette(position, buttonInfos)
     }
     
@@ -382,6 +519,13 @@
         if (thing?.note?.id) await removeIdsFromNoteSearchListStore(thing?.note?.id)
     }
 
+    // Text toggle.
+    toggleSlider = async () => {
+        showText = false
+        sliderOpen = !sliderOpen
+        showText = true
+    }
+
     beginEditingText = async () => {
         editingText = true
         // Allow the edit-text field to render.
@@ -408,7 +552,33 @@
     }
 
 
-    /* --------------- Output attributes. --------------- */
+    /* --------------- Support attributes. --------------- */
+
+    $: perspectiveText =
+        String(thingId) in perspectiveTexts ? perspectiveTexts[String(thingId)] :
+        null
+
+    /**
+     * Slider position controls.
+     */
+
+    // If the Thing ID changes, reset the slider to open if there is no Perspective text, and
+    // closed if there is Perspective text.
+    $: {
+        thingId
+
+        sliderOpen = !hasPerspectiveText
+    }
+
+    // The slider position is a percentage that is 0 if the slider is closed, and 100 if the slider
+    // is open.
+    let sliderPosition = 0
+    $: if (!sliderOpen) sliderPosition = 0
+    $: if (sliderOpen) sliderPosition = 100
+
+    // The slider percentage is a percentage that is 0 if the slider is closed, and 87 if the
+    // slider is open (allowing some space for the "handle").
+    $: sliderPercentage = 0.87 * sliderPosition
 
     /**
      * Is-hovered-Thing flag.

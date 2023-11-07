@@ -1,5 +1,6 @@
 <script lang="ts">
     // Import types.
+    import type { ThingDbModel } from "$lib/models/dbModels"
     import type { Graph, GenerationMember, ThingCohort, Thing } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
@@ -12,12 +13,12 @@
 
     // Import API methods.
     import { updateRelationships } from "$lib/db"
-    import type { ThingDbModel } from "$lib/models/dbModels"
+    
     
     
     /**
-     * @param cohortMemberWithIndex -  Object containing the index and the Generation Member the widget is based on.
-     * @param cohort - The Thing Cohort associated with this Relationship Cohort.
+     * @param thingCohortMemberWithIndex -  Object containing the index and the Generation Member the widget is based on.
+     * @param thingCohort - The Thing Cohort associated with this Relationship Cohort.
      * @param graph - The Graph which this Relationship is part of.
      * @param graphWidgetStyle - Controls the visual style of the Graph.
      * @param thingIdOfHoveredRelationship - The ID of the Thing associated with any currently-hovered Relationship.
@@ -32,8 +33,8 @@
      * @param handleBodyMouseMove - Handler method for mouse movement over the page body.
      * @param handleBodyMouseUp - Handler method for mouse-release over the page body.
      */
-    export let cohortMemberWithIndex: { index: number, member: GenerationMember }
-    export let cohort: ThingCohort
+    export let thingCohortMemberWithIndex: { index: number, member: GenerationMember }
+    export let thingCohort: ThingCohort
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
     export let thingIdOfHoveredRelationship: number | null
@@ -57,7 +58,7 @@
      * 
      * The Thing associated with this Relationship.
      */
-    $: thing = cohortMemberWithIndex.member.thing as Thing
+    $: thing = thingCohortMemberWithIndex.member.thing as Thing
 
     /**
      * Highlight level.
@@ -70,7 +71,7 @@
             // ...the widget is clicked...  
             leafClicked && !$reorderingInfoStore.reorderInProgress
             // ...or the Relationship is being reordered...
-            || $reorderingInfoStore.destThingId === cohortMemberWithIndex.member.thingId
+            || $reorderingInfoStore.destThingId === thingCohortMemberWithIndex.member.thingId
         // The highlight is hard.
         ) ? "hard-highlight" :
 
@@ -155,8 +156,8 @@
         setReorderingDragStart(
             [clientX, clientY] as [number, number],
             graphWidgetStyle,
-            cohort,
-            cohortMemberWithIndex.member.thingId as number)
+            thingCohort,
+            thingCohortMemberWithIndex.member.thingId as number)
     }
 
     /**
@@ -181,8 +182,8 @@
         // If...
         if (
             // ...there is a drag being tracked for this Relationship...
-            $reorderingInfoStore.thingCohort === cohort
-            && $reorderingInfoStore.destThingId === cohortMemberWithIndex.member.thingId
+            $reorderingInfoStore.thingCohort === thingCohort
+            && $reorderingInfoStore.destThingId === thingCohortMemberWithIndex.member.thingId
             // ...the drag has proceeded a certain distance...
             && dragChangeX && dragChangeY
             && Math.hypot(dragChangeX, dragChangeY) > 5
@@ -196,9 +197,9 @@
             enableReordering(
                 $reorderingInfoStore.dragStartPosition as [number, number],
                 graphWidgetStyle,
-                cohort,
-                cohortMemberWithIndex.index,
-                cohortMemberWithIndex.member.thingId as number
+                thingCohort,
+                thingCohortMemberWithIndex.index,
+                thingCohortMemberWithIndex.member.thingId as number
             )
         }
     }
