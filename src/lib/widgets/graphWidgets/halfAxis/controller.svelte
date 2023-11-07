@@ -24,7 +24,7 @@
 
     export let thingCohortMembersToDisplay: GenerationMember[]
     export let tweenedOffsetToAlignToGrid: Tweened<number>
-    export let thingCohortExpanded = false
+    export let thingCohortExpanded = graph.pThing?.space?.buildmethod === "grid" ? false : true
     export let tweenedThingOverlapMargin: Tweened<number>
     export let getThingOverlapMarginStyleText: (
         thing: Thing,

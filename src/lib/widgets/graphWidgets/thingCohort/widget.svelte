@@ -29,7 +29,7 @@
     export let offsetToAlignToGrid = 0
     export let perspectiveTexts: {[thingId: string]: string}
     export let rePerspectToThingId: (thingId: number) => Promise<void>
-    export let expanded = false
+    export let expanded = graph.pThing?.space?.buildmethod === "grid" ? false : true
     export let thingOverlapMargin: number = 0
     export let getThingOverlapMarginStyleText: (
         thing: Thing,
@@ -54,7 +54,7 @@
 
     // Lock-expanded flag (determines whether the Thing Cohort is locked in the "expanded"
     // configuration).
-    let lockExpanded = false
+    let lockExpanded = graph.pThing?.space?.buildmethod !== "grid"
 
     // Index of the Thing Cohort member that is brought to the top or front of the stacking order
     // (by hovering over it).
@@ -96,10 +96,28 @@
     "
 
     on:mouseenter={() => {
-        if (!lockExpanded) expanded = true
+        if (
+            (
+                graph.pThing?.space?.buildmethod === "grid"
+                || (
+                    graph.pThing?.space?.buildmethod !== "grid"
+                    && expanded === false
+                )
+            )
+            && !lockExpanded
+        ) expanded = true
     }}
     on:mouseleave={() => {
-        if (!lockExpanded) expanded = false
+        if (
+            (
+                graph.pThing?.space?.buildmethod === "grid"
+                || (
+                    graph.pThing?.space?.buildmethod !== "grid"
+                    && expanded === true
+                )
+            )
+            && !lockExpanded
+        ) expanded = false
     }}
     on:keydown={()=>{}}
 >

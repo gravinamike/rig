@@ -27,7 +27,7 @@
     // Attributes handled by the widget controller.
     let thingCohortMembersToDisplay: GenerationMember[]
     let tweenedOffsetToAlignToGrid: Tweened<number>
-    let thingCohortExpanded = false
+    let thingCohortExpanded = graph.pThing?.space?.buildmethod === "grid" ? false : true
     let tweenedThingOverlapMargin: Tweened<number>
     let getThingOverlapMarginStyleText: (
         thing: Thing,
