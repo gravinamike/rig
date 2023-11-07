@@ -64,7 +64,7 @@
     let editingText: boolean
     let textBeingEdited: string
     let perspectiveTextBeingEdited: string
-    let usePerspectiveText = false
+    let usePerspectiveText = true
     let submitted: boolean
     let handleMouseDown: (event: MouseEvent | TouchEvent) => void
     let handleMouseDrag: (event: MouseEvent | TouchEvent) => void
