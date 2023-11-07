@@ -257,7 +257,9 @@
             * thingCohortMemberWithIndex.index
         ) :
         midline
-    const tweenedDefaultLeafMidline = tweened( 1, { duration: 100, easing: cubicOut } )
+    const tweenedDefaultLeafMidline = tweened(
+        defaultLeafMidline,
+        { duration: 100, easing: cubicOut } )
     $: tweenedDefaultLeafMidline.set(defaultLeafMidline)   
 
     /**
