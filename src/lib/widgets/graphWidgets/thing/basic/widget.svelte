@@ -98,7 +98,7 @@
     {graph}
     {graphWidgetStyle}
     bind:perspectiveTexts
-    {usePerspectiveText}
+    bind:usePerspectiveText
     {isHoveredWidget}
     {rePerspectToThingId}
 
@@ -209,7 +209,7 @@
         {/if}
 
         {#if showText}
-
+            
             {#if editingText}
 
                 <!-- Thing text form. -->
