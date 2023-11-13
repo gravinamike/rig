@@ -1,6 +1,13 @@
+// Import types.
 import type { Handle, RequestEvent } from "@sveltejs/kit"
-import { parse } from "cookie"
+
+// Import Sveltekit framework resources.
 import { error } from "@sveltejs/kit"
+
+// Import cookie-related resources.
+import { parse } from "cookie"
+
+// Import API methods.
 import { getSessionById } from "$lib/server/auth"
 import { getAuthDatabaseConnection, getDatabaseConnection } from "$lib/server/db/connection"
 import { retrieveSessionSpecificCookie } from "$lib/db/sessionSpecificFetch"
@@ -16,33 +23,32 @@ import { retrieveSessionSpecificCookie } from "$lib/db/sessionSpecificFetch"
  * @returns - The response from the server to the client.
  */
 export const handle: Handle = async ({ event, resolve }) => {
+	/* Add the current user's ID to the app's local variables. */
 
-	/** Identify user. */
-
-	// Retrieve cookies from the request headers.
+	// Retrieve all cookies from the request headers.
     const cookies = parse(event.request.headers.get("cookie") || "")
 
-    // If cookies say that a session exists,
+    // If there is a `session_id` cookie (meaning a session exists),
     if (cookies.session_id) {
-        // Retrieve that session by ID.
+        // Retrieve that session by its ID.
         const session = await getSessionById(cookies.session_id)
-        // Add user identifier to the request event's locals as "user".
-        if (session) {
-            event.locals.user = { username: session.username }
-        }
+
+        // Add the user ID associated with that session to the app's local variables, keyed to
+		// "username".
+        if (session) event.locals.user = { username: session.username }
 		
 	// Otherwise,
     } else {
-		// Add a null to the request event's locals as "user".
+		// Add a null to the request app's local variables, keyed to "username".
 		event.locals.user = null
 	}
 
 	
-	/** If the request is forbidden, throw a 403 error. */
+	/* If the request is forbidden, throw a 403 error. */
 	if (await requestIsForbidden(event)) throw error(403, "You don't have permission to access this resource.")
 
 
-	/** Get database connection. */
+	/* Get database connection. */
 
 	// If the request was to the authentication API,
 	if ( event.url.pathname.startsWith("/api/auth/") ) {
