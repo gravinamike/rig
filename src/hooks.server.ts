@@ -11,36 +11,21 @@ import { parse } from "cookie"
 import { getSessionById } from "$lib/server/auth"
 import { getAuthDatabaseConnection, getDatabaseConnection } from "$lib/server/db/connection"
 import { retrieveSessionSpecificCookie } from "$lib/db/sessionSpecificFetch"
-import { graphRestrictedPaths } from "$lib/shared/constants"
-
-
-
-
-
-
-
-
-
+import { isGraphRestrictedRoute } from "$lib/shared/constants"
 
 
 
 /**
  * Server hook handle.
  * 
- * All requests to the server are first passed through this method, which sets
- * up a connection to the database, specifying the appropriate file either from
- * a cookie or from a passed parameter.
+ * All requests to the server are first passed through this method, which sets up a connection to
+ * the database, specifying the appropriate file either from a cookie or from a passed argument.
  * @param param0 - An object passed by the framework containing the RequestEvent and a method to resolve it into a response.
  * @returns - The response from the server to the client.
  */
 export const handle: Handle = async ({ event, resolve }) => {
-
-
-	//console.log(event.url)
-
+	// Get the session UUID from 
 	const sessionUuid = event.params.sessionUuid as string
-
-
 
 
 	/* Add the current user's ID to the app's local variables. */
@@ -70,7 +55,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 	}
 
 
-	/* Get database connection. */
+	/* Get a database connection. */
 
 	// If the request was to the authentication API,
 	if ( event.url.pathname.startsWith("/api/auth/") ) {
@@ -79,16 +64,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 		await getAuthDatabaseConnection()
 
 	// If the request was to the any of the Graph-restricted APIs,
-	} else if (
-		graphRestrictedPaths.some(
-			path => {
-				return (
-					event.url.pathname.startsWith(path)
-					|| event.url.pathname.startsWith(path.replace(/^\//, ""))
-				)
-			}
-		)
-	) {
+	} else if (isGraphRestrictedRoute(event.url.pathname)) {
 
 		// Retrieve the name of the Graph file from the cookies.
 		const graphName = retrieveSessionSpecificCookie(sessionUuid, event.request, "graphName")
@@ -116,20 +92,21 @@ export const handle: Handle = async ({ event, resolve }) => {
 
 /**
  * Request-is-forbidden method.
- * Determines if a request event should return a 404 (Forbidden) error instead
- * of the regular response.
+ * 
+ * Determines if a request event should return a 404 (Forbidden) error instead of the regular
+ * response.
  * 
  * @param event - The request event.
  * @returns - Boolean indicating whether or not the request it forbidden.
  */
 async function requestIsForbidden(
 	sessionUuid: string,
-	event: RequestEvent<Partial<Record<string, string>>, string | null>
+	event: RequestEvent< Partial<Record<string, string>>, string | null >
 ) {
 	let requestIsForbidden = false
-	//console.log(event.url.pathname)
+
 	// If the request URL is one of the Graph-restricted paths,
-	if ( graphRestrictedPaths.some(path => {return event.url.pathname.startsWith(path)}) ) {
+	if (isGraphRestrictedRoute(event.url.pathname)) {
 		// Get the Graph name and its owner's username from the session-
 		// specific cookie.
 		const graphName = retrieveSessionSpecificCookie(sessionUuid, event.request, "graphName")

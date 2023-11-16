@@ -32,6 +32,40 @@ export interface ServerConfig {
 }
 
 /**
+ * Graph-restricted routes.
+ * 
+ * Array of API routes that are relative to a specific Graph and should be forbidden when the user
+ * isn't authorized for that Graph.
+ */
+const graphRestrictedRoutes = [
+	"/api/db/graphConstructs",
+	"/api/db/graphFile",
+	"/api/db/graphManipulation",
+	"/api/file/attachmentsFolder",
+	"/api/file/graphConfig"
+]
+
+/**
+ * Is-Graph-restricted-route method.
+ * 
+ * Determines whether a given API route fragment is Graph-restricted.
+ * @param route - The API route fragment to test.
+ * @returns - Whether the route fragment is Graph-restricted.
+ */
+export function isGraphRestrictedRoute(routeFragment: string) {
+    const isGraphRestrictedRoute = graphRestrictedRoutes.some(
+        graphRestrictedRoutes => {
+            return (
+                routeFragment.startsWith(graphRestrictedRoutes)
+                || routeFragment.startsWith(graphRestrictedRoutes.replace(/^\//, ""))
+            )
+        }
+    )
+
+    return isGraphRestrictedRoute
+}
+
+/**
  * Default UI colors.
  */
 export const defaultUIBackgroundColor = "#fafafa"
@@ -239,27 +273,4 @@ export const hyperlinkProtocols = [
     "ftp",
     "news",
     "telnet"
-]
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// Array of paths that are relative to a specific Graph and should be
-// forbidden when the user is not authorized for that Graph.
-export const graphRestrictedPaths = [
-	"/api/db/graphConstructs",
-	"/api/db/graphFile",
-	"/api/db/graphManipulation",
-	"/api/file/attachmentsFolder",
-	"/api/file/graphConfig"
 ]
