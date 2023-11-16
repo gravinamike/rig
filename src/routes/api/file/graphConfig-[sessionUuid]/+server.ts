@@ -8,10 +8,15 @@ import { get as getStore } from "svelte/store"
 import { retrieveSessionSpecificCookie } from "$lib/db/sessionSpecificFetch"
 
 
-export const GET: RequestHandler = async ({ request }) => {
+export const GET: RequestHandler = async ({ request, params }) => {
     try {
 
-        const graphName = retrieveSessionSpecificCookie(request, "graphName")
+
+        const sessionUuid = params.sessionUuid as string
+
+
+
+        const graphName = retrieveSessionSpecificCookie(sessionUuid, request, "graphName")
 
 
         const graphsBaseFolder = getStore(graphsBaseFolderStore)
@@ -39,10 +44,15 @@ export const GET: RequestHandler = async ({ request }) => {
 }
 
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST: RequestHandler = async ({ request, params }) => {
     try {
 
-        const graphName = retrieveSessionSpecificCookie(request, "graphName")
+
+        const sessionUuid = params.sessionUuid as string
+
+
+        
+        const graphName = retrieveSessionSpecificCookie(sessionUuid, request, "graphName")
 
 
         const graphsBaseFolder = getStore(graphsBaseFolderStore)

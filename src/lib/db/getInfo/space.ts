@@ -12,7 +12,7 @@ import { sessionSpecificFetch as fetch } from "$lib/db/sessionSpecificFetch"
  */
 export async function directionIsReferenced(directionId: number): Promise<boolean> {
     // Query the Direction-is-referenced API.
-    const res = await fetch(`api/db/graphConstructs/direction-is-referenced-${directionId}`)
+    const res = await fetch(`/api/db/graphConstructs/direction-is-referenced-${directionId}`)
 
     // If the response is ok,
     if (res.ok) {
@@ -37,7 +37,7 @@ export async function directionIsReferenced(directionId: number): Promise<boolea
  */
 export async function spaceIsReferenced(spaceId: number): Promise<boolean> {
     // Query the Space-is-referenced API.
-    const res = await fetch(`api/db/graphConstructs/space-is-referenced-${spaceId}`)
+    const res = await fetch(`/api/db/graphConstructs/space-is-referenced-${spaceId}`)
 
     // If the response is ok,
     if (res.ok) {

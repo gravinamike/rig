@@ -11,7 +11,7 @@ import { sessionSpecificFetch as fetch } from "$lib/db/sessionSpecificFetch"
  */
 export async function graphNeedsRepair(): Promise<boolean | null> {
     // Query the Graph-needs-repair API.
-    const res = await fetch(`api/db/graphFile/graphNeedsRepair`)
+    const res = await fetch(`/api/db/graphFile/graphNeedsRepair`)
 
     // If the response is ok,
     if (res.ok) {

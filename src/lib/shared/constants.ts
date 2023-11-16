@@ -240,3 +240,26 @@ export const hyperlinkProtocols = [
     "news",
     "telnet"
 ]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Array of paths that are relative to a specific Graph and should be
+// forbidden when the user is not authorized for that Graph.
+export const graphRestrictedPaths = [
+	"/api/db/graphConstructs",
+	"/api/db/graphFile",
+	"/api/db/graphManipulation",
+	"/api/file/attachmentsFolder",
+	"/api/file/graphConfig"
+]

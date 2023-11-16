@@ -11,7 +11,7 @@ import { sessionSpecificFetch as fetch } from "$lib/db/sessionSpecificFetch"
  */
 export async function graphIsUpdated(): Promise<boolean | null> {
     // Query the Graph-is-updated API.
-    const res = await fetch(`api/db/graphFile/graphIsUpdated`)
+    const res = await fetch(`/api/db/graphFile/graphIsUpdated`)
 
     // If the response is ok,
     if (res.ok) {
