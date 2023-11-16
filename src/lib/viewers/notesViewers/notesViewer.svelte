@@ -1,25 +1,35 @@
 <script lang="ts">
     // Import types.
+    import type { ThingDbModel } from "$lib/models/dbModels"
     import type { Graph, Thing } from "$lib/models/constructModels"
 
-    // Import constants and stores.
+    // Import SvelteKit framework resources.
+    import { tick } from "svelte"
+
+    // Import constants.
     import { hyperlinkProtocols } from "$lib/shared/constants"
+
+    // Import stores.
+    import {
+        landscapeOrientation, notesBackgroundImageStore, notesEditorLockedStore, readOnlyMode, storeGraphDbModels, uITrimColorStore, updateNoteSearchListStore
+    } from "$lib/stores"
+
+    // Import utility functions.
+    import { onMobile, sleep, removeItemFromArray } from "$lib/shared/utility"
 
     // Import related widgets.
     import NotesEditor from "./notesEditor.svelte"
-
-    // Import API methods.
-    import { getThingsByGuid, addNoteToThingOrGetExistingNoteId, updateNote, markNotesModified, getNoteSearchListItems } from "$lib/db"
-
-
-    import { landscapeOrientation, notesBackgroundImageStore, notesEditorLockedStore, readOnlyMode, storeGraphDbModels, uITrimColorStore, updateNoteSearchListStore } from "$lib/stores"
-    import { saveGraphConfig } from "$lib/shared/config"
-    import type { ThingDbModel } from "$lib/models/dbModels"
-    import { onMobile, removeItemFromArray, sleep } from "$lib/shared/utility";
-    import { Tooltip } from "$lib/widgets/layoutWidgets"
     import TopBottomJumpButtons from "./topBottomJumpButtons.svelte"
     import SavingIndicator from "./savingIndicator.svelte"
-    import { tick } from "svelte";
+    import { Tooltip } from "$lib/widgets/layoutWidgets"
+
+    // Import API methods.
+    import { saveGraphConfig } from "$lib/shared/config"
+    import {
+        getThingsByGuid, addNoteToThingOrGetExistingNoteId, updateNote,
+        markNotesModified, getNoteSearchListItems
+    } from "$lib/db"
+
 
 
     /**
@@ -32,6 +42,7 @@
     export let rePerspectToThingId: (thingId: number) => Promise<void>
 
     
+
     // Handles for HTML elements.
     let editButton: Element
     let notesContainer: Element
@@ -41,6 +52,9 @@
     let textFieldScrollHeight = 0
     let textEditorField: Element
 
+
+    /* UI-state-related variables. */
+    
     // Whether Notes are displayed as plain HTML or as an editable interface.
     let editing = $notesEditorLockedStore
 
@@ -51,6 +65,28 @@
     let editButtonHovered = false
     let editingLockJustToggled = false
 
+
+    /* Editing-/saving-state-related variables. */
+
+    // Whether the Note text has been edited in the editor.
+    let editorTextEditedButNotSynced = false
+
+    // Timestamp histories of non-resolved Note creation and save operations.
+    let noteDbCreationAttemptTimestamps: string[] = []
+    let noteDbSaveOperationTimestamps: string[] = []
+
+    // Whether the Notes are currently in the process of being saved to the database, and whether
+    // there has been an error in that process.
+    $: savingNotesToDb = noteDbSaveOperationTimestamps.length > 0 ? true : false
+    let savingNotesError = false
+
+
+
+    /* Text-related variables. */
+
+    // Note title (Thing text).
+    $: title = graph.pThing ? graph.pThing.text : "THING NOT FOUND IN STORE"
+
     // Raw Note text.
     let currentPThingNoteText: string | null = null
 
@@ -60,20 +96,33 @@
     // The current text content of the editor.
     let currentEditorTextContent: string | null = null
 
-    // Whether the Note text has been edited in the editor.
-    let editorTextEditedButNotSynced = false
+
+    /* UI-related variables. */
+
+    // Notes-background image URL (if any).
+    $: notesBackgroundImageUrl =
+        $notesBackgroundImageStore ? `customizable/background-images/${$notesBackgroundImageStore}` :
+        null
+
+    
     
 
-    // The Graph's Perspective Thing info is proxied here, to prevent
-    // reactive updates whenever the Graph is refreshed.
+
+    /* Thing-related variables. */
+
+    // The Graph's Perspective Thing info is proxied here, to prevent reactive updates whenever the
+    // Graph is refreshed.
     let pThing = graph.pThing
     let pThingNoteId = graph.pThing?.note?.id || null
-    function updatePThing(newPThing: Thing | null) {
-        if (newPThing !== pThing) {
-            pThing = newPThing
-            pThingNoteId = newPThing?.note?.id || null
-        }
-    }
+
+
+
+
+
+
+
+
+
     $: updatePThing(graph.pThing)
 
 
@@ -85,21 +134,234 @@
     // When Perspective Thing changes, update the raw and display text to match
     // (or, if the Perspective Thing doesn't yet have a Note, set blank text).
     $: if (typeof pThing?.note?.text === "string") {
-        updateTexts(pThing.note.text, true)
+        updateFrontEndTexts(pThing.note.text, true)
     } else {
-        updateTexts("", true)
+        updateFrontEndTexts("", true)
     }
 
-    async function updateTexts(text: string, scrollToTop=false) {
+
+    $: if (currentEditorTextContent !== null && editorTextEditedButNotSynced) {
+        updateTextsAndDbToMatchEditorContent(currentEditorTextContent)
+    }
+
+    
+
+
+    
+
+    
+
+    // Set up custom hyperlink handling for Thing-links.
+    document.addEventListener("click", handleHyperlinkClick)
+    
+    
+    
+
+    // Show the edit-lock icon in the edit button if...
+    $: showEditingLockedIcon = (
+        (
+            // The viewer is in editing mode, but not locked in that mode, and...
+            editing
+            && !editingLocked
+
+            // The app is not on mobile, the mouse is hovering over the button, and the lock wasn't
+            // just toggled...
+            && (!onMobile() && editButtonHovered && !editingLockJustToggled)
+        )
+
+        // ...or...
+        || (
+            // The viewer is in editing mode, is locked in that mode, and the editing lock was just
+            // toggled...
+            editing
+            && editingLocked
+            && editingLockJustToggled
+        )
+
+        // ...or...
+        || (
+            // The viewer is locked in editing mode and the mouse is not hovering over the button.
+            editingLocked
+            && !editButtonHovered
+        )
+    ) ? true :
+    false
+
+
+
+    
+
+    
+    $: {
+        editing
+
+        textFieldScrollHeight = textField?.scrollHeight || 0
+    }
+
+
+
+
+
+
+
+
+
+
+
+    /**
+     * Update-Perspective-Thing method.
+     * 
+     * Updates the local proxy of the Graph's Perspective Thing (as well as the associated Note
+     * ID).
+     * @param newPThing - The new Perspective Thing.
+     */
+    function updatePThing(newPThing: Thing | null) {
+        if (newPThing !== pThing) {
+            pThing = newPThing
+            pThingNoteId = newPThing?.note?.id || null
+        }
+    }
+
+    /**
+     * Update-texts-and-database-to-match-editor-content method.
+     * 
+     * When the content of the text editor has been changed, this method is used to sync the other
+     * versions of the Note text on both the front and back ends with it.
+     * @param currentEditorTextContent - The current content of the text editor, to which the other versions should be synced.
+     */
+    async function updateTextsAndDbToMatchEditorContent(currentEditorTextContent: string) {
+        // Sync the other versions of the Note text on the front-end.
+        await updateFrontEndTexts(currentEditorTextContent)
+
+        // Sync the version of the Note text in the database.
+        await createAndUpdateNoteInDatabase(currentEditorTextContent)
+
+        // Note that the text has been synced.
+        editorTextEditedButNotSynced = false
+    }
+
+    /**
+     * Update-front-end-texts method.
+     * 
+     * Updates the different versions of the Note text (the proxy of the current Perspective Thing
+     * Note text and the text in the Notes display) to the supplied string.
+     * @param text - The string to update the texts to.
+     * @param scrollToTop - Whether to scroll the Notes viewer to the top after updating.
+     */
+    async function updateFrontEndTexts(text: string, scrollToTop=false) {
+        // Set the other versions of the Notes text to the supplied string.
         currentPThingNoteText = text
         viewerDisplayText = textForDisplay(text)
+
+        // Update the scroll height of the text field to reflect the new text.
         await tick()
         textFieldScrollHeight = textField?.scrollHeight || 0
 
+        // Scroll to the top (if requested).
         if (scrollToTop) {
             textField?.scroll({top: 0})
             textEditorField?.scroll({top: 0})
         }
+    }
+
+    /**
+     * Create-and-update-Note-in-database method.
+     * 
+     * Creates a Note for the Perspective Thing if necessary, then updates either the new Note or
+     * its existing Note based on the supplied string.
+     * @param currentEditorTextContent - The string to set the Note to.
+     */
+    async function createAndUpdateNoteInDatabase(currentEditorTextContent: string) {
+        // If there are any Note-creation attempts in progress, delay the
+        // update a bit, then try again.
+        if (noteDbCreationAttemptTimestamps.length > 0) {
+            await sleep(100)
+            createAndUpdateNoteInDatabase(currentEditorTextContent)
+
+        // Otherwise, (create if necessary, then) update the Note.
+        } else {
+            // Get the ID of the Note to update.
+            let noteIdToUpdate: number | null = pThingNoteId
+
+            // If there is no such Note yet, create it.
+            if (noteIdToUpdate === null) {
+                // Register the creation attempt.
+                const noteCreationAttemptTimestamp = (new Date()).toISOString()
+                noteDbCreationAttemptTimestamps.push(noteCreationAttemptTimestamp)
+
+                // Create the Note and get the new ID.
+                noteIdToUpdate = await createNoteIfNecessary() || null
+
+                // Remove the creation-attempt from the register to indicate that it is resolved.
+                removeItemFromArray(noteDbCreationAttemptTimestamps, noteCreationAttemptTimestamp)
+            }
+
+            // Update the Note.
+            if (noteIdToUpdate) await updateAndRefreshNote(noteIdToUpdate, currentEditorTextContent)
+        }
+    }
+
+    /**
+     * Create-Note-if-necessary method.
+     * 
+     * Create Note if none exists for this Thing.
+     */
+    async function createNoteIfNecessary(): Promise<number | false> {
+        // If there is no Perspective Thing ID to create a Note for, abort.
+        if (!graph.pThing?.id) return false
+
+        // Create a new Note.
+        const createdNoteId = await addNoteToThingOrGetExistingNoteId(graph.pThing.id)
+        
+        // Return the ID of the new Note, or false if no Note was created.
+        if (!createdNoteId) return false
+        return createdNoteId
+    }
+
+    /**
+     * Update-Note method.
+     * 
+     * Update the Note in the database based on the edits that have been made in the editor, then
+     * refresh the front end to show the new Note.
+     */
+    async function updateAndRefreshNote(noteId: number, newText: string) {
+        // Register the save attempt.
+        const noteSaveOperationTimestamp = (new Date()).toISOString()
+        noteDbSaveOperationTimestamps = [...noteDbSaveOperationTimestamps, noteSaveOperationTimestamp]
+
+        // Update the Note and mark the Thing as modified in the database.
+        const updated = await updateNote(noteId, newText)
+
+        // Register whether there was an error saving the Note.
+        if (updated) {
+            savingNotesError = false
+        } else {
+            savingNotesError = true
+        }
+
+        // Remove the save attempt from the register to indicate that it is resolved (but wait 1
+        // second first, so that the saving icon persists long enough for the user to see it).
+        (async () => {
+            await sleep(1000)
+            removeItemFromArray(noteDbSaveOperationTimestamps, noteSaveOperationTimestamp)
+            noteDbSaveOperationTimestamps = noteDbSaveOperationTimestamps
+        })()
+        
+        // If the note was not successfully updated, return.
+        if (!updated) return
+
+        // Mark that the Note has been modified in the database, and set the local proxy of the
+        // Perspective Thing Note ID to the Note ID.
+        await markNotesModified(noteId)
+        pThingNoteId = noteId
+
+        // Update the Note in the stores and the Graph.
+        if (graph.pThing?.id) await storeGraphDbModels<ThingDbModel>("Thing", graph.pThing.id, true)
+        viewerDisplayText = textForDisplay(newText)
+
+        // Update the Note search list.
+        const queriedNoteSearchListItems = await getNoteSearchListItems([noteId])
+        if (queriedNoteSearchListItems) updateNoteSearchListStore(queriedNoteSearchListItems)
     }
 
     /**
@@ -109,134 +371,12 @@
      * (so empty paragraphs and line breaks render correctly).
      * @param text - The Perspective Thing text to be processed.
      */
-     function textForDisplay(text: string) {
+    function textForDisplay(text: string) {
         return text
             .replace(/<br><\/p><\/li>/gi, "<br><br></p></li>")
             .replace(/<p><\/p>/gi, "<p>&nbsp;</p>")
     }
 
-
-    $: if (currentEditorTextContent !== null && editorTextEditedButNotSynced) {
-        updateTextsAndDbToMatchEditorContent(currentEditorTextContent)
-    }
-
-    async function updateTextsAndDbToMatchEditorContent(currentEditorTextContent: string) {
-        await updateTexts(currentEditorTextContent)
-        await createAndUpdateNote(currentEditorTextContent)
-        editorTextEditedButNotSynced = false
-    }
-
-
-    let noteDbCreationAttemptTimestamps: string[] = []
-    let noteDbSaveOperationTimestamps: string[] = []
-
-    $: savingNotesToDb = noteDbSaveOperationTimestamps.length > 0 ? true : false
-    let savingNotesError = false
-
-    async function createAndUpdateNote(currentEditorTextContent: string): Promise<void> {
-
-        // If there are any Note-creation attempts in progress, delay the
-        // update a bit before trying again.
-        if (noteDbCreationAttemptTimestamps.length > 0) {
-            await sleep(100)
-            createAndUpdateNote(currentEditorTextContent)
-
-        // Otherwise, (create if necessary, then) update the Note.
-        } else {
-
-            let noteIdToUpdate: number | null = pThingNoteId
-
-            // Create the node if necessary.
-            if (noteIdToUpdate === null) {
-                const noteCreationAttemptTimestamp = (new Date()).toISOString()
-                noteDbCreationAttemptTimestamps.push(noteCreationAttemptTimestamp)
-
-                noteIdToUpdate = await createNoteIfNecessary() || null
-
-                removeItemFromArray(noteDbCreationAttemptTimestamps, noteCreationAttemptTimestamp)
-            }
-
-            // Update the note.
-            if (noteIdToUpdate) await updateAndRefreshNote(noteIdToUpdate, currentEditorTextContent)
-        }
-        
-    }
-
-    /**
-     * Create-Note-if-necessary method.
-     * 
-     * Create Note if none exists for this Thing.
-     */
-    async function createNoteIfNecessary(): Promise<number | false> {
-        if (!graph.pThing?.id) return false
-
-        // Create a new Note.
-        const createdNoteId = await addNoteToThingOrGetExistingNoteId(graph.pThing.id)
-        if (!createdNoteId) return false
-        
-        return createdNoteId
-    }
-
-    /**
-     * Update-Note method.
-     * 
-     * Update the Note in the database based on the edits that have been made in
-     * the editor, then refresh the front-end to show the new Note.
-     */
-    async function updateAndRefreshNote(noteId: number, newText: string) {
-        const noteSaveOperationTimestamp = (new Date()).toISOString()
-        noteDbSaveOperationTimestamps = [...noteDbSaveOperationTimestamps, noteSaveOperationTimestamp]
-
-        // Update the Note and mark the Thing as modified in the database.
-        const updated = await updateNote(noteId, newText)
-        if (updated) {
-            savingNotesError = false
-        } else {
-            savingNotesError = true
-            return
-        }
-
-        (async () => {
-            await sleep(1000)
-            removeItemFromArray(noteDbSaveOperationTimestamps, noteSaveOperationTimestamp)
-            noteDbSaveOperationTimestamps = noteDbSaveOperationTimestamps
-        })()
-        
-        await markNotesModified(noteId)
-        pThingNoteId = noteId
-
-        // Update the note in the stores and the Graph.
-        if (graph.pThing?.id) await storeGraphDbModels<ThingDbModel>("Thing", graph.pThing.id, true)
-        viewerDisplayText = textForDisplay(newText)
-
-        const queriedNoteSearchListItems = await getNoteSearchListItems([noteId])
-        if (queriedNoteSearchListItems) updateNoteSearchListStore(queriedNoteSearchListItems)
-    }
-
-    // Set up custom hyperlink handling for Thing-links.
-    document.addEventListener("click", handleHyperlinkClick)
-    
-    
-    // Note title (Thing text).
-    $: title = graph.pThing ? graph.pThing.text : "THING NOT FOUND IN STORE"
-
-    // Whether to show the edit-lock icon in the edit button.
-    $: showEditingLockedIcon = (
-        (
-            editing
-            && !editingLocked
-            && (!onMobile() && editButtonHovered && !editingLockJustToggled)
-        )
-        || (
-            editing
-            && editingLocked
-            && editingLockJustToggled
-        )
-        || (
-            editingLocked
-            && !editButtonHovered
-        )
-    ) ? true : false
 
 
 
@@ -248,14 +388,21 @@
      * @param event - The mouse click that activated the method.
      */
 	function handlePossibleOutsideClick(event: MouseEvent) {
+        // Get the Thing-linking widget element.
         const thingLinkingWidgets = document.getElementsByClassName("thing-linking-widget")
         const thingLinkingWidget = thingLinkingWidgets.length ? thingLinkingWidgets[0] : null
 
+        // If...
 		if (
+            // ...the click wasn't on the Notes container or any part of it...
             event.target !== notesContainer
             && !notesContainer.contains(event.target as Node)
+
+            // ...or the edit button or any part of it...
             && event.target !== editButton 
             && !editButton.contains(event.target as Node)
+
+            // ...or the Thing-linking widget...
             && !(
                 thingLinkingWidget
                 && (
@@ -263,7 +410,11 @@
                     || thingLinkingWidget.contains(event.target as Node)
                 )
             )
+
+            // ...and the viewer isn't locked in editing mode,
             && !editingLocked
+
+        // Disable editing.
         ) editing = false
 	}
 
@@ -276,7 +427,6 @@
     function handleEscape(event: KeyboardEvent) {
         if (event.key === "Escape" && !editingLocked) editing = false
     }
-
     
     /**
      * Handle-hyperlink-clicked method.
@@ -289,6 +439,7 @@
         // Get the hyperlink <a> element.
         const hyperlink = event.target ? (event.target as Element).closest("a") : null
         if (!hyperlink) return
+
         // When in editor mode, if the Control key modifier wasn't pressed when
         // clicking, abort.
         if (editing && !event.ctrlKey) return
@@ -338,6 +489,12 @@
         }
     }
 
+    /**
+     * Handle-edit-button method.
+     * 
+     * Called when the edit button is toggled, either turning on editing mode or turning it off
+     * and handling related actions (like saving the Graph configuration).
+     */
     function handleEditButton() {
         if (editing === false) {
             editing = true
@@ -347,17 +504,6 @@
             notesEditorLockedStore.set(editingLocked)
             saveGraphConfig()
         }
-    }
-
-
-    $: notesBackgroundImageUrl =
-        $notesBackgroundImageStore ? `customizable/background-images/${$notesBackgroundImageStore}` :
-        null
-
-    $: {
-        editing
-
-        textFieldScrollHeight = textField?.scrollHeight || 0
     }
 </script>
 
