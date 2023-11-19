@@ -1,5 +1,8 @@
 <script lang="ts">
+    // Import SvelteKit framework resources.
     import { onMount } from "svelte"
+
+    // Import sores.
     import { landscapeOrientation } from "$lib/stores"
 
     
@@ -19,9 +22,7 @@
 
     // Track whether the component is mounted yet.
     let mounted = false
-    onMount(async () => {
-        mounted = true
-	})
+    onMount(async () => { mounted = true })
 </script>
 
 

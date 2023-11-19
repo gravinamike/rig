@@ -1,9 +1,6 @@
 // Import basic framework resources.
 import { writable } from "svelte/store"
 
-// Import utility functions.
-import { removeItemFromArray } from "$lib/shared/utility"
-
 
 
 /**

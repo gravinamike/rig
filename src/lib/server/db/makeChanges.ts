@@ -13,7 +13,7 @@ import {
 import { Direction, Space, Thing } from "$lib/models/constructModels"
 
 // Filesystem-related imports.
-import { createFolder } from "$lib/shared/fileSystem"
+import { createAttachmentsFolder } from "$lib/shared/fileSystem"
 
 import { changeIndexInArray, legacyPerspectiveThingsParse } from "$lib/shared/utility"
 import type { Knex } from "knex"
@@ -723,7 +723,7 @@ export async function addFolderToThing(thingId: number): Promise<void> {
         console.log('Transaction complete.')
 
         try {
-            createFolder(folderGuid)
+            createAttachmentsFolder(folderGuid)
         } catch(err) {
             console.error(err)
         }
