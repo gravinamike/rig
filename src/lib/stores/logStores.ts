@@ -33,6 +33,7 @@ if (browser) {
     logger = pino(
         {
             level: "trace",
+            base: undefined, // Removes "pid" and "hostname" from logs.
             timestamp: () => `,"timestamp":"${new Date(Date.now()).toISOString()}"`
         }
     )
@@ -46,9 +47,11 @@ if (browser) {
     const serverConfig = JSON.parse(serverConfigAsString) as ServerConfig
     const logsFolderPath = serverConfig.logsFolder
     const logFilePath = `${logsFolderPath}/log.log`
+    
+    
 
-    // Create a Pino transport.
-    const serverLoggerTransport = pino.transport(
+    
+    const transportConfig =
         // If logging to file is disabled, create a console-only logger.
         logsFolderPath === null ? {
             targets: [
@@ -70,12 +73,15 @@ if (browser) {
                 }
             ]
         }
-    )
+    
+    // Create a Pino transport.
+    const serverLoggerTransport = pino.transport(transportConfig)
 
     // Create the logger using that transport.
     logger = pino(
         {
             level: "trace",
+            base: undefined,
             timestamp: () => `,"timestamp":"${new Date(Date.now()).toISOString()}"`,
         },
         serverLoggerTransport

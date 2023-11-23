@@ -5,6 +5,7 @@ import { serialize } from "cookie"
 import { getUserByUsername, createNewSession, validatePassword } from "$lib/server/auth"
 
 
+
 /**
  * Post method for sign-in endpoint.
  *
@@ -41,7 +42,7 @@ export const POST: RequestHandler = async ({ request }) => {
     // If the user isn't registered or the password is incorrect,
     if ( !user || !passwordIsValid ) {    
         // Return an error response.
-        throw error(401, "Incorrect user or password")
+        throw error(401, "Incorrect user or password.")
 
     // Otherwise,
     } else {

@@ -5,6 +5,7 @@ import { serialize } from "cookie"
 import { hashPassword, registerNewUser, getUserByUsername, createNewSession } from "$lib/server/auth"
 
 
+
 /**
  * Post method for sign-up endpoint.
  *
@@ -18,7 +19,7 @@ export const POST: RequestHandler = async ({ request }) => {
 
     // If the user already exists, return an error.
     if (user) {
-        throw error(409, "User already exists")
+        throw error(409, `Couldn't create user "${body.username}" (user already exists).`)
 
     // Otherwise, register the user.
     } else {
@@ -33,7 +34,7 @@ export const POST: RequestHandler = async ({ request }) => {
             // Create a new session with the username.
             const { id } = await createNewSession(body.username)
 
-            // If the user asked to remain signe in, set a persistent cookie (with
+            // If the user asked to remain signed in, set a persistent cookie (with
             // maxAge). Otherwise set a session cookie.
             const cookieOptions: CookieSerializeOptions = {
                 // If `path` is "/", cookie will be sent for every request.
@@ -53,7 +54,7 @@ export const POST: RequestHandler = async ({ request }) => {
             // Create a response with a set-cookie header for the new session.
             const response = new Response(JSON.stringify(
                 {
-                    message: "Successfully signed up"
+                    message: "Successfully signed up."
                 }
             ))
             response.headers.set(
@@ -71,7 +72,7 @@ export const POST: RequestHandler = async ({ request }) => {
         // Otherwise, if the password was not successfully hashed, return the
         // error.
         } else {
-            throw error(500, "Sign-up failed (error hashing password)")
+            throw error(500, `Sign-up for user "${body.username}" failed (error hashing password).`)
         }
     }
 }

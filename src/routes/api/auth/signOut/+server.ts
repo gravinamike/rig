@@ -38,5 +38,5 @@ export const GET: RequestHandler = async ({ request }) => {
     }
 
     // If the cookie doesn't contain a session ID, throw an error.
-    throw error(401, "Sign-out attempt failed (no session ID in cookie).")
+    throw error(401, "Sign-out attempt failed (no session ID in the cookie).")
 }

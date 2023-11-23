@@ -14,6 +14,12 @@ import { retrieveSessionSpecificCookie } from "$lib/db/sessionSpecificFetch"
 import { isGraphRestrictedRoute } from "$lib/shared/constants"
 
 
+import { get } from "svelte/store"
+import { loggerStore } from "$lib/stores"
+const logger = get(loggerStore)
+
+
+
 
 /**
  * Server hook handle.
@@ -48,12 +54,18 @@ export const handle: Handle = async ({ event, resolve }) => {
 		event.locals.user = null
 	}
 
-	
 	/* If the request is forbidden, throw a 403 error. */
-	if (await requestIsForbidden(sessionUuid, event)) {
+	const requestForbidden = await requestIsForbidden(sessionUuid, event)
+	if (requestForbidden) {
+		logger.error(
+			{
+				route: event.route.id,
+				status: 403,
+				msg: "You don't have permission to access this resource."
+			}
+		)
 		throw error(403, "You don't have permission to access this resource.")
 	}
-
 
 	/* Get a database connection. */
 
@@ -85,7 +97,36 @@ export const handle: Handle = async ({ event, resolve }) => {
 
 
 	/* Resolve a response from the event, and return it to the client. */
-	const response = await resolve(event)
+	const response: Response = await resolve(event)
+
+
+
+
+
+	//////////////////////////////////////// log errors. This may replace doing logging in every API endpoint. Might need some way to prevent double-representation of the errors in the console?
+	if (!requestForbidden && !(event.route.id === null) && !response.ok) {
+		const status = response.clone().status
+		response.clone().text().then(text => {
+			let errorMessage: string
+			try {
+				errorMessage = JSON.parse(text)["message"]
+			} catch {
+				errorMessage = text
+			}
+			logger.error(
+				{
+					route: event.route.id,
+					status: status,
+					msg: errorMessage
+				}
+			)
+		})
+    }
+
+
+
+
+
 	return response
 }
 
