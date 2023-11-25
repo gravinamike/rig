@@ -3,7 +3,7 @@
     import { onMount } from "svelte"
 
     // Import sores.
-    import { landscapeOrientation, loggerStore } from "$lib/stores"
+    import { landscapeOrientation } from "$lib/stores"
 
     
     // App width and height.

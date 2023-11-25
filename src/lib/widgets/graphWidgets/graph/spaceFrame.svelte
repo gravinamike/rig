@@ -244,9 +244,8 @@
                     startingDirection={arrowInfo.direction}
                     halfAxisId={arrowInfo.halfAxisId}
                     {graphWidgetStyle}
-                    optionClickedFunction={(direction, _, option) => {
-                        console.log(direction, option)
-
+                    optionClickedFunction={(_, __, ___) => {
+                        // Placeholder.
                     }}
                     optionHoveredFunction={async (_, option) => {
                         if (currentSpace) {

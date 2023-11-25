@@ -8,7 +8,9 @@ import {
     RawDirectionDbModel, RawThingDbModel, getNewThingInfo,
     RawRelationshipDbModel, getNewRelationshipInfo,
     RawNoteDbModel, getNewNoteInfo, RawNoteToThingDbModel,
-    RawFolderDbModel, getNewFolderInfo, RawFolderToThingDbModel, RawSpaceDbModel, getNewSpaceInfo, RawDirectionToSpaceDbModel, getNewDirectionInfo
+    RawFolderDbModel, getNewFolderInfo, RawFolderToThingDbModel,
+    RawSpaceDbModel, getNewSpaceInfo, RawDirectionToSpaceDbModel,
+    getNewDirectionInfo
 } from "$lib/server/models"
 import { Direction, Space, Thing } from "$lib/models/constructModels"
 
@@ -18,6 +20,12 @@ import { createAttachmentsFolder } from "$lib/shared/fileSystem"
 import { changeIndexInArray, legacyPerspectiveThingsParse } from "$lib/shared/utility"
 import type { Knex } from "knex"
 import type { OddHalfAxisId } from "$lib/shared/constants"
+
+
+import { get } from "svelte/store"
+import { loggerStore } from "$lib/stores"
+const logger = get(loggerStore)
+
 
 
 
@@ -55,16 +63,25 @@ export async function createDirection(
                 newOrder
             )
             const querystring1 = RawDirectionDbModel.query().insert(newDirectionInfo).toKnexQuery().toString()
-            //console.log(querystring1)
+
             const newDirectionDbModel = await alterQuerystringForH2AndRun(querystring1, transaction, "", "Direction") as RawDirectionDbModel
 
             return newDirectionDbModel.id as number
         })
 
+        logger.info(
+            {
+                id: newDirectionId,
+                oppositeId: oppositeDirectionId,
+                relationshipText: relationshipText,
+                objectText: objectText
+            },
+            `Created new Direction.`
+        )
         return newDirectionId
 
     } catch(err) {
-        console.error(err)
+        logger.error({ msg: (err as Error).message })
         return false
     }
 
@@ -96,10 +113,19 @@ export async function updateDirection(
             return
         })
         
+        logger.info(
+            {
+                id: directionId,
+                oppositeId: oppositeId,
+                relationshipText: relationshipText,
+                objectText: nameForObjects
+            },
+            `Updated Direction.`
+        )
         return true
 
     } catch(err) {
-        console.error(err)
+        logger.error({ msg: (err as Error).message })
         return false
     }
 }
@@ -122,10 +148,13 @@ export async function updateDirectionOrders(directionInfos: {directionId: number
 
     // Report on the response.
     .then(function() {
-        console.log('Transaction complete.')
+        logger.info(
+            directionInfos,
+            `Updated orders of Directions.`
+        )
     })
     .catch(function(err: Error) {
-        console.error(err)
+        logger.error({ msg: err.message })
     })
 }
 
@@ -206,10 +235,13 @@ export async function deleteDirection(directionId: number): Promise<void> {
 
     // Report on the response.
     .then(function() {
-        console.log('Transaction complete.')
+        logger.info(
+            { directionId },
+            `Deleted Direction.`
+        )
     })
     .catch(function(err: Error) {
-        console.error(err)
+        logger.error({ msg: err.message })
     })
 }
 
@@ -266,10 +298,18 @@ export async function createSpace(
             return newSpaceDbModel.id as number
         })
 
+        logger.info(
+            { 
+                text: spaceText,
+                buildMethod: spaceBuildMethod,
+                halfAxisIdsAndDirections: halfAxisIdsAndDirections
+            },
+            `Created Space.`
+        )
         return newSpaceId
 
     } catch(err) {
-        console.error(err)
+        logger.error({ msg: (err as Error).message })
         return false
     }
 
@@ -315,10 +355,19 @@ export async function updateSpace(
             return
         })
         
+        logger.info(
+            {
+                id: spaceId,
+                text: spaceText,
+                buildMethod: spaceBuildMethod,
+                halfAxisIdsAndDirections: halfAxisIdsAndDirections
+            },
+            `Updated Space.`
+        )
         return true
 
     } catch(err) {
-        console.error(err)
+        logger.error({ msg: (err as Error).message })
         return false
     }
 }
@@ -339,10 +388,13 @@ export async function updateSpaceOrders(spaceInfos: {spaceId: number, newOrder: 
 
     // Report on the response.
     .then(function() {
-        console.log('Transaction complete.')
+        logger.info(
+            spaceInfos,
+            `Updated orders of Spaces.`
+        )
     })
     .catch(function(err: Error) {
-        console.error(err)
+        logger.error({ msg: err.message })
     })
 }
 
@@ -426,10 +478,13 @@ export async function deleteSpace(spaceId: number): Promise<void> {
 
     // Report on the response.
     .then(function() {
-        console.log('Transaction complete.')
+        logger.info(
+            { spaceId },
+            `Deleted Space.`
+        )
     })
     .catch(function(err: Error) {
-        console.error(err)
+        logger.error({ msg: err.message })
     })
 }
 
@@ -506,10 +561,19 @@ export async function createNewRelatedThing(
             return newRelatedThing
         })
 
+        logger.info(
+            { 
+                thingIdToRelateFrom,
+                directionId,
+                text,
+                defaultSpace
+            },
+            "Created Thing."
+        )
         return newRelatedThing as Thing
 
     } catch(err) {
-        console.error(err)
+        logger.error({ msg: (err as Error).message })
         return false
     }
 }
@@ -534,10 +598,17 @@ export async function updateThingText(thingId: number, text: string): Promise<bo
             return
         })
         
+        logger.info(
+            { 
+                thingId,
+                text
+            },
+            "Thing text updated."
+        )
         return true
 
     } catch(err) {
-        console.error(err)
+        logger.error({ msg: (err as Error).message })
         return false
     }
 }
@@ -583,12 +654,20 @@ export async function updateThingPerspectiveText(
                 return
             })
             
+            logger.info(
+                { 
+                    pThingId,
+                    thingId,
+                    text
+                },
+                "Thing Perspective text updated."
+            )
             return true
 
         }
 
     } catch(err) {
-        console.error(err)
+        logger.error({ msg: (err as Error).message })
         return false
     }
 }
@@ -613,10 +692,17 @@ export async function updateThingDefaultSpace(thingId: number, spaceId: number):
             return
         })
         
+        logger.info(
+            { 
+                thingId,
+                spaceId
+            },
+            "Thing's default Space updated."
+        )
         return true
 
     } catch(err) {
-        console.error(err)
+        logger.error({ msg: (err as Error).message })
         return false
     }
 }
@@ -654,11 +740,16 @@ export async function addNoteToThingOrGetExistingNoteId(thingId: number): Promis
 
     // Report on the response.
     .then(function(noteId) {
-        console.log('Transaction complete.')
+        logger.info(
+            { 
+                thingId
+            },
+            "Added Note to Thing (or got ID of existing Note)."
+        )
         newNoteId = noteId
     })
     .catch(function(err: Error) {
-        console.error(err)
+        logger.error({ msg: err.message })
     })
 
     return newNoteId
@@ -684,10 +775,17 @@ export async function updateNote(noteId: number, text: string): Promise< boolean
 
     // Report on the response.
     .then(function() {
+        logger.trace(
+            { 
+                noteId,
+                text
+            },
+            "Updated Note."
+        )
         success = true
     })
     .catch(function(err: Error) {
-        // A LOGGER CALL SHOULD GO HERE WHEN LOGGING IS IMPLEMENTED.
+        logger.error({ msg: err.message })
         success = err
     })
 
@@ -720,16 +818,21 @@ export async function addFolderToThing(thingId: number): Promise<void> {
 
     // Report on the response and create a folder in the filesystem.
     .then(function() {
-        console.log('Transaction complete.')
-
         try {
             createAttachmentsFolder(folderGuid)
+
+            logger.info(
+                { 
+                    thingId,
+                },
+                "Added attachments folder to Thing."
+            )
         } catch(err) {
-            console.error(err)
+            logger.error({ msg: (err as Error).message })
         }
     })
     .catch(function(err: Error) {
-        console.error(err)
+        logger.error({ msg: (err as Error).message })
     })
 }
 
@@ -767,10 +870,15 @@ export async function deleteThing(thingId: number): Promise<void> {
 
     // Report on the response.
     .then(function() {
-        console.log('Transaction complete.')
+        logger.info(
+            { 
+                thingId,
+            },
+            "Deleted Thing."
+        )
     })
     .catch(function(err: Error) {
-        console.error(err)
+        logger.error({ msg: err.message })
     })
 }
 
@@ -797,11 +905,11 @@ export async function createNewRelationship(sourceThingId: number, destThingId: 
 
     if (relationshipAlreadyExists) {
 
-        console.log("To-be-created Relationship would duplicate an existing Relationship. Aborting operation.")
+        logger.error({ msg: "To-be-created Relationship would duplicate an existing Relationship. Aborting operation." })
     
     } else if (sourceThingId === destThingId) {
 
-        console.log("To-be-created Relationship would relate a Thing to itself. Aborting operation.")
+        logger.error({ msg: "To-be-created Relationship would relate a Thing to itself. Aborting operation." })
 
     } else {
 
@@ -835,10 +943,17 @@ export async function createNewRelationship(sourceThingId: number, destThingId: 
 
         // Report on the response.
         .then(function() {
-            console.log('Transaction complete.')
+            logger.info(
+                { 
+                    sourceThingId,
+                    destThingId,
+                    directionId
+                },
+                "Created Relationship."
+            )
         })
         .catch(function(err: Error) {
-            console.error(err)
+            logger.error({ msg: err.message })
         })
 
     }
@@ -899,15 +1014,18 @@ export async function updateRelationships(relationshipInfos: {sourceThingId: num
 
         // Report on the response.
         .then(function() {
-            console.log('Transaction complete.')
+            logger.info(
+                relationshipInfos,
+                "Updated Relationships."
+            )
         })
         .catch(function(err: Error) {
-            console.error(err)
+            logger.error({ msg: err.message })
         })
 
     } else {
 
-        console.log("The specified change to this Relationship's Direction would duplicate an existing Relationship.")
+        logger.error({ msg: "The specified change to this Relationship's Direction would duplicate an existing Relationship." })
 
     }    
 }
@@ -929,10 +1047,16 @@ export async function deleteRelationship(sourceThingId: number, destThingId: num
 
     // Report on the response.
     .then(function() {
-        console.log('Transaction complete.')
+        logger.info(
+            {
+                sourceThingId,
+                destThingId
+            },
+            "Deleted Relationship."
+        )
     })
     .catch(function(err: Error) {
-        console.error(err)
+        logger.error({ msg: err.message })
     })
 }
 
@@ -952,10 +1076,15 @@ export async function markThingsVisited(thingIds: number[]): Promise<void> {
 
     // Report on the response.
     .then(function() {
-        console.log('Transaction complete.')
+        logger.info(
+            {
+                thingIds
+            },
+            "Thing modification time(s) recorded."
+        )
     })
     .catch(function(err: Error) {
-        console.error(err)
+        logger.error({ msg: err.message })
     })
 }
 
@@ -974,10 +1103,15 @@ export async function markNotesModified(noteIds: number[]): Promise<void> {
 
     // Report on the response.
     .then(function() {
-        console.log('Transaction complete.')
+        logger.trace(
+            {
+                noteIds
+            },
+            "Note modification time(s) recorded."
+        )
     })
     .catch(function(err: Error) {
-        console.error(err)
+        logger.error({ msg: err.message })
     })
 }
 
@@ -1003,10 +1137,15 @@ export async function updateRelationshipOrders(relationshipInfos: {sourceThingId
 
     // Report on the response.
     .then(function() {
-        console.log('Transaction complete.')
+        logger.info(
+            {
+                relationshipInfos
+            },
+            "Updated Relationship orders."
+        )
     })
     .catch(function(err: Error) {
-        console.error(err)
+        logger.error({ msg: err.message })
     })
 }
 

@@ -32,7 +32,7 @@ let logger: Logger
 if (browser) {
     logger = pino(
         {
-            level: "trace",
+            level: "info",
             base: undefined, // Removes "pid" and "hostname" from logs.
             timestamp: () => `,"timestamp":"${new Date(Date.now()).toISOString()}"`
         }
@@ -77,10 +77,13 @@ if (browser) {
     // Create a Pino transport.
     const serverLoggerTransport = pino.transport(transportConfig)
 
+
+
+    
     // Create the logger using that transport.
     logger = pino(
         {
-            level: "trace",
+            level: "info",
             base: undefined,
             timestamp: () => `,"timestamp":"${new Date(Date.now()).toISOString()}"`,
         },

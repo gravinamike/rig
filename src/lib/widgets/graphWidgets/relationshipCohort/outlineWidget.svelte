@@ -79,7 +79,7 @@
                 {halfAxisId}
                 {graphWidgetStyle}
                 interactionDisabled={true}
-                optionClickedFunction={(direction, _, option) => {console.log(direction, option)}}
+                optionClickedFunction={(_, __, ___) => {/* Placeholder. */}}
             />
         {/if}
     </div>

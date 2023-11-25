@@ -91,7 +91,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 
 		// Create that Graph file and get a database connection to it.
 		const body = await event.request.clone().json()
-		await getDatabaseConnection(`${body.username || "all"}/${body.newGraphName}`, null, true)
+		await getDatabaseConnection(`${body.username || "all"}/${body.newGraphName}`)
 
 	}
 
@@ -102,8 +102,6 @@ export const handle: Handle = async ({ event, resolve }) => {
 
 
 
-
-	//////////////////////////////////////// log errors. This may replace doing logging in every API endpoint. Might need some way to prevent double-representation of the errors in the console?
 	if (!requestForbidden && !(event.route.id === null) && !response.ok) {
 		const status = response.clone().status
 		response.clone().text().then(text => {
@@ -173,11 +171,6 @@ async function requestIsForbidden(
 			)
 		// The request is forbidden.
 		) {
-			console.log(
-				"GRAPH NAME:", graphName,
-				"USERNAME FROM GRAPH NAME:", usernameFromGraphName,
-				"SIGNED IN USER NAME:", event.locals.user?.username
-			)
 			requestIsForbidden = true
 		}
 	}
