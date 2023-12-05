@@ -1076,7 +1076,7 @@ export async function markThingsVisited(thingIds: number[]): Promise<void> {
 
     // Report on the response.
     .then(function() {
-        logger.info(
+        logger.trace(
             {
                 thingIds
             },
