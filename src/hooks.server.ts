@@ -1,5 +1,5 @@
 // Import types.
-import type { Handle, RequestEvent } from "@sveltejs/kit"
+import type { Handle, HandleServerError, RequestEvent } from "@sveltejs/kit"
 
 // Import Sveltekit framework resources.
 import { error } from "@sveltejs/kit"
@@ -22,7 +22,7 @@ const logger = get(loggerStore)
 
 
 /**
- * Server hook handle.
+ * Server request-handle hook.
  * 
  * All requests to the server are first passed through this method, which sets up a connection to
  * the database, specifying the appropriate file either from a cookie or from a passed argument.
@@ -210,4 +210,43 @@ async function requestIsForbidden(
 	}
 
 	return requestIsForbidden
+}
+
+
+/**
+ * Server unexpected-error hook.
+ * 
+ * All unexpected errors (those errors not thrown with the SvelteKit `error` function) that happen
+ * during loading or rendering on the server pass through this hook. It allows such errors to be
+ * logged and also stripped of any sensitive information (like stack traces) before being passed
+ * on.
+ * @param error - The error that caused the hook to be invoked.
+ * @param event - The request event that caused the error.
+ * @returns - An object conforming to the application's error interface.
+ */
+export const handleError: HandleServerError = async ({ error, event }) => {
+	let errorMessage: string
+
+	try {
+		// Get the error message from the error.
+		errorMessage = `An unexpected error happened during loading/rendering: ${(error as {message: string}).message}`
+			
+		// Log the error.
+		logger.error(
+			{
+				route: event.route.id,
+				msg: errorMessage
+			}
+		)
+	} catch {
+		// On any error in the above try block, fall back to a generic error message and skip
+		// logging.
+		errorMessage =
+			"An unexpected error occurred, and another error occurred while attempting to handle it in the server-side hooks."
+	}
+
+	// Return an application error object.
+	return {
+		message: errorMessage
+	}
 }
