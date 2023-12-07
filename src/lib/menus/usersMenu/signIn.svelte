@@ -1,5 +1,10 @@
 <script lang="ts">
-    import { onMobile } from "$lib/shared/utility";
+    import { onMobile } from "$lib/shared/utility"
+
+    import { get } from "svelte/store"
+    import { loggerStore } from "$lib/stores"
+    const logger = get(loggerStore)
+
 
     let username = ""
     let password = ""
@@ -24,9 +29,21 @@
     
         // Either refresh the site, or display the error.
         if (response.ok) {
+            logger.info(
+                {
+                    username
+                },
+                "User signed in."
+            )
             window.location.assign("/")
         } else {
-            error = (await response.json()).message
+            if (response.status === 401) {
+                error = "Incorrect username or password."
+                logger.error({ username: username, msg: "Incorrect username or password." })
+            } else {
+                error = (await response.json()).message
+                logger.error({ username: username, msg: `Error when attempting user sign-in: ${error}` })
+            }
         }
     }
 </script>

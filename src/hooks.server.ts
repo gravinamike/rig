@@ -57,7 +57,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 	/* If the request is forbidden, throw a 403 error. */
 	const requestForbidden = await requestIsForbidden(sessionUuid, event)
 	if (requestForbidden) {
-		logger.error(
+		logger.info(
 			{
 				route: event.route.id,
 				status: 403,

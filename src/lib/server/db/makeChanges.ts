@@ -69,7 +69,7 @@ export async function createDirection(
             return newDirectionDbModel.id as number
         })
 
-        logger.info(
+        logger.debug(
             {
                 id: newDirectionId,
                 oppositeId: oppositeDirectionId,
@@ -113,7 +113,7 @@ export async function updateDirection(
             return
         })
         
-        logger.info(
+        logger.debug(
             {
                 id: directionId,
                 oppositeId: oppositeId,
@@ -148,7 +148,7 @@ export async function updateDirectionOrders(directionInfos: {directionId: number
 
     // Report on the response.
     .then(function() {
-        logger.info(
+        logger.debug(
             directionInfos,
             `Updated orders of Directions.`
         )
@@ -235,7 +235,7 @@ export async function deleteDirection(directionId: number): Promise<void> {
 
     // Report on the response.
     .then(function() {
-        logger.info(
+        logger.debug(
             { directionId },
             `Deleted Direction.`
         )
@@ -298,7 +298,7 @@ export async function createSpace(
             return newSpaceDbModel.id as number
         })
 
-        logger.info(
+        logger.debug(
             { 
                 text: spaceText,
                 buildMethod: spaceBuildMethod,
@@ -355,7 +355,7 @@ export async function updateSpace(
             return
         })
         
-        logger.info(
+        logger.debug(
             {
                 id: spaceId,
                 text: spaceText,
@@ -388,7 +388,7 @@ export async function updateSpaceOrders(spaceInfos: {spaceId: number, newOrder: 
 
     // Report on the response.
     .then(function() {
-        logger.info(
+        logger.debug(
             spaceInfos,
             `Updated orders of Spaces.`
         )
@@ -478,7 +478,7 @@ export async function deleteSpace(spaceId: number): Promise<void> {
 
     // Report on the response.
     .then(function() {
-        logger.info(
+        logger.debug(
             { spaceId },
             `Deleted Space.`
         )
@@ -561,7 +561,7 @@ export async function createNewRelatedThing(
             return newRelatedThing
         })
 
-        logger.info(
+        logger.debug(
             { 
                 thingIdToRelateFrom,
                 directionId,
@@ -598,7 +598,7 @@ export async function updateThingText(thingId: number, text: string): Promise<bo
             return
         })
         
-        logger.info(
+        logger.debug(
             { 
                 thingId,
                 text
@@ -654,7 +654,7 @@ export async function updateThingPerspectiveText(
                 return
             })
             
-            logger.info(
+            logger.debug(
                 { 
                     pThingId,
                     thingId,
@@ -692,7 +692,7 @@ export async function updateThingDefaultSpace(thingId: number, spaceId: number):
             return
         })
         
-        logger.info(
+        logger.debug(
             { 
                 thingId,
                 spaceId
@@ -740,7 +740,7 @@ export async function addNoteToThingOrGetExistingNoteId(thingId: number): Promis
 
     // Report on the response.
     .then(function(noteId) {
-        logger.info(
+        logger.debug(
             { 
                 thingId
             },
@@ -775,7 +775,7 @@ export async function updateNote(noteId: number, text: string): Promise< boolean
 
     // Report on the response.
     .then(function() {
-        logger.trace(
+        logger.debug(
             { 
                 noteId,
                 text
@@ -821,7 +821,7 @@ export async function addFolderToThing(thingId: number): Promise<void> {
         try {
             createAttachmentsFolder(folderGuid)
 
-            logger.info(
+            logger.debug(
                 { 
                     thingId,
                 },
@@ -870,7 +870,7 @@ export async function deleteThing(thingId: number): Promise<void> {
 
     // Report on the response.
     .then(function() {
-        logger.info(
+        logger.debug(
             { 
                 thingId,
             },
@@ -943,7 +943,7 @@ export async function createNewRelationship(sourceThingId: number, destThingId: 
 
         // Report on the response.
         .then(function() {
-            logger.info(
+            logger.debug(
                 { 
                     sourceThingId,
                     destThingId,
@@ -1014,7 +1014,7 @@ export async function updateRelationships(relationshipInfos: {sourceThingId: num
 
         // Report on the response.
         .then(function() {
-            logger.info(
+            logger.debug(
                 relationshipInfos,
                 "Updated Relationships."
             )
@@ -1047,7 +1047,7 @@ export async function deleteRelationship(sourceThingId: number, destThingId: num
 
     // Report on the response.
     .then(function() {
-        logger.info(
+        logger.debug(
             {
                 sourceThingId,
                 destThingId
@@ -1137,7 +1137,7 @@ export async function updateRelationshipOrders(relationshipInfos: {sourceThingId
 
     // Report on the response.
     .then(function() {
-        logger.info(
+        logger.debug(
             {
                 relationshipInfos
             },
