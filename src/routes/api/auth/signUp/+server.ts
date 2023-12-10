@@ -4,6 +4,10 @@ import { error } from "@sveltejs/kit"
 import { serialize } from "cookie"
 import { hashPassword, registerNewUser, getUserByUsername, createNewSession } from "$lib/server/auth"
 
+import { get } from "svelte/store"
+import { loggerStore } from "$lib/stores"
+const logger = get(loggerStore)
+
 
 
 /**
@@ -19,6 +23,12 @@ export const POST: RequestHandler = async ({ request }) => {
 
     // If the user already exists, return an error.
     if (user) {
+        logger.error(
+            "Couldn't create user (user already exists).",
+            {
+                username: body.username
+            }
+        )
         throw error(409, `Couldn't create user "${body.username}" (user already exists).`)
 
     // Otherwise, register the user.
@@ -66,12 +76,25 @@ export const POST: RequestHandler = async ({ request }) => {
                 )
             )
 
+            // Log the sign-in.
+            logger.info(
+                {
+                    username: body.username
+                },
+                "User signed up."
+            )
+
             // Return the response.
             return response
 
-        // Otherwise, if the password was not successfully hashed, return the
-        // error.
+        // Otherwise, if the password was not successfully hashed, log it and return the error.
         } else {
+            logger.error(
+                "Sign-up failed (error hashing password).",
+                {
+                    username: body.username
+                }
+            )
             throw error(500, `Sign-up for user "${body.username}" failed (error hashing password).`)
         }
     }

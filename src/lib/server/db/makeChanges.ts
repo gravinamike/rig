@@ -1,7 +1,7 @@
 // Database-related imports.
 import { Model } from "objection"
 import { v4 as uuidv4 } from "uuid"
-import { alterQuerystringForH2AndRun } from "./utility"
+import { alterQuerystringForH2AndRun, logServerError } from "./utility"
 
 // Graph-construct-related imports.
 import {
@@ -81,7 +81,15 @@ export async function createDirection(
         return newDirectionId
 
     } catch(err) {
-        logger.error({ msg: (err as Error).message })
+        logServerError(
+            "An error occurred while attempting to create Direction.",
+            {
+                oppositeId: oppositeDirectionId,
+                relationshipText: relationshipText,
+                objectText: objectText
+            },
+            err as Error
+        )
         return false
     }
 
@@ -125,7 +133,16 @@ export async function updateDirection(
         return true
 
     } catch(err) {
-        logger.error({ msg: (err as Error).message })
+        logServerError(
+            "An error occurred while attempting to update Direction.",
+            {
+                id: directionId,
+                oppositeId: oppositeId,
+                relationshipText: relationshipText,
+                objectText: nameForObjects
+            },
+            err as Error
+        )
         return false
     }
 }
@@ -154,7 +171,13 @@ export async function updateDirectionOrders(directionInfos: {directionId: number
         )
     })
     .catch(function(err: Error) {
-        logger.error({ msg: err.message })
+        logServerError(
+            "An error occurred while attempting to update orders of Directions.",
+            {
+                directionInfos
+            },
+            err as Error
+        )
     })
 }
 
@@ -236,12 +259,20 @@ export async function deleteDirection(directionId: number): Promise<void> {
     // Report on the response.
     .then(function() {
         logger.debug(
-            { directionId },
+            {
+                directionId
+            },
             `Deleted Direction.`
         )
     })
     .catch(function(err: Error) {
-        logger.error({ msg: err.message })
+        logServerError(
+            "An error occurred while attempting to delete Direction.",
+            {
+                directionId
+            },
+            err as Error
+        )
     })
 }
 
@@ -309,7 +340,15 @@ export async function createSpace(
         return newSpaceId
 
     } catch(err) {
-        logger.error({ msg: (err as Error).message })
+        logServerError(
+            "An error occurred while attempting to create Space.",
+            {
+                text: spaceText,
+                buildMethod: spaceBuildMethod,
+                halfAxisIdsAndDirections: halfAxisIdsAndDirections
+            },
+            err as Error
+        )
         return false
     }
 
@@ -367,7 +406,16 @@ export async function updateSpace(
         return true
 
     } catch(err) {
-        logger.error({ msg: (err as Error).message })
+        logServerError(
+            "An error occurred while attempting to update Space.",
+            {
+                id: spaceId,
+                text: spaceText,
+                buildMethod: spaceBuildMethod,
+                halfAxisIdsAndDirections: halfAxisIdsAndDirections
+            },
+            err as Error
+        )
         return false
     }
 }
@@ -389,12 +437,16 @@ export async function updateSpaceOrders(spaceInfos: {spaceId: number, newOrder: 
     // Report on the response.
     .then(function() {
         logger.debug(
-            spaceInfos,
+            
             `Updated orders of Spaces.`
         )
     })
     .catch(function(err: Error) {
-        logger.error({ msg: err.message })
+        logServerError(
+            "An error occurred while attempting to update orders of Spaces.",
+            spaceInfos,
+            err as Error
+        )
     })
 }
 
@@ -484,7 +536,11 @@ export async function deleteSpace(spaceId: number): Promise<void> {
         )
     })
     .catch(function(err: Error) {
-        logger.error({ msg: err.message })
+        logServerError(
+            "An error occurred while attempting to delete Space.",
+            { spaceId },
+            err as Error
+        )
     })
 }
 
@@ -573,7 +629,16 @@ export async function createNewRelatedThing(
         return newRelatedThing as Thing
 
     } catch(err) {
-        logger.error({ msg: (err as Error).message })
+        logServerError(
+            "An error occurred while attempting to create Thing.",
+            { 
+                thingIdToRelateFrom,
+                directionId,
+                text,
+                defaultSpace
+            },
+            err as Error
+        )
         return false
     }
 }
@@ -608,7 +673,14 @@ export async function updateThingText(thingId: number, text: string): Promise<bo
         return true
 
     } catch(err) {
-        logger.error({ msg: (err as Error).message })
+        logServerError(
+            "An error occurred while attempting to update Thing text.",
+            { 
+                thingId,
+                text
+            },
+            err as Error
+        )
         return false
     }
 }
@@ -667,7 +739,15 @@ export async function updateThingPerspectiveText(
         }
 
     } catch(err) {
-        logger.error({ msg: (err as Error).message })
+        logServerError(
+            "An error occurred while attempting to update Thing Perspective text.",
+            { 
+                pThingId,
+                thingId,
+                text
+            },
+            err as Error
+        )
         return false
     }
 }
@@ -702,7 +782,14 @@ export async function updateThingDefaultSpace(thingId: number, spaceId: number):
         return true
 
     } catch(err) {
-        logger.error({ msg: (err as Error).message })
+        logServerError(
+            "An error occurred while attempting to update Thing default Space.",
+            { 
+                thingId,
+                spaceId
+            },
+            err as Error
+        )
         return false
     }
 }
@@ -749,7 +836,13 @@ export async function addNoteToThingOrGetExistingNoteId(thingId: number): Promis
         newNoteId = noteId
     })
     .catch(function(err: Error) {
-        logger.error({ msg: err.message })
+        logServerError(
+            "An error occurred while attempting to add Note to Thing (or get ID of existing Note).",
+            { 
+                thingId
+            },
+            err as Error
+        )
     })
 
     return newNoteId
@@ -785,7 +878,14 @@ export async function updateNote(noteId: number, text: string): Promise< boolean
         success = true
     })
     .catch(function(err: Error) {
-        logger.error({ msg: err.message })
+        logServerError(
+            "An error occurred while attempting to update Note.",
+            { 
+                noteId,
+                text
+            },
+            err as Error
+        )
         success = err
     })
 
@@ -828,11 +928,23 @@ export async function addFolderToThing(thingId: number): Promise<void> {
                 "Added attachments folder to Thing."
             )
         } catch(err) {
-            logger.error({ msg: (err as Error).message })
+            logServerError(
+                "An error occurred while attempting to add attachments folder to Thing.",
+                { 
+                    thingId
+                },
+                err as Error
+            )
         }
     })
     .catch(function(err: Error) {
-        logger.error({ msg: (err as Error).message })
+        logServerError(
+            "An error occurred while attempting to add attachments folder to Thing.",
+            { 
+                thingId
+            },
+            err as Error
+        )
     })
 }
 
@@ -878,7 +990,13 @@ export async function deleteThing(thingId: number): Promise<void> {
         )
     })
     .catch(function(err: Error) {
-        logger.error({ msg: err.message })
+        logServerError(
+            "An error occurred while attempting to delete Thing.",
+            { 
+                thingId
+            },
+            err as Error
+        )
     })
 }
 
@@ -905,11 +1023,21 @@ export async function createNewRelationship(sourceThingId: number, destThingId: 
 
     if (relationshipAlreadyExists) {
 
-        logger.error({ msg: "To-be-created Relationship would duplicate an existing Relationship. Aborting operation." })
+        logger.error({
+            msg: "To-be-created Relationship would duplicate an existing Relationship. Aborting operation.",
+            sourceThingId,
+            destThingId,
+            directionId
+        })
     
     } else if (sourceThingId === destThingId) {
 
-        logger.error({ msg: "To-be-created Relationship would relate a Thing to itself. Aborting operation." })
+        logger.error({
+            msg: "To-be-created Relationship would relate a Thing to itself. Aborting operation.",
+            sourceThingId,
+            destThingId,
+            directionId
+        })
 
     } else {
 
@@ -953,7 +1081,15 @@ export async function createNewRelationship(sourceThingId: number, destThingId: 
             )
         })
         .catch(function(err: Error) {
-            logger.error({ msg: err.message })
+            logServerError(
+                "An error occurred while attempting to create Relationship.",
+                { 
+                    sourceThingId,
+                    destThingId,
+                    directionId
+                },
+                err as Error
+            )
         })
 
     }
@@ -1020,12 +1156,19 @@ export async function updateRelationships(relationshipInfos: {sourceThingId: num
             )
         })
         .catch(function(err: Error) {
-            logger.error({ msg: err.message })
+            logServerError(
+                "An error occurred while attempting to update Relationships.",
+                relationshipInfos,
+                err as Error
+            )
         })
 
     } else {
 
-        logger.error({ msg: "The specified change to this Relationship's Direction would duplicate an existing Relationship." })
+        logger.error({
+            msg: "The specified change to this Relationship's Direction would duplicate an existing Relationship.",
+            relationshipInfos
+        })
 
     }    
 }
@@ -1056,7 +1199,14 @@ export async function deleteRelationship(sourceThingId: number, destThingId: num
         )
     })
     .catch(function(err: Error) {
-        logger.error({ msg: err.message })
+        logServerError(
+            "An error occurred while attempting to delete Relationship.",
+            { 
+                sourceThingId,
+                destThingId
+            },
+            err as Error
+        )
     })
 }
 
@@ -1084,7 +1234,13 @@ export async function markThingsVisited(thingIds: number[]): Promise<void> {
         )
     })
     .catch(function(err: Error) {
-        logger.error({ msg: err.message })
+        logServerError(
+            "An error occurred while attempting to record Thing modification time(s).",
+            { 
+                thingIds
+            },
+            err as Error
+        )
     })
 }
 
@@ -1111,7 +1267,13 @@ export async function markNotesModified(noteIds: number[]): Promise<void> {
         )
     })
     .catch(function(err: Error) {
-        logger.error({ msg: err.message })
+        logServerError(
+            "An error occurred while attempting to record Note modification time(s).",
+            { 
+                noteIds
+            },
+            err as Error
+        )
     })
 }
 
@@ -1145,7 +1307,13 @@ export async function updateRelationshipOrders(relationshipInfos: {sourceThingId
         )
     })
     .catch(function(err: Error) {
-        logger.error({ msg: err.message })
+        logServerError(
+            "An error occurred while attempting to update Relationship orders.",
+            { 
+                relationshipInfos
+            },
+            err as Error
+        )
     })
 }
 

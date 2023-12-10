@@ -60,7 +60,10 @@
                 window.location.assign("/")
             } else {
                 error = (await response.json()).message
-                logger.error({ username: username, msg: `Error when attempting user sign-up: ${error}` })
+                logger.error({
+                    username: username,
+                    msg: `Error when attempting user sign-up: ${error}`
+                })
             }
         }
     }

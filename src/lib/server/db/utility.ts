@@ -2,6 +2,11 @@ import { Model } from "objection"
 import { RawThingDbModel, RawRelationshipDbModel, RawNoteDbModel, RawNoteToThingDbModel, RawFolderDbModel, RawFolderToThingDbModel, RawDirectionDbModel, RawSpaceDbModel } from "$lib/server/models"
 import type { Knex } from "knex"
 
+import { get } from "svelte/store"
+import { loggerStore } from "$lib/stores"
+const logger = get(loggerStore)
+
+
 
 // H2 doesn't mesh with Objection's PostgreSQL syntax naturally. This function is a
 // temporary fix until H2 is replaced with another database. It takes the querystring,
@@ -54,4 +59,21 @@ export async function alterQuerystringForH2AndRun(
     } else {
         return null
     }
+}
+
+
+export function logServerError(message: string, infoObject: object, error: Error) {
+    const logObject: {[keyName: string]: unknown} = {}
+
+    for (const [key, value] of Object.entries(infoObject)) {
+        logObject[key] = value
+    }
+    logObject["errorType"] = error.name
+    logObject["errorMsg"] = error.message
+    logObject["errorStack"] = error.stack
+
+    logger.error(
+        logObject,
+        message
+    )
 }

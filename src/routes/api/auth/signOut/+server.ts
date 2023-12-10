@@ -3,6 +3,11 @@ import { error } from "@sveltejs/kit"
 import { parse, serialize } from "cookie"
 import { removeSession } from "$lib/server/auth"
 
+import { get } from "svelte/store"
+import { loggerStore } from "$lib/stores"
+const logger = get(loggerStore)
+
+
 
 /**
  * Get method for sign-out endpoint.
@@ -33,10 +38,19 @@ export const GET: RequestHandler = async ({ request }) => {
             )
         )
 
+        // Log the sign-in.
+        logger.info(
+            "User signed out."
+        )
+
         // Return the response.
         return response
     }
 
-    // If the cookie doesn't contain a session ID, throw an error.
+    // If the cookie doesn't contain a session ID, log it and throw an error.
+    // Log the error on the sever.
+    logger.error(
+        "Sign-out attempt failed (no session ID in the cookie)."
+    )
     throw error(401, "Sign-out attempt failed (no session ID in the cookie).")
 }

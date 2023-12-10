@@ -39,10 +39,16 @@
         } else {
             if (response.status === 401) {
                 error = "Incorrect username or password."
-                logger.error({ username: username, msg: "Incorrect username or password." })
+                logger.error({
+                    username: username,
+                    msg: "Incorrect username or password."
+                })
             } else {
                 error = (await response.json()).message
-                logger.error({ username: username, msg: `Error when attempting user sign-in: ${error}` })
+                logger.error({
+                    username: username,
+                    msg: `Error when attempting user sign-in: ${error}`
+                })
             }
         }
     }

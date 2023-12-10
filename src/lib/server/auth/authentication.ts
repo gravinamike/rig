@@ -62,7 +62,9 @@ export async function hashPassword( plaintextPassword: string ): Promise< string
 
     await hash(plaintextPassword, 10)
         .then(hash => hashedPassword = hash)
-        .catch(err => logger.error({ msg: err.message }))
+        .catch(err => logger.error({
+            msg: `Error when attempting to hash password: ${err}`
+        }))
         
     return hashedPassword
 }
