@@ -29,6 +29,42 @@ export interface ServerConfig {
     serverPort: number
     dbPort: number
     graphsFolder: string
+    logsFolder: string | null
+    logsLevel: string | null
+}
+
+/**
+ * Graph-restricted routes.
+ * 
+ * Array of API routes that are relative to a specific Graph and should be forbidden when the user
+ * isn't authorized for that Graph.
+ */
+const graphRestrictedRoutes = [
+	"/api/db/graphConstructs",
+	"/api/db/graphFile",
+	"/api/db/graphManipulation",
+	"/api/file/attachmentsFolder",
+	"/api/file/graphConfig"
+]
+
+/**
+ * Is-Graph-restricted-route method.
+ * 
+ * Determines whether a given API route fragment is Graph-restricted.
+ * @param route - The API route fragment to test.
+ * @returns - Whether the route fragment is Graph-restricted.
+ */
+export function isGraphRestrictedRoute(routeFragment: string) {
+    const isGraphRestrictedRoute = graphRestrictedRoutes.some(
+        graphRestrictedRoutes => {
+            return (
+                routeFragment.startsWith(graphRestrictedRoutes)
+                || routeFragment.startsWith(graphRestrictedRoutes.replace(/^\//, ""))
+            )
+        }
+    )
+
+    return isGraphRestrictedRoute
 }
 
 /**

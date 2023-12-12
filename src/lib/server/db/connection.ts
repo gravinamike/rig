@@ -22,9 +22,7 @@ const cached = global.h2
  * Get a connection to the Graphs database.
  */
 export async function getDatabaseConnection(
-    graphName: string,
-    pThingId: (number | null) = null,
-    createGraph = false
+    graphName: string
 ): Promise<typeof Model> {
     const dbPort = get(dbPortStore)
     const graphsBaseFolder = get(graphsBaseFolderStore)
@@ -46,9 +44,6 @@ export async function getDatabaseConnection(
         },
         ...knexSnakeCaseMappers({ upperCase: true })
     }
-
-    //console.log(knexConfig)
-    //console.log(cached.connection?.knex().context.client.config.connection.database || null)
 
     // If the database has changed, clear the cache.
     if (

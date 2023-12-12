@@ -1,45 +1,60 @@
-import { parse } from "cookie"
+// Import Sveltekit framework resources.
 import { get } from "svelte/store"
-import { v4 as uuidv4 } from "uuid"
+
+// Import cookie-related resources.
+import { parse } from "cookie"
+
+// Import stores.
 import { sessionUuidStore } from "$lib/stores"
+import { isGraphRestrictedRoute } from "$lib/shared/constants"
 
 
-// The session-specific fetch carries the session ID along with it, via a
-// temporary cookie (that only lasts as long as the fetch itself). This
-// allows different browser sessions to view and alter different Graphs
-// simultaneously from the same back-end instance without affecting each
-// other.
+
+/**
+ * Session-specific fetch method.
+ * 
+ * The session-specific fetch carries the session ID along with it, via a route param that is added
+ * to the actually-requested route. This allows different browser sessions to view and alter
+ * different Graphs simultaneously from the same back-end instance without affecting each other, by
+ * using the `retrieveSessionSpecificCookie` method and the passed-along session ID to access
+ * Graph information stored in session-specific cookies.
+ * @param input - The URL to fetch.
+ * @returns - The response to the fetch request.
+ */
 export async function sessionSpecificFetch(
     input: RequestInfo | URL,
     init?: RequestInit
 ): Promise< Response > {
 
-    // Create a UID for the fetch call. (We include a fetch UID so that the
-    // cookie can be uniquely identified and then deleted immediately after the
-    // fetch without accidentally deleting it for other session-specific fetch
-    // calls that are overlapping in time with this one.
-    const fetchUuid = uuidv4()
-
-    // Set the session UUID cookie from the store.
-    document.cookie = `sessionUuid-${fetchUuid}=${get(sessionUuidStore)}; expires = Thu, 01 Jan 2099 00:00:01 GMT; path=/; SameSite=Strict;`
+    // If the route is "Graph-restricted" (meaning it requires the session UUID to determine what
+    // Graph to use and whether the route is prohibited), add the session UUID as a route param at
+    // the end. Otherwise, use the supplied route.
+    const inputToUse =
+    isGraphRestrictedRoute(String(input)) ? `${input}--${get(sessionUuidStore)}` :
+        input
     
     // Get a response using the window's native fetch.
-    const res = await fetch(input, init)
-
-    // Clear the session UUID cookie.
-    document.cookie = `sessionUuid-${fetchUuid}= ; expires = ${(new Date()).toUTCString()}; path=/; SameSite=Strict;`
+    const res = await fetch(inputToUse, init)
 
     // Return the response.
     return res
 }
 
-
-
-export function retrieveSessionSpecificCookie(request: Request, cookieName: string) {
+/**
+ * Retrieve-session-specific-cookie method.
+ * 
+ * Allows server-side API methods to get Graph-specific information from cookies, by using the
+ * session UUID as a key to filter for only those cookies that relate to that Graph.
+ * @param sessionUuid - The session UUID to retrieve cookies for.
+ * @param request - The request that this method is being used to retrieve cookies for.
+ * @param cookieName - The name of the cookie to retrieve. (This is a fragment of the cookie key specifying what information it contains, such as "graph".)
+ * @returns - The value of the requested cookie for the specified session/Graph.
+ */
+export function retrieveSessionSpecificCookie(sessionUuid: string, request: Request, cookieName: string) {
+    // Get all the cookies.
     const cookies = parse(request.headers.get("cookie") || "")
-    const sessionUuidCookies = Object.entries(cookies).filter(entry => entry[0].includes("sessionUuid"))
-    const sessionUuid = sessionUuidCookies.length ? sessionUuidCookies[0][1] : null
-    const cookieValue = cookies[`session-${sessionUuid}-${cookieName}`] || null
 
+    // Get the value of the specified cookie for the session with that UUID, and return it.
+    const cookieValue = cookies[`${cookieName}-for-sessionUuid-${sessionUuid}`] || null
     return cookieValue
 }

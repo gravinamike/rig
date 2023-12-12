@@ -23,7 +23,7 @@
     export let askingForDirection = false
     export let fontSize: number | null = null
     export let interactionDisabled = false
-    export let optionClickedFunction: (direction: Direction | null, optionId: number, option: Direction) => void = (_: Direction | null, __: number, option: Direction) => {console.log(option.text)}
+    export let optionClickedFunction: (direction: Direction | null, optionId: number, option: Direction) => void = (_: Direction | null, __: number, ___: Direction) => {/* Placeholder. */}
     export let optionHoveredFunction: (optionId: number, option: Direction) => void = () => {}
     export let exitOptionHoveredFunction: () => void = () => {}
 

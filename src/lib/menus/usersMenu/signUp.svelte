@@ -1,6 +1,10 @@
 <script lang="ts">
     import { filenameIsValid, onMobile } from "$lib/shared/utility"
 
+    import { get } from "svelte/store"
+    import { loggerStore } from "$lib/stores"
+    const logger = get(loggerStore)
+
 
     // Error message.
     let error: string | null
@@ -47,9 +51,19 @@
         
             // Either refresh the site, or display the error.
             if (response.ok) {
+                logger.info(
+                    {
+                        username
+                    },
+                    "User signed up."
+                )
                 window.location.assign("/")
             } else {
                 error = (await response.json()).message
+                logger.error({
+                    username: username,
+                    msg: `Error when attempting user sign-up: ${error}`
+                })
             }
         }
     }

@@ -15,7 +15,7 @@
 
     const currentGraphFoldersByUsername: {[username: string]: string[]} = {}
     async function refreshCurrentGraphFolders() {
-        await fetch(`api/file/graphFolders-all`)
+        await fetch(`/api/file/graphFolders-all`)
             .then(response => {return (response.json() as unknown) as string[]})
             .then(data => currentGraphFoldersByUsername["all"] = data)
             

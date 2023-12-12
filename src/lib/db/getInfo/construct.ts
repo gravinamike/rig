@@ -21,10 +21,10 @@ export async function getGraphConstructDbModels<Type extends GraphConstructDbMod
 ): Promise<Type[]> {
     const res =
         // If no IDs were provided, fetch all instances of this construct.
-        typeof ids === "undefined" ? await fetch(`api/db/graphConstructs/${ constructName.toLowerCase() }s-all`) :
+        typeof ids === "undefined" ? await fetch(`/api/db/graphConstructs/${ constructName.toLowerCase() }s-all`) :
         
         // Else, if IDs *were* provided, fetch only those instances that match the IDs.
-        await fetch(`api/db/graphConstructs/${ constructName.toLowerCase() }s-${ids.join(",")}`)
+        await fetch(`/api/db/graphConstructs/${ constructName.toLowerCase() }s-${ids.join(",")}`)
 
     // If the response is ok, parse and return the array of Graph construct models.
     if (res.ok) {
@@ -46,7 +46,7 @@ export async function getGraphConstructDbModels<Type extends GraphConstructDbMod
  */
 export async function getLatestGraphConstructInfos(): Promise<LatestGraphConstructInfos | false> {
     // Query the latest-Graph-constructs API.
-    const res = await fetch(`api/db/graphConstructs/latestConstructs`)
+    const res = await fetch(`/api/db/graphConstructs/latestConstructs`)
 
     // If the response is ok, parse and return the latest Graph construct info
     // objects.

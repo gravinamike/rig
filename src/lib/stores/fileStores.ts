@@ -38,7 +38,7 @@ export const graphFoldersStore = writable( {} as {[username: string]: string[]} 
 export async function refreshGraphFoldersStore(username: string | null = null): Promise< void > {
     const graphFoldersByUsername: {[username: string]: string[]} = {}
     
-    await fetch(`api/file/graphFolders-all`)
+    await fetch(`/api/file/graphFolders-all`)
         .then(response => {return (response.json() as unknown) as string[]})
         .then(data => graphFoldersByUsername["all"] = data)
         

@@ -68,6 +68,43 @@ The /static/customizable folder contains two files in template form (with filena
 - **notes-style.css**: This file contains CSS font declarations that enable the use of custom fonts in the app. Each entry must have a matching font file in the `fonts` folder, and the `font-family` must match a font name in `font-names.json`.
 
 
+### Setting up logging
+
+Rig uses the [Pino library](https://getpino.io) for logging. By default, it saves no log files to the server. You can change this behavior by following the steps below.
+
+#### Enabling server-side logging
+
+To enable logging to a server-side log file:
+
+1. Create an empty log folder on the server.
+2. Edit `static/config/serverconfig.json`, adding the absolute path to the new log folder as the value of the `logsFolder` key. You can also set the minimum level of messages to be logged by setting `logsLevel` to "trace", "debug", "info", "warn", "error", or "fatal" (if null, the log level defaults to "info").
+
+#### Set up log rotation
+
+Log files can grow to problematic sizes if they aren't regularly rotated and deleted. On Linux, we recommend using the [logrotate](https://linux.die.net/man/8/logrotate) utility for this purpose:
+
+1. Install Logrotate on Linux:
+`sudo apt-get-update`
+`sudo apt-get install -y logrotate`
+Or, on RHEL/CentOS:
+`sudo yum update`
+`sudo apt-get install -y logrotate`
+
+2. Verify installation by checking that there is a line containing `cron.daily` in `/etc/crontab` or `/etc/anacrontab`.
+
+3. Create the configuration file `/etc/logrotate.d/rig`, with the following contents:
+    /<path to your Rig log directory>/rig_log.log {
+        su root
+        daily
+        rotate <number of days to keep log files>
+        delaycompress
+        compress
+        notifempty
+        missingok
+        copytruncate
+    }
+
+
 ### Running the application
 
 #### As a website

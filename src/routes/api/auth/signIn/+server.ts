@@ -4,6 +4,11 @@ import { error } from "@sveltejs/kit"
 import { serialize } from "cookie"
 import { getUserByUsername, createNewSession, validatePassword } from "$lib/server/auth"
 
+import { get } from "svelte/store"
+import { loggerStore } from "$lib/stores"
+const logger = get(loggerStore)
+
+
 
 /**
  * Post method for sign-in endpoint.
@@ -40,8 +45,15 @@ export const POST: RequestHandler = async ({ request }) => {
 
     // If the user isn't registered or the password is incorrect,
     if ( !user || !passwordIsValid ) {    
+        // Log the error on the sever.
+        logger.error(
+			{
+				username: body.username
+			}
+		)
+        
         // Return an error response.
-        throw error(401, "Incorrect user or password")
+        throw error(401, "Incorrect username or password.")
 
     // Otherwise,
     } else {
@@ -61,6 +73,14 @@ export const POST: RequestHandler = async ({ request }) => {
                 id,
                 cookieOptions
             )
+        )
+
+        // Log the sign-in.
+        logger.info(
+            {
+                username: body.username
+            },
+            "User signed in."
         )
 
         // Return the response.

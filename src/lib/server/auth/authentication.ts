@@ -2,6 +2,9 @@ import type { UserCredentials } from "./_types"
 import { hash, compare } from "bcrypt"
 import { addUserToDb, userDbModelByUsername } from "./models"
 import { createUserFolder } from "$lib/shared/fileSystem"
+import { get } from "svelte/store"
+import { loggerStore } from "$lib/stores"
+const logger = get(loggerStore)
 
 
 /**
@@ -25,6 +28,8 @@ export async function registerNewUser( userCredentials: UserCredentials ): Promi
 
         // Create the corresponding user folder.
         await createUserFolder(userCredentials.username)
+
+        logger.info(`Successfully signed up user "${userCredentials.username}".`)
 
         // Return the user credentials.
         return userCredentials
@@ -57,7 +62,9 @@ export async function hashPassword( plaintextPassword: string ): Promise< string
 
     await hash(plaintextPassword, 10)
         .then(hash => hashedPassword = hash)
-        .catch(err => console.error(err))
+        .catch(err => logger.error({
+            msg: `Error when attempting to hash password: ${err}`
+        }))
         
     return hashedPassword
 }

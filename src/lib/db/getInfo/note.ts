@@ -18,9 +18,9 @@ import { NoteSearchListItem } from "$lib/models/constructModels"
 export async function getNoteSearchListItems(noteIds?: number[]): Promise<NoteSearchListItem[] | false> {
     const res =
         // If no IDs were specified, query the Note search list item API for all items.
-        noteIds === undefined ? await fetch(`api/db/graphConstructs/noteSearchListItems-all`) :
+        noteIds === undefined ? await fetch(`/api/db/graphConstructs/noteSearchListItems-all`) :
         // Otherwise, query only for the specified IDs.
-        await fetch(`api/db/graphConstructs/noteSearchListItems-${noteIds}`)
+        await fetch(`/api/db/graphConstructs/noteSearchListItems-${noteIds}`)
 
     // If the response is ok,
     if (res.ok) {

@@ -1,3 +1,4 @@
+// Import SvelteKit framework resources.
 import { writable } from "svelte/store"
 
 
@@ -39,6 +40,7 @@ export const landscapeOrientation = writable( false )
  * Holds a boolean specifying whether the app is running in dev mode.
  */
 export const devMode = writable( false )
+
 
 
 /**

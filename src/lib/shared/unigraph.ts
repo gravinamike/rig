@@ -68,7 +68,7 @@ export async function openGraphFile(username: string, folderName: string, pThing
     }
 
     // Set the Graph name in the cookies and store.
-    document.cookie = `session-${get(sessionUuidStore)}-graphName=${username}/${folderName}; path=/; SameSite=Strict;`
+    document.cookie = `graphName-for-sessionUuid-${get(sessionUuidStore)}=${username}/${folderName}; path=/; SameSite=Strict;`
     openGraphStore.set(`${username}/${folderName}`)
     
     

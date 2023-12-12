@@ -1,6 +1,13 @@
 <script lang="ts">
-    import { onMobile } from "$lib/shared/utility";
-    import { userIdStore } from "$lib/stores"
+    import { onMobile } from "$lib/shared/utility"
+    import { loggerStore, userIdStore } from "$lib/stores"
+
+    import { get } from "svelte/store"
+    const logger = get(loggerStore)
+
+
+
+    const startingUserId = $userIdStore
 
     
     /**
@@ -9,6 +16,13 @@
     async function handleSubmit() {
         // Post to the sign-out endpoint.
 		await fetch("/api/auth/signOut")
+
+        logger.info(
+            {
+                startingUserId
+            },
+            "User signed out."
+        )
 
         // Refresh the site.
         window.location.assign("/")
