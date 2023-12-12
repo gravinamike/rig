@@ -1,23 +1,12 @@
 // Import SvelteKit framework resources.
-import { readable } from "svelte/store"
+import { get, readable } from "svelte/store"
 import { browser } from "$app/environment"
 
 // Import logger-related resources.
 import pino, { type Logger } from "pino"
 import fs from "fs"
 import type { ServerConfig } from "$lib/shared/constants"
-
-
-
-
-
-
-
-
-
-
-
-
+import { devMode } from "./appStores"
 
 
 /**
@@ -25,14 +14,12 @@ import type { ServerConfig } from "$lib/shared/constants"
  * 
  * Holds a Pino logger for logging information to the console (and a log file if on the server).
  */
-
-
 let logger: Logger
 // If client-side, create a console-only logger.
 if (browser) {
     logger = pino(
         {
-            level: "info",
+            level: get(devMode) ? "debug" : "info",
             base: undefined, // Removes "pid" and "hostname" from logs.
             timestamp: () => `,"timestamp":"${new Date(Date.now()).toISOString()}"`
         }
@@ -46,7 +33,12 @@ if (browser) {
     const serverConfigAsString = fs.readFileSync(serverConfigPath, "utf8")
     const serverConfig = JSON.parse(serverConfigAsString) as ServerConfig
     const logsFolderPath = serverConfig.logsFolder
-    const logFilePath = `${logsFolderPath}/log.log`
+    const logFilePath = `${logsFolderPath}/rig_log.log`
+    let logsLevel = serverConfig.logsLevel
+    if (logsLevel !== null && !["trace", "debug", "info", "warn", "error", "fatal"].includes(logsLevel)) {
+        console.log(`"${logsLevel}" is not a valid log level. Falling back to default log level.`)
+        logsLevel = null
+    }
     
     
 
@@ -83,7 +75,7 @@ if (browser) {
     // Create the logger using that transport.
     logger = pino(
         {
-            level: "info",
+            level: logsLevel || "info",
             base: undefined,
             timestamp: () => `,"timestamp":"${new Date(Date.now()).toISOString()}"`,
         },

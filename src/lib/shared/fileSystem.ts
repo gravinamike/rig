@@ -41,7 +41,7 @@ export async function createLogFolderAndFileIfNeeded(): Promise<void> {
 
     // Create the logs file if it doesn't exist.
     const sourceLogFilePath = "./static/templates/empty.log"
-    const logFilePath = `${logsFolderPath}/log.log`
+    const logFilePath = `${logsFolderPath}/rig_log.log`
     if (!fs.existsSync(logFilePath)) await fsPromises.copyFile(sourceLogFilePath, logFilePath)
 }
 

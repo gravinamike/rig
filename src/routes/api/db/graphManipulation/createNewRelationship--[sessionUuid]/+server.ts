@@ -1,12 +1,19 @@
 import type { RequestHandler } from "@sveltejs/kit"
 import { error } from "@sveltejs/kit"
 import { createNewRelationship } from "$lib/server/db"
+import { getGraphNameOnServer } from "$lib/server/db/utility"
 
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST: RequestHandler = async ({ request, params }) => {
     try {
+        const graphName = getGraphNameOnServer(request, params)
         const body = await request.json()
-        await createNewRelationship(body.sourceThingId, body.destThingId, body.directionId)
+        await createNewRelationship(
+            graphName,
+            body.sourceThingId,
+            body.destThingId,
+            body.directionId
+        )
         
         return new Response(JSON.stringify(
             {

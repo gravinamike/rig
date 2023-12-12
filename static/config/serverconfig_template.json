@@ -1,5 +1,6 @@
 {
     "dbPort": 48970,
     "graphsFolder": "C:/Rig/graphs",
-    "logsFolder": null
+    "logsFolder": null,
+    "logsLevel": null
 }

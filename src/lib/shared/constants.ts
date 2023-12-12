@@ -30,6 +30,7 @@ export interface ServerConfig {
     dbPort: number
     graphsFolder: string
     logsFolder: string | null
+    logsLevel: string | null
 }
 
 /**

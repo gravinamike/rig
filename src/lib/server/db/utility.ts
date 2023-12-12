@@ -4,6 +4,7 @@ import type { Knex } from "knex"
 
 import { get } from "svelte/store"
 import { loggerStore } from "$lib/stores"
+import { retrieveSessionSpecificCookie } from "$lib/db/sessionSpecificFetch"
 const logger = get(loggerStore)
 
 
@@ -76,4 +77,20 @@ export function logServerError(message: string, infoObject: object, error: Error
         logObject,
         message
     )
+}
+
+
+
+export function getGraphNameOnServer(request: Request, params: Partial<Record<string, string>>) {
+    // If the params don't contain a session UUID, return null.
+    if (!("sessionUuid" in params)) return null
+
+    // Get the session UUID from 
+	const sessionUuid = params.sessionUuid as string
+
+    // Retrieve the name of the Graph file from the cookies.
+    const graphName = retrieveSessionSpecificCookie(sessionUuid, request, "graphName")
+
+    // Return the Graph name.
+    return graphName
 }

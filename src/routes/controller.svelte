@@ -173,7 +173,7 @@
      * Loads development-mode flag, font names and all config options stored
      * in the app-level config.json file.
      */
-     async function loadAppConfig() {
+    async function loadAppConfig() {
         if (!mounted) return
 
         $loadingState = "configLoading"

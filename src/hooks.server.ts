@@ -16,6 +16,7 @@ import { isGraphRestrictedRoute } from "$lib/shared/constants"
 
 import { get } from "svelte/store"
 import { loggerStore } from "$lib/stores"
+import { getGraphNameOnServer } from "$lib/server/db/utility"
 const logger = get(loggerStore)
 
 
@@ -59,9 +60,10 @@ export const handle: Handle = async ({ event, resolve }) => {
 	if (requestForbidden) {
 		logger.info(
 			{
+				user: event.locals.user?.username || null,
 				route: event.route.id,
 				status: 403,
-				msg: "You don't have permission to access this resource."
+				msg: "User doesn't have permission to access this resource."
 			}
 		)
 		throw error(403, "You don't have permission to access this resource.")
@@ -103,6 +105,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 
 
 	if (!requestForbidden && !(event.route.id === null) && !response.ok) {
+		const graphName = getGraphNameOnServer(event.request, event.params)
 		const status = response.clone().status
 		response.clone().text().then(text => {
 			let errorMessage: string
@@ -113,6 +116,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 			}
 			logger.error(
 				{
+					graphName: graphName,
 					route: event.route.id,
 					status: status,
 					msg: errorMessage
@@ -228,12 +232,16 @@ export const handleError: HandleServerError = async ({ error, event }) => {
 	let errorMessage: string
 
 	try {
+		// Get the user and Graph name.
+		const graphName = getGraphNameOnServer(event.request, event.params)
+
 		// Get the error message from the error.
 		errorMessage = `An unexpected error happened during loading/rendering: ${(error as {message: string}).message}`
 			
 		// Log the error.
 		logger.error(
 			{
+				graphName: graphName,
 				route: event.route.id,
 				msg: errorMessage
 			}

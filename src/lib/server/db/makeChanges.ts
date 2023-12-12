@@ -33,6 +33,7 @@ const logger = get(loggerStore)
  * Create a new Direction.
  */
 export async function createDirection(
+    graphName: string | null,
     relationshipText: string,
     objectText: string,
     oppositeDirectionId: number | null
@@ -71,6 +72,7 @@ export async function createDirection(
 
         logger.debug(
             {
+                graphName: graphName,
                 id: newDirectionId,
                 oppositeId: oppositeDirectionId,
                 relationshipText: relationshipText,
@@ -84,6 +86,7 @@ export async function createDirection(
         logServerError(
             "An error occurred while attempting to create Direction.",
             {
+                graphName: graphName,
                 oppositeId: oppositeDirectionId,
                 relationshipText: relationshipText,
                 objectText: objectText
@@ -99,6 +102,7 @@ export async function createDirection(
  * Update a Direction.
  */
 export async function updateDirection(
+    graphName: string | null,
     directionId: number,
     relationshipText: string,
     nameForObjects: string,
@@ -123,6 +127,7 @@ export async function updateDirection(
         
         logger.debug(
             {
+                graphName: graphName,
                 id: directionId,
                 oppositeId: oppositeId,
                 relationshipText: relationshipText,
@@ -136,6 +141,7 @@ export async function updateDirection(
         logServerError(
             "An error occurred while attempting to update Direction.",
             {
+                graphName: graphName,
                 id: directionId,
                 oppositeId: oppositeId,
                 relationshipText: relationshipText,
@@ -152,7 +158,10 @@ export async function updateDirection(
 /*
  * Update the Orders of a set of Directions.
  */
-export async function updateDirectionOrders(directionInfos: {directionId: number, newOrder: number}[]): Promise<void> {
+export async function updateDirectionOrders(
+    graphName: string | null,
+    directionInfos: {directionId: number, newOrder: number}[]
+): Promise<void> {
     const knex = Model.knex()
     await knex.transaction(async (transaction: Knex.Transaction) => {
         for (const info of directionInfos) {
@@ -166,7 +175,10 @@ export async function updateDirectionOrders(directionInfos: {directionId: number
     // Report on the response.
     .then(function() {
         logger.debug(
-            directionInfos,
+            {
+                graphName,
+                directionInfos
+            },
             `Updated orders of Directions.`
         )
     })
@@ -174,6 +186,7 @@ export async function updateDirectionOrders(directionInfos: {directionId: number
         logServerError(
             "An error occurred while attempting to update orders of Directions.",
             {
+                graphName,
                 directionInfos
             },
             err as Error
@@ -192,6 +205,7 @@ interface UpdateDirectionOrderInfo {
  * @param newIndex - The new index of the Direction to be reordered.
  */
 export async function reorderDirection(
+    graphName: string | null,
     directionId: number,
     newIndex: number
 ): Promise<void> {
@@ -231,13 +245,16 @@ export async function reorderDirection(
     } )
 
     // Update the orders of the Directions using the above array.
-    await updateDirectionOrders(updateDirectionOrderInfos)
+    await updateDirectionOrders(graphName, updateDirectionOrderInfos)
 }
 
 /*
  * Delete a Direction.
  */
-export async function deleteDirection(directionId: number): Promise<void> {
+export async function deleteDirection(
+    graphName: string | null,
+    directionId: number
+): Promise<void> {
     const knex = Model.knex()
     await knex.transaction(async (transaction: Knex.Transaction) => {
         // Wherever a Direction has this Direction as its opposite, set to null
@@ -260,6 +277,7 @@ export async function deleteDirection(directionId: number): Promise<void> {
     .then(function() {
         logger.debug(
             {
+                graphName,
                 directionId
             },
             `Deleted Direction.`
@@ -269,6 +287,7 @@ export async function deleteDirection(directionId: number): Promise<void> {
         logServerError(
             "An error occurred while attempting to delete Direction.",
             {
+                graphName,
                 directionId
             },
             err as Error
@@ -281,6 +300,7 @@ export async function deleteDirection(directionId: number): Promise<void> {
  * Create a new Space.
  */
 export async function createSpace(
+    graphName: string | null,
     spaceText: string,
     spaceBuildMethod: "radial" | "grid",
     halfAxisIdsAndDirections: [OddHalfAxisId, (Direction | null)][]
@@ -330,7 +350,8 @@ export async function createSpace(
         })
 
         logger.debug(
-            { 
+            {
+                graphName: graphName,
                 text: spaceText,
                 buildMethod: spaceBuildMethod,
                 halfAxisIdsAndDirections: halfAxisIdsAndDirections
@@ -343,6 +364,7 @@ export async function createSpace(
         logServerError(
             "An error occurred while attempting to create Space.",
             {
+                graphName: graphName,
                 text: spaceText,
                 buildMethod: spaceBuildMethod,
                 halfAxisIdsAndDirections: halfAxisIdsAndDirections
@@ -358,6 +380,7 @@ export async function createSpace(
  * Update a Space.
  */
 export async function updateSpace(
+    graphName: string | null,
     spaceId: number,
     spaceText: string,
     spaceBuildMethod: "radial" | "grid",
@@ -396,6 +419,7 @@ export async function updateSpace(
         
         logger.debug(
             {
+                graphName: graphName,
                 id: spaceId,
                 text: spaceText,
                 buildMethod: spaceBuildMethod,
@@ -409,6 +433,7 @@ export async function updateSpace(
         logServerError(
             "An error occurred while attempting to update Space.",
             {
+                graphName: graphName,
                 id: spaceId,
                 text: spaceText,
                 buildMethod: spaceBuildMethod,
@@ -423,7 +448,10 @@ export async function updateSpace(
 /*
  * Update the Orders of a set of Spaces.
  */
-export async function updateSpaceOrders(spaceInfos: {spaceId: number, newOrder: number}[]): Promise<void> {
+export async function updateSpaceOrders(
+    graphName: string | null,
+    spaceInfos: {spaceId: number, newOrder: number}[]
+): Promise<void> {
     const knex = Model.knex()
     await knex.transaction(async (transaction: Knex.Transaction) => {
         for (const info of spaceInfos) {
@@ -437,14 +465,20 @@ export async function updateSpaceOrders(spaceInfos: {spaceId: number, newOrder: 
     // Report on the response.
     .then(function() {
         logger.debug(
-            
+            {
+                graphName,
+                spaceInfos
+            },
             `Updated orders of Spaces.`
         )
     })
     .catch(function(err: Error) {
         logServerError(
             "An error occurred while attempting to update orders of Spaces.",
-            spaceInfos,
+            {
+                graphName,
+                spaceInfos
+            },
             err as Error
         )
     })
@@ -461,6 +495,7 @@ interface UpdateSpaceOrderInfo {
  * @param newIndex - The new index of the Space to be reordered.
  */
 export async function reorderSpace(
+    graphName: string | null,
     spaceId: number,
     newIndex: number
 ): Promise<void> {
@@ -500,7 +535,7 @@ export async function reorderSpace(
     } )
 
     // Update the orders of the Spaces using the above array.
-    await updateSpaceOrders(updateSpaceOrderInfos)
+    await updateSpaceOrders(graphName, updateSpaceOrderInfos)
 }
 
 
@@ -509,7 +544,10 @@ export async function reorderSpace(
 /*
  * Delete a Space.
  */
-export async function deleteSpace(spaceId: number): Promise<void> {
+export async function deleteSpace(
+    graphName: string | null,
+    spaceId: number
+): Promise<void> {
     const knex = Model.knex()
     await knex.transaction(async (transaction: Knex.Transaction) => {
         // Wherever a Thing has this Space as its default Space, set to null
@@ -531,14 +569,20 @@ export async function deleteSpace(spaceId: number): Promise<void> {
     // Report on the response.
     .then(function() {
         logger.debug(
-            { spaceId },
+            {
+                graphName,
+                spaceId
+            },
             `Deleted Space.`
         )
     })
     .catch(function(err: Error) {
         logServerError(
             "An error occurred while attempting to delete Space.",
-            { spaceId },
+            {
+                graphName,
+                spaceId
+            },
             err as Error
         )
     })
@@ -559,6 +603,7 @@ export async function deleteSpace(spaceId: number): Promise<void> {
  * From a starting Thing, create a related Thing.
  */
 export async function createNewRelatedThing(
+    graphName: string | null,
     thingIdToRelateFrom: number,
     directionId: number,
     text: string,
@@ -618,7 +663,8 @@ export async function createNewRelatedThing(
         })
 
         logger.debug(
-            { 
+            {
+                graphName,
                 thingIdToRelateFrom,
                 directionId,
                 text,
@@ -631,7 +677,8 @@ export async function createNewRelatedThing(
     } catch(err) {
         logServerError(
             "An error occurred while attempting to create Thing.",
-            { 
+            {
+                graphName,
                 thingIdToRelateFrom,
                 directionId,
                 text,
@@ -646,7 +693,11 @@ export async function createNewRelatedThing(
 /*
  * Update a Thing's text.
  */
-export async function updateThingText(thingId: number, text: string): Promise<boolean> {
+export async function updateThingText(
+    graphName: string | null,
+    thingId: number,
+    text: string
+): Promise<boolean> {
     try { 
         // Get parameters for SQL query.
         const whenModded = (new Date()).toISOString()
@@ -664,7 +715,8 @@ export async function updateThingText(thingId: number, text: string): Promise<bo
         })
         
         logger.debug(
-            { 
+            {
+                graphName,
                 thingId,
                 text
             },
@@ -675,7 +727,8 @@ export async function updateThingText(thingId: number, text: string): Promise<bo
     } catch(err) {
         logServerError(
             "An error occurred while attempting to update Thing text.",
-            { 
+            {
+                graphName,
                 thingId,
                 text
             },
@@ -689,6 +742,7 @@ export async function updateThingText(thingId: number, text: string): Promise<bo
  * Update a Thing's Perspective text.
  */
 export async function updateThingPerspectiveText(
+    graphName: string | null,
     pThingId: number,
     thingId: number,
     text: string
@@ -727,7 +781,8 @@ export async function updateThingPerspectiveText(
             })
             
             logger.debug(
-                { 
+                {
+                    graphName,
                     pThingId,
                     thingId,
                     text
@@ -741,7 +796,8 @@ export async function updateThingPerspectiveText(
     } catch(err) {
         logServerError(
             "An error occurred while attempting to update Thing Perspective text.",
-            { 
+            {
+                graphName,
                 pThingId,
                 thingId,
                 text
@@ -755,7 +811,11 @@ export async function updateThingPerspectiveText(
 /*
  * Update a Thing's default Space.
  */
-export async function updateThingDefaultSpace(thingId: number, spaceId: number): Promise<boolean> {
+export async function updateThingDefaultSpace(
+    graphName: string | null,
+    thingId: number,
+    spaceId: number
+): Promise<boolean> {
     try { 
         // Get parameters for SQL query.
         const whenModded = (new Date()).toISOString()
@@ -773,7 +833,8 @@ export async function updateThingDefaultSpace(thingId: number, spaceId: number):
         })
         
         logger.debug(
-            { 
+            {
+                graphName,
                 thingId,
                 spaceId
             },
@@ -784,7 +845,8 @@ export async function updateThingDefaultSpace(thingId: number, spaceId: number):
     } catch(err) {
         logServerError(
             "An error occurred while attempting to update Thing default Space.",
-            { 
+            {
+                graphName,
                 thingId,
                 spaceId
             },
@@ -797,7 +859,10 @@ export async function updateThingDefaultSpace(thingId: number, spaceId: number):
 /*
  * Add a Note to a Thing.
  */
-export async function addNoteToThingOrGetExistingNoteId(thingId: number): Promise<number | false> {
+export async function addNoteToThingOrGetExistingNoteId(
+    graphName: string | null,
+    thingId: number
+): Promise<number | false> {
 
     const queriedNotes = await RawThingDbModel.relatedQuery('note').for([thingId])
     if (queriedNotes.length) {
@@ -828,7 +893,8 @@ export async function addNoteToThingOrGetExistingNoteId(thingId: number): Promis
     // Report on the response.
     .then(function(noteId) {
         logger.debug(
-            { 
+            {
+                graphName,
                 thingId
             },
             "Added Note to Thing (or got ID of existing Note)."
@@ -838,7 +904,8 @@ export async function addNoteToThingOrGetExistingNoteId(thingId: number): Promis
     .catch(function(err: Error) {
         logServerError(
             "An error occurred while attempting to add Note to Thing (or get ID of existing Note).",
-            { 
+            {
+                graphName,
                 thingId
             },
             err as Error
@@ -851,7 +918,11 @@ export async function addNoteToThingOrGetExistingNoteId(thingId: number): Promis
 /*
  * Update the text of a Note.
  */
-export async function updateNote(noteId: number, text: string): Promise< boolean | Error > {
+export async function updateNote(
+    graphName: string | null,
+    noteId: number,
+    text: string
+): Promise< boolean | Error > {
     let success: boolean | Error = false
 
     // Get parameters for SQL query.
@@ -869,7 +940,8 @@ export async function updateNote(noteId: number, text: string): Promise< boolean
     // Report on the response.
     .then(function() {
         logger.debug(
-            { 
+            {
+                graphName,
                 noteId,
                 text
             },
@@ -880,7 +952,8 @@ export async function updateNote(noteId: number, text: string): Promise< boolean
     .catch(function(err: Error) {
         logServerError(
             "An error occurred while attempting to update Note.",
-            { 
+            {
+                graphName,
                 noteId,
                 text
             },
@@ -895,7 +968,10 @@ export async function updateNote(noteId: number, text: string): Promise< boolean
 /*
  * Add a Folder to a Thing.
  */
-export async function addFolderToThing(thingId: number): Promise<void> {
+export async function addFolderToThing(
+    graphName: string | null,
+    thingId: number
+): Promise<void> {
     // Get parameters for SQL query.
     const whenCreated = (new Date()).toISOString()
     const folderGuid = uuidv4()
@@ -922,7 +998,8 @@ export async function addFolderToThing(thingId: number): Promise<void> {
             createAttachmentsFolder(folderGuid)
 
             logger.debug(
-                { 
+                {
+                    graphName,
                     thingId,
                 },
                 "Added attachments folder to Thing."
@@ -930,7 +1007,8 @@ export async function addFolderToThing(thingId: number): Promise<void> {
         } catch(err) {
             logServerError(
                 "An error occurred while attempting to add attachments folder to Thing.",
-                { 
+                {
+                    graphName,
                     thingId
                 },
                 err as Error
@@ -940,7 +1018,8 @@ export async function addFolderToThing(thingId: number): Promise<void> {
     .catch(function(err: Error) {
         logServerError(
             "An error occurred while attempting to add attachments folder to Thing.",
-            { 
+            {
+                graphName,
                 thingId
             },
             err as Error
@@ -951,7 +1030,10 @@ export async function addFolderToThing(thingId: number): Promise<void> {
 /*
  * Delete a Thing.
  */
-export async function deleteThing(thingId: number): Promise<void> {
+export async function deleteThing(
+    graphName: string | null,
+    thingId: number
+): Promise<void> {
     const knex = Model.knex()
     await knex.transaction(async (transaction: Knex.Transaction) => {
         // Get associated Notes (before linkers are gone).
@@ -983,7 +1065,8 @@ export async function deleteThing(thingId: number): Promise<void> {
     // Report on the response.
     .then(function() {
         logger.debug(
-            { 
+            {
+                graphName,
                 thingId,
             },
             "Deleted Thing."
@@ -992,7 +1075,8 @@ export async function deleteThing(thingId: number): Promise<void> {
     .catch(function(err: Error) {
         logServerError(
             "An error occurred while attempting to delete Thing.",
-            { 
+            {
+                graphName,
                 thingId
             },
             err as Error
@@ -1005,7 +1089,12 @@ export async function deleteThing(thingId: number): Promise<void> {
 /*
  * Create a new Relationship.
  */
-export async function createNewRelationship(sourceThingId: number, destThingId: number, directionId: number): Promise<void> {  
+export async function createNewRelationship(
+    graphName: string | null,
+    sourceThingId: number,
+    destThingId: number,
+    directionId: number
+): Promise<void> {  
     // Get Direction info.
     const direction = (await RawDirectionDbModel.query().where("id", directionId))[0]
     const oppositeDirectionId = direction.oppositeid as number
@@ -1025,6 +1114,7 @@ export async function createNewRelationship(sourceThingId: number, destThingId: 
 
         logger.error({
             msg: "To-be-created Relationship would duplicate an existing Relationship. Aborting operation.",
+            graphName,
             sourceThingId,
             destThingId,
             directionId
@@ -1034,6 +1124,7 @@ export async function createNewRelationship(sourceThingId: number, destThingId: 
 
         logger.error({
             msg: "To-be-created Relationship would relate a Thing to itself. Aborting operation.",
+            graphName,
             sourceThingId,
             destThingId,
             directionId
@@ -1073,6 +1164,7 @@ export async function createNewRelationship(sourceThingId: number, destThingId: 
         .then(function() {
             logger.debug(
                 { 
+                    graphName,
                     sourceThingId,
                     destThingId,
                     directionId
@@ -1084,6 +1176,7 @@ export async function createNewRelationship(sourceThingId: number, destThingId: 
             logServerError(
                 "An error occurred while attempting to create Relationship.",
                 { 
+                    graphName,
                     sourceThingId,
                     destThingId,
                     directionId
@@ -1099,7 +1192,10 @@ export async function createNewRelationship(sourceThingId: number, destThingId: 
 /*
  * Update the Directions of a set of Relationships.
  */
-export async function updateRelationships(relationshipInfos: {sourceThingId: number, destThingId: number, directionId: number}[]): Promise<void> {
+export async function updateRelationships(
+    graphName: string | null,
+    relationshipInfos: {sourceThingId: number, destThingId: number, directionId: number}[]
+): Promise<void> {
     // Get parameters for SQL query.
     const whenModded = (new Date()).toISOString()
 
@@ -1151,14 +1247,20 @@ export async function updateRelationships(relationshipInfos: {sourceThingId: num
         // Report on the response.
         .then(function() {
             logger.debug(
-                relationshipInfos,
+                {
+                    graphName,
+                    relationshipInfos
+                },
                 "Updated Relationships."
             )
         })
         .catch(function(err: Error) {
             logServerError(
                 "An error occurred while attempting to update Relationships.",
-                relationshipInfos,
+                {
+                    graphName,
+                    relationshipInfos
+                },
                 err as Error
             )
         })
@@ -1167,6 +1269,7 @@ export async function updateRelationships(relationshipInfos: {sourceThingId: num
 
         logger.error({
             msg: "The specified change to this Relationship's Direction would duplicate an existing Relationship.",
+            graphName,
             relationshipInfos
         })
 
@@ -1177,7 +1280,11 @@ export async function updateRelationships(relationshipInfos: {sourceThingId: num
 /*
  * Delete a Relationship.
  */
-export async function deleteRelationship(sourceThingId: number, destThingId: number): Promise<void> {
+export async function deleteRelationship(
+    graphName: string | null,
+    sourceThingId: number,
+    destThingId: number
+): Promise<void> {
     const knex = Model.knex()
     await knex.transaction(async (transaction: Knex.Transaction) => {
 
@@ -1192,6 +1299,7 @@ export async function deleteRelationship(sourceThingId: number, destThingId: num
     .then(function() {
         logger.debug(
             {
+                graphName,
                 sourceThingId,
                 destThingId
             },
@@ -1201,7 +1309,8 @@ export async function deleteRelationship(sourceThingId: number, destThingId: num
     .catch(function(err: Error) {
         logServerError(
             "An error occurred while attempting to delete Relationship.",
-            { 
+            {
+                graphName,
                 sourceThingId,
                 destThingId
             },
@@ -1215,7 +1324,10 @@ export async function deleteRelationship(sourceThingId: number, destThingId: num
 /*
  * Mark Things as visited.
  */
-export async function markThingsVisited(thingIds: number[]): Promise<void> {
+export async function markThingsVisited(
+    graphName: string | null,
+    thingIds: number[]
+): Promise<void> {
     const knex = Model.knex()
     await knex.transaction(async (transaction: Knex.Transaction) => {
         const timestamp = (new Date()).toISOString()
@@ -1228,6 +1340,7 @@ export async function markThingsVisited(thingIds: number[]): Promise<void> {
     .then(function() {
         logger.trace(
             {
+                graphName,
                 thingIds
             },
             "Thing modification time(s) recorded."
@@ -1236,7 +1349,8 @@ export async function markThingsVisited(thingIds: number[]): Promise<void> {
     .catch(function(err: Error) {
         logServerError(
             "An error occurred while attempting to record Thing modification time(s).",
-            { 
+            {
+                graphName,
                 thingIds
             },
             err as Error
@@ -1248,7 +1362,10 @@ export async function markThingsVisited(thingIds: number[]): Promise<void> {
 /*
  * Mark Notes as modified.
  */
-export async function markNotesModified(noteIds: number[]): Promise<void> {
+export async function markNotesModified(
+    graphName: string | null,
+    noteIds: number[]
+): Promise<void> {
     const knex = Model.knex()
     await knex.transaction(async (transaction: Knex.Transaction) => {
         const timestamp = (new Date()).toISOString()
@@ -1261,6 +1378,7 @@ export async function markNotesModified(noteIds: number[]): Promise<void> {
     .then(function() {
         logger.trace(
             {
+                graphName,
                 noteIds
             },
             "Note modification time(s) recorded."
@@ -1269,7 +1387,8 @@ export async function markNotesModified(noteIds: number[]): Promise<void> {
     .catch(function(err: Error) {
         logServerError(
             "An error occurred while attempting to record Note modification time(s).",
-            { 
+            {
+                graphName,
                 noteIds
             },
             err as Error
@@ -1281,7 +1400,10 @@ export async function markNotesModified(noteIds: number[]): Promise<void> {
 /*
  * Update the Orders of a set of Relationships.
  */
-export async function updateRelationshipOrders(relationshipInfos: {sourceThingId: number, destThingId: number, directionId: number, newOrder: number}[]): Promise<void> {
+export async function updateRelationshipOrders(
+    graphName: string | null,
+    relationshipInfos: {sourceThingId: number, destThingId: number, directionId: number, newOrder: number}[]
+): Promise<void> {
     // Get parameters for SQL query.
     const whenModded = (new Date()).toISOString()
 
@@ -1301,6 +1423,7 @@ export async function updateRelationshipOrders(relationshipInfos: {sourceThingId
     .then(function() {
         logger.debug(
             {
+                graphName,
                 relationshipInfos
             },
             "Updated Relationship orders."
@@ -1309,7 +1432,8 @@ export async function updateRelationshipOrders(relationshipInfos: {sourceThingId
     .catch(function(err: Error) {
         logServerError(
             "An error occurred while attempting to update Relationship orders.",
-            { 
+            {
+                graphName,
                 relationshipInfos
             },
             err as Error
@@ -1334,6 +1458,7 @@ interface UpdateRelationshipOrderInfo {
  * @param newIndex - The new index of the Relationship to be reordered.
  */
 export async function reorderRelationship(
+    graphName: string | null,
     sourceThingId: number,
     destThingId: number,
     destThingDirectionId: number,
@@ -1379,5 +1504,5 @@ export async function reorderRelationship(
     } )
 
     // Update the orders of the Relationships using the above array.
-    await updateRelationshipOrders(updateRelationshipOrderInfos)
+    await updateRelationshipOrders(graphName, updateRelationshipOrderInfos)
 }

@@ -1,12 +1,18 @@
 import type { RequestHandler } from "@sveltejs/kit"
 import { error } from "@sveltejs/kit"
 import { deleteRelationship } from "$lib/server/db"
+import { getGraphNameOnServer } from "$lib/server/db/utility"
 
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST: RequestHandler = async ({ request, params }) => {
     try {
+        const graphName = getGraphNameOnServer(request, params)
         const body = await request.json()
-        await deleteRelationship(body.sourceThingId, body.destThingId)
+        await deleteRelationship(
+            graphName,
+            body.sourceThingId,
+            body.destThingId
+        )
         
         return new Response(JSON.stringify(
             {
