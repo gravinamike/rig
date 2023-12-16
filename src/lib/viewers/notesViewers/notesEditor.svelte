@@ -3,7 +3,7 @@
     import { onMount, onDestroy, tick } from "svelte"
 
     // Import stores.
-    import { notesBackgroundImageStore } from "$lib/stores"
+    import { enableTextHyperlinking, enableThingLinking, notesBackgroundImageStore } from "$lib/stores"
 
     // Import Tiptap resources
     import { Editor } from "@tiptap/core"
@@ -40,6 +40,7 @@
 
     // HTML element handles.
     let editor: Editor
+    let editorElement: HTMLElement
     let textFieldScrollTop = 0
     let textFieldClientHeight = 0
     let textFieldScrollHeight = 0
@@ -75,6 +76,37 @@
     // When the current Perspective Thing's Note text exists (isn't null), set the content of the
     // editor to that Note text.
     $: if (typeof currentPThingNoteText === "string") setContent(currentPThingNoteText)
+
+
+    // Set up hotkeys for Thing-linking and hyperlinking.
+    window.addEventListener("keydown", (event)=> {
+        // If the editor isn't focused, abort.
+        if (event.target !== editorElement && !editorElement.contains(event.target as Node)) {
+            return
+        }
+
+        // Thing-link hotkey.
+        if(event.key === "l" && (event.ctrlKey || event.metaKey)) {
+            event.preventDefault()
+
+            if (editor.isActive('link') && isThingLink()) {
+                    editor.chain().focus().unsetLink().run()
+            } else {
+                enableThingLinking(editor, focusEditor)
+            }
+        }
+
+        // Hyperlink hotkey.
+        if(event.key === "k" && (event.ctrlKey || event.metaKey)) {
+            event.preventDefault()
+
+            if (editor.isActive('link') && !isThingLink()) {
+                editor.chain().focus().unsetLink().run()
+            } else {
+                enableTextHyperlinking(editor, focusEditor)
+            }
+        }
+    })
     
 
     /**
@@ -109,7 +141,7 @@
             onTransaction: () => {
                 editor = editor // Force re-render so `editor.isActive` works correctly.
             },
-            onUpdate: onContentEdited
+            onUpdate: onContentEdited,
         })
 
         // Set the content of the Tiptap editor to the supplied string.
@@ -146,6 +178,18 @@
         textFieldScrollHeight = textField?.scrollHeight || 0
     }
 
+    /**
+     * Is-Thing-link method.
+     * 
+     * Determines if the currently-selected text is a link to a Thing in the current Graph.
+     */
+    function isThingLink(): boolean {
+        return (
+            editor.isActive('link')
+            && editor.getAttributes("link").href.startsWith("graph://")
+        )
+    }
+
     
 
     // When the editor component is created, set its text content based on the
@@ -172,6 +216,8 @@
 <div
     class="notes-editor"
     class:on-mobile={onMobile()}
+
+    bind:this={editorElement}
 >
     <!-- Editor text field. -->
     <div
@@ -216,6 +262,7 @@
             {editor}
             {fullSize}
             focusEditorMethod={focusEditor}
+            isThingLinkMethod={isThingLink}
         />
     {/if}
 </div>

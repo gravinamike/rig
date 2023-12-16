@@ -26,6 +26,7 @@
     export let editor: Editor
     export let fullSize: boolean
     export let focusEditorMethod: () => void
+    export let isThingLinkMethod: () => boolean
 
 
 
@@ -59,10 +60,10 @@
             iconHtml: null,
             isActive: (
                 editor.isActive('link')
-                && isThingLink()
+                && isThingLinkMethod()
             ),
             onClick: () => {
-                if (editor.isActive('link') && isThingLink()) {
+                if (editor.isActive('link') && isThingLinkMethod()) {
                     editor.chain().focus().unsetLink().run()
                 } else {
                     enableThingLinking(editor, focusEditorMethod)
@@ -75,10 +76,10 @@
             iconHtml: null,
             isActive: (
                 editor.isActive('link')
-                && !isThingLink()
+                && !isThingLinkMethod()
             ),
             onClick: () => {
-                if (editor.isActive('link') && !isThingLink()) {
+                if (editor.isActive('link') && !isThingLinkMethod()) {
                     editor.chain().focus().unsetLink().run()
                 } else {
                     enableTextHyperlinking(editor, focusEditorMethod)
@@ -285,17 +286,7 @@
         return selectedHeaderLevel
     }
 
-    /**
-     * Is-Thing-link method.
-     * 
-     * Determines if the currently-selected text is a link to a Thing in the current Graph.
-     */
-    function isThingLink(): boolean {
-        return (
-            editor.isActive('link')
-            && editor.getAttributes("link").href.startsWith("graph://")
-        )
-    }
+    
 
     /**
      * Handle-expand-button method.
