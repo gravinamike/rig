@@ -88,11 +88,12 @@ Log files can grow to problematic sizes if they aren't regularly rotated and del
 `sudo apt-get install -y logrotate`
 Or, on RHEL/CentOS:
 `sudo yum update`
-`sudo apt-get install -y logrotate`
+`sudo yum install -y logrotate`
 
 2. Verify installation by checking that there is a line containing `cron.daily` in `/etc/crontab` or `/etc/anacrontab`.
 
 3. Create the configuration file `/etc/logrotate.d/rig`, with the following contents:
+```
     /<path to your Rig log directory>/rig_log.log {
         su root
         daily
@@ -103,6 +104,7 @@ Or, on RHEL/CentOS:
         missingok
         copytruncate
     }
+```
 
 
 ### Running the application

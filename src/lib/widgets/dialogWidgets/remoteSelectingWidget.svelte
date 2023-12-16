@@ -13,9 +13,11 @@
     // Import related widgets.
     import { defaultGraphWidgetStyle, GraphWidget, type GraphWidgetStyle } from "$lib/widgets/graphWidgets"
     import { SearchWidget } from "$lib/widgets/navWidgets"
-    import { onMobile } from "$lib/shared/utility";
+    import { onMobile } from "$lib/shared/utility"
 
 
+    // The search text to enter in the search field by default.
+    export let startingSearchText: string | null = null
     // The method to be executed when a Thing is selected.
     export let submitMethod: (selectedItem: SearchOption | null, matchedItems: SearchOption[]) => void
     // The widget's internal Graph (distinct from the Graph in a regular Graph Viewer).
@@ -118,6 +120,7 @@
         <SearchWidget
             {unfilteredArray}
             placeholderText={"Search Things..." }
+            startingText={startingSearchText}
             maxHeight={portraitOrientation ? 500 : null}
             useSubmitButton={onMobile() ? true : false}
             startFocused={true}

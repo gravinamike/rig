@@ -15,6 +15,7 @@
     /**
      * @param unfilteredArray - The array of items to search.
      * @param placeholderText - Instructive text to show if nothing has been entered yet.
+     * @param startingText - Text to enter automatically when the widget is initialized.
      * @param maxHeight - The maximum height that the list of filtered items can be.
      * @param useSubmitButton - Whether to override the usual submission behavior and submit using a button instead.
      * @param startFocused - Whether to put focus on the search field when it is first rendered.
@@ -24,6 +25,7 @@
      */
     export let unfilteredArray: {id: number, thingText: string, noteText: string | null}[]
     export let placeholderText: string
+    export let startingText: string | null = null
     export let maxHeight: number | null = 100
     export let useSubmitButton = false
     export let startFocused = false
@@ -42,7 +44,7 @@
     $: searchType = unfilteredArray.length && unfilteredArray[0].noteText ? "note" : "thing"
 
     // The text currently input in the search field.
-    let inputText = ""
+    let inputText = startingText || ""
 
     // Arrays of items filtered by, and matched exactly to, the input text.
     let filteredItems: SearchOption[] = []
@@ -339,7 +341,7 @@
     }
 
 
-
+    // When the widget is initialized, put focus on the text input field.
     onMount(async () => {
         if (startFocused) inputField.focus()
     })

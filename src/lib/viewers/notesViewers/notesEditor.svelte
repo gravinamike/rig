@@ -22,6 +22,7 @@
     import TopBottomJumpButtons from "./topBottomJumpButtons.svelte"
 
 
+
     /**
      * @param currentPThingNoteText - The text of the Perspective Thing's Note.
      * @param currentEditorTextContent - The editor's text content as a string.
@@ -35,6 +36,8 @@
     export let textField: Element
     export let fullSize: boolean
 
+
+
     // HTML element handles.
     let editor: Editor
     let textFieldScrollTop = 0
@@ -42,16 +45,7 @@
     let textFieldScrollHeight = 0
 
 
-
-
-
-
-    // When the editor component is created, set its text content based on the
-    // Perspective Thing's Note text.
-    onMount(() => {
-        setContent(currentPThingNoteText || "")
-    })
-
+    // The set of editor extensions for the TipTap editor.
     const editorExtensions = [
         StarterKit,
         TextStyle,
@@ -69,10 +63,35 @@
         })
     ]
 
+    // Whether the control key is currently pressed.
+    let ctrlKeyPressed = false
+
+
+    // Set the background image URL if one is set in the configuration file.
+    $: notesBackgroundImageUrl =
+        $notesBackgroundImageStore ? `customizable/background-images/${$notesBackgroundImageStore}` :
+        null
+
+    // When the current Perspective Thing's Note text exists (isn't null), set the content of the
+    // editor to that Note text.
+    $: if (typeof currentPThingNoteText === "string") setContent(currentPThingNoteText)
+    
+
+    /**
+     * Focus-editor method.
+     * 
+     * Gives the Tiptap editor keyboard focus.
+     */
+    function focusEditor() {
+        const editorElement = editor.view.dom as HTMLElement
+        if (editorElement !== document.activeElement) editorElement.focus()
+    }
+
     /**
      * Set-content method.
      * 
-     * Sets the text content of the editor component to a given string.
+     * Sets the text content of the editor component to a given string. To be used when loading
+     * text from a new Perspective Thing.
      * @param content - The string which is to be the new content.
      */
     function setContent(content: string) {
@@ -108,82 +127,48 @@
         textFieldScrollHeight = textField?.scrollHeight || 0
     }
 
+    /**
+     * On-content-edited method.
+     * 
+     * When the text in the editor is changed (by the user), set the flag that indicates the text
+     * needs to be synced, and scroll the text field if necessary.
+     */
     async function onContentEdited() {
+        // Update the `currentEditorTextContent` variable to reflect the HTML content of the
+        // editor.
         currentEditorTextContent = editor.getHTML()
+
+        // Set the flag that indicates the text needs to be synced on the back-end.
         editorTextEditedButNotSynced = true
 
+        // Scroll the text field if necessary.
         await tick()
         textFieldScrollHeight = textField?.scrollHeight || 0
     }
 
-
-    $: if (typeof currentPThingNoteText === "string") setContent(currentPThingNoteText)
     
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-    /**
-     * Focus-editor method.
-     * 
-     * Gives the Tiptap editor keyboard focus.
-     */
-    function focusEditor() {
-        const editorElement = editor.view.dom as HTMLElement
-        if (editorElement !== document.activeElement) editorElement.focus()
-    }
+    // When the editor component is created, set its text content based on the
+    // Perspective Thing's Note text.
+    onMount(() => {
+        setContent(currentPThingNoteText || "")
+    })
 
     // When the editor component is destroyed, also destroy the Tiptap editor.
     onDestroy(() => {
         if (editor) editor.destroy()
     })
-
-
-    let ctrlKeyPressed = false
-
-
-
-
-
-
-    $: notesBackgroundImageUrl =
-        $notesBackgroundImageStore ? `customizable/background-images/${$notesBackgroundImageStore}` :
-        null
-
-
-
-
-
-
 </script>
 
 
+<!-- Set control-key tracking on the page body. -->
 <svelte:body
     on:keydown={ (event) => {if (event.key === "Control") ctrlKeyPressed = true} }
     on:keyup={ (event) => {if (event.key === "Control") ctrlKeyPressed = false} }
 />
 
 
+<!-- Notes editor. -->
 <div
     class="notes-editor"
     class:on-mobile={onMobile()}
@@ -212,6 +197,7 @@
         on:scroll={() => {textFieldScrollTop = textField.scrollTop}}
     />
 
+    <!-- Jump-to-top/bottom buttons. -->
     <div
         class="jump-buttons-container"
         style="height: {textFieldClientHeight}px;"

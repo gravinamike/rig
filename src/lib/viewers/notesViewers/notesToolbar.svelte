@@ -1,11 +1,26 @@
 <script lang="ts">
+    // Import types.
     import type { Editor } from "@tiptap/core"
+
+    // Import constants.
     import { fontSizes, headerLevels } from "$lib/shared/constants"
-    import { enableThingLinking, enableTextHyperlinking, fontNames, uIBackgroundColorStore, notesToolbarExpandedStore, landscapeOrientation } from "$lib/stores"
-    import CommandPalette from "$lib/widgets/layoutWidgets/commandPalette/commandPalette.svelte"
+
+    // Import stores.
+    import {
+        fontNames, uIBackgroundColorStore, notesToolbarExpandedStore,
+        enableThingLinking, enableTextHyperlinking, 
+    } from "$lib/stores"
+
+    // Import utility functions.
     import { onMobile } from "$lib/shared/utility"
-    import { saveGraphConfig } from "$lib/shared/config"
+
+    // Import UI components.
+    import CommandPalette from "$lib/widgets/layoutWidgets/commandPalette/commandPalette.svelte"
     import { Tooltip } from "$lib/widgets/layoutWidgets"
+
+    // Import API methods.
+    import { saveGraphConfig } from "$lib/shared/config"
+
 
 
     export let editor: Editor
@@ -13,49 +28,29 @@
     export let focusEditorMethod: () => void
 
 
+
+    // HTML handles for toolbar elements.
+    let colorPicker: HTMLInputElement
+
+    // Whether or not the Notes toolbar is expanded to show tool description text or not.
     let expanded = $notesToolbarExpandedStore
 
+
+    // Set up reactive attributes for command palette width and font family, size, color, and
+    // header level.
     let commandPaletteWidth: number = 1
     $: commandPaletteMaxRowLength = commandPaletteWidth / ((onMobile() ? 20 : 25) + 5) - 1
-    
-    function selectedFontFamily(): string | null {
-        return editor.getAttributes("textStyle").fontFamily || null
-    }
     let currentSelectionFontFamily: string | null
     $: if (editor) currentSelectionFontFamily = selectedFontFamily()
-    
-    function selectedFontSize(): number | null {
-        let selectedFontSize = editor.getAttributes("textStyle").fontSize || null
-        if (typeof selectedFontSize === "string") {
-            selectedFontSize = Number(selectedFontSize.replace("pt", ""))
-        }
-        return selectedFontSize
-    }
     let currentSelectionFontSize: number | null
     $: if (editor) currentSelectionFontSize = selectedFontSize()
-
-    function selectedHeaderLevel(): 1 | 2 | 3 | 4 | 5 | 6 | null {
-        let selectedHeaderLevel = editor.getAttributes("heading").level || null
-        return selectedHeaderLevel
-    }
+    let currentSelectionColor: string
+    $: if (editor) currentSelectionColor = selectedColor()
     let currentSelectionHeaderLevel: 1 | 2 | 3 | 4 | 5 | 6 | null
     $: if (editor) currentSelectionHeaderLevel = selectedHeaderLevel()
 
-    let colorPicker: HTMLInputElement
-    function selectedColor(): string {
-        let selectedColor = editor.getAttributes("textStyle").color || null
-        return selectedColor
-    }
-    let currentSelectionColor: string
-    $: if (editor) currentSelectionColor = selectedColor()
-
-    function isThingLink(): boolean {
-        return (
-            editor.isActive('link')
-            && editor.getAttributes("link").href.startsWith("graph://")
-        )
-    }
-
+    
+    // Construct the array of objects that define the command buttons.
     $: commandButtonInfos = [
         // Linking.
         {
@@ -247,6 +242,67 @@
         }
     ]
 
+
+    /**
+     * Selected-font-family method.
+     * 
+     * Gets the font family of the currently-selected text.
+     */
+    function selectedFontFamily(): string | null {
+        return editor.getAttributes("textStyle").fontFamily || null
+    }
+    
+    /**
+     * Selected-font-size method.
+     * 
+     * Gets the font size of the currently-selected text.
+     */
+    function selectedFontSize(): number | null {
+        let selectedFontSize = editor.getAttributes("textStyle").fontSize || null
+        if (typeof selectedFontSize === "string") {
+            selectedFontSize = Number(selectedFontSize.replace("pt", ""))
+        }
+        return selectedFontSize
+    }
+
+    /**
+     * Selected-text-color method.
+     * 
+     * Gets the color of the currently-selected text.
+     */
+    function selectedColor(): string {
+        let selectedColor = editor.getAttributes("textStyle").color || null
+        return selectedColor
+    }
+
+    /**
+     * Selected-text-header-level method.
+     * 
+     * Gets the header level of the currently-selected text.
+     */
+    function selectedHeaderLevel(): 1 | 2 | 3 | 4 | 5 | 6 | null {
+        let selectedHeaderLevel = editor.getAttributes("heading").level || null
+        return selectedHeaderLevel
+    }
+
+    /**
+     * Is-Thing-link method.
+     * 
+     * Determines if the currently-selected text is a link to a Thing in the current Graph.
+     */
+    function isThingLink(): boolean {
+        return (
+            editor.isActive('link')
+            && editor.getAttributes("link").href.startsWith("graph://")
+        )
+    }
+
+    /**
+     * Handle-expand-button method.
+     * 
+     * When the expand button is clicked, expands or collapses the Notes toolbar (showing or hiding
+     * the tool explanation text).
+     */
     function handleExpandButton() {
         expanded = !expanded
         notesToolbarExpandedStore.set(expanded)
@@ -256,6 +312,7 @@
 
 
 {#if editor}
+    <!-- Notes toolbar. -->
     <div
         class="notes-toolbar"
         class:on-mobile={onMobile()}
@@ -265,7 +322,7 @@
             background-color: {$uIBackgroundColorStore};
         "
     >
-        <!-- Font family, size, and header level. -->
+        <!-- Font family, size, and header level selectors. -->
         <div class="button-group">
             <select
                 class="font-picker"
@@ -358,6 +415,7 @@
             >
         </div>
 
+        <!-- Command palette containing the rest of the controls. -->
         <div bind:clientWidth={commandPaletteWidth}>
             <CommandPalette
                 {commandButtonInfos}
@@ -369,6 +427,7 @@
             />
         </div>
 
+        <!-- Expand and edit control buttons section (includes empty space for the edit button). -->
         <div
             class="expand-edit-buttons"
 
@@ -377,6 +436,7 @@
                 "width: 27px; flex: 0 0 27px"
             }
         >
+            <!-- Expand Notes-toolbar button. -->
             <div
                 class="expand-button"
                 class:expanded
