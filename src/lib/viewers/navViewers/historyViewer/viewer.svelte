@@ -12,7 +12,7 @@
     import {
         uIBackgroundColorStore, readOnlyMode, pinIdsStore, addPin, removePin,
         homeThingIdStore, setHomeThingId, removeHomeThing,
-        hoveredThingIdStore, openContextCommandPalette,     
+        hoveredThingIdStore, openContextCommandPalette   
     } from "$lib/stores"
 
     // Import related widgets.
@@ -40,7 +40,7 @@
         useUniqueHistory
         historyToUse = graph.history.reverseHistoryWithDateDividers
     }
-    
+
     
     /**
      * Open a context command palette for a History entry.

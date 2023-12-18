@@ -2,7 +2,13 @@
     import { onMount } from "svelte"
     import { graphFoldersStore, refreshGraphFoldersStore, enableNewFileCreation, openGraphStore, uIBackgroundColorStore, uITrimColorStore, userIdStore } from "$lib/stores"
     import { openGraphFile } from "$lib/shared/unigraph"
-    import { onMobile } from "$lib/shared/utility";
+    import { onMobile } from "$lib/shared/utility"
+    import type { Graph } from "$lib/models/constructModels"
+
+
+
+    export let graph: Graph | null
+
 
     
     let graphFoldersByUsername: [string, string[]][] = []
@@ -39,7 +45,7 @@
                     {#each folders as folder}
                         <div
                             class="button graph-folder-button { folder === $openGraphStore ? "opened" : "" }"
-                            on:click={() => {openGraphFile(username, folder, null, true)}}
+                            on:click={() => {graph = null; openGraphFile(username, folder, null, true)}}
                             on:keydown={()=>{}}
                         >
                             {folder}

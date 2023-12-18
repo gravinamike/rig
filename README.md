@@ -95,7 +95,7 @@ Or, on RHEL/CentOS:
 3. Create the configuration file `/etc/logrotate.d/rig`, with the following contents:
 ```
     /<path to your Rig log directory>/rig_log.log {
-        su root
+        su root root
         daily
         rotate <number of days to keep log files>
         delaycompress

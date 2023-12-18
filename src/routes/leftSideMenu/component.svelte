@@ -293,7 +293,9 @@
 
                     <!-- File menu tab. -->
                     <TabBody>
-                        <FileMenu />
+                        <FileMenu
+                            bind:graph
+                        />
                     </TabBody>
                 
                     <!-- Users tab. --> 

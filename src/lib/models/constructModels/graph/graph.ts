@@ -113,7 +113,7 @@ export class Graph {
         this.planes = new Planes(this)
         this.#startingSpace = startingSpace
         this.originalStartingSpace = startingSpace
-        this.history = new PerspectiveHistory()        
+        this.history = new PerspectiveHistory()
         this.formActive = false
     }
 

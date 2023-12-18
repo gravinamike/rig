@@ -18,7 +18,7 @@
     import SpaceFrameWidget from "./spaceFrame.svelte"
     import PlaneControls from "./planeControls.svelte"
     import { ThingCohortWidget } from "$lib/widgets/graphWidgets"
-    import { cubicOut } from "svelte/easing";
+    import { cubicOut } from "svelte/easing"
     
 
     export let graph: Graph

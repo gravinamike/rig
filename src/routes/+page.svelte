@@ -146,7 +146,7 @@
     <!-- Side-menu. -->
     <LeftSideMenu
         {height}
-        {graph}
+        bind:graph
         {graphWidgetStyle}
         {allowZoomAndScrollToFit}
         {leftMenuOpen}
