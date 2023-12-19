@@ -34,7 +34,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 	// Get the session UUID from 
 	const sessionUuid = event.params.sessionUuid as string
 
-
+	
 	/* Add the current user's ID to the app's local variables. */
 
 	// Retrieve all cookies from the request headers.
@@ -60,7 +60,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 	if (requestForbidden) {
 		logger.info(
 			{
-				user: event.locals.user?.username || null,
+				username: event.locals.user?.username || null,
 				route: event.route.id,
 				status: 403,
 				msg: "User doesn't have permission to access this resource."
@@ -105,7 +105,6 @@ export const handle: Handle = async ({ event, resolve }) => {
 
 
 	if (!requestForbidden && !(event.route.id === null) && !response.ok) {
-		const graphName = getGraphNameOnServer(event.request, event.params)
 		const status = response.clone().status
 		response.clone().text().then(text => {
 			let errorMessage: string
@@ -114,8 +113,16 @@ export const handle: Handle = async ({ event, resolve }) => {
 			} catch {
 				errorMessage = text
 			}
+
+			// Get the client IP address, the username, and the Graph name.
+			const clientIpAddress = event.getClientAddress()
+			const userName = event.locals.user?.username || null
+			const graphName = getGraphNameOnServer(event.request, event.params)
+
 			logger.error(
 				{
+					clientIp: clientIpAddress,
+					userName: userName,
 					graphName: graphName,
 					route: event.route.id,
 					status: status,
@@ -232,7 +239,9 @@ export const handleError: HandleServerError = async ({ error, event }) => {
 	let errorMessage: string
 
 	try {
-		// Get the user and Graph name.
+		// Get the client IP address, the username, and the Graph name.
+		const clientIpAddress = event.getClientAddress()
+		const userName = event.locals.user?.username || null
 		const graphName = getGraphNameOnServer(event.request, event.params)
 
 		// Get the error message from the error.
@@ -241,6 +250,8 @@ export const handleError: HandleServerError = async ({ error, event }) => {
 		// Log the error.
 		logger.error(
 			{
+				clientIp: clientIpAddress,
+				username: userName,
 				graphName: graphName,
 				route: event.route.id,
 				msg: errorMessage

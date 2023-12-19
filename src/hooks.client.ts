@@ -2,7 +2,7 @@
 import type { HandleClientError } from "@sveltejs/kit"
 
 import { get } from "svelte/store"
-import { loggerStore, openGraphStore } from "$lib/stores"
+import { loggerStore, openGraphStore, userIdStore } from "$lib/stores"
 const logger = get(loggerStore)
 
 
@@ -27,6 +27,7 @@ export const handleError: HandleClientError = async ({ error, event }) => {
 		// Log the error.
 		logger.error(
 			{
+				userName: get(userIdStore),
 				graphName: get(openGraphStore),
 				route: event.route.id,
 				msg: errorMessage
