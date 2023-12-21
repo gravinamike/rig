@@ -445,6 +445,7 @@
     }
 
     .nav-buttons {
+        box-shadow: 2px 2px 4px 1px lightgrey;
         border-radius: 0 16px 0 0;
 
         position: absolute;

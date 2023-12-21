@@ -228,7 +228,7 @@
     .perspective-reticle {
         border-radius: 50%;
 
-        outline: solid 4px lightgrey;
+        outline: solid 10px lightgrey;
 
         position: absolute;
         transform: translate(-50%, -50%);

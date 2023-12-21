@@ -191,6 +191,7 @@
     class="side-menu"
     class:overlap-page={overlapPage}
     class:slide-left={slideDirection === "left"}
+    class:slide-right={slideDirection === "right"}
     class:full-size={fullSize}
     bind:this={sideMenu}
 
@@ -371,7 +372,17 @@
 
 <style>
     .side-menu {
+        box-shadow: 0 0 5px 2px lightgrey;
+
         position: relative;
+    }
+
+    .side-menu.slide-left {
+        border-left: solid 1px gainsboro;
+    }
+
+    .side-menu.slide-right {
+        border-right: solid 1px gainsboro;
     }
 
     .side-menu.overlap-page {

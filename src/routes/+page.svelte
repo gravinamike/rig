@@ -219,7 +219,7 @@
     }
 
     .background.color {
-        background-color: #eef8ff;
+        background-color: #ebf8ff;
     }
 
     .background.image {
