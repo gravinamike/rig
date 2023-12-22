@@ -7,7 +7,7 @@ import { get } from "svelte/store"
 // Import stores.
 import {
     readOnlyMode as readOnlyModeStore, perspectiveThingIdStore, leftSideMenuStore, rightSideMenuStore, notesEditorLockedStore,
-    homeThingIdStore, pinIdsStore, uIBackgroundColorStore, uITrimColorStore, mobileMenuTrimColorStore, graphBackgroundImageStore, notesBackgroundImageStore, hideMenusStore, notesToolbarExpandedStore,
+    homeThingIdStore, pinIdsStore, uIBackgroundColorStore, uITrimColorStore, mobileMenuTrimColorStore, graphBackgroundImageStore, notesBackgroundImageStore, hideMenusStore,
 } from "$lib/stores"
 
 // Import API methods.
@@ -69,7 +69,6 @@ export async function storeGraphConfig(pThingId: number | null = null): Promise<
     leftSideMenuStore.set(graphConfig.leftSideMenu)
     rightSideMenuStore.set(graphConfig.rightSideMenu)
     notesEditorLockedStore.set(graphConfig.notesEditorLocked)
-    notesToolbarExpandedStore.set(graphConfig.notesToolbarExpanded)
     homeThingIdStore.set(graphConfig.homeThingId)
     pinIdsStore.set(graphConfig.pinIds)
     perspectiveThingIdStore.set(
@@ -107,7 +106,6 @@ export async function saveGraphConfig(): Promise<void> {
     const leftSideMenu = get(leftSideMenuStore)
     const rightSideMenu = get(rightSideMenuStore)
     const notesEditorLocked = get(notesEditorLockedStore)
-    const notesToolbarExpanded = get(notesToolbarExpandedStore)
     const homeThingId = get(homeThingIdStore)
     const pinIdsStoreValue = get(pinIdsStore)
     const lastPerspectiveThingId = get(perspectiveThingIdStore)
@@ -124,7 +122,6 @@ export async function saveGraphConfig(): Promise<void> {
         leftSideMenu: leftSideMenu,
         rightSideMenu: rightSideMenu,
         notesEditorLocked: notesEditorLocked,
-        notesToolbarExpanded: notesToolbarExpanded,
         homeThingId: homeThingId,
         pinIds: pinIdsStoreValue,
         perspectiveThingId: lastPerspectiveThingId

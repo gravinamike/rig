@@ -7,7 +7,7 @@
 
     // Import stores.
     import {
-        fontNames, uIBackgroundColorStore, notesToolbarExpandedStore,
+        fontNames, uIBackgroundColorStore,
         enableThingLinking, enableTextHyperlinking, 
     } from "$lib/stores"
 
@@ -16,10 +16,6 @@
 
     // Import UI components.
     import CommandPalette from "$lib/widgets/layoutWidgets/commandPalette/commandPalette.svelte"
-    import { Tooltip } from "$lib/widgets/layoutWidgets"
-
-    // Import API methods.
-    import { saveGraphConfig } from "$lib/shared/config"
 
 
 
@@ -32,9 +28,6 @@
 
     // HTML handles for toolbar elements.
     let colorPicker: HTMLInputElement
-
-    // Whether or not the Notes toolbar is expanded to show tool description text or not.
-    let expanded = $notesToolbarExpandedStore
 
 
     // Set up reactive attributes for command palette width and font family, size, color, and
@@ -50,12 +43,17 @@
     let currentSelectionHeaderLevel: 1 | 2 | 3 | 4 | 5 | 6 | null
     $: if (editor) currentSelectionHeaderLevel = selectedHeaderLevel()
 
-    
+
+    // Get information about hotkey modifier keys.
+    const onMac = /macOS|Macintosh|MacIntel|MacPPC|Mac68k/i.test(navigator.userAgent)
+    const onChromeOs = /CrOS/i.test(navigator.userAgent)
+	const nameForModKey = onMac ? "Cmd" : "Ctrl"
+
     // Construct the array of objects that define the command buttons.
     $: commandButtonInfos = [
         // Linking.
         {
-            text: "Thing link",
+            text: `Thing link (${nameForModKey}+L)`,
             iconName: "thing-link",
             iconHtml: null,
             isActive: (
@@ -71,7 +69,7 @@
             }
         },
         {
-            text: "Hyperlink",
+            text: `Hyperlink (${nameForModKey}+K)`,
             iconName: "link",
             iconHtml: null,
             isActive: (
@@ -89,28 +87,28 @@
 
         // Basic formatting.
         {
-            text: "Bold text",
+            text: `Bold (${nameForModKey}+B)`,
             iconName: null,
             iconHtml: `<span style="font-weight: bold;">B</span>`,
             isActive: editor.isActive('bold'),
             onClick: () => editor.chain().focus().toggleBold().run()
         },
         {
-            text: "Italic text",
+            text: `Italic (${nameForModKey}+I)`,
             iconName: null,
             iconHtml: `<span style="font-style: italic;">I</span>`,
             isActive: editor.isActive('italic'),
             onClick: () => editor.chain().focus().toggleItalic().run()
         },
         {
-            text: "Underline text",
+            text: `Underline (${nameForModKey}+U)`,
             iconName: null,
             iconHtml: `<span style="text-decoration: underline;">U</span>`,
             isActive: editor.isActive('underline'),
             onClick: () => editor.chain().focus().toggleUnderline().run()
         },
         {
-            text: "Strikethrough text",
+            text: `Strikethrough (${nameForModKey}+D)`,
             iconName: null,
             iconHtml: `<span style="text-decoration: line-through;">S</span>`,
             isActive: editor.isActive('strike'),
@@ -119,28 +117,28 @@
 
         // Text alignment.
         {
-            text: "Align left",
+            text: "Align to left",
             iconName: "left-align",
             iconHtml: null,
             isActive: editor.isActive({ textAlign: 'left' }),
             onClick: () => editor.chain().focus().setTextAlign('left').run()
         },
         {
-            text: "Center",
+            text: "Align to center",
             iconName: "center-align",
             iconHtml: null,
             isActive: editor.isActive({ textAlign: 'center' }),
             onClick: () => editor.chain().focus().setTextAlign('center').run()
         },
         {
-            text: "Align right",
+            text: "Align to right",
             iconName: "right-align",
             iconHtml: null,
             isActive: editor.isActive({ textAlign: 'right' }),
             onClick: () => editor.chain().focus().setTextAlign('right').run()
         },
         {
-            text: "Justify",
+            text: "Justify text",
             iconName: "justify",
             iconHtml: null,
             isActive: editor.isActive({ textAlign: 'justify' }),
@@ -218,21 +216,29 @@
 
         // Undo/redo and clear formatting.
         {
-            text: "Undo",
+            text: `Undo (${nameForModKey}+Z)`,
             iconName: "undo",
             iconHtml: null,
             isActive: false,
             onClick: () => editor.chain().focus().undo().run()
         },
         {
-            text: "Redo",
+            text: `Redo (${
+                onMac || onChromeOs ? "Shift+" :
+                ""
+            }${
+                nameForModKey
+            }+${
+                onMac || onChromeOs ? "Z" :
+                "Y"
+            })`,
             iconName: "redo",
             iconHtml: null,
             isActive: false,
             onClick: () => editor.chain().focus().redo().run()
         },
         {
-            text: "Clear formatting",
+            text: `Un-format (${nameForModKey}+Spc)`,
             iconName: "clean",
             iconHtml: null,
             isActive: false,
@@ -284,20 +290,6 @@
     function selectedHeaderLevel(): 1 | 2 | 3 | 4 | 5 | 6 | null {
         let selectedHeaderLevel = editor.getAttributes("heading").level || null
         return selectedHeaderLevel
-    }
-
-    
-
-    /**
-     * Handle-expand-button method.
-     * 
-     * When the expand button is clicked, expands or collapses the Notes toolbar (showing or hiding
-     * the tool explanation text).
-     */
-    function handleExpandButton() {
-        expanded = !expanded
-        notesToolbarExpandedStore.set(expanded)
-        saveGraphConfig()
     }
 </script>
 
@@ -413,44 +405,22 @@
                 buttonSize={onMobile() ? 20 : 25}
                 maxRowLength={commandPaletteMaxRowLength}
                 startPadding={onMobile() ? 8 : 10}
-                showText={onMobile() || !expanded ? false : true}
-                forceRows={expanded ? null : 2}
+                showText={onMobile() ? false : true}
+                separateRowForText={false}
+                textSide={"right"}
+                showBorder={false}
             />
         </div>
 
-        <!-- Expand and edit control buttons section (includes empty space for the edit button). -->
+        <!-- Empty space for the edit button. -->
         <div
-            class="expand-edit-buttons"
+            class="edit-button-spacer"
 
             style={
                 onMobile() ? "width: 33px; flex: 0 0 33px" :
-                "width: 27px; flex: 0 0 27px"
+                "width: 55px; flex: 0 0 55px"
             }
-        >
-            <!-- Expand Notes-toolbar button. -->
-            <div
-                class="expand-button"
-                class:expanded
-
-                on:click={handleExpandButton}
-                on:keydown={() => {}}
-            >
-                {#if expanded}
-                    -
-                {:else}
-                    +
-                {/if}
-
-                <Tooltip
-                    text={
-                        expanded === false ? "Show function names." :
-                        "Hide function names."
-                    }
-                    direction={"up"}
-                    lean={"left"}
-                />
-            </div>
-        </div>
+        />
     </div>
 {/if}
 
@@ -465,7 +435,7 @@
 
         display: flex;
         flex-direction: row;
-        padding: 0.5rem;
+        padding: 0;
         gap: 0.25rem;
     }
 
@@ -476,8 +446,8 @@
 
     .button-group {
         position: absolute;
-        left: 14px;
-        top: 14px;
+        left: 5px;
+        top: 5px;
         z-index: 1;
 
         display: flex;
@@ -491,9 +461,17 @@
     }
 
     select, input {
+        border-radius: 3px;
+        border: solid 1px lightgrey;
+
         height: 25px;
+        background-color: white;
 
         font-size: 0.73rem;
+    }
+
+    select:hover, input:hover {
+        border: solid 1px black;
     }
 
     .notes-toolbar.on-mobile select, .notes-toolbar.on-mobile input {
@@ -538,40 +516,9 @@
         width: 20px;
     }
 
-    .expand-edit-buttons {
+    .edit-button-spacer {
         height: 100%;
 
         align-items: center;
-    }
-
-    .expand-button {
-        position: relative;
-
-        font-size: 1.5rem;
-        font-weight: 600;
-        color: grey;
-
-        cursor: pointer;
-    }
-
-    .notes-toolbar.on-mobile .expand-button {
-        margin-top: -0.15rem;;
-    }
-
-    .expand-button.expanded {
-        margin-top: -0.25rem;
-        font-size: 1.75rem;
-    }
-
-    .notes-toolbar.on-mobile .expand-button.expanded {
-        margin-top: -0.35rem;;
-    }
-
-    .expand-button:hover {
-        color: dimgrey;
-    }
-
-    .expand-button:active {
-        color: black;
     }
 </style>

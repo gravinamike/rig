@@ -109,7 +109,6 @@ export interface GraphConfig {
     leftSideMenu: string | null
     rightSideMenu: string | null
     notesEditorLocked: boolean
-    notesToolbarExpanded: boolean
     homeThingId: number | null
     pinIds: number[]
     perspectiveThingId: number | null

@@ -445,13 +445,13 @@
     }
 
     .nav-buttons {
-        box-shadow: 2px 2px 4px 1px lightgrey;
+        box-shadow: 3px 2px 2px 1px #e0e0e0;
         border-radius: 0 16px 0 0;
 
         position: absolute;
-        left: 0;
+        left: -1px;
         bottom: 0;
-        z-index: 1;
+        z-index: 100;
 
         display: flex;
         flex-direction: column;
