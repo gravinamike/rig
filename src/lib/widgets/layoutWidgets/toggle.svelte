@@ -29,7 +29,7 @@
         position: relative;
         width: 24px;
         height: 16px;
-        background-color: lightgrey;
+        background-color: darkgrey;
 
         padding: 2px;
 
@@ -37,7 +37,7 @@
     }
 
     .toggle.toggled {
-        background-color: darkgrey;
+        background-color: grey;
     }
 
     .slider {
@@ -45,7 +45,7 @@
 
         width: 12px;
         height: 12px;
-        background-color: whitesmoke;
+        background-color: lightgrey;
 
         transition: 0.25s;
     }

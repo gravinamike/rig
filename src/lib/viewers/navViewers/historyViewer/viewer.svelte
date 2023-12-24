@@ -211,8 +211,6 @@
 
         display: flex;
         flex-direction: column;
-        padding: 0.5rem 0 0.5rem 0;
-        gap: 0.5rem;
         
         text-align: center;
 
@@ -229,11 +227,12 @@
     }
 
     .title-container {
-        margin-left: 0.5rem;
+        background-color: silver;
         
         display: flex;
         flex-direction: row;
         gap: 0.25rem;
+        padding: 0.25rem;
         align-items: center;
 
         line-height: 21px;
@@ -249,8 +248,8 @@
 
     .unique-toggle {
         position: absolute;
-        right: 10px;
-        top: 16px;
+        right: 8px;
+        top: 10px;
 
         display: flex;
         flex-direction: row;
@@ -258,7 +257,7 @@
         gap: 5px;
 
         font-size: 0.75rem;
-        color: dimgrey;
+        color: #585858;
     }
 
     .history-viewer.on-mobile .unique-toggle {
@@ -269,7 +268,7 @@
     }
 
     .unique-toggle:not(.toggled) {
-        color: lightgrey;
+        color: grey;
     }
 
     .content {

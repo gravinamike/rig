@@ -143,8 +143,6 @@
 
         display: flex;
         flex-direction: column;
-        padding: 0.5rem 0 0.5rem 0;
-        gap: 0.25rem;
         
         text-align: center;
 
@@ -167,7 +165,9 @@
     }
 
     .title-container {
-        margin-left: 0.5rem;
+        padding: 0.25rem;
+
+        background-color: silver;
         
         display: flex;
         flex-direction: row;
