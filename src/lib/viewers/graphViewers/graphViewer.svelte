@@ -373,8 +373,8 @@
             on:click={forward}
             on:keydown={()=>{}}
         >
-            <svg style="transform: rotate(180deg);">
-                <polygon points="6,9 19,9 12.5,19" />
+            <svg>
+                <polygon points="9,6 9,19 19,12.5" />
             </svg>
 
             <Tooltip
@@ -390,8 +390,8 @@
             on:click={back}
             on:keydown={()=>{}}
         >
-            <svg>
-                <polygon points="6,9 19,9 12.5,19" />
+            <svg style="transform: rotate(180deg);">
+                <polygon points="9,6 9,19 19,12.5" />
             </svg>
 
             <Tooltip

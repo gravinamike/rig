@@ -97,8 +97,16 @@
 >
 
     {#if !useTabbedLayout}
-        <div class="title">
-            <h4>Pins</h4>
+        <div class="title-container">
+            <img
+                src="./icons/pin.png"
+                alt="History icon"
+                width=27px
+                height=27px
+            >
+            <div class="title">
+                <h4>Pins</h4>
+            </div>
         </div>
     {/if}
     
@@ -158,6 +166,17 @@
         height: fit-content;
     }
 
+    .title-container {
+        margin-left: 0.5rem;
+        
+        display: flex;
+        flex-direction: row;
+        gap: 0.25rem;
+        align-items: center;
+
+        line-height: 21px;
+    }
+
     .title {
         height: 20px;
     }
@@ -170,13 +189,8 @@
         display: flex;
         flex-direction: column;
         padding: 0.5rem;
-        gap: 0.5rem;
 
         overflow-y: auto;
         scrollbar-width: thin;
     }
-
-    .pins-viewer.on-mobile .content {
-        gap: 0.15rem;
-    }
-  </style>
+</style>
