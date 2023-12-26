@@ -4,7 +4,7 @@
     import { onMobile } from "$lib/shared/utility";
 
     /* Store-related imports. */
-    import { homeThingIdStore, hoveredThingIdStore, openContextCommandPalette, readOnlyMode, removeHomeThing, removePin, setHomeThingId } from "$lib/stores"
+    import { homeThingIdStore, hoveredThingIdStore, lightenOrDarkenColorString, openContextCommandPalette, readOnlyMode, removeHomeThing, removePin, setHomeThingId, uITrimColorStore } from "$lib/stores"
 
 
     /**
@@ -58,6 +58,27 @@
         ]
         openContextCommandPalette(position, buttonInfos)
     }
+
+
+
+
+
+
+
+
+
+
+
+    const highlightedColor = lightenOrDarkenColorString($uITrimColorStore, "lighter", 50)
+    
+
+
+
+
+
+
+
+
 </script>
 
 
@@ -65,11 +86,14 @@
 <div
     class="
         pin-widget
-        { thingId === hoveredThingIdStoreValue ? "hovered-thing" : "" }
         { thing ? "" : "thing-id-not-found" }
     "
     class:on-mobile={onMobile()}
     class:home-thing={ thingId === $homeThingIdStore }
+
+
+    style={thingId === hoveredThingIdStoreValue ? `background-color: ${highlightedColor};` : ""}
+
     
     on:mouseenter={()=>{hoveredThingIdStore.set(thingId)}}
     on:mouseleave={()=>{hoveredThingIdStore.set(null)}}
@@ -125,18 +149,6 @@
 
     .thing-id-not-found {
         outline: dashed 1px black;
-    }
-
-    .pin-widget:hover {
-        background-color: #f0f0f0;
-    }
-
-    .pin-widget:active {
-        background-color: gainsboro;
-    }
-
-    .hovered-thing {
-        background-color: #f0f0f0;
     }
 
     .pin-widget.home-thing {

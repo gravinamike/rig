@@ -12,7 +12,7 @@
     import {
         uIBackgroundColorStore, readOnlyMode, pinIdsStore, addPin, removePin,
         homeThingIdStore, setHomeThingId, removeHomeThing,
-        hoveredThingIdStore, openContextCommandPalette   
+        hoveredThingIdStore, openContextCommandPalette, uIHeaderColorStore, lightenOrDarkenColorString, uITrimColorStore   
     } from "$lib/stores"
 
     // Import related widgets.
@@ -84,6 +84,21 @@
         ]
         openContextCommandPalette(position, buttonInfos)
     }
+
+
+
+
+
+
+    const highlightedColor = lightenOrDarkenColorString($uITrimColorStore, "lighter", 50)
+
+
+
+
+
+
+
+
 </script>
 
 
@@ -113,7 +128,11 @@
 
     <!-- Title. -->
     {#if !useTabbedLayout}
-        <div class="title-container">
+        <div
+            class="title-container"
+
+            style="background-color: {$uIHeaderColorStore};"
+        >
             <img
                 src="./icons/history.png"
                 alt="History icon"
@@ -135,9 +154,11 @@
 
                 <div
                     class="box"
-                    class:hovered-thing={entryOrDivider.thingId === $hoveredThingIdStore}
                     class:id-not-found={!entryOrDivider.thing}
                     class:home-thing={ entryOrDivider.thingId === $homeThingIdStore }
+
+                    style={entryOrDivider.thingId === $hoveredThingIdStore ? `background-color: ${highlightedColor};` : ""}
+
 
                     on:mouseenter={ () => {
                         if (
@@ -301,14 +322,6 @@
         padding: 0.35rem;
 
         font-size: 0.6rem;
-    }
-
-    .hovered-thing {
-        background-color: #f0f0f0;
-    }
-
-    .hovered-thing:active {
-        background-color: gainsboro;
     }
 
     .box.home-thing {

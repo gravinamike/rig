@@ -84,7 +84,7 @@
         if (event.target !== editorElement && !editorElement.contains(event.target as Node)) {
             return
         }
-        console.log(event.key)
+
         // Thing-link hotkey.
         if (event.key === "l" && (event.ctrlKey || event.metaKey)) {
             event.preventDefault()

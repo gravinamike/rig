@@ -70,7 +70,6 @@ export function isGraphRestrictedRoute(routeFragment: string) {
 /**
  * Default UI colors.
  */
-export const defaultUIBackgroundColor = "#fafafa"
 export const defaultUITrimColor = "#E8E8E8"
 export const defaultMobileMenuTrimColor = "#787878"
 
