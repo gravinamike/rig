@@ -19,6 +19,7 @@
     import { ThingDetailsWidget } from "$lib/widgets/detailsWidgets"
 
 
+
     /**
      * @param thingId - The ID of the Thing the widget is based on.
      * @param thing - The Thing the widget is based on.
@@ -40,6 +41,7 @@
     export let showAsCollapsed: boolean
     export let rePerspectToThingId: (id: number) => Promise<void>
 
+        
 
     // Attributes handled by the widget controller.
     let thingWidgetId: string

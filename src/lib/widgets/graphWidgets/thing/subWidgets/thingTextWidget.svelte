@@ -1,4 +1,7 @@
 <script lang="ts">
+    import { TextFittingDiv } from "$lib/widgets/layoutWidgets"
+
+
     export let thingWidth: number
     export let thingHeight: number
     export let sidewaysText: boolean
@@ -24,15 +27,19 @@
         
         style="font-size: {fontSize}px;"
     >
-        {text}
+        <TextFittingDiv
+            {text}
+            defaultFontSize={fontSize}
+        />
     </div>
 </div>
 
 
 <style>
     .text-container {
+        box-sizing: border-box;
+
         position: relative;
-        left: 0;
         
         text-align: center;
         
@@ -44,6 +51,12 @@
     }
 
     .thing-text {
+        position: relative;
+        left: 5%;
+        top: 5%;
+        width: 95%;
+        height: 95%;
+
         font-weight: 600;
     }
 
@@ -63,7 +76,7 @@
         left: 50%;
         top: 50%;
         transform: translate(-50%, -50%);
-        
-        overflow-wrap: break-word;
+
+        white-space: pre-line;
     }
 </style>
