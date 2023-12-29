@@ -240,13 +240,7 @@
      * into account the rotation and mirroring of the widgets into which it is
      * embedded as well as the Relationship Cohort's half-axis.
      */
-    $: directionWidgetRotation = 
-        -rotation * mirroring
-        + (
-            halfAxisId === 3 ? -90 :
-            halfAxisId === 4 ? 90 :
-            0
-        )
+    $: directionWidgetRotation = -rotation
 
     /**
      * Change-Relationships-Direction method.
@@ -348,7 +342,7 @@
      * The vertical location of the top of the Relationship stem, before the
      * rotation based on the half-axis. 
      */
-    $: stemTop = relationshipsLength * 2/3
+    $: stemTop = relationshipsLength * 0.42
 
     /**
      * Show-relationships flag.

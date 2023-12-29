@@ -30,6 +30,7 @@
         <TextFittingDiv
             {text}
             defaultFontSize={fontSize}
+            defaultFontWeight={600}
         />
     </div>
 </div>
@@ -54,10 +55,8 @@
         position: relative;
         left: 5%;
         top: 5%;
-        width: 95%;
-        height: 95%;
-
-        font-weight: 600;
+        width: 90%;
+        height: 90%;
     }
 
     .thing-text.encapsulating {
@@ -76,7 +75,5 @@
         left: 50%;
         top: 50%;
         transform: translate(-50%, -50%);
-
-        white-space: pre-line;
     }
 </style>

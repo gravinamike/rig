@@ -70,6 +70,40 @@
     // Attributes managed by sub-widgets.
     let thingIdOfHoveredRelationship: number | null = null
     let stemHovered = false
+
+
+
+
+
+    /**
+     * Of-Perspective-Thing flag.
+     * 
+     * Is true if this Relationship Cohort widget belongs to the Graph's Perspective Thing.
+     */
+    $: ofPerspectiveThing =
+        thingCohort.parentThing && thingCohort.parentThing.address?.generationId === 0 ? true :
+        false
+
+
+
+
+
+
+
+
+
+    $: addThingSymbolOffsetAlongThingCohortLength = (
+        thingCohort.members.length ? (
+            thingCohort.rowOrColumn() === "row" ? widgetWidth :
+            widgetHeight
+        ) :
+        0
+    ) / 2 + (
+        thingCohort.members.length ? graphWidgetStyle.betweenThingSpacing :
+        0
+    )
+    
+
 </script>
 
 
@@ -197,6 +231,7 @@
                 class="direction-widget-anchor"
                 style="
                     transform:
+                        translate(-50%, -50%)
                         scaleY({mirroring})
                         rotate({directionWidgetRotation}deg);
                 "
@@ -208,10 +243,46 @@
                     optionClickedFunction={(direction, _, __) => {
                         if (direction?.id) changeRelationshipsDirection(direction.id)
                     }}
+                    interactionDisabled={!ofPerspectiveThing}
                 />
             </div>
         {/if}
 
+
+
+
+
+        {#if showDirection && stemHovered && !graph.formActive}
+            <div
+                class="add-thing-symbol"
+
+                style="
+                    border-radius: 8px;
+                    outline: dotted 2px lightgrey;
+                    outline-offset: -2px;
+
+                    position: absolute;
+                    left: calc({
+                        thingCohort.members.length ? 50 :
+                        0
+                    }% + {addThingSymbolOffsetAlongThingCohortLength}px);
+                    top: -{thingHeight}px;
+                    width: {thingWidth}px;
+                    height: {thingHeight}px;
+
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+
+                    font-size: 70px;
+                    font-weight: 900px;
+                    color: lightgrey;
+                "
+            >
+                <div>+</div>
+            </div>
+        {/if}
     </div>
 </div>
 
@@ -239,6 +310,11 @@
     }
 
     .direction-widget-anchor {
+        position: absolute;
+        left: 50%;
+        top: 76%;
+        width: fit-content;
+        height: fit-content;
         z-index: 2;
     }
 </style>

@@ -88,8 +88,8 @@
         class:readOnlyMode={$readOnlyMode}
 
         x1="{midline}" y1="{stemBottom}"
-        x2="{midline}" y2="{stemTop + 10}"
-        style="stroke-width: {20 / tweenedScale};"
+        x2="{midline}" y2="{stemTop}"
+        style="stroke-width: {25 / tweenedScale};"
 
         on:mouseenter={ () => {
             stemHovered = true
@@ -196,8 +196,8 @@
         />
         <polygon
             points="
-                {midline - 5 / tweenedScale}, {stemTop + 8 / tweenedScale}
-                {midline + 5 / tweenedScale}, {stemTop + 8 / tweenedScale}
+                {midline - 8 / tweenedScale}, {stemTop + 13 / tweenedScale}
+                {midline + 8 / tweenedScale}, {stemTop + 13 / tweenedScale}
                 {midline}, {stemTop}
             "
             style="stroke-width: {3 / tweenedScale};"

@@ -32,7 +32,7 @@ export const defaultGraphWidgetStyle: GraphWidgetStyle = {
     excludeNonCartesianAxes: false,
     excludeNonAxisThingCohorts: false,
     zoom: 0,
-    zoomPadding: onMobile() ? 50: 100,
+    zoomPadding: onMobile() ? 50: 75,
     animateZoomAndScroll: true,
     relationDistance: 250,
     thingSize: 100,

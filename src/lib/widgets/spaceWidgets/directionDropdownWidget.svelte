@@ -1,14 +1,17 @@
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 
 <script lang="ts">
-    // Type imports.
+    // Import types.
     import type { HalfAxisId } from "$lib/shared/constants"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
     import type { Direction } from "$lib/models/constructModels"
 
-    // Constants and stores imports.
+    // Import constants and stores.
     import { relationshipColorByHalfAxisId } from "$lib/shared/constants"
     import { directionDbModelsStore, getGraphConstructs, readOnlyMode } from "$lib/stores"
+
+    // Import related UI elements.
+    import { TextFittingDiv } from "$lib/widgets/layoutWidgets"
 
     /**
      * @param  {Direction | null} startingDirection - The Direction this widget starts off representing.
@@ -58,17 +61,26 @@
     class:interaction-disabled={$readOnlyMode || interactionDisabled}
     bind:this={directionWidget}
 >
+    <!-- Colored backfield. -->
+    <div class="direction-widget-backfield" />
+
     <!-- Direction text. -->
     <div
+        class="direction-widget-text-container"
+
         style="
             font-size: {fontSize ? fontSize : graphWidgetStyle.relationshipTextSize}px;
             {direction ? "" : "font-style: italic;"}
             color: {relationshipColor};
         "
+
         on:click={() => { showOptions = !showOptions }}
         on:keypress={()=>{}}
     >
-        {direction ? direction.text : "Choose Direction..."}
+        <TextFittingDiv
+            text={direction ? direction.text || "" : "Choose Direction..."}
+            defaultFontSize={fontSize ? fontSize : graphWidgetStyle.relationshipTextSize}
+        />
     </div>
     
     <!-- Drop-down menu to select Direction. -->
@@ -106,11 +118,10 @@
 
 <style>
     .direction-widget {
-        border-radius: 8px;
-
         box-sizing: border-box;
         position: relative;
-        background-color: white;
+        width: 60px;
+        height: 60px;
 
         padding: 0.25rem;
 
@@ -126,6 +137,30 @@
         border-radius: 8px 8px 0 0;
         outline: solid 1px black;
         outline-offset: -1px;
+    }
+
+    .direction-widget-backfield {
+        border-radius: 50%;
+
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: white;
+        opacity: 0.66;
+    }
+
+    .direction-widget:hover .direction-widget-backfield {
+        opacity: 100%;
+    }
+
+    .direction-widget-text-container {
+        position: relative;
+        left: 5%;
+        top: 5%;
+        width: 90%;
+        height: 90%;
     }
 
     .direction-widget-options {

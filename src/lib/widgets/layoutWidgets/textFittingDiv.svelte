@@ -6,6 +6,7 @@
 
     export let text: string
     export let defaultFontSize: number = 20
+    export let defaultFontWeight: number = 400
 
 
     
@@ -15,9 +16,10 @@
     let textFittingDivHeight = 1
 
 
-    // Font-size-related variables.
+    // Font-size- and font-weight-related variables.
     let fontSize = defaultFontSize
     const minFontSize = 8
+    $: fontWeight = (defaultFontSize - fontSize) * 35 + defaultFontWeight
 
     /**
      * Fit-text-to-div method.
@@ -73,7 +75,7 @@
 <div
     class="text-fitting-div"
 
-    style="font-size: {fontSize}px;"
+    style="font-size: {fontSize}px; font-weight: {fontWeight};"
 
     bind:this={textFittingDiv}
     bind:clientWidth={textFittingDivWidth}
@@ -95,6 +97,8 @@
         flex-direction: column;
         justify-content: center;
 
+        text-align: center;
         overflow-wrap: normal;
+        white-space: pre-line;
     }
 </style>
