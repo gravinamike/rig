@@ -9,7 +9,7 @@
 
     // Import related widgets.
     import { Arrow } from "$lib/widgets/layoutWidgets"
-    import { DirectionDropdownWidget } from "$lib/widgets/spaceWidgets"
+    import { DirectionWidget } from "$lib/widgets/spaceWidgets"
 
 
     export let direction: Direction | null
@@ -62,7 +62,7 @@
                 {direction?.text}
             {:else}
                 {#if opposite}
-                    <DirectionDropdownWidget
+                    <DirectionWidget
                         startingDirection={oppositeDirectionInForm}
                         halfAxisId={0}
                         {graphWidgetStyle}

@@ -227,12 +227,13 @@
 
     .perspective-reticle {
         border-radius: 50%;
+        box-shadow: 0 0 5px 2px white;
 
-        outline: solid 10px lightgrey;
+        background-color: white;
 
         position: absolute;
         transform: translate(-50%, -50%);
-        opacity: 0.25;
+        opacity: 0.33;
     }
 
     .plane-controls-container {

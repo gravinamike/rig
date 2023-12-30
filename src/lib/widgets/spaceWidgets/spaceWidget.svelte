@@ -13,8 +13,8 @@
     import { addGraphIdsNeedingViewerRefresh, addSpaceIdToEditingInProgressStore, getGraphConstructs, readOnlyMode, removeSpaceIdFromEditingInProgressStore, spaceDbModelsStore, storeGraphDbModels } from "$lib/stores"
 
     // Import related widgets.
-    import { DirectionWidget } from "./directionWidget"
-    import { DirectionDropdownWidget } from "$lib/widgets/spaceWidgets"
+    import { DirectionMenuWidget } from "./directionMenuWidget"
+    import { DirectionWidget } from "$lib/widgets/spaceWidgets"
     import DeleteWidget from "$lib/widgets/layoutWidgets/deleteWidget.svelte"
     import { Tooltip } from "$lib/widgets/layoutWidgets"
     
@@ -328,7 +328,7 @@
             <!-- Direction name. -->
             {#if interactionMode === "display"}
                 {#if info.direction}
-                    <DirectionWidget
+                    <DirectionMenuWidget
                         direction={info.direction}
                         halfAxisId={halfAxisId}
                         editable={false}
@@ -346,7 +346,7 @@
                         class="direction-dropdown-container"
                         style="z-index: {4 - index};"
                     >
-                        <DirectionDropdownWidget
+                        <DirectionWidget
                             startingDirection={info.formDirection !== "blank" ? info.direction : null}
                             halfAxisId={halfAxisId}
                             {graphWidgetStyle}

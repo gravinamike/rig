@@ -14,7 +14,7 @@
 
     // Import related widgets.
     import { Tooltip } from "$lib/widgets/layoutWidgets"
-    import { DirectionWidget } from "$lib/widgets/spaceWidgets"
+    import { DirectionMenuWidget } from "$lib/widgets/spaceWidgets"
 
     // Import API methods.
     import { reorderDirection } from "$lib/db"
@@ -136,7 +136,7 @@
                 on:dragover|preventDefault
                 on:drop|preventDefault={ (event) => dropDirection(event, index) }
             >
-                <DirectionWidget
+                <DirectionMenuWidget
                     bind:direction
                     forceExpanded={true}
                     {graph}

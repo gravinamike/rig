@@ -19,7 +19,7 @@
     import { WaitingIndicator, ContextCommandPalette } from "$lib/widgets/layoutWidgets"
     import { LeftSideMenu } from "./leftSideMenu"
     import { 
-        NewFileWidget, RemoteRelatingWidget, ThingLinkingWidget,
+        NewFileWidget, DirectionDropdownWidget, RemoteRelatingWidget, ThingLinkingWidget,
         RelationshipReorderController, TextHyperlinkingWidget
     } from "$lib/widgets/dialogWidgets"
     import { GraphViewer } from "$lib/viewers/graphViewers"
@@ -127,6 +127,9 @@
     <!-- Front pane for context menus and command palettes. -->
     <ContextCommandPalette />
 
+    <!-- Dropdown menu for Direction-selecting widgets. -->
+    <DirectionDropdownWidget />
+
     <!-- Front pane for new file dialog. -->
     <NewFileWidget />
 
@@ -219,7 +222,7 @@
     }
 
     .background.color {
-        background-color: #ebf8ff;
+        background-color: #d7effc;
     }
 
     .background.image {

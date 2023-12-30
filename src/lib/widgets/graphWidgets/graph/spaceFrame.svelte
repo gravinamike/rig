@@ -15,7 +15,7 @@
     import { copiedSpace, alteredSpace } from "$lib/models/constructModels"
 
     // Import related widgets.
-    import { DirectionDropdownWidget } from "$lib/widgets/spaceWidgets"
+    import { DirectionWidget } from "$lib/widgets/spaceWidgets"
 
 
     /**
@@ -240,7 +240,7 @@
             }}
         >
             {#if spaceFrameActive}
-                <DirectionDropdownWidget
+                <DirectionWidget
                     startingDirection={arrowInfo.direction}
                     halfAxisId={arrowInfo.halfAxisId}
                     {graphWidgetStyle}

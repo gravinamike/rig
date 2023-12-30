@@ -190,7 +190,7 @@
         class:hidden={!showStem}
     >
         <line
-            x1="{midline}" y1="{stemBottom}"
+            x1="{midline}" y1="{stemBottom - 6}"
             x2="{midline}" y2="{stemTop + 6 / tweenedScale}"
             style="stroke-width: {10 / tweenedScale};"
         />

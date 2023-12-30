@@ -5,7 +5,7 @@
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
     // Import related widgets.
-    import { DirectionDropdownWidget } from "$lib/widgets/spaceWidgets"
+    import { DirectionWidget } from "$lib/widgets/spaceWidgets"
     import RelationshipLeafWidgetController from "./controller.svelte"
     import { readOnlyMode } from "$lib/stores";
     import { onMobile } from "$lib/shared/utility";
@@ -173,7 +173,7 @@
                     }deg);
             "
         >
-            <DirectionDropdownWidget
+            <DirectionWidget
                 startingDirection={direction}
                 halfAxisId={halfAxisId}
                 {graphWidgetStyle}
