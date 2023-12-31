@@ -127,9 +127,6 @@
     <!-- Front pane for context menus and command palettes. -->
     <ContextCommandPalette />
 
-    <!-- Dropdown menu for Direction-selecting widgets. -->
-    <DirectionDropdownWidget />
-
     <!-- Front pane for new file dialog. -->
     <NewFileWidget />
 
@@ -142,6 +139,9 @@
     <!-- Front panes for Thing-linking and text-hyperlinking Widgets. -->
     <ThingLinkingWidget />
     <TextHyperlinkingWidget />
+
+    <!-- Dropdown menu for Direction-selecting widgets. -->
+    <DirectionDropdownWidget />
 
     <!-- Controller for Relationship-reorder operations. -->
     <RelationshipReorderController />

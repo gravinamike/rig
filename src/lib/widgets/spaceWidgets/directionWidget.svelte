@@ -23,6 +23,7 @@
     export let graphWidgetStyle: GraphWidgetStyle
     export let askingForDirection = false
     export let fontSize: number | null = null
+    export let forceFullyOpaque = false
     export let interactionDisabled = false
     export let optionClickedFunction: (direction: Direction | null, optionId: number, option: Direction) => void = (_: Direction | null, __: number, ___: Direction) => {}
     export let optionHoveredFunction: (optionId: number, option: Direction) => void = () => {}
@@ -34,7 +35,9 @@
 
 
 
-    $: fullyOpaque = $directionSelectionInfoStore.directionWidget === directionWidget
+    $: fullyOpaque = 
+        forceFullyOpaque
+        || $directionSelectionInfoStore.directionWidget === directionWidget
 
     // Formatting-related information.
     const relationshipColor = halfAxisId ? relationshipColorByHalfAxisId[halfAxisId] : "grey"

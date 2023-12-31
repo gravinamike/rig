@@ -242,7 +242,7 @@
             <div
                 class="direction-widget-container"
                 style="
-                    border-radius: 10px;
+                    border-radius: 50%;
                     {askingForDirection ? "box-shadow: 0 0 20px 10px whitesmoke;" : ""}
                 "
                 on:wheel|preventDefault
@@ -250,25 +250,10 @@
                 <DirectionWidget
                     startingDirection={direction}
                     {halfAxisId}
-                    {askingForDirection}
                     {graphWidgetStyle}
+                    {askingForDirection}
+                    forceFullyOpaque={true}
                     optionClickedFunction={(_, __, option) => {direction = option; $relationshipBeingCreatedInfoStore.selectedDirection = option}}
-                />
-            </div>
-        {/if}
-
-        <!-- Delete button. -->
-        {#if !onMobile() && askingForDirection}
-            <div
-                class="delete-button-container"
-                style="margin-left: -16px; margin-top: 1px; z-index: 1;"
-            >
-                <XButton
-                    size={15}
-                    buttonFunction={() => {
-                        disableRelationshipBeingCreated()
-                        disableRemoteRelating()
-                    } }
                 />
             </div>
         {/if}

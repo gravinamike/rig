@@ -24,9 +24,7 @@
 
     function handlePossibleOutsideClick(event: MouseEvent | TouchEvent) {
 		if (event.target !== dropdown && !dropdown?.contains(event.target as Node)) {
-			if (!$directionSelectionInfoStore.askingForDirection) {
-                closeDirectionSelectionDropdownMenu()
-            }
+            closeDirectionSelectionDropdownMenu()
 		}
 	}
 
@@ -139,7 +137,7 @@
         box-sizing: border-box;
         left: 0%;
         top: 100% - 1px;
-        z-index: 2;
+        z-index: 6;
         max-height: 250px;
         max-width: 250px;
         background-color: white;
