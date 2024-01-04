@@ -5,11 +5,8 @@
 
 
 
-
     
-
     
-
 
 
 
@@ -20,6 +17,9 @@
     $: optionHoveredFunction = $directionSelectionInfoStore.optionHoveredFunction
     $: exitOptionHoveredFunction = $directionSelectionInfoStore.exitOptionHoveredFunction
 
+    $: circularOrRectangularDirectionWidget =
+        directionWidget?.classList.contains("rectangular") ? "rectangular" :
+        "circular"
 
 
     function handlePossibleOutsideClick(event: MouseEvent | TouchEvent) {
@@ -39,10 +39,20 @@
 
     $: dropdownCornerPosition =
         directionWidget === null ? {x: 0, y: 0} :
-        {
+        circularOrRectangularDirectionWidget === "circular" ? {
             x: directionWidget.getBoundingClientRect().right - 12,
             y: directionWidget.getBoundingClientRect().bottom - 12
+        } :
+        {
+            x: directionWidget.getBoundingClientRect().left,
+            y: directionWidget.getBoundingClientRect().bottom - 1
         }
+
+
+
+
+
+
 
 
     $: overflowsScreenToRight =
@@ -54,8 +64,15 @@
 
 
     $: dropdownPosition = {
-        x: overflowsScreenToRight ? dropdownCornerPosition.x - dropdownWidth - 68 : dropdownCornerPosition.x,
-        y: overflowsScreenToBottom ? dropdownCornerPosition.y - dropdownHeight - 60 : dropdownCornerPosition.y,
+        x: overflowsScreenToRight && !(circularOrRectangularDirectionWidget === "rectangular") ?
+            dropdownCornerPosition.x - dropdownWidth - 68 :
+            dropdownCornerPosition.x,
+        y: overflowsScreenToBottom ?
+            (
+                circularOrRectangularDirectionWidget === "rectangular" ? dropdownCornerPosition.y - (directionWidget?.getBoundingClientRect().height || 0) - dropdownHeight + 1:
+                dropdownCornerPosition.y - dropdownHeight - 60
+            ) :
+            dropdownCornerPosition.y
     }
 
 
@@ -83,7 +100,14 @@
         bind:clientWidth={dropdownWidth}
         bind:clientHeight={dropdownHeight}
 
-        style="left: {dropdownPosition.x}px; top: {dropdownPosition.y}px;"
+        style="
+            left: {dropdownPosition.x}px;
+            top: {dropdownPosition.y}px;
+            {
+                circularOrRectangularDirectionWidget === "circular" ? "" :
+                `width: ${directionWidget?.getBoundingClientRect().width || 0}px;`
+            }
+        "
 
         on:mouseleave={() => {
             if ($directionSelectionInfoStore.show) exitOptionHoveredFunction()

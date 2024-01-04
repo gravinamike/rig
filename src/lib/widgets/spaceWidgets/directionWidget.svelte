@@ -4,6 +4,9 @@
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
     import type { Direction } from "$lib/models/constructModels"
 
+    // Import SvelteKit framework resources.
+    import { onMount } from "svelte"
+
     // Import constants and stores.
     import { relationshipColorByHalfAxisId } from "$lib/shared/constants"
     import { directionDbModelsStore, directionSelectionInfoStore, getGraphConstructs, openDirectionSelectionDropdownMenu, readOnlyMode } from "$lib/stores"
@@ -23,6 +26,7 @@
     export let graphWidgetStyle: GraphWidgetStyle
     export let askingForDirection = false
     export let fontSize: number | null = null
+    export let circularOrRectangular: "circular" | "rectangular" = "circular"
     export let forceFullyOpaque = false
     export let interactionDisabled = false
     export let optionClickedFunction: (direction: Direction | null, optionId: number, option: Direction) => void = (_: Direction | null, __: number, ___: Direction) => {}
@@ -30,7 +34,7 @@
     export let exitOptionHoveredFunction: () => void = () => {}
 
     
-    let direction = startingDirection
+    $: direction = startingDirection
     let directionWidget: Element
 
 
@@ -39,21 +43,61 @@
         forceFullyOpaque
         || $directionSelectionInfoStore.directionWidget === directionWidget
 
+    
+    
+    $: dropdownWillOverflowWindow =
+        mounted && directionWidget?.getBoundingClientRect().bottom + 250 > window.innerHeight ? true :
+        false
+    
+    $: squareBottomCorners =
+        circularOrRectangular === "rectangular"
+        && $directionSelectionInfoStore.directionWidget === directionWidget
+        && !dropdownWillOverflowWindow
+
+
+    $: squareTopCorners =
+        circularOrRectangular === "rectangular"
+        && $directionSelectionInfoStore.directionWidget === directionWidget
+        && dropdownWillOverflowWindow
+        
+
+
+
+
+
     // Formatting-related information.
     const relationshipColor = halfAxisId ? relationshipColorByHalfAxisId[halfAxisId] : "grey"
+
+
+
+
+    let mounted = false
+    onMount(async () => {
+        mounted = true
+    })
 </script>
 
 
 <!-- Direction Widget. -->
 <div
     class="direction-widget"
+    class:rectangular={circularOrRectangular === "rectangular"}
     class:fully-opaque={fullyOpaque}
+    class:square-bottom-corners={squareBottomCorners}
+    class:square-top-corners={squareTopCorners}
     class:interaction-disabled={$readOnlyMode || interactionDisabled}
     
     bind:this={directionWidget}
+
+    style="
+        width: {circularOrRectangular === "circular" ? "60px": "100%"};
+        height: {circularOrRectangular === "circular" ? "60px": "26px"};
+    "
 >
     <!-- Colored backfield. -->
-    <div class="direction-widget-backfield" />
+    <div
+        class="direction-widget-backfield"
+    />
 
     <!-- Direction text. -->
     <div
@@ -89,8 +133,6 @@
     .direction-widget {
         box-sizing: border-box;
         position: relative;
-        width: 60px;
-        height: 60px;
 
         padding: 0.25rem;
 
@@ -104,6 +146,7 @@
 
     .direction-widget-backfield {
         border-radius: 50%;
+        box-sizing: border-box;
 
         position: absolute;
         left: 0;
@@ -120,6 +163,19 @@
 
     .direction-widget.fully-opaque .direction-widget-backfield {
         opacity: 100%;
+    }
+
+    .direction-widget.rectangular .direction-widget-backfield {
+        border-radius: 7px;
+        border: solid 1px lightgrey;
+    }
+
+    .direction-widget.square-bottom-corners .direction-widget-backfield {
+        border-radius: 7px 7px 0 0;
+    }
+
+    .direction-widget.square-top-corners .direction-widget-backfield {
+        border-radius: 0 0 7px 7px;
     }
 
     .direction-widget-text-container {

@@ -30,9 +30,10 @@
     export let halfAxisId: HalfAxisId | null = null
     export let editable = true
     export let forceExpanded = false
+    export let showBackground = true
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
-    export let buttonToShow: "expand" | "edit"
+    export let buttonToShow: "expand" | "edit" | null = null
     export let buttonOnWhichSide: "left" | "right"
     export let parentScrollArea: HTMLElement | null = null
     export let removeDirectionForm: () => void = () => {}
@@ -239,10 +240,10 @@
 <!-- Direction widget. -->
 <div
     class="direction-widget container horizontal"
+    class:show-background={showBackground}
     class:on-mobile={onMobile()}
     class:editing={interactionMode === "editing"}
     class:create={interactionMode === "create"}
-    style={`align-items: ${buttonToShow === "expand" ? "flex-start" : "flex-end"};`}
 
     bind:this={directionWidget}
     bind:clientWidth={directionWidgetWidth}
@@ -257,6 +258,24 @@
         if (!$readOnlyMode && interactionMode === "display" && editable && !confirmDeleteBoxOpen) handleButton()
     }}
 >
+    <!-- Direction icon. -->
+    <div
+        class="direction-icon-container"
+
+        style="transform: rotate({
+            halfAxisId === null ? 0 :
+            halfAxisId === 1 ? 90 :
+            halfAxisId === 3 ? 0 :
+            45
+        }deg);"
+    >
+        <img
+            src="./icons/direction.png"
+            alt="Direction icon"
+            width=20px
+            height=20px
+        >
+    </div>
 
     <!-- Arrows and object boxes container. -->
     <div
@@ -280,7 +299,11 @@
         />
         
         <!-- Opposite Direction -->
-        {#if (oppositeDirection || interactionMode === "editing") && !(oppositeDisplayMode === "none")}
+        {#if (
+            oppositeDirection
+            || interactionMode === "editing"
+            || interactionMode === "display"
+        ) && !(oppositeDisplayMode === "none")}
             <VerbAndObject
                 direction={oppositeDirection}
                 {halfAxisId}
@@ -381,14 +404,16 @@
 
 <style>
     .direction-widget {
+        font-size: 0.65rem;
+
+        cursor: default;
+    }
+
+    .direction-widget.show-background {
         border-radius: 5px;
         padding: 0.25rem;
 
         background-color: rgb(244, 244, 244);
-
-        font-size: 0.5rem;
-
-        cursor: default;
     }
 
     .direction-widget.editing, .direction-widget.create {
@@ -397,13 +422,19 @@
         z-index: 1;
     }
 
+    .direction-icon-container {
+        width: 20px;
+        height: 20px;
+    }
+
     .container {
         position: relative;
 
         display: flex;
         justify-content: space-between;
         align-items: center;
-        gap: 5px;
+
+        overflow: visible;
     }
 
     .horizontal {
@@ -412,6 +443,7 @@
 
     .vertical {
         flex-direction: column;
+        gap: 2px;
     }
 
     .arrows-and-boxes {

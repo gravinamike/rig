@@ -10,6 +10,7 @@
     // Import related widgets.
     import { Arrow } from "$lib/widgets/layoutWidgets"
     import { DirectionWidget } from "$lib/widgets/spaceWidgets"
+    import { TextFittingDiv } from "$lib/widgets/layoutWidgets"
 
 
     export let direction: Direction | null
@@ -39,12 +40,16 @@
     <div
         class="container"
 
-        style="{opposite ? "order: 2;" : ""}"
+        style="
+            {opposite ? "order: 2;" : ""}
+            height: 20px;
+        "
     >
         <!-- Arrow. -->
         <div
             style="
                 opacity: {displayMode === "small" ? 0.66 : 1};
+                overflow: visible;
             "
         >
             <Arrow
@@ -57,9 +62,17 @@
         </div>
 
         <!-- Text. -->
-        <div class="floating-text">
+        <div
+            class="floating-text"
+
+            style="margin-left: 3px; width: 85%;"
+        >
             {#if interactionMode === "display"}
-                {direction?.text}
+                <TextFittingDiv
+                    text={direction?.text || ""}
+                    defaultFontSize={12}
+                    defaultFontWeight={400}
+                />
             {:else}
                 {#if opposite}
                     <DirectionWidget
@@ -104,7 +117,11 @@
         <!-- Text. -->
         <div class="floating-text">
             {#if interactionMode === "display" || opposite}
-                {direction?.nameforobjects || ""}
+                <TextFittingDiv
+                    text={direction?.nameforobjects || ""}
+                    defaultFontSize={12}
+                    defaultFontWeight={400}
+                />
             {:else}
                 <input
                     type="text"
@@ -125,7 +142,7 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        gap: 5px;
+        gap: 2px;
     }
 
     .horizontal {
@@ -155,6 +172,7 @@
 
     .object {
         border-radius: 5px;
+        box-shadow: 1px 1px 1px 0.5px silver;
 
         background-color: white;
     }

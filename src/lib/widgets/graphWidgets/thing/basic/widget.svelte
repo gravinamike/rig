@@ -297,8 +297,7 @@
     }
 
     .highlighted {
-        outline: solid 2px black;
-        outline-offset: -2px;
+        background-color: #f5f5f5;
     }
 
     .slider-backfield {

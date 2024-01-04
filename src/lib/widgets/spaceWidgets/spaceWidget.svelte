@@ -236,6 +236,10 @@
 
 
     async function cancel() {
+        // Reset the half-axis infos.
+        buildHalfAxisInfos()
+
+        // Set the interaction mode back to its default.
         interactionMode = isSpaceForm ? "editing" : "display"
     }
 
@@ -274,6 +278,7 @@
     }
 
 
+    let expanded = false
 </script>
 
 
@@ -322,8 +327,12 @@
     </div>
 
     <!-- List of Direction widgets or Direction-selecting dropdowns. -->
-    <div class="direction-list">
-        {#each halfAxisInfosAsArray as [halfAxisId, info], index}
+    <div
+        class="direction-list"
+
+        style="gap: {interactionMode === "display" ? 1 : 0.4}rem;"
+    >
+        {#each halfAxisInfosAsArray as [halfAxisId, info]}
 
             <!-- Direction name. -->
             {#if interactionMode === "display"}
@@ -331,10 +340,11 @@
                     <DirectionMenuWidget
                         direction={info.direction}
                         halfAxisId={halfAxisId}
+                        forceExpanded={expanded}
                         editable={false}
+                        showBackground={false}
                         {graph}
                         {graphWidgetStyle}
-                        buttonToShow={"expand"}
                         buttonOnWhichSide={"left"}
                     />
                 {/if}
@@ -344,14 +354,16 @@
                 {#if info.formDirection}
                     <div
                         class="direction-dropdown-container"
-                        style="z-index: {4 - index};"
                     >
                         <DirectionWidget
                             startingDirection={info.formDirection !== "blank" ? info.direction : null}
                             halfAxisId={halfAxisId}
                             {graphWidgetStyle}
+                            circularOrRectangular={"rectangular"}
+                            forceFullyOpaque={true}
                             optionClickedFunction={(direction, _, __) => {
                                 info.formDirection = direction
+                                info.direction = direction
                             }}
                             optionHoveredFunction={async () => {
                             }}
@@ -366,6 +378,7 @@
                                 thingWidth={50}
                                 thingHeight={50}
                                 encapsulatingDepth={0}
+                                distanceFromTop={4}
                                 startDelete={() => {setDirectionNullByHalfAxisId(halfAxisId)}}
                                 completeDelete={()=>{}}
                             />
@@ -389,26 +402,40 @@
     </div>
 
     <!-- Space build method field. -->
-    {#if interactionMode !== "display"}
-        <div class="space-build-method" style="
-            padding: 0 5px 0 10px;
+    {#if interactionMode !== "display" || expanded}
+        <div
+            class="space-build-method"
+            style="
+                padding: 10px 5px 0 10px;
 
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-        ">
-        
-            Graph build method:
-            <div style="
                 display: flex;
                 flex-direction: column;
-                align-items: flex-end;
+                align-items: center;
+                justify-content: space-between;
+
+                font-size: 0.75rem;
+                gap: 5px;
+
+                {
+                    (interactionMode === "display" && expanded) ? "opacity: 50%; pointer-events: none;" :
+                    ""
+                }
+            "
+        >
+        
+            <strong>Graph build method:</strong>
+            <div style="
+                display: flex;
+                flex-direction: row;
+                gap: 10px;
             ">
                 {#each ["radial", "grid"] as buildMethodOption}
-                    <div style="
-                        display: flex;
-                        flex-direction: row;
-                    ">
+                    <div
+                        style="
+                            display: flex;
+                            flex-direction: row;
+                        "
+                    >
                         <label for={buildMethodOption}>{capitalizeFirstLetter(buildMethodOption)}</label>
                         <input
                             type="radio"
@@ -442,15 +469,39 @@
             >
 
             <Tooltip
-                text={"Make default Space for current\nPerspective Thing."}
+                text={
+                    defaultPerspectiveSpace ? "Is default Space for current\nPerspective Thing." :
+                    "Set as default Space for current\nPerspective Thing."
+                }
                 direction={"down"}
                 lean={"right"}
             />
         </div>
     {/if}
 
+    <!-- Direction name. -->
+    {#if interactionMode === "display" && isHovered && !confirmDeleteBoxOpen}
+        <div class="expand-button-container">
+            <button
+                class="button"
+                tabindex=0
+
+                on:click|stopPropagation={() => expanded = !expanded}
+            >
+                <Tooltip
+                    text={`${expanded ? "Hide" : "Show"} details.`}
+                    direction={"down"}
+                    lean={"left"}
+                />
+                <div>
+                    ...
+                </div>
+            </button>
+        </div>
+    {/if}
+
     <!-- Mode button. -->
-    {#if !$readOnlyMode && true || (isHovered || interactionMode === "editing" || interactionMode === "create")}
+    {#if !$readOnlyMode && isHovered || (interactionMode === "editing" || interactionMode === "create")}
         <div
             class="container button-container"
             class:editing={interactionMode === "editing"}
@@ -503,14 +554,15 @@
 <style>
     .space-widget {
         border-radius: 7px;
+        box-shadow: 1px 1px 2px 1px silver;
 
         position: relative;
         height: max-content;
-        background-color: #e0e0e0;
+        background-color: #f0f0f0;
         
         display: flex;
         flex-direction: column;
-        padding: 0.33rem;
+        padding: 0.33rem 0.33rem 0.57rem 0.33rem;
         gap: 10px;
 
         font-size: 0.65rem;
@@ -523,21 +575,17 @@
         gap: 6px;
     }
 
-    .space-widget:hover {
+    .space-widget:not(.editing):not(.create):hover {
         outline: solid 1px lightgrey;
-        background-color: gainsboro;
+        background-color: #e8e8e8;
     }
 
     .space-widget.editing, .space-widget.create {
         outline: solid 1px grey;
     }
 
-    .space-widget:active {
-        background-color: lightgrey;
-    }
-
-    .space-widget:active {
-        background-color: lightgrey;
+    .space-widget:not(.editing):not(.create):active {
+        background-color: #e0e0e0;
     }
 
     .space-name {
@@ -557,18 +605,25 @@
     .direction-list {
         display: flex;
         flex-direction: column;
-        gap: 0.25rem;
     }
 
-    input {
-        border: none;
+    .space-name input {
+        border-radius: 3px;
+        border: solid 1px silver;
+        outline: none;
+        border-style: inset;
 
-        width: 90%;
+        width: 80%;
+        height: 1.5rem;
         background-color: transparent;
 
         text-align: center;
 
         font-size: 1rem;
+    }
+
+    .container {
+        overflow: visible;
     }
 
     .direction-dropdown-container {
@@ -588,6 +643,37 @@
         position: absolute;
         right: 5px;
         bottom: 5px;
+    }
+
+    .expand-button-container {
+        position: absolute;
+        right: 25px;
+        top: 4px;
+        width: 14px;
+        height: 14px;
+    }
+
+    .expand-button-container button {
+        border: none;
+        border-radius: 50%;
+
+        position: relative;
+        width: 14px;
+        height: 14px;
+        background-color: white;
+
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+
+        font-size: 0.75rem;
+    }
+
+    .expand-button-container button div {
+        transform: translate(0%, -25%);
+
+        pointer-events: none;
     }
 
     .perspective-space-button {
@@ -624,21 +710,25 @@
     }
 
     .perspective-space-button.is-default-perspective {
-        outline: solid 1px rgb(175, 175, 175);
-
         background-color: white;
     }
 
     .no-direction {
-        outline: dashed 1px grey;
+        outline: dotted 1px grey;
         border-radius: 7px;
+        outline-offset: -1px;
+        box-sizing: border-box;
 
         position: relative;
-        height: 1rem;
+        height: 26px;
         
         padding: 5px;
 
         font-size: 0.9rem;
+    }
+
+    .space-widget.editing .no-direction {
+        text-align: center;
     }
 
     .add-button {
@@ -667,5 +757,14 @@
         position: relative;
         left: 0.425px;
         top: -5.5px;
+    }
+
+    .space-build-method input {
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+
+    .space-build-method input:checked {
+        accent-color: dimgrey;
     }
 </style>
