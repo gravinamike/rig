@@ -395,7 +395,7 @@
 
             style="
                 {
-                    maxHeight ? `position: absolute; top: calc(100% - 5px); max-height: ${maxHeight}px;` :
+                    maxHeight ? `position: absolute; top: calc(100% - 3px); max-height: ${maxHeight}px;` :
                     "flex: 1 1 0; position: relative; top: -1px;"
                 }
                 {`font-size: ${fontSize}rem;`}
@@ -445,7 +445,7 @@
 
     .input-field {
         border-radius: 6px;
-        border: solid 1px grey;
+        border: solid 1px white;
         outline-offset: -1px;
 
         box-sizing: border-box;
@@ -456,12 +456,12 @@
     }
 
     .input-field:focus {
-        outline: solid 2px black;
+        outline: solid 2px silver;
     }
 
     .input-field.filtered-open {
         border-radius: 6px 6px 0 0;
-        outline: solid 1px black;
+        outline: solid 1px silver;
         outline-offset: -1px;
     }
 
@@ -474,7 +474,7 @@
     .filtered-items {
         z-index: 1;
 
-        outline: solid 1px black;
+        outline: solid 1px silver;
         outline-offset: -1px;
 
         box-sizing: border-box;

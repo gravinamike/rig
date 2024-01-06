@@ -6,7 +6,7 @@
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
     // Import constants and utility functions.
-    import { startingGraphDepth } from "$lib/shared/constants"
+    import { graphBackgroundColor, startingGraphDepth } from "$lib/shared/constants"
     import { onMobile } from "$lib/shared/utility"
 
     // Import stores.
@@ -120,7 +120,10 @@
             class:color={!graphBackgroundImageUrl}
             class:image={graphBackgroundImageUrl}
 
-            style={graphBackgroundImageUrl ? `background-image: url(${graphBackgroundImageUrl});` : ""}
+            style={
+                graphBackgroundImageUrl ? `background-image: url(${graphBackgroundImageUrl});` :
+                `background-color: ${graphBackgroundColor};`
+            }
         />
     {/if}
     
@@ -219,10 +222,6 @@
     main.on-mobile .background {
         width: 100%;
         height: 100%;
-    }
-
-    .background.color {
-        background-color: #d7effc;
     }
 
     .background.image {

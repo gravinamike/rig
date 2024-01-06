@@ -3,6 +3,7 @@ import type { Space, Direction, Thing, Relationship } from "$lib/models/construc
 
 /* "Constants" that will eventually be moved into an editable config file. */
 
+export const graphBackgroundColor = "#d7effc"
 export const startingGraphDepth = 1
 export const zoomBase = 1.45
 

@@ -9,7 +9,7 @@
     import { legacyPerspectiveThingsParse, Rectangle } from "$lib/shared/utility"
 
     // Import stores.
-    import { relationshipBeingCreatedInfoStore } from "$lib/stores"
+    import { lightenOrDarkenColorString, relationshipBeingCreatedInfoStore } from "$lib/stores"
 
     // Import widget controller.
     import GraphWidgetController from "./controller.svelte"
@@ -19,6 +19,7 @@
     import PlaneControls from "./planeControls.svelte"
     import { ThingCohortWidget } from "$lib/widgets/graphWidgets"
     import { cubicOut } from "svelte/easing"
+    import { graphBackgroundColor } from "$lib/shared/constants";
     
 
     export let graph: Graph
@@ -70,6 +71,8 @@
     }
 
     $: processWidgetResize(widgetWidth, widgetHeight)
+
+    const reticleColor = lightenOrDarkenColorString(graphBackgroundColor, "darker", 25)
 </script>
 
 
@@ -146,13 +149,14 @@
 
             <div
                 class="perspective-reticle"
+
                 style="
+                    box-shadow: 0 0 5px 2px {reticleColor};
                     width: {graphWidgetStyle.relationDistance}px;
                     height: {graphWidgetStyle.relationDistance}px;
+                    background-color: {reticleColor};
                 "
-            >
-
-            </div>
+            />
             
             <!-- Root Cohort Widget (from which the rest of the Graph automatically "grows"). -->
             {#if graph.rootCohort && graph.lifecycleStatus === "built"}
@@ -227,13 +231,10 @@
 
     .perspective-reticle {
         border-radius: 50%;
-        box-shadow: 0 0 5px 2px white;
-
-        background-color: white;
 
         position: absolute;
         transform: translate(-50%, -50%);
-        opacity: 0.33;
+        opacity: 0.1;
     }
 
     .plane-controls-container {

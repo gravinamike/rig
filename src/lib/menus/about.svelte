@@ -31,12 +31,12 @@
         <div class="text">
             <p>
                 This is a pre-alpha version of "Rig", an app built by Mike
-                Gravina to help depict the connections between things.
+                Gravina.
             </p>
             <p>
                 I hope Rig might stimulate conversation around the form
                 of digital media - particularly the value in giving writers
-                freedom to connect ideas in many different, non-linear ways.
+                freedom to connect ideas in different, non-linear ways.
             </p>
             <p>
                 Watch for new features and bugfixes in the future. And if
@@ -72,7 +72,7 @@
 
         display: flex;
         flex-direction: column;
-        padding: 0.5rem 1rem 0.5rem 1rem;
+        padding: 1rem 1.25rem 0.5rem 1.25rem;
         gap: 1rem;
 
         overflow: hidden;
@@ -92,7 +92,7 @@
     }
 
     p {
-        font-size: 0.9rem;
+        font-size: 0.75rem;
         text-indent: 1rem;
         text-align: justify;
     }

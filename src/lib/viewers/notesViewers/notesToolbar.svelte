@@ -417,7 +417,7 @@
             class="edit-button-spacer"
 
             style={
-                onMobile() ? "width: 33px; flex: 0 0 33px" :
+                onMobile() ? "width: 45px; flex: 0 0 45px" :
                 "width: 55px; flex: 0 0 55px"
             }
         />

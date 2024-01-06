@@ -48,7 +48,7 @@
     let text: string
     let hasPerspectiveText = false
     let highlighted: boolean
-    let shadowColor ="#000000"
+    let shadowColor = "grey"
     let encapsulatingDepth: number = 0
     let opacity: number
     let showPointer: boolean
@@ -108,7 +108,7 @@
     bind:text
     bind:hasPerspectiveText
     bind:highlighted
-    bind:shadowColor
+    {shadowColor}
     bind:encapsulatingDepth
     bind:thingWidth
     bind:thingHeight
@@ -163,8 +163,8 @@
         style="
             border-radius: {10 + 4 * encapsulatingDepth}px;
             {
-                highlighted ? `box-shadow: 0px 0px ${showAsCollapsed ? 20 : 10}px 6px ${hexToRgba(shadowColor, 0.15)};` :
-                `box-shadow: 0px 0px ${showAsCollapsed ? 20 : 10}px 2px ${hexToRgba(shadowColor, 0.15)};`
+                highlighted ? `box-shadow: 1px 1px ${showAsCollapsed ? 3 : 2}px 1px ${shadowColor};` :
+                `box-shadow: 1px 1px ${showAsCollapsed ? 2 : 1}px 0px ${shadowColor};`
             }
             width: {thingWidth}px; height: {thingHeight}px;
             opacity: {opacity};
@@ -297,7 +297,7 @@
     }
 
     .highlighted {
-        background-color: #f5f5f5;
+        background-color: #fafafa;
     }
 
     .slider-backfield {

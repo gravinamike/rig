@@ -8,7 +8,7 @@
     import { cubicOut } from "svelte/easing"
     import { onMobile, sleep } from "$lib/shared/utility"
     import { saveGraphConfig } from "$lib/shared/config"
-    import { mouseSpeed, openGraphStore } from "$lib/stores"
+    import { landscapeOrientation, mouseSpeed, openGraphStore } from "$lib/stores"
 
     // Import related widgets.
     import { Tooltip }  from "$lib/widgets/layoutWidgets"
@@ -189,6 +189,8 @@
 <!-- Side menu. -->
 <div
     class="side-menu"
+    class:on-mobile={onMobile()}
+    class:landscape-orientation={$landscapeOrientation}
     class:overlap-page={overlapPage}
     class:slide-left={slideDirection === "left"}
     class:slide-right={slideDirection === "right"}
@@ -372,7 +374,7 @@
 
 <style>
     .side-menu {
-        box-shadow: 0 0 5px 2px lightgrey;
+        box-shadow: 0 0 4px 2px lightgrey;
 
         position: relative;
     }
@@ -383,6 +385,16 @@
 
     .side-menu.slide-right {
         border-right: solid 1px gainsboro;
+    }
+
+    .side-menu.slide-left.on-mobile:not(.landscape-orientation) {
+        box-shadow: 0 0 4px 2px grey;
+        border: none;
+    }
+
+    .side-menu.slide-right.on-mobile:not(.landscape-orientation) {
+        box-shadow: 0 0 4px 2px grey;
+        border: none;
     }
 
     .side-menu.overlap-page {
@@ -467,8 +479,6 @@
     }
 
     .button {
-		outline: solid 1px lightgrey;
-		outline-offset: -1px;
 		border-radius: 50%;
 
 		box-sizing: border-box;
@@ -485,12 +495,10 @@
 	}
 
     .button.locked-menu {
-        outline: solid 1px grey;
         opacity: 0.33;
     }
 
 	.button.opened-menu {
-        outline: solid 1px grey;
         opacity: 1;
 
         z-index: 1;
@@ -502,8 +510,6 @@
     }
 
     .button:not(.on-mobile):hover {
-        outline: solid 1px grey;
-
         background-color: gainsboro;
     }
 

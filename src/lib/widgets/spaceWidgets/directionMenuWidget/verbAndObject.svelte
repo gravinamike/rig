@@ -20,7 +20,7 @@
     export let opposite: boolean
     export let displayMode: "full" | "small"
     export let interactionMode: "display" | "editing" | "create"
-    export let oppositeDirectionInForm: Direction | null = null
+    export let directionInForm: Direction | null = null
     export let graphWidgetStyle: GraphWidgetStyle
     export let directionNameInput: HTMLInputElement | null = null
     export let objectNameInput: HTMLInputElement | null = null
@@ -65,7 +65,10 @@
         <div
             class="floating-text"
 
-            style="margin-left: 3px; width: 85%;"
+            style={
+                opposite ? "margin-left: 12px; width: 85%;" :
+                "margin-left: 3px; width: 85%;"
+            }
         >
             {#if interactionMode === "display"}
                 <TextFittingDiv
@@ -75,22 +78,27 @@
                 />
             {:else}
                 {#if opposite}
-                    <DirectionWidget
-                        startingDirection={oppositeDirectionInForm}
-                        halfAxisId={0}
-                        {graphWidgetStyle}
-                        fontSize={10}
-                        optionClickedFunction={ (option) => {
-                            oppositeDirectionInForm = option
-                            if (option) direction = option
-                        } }
-                        optionHoveredFunction={ async (_, option) => {
-                            oppositeDirectionInForm = option
-                        } }
-                        exitOptionHoveredFunction={ async () => {
-                            oppositeDirectionInForm = direction
-                        } }
-                    />
+                    <div style="width: 100%; height: 100%; margin-bottom: 1px;">
+                        <DirectionWidget
+                            startingDirection={directionInForm}
+                            halfAxisId={0}
+                            {graphWidgetStyle}
+                            height={18}
+                            fontSize={10}
+                            circularOrRectangular={"rectangular"}
+                            forceFullyOpaque={true}
+                            optionClickedFunction={ (option) => {
+                                directionInForm = option
+                                if (option) direction = option
+                            } }
+                            optionHoveredFunction={ async () => {
+                                
+                            } }
+                            exitOptionHoveredFunction={ async () => {
+                                
+                            } }
+                        />
+                    </div>
                 {:else}
                     <input
                         type="text"
@@ -160,14 +168,17 @@
     }
 
     input {
-        border: none;
+        outline: none;
+        border: solid 1px silver;
+        border-style: inset;
+        border-radius: 3px;
 
         width: 75%;
         background-color: transparent;
 
         text-align: center;
 
-        font-size: 0.5rem;
+        font-size: 0.75rem;
     }
 
     .object {

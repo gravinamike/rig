@@ -25,6 +25,7 @@
     export let halfAxisId: HalfAxisId | null
     export let graphWidgetStyle: GraphWidgetStyle
     export let askingForDirection = false
+    export let height = 26
     export let fontSize: number | null = null
     export let circularOrRectangular: "circular" | "rectangular" = "circular"
     export let forceFullyOpaque = false
@@ -91,7 +92,7 @@
 
     style="
         width: {circularOrRectangular === "circular" ? "60px": "100%"};
-        height: {circularOrRectangular === "circular" ? "60px": "26px"};
+        height: {circularOrRectangular === "circular" ? "60px": `${height}px`};
     "
 >
     <!-- Colored backfield. -->

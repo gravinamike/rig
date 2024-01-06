@@ -343,6 +343,7 @@
                         forceExpanded={expanded}
                         editable={false}
                         showBackground={false}
+                        showDirectionIcon={true}
                         {graph}
                         {graphWidgetStyle}
                         buttonOnWhichSide={"left"}
@@ -510,7 +511,7 @@
                 {interactionMode}
                 tooltipText={
                     interactionMode === "display" ? "Edit Space." :
-                    interactionMode === "editing" ? "Submit Space." :
+                    interactionMode === "editing" ? "Submit changes to Space." :
                     "Create Space"
                 }
                 onClick={handleButton}

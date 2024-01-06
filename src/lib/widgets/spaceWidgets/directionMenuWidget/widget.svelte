@@ -31,6 +31,7 @@
     export let editable = true
     export let forceExpanded = false
     export let showBackground = true
+    export let showDirectionIcon = false
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
     export let buttonToShow: "expand" | "edit" | null = null
@@ -58,7 +59,7 @@
     $: oppositeDirection =
         direction?.oppositeid ? getGraphConstructs("Direction", direction.oppositeid) as Direction | null :
         null
-    $: oppositeDirectionInForm = oppositeDirection
+    let oppositeDirectionInForm = oppositeDirection
 
     // Attributes controlling visual appearance of widget.
     const directionHeight = 20
@@ -225,6 +226,7 @@
         }
     }
 
+    
 </script>
 
 
@@ -259,23 +261,25 @@
     }}
 >
     <!-- Direction icon. -->
-    <div
-        class="direction-icon-container"
+    {#if showDirectionIcon}
+        <div
+            class="direction-icon-container"
 
-        style="transform: rotate({
-            halfAxisId === null ? 0 :
-            halfAxisId === 1 ? 90 :
-            halfAxisId === 3 ? 0 :
-            45
-        }deg);"
-    >
-        <img
-            src="./icons/direction.png"
-            alt="Direction icon"
-            width=20px
-            height=20px
+            style="transform: rotate({
+                halfAxisId === null ? 0 :
+                halfAxisId === 1 ? 90 :
+                halfAxisId === 3 ? 0 :
+                45
+            }deg);"
         >
-    </div>
+            <img
+                src="./icons/direction.png"
+                alt="Direction icon"
+                width=20px
+                height=20px
+            >
+        </div>
+    {/if}
 
     <!-- Arrows and object boxes container. -->
     <div
@@ -304,75 +308,75 @@
             || interactionMode === "editing"
             || interactionMode === "display"
         ) && !(oppositeDisplayMode === "none")}
-            <VerbAndObject
-                direction={oppositeDirection}
-                {halfAxisId}
-                verbAndObjectWidth={arrowAndBoxWidth}
-                verbAndObjectHeight={directionHeight}
-                opposite={true}
-                displayMode={"small"} 
-                {interactionMode}
-                bind:oppositeDirectionInForm
-                {graphWidgetStyle}
-            />
+            <div class="opposite-container">
+                <VerbAndObject
+                    bind:direction={oppositeDirection}
+                    {halfAxisId}
+                    verbAndObjectWidth={arrowAndBoxWidth}
+                    verbAndObjectHeight={directionHeight}
+                    opposite={true}
+                    displayMode={"small"} 
+                    {interactionMode}
+                    bind:directionInForm={oppositeDirectionInForm}
+                    {graphWidgetStyle}
+                />
+            </div>
         {/if}
     </div>
         
-    <div
-        class="container vertical"
 
-        style={buttonOnWhichSide === "left" ? "order: 0;" : "order: 1;"}
-    >
-        <!-- Expand button. -->
+    <!-- Expand button. -->
+    {#if
+        buttonToShow === "expand"
+        && isHovered
+        && !(
+            interactionMode === "editing"
+            || interactionMode === "create"
+        )
+    }
+        <div class="container button-container">
+            <button
+                class="button"
+                tabindex=0
+
+                on:click|stopPropagation={() => expanded = !expanded}
+            >
+                ▼
+            </button>
+        </div>
+    {/if}
+
+    <!-- Edit button. -->
+    {#if !$readOnlyMode}
+
+        
         {#if
-            buttonToShow === "expand"
-            && isHovered
-            && !(
-                interactionMode === "editing"
+            buttonToShow === "edit"
+            && editable
+            && (
+                isHovered
+                || interactionMode === "editing"
                 || interactionMode === "create"
             )
+            && !confirmDeleteBoxOpen
         }
-            <div class="container button-container">
-                <button
-                    class="button"
-                    tabindex=0
-
-                    on:click|stopPropagation={() => expanded = !expanded}
-                >
-                    ▼
-                </button>
+            <div
+                class="container button-container"
+                class:editing={interactionMode === "editing"}
+            >
+                <EditButton
+                    {interactionMode}
+                    tooltipText={
+                        interactionMode === "display" ? "Edit Direction." :
+                        interactionMode === "editing" ? "Submit changes to Direction." :
+                        "Create Direction."
+                    }
+                    onClick={handleButton}
+                />
             </div>
         {/if}
 
-        <!-- Edit button. -->
-        {#if !$readOnlyMode}
-
-            
-            {#if
-                buttonToShow === "edit"
-                && editable
-                && (
-                    isHovered
-                    || interactionMode === "editing"
-                    || interactionMode === "create"
-                )
-                && !confirmDeleteBoxOpen
-            }
-                <div class="container button-container">
-                    <EditButton
-                        {interactionMode}
-                        tooltipText={
-                            interactionMode === "display" ? "Edit Direction." :
-                            interactionMode === "editing" ? "Submit Direction." :
-                            "Create Direction"
-                        }
-                        onClick={handleButton}
-                    />
-                </div>
-            {/if}
-
-        {/if}
-    </div>
+    {/if}
 
     <!-- Delete-Space widget. -->
     {#if editable}
@@ -404,6 +408,8 @@
 
 <style>
     .direction-widget {
+        position: relative;
+
         font-size: 0.65rem;
 
         cursor: default;
@@ -411,7 +417,9 @@
 
     .direction-widget.show-background {
         border-radius: 5px;
-        padding: 0.25rem;
+        box-shadow: 1px 1px 2px 1px silver;
+
+        padding: 0.5rem 0.25rem 0.5rem 0.25rem;
 
         background-color: rgb(244, 244, 244);
     }
@@ -450,9 +458,22 @@
         flex: 1 1 0;
     }
 
+    .opposite-container {
+        opacity: 50%;
+    }
+
     .button-container {
+        margin-top: 22px;
+        margin-right: 2px;
+
         width: 15px;
         height: 15px;
+    }
+
+    .button-container:not(.editing) {
+        position: absolute;
+        right: 4px;
+        bottom: 6px;
     }
 
     .button {

@@ -150,7 +150,7 @@
      * 
      * The color of the widget's shadow. Determined by the half-axis.
      */
-    $: shadowColor = relationshipColorByHalfAxisId[halfAxisId]
+    $: shadowColor = "grey"
 
     /**
      * Opacity.
