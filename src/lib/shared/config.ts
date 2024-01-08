@@ -1,5 +1,5 @@
 // Import types.
-import type { AppConfig, GraphConfig } from "$lib/shared/constants"
+import { defaultGraphBackgroundColor, type AppConfig, type GraphConfig, defaultUITrimColor } from "$lib/shared/constants"
 
 // Import basic framework resources.
 import { get } from "svelte/store"
@@ -7,7 +7,7 @@ import { get } from "svelte/store"
 // Import stores.
 import {
     readOnlyMode as readOnlyModeStore, perspectiveThingIdStore, leftSideMenuStore, rightSideMenuStore, notesEditorLockedStore,
-    homeThingIdStore, pinIdsStore, uITrimColorStore, mobileMenuTrimColorStore, graphBackgroundImageStore, notesBackgroundImageStore, hideMenusStore,
+    homeThingIdStore, pinIdsStore, uITrimColorStore, mobileMenuTrimColorStore, graphBackgroundImageStore, notesBackgroundImageStore, defaultFontStore, titleFontStore, hideMenusStore, titleFontWeightStore, graphBackgroundColorStore,
 } from "$lib/stores"
 
 // Import API methods.
@@ -45,11 +45,26 @@ export async function storeGraphConfig(pThingId: number | null = null): Promise<
     const graphConfig = await getGraphConfig() as GraphConfig
 
     // Set front-end stores.
+    uITrimColorStore.set(
+        graphConfig.uITrimColor || defaultUITrimColor
+    )
     graphBackgroundImageStore.set(
         graphConfig.graphBackgroundImage || null
     )
+    graphBackgroundColorStore.set(
+        graphConfig.graphBackgroundColor || defaultGraphBackgroundColor
+    )
     notesBackgroundImageStore.set(
         graphConfig.notesBackgroundImage || null
+    )
+    defaultFontStore.set(
+        graphConfig.defaultFont || null
+    )
+    titleFontStore.set(
+        graphConfig.titleFont || null
+    )
+    titleFontWeightStore.set(
+        graphConfig.titleFontWeight || null
     )
     readOnlyModeStore.set(graphConfig.readOnlyMode)
     hideMenusStore.set(graphConfig.hideMenus)
@@ -85,8 +100,12 @@ export async function saveGraphConfig(): Promise<void> {
     // Retrieve config info from the stores.
     const uITrimColor = get(uITrimColorStore)
     const mobileMenuTrimColor = get(mobileMenuTrimColorStore)
+    const graphBackgroundColor = get(graphBackgroundColorStore)
     const graphBackgroundImage = get(graphBackgroundImageStore)
     const notesBackgroundImage = get(notesBackgroundImageStore)
+    const defaultFont = get(defaultFontStore)
+    const titleFont = get(titleFontStore)
+    const titleFontWeight = get(titleFontWeightStore)
     const readOnlyMode = get(readOnlyModeStore)
     const hideMenus = get(hideMenusStore)
     const leftSideMenu = get(leftSideMenuStore)
@@ -100,8 +119,12 @@ export async function saveGraphConfig(): Promise<void> {
     const graphConfig = {
         uITrimColor: uITrimColor,
         mobileMenuTrimColor: mobileMenuTrimColor,
+        graphBackgroundColor: graphBackgroundColor,
         graphBackgroundImage: graphBackgroundImage,
         notesBackgroundImage: notesBackgroundImage,
+        defaultFont: defaultFont,
+        titleFont: titleFont,
+        titleFontWeight: titleFontWeight,
         readOnlyMode: readOnlyMode,
         hideMenus: hideMenus,
         leftSideMenu: leftSideMenu,

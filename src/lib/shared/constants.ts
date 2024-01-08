@@ -3,7 +3,7 @@ import type { Space, Direction, Thing, Relationship } from "$lib/models/construc
 
 /* "Constants" that will eventually be moved into an editable config file. */
 
-export const graphBackgroundColor = "#d7effc"
+export const defaultGraphBackgroundColor = "#d7effc"
 export const startingGraphDepth = 1
 export const zoomBase = 1.45
 
@@ -102,8 +102,12 @@ export interface GraphConfig {
     uIBackgroundColor?: string
     uITrimColor?: string
     mobileMenuTrimColor?: string
+    graphBackgroundColor?: string
     graphBackgroundImage?: string | null
     notesBackgroundImage?: string | null
+    defaultFont?: string | null
+    titleFont?: string | null
+    titleFontWeight?: number | null
     readOnlyMode: boolean
     hideMenus: MenuName[]
     leftSideMenu: string | null

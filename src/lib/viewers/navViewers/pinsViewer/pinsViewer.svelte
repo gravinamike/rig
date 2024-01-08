@@ -7,7 +7,7 @@
     import { flip } from "svelte/animate"
 
     // Import stores.
-    import { pinIdsStore, storeGraphDbModels, graphDbModelInStore, getGraphConstructs, setPins, readOnlyMode, uIBackgroundColorStore, uIHeaderColorStore } from "$lib/stores"
+    import { pinIdsStore, storeGraphDbModels, graphDbModelInStore, getGraphConstructs, setPins, readOnlyMode, uIBackgroundColorStore, uIHeaderColorStore, titleFontStore, titleFontWeightStore } from "$lib/stores"
 
     // Import related widgets.
     import PinWidget from "./pinWidget.svelte"
@@ -101,7 +101,11 @@
             <div
                 class="title-container"
 
-                style="background-color: {$uIHeaderColorStore};"
+                style="
+                    background-color: {$uIHeaderColorStore};
+                    font-family: {$titleFontStore ?? "Arial"};
+                    font-weight: {$titleFontWeightStore ?? 600};
+                "
             >
                 <img
                     src="./icons/pin.png"
@@ -110,7 +114,7 @@
                     height=27px
                 >
                 <div class="title">
-                    <h4>Pins</h4>
+                    Pins
                 </div>
             </div>
         {/if}

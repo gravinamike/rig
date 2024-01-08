@@ -1,6 +1,7 @@
 <script land="ts">
 	import { getContext } from "svelte"
 	import { TABS } from "./TabBlock.svelte"
+    import { titleFontStore, titleFontWeightStore } from "$lib/stores";
 	const { registerTabFlap, activateTabFlap, activeTabFlap } = getContext(TABS)
 
 	const tabFlap = {}
@@ -11,6 +12,12 @@
 
 <div
 	class="tab-flap { $activeTabFlap === tabFlap ? "active" : "" }"
+
+	style="
+		font-family: {$titleFontStore ?? "Arial"};
+        font-weight: {$titleFontWeightStore ?? 600};
+	"
+
 	on:click={ () => activateTabFlap(tabFlap) }
 	on:keydown={()=>{}}
 >

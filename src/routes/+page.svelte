@@ -6,11 +6,11 @@
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
     // Import constants and utility functions.
-    import { graphBackgroundColor, startingGraphDepth } from "$lib/shared/constants"
+    import { startingGraphDepth } from "$lib/shared/constants"
     import { onMobile } from "$lib/shared/utility"
 
     // Import stores.
-    import { loadingState, perspectiveThingIdStore, userIdStore } from "$lib/stores"
+    import { defaultFontStore, graphBackgroundColorStore, loadingState, perspectiveThingIdStore, userIdStore } from "$lib/stores"
 
     // Import page controller.
     import PageController from "./controller.svelte"
@@ -102,6 +102,8 @@
     class:reorderColumn={reorderOrientation === "column"}
 
     bind:clientHeight={height}
+
+    style="font-family: {$defaultFontStore || "Arial"};"
     
     on:mousemove={handleMouseMove}
     on:touchmove={
@@ -122,7 +124,7 @@
 
             style={
                 graphBackgroundImageUrl ? `background-image: url(${graphBackgroundImageUrl});` :
-                `background-color: ${graphBackgroundColor};`
+                `background-color: ${$graphBackgroundColorStore};`
             }
         />
     {/if}
@@ -201,8 +203,6 @@
         flex-direction: row;
 
         overflow: hidden;
-
-        font-family: Arial;
     }
 
     :global(main.reorderRow *) {

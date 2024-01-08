@@ -12,7 +12,7 @@
     import {
         uIBackgroundColorStore, readOnlyMode, pinIdsStore, addPin, removePin,
         homeThingIdStore, setHomeThingId, removeHomeThing,
-        hoveredThingIdStore, openContextCommandPalette, uIHeaderColorStore, lightenOrDarkenColorString, uITrimColorStore   
+        hoveredThingIdStore, openContextCommandPalette, uIHeaderColorStore, lightenOrDarkenColorString, uITrimColorStore, titleFontStore, titleFontWeightStore   
     } from "$lib/stores"
 
     // Import related widgets.
@@ -131,7 +131,11 @@
         <div
             class="title-container"
 
-            style="background-color: {$uIHeaderColorStore};"
+            style="
+                background-color: {$uIHeaderColorStore};
+                font-family: {$titleFontStore ?? "Arial"};
+                font-weight: {$titleFontWeightStore ?? 600};
+            "
         >
             <img
                 src="./icons/history.png"
@@ -140,7 +144,7 @@
                 height=27px
             >
             <div class="title">
-                <h4>History</h4>
+                History
             </div>
         </div>
     {/if}

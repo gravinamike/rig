@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { titleFontWeightStore } from "$lib/stores";
     import { TextFittingDiv } from "$lib/widgets/layoutWidgets"
 
 
@@ -25,12 +26,14 @@
         class:show-content={showContent}
         class:hide-content={!showContent}
         
-        style="font-size: {fontSize}px;"
+        style="
+            font-size: {fontSize}px;
+        "
     >
         <TextFittingDiv
             {text}
             defaultFontSize={fontSize}
-            defaultFontWeight={600}
+            defaultFontWeight={$titleFontWeightStore ?? 600}
         />
     </div>
 </div>

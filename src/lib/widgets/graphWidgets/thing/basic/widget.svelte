@@ -7,10 +7,7 @@
     import { onMount } from "svelte"
 
     /* Import stores. */
-    import { readOnlyMode, homeThingIdStore } from "$lib/stores"
-
-    // Import utility methods.
-    import { hexToRgba } from "$lib/shared/utility"
+    import { readOnlyMode, homeThingIdStore, titleFontStore, titleFontWeightStore } from "$lib/stores"
 
     /* Import related widgets. */
     import ThingWidgetController from "./controller.svelte"
@@ -168,6 +165,8 @@
             }
             width: {thingWidth}px; height: {thingHeight}px;
             opacity: {opacity};
+            font-family: {$titleFontStore || "Arial"};
+            font-weight: {$titleFontWeightStore ?? 600};
             pointer-events: {
                 showPointer ? "auto" :
                 "none"

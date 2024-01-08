@@ -11,7 +11,7 @@
 
     // Import stores.
     import {
-        landscapeOrientation, notesBackgroundImageStore, notesEditorLockedStore, readOnlyMode, storeGraphDbModels, uITrimColorStore, updateNoteSearchListStore
+        landscapeOrientation, notesBackgroundImageStore, notesEditorLockedStore, readOnlyMode, storeGraphDbModels, titleFontStore, titleFontWeightStore, uITrimColorStore, updateNoteSearchListStore
     } from "$lib/stores"
 
     // Import utility functions.
@@ -538,9 +538,11 @@
 
                 ""
             }
+            font-family: {$titleFontStore ?? "Arial"};
+            font-weight: {$titleFontWeightStore ?? 600};
         "
     >
-        <h2>{title}</h2>
+        <div>{title}</div>
     </div>
 
     <!-- Container to hold either Note display or Note editor. -->
@@ -704,9 +706,11 @@
         align-items: center;
     }
 
-    h2 {
+    .title div {
         margin: 0;
+
         text-align: left;
+        font-size: 1.5rem;
         line-height: 1.5rem;
     }
 

@@ -2,9 +2,9 @@ import type { NewFileCreationInfo } from "$lib/widgets/dialogWidgets"
 
 import { sessionSpecificFetch as fetch } from "$lib/db/sessionSpecificFetch"
 
-import { writable } from "svelte/store"
+import { derived, writable } from "svelte/store"
 import { nullNewFileCreationInfo } from "$lib/widgets/dialogWidgets"
-import { defaultUITrimColor, defaultMobileMenuTrimColor } from "$lib/shared/constants"
+import { defaultUITrimColor, defaultMobileMenuTrimColor, defaultGraphBackgroundColor } from "$lib/shared/constants"
 import { clampNumber } from "$lib/shared/utility"
 
 
@@ -73,11 +73,24 @@ export function lightenOrDarkenColorString(colorString: string, lighterOrDarker:
 
 // UI trim and background color stores.
 // Hold the hex-strings for the UI's trim and background colors.
-export const uIBackgroundColorStore = writable( lightenOrDarkenColorString(defaultUITrimColor, "lighter", 95) )
 export const uITrimColorStore = writable( defaultUITrimColor )
-export const uIHeaderColorStore = writable( lightenOrDarkenColorString(defaultUITrimColor, "darker", 15) )
-
+export const uIBackgroundColorStore = derived(
+    uITrimColorStore,
+    ($uITrimColor) => lightenOrDarkenColorString($uITrimColor, "lighter", 95)
+)
+export const uIHeaderColorStore = derived(
+    uITrimColorStore,
+    ($uITrimColor) => lightenOrDarkenColorString($uITrimColor, "darker", 15)
+)
 export const mobileMenuTrimColorStore = writable( defaultMobileMenuTrimColor )
+export const graphBackgroundColorStore = writable( defaultGraphBackgroundColor )
+
+
+// Font stores.
+// Hold the default and title fonts for the Graph.
+export const defaultFontStore = writable( null as string | null )
+export const titleFontStore = writable( null as string | null )
+export const titleFontWeightStore = writable( 600 as number | null )
 
 
 

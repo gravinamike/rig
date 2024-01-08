@@ -9,7 +9,7 @@
     import { legacyPerspectiveThingsParse, Rectangle } from "$lib/shared/utility"
 
     // Import stores.
-    import { lightenOrDarkenColorString, relationshipBeingCreatedInfoStore } from "$lib/stores"
+    import { graphBackgroundColorStore, lightenOrDarkenColorString, relationshipBeingCreatedInfoStore } from "$lib/stores"
 
     // Import widget controller.
     import GraphWidgetController from "./controller.svelte"
@@ -19,7 +19,6 @@
     import PlaneControls from "./planeControls.svelte"
     import { ThingCohortWidget } from "$lib/widgets/graphWidgets"
     import { cubicOut } from "svelte/easing"
-    import { graphBackgroundColor } from "$lib/shared/constants";
     
 
     export let graph: Graph
@@ -72,7 +71,7 @@
 
     $: processWidgetResize(widgetWidth, widgetHeight)
 
-    const reticleColor = lightenOrDarkenColorString(graphBackgroundColor, "darker", 25)
+    const reticleColor = lightenOrDarkenColorString($graphBackgroundColorStore, "darker", 25)
 </script>
 
 

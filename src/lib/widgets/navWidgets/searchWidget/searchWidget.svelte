@@ -10,6 +10,7 @@
 
     // Import related widgets.
     import EditButton from "$lib/widgets/layoutWidgets/editButton.svelte"
+    import { defaultFontStore } from "$lib/stores";
 
 
     /**
@@ -370,7 +371,10 @@
         bind:this={inputField}
         bind:value={inputText}
 
-        style={`font-size: ${fontSize}rem;`}
+        style={`
+            font-family: ${$defaultFontStore ?? "Arial"};
+            font-size: ${fontSize}rem;
+        `}
 
         on:focus={() => {focused = true; handleInput()}}
         on:blur={() => {focused = false}}

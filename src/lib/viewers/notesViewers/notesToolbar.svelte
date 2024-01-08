@@ -8,7 +8,7 @@
     // Import stores.
     import {
         fontNames, uIBackgroundColorStore,
-        enableThingLinking, enableTextHyperlinking, 
+        enableThingLinking, enableTextHyperlinking, defaultFontStore, 
     } from "$lib/stores"
 
     // Import utility functions.
@@ -310,7 +310,7 @@
             <select
                 class="font-picker"
 
-                value={currentSelectionFontFamily ? currentSelectionFontFamily : "Arial"}
+                value={currentSelectionFontFamily ? currentSelectionFontFamily : $defaultFontStore ?? "Arial"}
             >
                 {#each $fontNames as fontName}
                     <option
