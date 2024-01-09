@@ -31,6 +31,7 @@
     export let stemTop: number
     export let relationshipColor: string
     
+    export let cladeHovered: boolean
     export let thingIdOfHoveredRelationship: number | null
     export let stemHovered: boolean
     export let relatableForCurrentDrag: boolean
@@ -51,6 +52,7 @@
         || ofPerspectiveThing
         || (relatableForCurrentDrag && stemHovered)
         || isDragRelateSource
+        || cladeHovered
     )
 
 

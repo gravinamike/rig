@@ -35,6 +35,7 @@
     export let graphWidgetStyle: GraphWidgetStyle
     export let thingWidth: number
     export let thingHeight: number
+    export let cladeHovered: boolean
     export let thingCohortExpanded: boolean
     export let offsetToAlignToGrid: number
 
@@ -114,6 +115,7 @@
     {graphWidgetStyle}
     {graph}
     {thingIdOfHoveredRelationship}
+    {cladeHovered}
     {stemHovered}
     {thingWidth}
     {thingHeight}
@@ -188,6 +190,7 @@
                     {thingCohortMembersToDisplay}
                     bind:graph
                     {graphWidgetStyle}
+                    {cladeHovered}
                     {thingIdOfHoveredRelationship}
                     bind:stemHovered
                     tweenedScale={$tweenedScale || 1}

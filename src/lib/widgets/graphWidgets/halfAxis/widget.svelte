@@ -20,6 +20,7 @@
     export let parentThingCohortExpanded: boolean
     export let parentCladeOffsetFromCenterOfThingCohort: number
     export let perspectiveTexts: {[thingId: string]: string}
+    export let cladeHovered: boolean
     export let rePerspectToThingId: (id: number) => Promise<void>
 
 
@@ -78,6 +79,7 @@
         {graphWidgetStyle}
         thingWidth={rootThingWidth}
         thingHeight={rootThingHeight}
+        {cladeHovered}
         {thingCohortExpanded}
         offsetToAlignToGrid={$tweenedOffsetToAlignToGrid}
     />

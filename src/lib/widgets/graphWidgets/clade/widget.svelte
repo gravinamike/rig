@@ -50,6 +50,14 @@
     // Attributes managed by sub-widgets.
     let rootThingWidth: number = 0
     let rootThingHeight: number = 0
+
+
+
+    let hovered = false
+    $: forceShowHalfAxisWidgets = (
+        rootThing.address?.generationId === 0
+        || hovered
+    )
 </script>
 
 
@@ -79,7 +87,12 @@
 
     style="{overlapMarginStyleText}"
 
-    on:mouseenter={() => {parentThingCohortMemberOnTopIndex = rootThing.address?.indexInCohort || 0}}
+    on:mouseenter={() => {
+        hovered = true
+        parentThingCohortMemberOnTopIndex = rootThing.address?.indexInCohort || 0
+    }}
+    
+    on:mouseleave={() => {hovered = false}}
 >
 
     <!-- If the root Thing is specified, show a Thing Widget. -->
@@ -108,18 +121,24 @@
 
     <!-- The Thing's child Thing and Relationship Cohorts. -->
     {#each cartesianThingCohorts as thingCohort (thingCohort.address)}
-        <!-- Half-axis widget. -->
-        <HalfAxisWidget
-            {thingCohort}
-            bind:graph
-            {graphWidgetStyle}
-            {rootThingWidth}
-            {rootThingHeight}
-            parentThingCohortExpanded={rootThingThingCohortExpanded}
-            parentCladeOffsetFromCenterOfThingCohort={rootThingOffsetFromCenterOfThingCohort}
-            bind:perspectiveTexts
-            {rePerspectToThingId}
-        />
+        {#if
+            forceShowHalfAxisWidgets
+            || thingCohort.members.length !== 0
+        }
+            <!-- Half-axis widget. -->
+            <HalfAxisWidget
+                {thingCohort}
+                bind:graph
+                {graphWidgetStyle}
+                {rootThingWidth}
+                {rootThingHeight}
+                parentThingCohortExpanded={rootThingThingCohortExpanded}
+                parentCladeOffsetFromCenterOfThingCohort={rootThingOffsetFromCenterOfThingCohort}
+                bind:perspectiveTexts
+                cladeHovered={hovered}
+                {rePerspectToThingId}
+            />
+        {/if}
     {/each}
 
     <!--- Off-axis relations widget. -->

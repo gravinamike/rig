@@ -63,6 +63,7 @@
     export let graphWidgetStyle: GraphWidgetStyle
 
     export let thingIdOfHoveredRelationship: number | null = null
+    export let cladeHovered = false
     export let stemHovered = false
     export let thingWidth = 0
     export let thingHeight = 0
@@ -222,7 +223,14 @@
             && stemHovered
             // and there is no Relationship being hovered.
             && !thingIdOfHoveredRelationship
-        ) ? true :
+        )
+        || (
+            // The Clade is hovered,
+            cladeHovered
+            // and the Cohort is not on the "retrograde" half-axis back towards the grandparent
+            // Thing.
+            && !(halfAxisId === halfAxisOppositeIds[thingCohort.parentThingCohort()?.halfAxisId || 0])
+         ) ? true :
         false
 
     /**
