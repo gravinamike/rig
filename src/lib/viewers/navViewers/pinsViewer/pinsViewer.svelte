@@ -189,10 +189,6 @@
         height: 20px;
     }
 
-    h4 {
-        margin: 0;
-    }
-
     .content {
         display: flex;
         flex-direction: column;

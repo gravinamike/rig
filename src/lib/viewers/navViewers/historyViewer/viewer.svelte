@@ -267,10 +267,6 @@
         height: 20px;
     }
 
-    h4 {
-        margin: 0;
-    }
-
     .unique-toggle {
         position: absolute;
         right: 8px;

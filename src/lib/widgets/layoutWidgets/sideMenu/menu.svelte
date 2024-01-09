@@ -8,7 +8,7 @@
     import { cubicOut } from "svelte/easing"
     import { onMobile, sleep } from "$lib/shared/utility"
     import { saveGraphConfig } from "$lib/shared/config"
-    import { landscapeOrientation, mouseSpeed, openGraphStore } from "$lib/stores"
+    import { graphBackgroundImageStore, landscapeOrientation, mouseSpeed, openGraphStore, uIHeaderColorStore } from "$lib/stores"
 
     // Import related widgets.
     import { Tooltip }  from "$lib/widgets/layoutWidgets"
@@ -173,6 +173,7 @@
 		}
 	}
 
+
 </script>
 
 
@@ -194,13 +195,21 @@
     class:overlap-page={overlapPage}
     class:slide-left={slideDirection === "left"}
     class:slide-right={slideDirection === "right"}
+    class:graph-background-image={$graphBackgroundImageStore !== null}
     class:full-size={fullSize}
     bind:this={sideMenu}
 
-    style={
-        orientation === "horizontal" ? `width: ${$extension}px; height: 100%;` :
-        `width: 100%; height: ${$extension}px;`
-    }
+    style={`
+        ${
+            orientation === "horizontal" ? `width: ${$extension}px; height: 100%;` :
+            `width: 100%; height: ${$extension}px;`
+        }
+        ${
+            slideDirection === "left" ? `border-left: solid 1px ${$uIHeaderColorStore};` :
+            slideDirection === "right" ? `border-right: solid 1px ${$uIHeaderColorStore};` :
+            ""
+        }
+    `}
 
     on:mouseleave={handleMouseLeave}
 >
@@ -379,20 +388,12 @@
         position: relative;
     }
 
-    .side-menu.slide-left {
-        border-left: solid 1px gainsboro;
-    }
-
-    .side-menu.slide-right {
-        border-right: solid 1px gainsboro;
-    }
-
-    .side-menu.slide-left.on-mobile:not(.landscape-orientation) {
+    .side-menu.slide-left.graph-background-image, .side-menu.slide-left.on-mobile:not(.landscape-orientation) {
         box-shadow: 0 0 4px 2px grey;
         border: none;
     }
 
-    .side-menu.slide-right.on-mobile:not(.landscape-orientation) {
+    .side-menu.slide-right.graph-background-image, .side-menu.slide-right.on-mobile:not(.landscape-orientation) {
         box-shadow: 0 0 4px 2px grey;
         border: none;
     }

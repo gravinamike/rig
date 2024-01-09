@@ -159,10 +159,14 @@
     }
 
     .direction-widget:hover .direction-widget-backfield {
+        box-shadow: 1px 1px 1px 0px silver;
+
         opacity: 100%;
     }
 
     .direction-widget.fully-opaque .direction-widget-backfield {
+        box-shadow: 1px 1px 1px 0px silver;
+
         opacity: 100%;
     }
 

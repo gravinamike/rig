@@ -172,6 +172,10 @@
         <!-- Relationship images. -->
         <div
             class="relationship-images"
+            class:in-front-of-direction-widget={
+                thingCohort.members.length === 0
+                && stemHovered
+            }
             style="
                 width: {relationshipsWidth}px;
                 height: {relationshipsLength}px;
@@ -243,7 +247,10 @@
                     optionClickedFunction={(direction, _, __) => {
                         if (direction?.id) changeRelationshipsDirection(direction.id)
                     }}
-                    interactionDisabled={!ofPerspectiveThing}
+                    interactionDisabled={
+                        !ofPerspectiveThing
+                        || thingCohort.members.length === 0
+                    }
                 />
             </div>
         {/if}
@@ -307,6 +314,10 @@
         position: absolute;
 
         overflow: visible;
+    }
+
+    .relationship-images.in-front-of-direction-widget {
+        z-index: 3;
     }
 
     .direction-widget-anchor {
