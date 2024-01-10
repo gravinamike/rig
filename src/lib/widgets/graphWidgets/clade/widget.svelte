@@ -9,6 +9,7 @@
     // Import related widgets.
     import { HalfAxisWidget, ThingWidget, ThingFormWidget, OffAxisRelationsWidget } from "$lib/widgets/graphWidgets"
     import { sleep } from "$lib/shared/utility";
+    import { graphIdsNeedingViewerRefresh } from "$lib/stores";
     
     
 
@@ -86,7 +87,10 @@
 
     $: forceShowHalfAxisWidgets = (
         rootThing.address?.generationId === 0
-        || hoveredForHalfSecond
+        || (
+            graph.rePerspectInProgressThingId === null
+            && hoveredForHalfSecond
+        )
     )
 </script>
 
@@ -124,7 +128,6 @@
     
     on:mouseleave={stopTrackingTimeHovered}
 >
-
     <!-- If the root Thing is specified, show a Thing Widget. -->
     {#if rootThing?.id}
         <ThingWidget

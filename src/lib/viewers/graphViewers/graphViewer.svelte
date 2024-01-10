@@ -133,7 +133,7 @@
         const selectedHistoryThingId = graph.history.entryAtPosition.thingId
         
         if (
-            !rePerspectInProgressThingId
+            !graph.rePerspectInProgressThingId
             && selectedHistoryThingId !== graph.pThingIds[0]
         ) rePerspectToThingId(selectedHistoryThingId, false, false)
     }
@@ -181,7 +181,7 @@
     }
 
     // This indicates whether a re-Perspect operation is in progress but not yet completed.
-    let rePerspectInProgressThingId: number | null = null
+    //let rePerspectInProgressThingId: number | null = null
 
     /**
      * Re-Perspect-to-Thing-ID method.
@@ -192,7 +192,7 @@
     rePerspectToThingId = async (thingId: number, updateHistory=true, zoomAndScroll=true) => {
         if (graph) {
             // Record that this re-Perspect operation is in progress.
-            rePerspectInProgressThingId = thingId
+            graph.rePerspectInProgressThingId = thingId
 
             // If the new Perspective Thing is already in the Graph, scroll to center it.
             allowScrollToThingId = true
@@ -225,7 +225,7 @@
             saveGraphConfig()
 
             // Record that the re-Perspect operation is finished.
-            rePerspectInProgressThingId = null
+            graph.rePerspectInProgressThingId = null
         }
     }
 
