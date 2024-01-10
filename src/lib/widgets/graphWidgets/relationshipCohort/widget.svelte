@@ -254,6 +254,10 @@
                         !ofPerspectiveThing
                         || thingCohort.members.length === 0
                     }
+                    forceFullyOpaque={
+                        !ofPerspectiveThing
+                        && cladeHovered
+                    }
                 />
             </div>
         {/if}

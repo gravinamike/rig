@@ -56,6 +56,12 @@
     )
 
 
+    $: forceOpaqueStem = (
+        !ofPerspectiveThing
+        && cladeHovered
+    )
+
+
     $: stemBottomOffsetFromThing =
         thingCohort.parentThing?.address?.generationId === 0 ? 6 :
         0
@@ -97,7 +103,7 @@
 
         x1="{midline}" y1="{stemBottom}"
         x2="{midline}" y2="{stemTop}"
-        style="stroke-width: {25 / tweenedScale};"
+        style="stroke-width: {30 / tweenedScale};"
 
         on:mouseenter={ () => {
             stemHovered = true
@@ -195,6 +201,7 @@
             {!$reorderingInfoStore.reorderInProgress && (stemHovered || relationshipHovered || thingHovered) ? "hovered" : ""}
             {stemClicked || isDragRelateSource ? "clicked" : ""}
         "
+        class:force-opaque={forceOpaqueStem}
         class:hidden={!showStem}
     >
         <line
@@ -246,7 +253,7 @@
         opacity: 0.5;
     }
 
-    .stem-image.clicked {
+    .stem-image.clicked, .stem-image.force-opaque {
         opacity: 1.0;
     }
 </style>

@@ -18,7 +18,13 @@
         perspectiveSpaceIdStore,
         landscapeOrientation,
         uITrimColorStore,
-        homeThingIdStore
+        homeThingIdStore,
+
+        graphBackgroundImageStore,
+
+        uIHeaderColorStore
+
+
     } from "$lib/stores"
 
     // Import layout elements.
@@ -364,8 +370,9 @@
     <!-- Home/back/forward buttons. -->
     <div
         class="nav-buttons"
+        class:graph-background-image={$graphBackgroundImageStore !== null}
 
-        style="background-color: {$uITrimColorStore};"
+        style="border-right: solid 1px {$uIHeaderColorStore}; background-color: {$uITrimColorStore};"
     >
         <div
             class="nav-button"
@@ -445,7 +452,7 @@
     }
 
     .nav-buttons {
-        box-shadow: 3px 2px 2px 1px #e0e0e0;
+        box-shadow: 3px 2px 2px 0px rgb(221, 221, 221);
         border-radius: 0 16px 0 0;
 
         position: absolute;
@@ -457,6 +464,10 @@
         flex-direction: column;
         padding: 5px 5px 8px 3px;
         gap: 8px;
+    }
+
+    .nav-buttons.graph-background-image {
+        box-shadow: 3px 2px 2px 0px rgb(177, 177, 177);
     }
 
     .nav-button {

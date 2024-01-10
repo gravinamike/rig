@@ -8,6 +8,7 @@
 
     // Import related widgets.
     import { HalfAxisWidget, ThingWidget, ThingFormWidget, OffAxisRelationsWidget } from "$lib/widgets/graphWidgets"
+    import { sleep } from "$lib/shared/utility";
     
     
 
@@ -53,10 +54,39 @@
 
 
 
-    let hovered = false
+
+
+
+
+
+
+    
+
+    let timeHovered: number | null = null
+    async function trackTimeHovered(initialize=false, increment=100) {
+        if (initialize) timeHovered = 0
+        else if (timeHovered === null) return
+        else if (timeHovered > 100000) {
+            timeHovered = null
+            return
+        }
+        else timeHovered += increment
+        
+        await sleep(increment)
+        trackTimeHovered(false, increment)
+    }
+    function stopTrackingTimeHovered() {
+        timeHovered = null
+    }
+
+    $: hoveredForHalfSecond = timeHovered !== null && timeHovered >= 500
+
+
+
+
     $: forceShowHalfAxisWidgets = (
         rootThing.address?.generationId === 0
-        || hovered
+        || hoveredForHalfSecond
     )
 </script>
 
@@ -87,12 +117,12 @@
 
     style="{overlapMarginStyleText}"
 
-    on:mouseenter={() => {
-        hovered = true
+    on:mouseenter={async () => {
         parentThingCohortMemberOnTopIndex = rootThing.address?.indexInCohort || 0
+        trackTimeHovered(true)
     }}
     
-    on:mouseleave={() => {hovered = false}}
+    on:mouseleave={stopTrackingTimeHovered}
 >
 
     <!-- If the root Thing is specified, show a Thing Widget. -->
@@ -135,7 +165,7 @@
                 parentThingCohortExpanded={rootThingThingCohortExpanded}
                 parentCladeOffsetFromCenterOfThingCohort={rootThingOffsetFromCenterOfThingCohort}
                 bind:perspectiveTexts
-                cladeHovered={hovered}
+                cladeHovered={hoveredForHalfSecond}
                 {rePerspectToThingId}
             />
         {/if}

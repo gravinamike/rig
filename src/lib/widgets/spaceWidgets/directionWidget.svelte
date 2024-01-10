@@ -165,10 +165,17 @@
     }
 
     .direction-widget.fully-opaque .direction-widget-backfield {
-        box-shadow: 1px 1px 1px 0px silver;
-
         opacity: 100%;
     }
+
+
+
+    .direction-widget.fully-opaque:not(.interaction-disabled) .direction-widget-backfield {
+        box-shadow: 1px 1px 1px 0px silver;
+    }
+
+
+
 
     .direction-widget.rectangular .direction-widget-backfield {
         border-radius: 7px;
