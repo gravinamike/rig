@@ -7,9 +7,6 @@
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
     import type { CommandButtonInfo } from "$lib/widgets/layoutWidgets"
 
-    // Import constants.
-    import { relationshipColorByHalfAxisId } from "$lib/shared/constants"
-
     // Import stores.
     import {
         graphDbModelInStore, storeGraphDbModels, unstoreGraphDbModels,

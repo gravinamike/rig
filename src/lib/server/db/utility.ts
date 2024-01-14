@@ -1,17 +1,61 @@
-import { Model } from "objection"
-import { RawThingDbModel, RawRelationshipDbModel, RawNoteDbModel, RawNoteToThingDbModel, RawFolderDbModel, RawFolderToThingDbModel, RawDirectionDbModel, RawSpaceDbModel } from "$lib/server/models"
+// Import types.
 import type { Knex } from "knex"
 
+// Import SvelteKit framework resources.
 import { get } from "svelte/store"
+
+// Import stores.
 import { loggerStore } from "$lib/stores"
-import { retrieveSessionSpecificCookie } from "$lib/db/sessionSpecificFetch"
 const logger = get(loggerStore)
 
+// Import ORM-related resources.
+import { Model } from "objection"
+import {
+    RawDirectionDbModel, RawSpaceDbModel, RawThingDbModel, RawRelationshipDbModel,
+    RawNoteDbModel, RawNoteToThingDbModel, RawFolderDbModel, RawFolderToThingDbModel
+} from "$lib/server/models"
+
+// Import API-related resources.
+import { retrieveSessionSpecificCookie } from "$lib/db/sessionSpecificFetch"
 
 
-// H2 doesn't mesh with Objection's PostgreSQL syntax naturally. This function is a
-// temporary fix until H2 is replaced with another database. It takes the querystring,
-// modifies it appropriately for H2 syntax, then runs it.
+
+/**
+ * Get-Graph-name-on-server method.
+ * 
+ * Allows processes on the server to get the name of the Graph that is associated with a particular
+ * request.
+ * @param request - The request that the Graph is associated with.
+ * @param params - The event params that are associated with the request, containing the session UUID.
+ * @returns - The Graph name, or null if none was found.
+ */
+export function getGraphNameOnServer(request: Request, params: Partial<Record<string, string>>) {
+    // If the params don't contain a session UUID, return null.
+    if (!("sessionUuid" in params)) return null
+
+    // Get the session UUID from 
+	const sessionUuid = params.sessionUuid as string
+
+    // Retrieve the name of the Graph file from the cookies.
+    const graphName = retrieveSessionSpecificCookie(sessionUuid, request, "graphName")
+
+    // Return the Graph name.
+    return graphName
+}
+
+
+/**
+ * Alter-querystring-for-H2-and-run method.
+ * 
+ * H2 doesn't mesh with Objection's PostgreSQL syntax naturally. This method is a temporary fix
+ * until H2 is replaced with another database (assuming that is done in the future). It takes the
+ * querystring, modifies it appropriately for H2 syntax, then runs it.
+ * @param querystring - The original querystring produced by Objection.
+ * @param transaction - The transaction that the altered querystring should be run as part of.
+ * @param whenCreated - A dateime-of-creation string used to retrieve the newly created record.
+ * @param constructName - The name of the Graph construct that the query is about.
+ * @returns - The newly-created Graph construct as a raw model (still containing the Objection model).
+ */
 export async function alterQuerystringForH2AndRun(
     querystring: string,
     transaction: Knex.Transaction,
@@ -20,6 +64,15 @@ export async function alterQuerystringForH2AndRun(
 ): Promise< RawDirectionDbModel | RawSpaceDbModel | RawThingDbModel | RawRelationshipDbModel | RawNoteDbModel | RawNoteToThingDbModel | RawFolderDbModel | RawFolderToThingDbModel | null > {
     // Remove the "returning" clause in the query string.
     querystring = querystring.replace(/ returning "\w+"/, "")
+
+    // If there is a string value that contains a question mark, escape the question mark.
+    const valueSubstringsContainingQuestionMarks = querystring.match(/(\('|', ').*?\?.*?('\)|', ')/g)
+    if (valueSubstringsContainingQuestionMarks !== null) {
+        for (const substring of valueSubstringsContainingQuestionMarks) {
+            const correctedSubstring = substring.replace(/\?/g, "\\?")
+            querystring = querystring.replace(substring, correctedSubstring)
+        }
+    }
 
     // Run the modified query string.
     const knex = Model.knex()
@@ -77,20 +130,4 @@ export function logServerError(message: string, infoObject: object, error: Error
         logObject,
         message
     )
-}
-
-
-
-export function getGraphNameOnServer(request: Request, params: Partial<Record<string, string>>) {
-    // If the params don't contain a session UUID, return null.
-    if (!("sessionUuid" in params)) return null
-
-    // Get the session UUID from 
-	const sessionUuid = params.sessionUuid as string
-
-    // Retrieve the name of the Graph file from the cookies.
-    const graphName = retrieveSessionSpecificCookie(sessionUuid, request, "graphName")
-
-    // Return the Graph name.
-    return graphName
 }
