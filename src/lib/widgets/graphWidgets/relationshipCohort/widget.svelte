@@ -105,6 +105,17 @@
     )
     
 
+
+
+
+
+
+    $: directionWidgetTop = 0.76 * rotatedHeight
+
+
+    let relationshipHovered = false
+
+
 </script>
 
 
@@ -117,6 +128,7 @@
     {thingIdOfHoveredRelationship}
     {cladeHovered}
     {stemHovered}
+    {relationshipHovered}
     {thingWidth}
     {thingHeight}
     {offsetToAlignToGrid}
@@ -174,10 +186,6 @@
         <!-- Relationship images. -->
         <div
             class="relationship-images"
-            class:in-front-of-direction-widget={
-                thingCohort.members.length === 0
-                && stemHovered
-            }
             style="
                 width: {relationshipsWidth}px;
                 height: {relationshipsLength}px;
@@ -197,8 +205,11 @@
                     {midline}
                     {stemBottom}
                     {stemTop}
+                    directionWidgetOffsetFromRelationshipsTop={directionWidgetTop}
+                    {relationshipsLength}
                     {relationshipColor}
                     {relatableForCurrentDrag}
+                    bind:relationshipHovered
                 />
             {/if}
 
@@ -231,12 +242,14 @@
             {/if}
             
         </div>
-
+        
         <!-- Direction widget. -->
         {#if showDirection}
             <div
                 class="direction-widget-anchor"
                 style="
+                    left: 50%;
+                    top: {directionWidgetTop}px;
                     transform:
                         translate(-50%, -50%)
                         scaleY({mirroring})
@@ -254,9 +267,15 @@
                         !ofPerspectiveThing
                         || thingCohort.members.length === 0
                     }
+                    partOpaque={
+                        stemHovered
+                        || (
+                            !ofPerspectiveThing
+                            && cladeHovered
+                        )
+                    }
                     forceFullyOpaque={
-                        !ofPerspectiveThing
-                        && cladeHovered
+                        thingCohort.members.length > 0
                     }
                 />
             </div>
@@ -323,14 +342,8 @@
         overflow: visible;
     }
 
-    .relationship-images.in-front-of-direction-widget {
-        z-index: 3;
-    }
-
     .direction-widget-anchor {
         position: absolute;
-        left: 50%;
-        top: 76%;
         width: fit-content;
         height: fit-content;
         z-index: 2;

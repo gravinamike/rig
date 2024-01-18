@@ -1,15 +1,19 @@
 <script lang="ts">
     // Import types.
-    import type { ThingCohort, GenerationMember, Thing } from "$lib/models/constructModels"
+    import type { ThingCohort, GenerationMember, Thing, Graph } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
+    // Import SvelteKit framework resources.
+    import { tick } from "svelte"
+
     // Import utility functions.
-    import { readOnlyArrayToArray } from "$lib/shared/utility"
+    import { readOnlyArrayToArray, sleep } from "$lib/shared/utility"
 
     // Import constants.
     import {
             cartesianHalfAxisIds, orderedCartesianHalfAxisIds, orderedNonCartesianHalfAxisIds
     } from "$lib/shared/constants"
+    
 
     
 
@@ -34,6 +38,7 @@
      * @param cartesianThingCohorts - The Thing Cohorts that are on the Cartesian half-axes.
      * @param showAsCollapsed - Whether to format the Clade widget to indicate its parent Thing Cohort is collapsed.
      */
+    export let graph: Graph
     export let thingOverlapMargin: number = 0
     export let parentThingCohortRowOrColumn: "row" | "column" = "row"
     export let getThingOverlapMarginStyleText: (
@@ -59,6 +64,59 @@
     export let rootThingOffsetFromCenterOfThingCohort = 0
     export let cartesianThingCohorts: ThingCohort[] = []
     export let showAsCollapsed = false
+    export let hoveredForHalfSecond = false
+    export let forceShowHalfAxisWidgets = false
+    export let trackTimeHovered: (initialize?: boolean, increment?: number) => void = () => {}
+    export let stopTrackingTimeHovered: () => void = () => {}
+
+
+
+
+
+    let timeHovered: number | null = null
+    trackTimeHovered = async (initialize=false, increment=100) => {
+        if (initialize) timeHovered = 0
+        else if (timeHovered === null) return
+        else if (timeHovered > 100000) {
+            timeHovered = null
+            return
+        }
+        else timeHovered += increment
+        
+        await sleep(increment)
+        trackTimeHovered(false, increment)
+    }
+    stopTrackingTimeHovered = () => {
+        timeHovered = null
+    }
+
+
+    $: hoveredForHalfSecond = timeHovered !== null && timeHovered >= 500
+
+
+
+
+    // Fix glitch where closing a Thing form leaves the half-axes shown.
+    $: formActive = graph.formActive
+    $: if (formActive === false) {
+        (async () => {
+            await tick()
+            stopTrackingTimeHovered()
+        })()
+    }
+
+
+    $: forceShowHalfAxisWidgets = (
+        rootThing.address?.generationId === 0
+        || (
+            graph.rePerspectInProgressThingId === null
+            && hoveredForHalfSecond
+        )
+    )
+
+
+
+
 
 
     

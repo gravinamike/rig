@@ -65,6 +65,7 @@
     export let thingIdOfHoveredRelationship: number | null = null
     export let cladeHovered = false
     export let stemHovered = false
+    export let relationshipHovered = false
     export let thingWidth = 0
     export let thingHeight = 0
     export let offsetToAlignToGrid = 0
@@ -207,30 +208,39 @@
      * displayed on the Relationship branch widget instead of the stem).
      */
     $: showDirection =
-        // The Cohort's parent is the Perspective Thing, or...
-        (
-            parentThing.address?.generationId === 0
-            && !thingIdOfHoveredRelationship
-        )
-        || (
-            // The Cohort is not an invalid relating target for an in-progress
-            // drag-relate operation,
-            !(
-                $relationshipBeingCreatedInfoStore.sourceThingId
-                && !relatableForCurrentDrag
+        // The Relationship fan and leaf widgets aren't hovered, and...
+        !relationshipHovered
+        && (
+            // The Cohort's parent is the Perspective Thing, or...
+            (
+                parentThing.address?.generationId === 0
+                && !thingIdOfHoveredRelationship
             )
-            // and the widget is hovered,
-            && stemHovered
-            // and there is no Relationship being hovered.
-            && !thingIdOfHoveredRelationship
-        )
-        || (
-            // The Clade is hovered,
-            cladeHovered
-            // and the Cohort is not on the "retrograde" half-axis back towards the grandparent
-            // Thing.
-            && !(halfAxisId === halfAxisOppositeIds[thingCohort.parentThingCohort()?.halfAxisId || 0])
-         ) ? true :
+            || (
+                // The Cohort is not an invalid relating target for an in-progress
+                // drag-relate operation,
+                !(
+                    $relationshipBeingCreatedInfoStore.sourceThingId
+                    && !relatableForCurrentDrag
+                )
+                // and the widget is hovered,
+                && stemHovered
+                // and there is no Relationship being hovered.
+                && !thingIdOfHoveredRelationship
+            )
+            || (
+                // The Clade is hovered,
+                cladeHovered
+                // and the Cohort is not on the "retrograde" half-axis back towards the grandparent
+                // Thing.
+                && !(halfAxisId === halfAxisOppositeIds[thingCohort.parentThingCohort()?.halfAxisId || 0])
+            )
+            || (
+                // There is a create-Thing operation in progress on this half-axis.
+                graph.formActive
+                && thingCohort.members.some(member => member.thingId === null)
+            )
+        ) ? true :
         false
 
     /**

@@ -28,6 +28,7 @@
     export let height = 26
     export let fontSize: number | null = null
     export let circularOrRectangular: "circular" | "rectangular" = "circular"
+    export let partOpaque = false
     export let forceFullyOpaque = false
     export let interactionDisabled = false
     export let optionClickedFunction: (direction: Direction | null, optionId: number, option: Direction) => void = (_: Direction | null, __: number, ___: Direction) => {}
@@ -39,12 +40,10 @@
     let directionWidget: Element
 
 
+    $: directionDropdownOpen = $directionSelectionInfoStore.directionWidget === directionWidget
 
-    $: fullyOpaque = 
-        forceFullyOpaque
-        || $directionSelectionInfoStore.directionWidget === directionWidget
+    $: fullyOpaque = forceFullyOpaque || directionDropdownOpen
 
-    
     
     $: dropdownWillOverflowWindow =
         mounted && directionWidget?.getBoundingClientRect().bottom + 250 > window.innerHeight ? true :
@@ -83,6 +82,8 @@
 <div
     class="direction-widget"
     class:rectangular={circularOrRectangular === "rectangular"}
+    class:dropdown-open={directionDropdownOpen}
+    class:part-opaque={partOpaque}
     class:fully-opaque={fullyOpaque}
     class:square-bottom-corners={squareBottomCorners}
     class:square-top-corners={squareTopCorners}
@@ -155,26 +156,32 @@
         width: 100%;
         height: 100%;
         background-color: white;
-        opacity: 0.66;
+        opacity: 0.25;
     }
 
-    .direction-widget:hover .direction-widget-backfield {
-        box-shadow: 1px 1px 1px 0px silver;
+    .direction-widget:active .direction-widget-backfield {
+        background-color: whitesmoke;
+    }
 
+    .direction-widget:not(.rectangular):hover .direction-widget-backfield {
+        box-shadow: 1px 1px 2px 1px grey;
+        
         opacity: 100%;
+    }
+
+    .direction-widget:not(.rectangular).dropdown-open .direction-widget-backfield {
+        box-shadow: 1px 1px 2px 1px grey;
+        
+        opacity: 100%;
+    }
+
+    .direction-widget.part-opaque .direction-widget-backfield {
+        opacity: 0.75;
     }
 
     .direction-widget.fully-opaque .direction-widget-backfield {
         opacity: 100%;
     }
-
-
-
-    .direction-widget.fully-opaque:not(.interaction-disabled) .direction-widget-backfield {
-        box-shadow: 1px 1px 1px 0px silver;
-    }
-
-
 
 
     .direction-widget.rectangular .direction-widget-backfield {
