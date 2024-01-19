@@ -24,7 +24,6 @@
      * @param getThingOverlapMarginStyleText - Function to get the style text to implement the desired overlap between sibling Things.
      * @param rePerspectToThingId - A function that re-perspects the Graph to a given Thing ID.
      */
-    
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
     export let parentThingCohortRowOrColumn: "row" | "column"

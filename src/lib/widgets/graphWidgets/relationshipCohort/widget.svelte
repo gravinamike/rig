@@ -192,9 +192,13 @@
             "
         >
             <!-- Relationship stem. -->
-            {#if thingCohort.indexOfGrandparentThing === null}
+            {#if
+                thingCohort.indexOfGrandparentThing === null
+                || thingCohort.members.length > 1
+                || cladeHovered
+            }
                 <RelationshipStemWidget
-                    {thingCohort}
+                    bind:thingCohort
                     {thingCohortMembersToDisplay}
                     bind:graph
                     {graphWidgetStyle}
@@ -275,7 +279,8 @@
                         )
                     }
                     forceFullyOpaque={
-                        thingCohort.members.length > 0
+                        //thingCohort.members.length > 0
+                        thingCohort.members.filter(member => !(member.alreadyRendered)).length > 0
                     }
                 />
             </div>

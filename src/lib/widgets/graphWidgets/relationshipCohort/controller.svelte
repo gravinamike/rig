@@ -231,9 +231,6 @@
             || (
                 // The Clade is hovered,
                 cladeHovered
-                // and the Cohort is not on the "retrograde" half-axis back towards the grandparent
-                // Thing.
-                && !(halfAxisId === halfAxisOppositeIds[thingCohort.parentThingCohort()?.halfAxisId || 0])
             )
             || (
                 // There is a create-Thing operation in progress on this half-axis.

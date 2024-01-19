@@ -62,6 +62,7 @@
         (
             (
                 ofPerspectiveThing
+                || thingCohort.members.length > 1
                 || cladeHovered
                 || stemHovered
             )

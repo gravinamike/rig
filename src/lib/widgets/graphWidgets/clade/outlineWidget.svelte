@@ -57,6 +57,7 @@
 
 <!-- Widget controller. -->
 <CladeWidgetController
+    {graph}
     {rootThing}
     {graphWidgetStyle}
 
