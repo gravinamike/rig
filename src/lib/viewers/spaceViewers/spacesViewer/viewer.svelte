@@ -204,6 +204,7 @@
         background-color: lightgrey;
 
         text-align: center;
+        font-family: "Arial";
         font-size: 1.07rem;
 
         cursor: pointer;

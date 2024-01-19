@@ -452,7 +452,7 @@
     }
 
     .nav-buttons {
-        box-shadow: 3px 2px 2px 0px rgb(221, 221, 221);
+        box-shadow: 3px 2px 2px 0px rgb(220, 220, 220);
         border-radius: 0 16px 0 0;
 
         position: absolute;
@@ -467,7 +467,7 @@
     }
 
     .nav-buttons.graph-background-image {
-        box-shadow: 3px 2px 2px 0px rgb(177, 177, 177);
+        box-shadow: 2px 2px 2px 0px rgb(160, 160, 160);
     }
 
     .nav-button {

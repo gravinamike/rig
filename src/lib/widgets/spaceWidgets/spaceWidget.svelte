@@ -758,6 +758,8 @@
         position: relative;
         left: 0.425px;
         top: -5.5px;
+
+        font-family: "Arial";
     }
 
     .space-build-method input {

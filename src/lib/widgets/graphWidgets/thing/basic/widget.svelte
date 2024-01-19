@@ -240,7 +240,7 @@
 
                 <!-- Delete controls. -->
                 <DeleteWidget
-                    {showDeleteButton}
+                    showDeleteButton={true}
                     {confirmDeleteBoxOpen}
                     {thingWidth}
                     {thingHeight}

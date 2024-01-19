@@ -50,5 +50,7 @@
         position: absolute;
         right: 3px;
         z-index: 1;
+
+        font-family: "Arial";
     }
 </style>
