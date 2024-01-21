@@ -1,5 +1,6 @@
 export * from "./appStores"
 export * from "./commandPaletteStores"
+export * from "./directionSelectionStores"
 export * from "./editingStores"
 export * from "./fileStores"
 export * from "./graphConstructStores"

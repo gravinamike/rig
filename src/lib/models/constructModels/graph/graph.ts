@@ -84,6 +84,9 @@ export class Graph {
     // Whether a Thing Form is currently active in the Graph.
     formActive: boolean
 
+    
+    rePerspectInProgressThingId: number | null = null
+
 
     /**
      * Graph constructor.

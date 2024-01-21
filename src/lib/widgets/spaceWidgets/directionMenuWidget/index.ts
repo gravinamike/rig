@@ -1,0 +1,1 @@
+export { default as DirectionMenuWidget } from "./widget.svelte"

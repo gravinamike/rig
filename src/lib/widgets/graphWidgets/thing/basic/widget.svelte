@@ -7,16 +7,14 @@
     import { onMount } from "svelte"
 
     /* Import stores. */
-    import { readOnlyMode, homeThingIdStore } from "$lib/stores"
-
-    // Import utility methods.
-    import { hexToRgba } from "$lib/shared/utility"
+    import { readOnlyMode, homeThingIdStore, titleFontStore, titleFontWeightStore } from "$lib/stores"
 
     /* Import related widgets. */
     import ThingWidgetController from "./controller.svelte"
     import { ThingTextWidget, ThingTextFormWidget } from "../subWidgets"
     import DeleteWidget from "$lib/widgets/layoutWidgets/deleteWidget.svelte"
     import { ThingDetailsWidget } from "$lib/widgets/detailsWidgets"
+
 
 
     /**
@@ -40,13 +38,14 @@
     export let showAsCollapsed: boolean
     export let rePerspectToThingId: (id: number) => Promise<void>
 
+        
 
     // Attributes handled by the widget controller.
     let thingWidgetId: string
     let text: string
     let hasPerspectiveText = false
     let highlighted: boolean
-    let shadowColor ="#000000"
+    let shadowColor = "grey"
     let encapsulatingDepth: number = 0
     let opacity: number
     let showPointer: boolean
@@ -106,7 +105,7 @@
     bind:text
     bind:hasPerspectiveText
     bind:highlighted
-    bind:shadowColor
+    {shadowColor}
     bind:encapsulatingDepth
     bind:thingWidth
     bind:thingHeight
@@ -161,11 +160,13 @@
         style="
             border-radius: {10 + 4 * encapsulatingDepth}px;
             {
-                highlighted ? `box-shadow: 0px 0px ${showAsCollapsed ? 20 : 10}px 6px ${hexToRgba(shadowColor, 0.15)};` :
-                `box-shadow: 0px 0px ${showAsCollapsed ? 20 : 10}px 2px ${hexToRgba(shadowColor, 0.15)};`
+                highlighted ? `box-shadow: 1px 1px ${showAsCollapsed ? 3 : 2}px 1px ${shadowColor};` :
+                `box-shadow: 1px 1px ${showAsCollapsed ? 2 : 1}px 0px ${shadowColor};`
             }
             width: {thingWidth}px; height: {thingHeight}px;
             opacity: {opacity};
+            font-family: {$titleFontStore || "Arial"};
+            font-weight: {$titleFontWeightStore ?? 600};
             pointer-events: {
                 showPointer ? "auto" :
                 "none"
@@ -295,8 +296,7 @@
     }
 
     .highlighted {
-        outline: solid 2px black;
-        outline-offset: -2px;
+        background-color: #fafafa;
     }
 
     .slider-backfield {

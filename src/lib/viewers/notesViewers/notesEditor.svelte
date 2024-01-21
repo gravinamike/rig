@@ -86,7 +86,7 @@
         }
 
         // Thing-link hotkey.
-        if(event.key === "l" && (event.ctrlKey || event.metaKey)) {
+        if (event.key === "l" && (event.ctrlKey || event.metaKey)) {
             event.preventDefault()
 
             if (editor.isActive('link') && isThingLink()) {
@@ -97,7 +97,7 @@
         }
 
         // Hyperlink hotkey.
-        if(event.key === "k" && (event.ctrlKey || event.metaKey)) {
+        else if (event.key === "k" && (event.ctrlKey || event.metaKey)) {
             event.preventDefault()
 
             if (editor.isActive('link') && !isThingLink()) {
@@ -105,6 +105,21 @@
             } else {
                 enableTextHyperlinking(editor, focusEditor)
             }
+        }
+
+        // Strikethrough hotkey.
+        else if (event.key === "d" && (event.ctrlKey || event.metaKey)) {
+            event.preventDefault()
+
+            editor.chain().focus().toggleStrike().run()
+        }
+
+        // Un-format hotkey.
+        else if (event.key === " " && (event.ctrlKey || event.metaKey)) {
+            event.preventDefault()
+
+            editor.chain().focus().unsetAllMarks().run()
+            editor.chain().focus().clearNodes().run()
         }
     })
     

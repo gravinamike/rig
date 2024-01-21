@@ -4,7 +4,7 @@
     import { onMobile } from "$lib/shared/utility";
 
     /* Store-related imports. */
-    import { homeThingIdStore, hoveredThingIdStore, openContextCommandPalette, readOnlyMode, removeHomeThing, removePin, setHomeThingId } from "$lib/stores"
+    import { homeThingIdStore, hoveredThingIdStore, lightenOrDarkenColorString, openContextCommandPalette, readOnlyMode, removeHomeThing, removePin, setHomeThingId, uITrimColorStore } from "$lib/stores"
 
 
     /**
@@ -58,6 +58,27 @@
         ]
         openContextCommandPalette(position, buttonInfos)
     }
+
+
+
+
+
+
+
+
+
+
+
+    const highlightedColor = lightenOrDarkenColorString($uITrimColorStore, "lighter", 50)
+    
+
+
+
+
+
+
+
+
 </script>
 
 
@@ -65,11 +86,14 @@
 <div
     class="
         pin-widget
-        { thingId === hoveredThingIdStoreValue ? "hovered-thing" : "" }
         { thing ? "" : "thing-id-not-found" }
     "
     class:on-mobile={onMobile()}
     class:home-thing={ thingId === $homeThingIdStore }
+
+
+    style={thingId === hoveredThingIdStoreValue ? `background-color: ${highlightedColor};` : ""}
+
     
     on:mouseenter={()=>{hoveredThingIdStore.set(thingId)}}
     on:mouseleave={()=>{hoveredThingIdStore.set(null)}}
@@ -102,20 +126,17 @@
 
 <style>
     .pin-widget {
-        border-radius: 10px;
-        box-shadow: 2px 2px 5px 1px gainsboro;
-
         position: relative;
         height: max-content;
-        background-color: white;
         
         display: flex;
         flex-direction: column;
-        padding: 0.5rem;
+        padding: 0.2rem 0.66rem 0.1rem 0.66rem;
         gap: 10px;
 
-        text-align: left;
         font-size: 0.85rem;
+        text-align: left;
+        line-height: 30px;
 
         cursor: default;
     }
@@ -130,16 +151,8 @@
         outline: dashed 1px black;
     }
 
-    .pin-widget:hover {
-        box-shadow: 2px 2px 5px 1px gainsboro;
-    }
-
-    .hovered-thing {
-        outline: solid 2px black;
-    }
-
     .pin-widget.home-thing {
-        padding-left: 30px;
+        padding-left: 32px;
     }
 
     .pin-widget.on-mobile.home-thing {
@@ -148,12 +161,11 @@
 
     .icon-container {
         position: absolute;
-        top: 4px;
-        background-color: white;
+        top: 6px;
     }
 
     .icon-container.home {
-        left: 4px;
+        left: 6px;
     }
 
     .icon-container.perspective {

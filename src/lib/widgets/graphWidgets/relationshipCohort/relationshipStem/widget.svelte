@@ -5,19 +5,17 @@
 
     // Import stores.
     import {
-        hoveredRelationshipTarget, enableRelationshipBeingCreated, setRelationshipBeingCreatedDestThingId,
-        disableRelationshipBeingCreated,
-        reorderingInfoStore,
-        readOnlyMode,
-
-        relationshipBeingCreatedInfoStore
-
+        relationshipBeingCreatedInfoStore, enableRelationshipBeingCreated,
+        setRelationshipBeingCreatedDestThingId, hoveredRelationshipTarget,
+        disableRelationshipBeingCreated, reorderingInfoStore, readOnlyMode
     } from "$lib/stores"
-    
+
+    // Import utility functions.
+    import { elementUnderTouchEvent } from "$lib/shared/utility"
 
     // Import widget controller.
     import RelationshipStemWidgetController from "./controller.svelte"
-    import { elementUnderTouchEvent } from "$lib/shared/utility";
+
     
 
     export let thingCohort: ThingCohort
@@ -29,18 +27,23 @@
     export let midline: number
     export let stemBottom: number
     export let stemTop: number
+    export let directionWidgetOffsetFromRelationshipsTop: number
+    export let relationshipsLength: number
     export let relationshipColor: string
     
+    export let cladeHovered: boolean
     export let thingIdOfHoveredRelationship: number | null
     export let stemHovered: boolean
     export let relatableForCurrentDrag: boolean
+
+    export let relationshipHovered: boolean
+
 
 
     // Attributes handled by widget controller.
     let stemClicked = false
     let ofPerspectiveThing = false
     let relationshipsExist = false
-    let relationshipHovered = false
     let thingHovered = false
     let isDragRelateSource = false
     let addThingForm = async () => {}
@@ -51,6 +54,29 @@
         || ofPerspectiveThing
         || (relatableForCurrentDrag && stemHovered)
         || isDragRelateSource
+        || cladeHovered
+    )
+
+
+    $: showDirectionCircle =
+        (
+            (
+                ofPerspectiveThing
+                || thingCohort.members.length > 1
+                || cladeHovered
+                || stemHovered
+            )
+            && !relationshipHovered
+        )
+
+    $: stemBottomOffsetFromThing =
+        thingCohort.parentThing?.address?.generationId === 0 && showDirectionCircle ? 6 :
+        0
+
+
+    $: popupOnCladeHover = (
+        !ofPerspectiveThing
+        && cladeHovered
     )
 </script>
 
@@ -74,22 +100,20 @@
 <svg
     id={`graph#${ graph.id }-thing#${ thingCohort.parentThingId }-halfAxis#${ thingCohort.halfAxisId }`}
     class="relationship-stem"
+
     style="
         stroke: {relationshipColor};
         fill: {relationshipColor};
     "
+    
     on:click={ () => { if (!$readOnlyMode) addThingForm() } }
     on:keydown={()=>{}}
 >
 
     <!-- Hoverable zone of stem. -->
-    <line
+    <g
         class="stem-hover-zone"
         class:readOnlyMode={$readOnlyMode}
-
-        x1="{midline}" y1="{stemBottom}"
-        x2="{midline}" y2="{stemTop + 10}"
-        style="stroke-width: {20 / tweenedScale};"
 
         on:mouseenter={ () => {
             stemHovered = true
@@ -167,41 +191,64 @@
                     disableRelationshipBeingCreated()
                 }
             }
-
-
-
-
-
-
-
-
-
-
         } }
-    />
+    >
+    
+        <line
+            x1="{midline}" y1="{stemBottom}"
+            x2="{midline}" y2="{stemTop}"
+            style="stroke-width: {30 / tweenedScale};"
+        />
+
+        <line
+            x1="{midline}" y1="{stemBottom}"
+            x2="{midline}" y2="{stemBottom - (relationshipsLength - directionWidgetOffsetFromRelationshipsTop)}"
+            style="stroke-width: 64;"
+        />
+
+        <circle
+            cx={midline}
+            cy={directionWidgetOffsetFromRelationshipsTop}
+            r={32}
+        />
+    </g>
+
 
     <!-- Visual image of stem. -->
     <g
-        class="
-            stem-image
-            {!$reorderingInfoStore.reorderInProgress && (stemHovered || relationshipHovered || thingHovered) ? "hovered" : ""}
-            {stemClicked || isDragRelateSource ? "clicked" : ""}
-        "
+        class="stem-image"
         class:hidden={!showStem}
+        class:hovered={
+            !$reorderingInfoStore.reorderInProgress
+            && (stemHovered || relationshipHovered || thingHovered)
+        }
+        class:clicked={ stemClicked || isDragRelateSource}
+        class:thing-cohort-has-things={thingCohort.members.length}
+        class:popup-on-clade-hover={popupOnCladeHover}
     >
         <line
-            x1="{midline}" y1="{stemBottom}"
+            x1="{midline}" y1="{stemBottom - stemBottomOffsetFromThing}"
             x2="{midline}" y2="{stemTop + 6 / tweenedScale}"
             style="stroke-width: {10 / tweenedScale};"
         />
         <polygon
             points="
-                {midline - 5 / tweenedScale}, {stemTop + 8 / tweenedScale}
-                {midline + 5 / tweenedScale}, {stemTop + 8 / tweenedScale}
+                {midline - 8 / tweenedScale}, {stemTop + 13 / tweenedScale}
+                {midline + 8 / tweenedScale}, {stemTop + 13 / tweenedScale}
                 {midline}, {stemTop}
             "
             style="stroke-width: {3 / tweenedScale};"
         />
+
+        {#if
+            showDirectionCircle
+        }
+            <circle
+                cx={midline}
+                cy={directionWidgetOffsetFromRelationshipsTop}
+                r={32}
+            />
+        {/if}
     </g>
 
 </svg>
@@ -240,5 +287,13 @@
 
     .stem-image.clicked {
         opacity: 1.0;
+    }
+
+    .stem-image:not(.thing-cohort-has-things):not(.hovered) {
+        opacity: 0.1;
+    }
+
+    .stem-image.popup-on-clade-hover:not(.hovered) {
+        opacity: 0.5;
     }
 </style>

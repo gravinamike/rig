@@ -59,8 +59,6 @@
     class="sign-in"
     class:on-mobile={onMobile()}
 >
-    <h4>Sign in:</h4>
-
     <!-- Error message. -->
     {#if error}
         <p class="error">{error}</p>
@@ -83,29 +81,24 @@
         </div>
 
         <!-- Remember-user field. -->
-        <div>
+        <div class="remember-user-container">
             <label for="remember-user">Keep me logged in?</label>
             <input type="checkbox" id="remember-user" name="remember-user" bind:value={rememberUser} />
         </div>
         
         <!-- Submit button. -->
-        <input type='submit' value="Submit" />
+        <input id="submit" type='submit' value="Submit" />
     </form>
 </div>
 
 
 <style>
     .sign-in {
-        margin: 0.25rem;
+        margin: 1rem;
     }
 
     .sign-in.on-mobile {
         font-size: 0.8rem;
-    }
-
-    .sign-in.on-mobile h4 {
-        margin-top: 0.75rem;
-        margin-bottom: 0.75rem;
     }
 
     .error {
@@ -119,13 +112,36 @@
         display: flex;
         flex-direction: column;
         gap: 1rem;
+        align-items: center;
     }
 
     .sign-in.on-mobile form {
         gap: 0.5rem;
     }
 
+    .remember-user-container {
+        text-align: center;
+    }
+
     #username, #password {
         width: calc(100% - 0.5rem);
+    }
+
+    form div:not(.remember-user-container) {
+        width: 100%;
+
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    input {
+        outline: none;
+
+        accent-color: grey;
+    }
+
+    #submit {
+        width: 65px;
     }
 </style>

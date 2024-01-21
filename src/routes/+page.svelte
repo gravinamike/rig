@@ -10,7 +10,7 @@
     import { onMobile } from "$lib/shared/utility"
 
     // Import stores.
-    import { loadingState, perspectiveThingIdStore, userIdStore } from "$lib/stores"
+    import { defaultFontStore, graphBackgroundColorStore, loadingState, perspectiveThingIdStore, userIdStore } from "$lib/stores"
 
     // Import page controller.
     import PageController from "./controller.svelte"
@@ -19,7 +19,7 @@
     import { WaitingIndicator, ContextCommandPalette } from "$lib/widgets/layoutWidgets"
     import { LeftSideMenu } from "./leftSideMenu"
     import { 
-        NewFileWidget, RemoteRelatingWidget, ThingLinkingWidget,
+        NewFileWidget, DirectionDropdownWidget, RemoteRelatingWidget, ThingLinkingWidget,
         RelationshipReorderController, TextHyperlinkingWidget
     } from "$lib/widgets/dialogWidgets"
     import { GraphViewer } from "$lib/viewers/graphViewers"
@@ -102,6 +102,8 @@
     class:reorderColumn={reorderOrientation === "column"}
 
     bind:clientHeight={height}
+
+    style="font-family: {$defaultFontStore || "Arial"};"
     
     on:mousemove={handleMouseMove}
     on:touchmove={
@@ -120,7 +122,10 @@
             class:color={!graphBackgroundImageUrl}
             class:image={graphBackgroundImageUrl}
 
-            style={graphBackgroundImageUrl ? `background-image: url(${graphBackgroundImageUrl});` : ""}
+            style={
+                graphBackgroundImageUrl ? `background-image: url(${graphBackgroundImageUrl});` :
+                `background-color: ${$graphBackgroundColorStore};`
+            }
         />
     {/if}
     
@@ -139,6 +144,9 @@
     <!-- Front panes for Thing-linking and text-hyperlinking Widgets. -->
     <ThingLinkingWidget />
     <TextHyperlinkingWidget />
+
+    <!-- Dropdown menu for Direction-selecting widgets. -->
+    <DirectionDropdownWidget />
 
     <!-- Controller for Relationship-reorder operations. -->
     <RelationshipReorderController />
@@ -195,8 +203,6 @@
         flex-direction: row;
 
         overflow: hidden;
-
-        font-family: Arial;
     }
 
     :global(main.reorderRow *) {
@@ -216,10 +222,6 @@
     main.on-mobile .background {
         width: 100%;
         height: 100%;
-    }
-
-    .background.color {
-        background-color: #eef8ff;
     }
 
     .background.image {

@@ -34,7 +34,7 @@
                     tooltipText: "Developer menu"
                 } :
                 null,
-            $loadingState === "graphLoaded" ?
+            $loadingState === "graphLoaded" && $devMode ?
                 {
                     name: "Settings",
                     icon: "settings",

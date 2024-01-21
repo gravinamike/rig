@@ -20,7 +20,7 @@
 
     // Import associated widgets.
     import { XButton } from "$lib/widgets/layoutWidgets"
-    import { DirectionDropdownWidget } from "$lib/widgets/spaceWidgets"
+    import { DirectionWidget } from "$lib/widgets/spaceWidgets"
 
     // Import API methods.
     import { createNewRelationship } from "$lib/db/makeChanges"
@@ -242,33 +242,18 @@
             <div
                 class="direction-widget-container"
                 style="
-                    border-radius: 10px;
+                    border-radius: 50%;
                     {askingForDirection ? "box-shadow: 0 0 20px 10px whitesmoke;" : ""}
                 "
                 on:wheel|preventDefault
             >
-                <DirectionDropdownWidget
+                <DirectionWidget
                     startingDirection={direction}
                     {halfAxisId}
-                    {askingForDirection}
                     {graphWidgetStyle}
+                    {askingForDirection}
+                    forceFullyOpaque={true}
                     optionClickedFunction={(_, __, option) => {direction = option; $relationshipBeingCreatedInfoStore.selectedDirection = option}}
-                />
-            </div>
-        {/if}
-
-        <!-- Delete button. -->
-        {#if !onMobile() && askingForDirection}
-            <div
-                class="delete-button-container"
-                style="margin-left: -16px; margin-top: 1px; z-index: 1;"
-            >
-                <XButton
-                    size={15}
-                    buttonFunction={() => {
-                        disableRelationshipBeingCreated()
-                        disableRemoteRelating()
-                    } }
                 />
             </div>
         {/if}

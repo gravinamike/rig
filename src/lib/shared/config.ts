@@ -1,5 +1,5 @@
 // Import types.
-import { defaultUIBackgroundColor, defaultUITrimColor, defaultMobileMenuTrimColor, type AppConfig, type GraphConfig } from "$lib/shared/constants"
+import { defaultGraphBackgroundColor, type AppConfig, type GraphConfig, defaultUITrimColor } from "$lib/shared/constants"
 
 // Import basic framework resources.
 import { get } from "svelte/store"
@@ -7,7 +7,7 @@ import { get } from "svelte/store"
 // Import stores.
 import {
     readOnlyMode as readOnlyModeStore, perspectiveThingIdStore, leftSideMenuStore, rightSideMenuStore, notesEditorLockedStore,
-    homeThingIdStore, pinIdsStore, uIBackgroundColorStore, uITrimColorStore, mobileMenuTrimColorStore, graphBackgroundImageStore, notesBackgroundImageStore, hideMenusStore, notesToolbarExpandedStore,
+    homeThingIdStore, pinIdsStore, uITrimColorStore, mobileMenuTrimColorStore, graphBackgroundImageStore, notesBackgroundImageStore, defaultFontStore, titleFontStore, hideMenusStore, titleFontWeightStore, graphBackgroundColorStore,
 } from "$lib/stores"
 
 // Import API methods.
@@ -15,7 +15,6 @@ import { getAppConfig, getGraphConfig } from "$lib/db"
 import {
     setDbPort, setGraphsBaseFolder, saveAppConfig as apiSaveAppConfig, saveGraphConfig as apiSaveGraphConfig
 } from "$lib/db/makeChanges"
-import { stringRepresentsHexColor } from "./utility"
 
 
 /**
@@ -47,29 +46,31 @@ export async function storeGraphConfig(pThingId: number | null = null): Promise<
 
     // Set front-end stores.
     uITrimColorStore.set(
-        graphConfig.uITrimColor && stringRepresentsHexColor(graphConfig.uITrimColor) ? graphConfig.uITrimColor :
-        defaultUITrimColor
-    )
-    mobileMenuTrimColorStore.set(
-        graphConfig.mobileMenuTrimColor && stringRepresentsHexColor(graphConfig.mobileMenuTrimColor) ? graphConfig.mobileMenuTrimColor :
-        defaultMobileMenuTrimColor
-    )
-    uIBackgroundColorStore.set(
-        graphConfig.uIBackgroundColor && stringRepresentsHexColor(graphConfig.uIBackgroundColor) ? graphConfig.uIBackgroundColor :
-        defaultUIBackgroundColor
+        graphConfig.uITrimColor || defaultUITrimColor
     )
     graphBackgroundImageStore.set(
         graphConfig.graphBackgroundImage || null
     )
+    graphBackgroundColorStore.set(
+        graphConfig.graphBackgroundColor || defaultGraphBackgroundColor
+    )
     notesBackgroundImageStore.set(
         graphConfig.notesBackgroundImage || null
+    )
+    defaultFontStore.set(
+        graphConfig.defaultFont || null
+    )
+    titleFontStore.set(
+        graphConfig.titleFont || null
+    )
+    titleFontWeightStore.set(
+        graphConfig.titleFontWeight || null
     )
     readOnlyModeStore.set(graphConfig.readOnlyMode)
     hideMenusStore.set(graphConfig.hideMenus)
     leftSideMenuStore.set(graphConfig.leftSideMenu)
     rightSideMenuStore.set(graphConfig.rightSideMenu)
     notesEditorLockedStore.set(graphConfig.notesEditorLocked)
-    notesToolbarExpandedStore.set(graphConfig.notesToolbarExpanded)
     homeThingIdStore.set(graphConfig.homeThingId)
     pinIdsStore.set(graphConfig.pinIds)
     perspectiveThingIdStore.set(
@@ -98,16 +99,18 @@ export async function saveAppConfig(): Promise<void> {
 export async function saveGraphConfig(): Promise<void> {
     // Retrieve config info from the stores.
     const uITrimColor = get(uITrimColorStore)
-    const uIBackgroundColor = get(uIBackgroundColorStore)
     const mobileMenuTrimColor = get(mobileMenuTrimColorStore)
+    const graphBackgroundColor = get(graphBackgroundColorStore)
     const graphBackgroundImage = get(graphBackgroundImageStore)
     const notesBackgroundImage = get(notesBackgroundImageStore)
+    const defaultFont = get(defaultFontStore)
+    const titleFont = get(titleFontStore)
+    const titleFontWeight = get(titleFontWeightStore)
     const readOnlyMode = get(readOnlyModeStore)
     const hideMenus = get(hideMenusStore)
     const leftSideMenu = get(leftSideMenuStore)
     const rightSideMenu = get(rightSideMenuStore)
     const notesEditorLocked = get(notesEditorLockedStore)
-    const notesToolbarExpanded = get(notesToolbarExpandedStore)
     const homeThingId = get(homeThingIdStore)
     const pinIdsStoreValue = get(pinIdsStore)
     const lastPerspectiveThingId = get(perspectiveThingIdStore)
@@ -115,16 +118,18 @@ export async function saveGraphConfig(): Promise<void> {
     // Create a Graph config object to save.
     const graphConfig = {
         uITrimColor: uITrimColor,
-        uIBackgroundColor: uIBackgroundColor,
         mobileMenuTrimColor: mobileMenuTrimColor,
+        graphBackgroundColor: graphBackgroundColor,
         graphBackgroundImage: graphBackgroundImage,
         notesBackgroundImage: notesBackgroundImage,
+        defaultFont: defaultFont,
+        titleFont: titleFont,
+        titleFontWeight: titleFontWeight,
         readOnlyMode: readOnlyMode,
         hideMenus: hideMenus,
         leftSideMenu: leftSideMenu,
         rightSideMenu: rightSideMenu,
         notesEditorLocked: notesEditorLocked,
-        notesToolbarExpanded: notesToolbarExpanded,
         homeThingId: homeThingId,
         pinIds: pinIdsStoreValue,
         perspectiveThingId: lastPerspectiveThingId

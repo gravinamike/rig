@@ -9,7 +9,8 @@
 
     // Import related widgets.
     import { Arrow } from "$lib/widgets/layoutWidgets"
-    import { DirectionDropdownWidget } from "$lib/widgets/spaceWidgets"
+    import { DirectionWidget } from "$lib/widgets/spaceWidgets"
+    import { TextFittingDiv } from "$lib/widgets/layoutWidgets"
 
 
     export let direction: Direction | null
@@ -19,7 +20,7 @@
     export let opposite: boolean
     export let displayMode: "full" | "small"
     export let interactionMode: "display" | "editing" | "create"
-    export let oppositeDirectionInForm: Direction | null = null
+    export let directionInForm: Direction | null = null
     export let graphWidgetStyle: GraphWidgetStyle
     export let directionNameInput: HTMLInputElement | null = null
     export let objectNameInput: HTMLInputElement | null = null
@@ -39,12 +40,16 @@
     <div
         class="container"
 
-        style="{opposite ? "order: 2;" : ""}"
+        style="
+            {opposite ? "order: 2;" : ""}
+            height: 20px;
+        "
     >
         <!-- Arrow. -->
         <div
             style="
                 opacity: {displayMode === "small" ? 0.66 : 1};
+                overflow: visible;
             "
         >
             <Arrow
@@ -57,27 +62,43 @@
         </div>
 
         <!-- Text. -->
-        <div class="floating-text">
+        <div
+            class="floating-text"
+
+            style={
+                opposite ? "margin-left: 12px; width: 85%;" :
+                "margin-left: 3px; width: 85%;"
+            }
+        >
             {#if interactionMode === "display"}
-                {direction?.text}
+                <TextFittingDiv
+                    text={direction?.text || ""}
+                    defaultFontSize={12}
+                    defaultFontWeight={400}
+                />
             {:else}
                 {#if opposite}
-                    <DirectionDropdownWidget
-                        startingDirection={oppositeDirectionInForm}
-                        halfAxisId={0}
-                        {graphWidgetStyle}
-                        fontSize={10}
-                        optionClickedFunction={ (option) => {
-                            oppositeDirectionInForm = option
-                            if (option) direction = option
-                        } }
-                        optionHoveredFunction={ async (_, option) => {
-                            oppositeDirectionInForm = option
-                        } }
-                        exitOptionHoveredFunction={ async () => {
-                            oppositeDirectionInForm = direction
-                        } }
-                    />
+                    <div style="width: 100%; height: 100%; margin-bottom: 1px;">
+                        <DirectionWidget
+                            startingDirection={directionInForm}
+                            halfAxisId={0}
+                            {graphWidgetStyle}
+                            height={18}
+                            fontSize={10}
+                            circularOrRectangular={"rectangular"}
+                            forceFullyOpaque={true}
+                            optionClickedFunction={ (option) => {
+                                directionInForm = option
+                                if (option) direction = option
+                            } }
+                            optionHoveredFunction={ async () => {
+                                
+                            } }
+                            exitOptionHoveredFunction={ async () => {
+                                
+                            } }
+                        />
+                    </div>
                 {:else}
                     <input
                         type="text"
@@ -104,7 +125,11 @@
         <!-- Text. -->
         <div class="floating-text">
             {#if interactionMode === "display" || opposite}
-                {direction?.nameforobjects || ""}
+                <TextFittingDiv
+                    text={direction?.nameforobjects || ""}
+                    defaultFontSize={12}
+                    defaultFontWeight={400}
+                />
             {:else}
                 <input
                     type="text"
@@ -125,7 +150,7 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        gap: 5px;
+        gap: 2px;
     }
 
     .horizontal {
@@ -143,18 +168,22 @@
     }
 
     input {
-        border: none;
+        outline: none;
+        border: solid 1px silver;
+        border-style: inset;
+        border-radius: 3px;
 
         width: 75%;
         background-color: transparent;
 
         text-align: center;
 
-        font-size: 0.5rem;
+        font-size: 0.75rem;
     }
 
     .object {
         border-radius: 5px;
+        box-shadow: 1px 1px 1px 0.5px silver;
 
         background-color: white;
     }

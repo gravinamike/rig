@@ -8,6 +8,7 @@
     export let thingHeight: number
     export let encapsulatingDepth: number
     export let trashIcon = false
+    export let distanceFromTop = 3
     export let tooltipText: string | null = null
     export let startDelete: () => void
     export let completeDelete: () => void
@@ -16,7 +17,12 @@
 
 {#if showDeleteButton}
 
-    <div class="delete-button-container">
+    <div
+        class="delete-button-container"
+        style="
+            top: {distanceFromTop}px;
+        "
+    >
         <XButton
             buttonFunction={startDelete}
             {trashIcon}
@@ -42,8 +48,9 @@
 <style>
     .delete-button-container {
         position: absolute;
-        top: 3px;
         right: 3px;
         z-index: 1;
+
+        font-family: "Arial";
     }
 </style>

@@ -70,6 +70,9 @@
     }
 
     .tabs-container {
+        box-shadow: 0 0 2px 1px silver;
+        border-radius: 5px;
+
         width: 100%;
         height: 100%;
         

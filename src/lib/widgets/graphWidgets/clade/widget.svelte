@@ -12,26 +12,27 @@
     
 
     /**
-     * @param rootThing - The Thing that forms the root of the Clade.
      * @param graph - The Graph that the Clade is in.
      * @param graphWidgetStyle - Controls the style of the Graph widget.
-     * @param perspectiveTexts - Object containing texts for Things rendered from the root Thing's Perspective.
+     * @param parentThingCohortRowOrColumn - Whether the Clade's parent Thing Cohort is arranged as a row or column.
+     * @param parentThingCohortMemberOnTopIndex - The index of the member of the parent Thing Cohort that is visually on top.
+     * @param rootThing - The Thing that forms the root of the Clade.
      * @param rootThingThingCohortMembers - Array containing all members of the Thing Cohort containing the root Thing.
      * @param rootThingThingCohortExpanded - Whether the Thing Cohort this is part of is expanded or collapsed.
      * @param thingOverlapMargin - The amount to overlap sibling Things (in pixels) if the overlap percentage is negative.
-     * @param parentThingCohortRowOrColumn - Whether the Clade's parent Thing Cohort is arranged as a row or column.
+     * @param perspectiveTexts - The Perspective-specific texts of the Clade's child Things.
      * @param getThingOverlapMarginStyleText - Function to get the style text to implement the desired overlap between sibling Things.
      * @param rePerspectToThingId - A function that re-perspects the Graph to a given Thing ID.
      */
-    export let rootThing: Thing
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
-    export let perspectiveTexts: {[thingId: string]: string}
+    export let parentThingCohortRowOrColumn: "row" | "column"
+    export let parentThingCohortMemberOnTopIndex: number
+    export let rootThing: Thing
     export let rootThingThingCohortMembers: GenerationMember[]
     export let rootThingThingCohortExpanded: boolean
     export let thingOverlapMargin: number
-    export let parentThingCohortRowOrColumn: "row" | "column"
-    export let parentThingCohortMemberOnTopIndex: number
+    export let perspectiveTexts: {[thingId: string]: string}
     export let getThingOverlapMarginStyleText: (
         thing: Thing,
         thingOverlapMargin: number,
@@ -46,6 +47,10 @@
     let overlapMarginStyleText = ""
     let rootThingOffsetFromCenterOfThingCohort: number
     let showAsCollapsed: boolean
+    let hoveredForHalfSecond: boolean
+    let forceShowHalfAxisWidgets: boolean
+    let trackTimeHovered: (initialize?: boolean, increment?: number) => void = () => {}
+    let stopTrackingTimeHovered: () => void = () => {}
 
     // Attributes managed by sub-widgets.
     let rootThingWidth: number = 0
@@ -55,6 +60,7 @@
 
 <!-- Widget controller. -->
 <CladeWidgetController
+    {graph}
     {thingOverlapMargin}
     {parentThingCohortRowOrColumn}
     {getThingOverlapMarginStyleText}
@@ -69,6 +75,10 @@
     bind:rootThingOffsetFromCenterOfThingCohort
     bind:cartesianThingCohorts
     bind:showAsCollapsed
+    bind:hoveredForHalfSecond
+    bind:forceShowHalfAxisWidgets
+    bind:trackTimeHovered
+    bind:stopTrackingTimeHovered
 />
 
 
@@ -79,9 +89,13 @@
 
     style="{overlapMarginStyleText}"
 
-    on:mouseenter={() => {parentThingCohortMemberOnTopIndex = rootThing.address?.indexInCohort || 0}}
+    on:mouseenter={async () => {
+        parentThingCohortMemberOnTopIndex = rootThing.address?.indexInCohort || 0
+        trackTimeHovered(true)
+    }}
+    
+    on:mouseleave={stopTrackingTimeHovered}
 >
-
     <!-- If the root Thing is specified, show a Thing Widget. -->
     {#if rootThing?.id}
         <ThingWidget
@@ -108,18 +122,24 @@
 
     <!-- The Thing's child Thing and Relationship Cohorts. -->
     {#each cartesianThingCohorts as thingCohort (thingCohort.address)}
-        <!-- Half-axis widget. -->
-        <HalfAxisWidget
-            {thingCohort}
-            bind:graph
-            {graphWidgetStyle}
-            {rootThingWidth}
-            {rootThingHeight}
-            parentThingCohortExpanded={rootThingThingCohortExpanded}
-            parentCladeOffsetFromCenterOfThingCohort={rootThingOffsetFromCenterOfThingCohort}
-            bind:perspectiveTexts
-            {rePerspectToThingId}
-        />
+        {#if
+            forceShowHalfAxisWidgets
+            || thingCohort.members.length !== 0
+        }
+            <!-- Half-axis widget. -->
+            <HalfAxisWidget
+                {thingCohort}
+                bind:graph
+                {graphWidgetStyle}
+                {rootThingWidth}
+                {rootThingHeight}
+                parentThingCohortExpanded={rootThingThingCohortExpanded}
+                parentCladeOffsetFromCenterOfThingCohort={rootThingOffsetFromCenterOfThingCohort}
+                bind:perspectiveTexts
+                cladeHovered={hoveredForHalfSecond}
+                {rePerspectToThingId}
+            />
+        {/if}
     {/each}
 
     <!--- Off-axis relations widget. -->

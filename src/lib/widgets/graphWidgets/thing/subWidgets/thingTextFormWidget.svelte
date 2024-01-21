@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { titleFontStore, titleFontWeightStore } from "$lib/stores";
+
     // Import related widgets.
     import { XButton } from "$lib/widgets/layoutWidgets"
 
@@ -40,7 +42,11 @@
             rows=3
             placeholder="Enter Perspective text"
 
-            style="font-size: {perspectiveText && perspectiveText.length > 0 ? fontSize : 14}px;"
+            style="
+                font-family: {$titleFontStore || "Arial"};
+                font-weight: {$titleFontWeightStore ?? 600};
+                font-size: {perspectiveText && perspectiveText.length > 0 ? fontSize : 14}px;
+            "
 
             on:mousemove|stopPropagation
             on:touchmove|stopPropagation
@@ -54,7 +60,11 @@
             rows=3
             placeholder="Enter text"
 
-            style="font-size: {text && text.length > 0 ? fontSize : 14}px;"
+            style="
+                font-family: {$titleFontStore || "Arial"};
+                font-size: {text && text.length > 0 ? fontSize : 14}px;
+                font-weight: {$titleFontWeightStore ?? 600};
+            "
 
             on:mousemove|stopPropagation
             on:touchmove|stopPropagation
@@ -96,8 +106,6 @@
         height: 75%;
 
         scrollbar-width: thin;
-
-        font-family: Arial;
 
         resize: none;
         pointer-events: auto;

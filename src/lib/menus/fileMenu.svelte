@@ -1,6 +1,6 @@
 <script lang="ts">
     import { onMount } from "svelte"
-    import { graphFoldersStore, refreshGraphFoldersStore, enableNewFileCreation, openGraphStore, uIBackgroundColorStore, uITrimColorStore, userIdStore } from "$lib/stores"
+    import { graphFoldersStore, refreshGraphFoldersStore, enableNewFileCreation, openGraphStore, uIBackgroundColorStore, uITrimColorStore, userIdStore, uIHeaderColorStore, lightenOrDarkenColorString } from "$lib/stores"
     import { openGraphFile } from "$lib/shared/unigraph"
     import { onMobile } from "$lib/shared/utility"
     import type { Graph } from "$lib/models/constructModels"
@@ -16,6 +16,10 @@
         Object.entries($graphFoldersStore).sort(
             (a, b) => (a[0] === "all" ? 1 : 0) - (b[0] === "all" ? 1 : 0)
         )
+
+    const highlightedColor = lightenOrDarkenColorString($uITrimColorStore, "lighter", 50)
+    let hoveredEntryUsernameAndFolder: string | null = null
+
 
     onMount(async () => {
         await refreshGraphFoldersStore($userIdStore)
@@ -38,27 +42,58 @@
         <div class="graph-folder-buttons">
             {#each graphFoldersByUsername as [username, folders]}
                 <div class="user-block">
-                    <div class="username">
+                    <div
+                        class="username"
+
+                        style="background-color: {$uIHeaderColorStore};"
+                    >
                         {username === "all" ? "Common Graphs": `${username}'s Graphs:`}:
                     </div>
     
                     {#each folders as folder}
                         <div
-                            class="button graph-folder-button { folder === $openGraphStore ? "opened" : "" }"
+                            class="button graph-folder-button {
+                                `${username}/${folder}` === $openGraphStore ? "opened" : ""
+                            }"
+
+                            style= {
+                                `${username}/${folder}` === hoveredEntryUsernameAndFolder ?
+                                    `background-color: ${highlightedColor};` :
+                                    ""
+                            }
+
+                            on:mouseenter={() => {hoveredEntryUsernameAndFolder = `${username}/${folder}`}}
+                            on:mouseleave={() => {hoveredEntryUsernameAndFolder = null }}
                             on:click={() => {graph = null; openGraphFile(username, folder, null, true)}}
                             on:keydown={()=>{}}
                         >
+                            <img
+                                src="./icons/rig.png"
+                                alt="Rig file icon"
+                                width=16px
+                                height=16px
+                            >
                             {folder}
                         </div>
                     {/each}
     
                     <div
                         class="button new-graph-button"
-                        style={ $graphFoldersStore.length ? "margin-top: 25px;" : ""}
+
+                        style="
+                            {
+                                `${username}//new-graph` === hoveredEntryUsernameAndFolder ?
+                                    `background-color: ${highlightedColor};` :
+                                    ""
+                            }
+                        "
+
+                        on:mouseenter={() => {hoveredEntryUsernameAndFolder = `${username}//new-graph`}}
+                        on:mouseleave={() => {hoveredEntryUsernameAndFolder = null }}
                         on:click={() => enableNewFileCreation(username)}
                         on:keydown={()=>{}}
                     >
-                        <strong>+</strong>&nbsp;&nbsp;&nbsp;New Graph
+                        <strong>+</strong>&nbsp;New Graph
                     </div>
                 </div>
             {/each}
@@ -84,7 +119,7 @@
 
         display: flex;
         flex-direction: column;
-        padding: 0.5rem 1rem 0.5rem 1rem;
+        padding: 1rem 0rem 0.25rem 0rem;
         gap: 2rem;
         
         text-align: center;
@@ -96,15 +131,16 @@
     }
 
     .user-block {
-        margin: 1rem 0 1rem 0;
-
         display: flex;
         flex-direction: column;
-        gap: 0.25rem;
+        padding: 0.25rem;
     }
 
     .username {
         margin-bottom: 0.5rem;
+
+        padding: 0.25rem 0.5rem 0.25rem 0.5rem;
+
         text-align: left;
         font-weight: 600;
     }
@@ -114,7 +150,7 @@
         
         display: flex;
         flex-direction: column;
-        gap: 0.25rem;
+        gap: 1rem;
 
         font-size: 0.85rem;
 
@@ -128,11 +164,12 @@
     }
 
     .button {
-        border-radius: 15px;
-        outline: solid 1px lightgrey;
-        outline-offset: -1px;
-
-        padding: 0.5rem 0.5rem 0.5rem 0.75rem;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 0.5rem;
+        gap: 0.4rem;
 
         cursor: pointer;
     }
@@ -141,25 +178,22 @@
         padding: 0.25rem 0.25rem 0.25rem 0.5rem;
     }
 
-    .button:hover {
-        background-color: gainsboro;
-    }
-
-    .button:active {
-        background-color: silver;
-    }
-
     .graph-folder-button {
         text-align: left;
     }
 
     .graph-folder-button.opened {
-        background-color: lightgrey;
+        border-radius: 3px;
+        box-shadow: 1px 1px 2px 1px silver;
+
+        z-index: 1;
 
         pointer-events: none;
     }
 
     .new-graph-button {
+        padding: 0.5rem 0.5rem 0.5rem 11px;
+
         color: grey;
         font-style: italic;
     }

@@ -34,7 +34,7 @@
     class="sign-out"
     class:on-mobile={onMobile()}
 >
-    <h4>You are signed in as: {$userIdStore}</h4>
+    <h4>User: {$userIdStore}</h4>
 
     <!-- Sign-up form. -->
     <form

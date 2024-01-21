@@ -392,7 +392,8 @@
         const descendantThingElements = descendants.filter(
             element => {
                 if (typeof element.className === "string") return (
-                    element.className.includes("thing-widget")
+                    element.className.includes("perspective-reticle")
+                    || element.className.includes("thing-widget")
                     || element.className.includes("direction-widget")
                     || element.className.includes("off-axis-relations-widget")
                 )

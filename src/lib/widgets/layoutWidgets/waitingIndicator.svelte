@@ -37,6 +37,7 @@
         display: flex;
         flex-direction: row;
         gap: 10px;
+        align-items: center;
     }
 
     .spinner {        
@@ -68,6 +69,7 @@
     }
 
     .text {
-        font-size: 1.5rem;
+        font-size: 1rem;
+        font-weight: 600;
     }
 </style>

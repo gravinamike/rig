@@ -11,7 +11,7 @@
     import RelationshipCohortWidgetController from "./controller.svelte"
 
     // Import related widgets.
-    import { DirectionDropdownWidget } from "$lib/widgets/spaceWidgets"
+    import { DirectionWidget } from "$lib/widgets/spaceWidgets"
 
 
     export let thingCohort: ThingCohort
@@ -74,12 +74,12 @@
         style="transform: rotate({directionWidgetRotation}deg) translate(-{directionWidgetTranslation}px, 0px);"
     >
         {#if direction}
-            <DirectionDropdownWidget
+            <DirectionWidget
                 startingDirection={direction}
                 {halfAxisId}
                 {graphWidgetStyle}
                 interactionDisabled={true}
-                optionClickedFunction={(_, __, ___) => {/* Placeholder. */}}
+                optionClickedFunction={(_, __, ___) => {}}
             />
         {/if}
     </div>

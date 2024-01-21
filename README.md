@@ -32,7 +32,7 @@ Rig can be installed on a web server as a regular website (Linux is best), or it
 
 ### Installation
 
-After cloning the site, run `npm i` to install dependencies and `npm run build` to build.
+After cloning the Git repository, run `npm i` to install dependencies and `npm run build` to build.
 
 
 ### Setting up Java
@@ -47,7 +47,7 @@ The top-level folder of the repository contains a file named `env_template`. Cop
 
 ### Setting up the authentication database
 
-The /static/auth folder contains a file named `authentication_template.db. Copy and paste it without the "_template" to create the database file that's necessary for user authentication.
+The /static/auth folder contains a file named `authentication_template.db`. Copy and paste it without the "_template" to create the database file that's necessary for user authentication.
 
 
 ### Setting up the config files

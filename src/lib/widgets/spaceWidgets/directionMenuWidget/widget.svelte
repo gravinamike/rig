@@ -30,9 +30,11 @@
     export let halfAxisId: HalfAxisId | null = null
     export let editable = true
     export let forceExpanded = false
+    export let showBackground = true
+    export let showDirectionIcon = false
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
-    export let buttonToShow: "expand" | "edit"
+    export let buttonToShow: "expand" | "edit" | null = null
     export let buttonOnWhichSide: "left" | "right"
     export let parentScrollArea: HTMLElement | null = null
     export let removeDirectionForm: () => void = () => {}
@@ -57,7 +59,7 @@
     $: oppositeDirection =
         direction?.oppositeid ? getGraphConstructs("Direction", direction.oppositeid) as Direction | null :
         null
-    $: oppositeDirectionInForm = oppositeDirection
+    let oppositeDirectionInForm = oppositeDirection
 
     // Attributes controlling visual appearance of widget.
     const directionHeight = 20
@@ -224,6 +226,7 @@
         }
     }
 
+    
 </script>
 
 
@@ -239,10 +242,10 @@
 <!-- Direction widget. -->
 <div
     class="direction-widget container horizontal"
+    class:show-background={showBackground}
     class:on-mobile={onMobile()}
     class:editing={interactionMode === "editing"}
     class:create={interactionMode === "create"}
-    style={`align-items: ${buttonToShow === "expand" ? "flex-start" : "flex-end"};`}
 
     bind:this={directionWidget}
     bind:clientWidth={directionWidgetWidth}
@@ -257,6 +260,26 @@
         if (!$readOnlyMode && interactionMode === "display" && editable && !confirmDeleteBoxOpen) handleButton()
     }}
 >
+    <!-- Direction icon. -->
+    {#if showDirectionIcon}
+        <div
+            class="direction-icon-container"
+
+            style="transform: rotate({
+                halfAxisId === null ? 0 :
+                halfAxisId === 1 ? 90 :
+                halfAxisId === 3 ? 0 :
+                45
+            }deg);"
+        >
+            <img
+                src="./icons/direction.png"
+                alt="Direction icon"
+                width=20px
+                height=20px
+            >
+        </div>
+    {/if}
 
     <!-- Arrows and object boxes container. -->
     <div
@@ -280,76 +303,80 @@
         />
         
         <!-- Opposite Direction -->
-        {#if (oppositeDirection || interactionMode === "editing") && !(oppositeDisplayMode === "none")}
-            <VerbAndObject
-                direction={oppositeDirection}
-                {halfAxisId}
-                verbAndObjectWidth={arrowAndBoxWidth}
-                verbAndObjectHeight={directionHeight}
-                opposite={true}
-                displayMode={"small"} 
-                {interactionMode}
-                bind:oppositeDirectionInForm
-                {graphWidgetStyle}
-            />
+        {#if (
+            oppositeDirection
+            || interactionMode === "editing"
+            || interactionMode === "display"
+        ) && !(oppositeDisplayMode === "none")}
+            <div class="opposite-container">
+                <VerbAndObject
+                    bind:direction={oppositeDirection}
+                    {halfAxisId}
+                    verbAndObjectWidth={arrowAndBoxWidth}
+                    verbAndObjectHeight={directionHeight}
+                    opposite={true}
+                    displayMode={"small"} 
+                    {interactionMode}
+                    bind:directionInForm={oppositeDirectionInForm}
+                    {graphWidgetStyle}
+                />
+            </div>
         {/if}
     </div>
         
-    <div
-        class="container vertical"
 
-        style={buttonOnWhichSide === "left" ? "order: 0;" : "order: 1;"}
-    >
-        <!-- Expand button. -->
+    <!-- Expand button. -->
+    {#if
+        buttonToShow === "expand"
+        && isHovered
+        && !(
+            interactionMode === "editing"
+            || interactionMode === "create"
+        )
+    }
+        <div class="container button-container">
+            <button
+                class="button"
+                tabindex=0
+
+                on:click|stopPropagation={() => expanded = !expanded}
+            >
+                ▼
+            </button>
+        </div>
+    {/if}
+
+    <!-- Edit button. -->
+    {#if !$readOnlyMode}
+
+        
         {#if
-            buttonToShow === "expand"
-            && isHovered
-            && !(
-                interactionMode === "editing"
+            buttonToShow === "edit"
+            && editable
+            && (
+                isHovered
+                || interactionMode === "editing"
                 || interactionMode === "create"
             )
+            && !confirmDeleteBoxOpen
         }
-            <div class="container button-container">
-                <button
-                    class="button"
-                    tabindex=0
-
-                    on:click|stopPropagation={() => expanded = !expanded}
-                >
-                    ▼
-                </button>
+            <div
+                class="container button-container"
+                class:editing={interactionMode === "editing"}
+            >
+                <EditButton
+                    {interactionMode}
+                    tooltipText={
+                        interactionMode === "display" ? "Edit Direction." :
+                        interactionMode === "editing" ? "Submit changes to Direction." :
+                        "Create Direction."
+                    }
+                    onClick={handleButton}
+                />
             </div>
         {/if}
 
-        <!-- Edit button. -->
-        {#if !$readOnlyMode}
-
-            
-            {#if
-                buttonToShow === "edit"
-                && editable
-                && (
-                    isHovered
-                    || interactionMode === "editing"
-                    || interactionMode === "create"
-                )
-                && !confirmDeleteBoxOpen
-            }
-                <div class="container button-container">
-                    <EditButton
-                        {interactionMode}
-                        tooltipText={
-                            interactionMode === "display" ? "Edit Direction." :
-                            interactionMode === "editing" ? "Submit Direction." :
-                            "Create Direction"
-                        }
-                        onClick={handleButton}
-                    />
-                </div>
-            {/if}
-
-        {/if}
-    </div>
+    {/if}
 
     <!-- Delete-Space widget. -->
     {#if editable}
@@ -381,14 +408,20 @@
 
 <style>
     .direction-widget {
-        border-radius: 5px;
-        padding: 0.25rem;
+        position: relative;
 
-        background-color: rgb(244, 244, 244);
-
-        font-size: 0.5rem;
+        font-size: 0.65rem;
 
         cursor: default;
+    }
+
+    .direction-widget.show-background {
+        border-radius: 5px;
+        box-shadow: 1px 1px 2px 1px silver;
+
+        padding: 0.5rem 0.25rem 0.5rem 0.25rem;
+
+        background-color: rgb(244, 244, 244);
     }
 
     .direction-widget.editing, .direction-widget.create {
@@ -397,13 +430,19 @@
         z-index: 1;
     }
 
+    .direction-icon-container {
+        width: 20px;
+        height: 20px;
+    }
+
     .container {
         position: relative;
 
         display: flex;
         justify-content: space-between;
         align-items: center;
-        gap: 5px;
+
+        overflow: visible;
     }
 
     .horizontal {
@@ -412,15 +451,29 @@
 
     .vertical {
         flex-direction: column;
+        gap: 2px;
     }
 
     .arrows-and-boxes {
         flex: 1 1 0;
     }
 
+    .opposite-container {
+        opacity: 50%;
+    }
+
     .button-container {
+        margin-top: 22px;
+        margin-right: 2px;
+
         width: 15px;
         height: 15px;
+    }
+
+    .button-container:not(.editing) {
+        position: absolute;
+        right: 4px;
+        bottom: 6px;
     }
 
     .button {

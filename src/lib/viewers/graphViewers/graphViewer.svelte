@@ -18,7 +18,13 @@
         perspectiveSpaceIdStore,
         landscapeOrientation,
         uITrimColorStore,
-        homeThingIdStore
+        homeThingIdStore,
+
+        graphBackgroundImageStore,
+
+        uIHeaderColorStore
+
+
     } from "$lib/stores"
 
     // Import layout elements.
@@ -127,7 +133,7 @@
         const selectedHistoryThingId = graph.history.entryAtPosition.thingId
         
         if (
-            !rePerspectInProgressThingId
+            !graph.rePerspectInProgressThingId
             && selectedHistoryThingId !== graph.pThingIds[0]
         ) rePerspectToThingId(selectedHistoryThingId, false, false)
     }
@@ -175,7 +181,7 @@
     }
 
     // This indicates whether a re-Perspect operation is in progress but not yet completed.
-    let rePerspectInProgressThingId: number | null = null
+    //let rePerspectInProgressThingId: number | null = null
 
     /**
      * Re-Perspect-to-Thing-ID method.
@@ -186,7 +192,7 @@
     rePerspectToThingId = async (thingId: number, updateHistory=true, zoomAndScroll=true) => {
         if (graph) {
             // Record that this re-Perspect operation is in progress.
-            rePerspectInProgressThingId = thingId
+            graph.rePerspectInProgressThingId = thingId
 
             // If the new Perspective Thing is already in the Graph, scroll to center it.
             allowScrollToThingId = true
@@ -219,7 +225,7 @@
             saveGraphConfig()
 
             // Record that the re-Perspect operation is finished.
-            rePerspectInProgressThingId = null
+            graph.rePerspectInProgressThingId = null
         }
     }
 
@@ -364,8 +370,9 @@
     <!-- Home/back/forward buttons. -->
     <div
         class="nav-buttons"
+        class:graph-background-image={$graphBackgroundImageStore !== null}
 
-        style="background-color: {$uITrimColorStore};"
+        style="border-right: solid 1px {$uIHeaderColorStore}; background-color: {$uITrimColorStore};"
     >
         <div
             class="nav-button"
@@ -373,8 +380,8 @@
             on:click={forward}
             on:keydown={()=>{}}
         >
-            <svg style="transform: rotate(180deg);">
-                <polygon points="6,9 19,9 12.5,19" />
+            <svg>
+                <polygon points="9,6 9,19 19,12.5" />
             </svg>
 
             <Tooltip
@@ -390,8 +397,8 @@
             on:click={back}
             on:keydown={()=>{}}
         >
-            <svg>
-                <polygon points="6,9 19,9 12.5,19" />
+            <svg style="transform: rotate(180deg);">
+                <polygon points="9,6 9,19 19,12.5" />
             </svg>
 
             <Tooltip
@@ -445,17 +452,22 @@
     }
 
     .nav-buttons {
+        box-shadow: 3px 2px 2px 0px rgb(220, 220, 220);
         border-radius: 0 16px 0 0;
 
         position: absolute;
-        left: 0;
+        left: -1px;
         bottom: 0;
-        z-index: 1;
+        z-index: 100;
 
         display: flex;
         flex-direction: column;
         padding: 5px 5px 8px 3px;
         gap: 8px;
+    }
+
+    .nav-buttons.graph-background-image {
+        box-shadow: 2px 2px 2px 0px rgb(160, 160, 160);
     }
 
     .nav-button {

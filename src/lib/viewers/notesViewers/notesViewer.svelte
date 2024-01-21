@@ -11,7 +11,7 @@
 
     // Import stores.
     import {
-        landscapeOrientation, notesBackgroundImageStore, notesEditorLockedStore, readOnlyMode, storeGraphDbModels, uITrimColorStore, updateNoteSearchListStore
+        landscapeOrientation, notesBackgroundImageStore, notesEditorLockedStore, readOnlyMode, storeGraphDbModels, titleFontStore, titleFontWeightStore, uITrimColorStore, updateNoteSearchListStore
     } from "$lib/stores"
 
     // Import utility functions.
@@ -538,9 +538,11 @@
 
                 ""
             }
+            font-family: {$titleFontStore ?? "Arial"};
+            font-weight: {$titleFontWeightStore ?? 600};
         "
     >
-        <h2>{title}</h2>
+        <div>{title}</div>
     </div>
 
     <!-- Container to hold either Note display or Note editor. -->
@@ -620,8 +622,8 @@
                     showEditingLockedIcon ? "./icons/lock-edit.png" : "./icons/edit.png" }
                 alt={
                     showEditingLockedIcon ? "Lock Notes in editing mode" : "Edit Notes" }
-                width=20px
-                height=20px
+                width=28px
+                height=28px
             >
 
             <Tooltip
@@ -663,8 +665,8 @@
 
 		box-sizing: border-box;
         position: absolute;
-        bottom: 0.75rem;
-        right: 1rem;
+        bottom: 21px;
+        right: 20px;
         opacity: 0.25;
 
 		display: flex;
@@ -679,16 +681,11 @@
         outline: solid 1px lightgrey;
 		outline-offset: -1px;
 
-        right: 0.9rem;
-        bottom: 1rem;
+        right: 20px;
+        bottom: 21px;
 
         background-color: white;
         opacity: 1;
-    }
-
-    .edit-button.editing.on-mobile {
-        right: 0.65rem;
-        bottom: 0.85rem;
     }
 
     .edit-button:hover {
@@ -709,9 +706,11 @@
         align-items: center;
     }
 
-    h2 {
+    .title div {
         margin: 0;
+
         text-align: left;
+        font-size: 1.5rem;
         line-height: 1.5rem;
     }
 

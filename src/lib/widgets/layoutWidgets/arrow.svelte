@@ -8,11 +8,11 @@
     $: arrowThickness = simplified ? svgHeight : svgHeight * 0.6
     $: arrowMidline = svgHeight / 2
 
-    $: triangleLength = simplified ? svgHeight * 0.5 : svgHeight * 0.75
+    $: triangleLength = simplified ? svgHeight * 0.75 : svgHeight * 1
     $: triangleBase = svgLength - triangleLength
     $: trianglePoint = svgLength
-    const triangleTop = 0
-    $: triangleBottom = svgHeight
+    const triangleTop = -5
+    $: triangleBottom = svgHeight + 5
 </script>
 
 
@@ -45,8 +45,12 @@
 
 
 <style>
+    svg {
+        overflow: visible;
+    }
+
     .arrow {
-        opacity: 0.10;
+        opacity: 0.2;
     }
 
     polygon {

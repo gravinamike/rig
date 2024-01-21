@@ -10,7 +10,7 @@
     import { cubicOut } from "svelte/easing"
 
     // Import related widgets.
-    import { DirectionDropdownWidget } from "$lib/widgets/spaceWidgets"
+    import { DirectionWidget } from "$lib/widgets/spaceWidgets"
     import { RelationshipWidget } from "$lib/widgets/graphWidgets"
     import { RelationshipStemWidget } from "./relationshipStem"
 
@@ -35,6 +35,7 @@
     export let graphWidgetStyle: GraphWidgetStyle
     export let thingWidth: number
     export let thingHeight: number
+    export let cladeHovered: boolean
     export let thingCohortExpanded: boolean
     export let offsetToAlignToGrid: number
 
@@ -70,6 +71,51 @@
     // Attributes managed by sub-widgets.
     let thingIdOfHoveredRelationship: number | null = null
     let stemHovered = false
+
+
+
+
+
+    /**
+     * Of-Perspective-Thing flag.
+     * 
+     * Is true if this Relationship Cohort widget belongs to the Graph's Perspective Thing.
+     */
+    $: ofPerspectiveThing =
+        thingCohort.parentThing && thingCohort.parentThing.address?.generationId === 0 ? true :
+        false
+
+
+
+
+
+
+
+
+
+    $: addThingSymbolOffsetAlongThingCohortLength = (
+        thingCohort.members.length ? (
+            thingCohort.rowOrColumn() === "row" ? widgetWidth :
+            widgetHeight
+        ) :
+        0
+    ) / 2 + (
+        thingCohort.members.length ? graphWidgetStyle.betweenThingSpacing :
+        0
+    )
+    
+
+
+
+
+
+
+    $: directionWidgetTop = 0.76 * rotatedHeight
+
+
+    let relationshipHovered = false
+
+
 </script>
 
 
@@ -80,7 +126,9 @@
     {graphWidgetStyle}
     {graph}
     {thingIdOfHoveredRelationship}
+    {cladeHovered}
     {stemHovered}
+    {relationshipHovered}
     {thingWidth}
     {thingHeight}
     {offsetToAlignToGrid}
@@ -144,20 +192,28 @@
             "
         >
             <!-- Relationship stem. -->
-            {#if thingCohort.indexOfGrandparentThing === null}
+            {#if
+                thingCohort.indexOfGrandparentThing === null
+                || thingCohort.members.length > 1
+                || cladeHovered
+            }
                 <RelationshipStemWidget
-                    {thingCohort}
+                    bind:thingCohort
                     {thingCohortMembersToDisplay}
                     bind:graph
                     {graphWidgetStyle}
+                    {cladeHovered}
                     {thingIdOfHoveredRelationship}
                     bind:stemHovered
                     tweenedScale={$tweenedScale || 1}
                     {midline}
                     {stemBottom}
                     {stemTop}
+                    directionWidgetOffsetFromRelationshipsTop={directionWidgetTop}
+                    {relationshipsLength}
                     {relationshipColor}
                     {relatableForCurrentDrag}
+                    bind:relationshipHovered
                 />
             {/if}
 
@@ -190,28 +246,81 @@
             {/if}
             
         </div>
-
+        
         <!-- Direction widget. -->
         {#if showDirection}
             <div
                 class="direction-widget-anchor"
                 style="
+                    left: 50%;
+                    top: {directionWidgetTop}px;
                     transform:
+                        translate(-50%, -50%)
                         scaleY({mirroring})
                         rotate({directionWidgetRotation}deg);
                 "
             >
-                <DirectionDropdownWidget
+                <DirectionWidget
                     startingDirection={direction}
                     halfAxisId={thingCohort.halfAxisId}
                     {graphWidgetStyle}
                     optionClickedFunction={(direction, _, __) => {
                         if (direction?.id) changeRelationshipsDirection(direction.id)
                     }}
+                    interactionDisabled={
+                        !ofPerspectiveThing
+                        || thingCohort.members.length === 0
+                    }
+                    partOpaque={
+                        stemHovered
+                        || (
+                            !ofPerspectiveThing
+                            && cladeHovered
+                        )
+                    }
+                    forceFullyOpaque={
+                        //thingCohort.members.length > 0
+                        thingCohort.members.filter(member => !(member.alreadyRendered)).length > 0
+                    }
                 />
             </div>
         {/if}
 
+
+
+
+
+        {#if showDirection && stemHovered && !graph.formActive}
+            <div
+                class="add-thing-symbol"
+
+                style="
+                    border-radius: 8px;
+                    outline: dotted 2px lightgrey;
+                    outline-offset: -2px;
+
+                    position: absolute;
+                    left: calc({
+                        thingCohort.members.length ? 50 :
+                        0
+                    }% + {addThingSymbolOffsetAlongThingCohortLength}px);
+                    top: -{thingHeight}px;
+                    width: {thingWidth}px;
+                    height: {thingHeight}px;
+
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+
+                    font-size: 70px;
+                    font-weight: 900px;
+                    color: lightgrey;
+                "
+            >
+                <div>+</div>
+            </div>
+        {/if}
     </div>
 </div>
 
@@ -239,6 +348,9 @@
     }
 
     .direction-widget-anchor {
+        position: absolute;
+        width: fit-content;
+        height: fit-content;
         z-index: 2;
     }
 </style>

@@ -12,7 +12,7 @@
     import {
         uIBackgroundColorStore, readOnlyMode, pinIdsStore, addPin, removePin,
         homeThingIdStore, setHomeThingId, removeHomeThing,
-        hoveredThingIdStore, openContextCommandPalette   
+        hoveredThingIdStore, openContextCommandPalette, uIHeaderColorStore, lightenOrDarkenColorString, uITrimColorStore, titleFontStore, titleFontWeightStore   
     } from "$lib/stores"
 
     // Import related widgets.
@@ -84,6 +84,21 @@
         ]
         openContextCommandPalette(position, buttonInfos)
     }
+
+
+
+
+
+
+    const highlightedColor = lightenOrDarkenColorString($uITrimColorStore, "lighter", 50)
+
+
+
+
+
+
+
+
 </script>
 
 
@@ -113,8 +128,24 @@
 
     <!-- Title. -->
     {#if !useTabbedLayout}
-        <div class="title">
-            <h4>History</h4>
+        <div
+            class="title-container"
+
+            style="
+                background-color: {$uIHeaderColorStore};
+                font-family: {$titleFontStore ?? "Arial"};
+                font-weight: {$titleFontWeightStore ?? 600};
+            "
+        >
+            <img
+                src="./icons/history.png"
+                alt="History icon"
+                width=27px
+                height=27px
+            >
+            <div class="title">
+                History
+            </div>
         </div>
     {/if}
 
@@ -127,9 +158,11 @@
 
                 <div
                     class="box"
-                    class:hovered-thing={entryOrDivider.thingId === $hoveredThingIdStore}
                     class:id-not-found={!entryOrDivider.thing}
                     class:home-thing={ entryOrDivider.thingId === $homeThingIdStore }
+
+                    style={entryOrDivider.thingId === $hoveredThingIdStore ? `background-color: ${highlightedColor};` : ""}
+
 
                     on:mouseenter={ () => {
                         if (
@@ -183,7 +216,6 @@
 
                 <div class="date-divider">
                     {entryOrDivider.timestamp.toLocaleDateString("en-US", dateDividerOptions)}
-                    <hr>
                 </div>
 
             {/if}
@@ -204,8 +236,6 @@
 
         display: flex;
         flex-direction: column;
-        padding: 0.75rem 0 0.75rem 0;
-        gap: 1rem;
         
         text-align: center;
 
@@ -213,7 +243,7 @@
     }
 
     .history-viewer.on-mobile {
-        padding: 0.2rem 0 0.2rem 0;
+        padding: 0 0 0.2rem 0;
         gap: 0.15rem;
     }
 
@@ -221,18 +251,26 @@
         border-radius: 0 0 5px 5px;
     }
 
+    .title-container {
+        background-color: silver;
+        
+        display: flex;
+        flex-direction: row;
+        gap: 0.25rem;
+        padding: 0.25rem;
+        align-items: center;
+
+        line-height: 21px;
+    }
+
     .title {
         height: 20px;
     }
 
-    h4 {
-        margin: 0;
-    }
-
     .unique-toggle {
         position: absolute;
-        right: 10px;
-        top: 13px;
+        right: 8px;
+        top: 10px;
 
         display: flex;
         flex-direction: row;
@@ -240,7 +278,7 @@
         gap: 5px;
 
         font-size: 0.75rem;
-        color: dimgrey;
+        color: #585858;
     }
 
     .history-viewer.on-mobile .unique-toggle {
@@ -251,7 +289,7 @@
     }
 
     .unique-toggle:not(.toggled) {
-        color: lightgrey;
+        color: grey;
     }
 
     .content {
@@ -260,24 +298,22 @@
         display: flex;
         flex-direction: column;
         padding: 0.5rem;
-        gap: 0.15rem;
+        gap: 0rem;
 
         overflow-y: auto;
         scrollbar-width: thin;
     }
 
     .box {
-        border-radius: 10px;
-
         position: relative;
         height: max-content;
-        background-color: white;
         
-        padding: 0.5rem;
+        padding: 0.35rem 0.35rem 0.3rem 0.35rem;
         gap: 10px;
 
         font-size: 0.75rem;
         text-align: left;
+        line-height: 20px;
 
         cursor: default;
     }
@@ -288,12 +324,8 @@
         font-size: 0.6rem;
     }
 
-    .hovered-thing {
-        outline: solid 2px black;
-    }
-
     .box.home-thing {
-        padding-left: 30px;
+        padding-left: 28px;
     }
 
     .history-viewer.on-mobile .box.home-thing {
@@ -307,15 +339,14 @@
     .icon-container {
         position: absolute;
         top: 4px;
-        background-color: white;
     }
 
     .icon-container.home {
-        left: 4px;
+        left: 2px;
     }
 
     .icon-container.perspective {
-        right: 4px;
+        right: 2px;
     }
 
     .icon-container img {
@@ -330,8 +361,17 @@
     }
 
     .date-divider {
+        margin-top: 0.25rem;
+        margin-bottom: 0.25rem;
+
+        padding: 0.25rem;
+
         text-align: left;
         font-size: 0.85rem;
+
+        border-bottom: solid 1px lightgrey;
+
+        cursor: default;
     }
 
     .history-viewer.on-mobile .date-divider {

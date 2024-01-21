@@ -7,7 +7,7 @@
     import { flip } from "svelte/animate"
 
     // Import stores.
-    import { pinIdsStore, storeGraphDbModels, graphDbModelInStore, getGraphConstructs, setPins, readOnlyMode, uIBackgroundColorStore } from "$lib/stores"
+    import { pinIdsStore, storeGraphDbModels, graphDbModelInStore, getGraphConstructs, setPins, readOnlyMode, uIBackgroundColorStore, uIHeaderColorStore, titleFontStore, titleFontWeightStore } from "$lib/stores"
 
     // Import related widgets.
     import PinWidget from "./pinWidget.svelte"
@@ -88,43 +88,61 @@
 </script>
 
 
-<div
-    class="pins-viewer"
-    class:on-mobile={onMobile()}
-    class:use-tabbed-layout={useTabbedLayout}
-
-    style="background-color: {$uIBackgroundColorStore};"
->
-
-    {#if !useTabbedLayout}
-        <div class="title">
-            <h4>Pins</h4>
-        </div>
-    {/if}
-    
-
+{#if pins.length}
     <div
-        class="content"
-    >
-        {#each pins as pin, index (pin.thingId)}
-            <div
-                draggable={ $readOnlyMode ? false : true }
-                animate:flip={{ duration: 250 }}
+        class="pins-viewer"
+        class:on-mobile={onMobile()}
+        class:use-tabbed-layout={useTabbedLayout}
 
-                on:dragstart={ (event) => {if (!$readOnlyMode) startDragPin(event, index)} }
-                on:dragover|preventDefault
-                on:drop|preventDefault={ (event) => dropPin(event, index) }
+        style="background-color: {$uIBackgroundColorStore};"
+    >
+
+        {#if !useTabbedLayout}
+            <div
+                class="title-container"
+
+                style="
+                    background-color: {$uIHeaderColorStore};
+                    font-family: {$titleFontStore ?? "Arial"};
+                    font-weight: {$titleFontWeightStore ?? 600};
+                "
             >
-                <PinWidget
-                    thingId={pin.thingId}
-                    thing={pin.thing}
-                    {graph}
-                    {rePerspectToThingId}
-                />
+                <img
+                    src="./icons/pin.png"
+                    alt="History icon"
+                    width=27px
+                    height=27px
+                >
+                <div class="title">
+                    Pins
+                </div>
             </div>
-        {/each}
+        {/if}
+        
+
+        <div
+            class="content"
+        >
+            {#each pins as pin, index (pin.thingId)}
+                <div
+                    draggable={ $readOnlyMode ? false : true }
+                    animate:flip={{ duration: 250 }}
+
+                    on:dragstart={ (event) => {if (!$readOnlyMode) startDragPin(event, index)} }
+                    on:dragover|preventDefault
+                    on:drop|preventDefault={ (event) => dropPin(event, index) }
+                >
+                    <PinWidget
+                        thingId={pin.thingId}
+                        thing={pin.thing}
+                        {graph}
+                        {rePerspectToThingId}
+                    />
+                </div>
+            {/each}
+        </div>
     </div>
-</div>
+{/if}
 
 
 <style>
@@ -135,8 +153,6 @@
 
         display: flex;
         flex-direction: column;
-        padding: 0.5rem 0 0.5rem 0;
-        gap: 0.25rem;
         
         text-align: center;
 
@@ -144,7 +160,7 @@
     }
 
     .pins-viewer.on-mobile {
-        padding: 0.2rem 0 0.2rem 0;
+        padding: 0 0 0.2rem 0;
         gap: 0.15rem;
     }
 
@@ -158,25 +174,27 @@
         height: fit-content;
     }
 
-    .title {
-        height: 20px;
+    .title-container {
+        padding: 0.25rem;
+        
+        display: flex;
+        flex-direction: row;
+        gap: 0.25rem;
+        align-items: center;
+
+        line-height: 21px;
     }
 
-    h4 {
-        margin: 0;
+    .title {
+        height: 20px;
     }
 
     .content {
         display: flex;
         flex-direction: column;
         padding: 0.5rem;
-        gap: 0.5rem;
 
         overflow-y: auto;
         scrollbar-width: thin;
     }
-
-    .pins-viewer.on-mobile .content {
-        gap: 0.15rem;
-    }
-  </style>
+</style>

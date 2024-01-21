@@ -20,6 +20,7 @@
     export let parentThingCohortExpanded: boolean
     export let parentCladeOffsetFromCenterOfThingCohort: number
     export let perspectiveTexts: {[thingId: string]: string}
+    export let cladeHovered: boolean
     export let rePerspectToThingId: (id: number) => Promise<void>
 
 
@@ -53,6 +54,21 @@
 />
 
 
+<!-- Relationship Cohort Widgets (only for Cartesian axes). -->
+{#if [1, 2, 3, 4].includes(thingCohort.halfAxisId)}
+    <RelationshipCohortWidget
+        bind:thingCohort
+        {thingCohortMembersToDisplay}
+        bind:graph
+        {graphWidgetStyle}
+        thingWidth={rootThingWidth}
+        thingHeight={rootThingHeight}
+        {cladeHovered}
+        {thingCohortExpanded}
+        offsetToAlignToGrid={$tweenedOffsetToAlignToGrid}
+    />
+{/if}
+
 <!-- Thing Cohort Widgets. -->
 {#if [1, 2, 3, 4, 5, 6, 7, 8].includes(thingCohort.halfAxisId)}
     <ThingCohortWidget
@@ -66,19 +82,5 @@
         bind:expanded={thingCohortExpanded}
         thingOverlapMargin={$tweenedThingOverlapMargin}
         {getThingOverlapMarginStyleText}
-    />
-{/if}
-
-<!-- Relationship Cohort Widgets (only for Cartesian axes). -->
-{#if [1, 2, 3, 4].includes(thingCohort.halfAxisId)}
-    <RelationshipCohortWidget
-        {thingCohort}
-        {thingCohortMembersToDisplay}
-        bind:graph
-        {graphWidgetStyle}
-        thingWidth={rootThingWidth}
-        thingHeight={rootThingHeight}
-        {thingCohortExpanded}
-        offsetToAlignToGrid={$tweenedOffsetToAlignToGrid}
     />
 {/if}

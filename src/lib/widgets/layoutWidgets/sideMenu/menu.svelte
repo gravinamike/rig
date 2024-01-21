@@ -8,7 +8,7 @@
     import { cubicOut } from "svelte/easing"
     import { onMobile, sleep } from "$lib/shared/utility"
     import { saveGraphConfig } from "$lib/shared/config"
-    import { mouseSpeed, openGraphStore } from "$lib/stores"
+    import { graphBackgroundImageStore, landscapeOrientation, mouseSpeed, openGraphStore, uIHeaderColorStore } from "$lib/stores"
 
     // Import related widgets.
     import { Tooltip }  from "$lib/widgets/layoutWidgets"
@@ -173,6 +173,7 @@
 		}
 	}
 
+
 </script>
 
 
@@ -189,15 +190,26 @@
 <!-- Side menu. -->
 <div
     class="side-menu"
+    class:on-mobile={onMobile()}
+    class:landscape-orientation={$landscapeOrientation}
     class:overlap-page={overlapPage}
     class:slide-left={slideDirection === "left"}
+    class:slide-right={slideDirection === "right"}
+    class:graph-background-image={$graphBackgroundImageStore !== null}
     class:full-size={fullSize}
     bind:this={sideMenu}
 
-    style={
-        orientation === "horizontal" ? `width: ${$extension}px; height: 100%;` :
-        `width: 100%; height: ${$extension}px;`
-    }
+    style={`
+        ${
+            orientation === "horizontal" ? `width: ${$extension}px; height: 100%;` :
+            `width: 100%; height: ${$extension}px;`
+        }
+        ${
+            slideDirection === "left" ? `border-left: solid 1px ${$uIHeaderColorStore};` :
+            slideDirection === "right" ? `border-right: solid 1px ${$uIHeaderColorStore};` :
+            ""
+        }
+    `}
 
     on:mouseleave={handleMouseLeave}
 >
@@ -371,7 +383,19 @@
 
 <style>
     .side-menu {
+        box-shadow: 0 0 4px 2px lightgrey;
+
         position: relative;
+    }
+
+    .side-menu.slide-left.graph-background-image, .side-menu.slide-left.on-mobile:not(.landscape-orientation) {
+        box-shadow: 0 0 4px 2px grey;
+        border: none;
+    }
+
+    .side-menu.slide-right.graph-background-image, .side-menu.slide-right.on-mobile:not(.landscape-orientation) {
+        box-shadow: 0 0 4px 2px grey;
+        border: none;
     }
 
     .side-menu.overlap-page {
@@ -456,8 +480,6 @@
     }
 
     .button {
-		outline: solid 1px lightgrey;
-		outline-offset: -1px;
 		border-radius: 50%;
 
 		box-sizing: border-box;
@@ -474,12 +496,10 @@
 	}
 
     .button.locked-menu {
-        outline: solid 1px grey;
         opacity: 0.33;
     }
 
 	.button.opened-menu {
-        outline: solid 1px grey;
         opacity: 1;
 
         z-index: 1;
@@ -491,8 +511,6 @@
     }
 
     .button:not(.on-mobile):hover {
-        outline: solid 1px grey;
-
         background-color: gainsboro;
     }
 
