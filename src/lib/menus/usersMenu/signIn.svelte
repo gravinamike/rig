@@ -1,19 +1,25 @@
 <script lang="ts">
-    import { onMobile } from "$lib/shared/utility"
-
+    // Import SvelteKit framework resources.
     import { get } from "svelte/store"
+
+    // Import stores.
     import { loggerStore } from "$lib/stores"
     const logger = get(loggerStore)
 
+    // Import utility functions.
+    import { onMobile } from "$lib/shared/utility"
 
+
+
+    // Authentication information.
     let username = ""
     let password = ""
     let rememberUser = false
 
-
     // Error message.
     let error: string | null
   
+
     /**
      * Submit method.
      */
@@ -27,7 +33,7 @@
             }
         })
     
-        // Either refresh the site, or display the error.
+        // Either refresh the site, or...
         if (response.ok) {
             logger.info(
                 {
@@ -36,6 +42,7 @@
                 "User signed in."
             )
             window.location.assign("/")
+        // ...display the error.
         } else {
             if (response.status === 401) {
                 error = "Incorrect username or password."
@@ -54,7 +61,7 @@
     }
 </script>
 
-
+<!-- Sign-in menu. -->
 <div
     class="sign-in"
     class:on-mobile={onMobile()}

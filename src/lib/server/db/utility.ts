@@ -11,7 +11,7 @@ const logger = get(loggerStore)
 // Import ORM-related resources.
 import { Model } from "objection"
 import {
-    RawDirectionDbModel, RawSpaceDbModel, RawThingDbModel, RawRelationshipDbModel,
+    RawSpaceDbModel, RawDirectionDbModel, RawThingDbModel, RawRelationshipDbModel,
     RawNoteDbModel, RawNoteToThingDbModel, RawFolderDbModel, RawFolderToThingDbModel
 } from "$lib/server/models"
 
@@ -60,7 +60,8 @@ export async function alterQuerystringForH2AndRun(
     querystring: string,
     transaction: Knex.Transaction,
     whenCreated: string,
-    constructName: "Direction" | "Space" | "DirectionToSpace" | "Thing" | "Relationship" | "Note" | "NoteToThing" | "Folder" | "FolderToThing"
+    constructName: "Direction" | "Space" | "DirectionToSpace" | "Thing" | "Relationship"
+                   | "Note" | "NoteToThing" | "Folder" | "FolderToThing"
 ): Promise< RawDirectionDbModel | RawSpaceDbModel | RawThingDbModel | RawRelationshipDbModel | RawNoteDbModel | RawNoteToThingDbModel | RawFolderDbModel | RawFolderToThingDbModel | null > {
     // Remove the "returning" clause in the query string.
     querystring = querystring.replace(/ returning "\w+"/, "")
@@ -116,9 +117,19 @@ export async function alterQuerystringForH2AndRun(
 }
 
 
+/**
+ * Log-server-error method.
+ * 
+ * Logs a given error, its error stack, and its associated information using the assigned logger.
+ * @param message - The message to be shown at the top level of the log entry.
+ * @param infoObject - The object containing associated info for the error.
+ * @param error - The error itself.
+ */
 export function logServerError(message: string, infoObject: object, error: Error) {
+    // Initialize an object for the associated information.
     const logObject: {[keyName: string]: unknown} = {}
 
+    // Populate that object with the supplied information and derived information about the error.
     for (const [key, value] of Object.entries(infoObject)) {
         logObject[key] = value
     }
@@ -126,6 +137,7 @@ export function logServerError(message: string, infoObject: object, error: Error
     logObject["errorMsg"] = error.message
     logObject["errorStack"] = error.stack
 
+    // Log the error.
     logger.error(
         logObject,
         message

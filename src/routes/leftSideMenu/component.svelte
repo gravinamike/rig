@@ -294,7 +294,7 @@
                     <!-- File menu tab. -->
                     <TabBody>
                         <FileMenu
-                            bind:graph
+                            bind:currentlyOpenGraph={graph}
                         />
                     </TabBody>
                 

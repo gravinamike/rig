@@ -1,19 +1,25 @@
 <script lang="ts">
-    import { filenameIsValid, onMobile } from "$lib/shared/utility"
-
+    // Import SvelteKit framework resources.
     import { get } from "svelte/store"
+
+    // Import stores.
     import { loggerStore } from "$lib/stores"
     const logger = get(loggerStore)
 
+    // Import utility functions.
+    import { onMobile, filenameIsValid } from "$lib/shared/utility"
 
-    // Error message.
-    let error: string | null
 
-    // Initialize form values.
+
+    // Starting form values.
     let username = ""
     let password = ""
     let confirmPassword = ""
     let rememberUser = false
+
+    // Error message.
+    let error: string | null
+
 
     /**
      * Submit method.
@@ -49,7 +55,7 @@
                 }
             })
         
-            // Either refresh the site, or display the error.
+            // Either refresh the site, or...
             if (response.ok) {
                 logger.info(
                     {
@@ -58,6 +64,7 @@
                     "User signed up."
                 )
                 window.location.assign("/")
+            // ...display the error.
             } else {
                 error = (await response.json()).message
                 logger.error({
@@ -70,6 +77,7 @@
 </script>
 
 
+<!-- Sign-up menu. -->
 <div
     class="sign-up"
     class:on-mobile={onMobile()}

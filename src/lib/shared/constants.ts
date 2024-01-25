@@ -1,4 +1,6 @@
+// Import types.
 import type { Space, Direction, Thing, Relationship } from "$lib/models/constructModels"
+
 
 
 /* "Constants" that will eventually be moved into an editable config file. */
@@ -8,8 +10,8 @@ export const startingGraphDepth = 1
 export const zoomBase = 1.45
 
 
-/* App-level interfaces and types. */
 
+/* App-level interfaces and types. */
 
 /**
  * App config interface.
@@ -23,8 +25,8 @@ export interface AppConfig {
 /**
  * Server config interface.
  * 
- * An object containing information about the server's app port, database port,
- * and the folder that Graphs are stored in.
+ * An object containing information about the server's app port, database port, and the folder that
+ * Graphs are stored in.
  */
 export interface ServerConfig {
     serverPort: number
@@ -33,6 +35,31 @@ export interface ServerConfig {
     logsFolder: string | null
     logsLevel: string | null
 }
+
+/**
+ * Default UI colors.
+ */
+export const defaultUITrimColor = "#E8E8E8"
+export const defaultMobileMenuTrimColor = "#787878"
+
+
+/**
+ * Waiting indicator states interface.
+ * 
+ * An object containing waiting indicator state names with their associated
+ * text and image info.
+ */
+export interface WaitingIndicatorStates {
+    [stateName: string]: {
+        text: string,
+        imageName: null | "waiting" | "error"
+    }
+}
+
+/**
+ * Constants related to menus.
+ */
+export type MenuName = "About" | "File" | "Thing" | "Space" | "Settings" | "Dev" | "Outline" | "Notes" | "Attachments"
 
 /**
  * Graph-restricted routes.
@@ -68,25 +95,6 @@ export function isGraphRestrictedRoute(routeFragment: string) {
     return isGraphRestrictedRoute
 }
 
-/**
- * Default UI colors.
- */
-export const defaultUITrimColor = "#E8E8E8"
-export const defaultMobileMenuTrimColor = "#787878"
-
-
-/**
- * Waiting indicator states interface.
- * 
- * An object containing waiting indicator state names with their associated
- * text and image info.
- */
-export interface WaitingIndicatorStates {
-    [stateName: string]: {
-        text: string,
-        imageName: null | "waiting" | "error"
-    }
-}
 
 
 /* Graph-level interfaces and types. */
@@ -94,9 +102,8 @@ export interface WaitingIndicatorStates {
 /**
  * Graph config interface.
  * 
- * An object containing information about the Graph's configuration, like
- * visual formatting, menu and editor states, and the IDs of pinned and
- * Perspective Things.
+ * An object containing information about the Graph's configuration, like visual formatting, menu
+ * and editor states, and the IDs of pinned and Perspective Things.
  */
 export interface GraphConfig {
     uIBackgroundColor?: string
@@ -117,11 +124,6 @@ export interface GraphConfig {
     pinIds: number[]
     perspectiveThingId: number | null
 }
-
-/**
- * Constants related to menus.
- */
-export type MenuName = "About" | "File" | "Thing" | "Space" | "Settings" | "Dev" | "Outline" | "Notes" | "Attachments"
 
 /*
  * Constants related to half-axes.
@@ -153,21 +155,6 @@ export const maxThingsToStore = 500
  * Plane padding.
  */
 export const planePadding = 20
-
-
-/* History interfaces and types. */
-
-/**
- * Date divider options.
- * 
- * Specify formatting for the dates in date divider widgets.
- */
-export const dateDividerOptions = {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    weekday: "short"
-} as const
 
 
 /* Relationships interfaces and types. */
@@ -256,9 +243,26 @@ export const offsetsByHalfAxisId = {
     4: [-1, 0,  0,  0],// Left
     5: [0,  0, -1,  0],// Away
     6: [0,  0,  1,  0],// Towards
-    7: [0,  0,  1, -1],// Inwards////////// These two should probably get flipped at some point.
+    7: [0,  0,  1, -1],// Inwards
     8: [0,  0, -1,  1],// Outwards
 } as const
+
+
+
+/* History interfaces and types. */
+
+/**
+ * Date divider options.
+ * 
+ * Specify formatting for the dates in date divider widgets.
+ */
+export const dateDividerOptions = {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    weekday: "short"
+} as const
+
 
 
 /* Notes editor interfaces and types. */

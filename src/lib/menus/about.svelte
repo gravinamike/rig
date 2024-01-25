@@ -1,33 +1,24 @@
 <script>
-    import { onMobile } from "$lib/shared/utility";
-    import { uITrimColorStore } from "$lib/stores";
+    // Import stores.
+    import { uITrimColorStore } from "$lib/stores"
 
+    // Import utility functions.
+    import { onMobile } from "$lib/shared/utility"
 
-    const catPic = `
-                                                                         Meow.
-                                                                         /
-                                                    *    *    *   *
-                                                     ||   ||   ||   ||
-                                              @%@%@%@%@
-                                              {===========}
-                                              {==  Genie is   ==}
-                                           @%@%@%@%@%@
-                                            {===  Great!!!!   ===}
-                                            {=============}
-                                           @%@%@%@%@%@
-`
-    function displaySecret() {
-        alert(`\n${catPic}\n\n`)
-    }
+    // Import related components.
+    import Secret from "./secret.svelte"
 </script>
 
+<!-- About menu -->
 <div
     class="about-menu"
     class:on-mobile={onMobile()}
 
     style="background-color: {$uITrimColorStore};"
 >    
+    <!-- About-menu content. -->
     <div class="content">
+        <!-- About-menu text. -->
         <div class="text">
             <p>
                 This is a pre-alpha version of "Rig", an app built by Mike
@@ -44,14 +35,13 @@
             </p>
         </div>
 
+        <!-- Copyright. -->
         <div class="copyright">
             © Michael Gravina 2023&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         </div>
     </div>
 
-    <div class="secret" on:click={displaySecret} on:keydown={()=>{}}>
-        ?
-    </div>
+    <Secret />
 </div>
   
 <style>
@@ -109,29 +99,6 @@
 
     .about-menu.on-mobile .copyright {
         font-size: 0.6rem;
-    }
-
-    .secret {
-        border-radius: 5px;
-
-        position: absolute;
-        bottom: 25px;
-        right: 25px;
-
-        width: 25px;
-        height: 25px;
-
-        color: white;
-
-        cursor: pointer;
-    }
-
-    .secret:hover {
-        box-shadow: 5px 5px 10px 10px lightgray;
-
-        text-align: center;
-        line-height: 25px;
-        color: grey;
     }
 </style>
   

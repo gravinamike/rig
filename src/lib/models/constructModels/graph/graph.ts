@@ -1,15 +1,19 @@
 // Import types.
 import type { ThingDbModel } from "$lib/models/dbModels"
 import type { Space, Thing, ThingCohort } from "$lib/models/constructModels"
+
 // Import stores and related methods.
-import { storeGraphDbModels, getGraphConstructs, unstoreGraphDbModels, perspectiveSpaceIdStore } from "$lib/stores"
+import { perspectiveSpaceIdStore, storeGraphDbModels, unstoreGraphDbModels, getGraphConstructs } from "$lib/stores"
+
 // Import Graph-related structures.
 import { Generations } from "./generations"
 import { GridLayers } from "./gridLayers"
 import { Planes } from "./planes"
 import { PerspectiveHistory } from "./history"
+
 // Import utility functions.
 import { updateUrlHash } from "$lib/shared/utility"
+
 // Import API methods.
 import { deleteThing, deleteRelationship } from "$lib/db/makeChanges"
 
@@ -18,11 +22,10 @@ import { deleteThing, deleteRelationship } from "$lib/db/makeChanges"
 /**
  * Graph class.
  * 
- * Represents a Graph, which is a collection of Things and the Relationships
- * that connect them, plus related information. A Graph is a representation of
- * some smaller portion of a Unigraph (a network of Things and Relationships
- * stored as a database file). The Graph is built out from a "Pespective" Thing
- * in stages, exploring outwards into the Unigraph by some predefined distance.
+ * Represents a Graph, which is a collection of Things and the Relationships that connect them,
+ * plus related information. A Graph is a representation of some smaller portion of a Unigraph (a
+ * network of Things and Relationships stored as a database file). The Graph is built out from a
+ * "Pespective" Thing in stages, exploring outwards into the Unigraph by some predefined distance.
  */
 export class Graph {
     // The Graph's ID.
@@ -40,52 +43,52 @@ export class Graph {
     // Whether the Graph is being used as the visualizer in a search interface.
     inSearchMenu: boolean
 
-    // The IDs of the Graph's Perspective Things (currently there should only
-    // be 1 Perspective Thing).
+    // The IDs of the Graph's Perspective Things (currently there should only be 1 Perspective
+    // Thing).
     #pThingIds: number[]
     
     // The Graph's Perspective Thing.
     pThing: Thing | null = null
 
-    // The Thing Cohort at the "root" of the Graph, containing the Perspective
-    // Thing.
-    rootCohort: ThingCohort | null = null
-
-    // The number of Relationship "steps" to render from the Perspective Thing.
-    #depth: number
-
-    // The Graph's Generations, arrays of Things added to the Graph step-wise,
-    // each building out a distance of 1 Relationship from the Things in the
-    // previous Generation.
-    generations: Generations
-
-    // The Graph's Grid Layers, meaning the concentric squares of Things around
-    // the Graph's center when it is built using the "grid" method.
-    gridLayers: GridLayers
-
-    // The Graph's Planes, flat surfaces perpendicular to the screen which
-    // contain all the Things at that visual distance.
-    planes: Planes
+    // The Thing ID of the Thing that the Graph is being re-Perspected to (or null if no re-
+    // Perspect operation is in progress). This will become the new Perspective Thing once the
+    // Graph is re-built.
+    rePerspectInProgressThingId: number | null = null
 
     // The Space that is initially used when the Graph is built.
     #startingSpace: Space | null
 
-    // The original value of `startingSpace` when the Graph is initialized;
-    // this value is used when rebuilding if the `keepCurrentSpace` flag is
-    // set on `build()`.
+    // The original value of `startingSpace` when the Graph is initialized; this value is used when
+    // rebuilding if the `keepCurrentSpace` flag is set on `build()`.
     originalStartingSpace: Space | null
 
-    // The history of Things that the Graph has been Perspected on previously.
-    history: PerspectiveHistory
+    // The Thing Cohort at the "root" of the Graph, containing the Perspective Thing.
+    rootCohort: ThingCohort | null = null
+
+    // The number of Relationship "steps" to render out from the Perspective Thing.
+    #depth: number
+
+    // The Graph's Generations, arrays of Things added to the Graph step-wise, each building out a
+    // distance of 1 Relationship from the Things in the previous Generation.
+    generations: Generations
+
+    // The Graph's Grid Layers, meaning the concentric squares of Things around the Graph's center
+    // when it is built using the "grid" method.
+    gridLayers: GridLayers
+
+    // The Graph's Planes, flat surfaces perpendicular to the screen which contain all the Things
+    // at that visual distance.
+    planes: Planes
 
     // The current stage of the Graph's lifecycle.
     lifecycleStatus: "new" | "building" | "built" | "cleared" = "new"
 
+    // The history of Things that the Graph has been Perspected on previously.
+    history: PerspectiveHistory
+
     // Whether a Thing Form is currently active in the Graph.
     formActive: boolean
 
-    
-    rePerspectInProgressThingId: number | null = null
 
 
     /**
@@ -93,6 +96,11 @@ export class Graph {
      * 
      * Creates a new Graph.
      * @param pThingIds - IDs for the Graph's starting Perspective Things.
+     * @param parentGraph - The Graph that contains this Graph, if any.
+     * @param offAxis - Whether the Graph is part of a list of a Thing's off-axis relations.
+     * @param inSearchMenu - Whether the Graph is being used as the visualizer in a search interface.
+     * @param pThingIds - The IDs of the Graph's Perspective Things (currently there should only be 1 Perspective Thing).
+     * @param startingSpace - The Space that is initially used when the Graph is built.
      * @param depth - How many Relationship "steps" to grow the Graph from the Perspective Things.
      */
     constructor(
@@ -101,8 +109,8 @@ export class Graph {
         offAxis=false,
         inSearchMenu=false,
         pThingIds: number[],
-        depth: number,
-        startingSpace: (Space | null)=null
+        startingSpace: (Space | null)=null,
+        depth: number
     ) {
         this.id = id
         this.parentGraph = parentGraph
@@ -110,15 +118,16 @@ export class Graph {
         this.offAxis = offAxis
         this.inSearchMenu = inSearchMenu
         this.#pThingIds = pThingIds
+        this.#startingSpace = startingSpace
+        this.originalStartingSpace = startingSpace
         this.#depth = depth
         this.generations = new Generations(this)
         this.gridLayers = new GridLayers(this)
         this.planes = new Planes(this)
-        this.#startingSpace = startingSpace
-        this.originalStartingSpace = startingSpace
         this.history = new PerspectiveHistory()
         this.formActive = false
     }
+
 
 
     /* Getters and setters. */
@@ -136,8 +145,7 @@ export class Graph {
     /**
      * Set-Perspective-Thing-IDs method.
      * 
-     * Sets the IDs of the Graph's Perspective Things. Also rebuilds the Graph
-     * to reflect the changed Perspective.
+     * Sets the IDs of the Graph's Perspective Things. Also rebuilds the Graph to reflect the changed Perspective.
      * @param pThingIds - The Perspective Thing IDs to set.
      * @param updateHistory - Whether to update the Graph History to reflect the changed Perspective.
      */
@@ -150,35 +158,9 @@ export class Graph {
     }
 
     /**
-     * Graph-depth getter.
-     * 
-     * Provides the Graph's depth as an attribute.
-     * @returns - The depth of the Graph.
-     */
-    get depth(): number {
-        return this.#depth
-    }
-
-    /**
-     * Set-Graph-depth method.
-     * 
-     * Sets the Graph's depth. Also adjusts the Graph's Generations based on
-     * the new depth.
-     * @param depth - The new Graph depth to set.
-     */
-    async setDepth(depth: number): Promise<void> {
-        // Set the Graph's depth.
-        this.#depth = depth
-
-        // Adjust the Graph's generations based on the new depth.
-        await this.generations.adjustToDepth(this.#depth)
-    }    
-
-    /**
      * Set-starting-Space method.
      * 
-     * Sets the Graph's starting Space'. Also rebuilds the Graph to reflect the
-     * changed Space.
+     * Sets the Graph's starting Space'. Also rebuilds the Graph to reflect the changed Space.
      * @param space - The starting Space to set.
      */
     async setSpace(space: Space): Promise<void> {
@@ -200,10 +182,33 @@ export class Graph {
     }
 
     /**
+     * Graph-depth getter.
+     * 
+     * Provides the Graph's depth as an attribute.
+     * @returns - The depth of the Graph.
+     */
+    get depth(): number {
+        return this.#depth
+    }
+
+    /**
+     * Set-Graph-depth method.
+     * 
+     * Sets the Graph's depth. Also adjusts the Graph's Generations based on the new depth.
+     * @param depth - The new Graph depth to set.
+     */
+    async setDepth(depth: number): Promise<void> {
+        // Set the Graph's depth.
+        this.#depth = depth
+
+        // Adjust the Graph's generations based on the new depth.
+        await this.generations.adjustToDepth(this.#depth)
+    }    
+
+    /**
      * Thing-IDs-already-in-Graph getter.
      * 
-     * Provides an array of the IDs of all the Things currently in the Graph,
-     * as an attribute.
+     * Provides an array of the IDs of all the Things currently in the Graph, as an attribute.
      * @return - An array of the IDs of all the Things currently in the Graph.
      */
     get thingIdsAlreadyInGraph(): number[] {

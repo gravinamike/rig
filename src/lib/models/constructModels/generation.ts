@@ -1,12 +1,16 @@
 // Import types.
 import type { HalfAxisId } from "$lib/shared/constants"
 import type { Graph, Space, ThingCohortAddress, GridCoordinates } from "$lib/models/constructModels"
+
 // Import constants.
 import { cartesianHalfAxisIds } from "$lib/shared/constants"
+
 // Import stores.
 import { graphDbModelInStore, getGraphConstructs } from "$lib/stores"
+
 // Import Graph constructs.
 import { Thing, ThingCohort } from "$lib/models/constructModels"
+
 
 
 /**

@@ -1,65 +1,53 @@
 <script lang="ts">
-    import { uITrimColorStore, userIdStore } from "$lib/stores"
+    // Import stores.
+    import { userIdStore } from "$lib/stores"
 
+    // Import layout components.
     import { TabBlock, TabFlap, TabFlaps, TabBody } from "$lib/widgets/layoutWidgets"
 
+    // Import submenus.
     import SignUpForm from "./signUp.svelte"
     import SignInForm from "./signIn.svelte"
     import SignOutForm from "./signOut.svelte"
 </script>
 
 
+<!-- Users menu. -->
 <div
     class="users-menu"
-
-    style="background-color: {$uITrimColorStore};"
 >    
-    <div class="content">
+    <!-- If a user is already signed in, show a sign-out form. -->
+    {#if $userIdStore}
+        <SignOutForm />
 
-        {#if $userIdStore}
+    <!-- Otherwise, show tabs for the sign-in and sign-up forms. -->
+    {:else}
+        <div class="tabs-container">
+            <TabBlock>
+                <TabFlaps>
+                    <TabFlap><span class="tab-flap-span">Sign in</span></TabFlap>
+                    <TabFlap><span class="tab-flap-span">Sign up</span></TabFlap>
+                </TabFlaps>
 
-            <SignOutForm />
+                <TabBody>
+                    <SignInForm />
+                </TabBody>
 
-        {:else}
-
-            <div class="tabs-container">
-
-                <TabBlock>
-                    <TabFlaps>
-                        <TabFlap><span class="tab-flap-span">Sign in</span></TabFlap>
-                        <TabFlap><span class="tab-flap-span">Sign up</span></TabFlap>
-                    </TabFlaps>
-
-                    <TabBody>
-                        <SignInForm />
-                    </TabBody>
-
-                    <TabBody>
-                        <SignUpForm />
-                    </TabBody>
-                </TabBlock>
-                
-            </div>
-
-        {/if}
-
-    </div>
+                <TabBody>
+                    <SignUpForm />
+                </TabBody>
+            </TabBlock>
+        </div>
+    {/if}
 </div>
 
 
 <style>
     .users-menu {
-        box-sizing: border-box;
-        position: relative;
-        height: 100%;
-
-        display: flex;
-        flex-direction: column;
-    }
-
-    .content {
         border-radius: 0 0 5px 5px;
+        box-sizing: border-box;
 
+        position: relative;
         height: 100%;
         background-color: white;
 

@@ -1,12 +1,17 @@
 <script lang="ts">
-    import { onMobile } from "$lib/shared/utility"
-    import { loggerStore, userIdStore } from "$lib/stores"
-
+    // Import SvelteKit framework resources.
     import { get } from "svelte/store"
+
+    // Import stores.
+    import { loggerStore, userIdStore } from "$lib/stores"
     const logger = get(loggerStore)
 
+    // Import utility functions.
+    import { onMobile } from "$lib/shared/utility"
 
 
+
+    // User ID to start with.
     const startingUserId = $userIdStore
 
     
@@ -30,13 +35,15 @@
 </script>
 
 
+<!-- Sign-out menu. -->
 <div
     class="sign-out"
     class:on-mobile={onMobile()}
 >
+    <!-- Current user name. -->
     <h4>User: {$userIdStore}</h4>
 
-    <!-- Sign-up form. -->
+    <!-- Sign-out form. -->
     <form
         on:submit|preventDefault={ handleSubmit }
     >

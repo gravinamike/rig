@@ -5,40 +5,31 @@
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
     
     // Import utility functions.
-    import { onMobile, sleep, stringRepresentsInteger, updateUrlHash, urlHashToObject } from "$lib/shared/utility"
+    import { onMobile, stringRepresentsInteger, sleep, urlHashToObject, updateUrlHash } from "$lib/shared/utility"
 
     // Import stores.
     import {
-        devMode, addGraph, removeGraph, openGraphStore, perspectiveThingIdStore, hoveredThingIdStore,
-        graphIdsNeedingViewerRefresh, addGraphIdsNeedingViewerRefresh, removeGraphIdsNeedingViewerRefresh,
-        rightSideMenuStore,
-        loadingState,
-        urlStore,
-        getGraphConstructs,
-        perspectiveSpaceIdStore,
-        landscapeOrientation,
-        uITrimColorStore,
-        homeThingIdStore,
-
-        graphBackgroundImageStore,
-
-        uIHeaderColorStore
-
-
+        devMode, landscapeOrientation, uITrimColorStore, uIHeaderColorStore, graphBackgroundImageStore,
+        urlStore, loadingState, rightSideMenuStore, openGraphStore, addGraph, removeGraph,
+        getGraphConstructs, graphIdsNeedingViewerRefresh, addGraphIdsNeedingViewerRefresh,
+        removeGraphIdsNeedingViewerRefresh, homeThingIdStore,
+        perspectiveThingIdStore, perspectiveSpaceIdStore, hoveredThingIdStore, 
     } from "$lib/stores"
 
     // Import layout elements.
     import { SideMenu, Tooltip } from "$lib/widgets/layoutWidgets"
 
     // Import viewers.
-    import { NotesViewer } from "$lib/viewers/notesViewers"
     import { FolderViewer } from "$lib/viewers/folderViewers"
+    import { NotesViewer } from "$lib/viewers/notesViewers"
     import { defaultGraphWidgetStyle, GraphWidget, GraphOutlineWidget } from "$lib/widgets/graphWidgets"
 
     // Import API functions.
     import { markThingsVisited } from "$lib/db/makeChanges"
     import { saveGraphConfig } from "$lib/shared/config"    
 
+
+    
     /**
      * @param pThingIds - The IDs of the Graph's Perspective Things.
      * @param depth - The number of "steps" (related Things) to take when rendering the Graph.

@@ -1,8 +1,15 @@
+// Import types.
 import type { Direction } from "$lib/models/constructModels"
+
+// Import stores.
 import { writable } from "svelte/store"
 
 
-
+/**
+ * Direction-selection-info interface.
+ * 
+ * Defines the information needed for a select-direction operation (or lack of one).
+ */
 interface DirectionSelectionInfo {
     show: boolean
     directionWidget: Element | null,
@@ -14,6 +21,12 @@ interface DirectionSelectionInfo {
 }
 
 
+/**
+ * Null Direction-selection-info.
+ * 
+ * Defines the null state of the Direction-selection information (when no such operation is taking
+ * place).
+ */
 const nullDirectionSelectionInfo = {
     show: false,
     directionWidget: null,
@@ -26,8 +39,11 @@ const nullDirectionSelectionInfo = {
 
 
 
-// Direction-selection info Store.
-// Controls the Direction-selection dropdown menu.
+/**
+ * Direction-selection info Store.
+ * 
+ * Controls the state of the Direction-selection dropdown menu.
+ */
 export const directionSelectionInfoStore = writable(
     {
         show: false,
@@ -42,7 +58,9 @@ export const directionSelectionInfoStore = writable(
 
 
 /**
- * Open a Direction-selection dropdown menu.
+ * Open Direction-selection-dropdown-menu method.
+ * 
+ * Opens a Direction-selection dropdown menu.
  * @param position - The screen coordinates at which to open the menu.
  */
 export function openDirectionSelectionDropdownMenu(
@@ -65,12 +83,10 @@ export function openDirectionSelectionDropdownMenu(
     directionSelectionInfoStore.update( () => directionSelectionInfo )
 }
 
-
-
-
-
 /**
- * Close the direction-selection dropdown menu.
+ * Close Direction-selection-dropdown-menu method.
+ * 
+ * Close the Direction-selection dropdown menu.
  */
 export function closeDirectionSelectionDropdownMenu(): void {
     directionSelectionInfoStore.update( () => nullDirectionSelectionInfo )
