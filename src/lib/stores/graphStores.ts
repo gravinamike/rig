@@ -1,4 +1,4 @@
-// Import ypes.
+// Import types.
 import type { MenuName } from "$lib/shared/constants"
 import type { ThingSearchListItem, NoteSearchListItem } from "$lib/models/constructModels"
 
@@ -70,12 +70,10 @@ export async function addGraph(
     return graph
 }
 
-
-
 /**
  * Retrieve-Graph method.
  * 
- * Retrieves a Graph from the Graph store by ID.
+ * Retrieves a Graph from the Graphs store by ID.
  * @param graphId - The ID of the Graph to retrieve.
  * @returns - The retrieved Graph.
  */
@@ -113,71 +111,11 @@ export async function removeGraph(graph: Graph): Promise<void> {
     } )
 }
 
+
 /**
- * Graph-IDs-needing-viewer-refresh store.
+ * Hide-menus store.
  * 
- * Adding a Graph ID to this store causes the corresponding Graph viewers to be
- * reactively refreshed.
- */
-export const graphIdsNeedingViewerRefresh = writable( [] as number[] )
-
-/**
- * Add-Graph-IDs-needing-viewer-refresh method.
- * 
- * Adds Graph IDs to the Graph-IDs-needing-viewer-refresh store.
- * @param graphIds = The IDs of the Graphs to be added.
- */
-export function addGraphIdsNeedingViewerRefresh(graphIds: number | number[]): void {
-    // Repackage single IDs in arrays for processing.
-    if (typeof graphIds === "number") graphIds = [graphIds]
-
-    // For each specified ID, add it to the store if it's not there yet.
-    for (const graphId of graphIds) {
-        graphIdsNeedingViewerRefresh.update( current => {
-            if (!current.includes(graphId)) current.push(graphId)
-            return current
-        } )
-    }
-}
-
-/**
- * Remove-Graph-IDs-needing-viewer-refresh method.
- * 
- * Removes Graph IDs from the Graph-IDs-needing-viewer-refresh store.
- * @param graphIds = The IDs of the Graphs to be removed.
- */
-export function removeGraphIdsNeedingViewerRefresh(graphIds: number | number[]): void {
-    // Repackage single IDs in arrays for processing.
-    if (typeof graphIds === "number") graphIds = [graphIds]
-
-    // For each specified ID, remove it from the store.
-    for (const graphId of graphIds) {
-        graphIdsNeedingViewerRefresh.update( current => {
-            const index = current.indexOf(graphId)
-            if (index > -1) current.splice(index, 1)
-            return current
-        } )
-    }
-}
-
-
-/**
- * Perspective-Thing-ID Store.
- * 
- * Holds the ID of the Graph's Perspective Thing.
- */
-export const perspectiveThingIdStore = writable( null as number | null )
-
-/**
- * Perspective-Space-ID Store.
- * 
- * Holds the ID of the Graph's Perspective Space.
- */
-export const perspectiveSpaceIdStore = writable( null as number | null )
-
-
-/**
- * Show-menu store.
+ * Holds an array of names of menus that should be hidden in the UI.
  */
 export const hideMenusStore = writable( [] as MenuName[] )
 
@@ -205,10 +143,14 @@ export const thingSearchListStore = writable( [] as ThingSearchListItem[] )
  * @returns - Array of the stored Thing search list items, if any.
  */
 export async function storeThingSearchList(): Promise<ThingSearchListItem[]> {  
+    // Get the name of the Graph that is open before getting the search-list items.
     const graphWhenStarting = get(openGraphStore)
 
+    // Get an array of Thing-search-list items from the back-end.
     const queriedThingSearchListItems = await getThingSearchListItems()
 
+    // Get the name of the Graph that is open after getting the search-list items, to compare (and
+    // make sure it hasn't changed).
     const currentGraph = get(openGraphStore)
 
     // If search list items were found, and the Graph hasn't changed,
@@ -291,11 +233,14 @@ export const noteSearchListStore = writable( [] as NoteSearchListItem[] )
  * @returns - Array of the stored Notes search list items, if any.
  */
 export async function storeNotesSearchList(): Promise<NoteSearchListItem[]> {
-
+    // Get the name of the Graph that is open before getting the Notes-list items.
     const graphWhenStarting = get(openGraphStore)
 
+    // Get an array of Notes-search-list items from the back-end.
     const queriedNoteSearchListItems = await getNoteSearchListItems()
 
+    // Get the name of the Graph that is open after getting the Notes-list items, to compare (and
+    // make sure it hasn't changed).
     const currentGraph = get(openGraphStore)
 
     // If search list items were found, and the Graph hasn't changed,
@@ -378,4 +323,67 @@ export async function removeIdsFromNoteSearchListStore( noteIds: number | number
  */
 export async function clearNoteSearchList(): Promise<void> {
     noteSearchListStore.set([])
+}
+
+
+/**
+ * Perspective-Thing-ID Store.
+ * 
+ * Holds the ID of the Graph's Perspective Thing.
+ */
+export const perspectiveThingIdStore = writable( null as number | null )
+
+/**
+ * Perspective-Space-ID Store.
+ * 
+ * Holds the ID of the Graph's Perspective Space.
+ */
+export const perspectiveSpaceIdStore = writable( null as number | null )
+
+
+/**
+ * Graph-IDs-needing-viewer-refresh store.
+ * 
+ * Adding a Graph ID to this store causes the corresponding Graph viewers to be
+ * reactively refreshed.
+ */
+export const graphIdsNeedingViewerRefresh = writable( [] as number[] )
+
+/**
+ * Add-Graph-IDs-needing-viewer-refresh method.
+ * 
+ * Adds Graph IDs to the Graph-IDs-needing-viewer-refresh store.
+ * @param graphIds = The IDs of the Graphs to be added.
+ */
+export function addGraphIdsNeedingViewerRefresh(graphIds: number | number[]): void {
+    // Repackage single IDs in arrays for processing.
+    if (typeof graphIds === "number") graphIds = [graphIds]
+
+    // For each specified ID, add it to the store if it's not there yet.
+    for (const graphId of graphIds) {
+        graphIdsNeedingViewerRefresh.update( current => {
+            if (!current.includes(graphId)) current.push(graphId)
+            return current
+        } )
+    }
+}
+
+/**
+ * Remove-Graph-IDs-needing-viewer-refresh method.
+ * 
+ * Removes Graph IDs from the Graph-IDs-needing-viewer-refresh store.
+ * @param graphIds = The IDs of the Graphs to be removed.
+ */
+export function removeGraphIdsNeedingViewerRefresh(graphIds: number | number[]): void {
+    // Repackage single IDs in arrays for processing.
+    if (typeof graphIds === "number") graphIds = [graphIds]
+
+    // For each specified ID, remove it from the store.
+    for (const graphId of graphIds) {
+        graphIdsNeedingViewerRefresh.update( current => {
+            const index = current.indexOf(graphId)
+            if (index > -1) current.splice(index, 1)
+            return current
+        } )
+    }
 }

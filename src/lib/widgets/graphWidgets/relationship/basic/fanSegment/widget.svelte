@@ -19,7 +19,7 @@
      * @param relatableForCurrentDrag - Whether the widget is a valid target for an in-progress drag-relate operation.
      * @param tweenedScale - The scale of the Graph widget, smoothly interpolated across changes.
      * @param midline - The horizontal midline of the Relationship Stem.
-     * @param stemTop - The vertical position of the top of the Relationship Stem.
+     * @param fanBottom - The vertical position of the bottom of the Relationship Fan.
      * @param leafGeometry - The coordinates of the points of the Relationship Leaf.
      * @param relationshipColor - The color of the Relationship widget.
      */
@@ -28,7 +28,7 @@
     export let relatableForCurrentDrag: boolean
     export let tweenedScale: number
     export let midline: number
-    export let stemTop: number
+    export let fanBottom: number
     export let leafGeometry: { bottom: number, top: number, bottomMidline: number, topMidline: number }
     export let relationshipColor: string
     export let openCommandPalette: (event: MouseEvent) => void
@@ -116,7 +116,7 @@
         class="fan-segment-hover-zone"
         class:read-only-mode={$readOnlyMode}
 
-        x1="{midline}" y1="{stemTop}"
+        x1="{midline}" y1="{fanBottom}"
         x2="{leafGeometry.bottomMidline}" y2="{leafGeometry.bottom}"
         style="stroke-width: {8 / tweenedScale};"
         
@@ -135,7 +135,7 @@
         class:soft-highlight={ highlightLevel === "soft-highlight" }
         class:hard-highlight={ highlightLevel === "hard-highlight" }
 
-        x1="{midline}" y1="{stemTop}"
+        x1="{midline}" y1="{fanBottom}"
         x2="{leafGeometry.bottomMidline}" y2="{leafGeometry.bottom}"
         style="stroke-width: {3 / tweenedScale};"
     />  

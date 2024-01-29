@@ -50,9 +50,9 @@
 
 
     $: showStem = (
-        relationshipsExist
+        (relationshipsExist && thingCohort.indexOfGrandparentThing === null)
         || ofPerspectiveThing
-        || (relatableForCurrentDrag && stemHovered)
+        || (relatableForCurrentDrag && thingCohort.indexOfGrandparentThing === null && stemHovered)
         || isDragRelateSource
         || cladeHovered
     )
@@ -62,7 +62,9 @@
         (
             (
                 ofPerspectiveThing
-                || thingCohort.members.length > 1
+                || thingCohort.members
+                    .filter(thingCohortMember => thingCohortMember.alreadyRendered === false)
+                    .length > 1
                 || cladeHovered
                 || stemHovered
             )
@@ -113,6 +115,7 @@
     <!-- Hoverable zone of stem. -->
     <g
         class="stem-hover-zone"
+        class:hidden={!showStem}
         class:readOnlyMode={$readOnlyMode}
 
         on:mouseenter={ () => {
@@ -206,11 +209,13 @@
             style="stroke-width: 64;"
         />
 
-        <circle
-            cx={midline}
-            cy={directionWidgetOffsetFromRelationshipsTop}
-            r={32}
-        />
+        {#if showDirectionCircle}
+            <circle
+                cx={midline}
+                cy={directionWidgetOffsetFromRelationshipsTop}
+                r={32}
+            />
+        {/if}
     </g>
 
 
@@ -267,6 +272,10 @@
 
         pointer-events: auto;
         cursor: pointer;
+    }
+
+    .stem-hover-zone.hidden {
+        visibility: hidden;
     }
 
     .stem-hover-zone.readOnlyMode {

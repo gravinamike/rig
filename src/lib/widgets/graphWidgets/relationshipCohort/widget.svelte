@@ -61,6 +61,7 @@
     let midline = 0
     let stemBottom = 0
     let stemTop = 0
+    let fanBottom = 0
     let showRelationships = false
     let relationshipColor = "#000000"
     let halfAxisId: HalfAxisId = 0
@@ -152,6 +153,7 @@
     bind:midline
     bind:stemBottom
     bind:stemTop
+    bind:fanBottom
     bind:showRelationships
     bind:relationshipColor
     bind:halfAxisId
@@ -227,7 +229,7 @@
                             {graph}
                             {graphWidgetStyle}
                             {midline}
-                            {stemTop}
+                            {fanBottom}
                             bind:thingIdOfHoveredRelationship
                             {halfAxisId}
                             {thingWidth}

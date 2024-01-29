@@ -88,6 +88,7 @@
     export let midline = 0
     export let stemBottom = 0
     export let stemTop = 0
+    export let fanBottom = 0
     export let showRelationships = false
     export let relationshipColor = "#000000"
     export let halfAxisId: HalfAxisId | null
@@ -225,6 +226,8 @@
                 )
                 // and the widget is hovered,
                 && stemHovered
+                // and the half-axis is not retrograde,
+                && thingCohort.indexOfGrandparentThing === null
                 // and there is no Relationship being hovered.
                 && !thingIdOfHoveredRelationship
             )
@@ -358,6 +361,11 @@
      * rotation based on the half-axis. 
      */
     $: stemTop = relationshipsLength * 0.42
+
+    $: fanBottom = relationshipsLength * (
+        thingCohort.indexOfGrandparentThing === null ? 0.42 :
+        2/3
+    )
 
     /**
      * Show-relationships flag.

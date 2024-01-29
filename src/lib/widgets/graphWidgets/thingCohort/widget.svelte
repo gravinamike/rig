@@ -123,7 +123,13 @@
     on:keydown={()=>{}}
 >
     <!-- Thing Cohort bounding border. -->
-    {#if showMembers && thingCohortMembersToDisplay.length > 1}
+    {#if
+        showMembers
+        && thingCohortMembersToDisplay
+            .filter(thingCohortMemberToDisplay => thingCohortMemberToDisplay.alreadyRendered === false)
+            .length > 1
+        && thingCohort.indexOfGrandparentThing === null
+    }
 
         <div
             class="thing-cohort-border"

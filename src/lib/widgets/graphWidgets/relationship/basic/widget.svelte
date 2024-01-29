@@ -22,7 +22,7 @@
      * @param graph - The Graph that the Relationship is in.
      * @param graphWidgetStyle - Controls the style of the Graph widget.
      * @param midline - The horizontal mid-line position of the Relationship stem.
-     * @param stemTop - The vertical position of the top of the Relationship stem.
+     * @param fanBottom - The vertical position of the bottom of the Relationship fan.
      * @param thingIdOfHoveredRelationship - The ID of the Thing associated with the currently-hovered Relationship.
      * @param halfAxisId - The ID of the half-axis the Relationship is on.
      * @param thingWidth - The width of a Thing widget.
@@ -40,7 +40,7 @@
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
     export let midline: number
-    export let stemTop: number
+    export let fanBottom: number
     export let thingIdOfHoveredRelationship: number | null
     export let halfAxisId: HalfAxisId
     export let thingWidth: number
@@ -121,7 +121,7 @@
         bind:thingIdOfHoveredRelationship
         tweenedScale={$tweenedScale}
         {midline}
-        {stemTop}
+        {fanBottom}
         leafGeometry={leafGeometry}
         {thingCohortMemberWithIndex}
         {relationshipColor}

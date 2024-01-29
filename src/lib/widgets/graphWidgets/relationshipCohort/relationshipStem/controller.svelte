@@ -112,7 +112,6 @@
                 alreadyRendered: false
             })
             graph.formActive = true
-            console.log(thingCohortMembersToDisplay)
         }
         // Refresh the view.
         addGraphIdsNeedingViewerRefresh(graph.id)

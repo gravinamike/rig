@@ -13,16 +13,16 @@
         urlStore, loadingState, rightSideMenuStore, openGraphStore, addGraph, removeGraph,
         getGraphConstructs, graphIdsNeedingViewerRefresh, addGraphIdsNeedingViewerRefresh,
         removeGraphIdsNeedingViewerRefresh, homeThingIdStore,
-        perspectiveThingIdStore, perspectiveSpaceIdStore, hoveredThingIdStore, 
+        perspectiveThingIdStore, perspectiveSpaceIdStore, hoveredThingIdStore
     } from "$lib/stores"
 
     // Import layout elements.
     import { SideMenu, Tooltip } from "$lib/widgets/layoutWidgets"
 
     // Import viewers.
+    import { defaultGraphWidgetStyle, GraphWidget, GraphOutlineWidget } from "$lib/widgets/graphWidgets"
     import { FolderViewer } from "$lib/viewers/folderViewers"
     import { NotesViewer } from "$lib/viewers/notesViewers"
-    import { defaultGraphWidgetStyle, GraphWidget, GraphOutlineWidget } from "$lib/widgets/graphWidgets"
 
     // Import API functions.
     import { markThingsVisited } from "$lib/db/makeChanges"
@@ -36,6 +36,8 @@
      * @param graph - The Graph that the viewer is displaying.
      * @param graphWidgetStyle - Controls the visual style of the Graph.
      * @param allowZoomAndScrollToFit - Whether or not to allow reactive zooming and scrolling after a re-Perspect.
+     * @param rightMenuOpen - Whether or not the right-hand side-menu is open.
+     * @param closeRightMenu - Method to close the right-hand side-menu.
      * @param rePerspectToThingId - Method to rebuild the Graph around a new Perspective Thing.
      * @param back - Method to navigate a step backwards in the Perspective history.
      * @param forward - Method to navigate a step forwards in the Perspective history.
@@ -53,6 +55,11 @@
     export let back: () => void
     export let forward: () => void
     export let setGraphSpace: (space: Space | number) => void
+
+
+
+    // Component dimensions.
+    let width = 1
 
 
     // Show-Graph flag. This is a kludge, to ensure that the Graph widgets are
@@ -99,11 +106,12 @@
         usePortraitLayout ? window.innerHeight * 0.5 :
         onMobile() ? (window.innerWidth - 187) * 0.5 :
         (window.innerWidth - 250) * 0.5
+    let sideMenuFullSize = false
     $: sideMenuFullSizeExtension =
         usePortraitLayout ? window.innerHeight :
         onMobile() ? width :
         null
-
+    
 
     // Refresh the viewer whenever...
     // ...a Graph is opened...
@@ -142,6 +150,7 @@
             graph = null
         }
 
+        // Get information about which Space to use from the URL.
         const urlHashParams = urlHashToObject($urlStore.hash)
         const spaceIdToUse =
             "spaceId" in urlHashParams && stringRepresentsInteger(urlHashParams["spaceId"]) ? parseInt(urlHashParams["spaceId"]) :
@@ -153,26 +162,22 @@
             alert(`No Space with ID ${spaceIdToUse} was found. Using default Space instead.`)
         }
         
-
         // Open and build the new Graph.
         graph = await addGraph(pThingIds as number[], depth, null, false, false, spaceToUse)
         graphWidgetStyle = {...defaultGraphWidgetStyle}
         await markThingsVisited(pThingIds as number[])
 
+        // Set information about the state of the side-menus.
         rightMenuOpen = !!$rightSideMenuStore
         rightMenuLockedOpen = !!$rightSideMenuStore
         openedSubMenuName = $rightSideMenuStore || "Notes"
         lockedSubMenuName = $rightSideMenuStore
-
         await sleep(500) // Allow side-menu to open.
 
         // Refresh the Graph viewers.
         showGraph = true
         addGraphIdsNeedingViewerRefresh(graph.id)
     }
-
-    // This indicates whether a re-Perspect operation is in progress but not yet completed.
-    //let rePerspectInProgressThingId: number | null = null
 
     /**
      * Re-Perspect-to-Thing-ID method.
@@ -208,11 +213,15 @@
             await markThingsVisited(pThingIds as number[])
             perspectiveThingIdStore.set(thingId)
 
+            // Set the Graph's original starting Space to null.
             graph.originalStartingSpace = null
+
+            // Update the URL to reflect the new Perspective Thing.
             updateUrlHash({
                 thingId: String(thingId)
             })
 
+            // Save the Graph configuration.
             saveGraphConfig()
 
             // Record that the re-Perspect operation is finished.
@@ -251,9 +260,9 @@
      * @param space - The Space in which to rebuild the Graph.
      */
     setGraphSpace = async (space: Space | number) => {
-        
+        // Get the Space to use (either the supplied Space or the Space that matches the supplied
+        // number.)
         let spaceToUse: Space | null
-
         if (typeof space === "number") {
             spaceToUse = getGraphConstructs("Space", space) as Space | null
             if (!spaceToUse) {
@@ -263,11 +272,14 @@
             spaceToUse = space
         }
 
+        // If the Space to use is null, revert URL to the previous Space.
         if (!spaceToUse) {
-            // Revert URL to previous Space.
             updateUrlHash({
                 spaceId: String($perspectiveSpaceIdStore)
             })
+
+        // Otherwise, update the URL for the new Space, set the Space as the Graph's Perspective
+        // Space, and refresh the Graph.
         } else if (graph && spaceToUse?.id) {
             updateUrlHash({
                 spaceId: String(spaceToUse.id)
@@ -277,10 +289,6 @@
             addGraphIdsNeedingViewerRefresh(graph.id)
         }
     }
-
-
-    let width = 1
-    let sideMenuFullSize = false
 </script>
 
 
@@ -365,6 +373,7 @@
 
         style="border-right: solid 1px {$uIHeaderColorStore}; background-color: {$uITrimColorStore};"
     >
+        <!-- Forward button. -->
         <div
             class="nav-button"
 
@@ -382,6 +391,7 @@
             />
         </div>
 
+        <!-- Back button. -->
         <div
             class="nav-button"
 
@@ -399,6 +409,7 @@
             />
         </div>
 
+        <!-- Home button. -->
         {#if $homeThingIdStore}
             <div
                 class="nav-button"
@@ -419,7 +430,6 @@
             </div>
         {/if}
     </div>
-
 </div>
 
 

@@ -217,6 +217,11 @@
         [1, 2].includes(halfAxisId) ? offsetsOfRelatedThing?.y || 0 :
         offsetsOfRelatedThing?.x || 0
 
+
+    
+
+
+
     /**
      * Offset of related Thing along Relationship Cohort width.
      * 
