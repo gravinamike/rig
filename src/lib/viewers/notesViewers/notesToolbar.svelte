@@ -7,8 +7,8 @@
 
     // Import stores.
     import {
-        fontNames, uIBackgroundColorStore,
-        enableThingLinking, enableTextHyperlinking, defaultFontStore, 
+        uIBackgroundColorStore, fontNames, defaultFontStore,
+        enableTextHyperlinking, enableThingLinking
     } from "$lib/stores"
 
     // Import utility functions.
@@ -307,6 +307,7 @@
     >
         <!-- Font family, size, and header level selectors. -->
         <div class="button-group">
+            <!-- Font-family selector. -->
             <select
                 class="font-picker"
 
@@ -322,6 +323,7 @@
                 {/each}
             </select>
 
+            <!-- Font-size selector. -->
             <select
                 class="font-size-picker"
 
@@ -337,6 +339,7 @@
                 {/each}
             </select>
 
+            <!-- Header-level selector (also includes other block formats). -->
             <select
                 class="level-picker"
 
@@ -347,6 +350,7 @@
                     `H${currentSelectionHeaderLevel}`
                 }
             >
+                <!-- Header-level options. -->
                 {#each headerLevels as headerLevel}
                     <option
                         value={headerLevel === null ? "Body" : `H${headerLevel}`}
@@ -365,6 +369,7 @@
                     </option>
                 {/each}
 
+                <!-- Block-quote options. -->
                 <option
                     value="Blockquote"
                     on:click={() => {
@@ -376,6 +381,7 @@
                     Blockquote
                 </option>
 
+                <!-- Block-quote option. -->
                 <option
                     value="Code block"
                     on:click={() => {
@@ -388,6 +394,7 @@
                 </option>
             </select>
 
+            <!-- Color picker. -->
             <input
                 class="color-picker"
                 type="color"
@@ -415,11 +422,7 @@
         <!-- Empty space for the edit button. -->
         <div
             class="edit-button-spacer"
-
-            style={
-                onMobile() ? "width: 45px; flex: 0 0 45px" :
-                "width: 55px; flex: 0 0 55px"
-            }
+            class:on-mobile={onMobile()}
         />
     </div>
 {/if}
@@ -517,8 +520,17 @@
     }
 
     .edit-button-spacer {
+        flex: 0 0 55px;
+
+        width: 55px;
         height: 100%;
 
         align-items: center;
+    }
+
+    .edit-button-spacer.on-mobile {
+        flex: 0 0 45px;
+        
+        width: 45px;
     }
 </style>

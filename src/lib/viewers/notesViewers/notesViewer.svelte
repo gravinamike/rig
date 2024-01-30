@@ -11,7 +11,9 @@
 
     // Import stores.
     import {
-        landscapeOrientation, notesBackgroundImageStore, notesEditorLockedStore, readOnlyMode, storeGraphDbModels, titleFontStore, titleFontWeightStore, uITrimColorStore, updateNoteSearchListStore
+        landscapeOrientation, readOnlyMode,
+        notesBackgroundImageStore, uITrimColorStore, titleFontStore, titleFontWeightStore,
+        notesEditorLockedStore, storeGraphDbModels, updateNoteSearchListStore
     } from "$lib/stores"
 
     // Import utility functions.
@@ -26,8 +28,8 @@
     // Import API methods.
     import { saveGraphConfig } from "$lib/shared/config"
     import {
-        getThingsByGuid, addNoteToThingOrGetExistingNoteId, updateNote,
-        markNotesModified, getNoteSearchListItems
+        getThingsByGuid, addNoteToThingOrGetExistingNoteId,
+        updateNote, markNotesModified, getNoteSearchListItems
     } from "$lib/db"
 
 
@@ -61,102 +63,6 @@
     // Whether the viewer is locked in editing mode.
     let editingLocked = $notesEditorLockedStore
 
-    // Flags for interactions with the editing button.
-    let editButtonHovered = false
-    let editingLockJustToggled = false
-
-
-    /* Editing-/saving-state-related variables. */
-
-    // Whether the Note text has been edited in the editor.
-    let editorTextEditedButNotSynced = false
-
-    // Timestamp histories of non-resolved Note creation and save operations.
-    let noteDbCreationAttemptTimestamps: string[] = []
-    let noteDbSaveOperationTimestamps: string[] = []
-
-    // Whether the Notes are currently in the process of being saved to the database, and whether
-    // there has been an error in that process.
-    $: savingNotesToDb = noteDbSaveOperationTimestamps.length > 0 ? true : false
-    let savingNotesError = false
-
-
-
-    /* Text-related variables. */
-
-    // Note title (Thing text).
-    $: title = graph.pThing ? graph.pThing.text : "THING NOT FOUND IN STORE"
-
-    // Raw Note text.
-    let currentPThingNoteText: string | null = null
-
-    // Note text formatted for display.
-    let viewerDisplayText: string | null = null
-
-    // The current text content of the editor.
-    let currentEditorTextContent: string | null = null
-
-
-    /* UI-related variables. */
-
-    // Notes-background image URL (if any).
-    $: notesBackgroundImageUrl =
-        $notesBackgroundImageStore ? `customizable/background-images/${$notesBackgroundImageStore}` :
-        null
-
-    
-    
-
-
-    /* Thing-related variables. */
-
-    // The Graph's Perspective Thing info is proxied here, to prevent reactive updates whenever the
-    // Graph is refreshed.
-    let pThing = graph.pThing
-    let pThingNoteId = graph.pThing?.note?.id || null
-
-
-
-
-
-
-
-
-
-    $: updatePThing(graph.pThing)
-
-
-    $: if (pThing?.note?.text) {
-        currentPThingNoteText = null
-        viewerDisplayText = null
-    }
-
-    // When Perspective Thing changes, update the raw and display text to match
-    // (or, if the Perspective Thing doesn't yet have a Note, set blank text).
-    $: if (typeof pThing?.note?.text === "string") {
-        updateFrontEndTexts(pThing.note.text, true)
-    } else {
-        updateFrontEndTexts("", true)
-    }
-
-
-    $: if (currentEditorTextContent !== null && editorTextEditedButNotSynced) {
-        updateTextsAndDbToMatchEditorContent(currentEditorTextContent)
-    }
-
-    
-
-
-    
-
-    
-
-    // Set up custom hyperlink handling for Thing-links.
-    document.addEventListener("click", handleHyperlinkClick)
-    
-    
-    
-
     // Show the edit-lock icon in the edit button if...
     $: showEditingLockedIcon = (
         (
@@ -187,11 +93,59 @@
     ) ? true :
     false
 
+    // Flags for interactions with the editing button.
+    let editButtonHovered = false
+    let editingLockJustToggled = false
 
+    // Set up custom hyperlink handling for Thing-links.
+    document.addEventListener("click", handleHyperlinkClick)
+
+
+    /* Editing-/saving-state-related variables. */
+
+    // Whether the Note text has been edited in the editor.
+    let editorTextEditedButNotSynced = false
+
+    // If the Notes have been changed in the editor but haven't been synced yet, sync them with the
+    // local proxies and the back-end database.
+    $: if (currentEditorTextContent !== null && editorTextEditedButNotSynced) {
+        updateTextsAndDbToMatchEditorContent(currentEditorTextContent)
+    }
+
+    // Timestamp histories of non-resolved Note creation and save operations.
+    let noteDbCreationAttemptTimestamps: string[] = []
+    let noteDbSaveOperationTimestamps: string[] = []
+
+    // Whether the Notes are currently in the process of being saved to the database, and whether
+    // there has been an error in that process.
+    $: savingNotesToDb = noteDbSaveOperationTimestamps.length > 0 ? true : false
+    let savingNotesError = false
 
     
 
-    
+    /* Text-related variables. */
+
+    // Note title (Thing text).
+    $: title = graph.pThing ? graph.pThing.text : "THING NOT FOUND IN STORE"
+
+    // Raw Note text.
+    let currentPThingNoteText: string | null = null
+
+    // Note text formatted for display.
+    let viewerDisplayText: string | null = null
+
+    // The current text content of the editor.
+    let currentEditorTextContent: string | null = null
+
+
+    /* UI-related variables. */
+
+    // Notes-background image URL (if any).
+    $: notesBackgroundImageUrl =
+        $notesBackgroundImageStore ? `customizable/background-images/${$notesBackgroundImageStore}` :
+        null
+
+    // When the editor is toggled, set the scroll height of the text field to match its content.
     $: {
         editing
 
@@ -199,12 +153,30 @@
     }
 
 
+    /* Thing-related variables. */
 
+    // The Graph's Perspective Thing info is proxied here, to prevent reactive updates whenever the
+    // Graph is refreshed.
+    let pThing = graph.pThing
+    let pThingNoteId = graph.pThing?.note?.id || null
 
+    // Update the Perspective Thing that the Notes are based on when the Graph or its Perspective
+    // Thing change.
+    $: updatePThing(graph.pThing)
 
+    // When the Perspective Thing changes, update the raw and display text to match (or, if the
+    // Perspective Thing doesn't yet have a Note, set blank text).
+    $: if (typeof pThing?.note?.text === "string") {
+        updateFrontEndTexts(pThing.note.text, true)
+    } else {
+        updateFrontEndTexts("", true)
+    }
 
-
-
+    // If the Perspective Thing's Note text is ever null, set variables that reference it to null.
+    $: if (pThing?.note?.text) {
+        currentPThingNoteText = null
+        viewerDisplayText = null
+    }
 
 
 
@@ -378,8 +350,6 @@
     }
 
 
-
-
     /**
      * Handle-possible-outside-click method.
      * 
@@ -522,7 +492,6 @@
 
     style="background-color: {$uITrimColorStore};"
 >
-
     <!-- Title. -->
     <div
         class="title"
@@ -566,26 +535,23 @@
 
         <!-- Note display. -->
         {:else}
+            <!-- Note text display. -->
             <div
                 class="notes-display"
                 class:on-mobile={onMobile()}
+                class:has-background-image={notesBackgroundImageUrl !== null}
 
                 bind:this={textField}
                 bind:clientHeight={textFieldClientHeight}
                 
-                style={
-                    notesBackgroundImageUrl ? `
-                        background-image: url(${notesBackgroundImageUrl});
-                        background-size: 100% 100vh;
-                    ` :
-                    ""
-                }
+                style={notesBackgroundImageUrl ? `background-image: url(${notesBackgroundImageUrl});` : ""}
 
                 on:scroll={() => {textFieldScrollTop = textField.scrollTop}}
             >
                 {@html viewerDisplayText}
             </div>
 
+            <!-- Jump-to-top/bottom buttons. -->
             <TopBottomJumpButtons
                 scrollableDiv={textField}
                 scrollableDivScrollTop={textFieldScrollTop}
@@ -594,6 +560,7 @@
             />
         {/if}
 
+        <!-- Saving indicator. -->
         <SavingIndicator
             saving={savingNotesToDb}
             error={savingNotesError}
@@ -617,6 +584,7 @@
             on:click={handleEditButton}
             on:keydown={()=>{}}
         >
+            <!-- Editing status icon. -->
             <img
                 src={
                     showEditingLockedIcon ? "./icons/lock-edit.png" : "./icons/edit.png" }
@@ -626,6 +594,7 @@
                 height=28px
             >
 
+            <!-- Tooltip. -->
             <Tooltip
                 text={
                     editing === false ? "Edit Notes." :
@@ -745,6 +714,10 @@
         padding: 0.5rem 1rem 0.5rem 1rem;
 
         font-size: 0.85rem;
+    }
+
+    .notes-display.has-background-image {
+        background-size: 100% 100vh;
     }
 
     :global(.notes-display li > p) {

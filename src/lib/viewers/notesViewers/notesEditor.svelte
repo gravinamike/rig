@@ -1,11 +1,11 @@
 <script lang="ts">
-    // Import framework resources.
+    // Import SvelteKit framework resources.
     import { onMount, onDestroy, tick } from "svelte"
 
     // Import stores.
-    import { enableTextHyperlinking, enableThingLinking, notesBackgroundImageStore } from "$lib/stores"
+    import { notesBackgroundImageStore, enableTextHyperlinking, enableThingLinking } from "$lib/stores"
 
-    // Import Tiptap resources
+    // Import Tiptap resources.
     import { Editor } from "@tiptap/core"
     import StarterKit from "@tiptap/starter-kit"
     import TextStyle from '@tiptap/extension-text-style'
@@ -64,9 +64,6 @@
         })
     ]
 
-    // Whether the control key is currently pressed.
-    let ctrlKeyPressed = false
-
 
     // Set the background image URL if one is set in the configuration file.
     $: notesBackgroundImageUrl =
@@ -77,6 +74,9 @@
     // editor to that Note text.
     $: if (typeof currentPThingNoteText === "string") setContent(currentPThingNoteText)
 
+
+    // Whether the control key is currently pressed.
+    let ctrlKeyPressed = false
 
     // Set up hotkeys for Thing-linking and hyperlinking.
     window.addEventListener("keydown", (event)=> {
@@ -238,6 +238,7 @@
     <div
         class="text-field"
         class:on-mobile={onMobile()}
+        class:has-background-image={notesBackgroundImageUrl !== null}
         class:ctrlKeyPressed
 
         bind:this={textField}
@@ -247,13 +248,7 @@
         on:wheel|stopPropagation
         on:keydown={()=>{}}
 
-        style={
-            notesBackgroundImageUrl ? `
-                background-image: url(${notesBackgroundImageUrl});
-                background-size: 100% 100vh;
-            ` :
-            ""
-        }
+        style={notesBackgroundImageUrl ? `background-image: url(${notesBackgroundImageUrl});` : ""}
 
         on:scroll={() => {textFieldScrollTop = textField.scrollTop}}
     />
@@ -261,6 +256,7 @@
     <!-- Jump-to-top/bottom buttons. -->
     <div
         class="jump-buttons-container"
+        
         style="height: {textFieldClientHeight}px;"
     >
         <TopBottomJumpButtons
@@ -316,6 +312,10 @@
         scrollbar-width: thin;
 
         text-align: left;
+    }
+
+    .text-field.has-background-image {
+        background-size: 100% 100vh;
     }
 
     .jump-buttons-container {
