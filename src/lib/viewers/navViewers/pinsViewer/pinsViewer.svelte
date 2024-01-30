@@ -3,20 +3,28 @@
     import type { ThingDbModel } from "$lib/models/dbModels"
     import type { Graph, Thing } from "$lib/models/constructModels"
     
-    // Import framework functions.
+    // Import SvelteKit framework resources.
     import { flip } from "svelte/animate"
 
+    // Import utility functions.
+    import { changeIndexInArray, onMobile } from "$lib/shared/utility"
+
     // Import stores.
-    import { pinIdsStore, storeGraphDbModels, graphDbModelInStore, getGraphConstructs, setPins, readOnlyMode, uIBackgroundColorStore, uIHeaderColorStore, titleFontStore, titleFontWeightStore } from "$lib/stores"
+    import {
+        uIBackgroundColorStore, uIHeaderColorStore, titleFontStore, titleFontWeightStore,
+        readOnlyMode, pinIdsStore, setPins,
+        storeGraphDbModels, graphDbModelInStore, getGraphConstructs
+    } from "$lib/stores"
 
     // Import related widgets.
     import PinWidget from "./pinWidget.svelte"
-    import { changeIndexInArray, onMobile } from "$lib/shared/utility"
+
 
 
     export let graph: Graph | null
     export let useTabbedLayout: boolean
     export let rePerspectToThingId: (thingId: number) => Promise<void>
+
 
 
     // Pin information objects include IDs and associated Things.
@@ -82,12 +90,10 @@
         // Update the store and the config file.
         setPins( pins.map(pin => pin.thingId) )
     }
-
-
-
 </script>
 
 
+<!-- Pins viewer. -->
 {#if pins.length}
     <div
         class="pins-viewer"
@@ -96,7 +102,7 @@
 
         style="background-color: {$uIBackgroundColorStore};"
     >
-
+        <!-- Pins viewer header. -->
         {#if !useTabbedLayout}
             <div
                 class="title-container"
@@ -107,23 +113,27 @@
                     font-weight: {$titleFontWeightStore ?? 600};
                 "
             >
+                <!-- Pin icon. -->
                 <img
                     src="./icons/pin.png"
                     alt="History icon"
                     width=27px
                     height=27px
                 >
+
+                <!-- Title. -->
                 <div class="title">
                     Pins
                 </div>
             </div>
         {/if}
         
-
+        <!-- Pins -->
         <div
             class="content"
         >
             {#each pins as pin, index (pin.thingId)}
+                <!-- Draggable Pin widget. -->
                 <div
                     draggable={ $readOnlyMode ? false : true }
                     animate:flip={{ duration: 250 }}

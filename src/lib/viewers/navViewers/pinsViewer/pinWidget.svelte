@@ -1,16 +1,24 @@
 <script lang="ts">
-    /* Type imports. */
+    /* Import types. */
     import type { Graph, Thing } from "$lib/models/constructModels"
-    import { onMobile } from "$lib/shared/utility";
 
-    /* Store-related imports. */
-    import { homeThingIdStore, hoveredThingIdStore, lightenOrDarkenColorString, openContextCommandPalette, readOnlyMode, removeHomeThing, removePin, setHomeThingId, uITrimColorStore } from "$lib/stores"
+    /* Import stores. */
+    import {
+        uITrimColorStore, lightenOrDarkenColorString, readOnlyMode,
+        removePin, homeThingIdStore, setHomeThingId, removeHomeThing,
+        hoveredThingIdStore, openContextCommandPalette
+    } from "$lib/stores"
+
+    // Import utility functions.
+    import { onMobile } from "$lib/shared/utility"
+
 
 
     /**
-     * @param  {number} thingId - The ID of the Thing this Widget represents.
-     * @param  {Thing | null} thing - The Thing this Widget represents.
-     * @param  {(thingId: number) => Promise<void>} rePerspectToThingId - A function that re-perspects the Graph to a given Thing ID.
+     * @param thingId - The ID of the Thing this Widget represents.
+     * @param thing - The Thing this Widget represents.
+     * @param graph - The Graph that the Thing is Pinned for.
+     * @param rePerspectToThingId - A function that re-perspects the Graph to a given Thing ID.
      */
     export let thingId: number
     export let thing: Thing | null
@@ -18,19 +26,23 @@
     export let rePerspectToThingId: (thingId: number) => Promise<void>
 
 
-    // Store subscriptions.
-    let hoveredThingIdStoreValue: number | null
-    hoveredThingIdStore.subscribe(value => {hoveredThingIdStoreValue = value})
 
-    // Reactive declarations.
+    // Get the UI color for highlighted Pin widgets.
+    const highlightedColor = lightenOrDarkenColorString($uITrimColorStore, "lighter", 50)
+    
+    // The text of the Pinned Thing.
     $: thingText = thing?.text || `(THING ${thingId} NOT FOUND IN STORE)`
+
 
     /**
      * Open a context command palette for this Pin.
      * @param  {MouseEvent} event - The mouse event that opens the command palette.
      */
     function openPinContextCommandPalette(event: MouseEvent) {
+        // Get the position of the mouse click.
         const position: [number, number] = [ event.clientX, event.clientY ]
+
+        // Set up the button infos for the command palette.
         const buttonInfos = [
             {
                 text: "Remove Thing from Pins",
@@ -56,52 +68,29 @@
                 }
             )
         ]
+
+        // Open the command palette.
         openContextCommandPalette(position, buttonInfos)
     }
-
-
-
-
-
-
-
-
-
-
-
-    const highlightedColor = lightenOrDarkenColorString($uITrimColorStore, "lighter", 50)
-    
-
-
-
-
-
-
-
-
 </script>
 
 
 <!-- Pin Widget. -->
 <div
-    class="
-        pin-widget
-        { thing ? "" : "thing-id-not-found" }
-    "
+    class="pin-widget"
     class:on-mobile={onMobile()}
+    class:thing-id-not-found={!thing}
     class:home-thing={ thingId === $homeThingIdStore }
 
-
-    style={thingId === hoveredThingIdStoreValue ? `background-color: ${highlightedColor};` : ""}
-
+    style={thingId === $hoveredThingIdStore ? `background-color: ${highlightedColor};` : ""}
     
     on:mouseenter={()=>{hoveredThingIdStore.set(thingId)}}
     on:mouseleave={()=>{hoveredThingIdStore.set(null)}}
-
     on:click={ () => { if (thing) rePerspectToThingId(thingId) } }
     on:keydown={()=>{}}
     on:contextmenu|preventDefault={ (event) => {if (!$readOnlyMode) openPinContextCommandPalette(event)} }
 >
+    <!-- Home-Thing icon. -->
     {#if thingId === $homeThingIdStore}
         <div class="icon-container home">
             <img
@@ -111,8 +100,10 @@
         </div>
     {/if}
 
+    <!-- Text of the Pinned Thing. -->
     {thingText}
 
+    <!-- Perspective-Thing icon. -->
     {#if (thingId === graph?.history.selectedThingId)}
         <div class="icon-container perspective">
             <img

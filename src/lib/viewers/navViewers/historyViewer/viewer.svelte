@@ -2,21 +2,23 @@
     // Import types.
     import type { Graph } from "$lib/models/constructModels"
 
-    // Import basic framework resources.
-    import { onMobile } from "$lib/shared/utility"
-
     // Import constants.
     import { dateDividerOptions } from "$lib/shared/constants"
 
     // Import stores.
     import {
-        uIBackgroundColorStore, readOnlyMode, pinIdsStore, addPin, removePin,
-        homeThingIdStore, setHomeThingId, removeHomeThing,
-        hoveredThingIdStore, openContextCommandPalette, uIHeaderColorStore, lightenOrDarkenColorString, uITrimColorStore, titleFontStore, titleFontWeightStore   
+        uITrimColorStore, uIBackgroundColorStore, uIHeaderColorStore, lightenOrDarkenColorString,
+        titleFontStore, titleFontWeightStore, readOnlyMode,
+        pinIdsStore, addPin, removePin, homeThingIdStore, setHomeThingId, removeHomeThing,
+        hoveredThingIdStore, openContextCommandPalette
     } from "$lib/stores"
+
+    // Import utility functions.
+    import { onMobile } from "$lib/shared/utility"
 
     // Import related widgets.
     import { Toggle } from "$lib/widgets/layoutWidgets"
+
 
 
     /**
@@ -29,11 +31,15 @@
     export let rePerspectToThingId: (thingId: number) => Promise<void>
 
 
+
+    // Get the UI color for highlighted History entries.
+    const highlightedColor = lightenOrDarkenColorString($uITrimColorStore, "lighter", 50)
+
     // Set up full/unique history toggling.
     let useUniqueHistory = true
     $: graph.history.setUnique(useUniqueHistory)
 
-    // The history to use is the reversed history with date dividers, made
+    // The History to use is the reversed History with date dividers, made
     // reactive to the full/unique history toggle.
     let historyToUse = graph.history.reverseHistoryWithDateDividers
     $: {
@@ -43,11 +49,17 @@
 
     
     /**
-     * Open a context command palette for a History entry.
-     * @param  {MouseEvent} event - The mouse event that opens the command palette.
+     * Open-History-context-command-palette method.
+     * 
+     * Opens a context command palette for a History entry.
+     * @param event - The mouse event that opens the command palette.
+     * @param thingId - The ID of the Thing associated with the History entry.
      */
     function openHistoryContextCommandPalette(event: MouseEvent, thingId: number) {
+        // Get the position of the mouse click.
         const position: [number, number] = [ event.clientX, event.clientY ]
+
+        // Set up the command palette's buttons.
         const buttonInfos = [
             (
                 $pinIdsStore.includes(thingId) ? {
@@ -82,23 +94,10 @@
                 }
             )
         ]
+
+        // Open the command palette.
         openContextCommandPalette(position, buttonInfos)
     }
-
-
-
-
-
-
-    const highlightedColor = lightenOrDarkenColorString($uITrimColorStore, "lighter", 50)
-
-
-
-
-
-
-
-
 </script>
 
 
@@ -151,18 +150,19 @@
 
     <!-- History list. -->
     <div class="content">
+        <!-- History entries. -->
         {#each historyToUse as entryOrDivider, index}
-
-            <!-- History entry. -->
             {#if "thingId" in entryOrDivider}
-
+                <!-- History entry. -->
                 <div
                     class="box"
                     class:id-not-found={!entryOrDivider.thing}
                     class:home-thing={ entryOrDivider.thingId === $homeThingIdStore }
 
-                    style={entryOrDivider.thingId === $hoveredThingIdStore ? `background-color: ${highlightedColor};` : ""}
-
+                    style={
+                        entryOrDivider.thingId === $hoveredThingIdStore ? `background-color: ${highlightedColor};` :
+                        ""
+                    }
 
                     on:mouseenter={ () => {
                         if (
@@ -187,6 +187,7 @@
                     } }
                     on:keydown={()=>{}}
                 >
+                    <!-- Home-Thing icon. -->
                     {#if entryOrDivider.thingId === $homeThingIdStore}
                         <div class="icon-container home">
                             <img
@@ -196,8 +197,10 @@
                         </div>
                     {/if}
                     
+                    <!-- Thing-not-found text (if applicable). -->
                     { entryOrDivider.thing?.text || `(THING ${entryOrDivider.thingId} NOT FOUND IN STORE)` }
                     
+                    <!-- Perspective-Thing icon. -->
                     {#if (
                         (useUniqueHistory && entryOrDivider.thingId === graph.history.selectedThingId)
                         || (!useUniqueHistory && ((historyToUse.length - 1) - index) === graph.history.position)
@@ -213,16 +216,12 @@
 
             <!-- Date divider. -->
             {:else}
-
                 <div class="date-divider">
                     {entryOrDivider.timestamp.toLocaleDateString("en-US", dateDividerOptions)}
                 </div>
-
             {/if}
-            
         {/each}
     </div>
-
 </div>
 
 
