@@ -8,6 +8,7 @@
 
     // Import related widgets.
     import { HalfAxisWidget, ThingWidget, ThingFormWidget, OffAxisRelationsWidget } from "$lib/widgets/graphWidgets"
+    import { relationshipBeingCreatedInfoStore } from "$lib/stores";
     
     
 
@@ -125,6 +126,10 @@
         {#if
             forceShowHalfAxisWidgets
             || thingCohort.members.length !== 0
+            || (
+                $relationshipBeingCreatedInfoStore.sourceThingId === thingCohort.parentThingId
+                && $relationshipBeingCreatedInfoStore.sourceHalfAxisId === thingCohort.halfAxisId
+            )
         }
             <!-- Half-axis widget. -->
             <HalfAxisWidget

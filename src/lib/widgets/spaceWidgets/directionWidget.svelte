@@ -203,5 +203,22 @@
         top: 5%;
         width: 90%;
         height: 90%;
+        opacity: 0.33;
+    }
+
+    .direction-widget:not(.rectangular):hover .direction-widget-text-container {        
+        opacity: 100%;
+    }
+
+    .direction-widget:not(.rectangular).dropdown-open .direction-widget-text-container {        
+        opacity: 100%;
+    }
+
+    .direction-widget.part-opaque .direction-widget-text-container {
+        opacity: 0.75;
+    }
+
+    .direction-widget.fully-opaque .direction-widget-text-container {
+        opacity: 100%;
     }
 </style>

@@ -16,6 +16,7 @@
 
     // Import widget controller.
     import RelationshipCohortWidgetController from "./controller.svelte"
+    import { relationshipBeingCreatedInfoStore } from "$lib/stores";
 
 
 
@@ -115,8 +116,6 @@
 
 
     let relationshipHovered = false
-
-
 </script>
 
 

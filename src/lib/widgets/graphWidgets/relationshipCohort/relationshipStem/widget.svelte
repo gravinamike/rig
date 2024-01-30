@@ -228,6 +228,7 @@
             && (stemHovered || relationshipHovered || thingHovered)
         }
         class:clicked={ stemClicked || isDragRelateSource}
+        class:drag-relate-source={isDragRelateSource}
         class:thing-cohort-has-things={thingCohort.members.length}
         class:popup-on-clade-hover={popupOnCladeHover}
     >
@@ -294,15 +295,19 @@
         opacity: 0.5;
     }
 
-    .stem-image.clicked {
-        opacity: 1.0;
-    }
-
     .stem-image:not(.thing-cohort-has-things):not(.hovered) {
         opacity: 0.1;
     }
 
     .stem-image.popup-on-clade-hover:not(.hovered) {
         opacity: 0.5;
+    }
+
+    .stem-image.clicked {
+        opacity: 1.0;
+    }
+
+    .stem-image.drag-relate-source {
+        opacity: 1.0 !important;
     }
 </style>

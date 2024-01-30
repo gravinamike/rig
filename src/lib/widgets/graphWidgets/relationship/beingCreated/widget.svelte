@@ -233,7 +233,7 @@
             position: absolute;
             left: {midpointPositionX}px; top: {midpointPositionY}px;
             transform: translate(-50%, -50%) scale({$tweenedScale});
-            z-index: 6;
+            z-index: 5;
             opacity: {opacity};
             display: flex; flex-direction: row;
         "
