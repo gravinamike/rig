@@ -123,6 +123,18 @@
 
     
 
+    /* Thing-related variables. */
+
+    // The Graph's Perspective Thing info is proxied here, to prevent reactive updates whenever the
+    // Graph is refreshed.
+    let pThing = graph.pThing
+    let pThingNoteId = graph.pThing?.note?.id || null
+
+    // Update the Perspective Thing that the Notes are based on when the Graph or its Perspective
+    // Thing change.
+    $: updatePThing(graph.pThing)
+
+
     /* Text-related variables. */
 
     // Note title (Thing text).
@@ -133,9 +145,23 @@
 
     // Note text formatted for display.
     let viewerDisplayText: string | null = null
-
+    
     // The current text content of the editor.
     let currentEditorTextContent: string | null = null
+
+    // If the Perspective Thing or its Note text changes, set variables that reference it to null.
+    $: if (pThing?.note?.text) {
+        currentPThingNoteText = null
+        viewerDisplayText = null
+    }
+
+    // When the Perspective Thing changes, update the raw and display text to match (or, if the
+    // Perspective Thing doesn't yet have a Note, set blank text).
+    $: if (typeof pThing?.note?.text === "string") {
+        updateFrontEndTexts(pThing.note.text, true)
+    } else {
+        updateFrontEndTexts("", true)
+    }
 
 
     /* UI-related variables. */
@@ -150,32 +176,6 @@
         editing
 
         textFieldScrollHeight = textField?.scrollHeight || 0
-    }
-
-
-    /* Thing-related variables. */
-
-    // The Graph's Perspective Thing info is proxied here, to prevent reactive updates whenever the
-    // Graph is refreshed.
-    let pThing = graph.pThing
-    let pThingNoteId = graph.pThing?.note?.id || null
-
-    // Update the Perspective Thing that the Notes are based on when the Graph or its Perspective
-    // Thing change.
-    $: updatePThing(graph.pThing)
-
-    // When the Perspective Thing changes, update the raw and display text to match (or, if the
-    // Perspective Thing doesn't yet have a Note, set blank text).
-    $: if (typeof pThing?.note?.text === "string") {
-        updateFrontEndTexts(pThing.note.text, true)
-    } else {
-        updateFrontEndTexts("", true)
-    }
-
-    // If the Perspective Thing's Note text is ever null, set variables that reference it to null.
-    $: if (pThing?.note?.text) {
-        currentPThingNoteText = null
-        viewerDisplayText = null
     }
 
 
