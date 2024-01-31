@@ -1,10 +1,10 @@
 <script lang="ts">
     // Import types.
+    import type { SpaceDbModel } from "$lib/models/dbModels"
     import type { Graph, Space } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
-    import type { SpaceDbModel } from "$lib/models/dbModels"
 
-    // Import framework functions.
+    // Import SvelteKit framework functions.
     import { tick } from "svelte"
     import { flip } from "svelte/animate"
 
@@ -21,6 +21,7 @@
     import { readOnlyMode, spaceEditingInProgressIdStore, uIBackgroundColorStore } from "$lib/stores"
 
 
+
     /**
      * @param graph - The Graph that the Directions are part of.
      * @param graphWidgetStyle - Controls the visual style of the Graph.
@@ -29,6 +30,7 @@
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
     export let setGraphSpace: (space: Space) => void
+
 
 
     // Get array of Spaces.
@@ -44,6 +46,11 @@
         spaceIds = spaces.map(space => space ? Number(space.id) : -1)
     }
     $: getSpaceIdsFromDbModels($spaceDbModelsStoreAsArray)
+
+
+
+    // HTML element handles.
+    let scrollArea: HTMLElement
 
 
     /**
@@ -97,17 +104,20 @@
         await storeGraphDbModels("Space")
     }
 
-
-    let scrollArea: HTMLElement
-    
+    /**
+     * Add-Space form.
+     * 
+     * Adds a blank Space form to the end of the list of Spaces.
+     */
     async function addSpaceForm() {
+        // Add a null (representing a blank Space form) to the array of Spaces.
         spaces.push(null)
         spaces = spaces // Needed for reactivity.
+
+        // Scroll to the Space form.
         await tick()
         scrollArea.scrollTo({top: scrollArea.scrollHeight, behavior: "smooth"})
     }
-
-
 </script>
 
 
@@ -124,6 +134,7 @@
         bind:this={scrollArea}
     >
         {#each spaces as space, index (space?.id || -1)}
+            <!-- Space widget. -->
             <div
                 draggable={ $readOnlyMode || $spaceEditingInProgressIdStore.size ? false : true }
                 animate:flip={{ duration: 250 }}
@@ -142,9 +153,9 @@
             </div>
         {/each}
     </div>
-
 </div>
 
+<!-- Add-Space button. -->
 <div
     class="add-space-button"
     class:on-mobile={onMobile()}

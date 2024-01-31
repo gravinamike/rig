@@ -1,15 +1,21 @@
 <script lang="ts">
-    // Import types.
+    // Import types.    
+    import type { DirectionDbModel } from "$lib/models/dbModels"
     import type { Direction, Graph } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
-    import type { DirectionDbModel } from "$lib/models/dbModels"
 
     // Import framework functions.
     import { tick } from "svelte"
     import { flip } from "svelte/animate"
 
-    // Import stores and utility functions.
-    import { directionDbModelsStoreAsArray, directionEditingInProgressIdStore, getGraphConstructs, readOnlyMode, storeGraphDbModels, uIBackgroundColorStore } from "$lib/stores"
+    // Import stores.
+    import {
+        uIBackgroundColorStore, readOnlyMode, 
+        getGraphConstructs, storeGraphDbModels,
+        directionDbModelsStoreAsArray, directionEditingInProgressIdStore
+    } from "$lib/stores"
+    
+    // Import utility functions.
     import { changeIndexInArray, onMobile, sleep } from "$lib/shared/utility"
 
     // Import related widgets.
@@ -20,12 +26,19 @@
     import { reorderDirection } from "$lib/db"
 
 
+
     /**
      * @param graph - The Graph that the Directions are part of.
      * @param graphWidgetStyle - Controls the visual style of the Graph.
      */
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
+
+
+
+    // HTML element handles.
+    let scrollArea: HTMLElement
+
 
     // Get array of Directions.
     let unsortedDirectionIds: number[] = []
@@ -40,6 +53,7 @@
         directionIds = directions.map(direction => direction ? Number(direction.id) : -1)
     }
     $: getDirectionIdsFromDbModels($directionDbModelsStoreAsArray)
+
 
 
     /**
@@ -93,25 +107,33 @@
         await storeGraphDbModels("Direction")
     }
 
-
-
-    let scrollArea: HTMLElement
-    
+    /**
+     * Add-Direction-form method.
+     * 
+     * Add a blank Direction form at the bottom of the list of Directions.
+     */
     async function addDirectionForm() {
-        await sleep(50) // Prevent the click that called this method from escaping the form.
+        // Prevent the click that called this method from escaping the form.
+        await sleep(50)
+
+        // Add a null (representing a Direction form) to the array of Directions.
         directions.push(null)
         directions = directions // Needed for reactivity.
+
+        // Scroll to the form.
         await tick()
         scrollArea.scrollTo({top: scrollArea.scrollHeight, behavior: "smooth"})
     }
 
+    /**
+     * Remove-Direction-form method.
+     * 
+     * Remove a blank Direction form from the bottom of the list of Directions.
+     */
     function removeDirectionForm() {
         directions.pop()
         directions = directions // Needed for reactivity.
     }
-
-
-
 </script>
 
 
@@ -128,6 +150,7 @@
         bind:this={scrollArea}
     >
         {#each directions as direction, index (direction?.id || -index)}
+            <!-- Direction widget. -->
             <div
                 draggable={ $readOnlyMode || $directionEditingInProgressIdStore.size ? false : true }
                 animate:flip={{ duration: 250 }}
@@ -151,6 +174,7 @@
     </div>
 </div>
 
+<!-- Add-Direction button. -->
 <div
     class="add-direction-button"
     class:on-mobile={onMobile()}
