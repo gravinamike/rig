@@ -164,6 +164,27 @@ export class ThingCohort {
     }
 
     /**
+     * Is-retrograde method.
+     * 
+     * Indicates whether the Thing Cohort (and by extension, its half-axis) is "retrograde", or
+     * doubled-back in the opposite Direction of its parent Thing's Thing Cohort.
+     * @returns - Whether the Thing Cohort is retrograde.
+     */
+    get isRetrograde(): boolean {
+        // The Thing Cohort is retrograde if...
+        const isRetrograde = (
+            // ...It only has one member, and...
+            this.members.length === 1
+            // it contains the Thing Cohort's grandparent Thing.
+            && this.indexOfGrandparentThing !== null
+            && this.indexOfGrandparentThing !== -1
+        )
+
+        // Return whether the Thing Cohort is retrograde.
+        return isRetrograde
+    }
+    
+    /**
      * Parent-Thing-Cohort method.
      * 
      * Gets the Thing Cohort's parent Thing Cohort (the Thing Cohort which its

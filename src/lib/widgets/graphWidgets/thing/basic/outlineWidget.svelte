@@ -5,18 +5,17 @@
 
     // Import stores.
     import {
-        hoveredThingIdStore, hoveredRelationshipTarget,
-        relationshipBeingCreatedInfoStore,
-        setRelationshipBeingCreatedDestThingId, disableRelationshipBeingCreated,
-        pinIdsStore, openContextCommandPalette, addPin, removePin, readOnlyMode,
+        readOnlyMode, hoveredThingIdStore, hoveredRelationshipTarget,
+        relationshipBeingCreatedInfoStore, setRelationshipBeingCreatedDestThingId, disableRelationshipBeingCreated
     } from "$lib/stores"
 
     // Import widget controller.
     import ThingWidgetController from "./controller.svelte"
 
     // Import related widgets.
-    import { ThingDetailsWidget } from "$lib/widgets/detailsWidgets"
+    import { NotesViewer } from "$lib/viewers/notesViewers"
     import DeleteWidget from "$lib/widgets/layoutWidgets/deleteWidget.svelte"
+
 
 
     /**
@@ -33,52 +32,38 @@
     export let rePerspectToThingId: (id: number) => Promise<void>
 
 
+
+    // Handles for HTML element dimensions.
+    let width = 1
+    let height = 1
+
     // Attributes handled by widget controller.
-    let encapsulatingDepth: number = 0
-    let elongationCategory: "vertical" | "horizontal" | "neutral"
     let thingWidgetId: string
-    let isEncapsulating: boolean
-    let relatableForCurrentDrag: boolean
     let thingWidth: number
     let thingHeight: number
+    let encapsulatingDepth: number = 0
+    let elongationCategory: "vertical" | "horizontal" | "neutral"
+    let isEncapsulating: boolean
     let textFontSize: number
+    let highlighted: boolean
+    let isHoveredWidget: boolean
+    let relatableForCurrentDrag: boolean
     let showDeleteButton: boolean
+    let confirmDeleteBoxOpen: boolean
     let handleMouseDown: (event: MouseEvent | TouchEvent) => void
     let handleMouseDrag: (event: MouseEvent | TouchEvent) => void
     let onBodyMouseUp: (event: MouseEvent | TouchEvent) => void
     let openCommandPalette: (event: MouseEvent) => void
     let startDelete: () => void
     let completeDelete: () => void
-    
-
-    // Handles for HTML element dimensions.
-    let width = 1
-    let height = 1
-    
-
-    /* Variables dealing with visual formatting of the Thing itself (color, opacity, outline, etc.). */
-    let isHoveredWidget = false
-    $: isHoveredThing = thingId === $hoveredThingIdStore
-    $: relationshipBeingCreated = false/*$relationshipBeingCreatedInfoStore.sourceWidgetModel ? true : false*/
-    $: highlighted = isHoveredThing && !(relationshipBeingCreated && !relatableForCurrentDrag) ? true : false
-
-    /* Variables dealing with associated components. */
-    const showContent = false // Content is in development - so `showContent` will eventually be a variable.
-    let confirmDeleteBoxOpen = false
 
 
-    /**
-     * Open a context command palette for this Thing.
-     * 
-     * @param  {MouseEvent} event - The right-click mouse event that triggered the context command palette.
-     */
-    openCommandPalette = (event: MouseEvent) => {
-        const position = [event.clientX, event.clientY] as [number, number]
-        const buttonInfos = $pinIdsStore.includes(thingId) ?
-            [{ text: "Remove Thing from Pins", iconName: "no-pin", iconHtml: null, isActive: false, onClick: () => {removePin(thingId)} }] :
-            [{ text: "Add Thing to Pins", iconName: "pin", iconHtml: null, isActive: false, onClick: () => {addPin(thingId)} }]
-        openContextCommandPalette(position, buttonInfos)
-    }
+
+
+
+
+    const showThingText = true
+    const showNote = !graph.offAxis
 </script>
 
 
@@ -90,19 +75,17 @@
     {isHoveredWidget}
     {rePerspectToThingId}
 
+    bind:thingWidgetId
+    bind:highlighted
     bind:encapsulatingDepth
     bind:thingWidth
     bind:thingHeight
-
-    bind:confirmDeleteBoxOpen
-
-    bind:thingWidgetId
-    bind:textFontSize
-    bind:showDeleteButton
     bind:elongationCategory
     bind:isEncapsulating
+    bind:textFontSize
     bind:relatableForCurrentDrag
-
+    bind:showDeleteButton
+    bind:confirmDeleteBoxOpen
     bind:handleMouseDown
     bind:handleMouseDrag
     bind:onBodyMouseUp
@@ -116,14 +99,13 @@
 {#if thing}
     <div
         id="{thingWidgetId}"
-        class="box thing-outline-widget" class:highlighted
+        class="thing-outline-widget"
+        class:box={graph.offAxis}
+        class:off-axis={graph.offAxis}
+        class:highlighted
 
         bind:clientWidth={width}
         bind:clientHeight={height}
-
-        style="
-            border-radius: 10px;
-        "
 
         on:mouseenter={()=>{
             hoveredThingIdStore.set(thingId)
@@ -157,33 +139,26 @@
         <!-- Thing text. -->
         <div
             class="text-container"
-            class:horizontal={showContent && elongationCategory === "horizontal"}
-            class:sideways={showContent && elongationCategory !== "horizontal"}
-            style="width: 100%;"
+            class:box={!graph.offAxis}
         >
             <div
                 class="thing-text"
                 class:encapsulating={isEncapsulating}
-                class:show-content={showContent}
-                class:hide-content={!showContent}
-                style="width: 100%; font-size: {textFontSize}px;"
+
+                style="font-size: {(graph.offAxis ? 1: 0.75) * textFontSize}px;"
             >
                 {thing.text}
             </div>
         </div>
 
-        <!-- Content box. -->
-        {#if showContent && thing.dbModel}
-            <div 
-                class="content-box"
-                class:horizontal={elongationCategory === "horizontal"}
-                class:vertical={!(elongationCategory === "horizontal")}
-            >
-                <ThingDetailsWidget
-                    thingDbModel={thing.dbModel}
-                    freestanding={false}
-                />
-            </div>
+        {#if showNote}
+            <NotesViewer
+                {graph}
+                {thing}
+                outlineFormat={true}
+                fullSize={false}
+                {rePerspectToThingId}
+            />
         {/if}
 
         <!-- Delete controls. -->
@@ -193,6 +168,7 @@
             thingWidth={width}
             thingHeight={height}
             {encapsulatingDepth}
+            trashIcon={true}
             {startDelete}
             {completeDelete}
         />
@@ -201,16 +177,6 @@
 
 
 <style>
-    .box {
-        outline: solid 0.25px lightgrey;
-        outline-offset: -0.25px;
-
-        height: max-content;
-        background-color: white;
-
-        cursor: default;
-    }
-
     .thing-outline-widget {        
         position: relative;
 
@@ -219,23 +185,67 @@
         pointer-events: auto;
     }
 
+    .thing-outline-widget:not(.off-axis) {
+        display: flex;
+        flex-direction: column;
+        padding: 0.25rem;
+        gap: 0.25rem;
+    }
+
+
+
+
+
+
+
     .highlighted {
         outline: solid 2px black;
         outline-offset: -2px;
     }
 
-    .text-container {        
+    .box {
+        outline: solid 0.25px lightgrey;
+        outline-offset: -0.25px;
+        border-radius: 5px;
+
+        height: max-content;
+        background-color: white;
+
+        padding: 1rem;
+
+        cursor: default;
+    }
+
+    .thing-outline-widget:not(.off-axis) .box {
+        padding: 0.25rem;
+    }
+
+    .text-container {
+        width: 100%;
+
         text-align: left;
     }
 
-    .text-container.sideways {
-        transform: rotate(-90deg);
+    .thing-outline-widget:not(.off-axis) .text-container {
+        position: relative;
+        height: 15px;
     }
 
     .thing-text {
         margin-left: 0.5rem;
 
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 100%; 
+        transform: translate(-50%, -50%);
+
+        white-space: nowrap;
         font-weight: 600;
+    }
+
+    .thing-outline-widget:not(.off-axis) .thing-text {
+        margin-left: 0.35rem;
     }
 
     .thing-text.encapsulating {
@@ -243,48 +253,5 @@
         transform: translate(0%, -50%);
 
         white-space: nowrap;
-    }
-
-    .thing-text.show-content {
-        text-align: center;
-    }
-
-    .thing-text.hide-content {
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        
-        white-space: nowrap;
-    }
-
-    .content-box {
-        outline: inset 1px lightgrey;
-        outline-offset: -1px;
-
-        position: absolute;
-        background-color: white;
-
-        overflow-x: hidden;
-        overflow-y: auto;
-        scrollbar-width: thin;
-    }
-
-    .content-box.horizontal {
-        border-radius: 0 6px 6px 0;
-        
-        width: calc(100% - 50px);
-        height: calc(100% - 10px);
-        top: 5px;
-        right: 5px;
-    }
-
-    .content-box.vertical {
-        border-radius: 0 0 6px 6px;
-
-        width: calc(100% - 10px);
-        height: calc(100% - 50px);
-        bottom: 5px;
-        left: 5px;
     }
 </style>

@@ -6,14 +6,16 @@
     // Import SvelteKit framework resources.
     import { tick } from "svelte"
 
-    // Import utility functions.
-    import { readOnlyArrayToArray, sleep } from "$lib/shared/utility"
-
     // Import constants.
     import {
             cartesianHalfAxisIds, orderedCartesianHalfAxisIds, orderedNonCartesianHalfAxisIds
     } from "$lib/shared/constants"
     
+    // Import stores.
+    import { reorderingInfoStore } from "$lib/stores"
+
+    // Import utility functions.
+    import { readOnlyArrayToArray, sleep } from "$lib/shared/utility"
 
     
 
@@ -59,6 +61,8 @@
     export let showCladeRootThing = true
     export let expandable = false
     export let expanded = false
+    export let toggleHovered = false
+    export let showToggle = false
 
     export let overlapMarginStyleText: string = ""
     export let rootThingOffsetFromCenterOfThingCohort = 0
@@ -234,7 +238,6 @@
         false :
         true
 
-
     /**
      * Expandable flag.
      * 
@@ -261,8 +264,26 @@
     $: expanded =
         expandable && rootThing.address?.generationId === 0 ? true :
         false
-    
-    
+
+    /**
+     * Show-toggle flag.
+     * 
+     * Determines whether to show the expand/collapse toggle. (Currently only applies for outline
+     * widgets).
+     */
+    $: showToggle = (
+        // Show the toggle if...
+        (
+            // ...there is no reordering operation in progress and the toggle is hovered, or...
+            !$reorderingInfoStore.reorderInProgress
+            && toggleHovered
+        )
+        // ...the Clade is currently expanded.
+        || expanded
+    )
+
+
+
     /* --------------- Supporting attributes. --------------- */
     
 

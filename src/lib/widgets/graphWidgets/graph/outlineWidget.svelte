@@ -10,6 +10,7 @@
     import { ThingCohortOutlineWidget } from "$lib/widgets/graphWidgets"
     
 
+
     /**
      * @param graph - The Graph that the widget is based on.
      * @param graphWidgetStyle - Controls the style of the widget.
@@ -24,13 +25,11 @@
 <!-- Graph outline widget. -->
 <div
     class="graph-outline-widget"
+    class:off-axis={graph.offAxis}
 
-    style={
-        graph.offAxis ? "padding: 0rem;" :
-        `background-color: ${$uITrimColorStore}; padding: 0.25rem;`
-    }
+    style={graph.offAxis ? "" : `background-color: ${$uITrimColorStore};`}
 >
-    <!-- Root Cohort Widget (from which the rest of the Graph Outline automatically "grows"). -->
+    <!-- Root Thing Cohort Widget (from which the rest of the Graph Outline automatically "grows"). -->
     {#if graph.rootCohort}
         <ThingCohortOutlineWidget
             thingCohort={graph.rootCohort}
@@ -48,9 +47,15 @@
         width: 100%;
         height: 100%;
 
+        padding: 0.25rem;
+
         overflow-x: hidden;
         overflow-y: auto;
         
         user-select: none;
+    }
+
+    .graph-outline-widget.off-axis {
+        padding: 0rem;
     }
 </style>

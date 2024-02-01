@@ -36,10 +36,14 @@
 
     /**
      * @param graph - The Graph that this widget is displaying Notes for.
+     * @param thing - The Thing that this widget is displaying Notes for. (If null, defaults to the Perspective Thing of the Graph.)
+     * @param outlineFormat - Whether to format the viewer for use in a Graph outline widget.
      * @param fullSize: Whether the viewer's menu is opened to full-size.
      * @param rePerspectToThingId - Method to re-Perspect the Graph to a given Thing ID.
      */
     export let graph: Graph
+    export let thing: Thing | null = null
+    export let outlineFormat = false
     export let fullSize: boolean
     export let rePerspectToThingId: (thingId: number) => Promise<void>
 
@@ -125,23 +129,23 @@
 
     /* Thing-related variables. */
 
-    // The Graph's Perspective Thing info is proxied here, to prevent reactive updates whenever the
-    // Graph is refreshed.
-    let pThing = graph.pThing
-    let pThingNoteId = graph.pThing?.note?.id || null
-
-    // Update the Perspective Thing that the Notes are based on when the Graph or its Perspective
+    // The Thing info is proxied here, to prevent reactive updates whenever the Graph or Thing is
+    // refreshed.
+    let thingToUse = thing === null ? graph.pThing : thing
+    let thingNoteId = thingToUse?.note?.id ?? null
+    console.log(thingToUse)
+    // Update the Thing that the Notes are based on when the Graph or its Perspective
     // Thing change.
-    $: updatePThing(graph.pThing)
+    $: updateThing(thing ?? graph.pThing)
 
 
     /* Text-related variables. */
 
     // Note title (Thing text).
-    $: title = graph.pThing ? graph.pThing.text : "THING NOT FOUND IN STORE"
+    $: title = thing?.text ?? "THING NOT FOUND IN STORE"
 
     // Raw Note text.
-    let currentPThingNoteText: string | null = null
+    let currentThingNoteText: string | null = null
 
     // Note text formatted for display.
     let viewerDisplayText: string | null = null
@@ -149,16 +153,16 @@
     // The current text content of the editor.
     let currentEditorTextContent: string | null = null
 
-    // If the Perspective Thing or its Note text changes, set variables that reference it to null.
-    $: if (pThing?.note?.text) {
-        currentPThingNoteText = null
+    // If the Thing or its Note text changes, set variables that reference it to null.
+    $: if (thing?.note?.text) {
+        currentThingNoteText = null
         viewerDisplayText = null
     }
 
-    // When the Perspective Thing changes, update the raw and display text to match (or, if the
-    // Perspective Thing doesn't yet have a Note, set blank text).
-    $: if (typeof pThing?.note?.text === "string") {
-        updateFrontEndTexts(pThing.note.text, true)
+    // When the Thing changes, update the raw and display text to match (or, if the Thing doesn't
+    // yet have a Note, set blank text).
+    $: if (typeof thing?.note?.text === "string") {
+        updateFrontEndTexts(thing.note.text, true)
     } else {
         updateFrontEndTexts("", true)
     }
@@ -181,16 +185,16 @@
 
 
     /**
-     * Update-Perspective-Thing method.
+     * Update-Thing method.
      * 
-     * Updates the local proxy of the Graph's Perspective Thing (as well as the associated Note
-     * ID).
-     * @param newPThing - The new Perspective Thing.
+     * Updates the local proxy of the Thing the Notes are associated with (as well as the
+     * associated Note ID).
+     * @param newThing - The new Thing.
      */
-    function updatePThing(newPThing: Thing | null) {
-        if (newPThing !== pThing) {
-            pThing = newPThing
-            pThingNoteId = newPThing?.note?.id || null
+    function updateThing(newThing: Thing | null) {
+        if (newThing !== thing) {
+            thing = newThing
+            thingNoteId = newThing?.note?.id || null
         }
     }
 
@@ -215,14 +219,14 @@
     /**
      * Update-front-end-texts method.
      * 
-     * Updates the different versions of the Note text (the proxy of the current Perspective Thing
-     * Note text and the text in the Notes display) to the supplied string.
+     * Updates the different versions of the Note text (the proxy of the current Thing Note text
+     * and the text in the Notes display) to the supplied string.
      * @param text - The string to update the texts to.
      * @param scrollToTop - Whether to scroll the Notes viewer to the top after updating.
      */
     async function updateFrontEndTexts(text: string, scrollToTop=false) {
         // Set the other versions of the Notes text to the supplied string.
-        currentPThingNoteText = text
+        currentThingNoteText = text
         viewerDisplayText = textForDisplay(text)
 
         // Update the scroll height of the text field to reflect the new text.
@@ -239,13 +243,13 @@
     /**
      * Create-and-update-Note-in-database method.
      * 
-     * Creates a Note for the Perspective Thing if necessary, then updates either the new Note or
-     * its existing Note based on the supplied string.
+     * Creates a Note for the Thing if necessary, then updates either the new Note or its existing
+     * Note based on the supplied string.
      * @param currentEditorTextContent - The string to set the Note to.
      */
     async function createAndUpdateNoteInDatabase(currentEditorTextContent: string) {
-        // If there are any Note-creation attempts in progress, delay the
-        // update a bit, then try again.
+        // If there are any Note-creation attempts in progress, delay the update a bit, then try
+        // again.
         if (noteDbCreationAttemptTimestamps.length > 0) {
             await sleep(100)
             createAndUpdateNoteInDatabase(currentEditorTextContent)
@@ -253,7 +257,7 @@
         // Otherwise, (create if necessary, then) update the Note.
         } else {
             // Get the ID of the Note to update.
-            let noteIdToUpdate: number | null = pThingNoteId
+            let noteIdToUpdate: number | null = thingNoteId
 
             // If there is no such Note yet, create it.
             if (noteIdToUpdate === null) {
@@ -279,11 +283,11 @@
      * Create Note if none exists for this Thing.
      */
     async function createNoteIfNecessary(): Promise<number | false> {
-        // If there is no Perspective Thing ID to create a Note for, abort.
-        if (!graph.pThing?.id) return false
+        // If there is no Thing ID to create a Note for, abort.
+        if (!thing?.id) return false
 
         // Create a new Note.
-        const createdNoteId = await addNoteToThingOrGetExistingNoteId(graph.pThing.id)
+        const createdNoteId = await addNoteToThingOrGetExistingNoteId(thing.id)
         
         // Return the ID of the new Note, or false if no Note was created.
         if (!createdNoteId) return false
@@ -323,12 +327,12 @@
         if (!updated) return
 
         // Mark that the Note has been modified in the database, and set the local proxy of the
-        // Perspective Thing Note ID to the Note ID.
+        // Thing Note ID to the Note ID.
         await markNotesModified(noteId)
-        pThingNoteId = noteId
+        thingNoteId = noteId
 
         // Update the Note in the stores and the Graph.
-        if (graph.pThing?.id) await storeGraphDbModels<ThingDbModel>("Thing", graph.pThing.id, true)
+        if (thing?.id) await storeGraphDbModels<ThingDbModel>("Thing",thing.id, true)
         viewerDisplayText = textForDisplay(newText)
 
         // Update the Note search list.
@@ -339,9 +343,9 @@
     /**
      * Text-for-display method.
      * 
-     * Reformats Perspective Thing text to make it suitable for display mode
-     * (so empty paragraphs and line breaks render correctly).
-     * @param text - The Perspective Thing text to be processed.
+     * Reformats Thing text to make it suitable for display mode (so empty paragraphs and line
+     * breaks render correctly).
+     * @param text - The Thing text to be processed.
      */
     function textForDisplay(text: string) {
         return text
@@ -475,6 +479,23 @@
             saveGraphConfig()
         }
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 </script>
 
 
@@ -489,44 +510,57 @@
 <div
     class="notes-viewer graph-{graph.id}"
     class:on-mobile={onMobile()}
+    class:outline-format={outlineFormat}
+    class:off-axis={graph.offAxis}
 
     style="background-color: {$uITrimColorStore};"
 >
     <!-- Title. -->
-    <div
-        class="title"
+    {#if !outlineFormat}
+        <div
+            class="title"
 
-        style="
-            margin-left: {onMobile() && !$landscapeOrientation ? 60 : 8}px;
-            margin-right: {onMobile() ? 45 : 0}px;
-            {
-                onMobile() ? (
-                    !$landscapeOrientation ? "position: relative; top: 5px; font-size: 0.9rem;" :
-                    "position: relative; top: 5px; left: 4px; font-size: 0.9rem;"
-                ) :
+            style="
+                margin-left: {onMobile() && !$landscapeOrientation ? 60 : 8}px;
+                margin-right: {onMobile() ? 45 : 0}px;
+                {
+                    onMobile() ? (
+                        !$landscapeOrientation ? "position: relative; top: 5px; font-size: 0.9rem;" :
+                        "position: relative; top: 5px; left: 4px; font-size: 0.9rem;"
+                    ) :
 
-                ""
-            }
-            font-family: {$titleFontStore ?? "Arial"};
-            font-weight: {$titleFontWeightStore ?? 600};
-        "
-    >
-        <div>{title}</div>
-    </div>
+                    ""
+                }
+                font-family: {$titleFontStore ?? "Arial"};
+                font-weight: {$titleFontWeightStore ?? 600};
+            "
+        >
+            <div>{title}</div>
+        </div>
+    {/if}
 
     <!-- Container to hold either Note display or Note editor. -->
     <div
         class="notes-container"
         bind:this={notesContainer}
 
-        style={onMobile() ? "font-size: 0.5rem; padding: 0.25rem 0.5rem 0.25rem 0.5rem;" : ""}
+        style={`
+            ${
+                onMobile() ? "font-size: 0.5rem; padding: 0.25rem 0.5rem 0.25rem 0.5rem;" : ""
+            }${
+                !graph.offAxis && outlineFormat ? `flex: 1 1 ${
+                    Math.max((textField?.scrollHeight || 0), 10)
+                }px;` : "flex: 1 1;"
+            }
+        `}
+        
         
         on:dblclick={ () => {editing = true} }
     >
         <!-- Note editor. -->
         {#if !$readOnlyMode && editing}
             <NotesEditor
-                {currentPThingNoteText}
+                currentPThingNoteText={currentThingNoteText}
                 bind:currentEditorTextContent
                 bind:editorTextEditedButNotSynced
                 bind:textField={textEditorField}
@@ -629,6 +663,13 @@
         padding: 0.25rem 0 0.25rem 0;
     }
 
+    .notes-viewer.outline-format {
+        outline: solid 1px grey;
+
+        padding: 0;
+        gap: 0;
+    }
+
     .edit-button {
 		border-radius: 5px;
 
@@ -684,13 +725,13 @@
     }
 
     .notes-container {
-        flex: 1 1;
-
         position: relative;
 
         display: flex;
         flex-direction: column;
     }
+
+
 
     .notes-display {
         flex: 1 1 0;
@@ -710,14 +751,18 @@
         white-space: pre-wrap;
     }
 
+    .notes-display.has-background-image {
+        background-size: 100% 100vh;
+    }
+
     .notes-display.on-mobile {
         padding: 0.5rem 1rem 0.5rem 1rem;
 
         font-size: 0.85rem;
     }
 
-    .notes-display.has-background-image {
-        background-size: 100% 100vh;
+    .notes-viewer.outline-format .notes-display {
+        padding: 0rem 0.5rem 0rem 0.5rem;
     }
 
     :global(.notes-display li > p) {

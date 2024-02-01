@@ -3,11 +3,8 @@
     import type { Graph, ThingCohort, Thing } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
-    // Import constants and utility functions.
+    // Import constants.
     import { relationshipColorByHalfAxisId } from "$lib/shared/constants"
-
-    // Import stores.
-    import { reorderingInfoStore } from "$lib/stores"
 
     // Import widget controller.
     import CladeWidgetController from "./controller.svelte"
@@ -19,12 +16,13 @@
     } from "$lib/widgets/graphWidgets"
     
 
+
     /**
-     * @param {Thing} rootThing - The Thing that forms the root of the Clade.
-     * @param {Graph} graph - The Graph that the Clade is in.
-     * @param {GraphWidgetStyle} graphWidgetStyle - Controls the visual styling of the Graph widget.
-     * @param {boolean} isFinalClade - Whether this is the final Clade for this parent Thing.
-     * @param {(thingId: number) => Promise<void>} rePerspectToThingId - A function that re-perspects the Graph to a given Thing ID.
+     * @param rootThing - The Thing that forms the root of the Clade.
+     * @param graph - The Graph that the Clade is in.
+     * @param graphWidgetStyle - Controls the visual styling of the Graph widget.
+     * @param isFinalClade - Whether this is the final Clade for this parent Thing.
+     * @param rePerspectToThingId - A function that re-perspects the Graph to a given Thing ID.
      */
     export let rootThing: Thing
     export let graph: Graph
@@ -32,6 +30,7 @@
     export let isFinalClade = false
     export let rePerspectToThingId: (id: number) => Promise<void>
     
+
 
     // Attributes managed by widget controller.
     let thingCohorts: ThingCohort[] = []
@@ -41,17 +40,11 @@
     let showCladeRootThing: boolean
     let expandable: boolean
     let expanded: boolean
+    let showToggle: boolean
     
 
-    // Toggle-state attributes.
+    // Whether the expand-/collapse-Clade toggle is hovered.
     let toggleHovered = false
-    $: showToggle = (
-        (
-            !$reorderingInfoStore.reorderInProgress
-            && toggleHovered
-        )
-        || expanded
-    )
 </script>
 
 
@@ -60,6 +53,7 @@
     {graph}
     {rootThing}
     {graphWidgetStyle}
+    {toggleHovered}
 
     bind:thingCohorts
     bind:orderedThingCohorts
@@ -68,6 +62,7 @@
     bind:showCladeRootThing
     bind:expandable
     bind:expanded
+    bind:showToggle
 />
 
 
@@ -75,13 +70,11 @@
 <div
     class="clade-outline-widget"
     class:expanded
-    class:has-children={thingCohorts.length}
+    class:has-children={thingCohorts.length > 0}
 >
-
     <!-- Root Thing (and indicator of its child Things). -->
     {#if showCladeRootThing}
         <div class="root-thing-and-children-indicator-container">
-
             <!-- Child Things indicator/toggle. -->
             {#if showCladeRootThing && expandable}
                 <div
@@ -130,14 +123,12 @@
                     />
                 {/if}
             </div>
-
         </div> 
     {/if}
 
-    <!-- The Thing's Relationships and child Cohorts (outer containers). -->
+    <!-- The Thing's Relationships and child Thing Cohorts (outer containers). -->
     {#each orderedThingCohortsWithMembers as thingCohort, i (thingCohort.address)}  
         <div class="relationships-and-child-cohorts-outer-container">
-
             <!-- Relationship color field. -->
             <div
                 class="relationship-color-field"
@@ -145,7 +136,7 @@
                 style="background-color: {relationshipColorByHalfAxisId[thingCohort.halfAxisId] || "dimgrey"};"
             />
 
-            <!-- The Thing's Relationships and child Cohorts (inner container). -->
+            <!-- The Thing's Relationships and child Thing Cohorts (inner container). -->
             <div
                 class="relationships-and-child-cohorts-inner-container"
                 
@@ -198,9 +189,7 @@
                         {rePerspectToThingId}
                     />
                 {/if}
-                
             </div>
-        
         </div>
     {/each}
 </div>
@@ -323,7 +312,9 @@
         display: inline;
     }
 
-    .relationships-and-child-cohorts-outer-container:hover > .relationships-and-child-cohorts-inner-container > .relationships-outline-widget-container {
+    .relationships-and-child-cohorts-outer-container:hover
+    > .relationships-and-child-cohorts-inner-container
+    > .relationships-outline-widget-container {
         display: inline;
     }
 </style>
