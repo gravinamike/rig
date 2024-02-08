@@ -1,5 +1,6 @@
 <script lang="ts">
     // Import types.
+    import type { Editor } from "@tiptap/core"
     import type { Graph, Thing } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets/graph"
 
@@ -29,6 +30,7 @@
     export let thing: Thing | null = null
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
+    export let activeNotesEditorForOutliner: Editor | null
     export let rePerspectToThingId: (id: number) => Promise<void>
 
 
@@ -164,6 +166,7 @@
                 outlineFormat={true}
                 makeRoomForThingText={!isRootClade}
                 fullSize={false}
+                bind:activeNotesEditorForOutliner
                 {rePerspectToThingId}
             />
         {/if}

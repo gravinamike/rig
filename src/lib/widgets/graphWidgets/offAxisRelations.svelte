@@ -218,6 +218,7 @@
             {#if graph && graph.lifecycleStatus === "built"}
                 <GraphOutlineWidget
                     bind:graph
+                    fullSize={false}
                     bind:graphWidgetStyle
                     {rePerspectToThingId}
                 />

@@ -1,5 +1,6 @@
 <script lang="ts">    
     // Import types.
+    import type { Editor } from "@tiptap/core"
     import type { Graph, ThingCohort, Thing } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
@@ -21,11 +22,13 @@
      * @param rootThing - The Thing that forms the root of the Clade.
      * @param graph - The Graph that the Clade is in.
      * @param graphWidgetStyle - Controls the visual styling of the Graph widget.
+     * @param activeNotesEditorForOutliner - The active Tiptap editor (if any) for the Graph outline widget this belongs to.
      * @param rePerspectToThingId - A function that re-perspects the Graph to a given Thing ID.
      */
     export let rootThing: Thing
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
+    export let activeNotesEditorForOutliner: Editor | null
     export let rePerspectToThingId: (id: number) => Promise<void>
     
 
@@ -83,6 +86,7 @@
                         thing={rootThing}
                         {graph}
                         {graphWidgetStyle}
+                        bind:activeNotesEditorForOutliner
                         {rePerspectToThingId}
                     />
 
@@ -185,6 +189,7 @@
                         {thingCohort}
                         bind:graph
                         bind:graphWidgetStyle
+                        bind:activeNotesEditorForOutliner
                         {rePerspectToThingId}
                     />
                 {/if}

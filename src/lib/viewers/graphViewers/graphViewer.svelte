@@ -341,6 +341,7 @@
                     <GraphOutlineWidget
                         bind:graph
                         {graphWidgetStyle}
+                        fullSize={sideMenuFullSize}
                         {rePerspectToThingId}
                     />
                 {/if}
@@ -352,6 +353,7 @@
                 <NotesViewer
                     {graph}
                     fullSize={sideMenuFullSize}
+                    activeNotesEditorForOutliner={null}
                     {rePerspectToThingId}
                 />
             {/if}

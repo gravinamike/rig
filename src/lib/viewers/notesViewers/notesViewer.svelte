@@ -1,5 +1,6 @@
 <script lang="ts">
     // Import types.
+    import type { Editor } from "@tiptap/core"
     import type { ThingDbModel } from "$lib/models/dbModels"
     import type { Graph, Thing } from "$lib/models/constructModels"
 
@@ -39,6 +40,7 @@
      * @param thing - The Thing that this widget is displaying Notes for. (If null, defaults to the Perspective Thing of the Graph.)
      * @param outlineFormat - Whether to format the viewer for use in a Graph outline widget.
      * @param fullSize: Whether the viewer's menu is opened to full-size.
+     * @param activeNotesEditorForOutliner - The active Tiptap editor (if any) for the Graph outline widget this belongs to (if any).
      * @param rePerspectToThingId - Method to re-Perspect the Graph to a given Thing ID.
      */
     export let graph: Graph
@@ -46,6 +48,7 @@
     export let outlineFormat = false
     export let makeRoomForThingText = false
     export let fullSize: boolean
+    export let activeNotesEditorForOutliner: Editor | null
     export let rePerspectToThingId: (thingId: number) => Promise<void>
 
     
@@ -568,6 +571,8 @@
                 bind:editorTextEditedButNotSynced
                 bind:textField={textEditorField}
                 {fullSize}
+                {outlineFormat}
+                bind:activeNotesEditorForOutliner
             />
 
         <!-- Note display. -->

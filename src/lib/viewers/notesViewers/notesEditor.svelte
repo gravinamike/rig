@@ -29,12 +29,16 @@
      * @param editorTextEditedButNotSynced - Indicates whether the editor's text content has been changed (excluding complete replacement because of a re-Perspect).
      * @param textField - The HTML Element of the text field.
      * @param fullSize: Whether the viewer's menu is opened to full-size.
+     * @param outlineFormat - Whether the Notes editor that this toolbar is part of is in a Graph outline widget.
+     * @param activeNotesEditorForOutliner - The active Tiptap editor (if any) for the Graph outline widget this belongs to (if any).
      */
     export let currentPThingNoteText: string | null
     export let currentEditorTextContent: string | null
     export let editorTextEditedButNotSynced: boolean
     export let textField: Element
     export let fullSize: boolean
+    export let outlineFormat: boolean
+    export let activeNotesEditorForOutliner: Editor | null
 
 
 
@@ -80,6 +84,9 @@
 
     // Set up hotkeys for Thing-linking and hyperlinking.
     window.addEventListener("keydown", (event)=> {
+        // If the editor is null, abort.
+        if (editor === null) return
+
         // If the editor isn't focused, abort.
         if (event.target !== editorElement && !editorElement.contains(event.target as Node)) {
             return
@@ -211,11 +218,17 @@
     // Perspective Thing's Note text.
     onMount(() => {
         setContent(currentPThingNoteText || "")
+
+        activeNotesEditorForOutliner = editor
     })
 
     // When the editor component is destroyed, also destroy the Tiptap editor.
     onDestroy(() => {
         if (editor) editor.destroy()
+
+        if (activeNotesEditorForOutliner === editor) {
+            activeNotesEditorForOutliner = null
+        }
     })
 </script>
 
@@ -231,6 +244,7 @@
 <div
     class="notes-editor"
     class:on-mobile={onMobile()}
+    class:outline-format={outlineFormat}
 
     bind:this={editorElement}
 >
@@ -268,7 +282,7 @@
     </div>
 
     <!-- Editor toolbar. -->
-    {#if editor}
+    {#if !outlineFormat && editor}
         <NotesToolbar
             {editor}
             {fullSize}
@@ -312,6 +326,10 @@
         scrollbar-width: thin;
 
         text-align: left;
+    }
+
+    .notes-editor.outline-format .text-field {
+        border-radius: 0;
     }
 
     .text-field.has-background-image {

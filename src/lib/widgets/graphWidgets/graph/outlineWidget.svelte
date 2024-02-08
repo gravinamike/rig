@@ -1,30 +1,83 @@
 <script lang="ts">
     // Import types.
+    import type { Editor } from "@tiptap/core"
     import type { Graph } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
     // Import stores.
     import { landscapeOrientation, titleFontStore, titleFontWeightStore, uITrimColorStore } from "$lib/stores"
 
+    // Import utility functions.
+    import { onMobile } from "$lib/shared/utility"
+
     // Import related widgets.
     import { ThingCohortOutlineWidget } from "$lib/widgets/graphWidgets"
-    import { onMobile } from "$lib/shared/utility";
+    import NotesToolbar from "$lib/viewers/notesViewers/notesToolbar.svelte"
     
 
 
     /**
      * @param graph - The Graph that the widget is based on.
      * @param graphWidgetStyle - Controls the style of the widget.
+     * @param fullSize: Whether the widget's menu is opened to full-size.
      * @param rePerspectToThingId - Method to re-Perspect the Graph to a new Thing ID.
      */
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
+    export let fullSize: boolean
     export let rePerspectToThingId: (thingId: number) => Promise<void>
 
 
 
     // Outline title (root Thing text).
     $: title = graph.rootCohort?.members[0].thing?.text ?? "THING NOT FOUND IN STORE"
+
+
+
+
+
+
+
+
+
+
+
+
+
+    let editor: Editor | null
+
+
+
+
+
+    /**
+     * Focus-editor method.
+     * 
+     * Gives the Tiptap editor keyboard focus.
+     */
+    function focusEditor() {
+        if (!editor) return
+
+        const editorElement = editor.view.dom as HTMLElement
+        if (editorElement !== document.activeElement) editorElement.focus()
+    }
+
+    /**
+     * Is-Thing-link method.
+     * 
+     * Determines if the currently-selected text is a link to a Thing in the current Graph.
+     */
+    function isThingLink(): boolean {
+        return (
+            editor !== null
+            && editor.isActive('link')
+            && editor.getAttributes("link").href.startsWith("graph://")
+        )
+    }
+
+
+
+
 </script>
 
 
@@ -66,10 +119,20 @@
                 thingCohort={graph.rootCohort}
                 {graph}
                 {graphWidgetStyle}
+                bind:activeNotesEditorForOutliner={editor}
                 {rePerspectToThingId}
             />
         {/if}
     </div>
+
+    {#if editor}
+        <NotesToolbar
+            {editor}
+            {fullSize}
+            focusEditorMethod={focusEditor}
+            isThingLinkMethod={isThingLink}
+        />
+    {/if}
 </div>
 
 
