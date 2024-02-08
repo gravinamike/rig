@@ -296,7 +296,7 @@
     }
 
     .highlighted {
-        background-color: #fafafa;
+        background-color: #f7f7f7;
     }
 
     .slider-backfield {

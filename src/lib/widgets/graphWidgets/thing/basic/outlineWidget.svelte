@@ -46,6 +46,7 @@
     let isEncapsulating: boolean
     let textFontSize: number
     let highlighted: boolean
+    let shadowColor = "grey"
     let isHoveredWidget: boolean
     let relatableForCurrentDrag: boolean
     let showDeleteButton: boolean
@@ -64,6 +65,13 @@
 
     const showThingText = true
     const showNote = !graph.offAxis
+
+
+
+    $: isRootClade = thingId === graph.rootCohort?.members[0].thing?.id
+
+
+
 </script>
 
 
@@ -77,6 +85,7 @@
 
     bind:thingWidgetId
     bind:highlighted
+    {shadowColor}
     bind:encapsulatingDepth
     bind:thingWidth
     bind:thingHeight
@@ -118,7 +127,12 @@
         }}
         on:mousedown={ event => {if (event.button === 0) {}}}
         on:touchstart={ () => {}}
-        on:click={ () => {if ($relationshipBeingCreatedInfoStore.sourceThingId === null) rePerspectToThingId(thingId) } }
+        on:click={ () => {
+            if (
+                graph.offAxis
+                && $relationshipBeingCreatedInfoStore.sourceThingId === null
+            ) rePerspectToThingId(thingId)
+        } }
         on:keydown={()=>{}}
         on:mouseup={ () => {
             if (relatableForCurrentDrag) {
@@ -136,30 +150,47 @@
         } }
         on:contextmenu|preventDefault={ (event) => {if (!$readOnlyMode) openCommandPalette(event)} }
     >
-        <!-- Thing text. -->
-        <div
-            class="text-container"
-            class:box={!graph.offAxis}
-        >
-            <div
-                class="thing-text"
-                class:encapsulating={isEncapsulating}
-
-                style="font-size: {(graph.offAxis ? 1: 0.75) * textFontSize}px;"
-            >
-                {thing.text}
-            </div>
-        </div>
-
         {#if showNote}
+            <!-- If this is the root Thing in a Thing outliner, expand the bottom by 1 pixel to
+            make the borders align correctly. -->
+            {#if isRootClade}
+                <div class="root-clade-extender" />
+            {/if}
+
+            <!-- Note viewer. -->
             <NotesViewer
                 {graph}
                 {thing}
                 outlineFormat={true}
+                makeRoomForThingText={!isRootClade}
                 fullSize={false}
                 {rePerspectToThingId}
             />
         {/if}
+
+        <!-- Thing text. -->
+        {#if !isRootClade}
+            <div
+                class="text-container"
+                class:box={!graph.offAxis}
+                class:highlighted
+
+                on:click={ () => {
+                    if ($relationshipBeingCreatedInfoStore.sourceThingId === null) rePerspectToThingId(thingId)
+                } }
+                on:keydown={()=>{}}
+            >
+                <div
+                    class="thing-text"
+                    class:encapsulating={isEncapsulating}
+
+                    style="font-size: {(graph.offAxis ? 1 : 0.85) * textFontSize}px;"
+                >
+                    {thing.text}
+                </div>
+            </div>
+        {/if}
+        
 
         <!-- Delete controls. -->
         <DeleteWidget
@@ -177,7 +208,7 @@
 
 
 <style>
-    .thing-outline-widget {        
+    .thing-outline-widget {
         position: relative;
 
         padding: 1rem;
@@ -186,27 +217,21 @@
     }
 
     .thing-outline-widget:not(.off-axis) {
-        display: flex;
-        flex-direction: column;
-        padding: 0.25rem;
-        gap: 0.25rem;
+        margin-top: -1px;
+
+        padding: 0rem;
     }
 
-
-
-
-
-
-
-    .highlighted {
-        outline: solid 2px black;
-        outline-offset: -2px;
+    .root-clade-extender {
+        width: 100%;
+        height: 1px;
     }
 
     .box {
+        box-shadow: 1px 1px 1px 0px silver;
         outline: solid 0.25px lightgrey;
         outline-offset: -0.25px;
-        border-radius: 5px;
+        border-radius: 2px;
 
         height: max-content;
         background-color: white;
@@ -216,19 +241,33 @@
         cursor: default;
     }
 
+    .box.highlighted {
+        box-shadow: 1px 1px 2px 1px silver;
+
+        background-color: #f7f7f7;
+    }
+
     .thing-outline-widget:not(.off-axis) .box {
         padding: 0.25rem;
     }
 
     .text-container {
+        box-sizing: border-box;
+
         width: 100%;
 
         text-align: left;
     }
 
+
     .thing-outline-widget:not(.off-axis) .text-container {
-        position: relative;
-        height: 15px;
+        position: absolute;
+        left: 5px;
+        top: 5px;
+        width: unset;
+        height: 20px;
+
+        padding: 0 0.25rem 0 0.25rem;
     }
 
     .thing-text {
@@ -245,7 +284,13 @@
     }
 
     .thing-outline-widget:not(.off-axis) .thing-text {
-        margin-left: 0.35rem;
+        margin-left: 0;
+
+        position: relative;
+        left: 0;
+        top: 0;
+        width: unset;
+        transform: unset;
     }
 
     .thing-text.encapsulating {

@@ -22,6 +22,7 @@
 
 <div
     class="cohort-outline-widget"
+    class:off-axis={graph.offAxis}
 >
     {#if !thingCohort.isRetrograde}
         {#each thingCohort.members as cohortMember, i}
@@ -40,7 +41,6 @@
                     rootThing={cohortMember.thing}
                     {graph}
                     {graphWidgetStyle}
-                    isFinalClade={i === thingCohort.members.length - 1}
                     {rePerspectToThingId}
                 />
             {/if}
@@ -57,5 +57,10 @@
         flex-direction: column;
         padding: 0.25rem;
         gap: 0.25rem;
+    }
+
+    .cohort-outline-widget:not(.off-axis) {
+        padding: 0;
+        gap: 0;
     }
 </style>

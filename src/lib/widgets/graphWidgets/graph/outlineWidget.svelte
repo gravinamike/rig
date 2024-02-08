@@ -4,10 +4,11 @@
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
     // Import stores.
-    import { uITrimColorStore } from "$lib/stores"
+    import { landscapeOrientation, titleFontStore, titleFontWeightStore, uITrimColorStore } from "$lib/stores"
 
     // Import related widgets.
     import { ThingCohortOutlineWidget } from "$lib/widgets/graphWidgets"
+    import { onMobile } from "$lib/shared/utility";
     
 
 
@@ -19,6 +20,11 @@
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
     export let rePerspectToThingId: (thingId: number) => Promise<void>
+
+
+
+    // Outline title (root Thing text).
+    $: title = graph.rootCohort?.members[0].thing?.text ?? "THING NOT FOUND IN STORE"
 </script>
 
 
@@ -29,15 +35,41 @@
 
     style={graph.offAxis ? "" : `background-color: ${$uITrimColorStore};`}
 >
-    <!-- Root Thing Cohort Widget (from which the rest of the Graph Outline automatically "grows"). -->
-    {#if graph.rootCohort}
-        <ThingCohortOutlineWidget
-            thingCohort={graph.rootCohort}
-            {graph}
-            {graphWidgetStyle}
-            {rePerspectToThingId}
-        />
+    {#if !graph.offAxis}
+        <!-- Title. -->
+        <div
+            class="title"
+
+            style="
+                margin-left: {onMobile() && !$landscapeOrientation ? 60 : 8}px;
+                margin-right: {onMobile() ? 45 : 0}px;
+                {
+                    onMobile() ? (
+                        !$landscapeOrientation ? "position: relative; top: 5px; font-size: 0.9rem;" :
+                        "position: relative; top: 5px; left: 4px; font-size: 0.9rem;"
+                    ) :
+
+                    ""
+                }
+                font-family: {$titleFontStore ?? "Arial"};
+                font-weight: {$titleFontWeightStore ?? 600};
+            "
+        >
+            <div>{title}</div>
+        </div>
     {/if}
+
+    <!-- Root Thing Cohort widget (from which the rest of the Graph Outline automatically "grows"). -->
+    <div class="root-thing-cohort-container">
+        {#if graph.rootCohort}
+            <ThingCohortOutlineWidget
+                thingCohort={graph.rootCohort}
+                {graph}
+                {graphWidgetStyle}
+                {rePerspectToThingId}
+            />
+        {/if}
+    </div>
 </div>
 
 
@@ -47,15 +79,38 @@
         width: 100%;
         height: 100%;
 
-        padding: 0.25rem;
-
-        overflow-x: hidden;
-        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        padding: 0.5rem;
+        gap: 0.5rem;
         
         user-select: none;
     }
 
     .graph-outline-widget.off-axis {
         padding: 0rem;
+    }
+
+    .title {
+        flex: 0 0 34px;
+
+        height: 34px;
+
+        display: flex;
+        align-items: center;
+    }
+
+    .title div {
+        margin: 0;
+
+        text-align: left;
+        font-size: 1.5rem;
+        line-height: 1.5rem;
+    }
+
+    .root-thing-cohort-container {
+        overflow-x: visible;
+        overflow-y: auto; 
+        scrollbar-width: thin;
     }
 </style>

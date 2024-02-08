@@ -21,13 +21,11 @@
      * @param rootThing - The Thing that forms the root of the Clade.
      * @param graph - The Graph that the Clade is in.
      * @param graphWidgetStyle - Controls the visual styling of the Graph widget.
-     * @param isFinalClade - Whether this is the final Clade for this parent Thing.
      * @param rePerspectToThingId - A function that re-perspects the Graph to a given Thing ID.
      */
     export let rootThing: Thing
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
-    export let isFinalClade = false
     export let rePerspectToThingId: (id: number) => Promise<void>
     
 
@@ -69,38 +67,12 @@
 <!-- Clade outline widget.-->
 <div
     class="clade-outline-widget"
+    class:off-axis={graph.offAxis}
     class:expanded
     class:has-children={thingCohorts.length > 0}
 >
     <!-- Root Thing (and indicator of its child Things). -->
     {#if showCladeRootThing}
-        <div class="root-thing-and-children-indicator-container">
-            <!-- Child Things indicator/toggle. -->
-            {#if showCladeRootThing && expandable}
-                <div
-                    class="children-indicator-container"
-
-                    on:click={() => expanded = !expanded}
-                    on:keyup={() => {}}
-                    on:mouseenter={() => toggleHovered = true}
-                    on:mouseleave={() => toggleHovered = false}
-                >
-                    <!-- Children-Things quantity indicator. -->
-                    {#if !expanded}
-                        +{childThings.length}
-                    {/if}
-
-                    <!-- Expand/collapse toggle. -->
-                    {#if showToggle}
-                        <svg class="relationship-arrow-root">
-                            <path d="M 16 32 A 16 16 0 0 1 32 16" />
-                            {#if !expanded}
-                                <polygon points="11.5,30 21.5,30 16.5,35" />
-                            {/if}
-                        </svg>
-                    {/if}
-                </div>
-            {/if}
             
             <!-- Root Thing. -->
             <div class="root-thing-container">
@@ -122,8 +94,35 @@
                         {graphWidgetStyle}
                     />
                 {/if}
+
+                <!-- Child Things indicator/toggle. -->
+                {#if showCladeRootThing && expandable}
+                    <div
+                        class="children-indicator-container"
+
+                        on:click={() => expanded = !expanded}
+                        on:keyup={() => {}}
+                        on:mouseenter={() => toggleHovered = true}
+                        on:mouseleave={() => toggleHovered = false}
+                    >
+                        <!-- Children-Things quantity indicator. -->
+                        {#if !expanded}
+                            +{childThings.length}
+                        {/if}
+
+                        <!-- Expand/collapse toggle. -->
+                        {#if showToggle}
+                            <svg class="relationship-arrow-root">
+                                <path d="M 16 32 A 16 16 0 0 1 32 16" />
+                                {#if !expanded}
+                                    <polygon points="11.5,30 21.5,30 16.5,35" />
+                                {/if}
+                            </svg>
+                        {/if}
+                    </div>
+                {/if}
             </div>
-        </div> 
+
     {/if}
 
     <!-- The Thing's Relationships and child Thing Cohorts (outer containers). -->
@@ -149,7 +148,7 @@
                     class:expanded
                     class:has-children={thingCohort.members.length}
                 >
-                    <!-- Relationship arrow segment. -->
+                    <!-- Relationship arrow segment. 
                     {#if !graph.offAxis}
                         <div
                             class="relationship-arrow-segment"
@@ -165,7 +164,7 @@
                                 background-color: {relationshipColorByHalfAxisId[thingCohort.halfAxisId] || "dimgrey"}; 
                             "
                         />
-                    {/if}
+                    {/if}-->
 
                     <!-- Relationship Cohort outline widget. -->
                     <RelationshipCohortOutlineWidget
@@ -197,7 +196,7 @@
 
 <style>
     .clade-outline-widget {
-        border-radius: 10px;
+        border-radius: 7px;
 
         box-sizing: border-box;
         width: 100%;
@@ -205,21 +204,30 @@
         overflow: hidden;
     }
 
+    .clade-outline-widget:not(.off-axis) {
+        border-radius: 0;
+    }
+
     .clade-outline-widget.expanded.has-children {
         border-radius: 6px;
     }
 
-    .root-thing-and-children-indicator-container {
-        display: flex;
-        flex-direction: row;
+    .clade-outline-widget.expanded:not(.off-axis).has-children {
+        border-radius: 0;
     }
 
     .root-thing-container {
         flex: 1 1 0;
+
+        position: relative;
     }
 
     .children-indicator-container {
+        position: absolute;
+        left: 0;
+        top: 100%;
         width: 30px;
+        z-index: 1;
 
         display: flex;
         align-items: center;
@@ -270,19 +278,9 @@
         stroke-width: 3;
     }
 
-    .relationship-arrow-segment {
-        position: absolute;
-        left: 10px;
-        width: 10px;
-        opacity: 0.5;
-    }
-
     .relationship-color-field {
-        border-radius: 5px;
-
         position: absolute;
-        top: 1.5px;
-        height: calc(100% - 2px);
+        height: 100%;
         width: 100%;
         opacity: 0.25;
     }

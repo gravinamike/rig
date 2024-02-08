@@ -44,13 +44,14 @@
     export let graph: Graph
     export let thing: Thing | null = null
     export let outlineFormat = false
+    export let makeRoomForThingText = false
     export let fullSize: boolean
     export let rePerspectToThingId: (thingId: number) => Promise<void>
 
     
 
     // Handles for HTML elements.
-    let editButton: Element
+    let editButton: Element | null = null
     let notesContainer: Element
     let textField: Element
     let textFieldScrollTop = 0
@@ -133,7 +134,7 @@
     // refreshed.
     let thingToUse = thing === null ? graph.pThing : thing
     let thingNoteId = thingToUse?.note?.id ?? null
-    console.log(thingToUse)
+
     // Update the Thing that the Notes are based on when the Graph or its Perspective
     // Thing change.
     $: updateThing(thing ?? graph.pThing)
@@ -374,7 +375,7 @@
 
             // ...or the edit button or any part of it...
             && event.target !== editButton 
-            && !editButton.contains(event.target as Node)
+            && !(editButton !== null && editButton.contains(event.target as Node))
 
             // ...or the Thing-linking widget...
             && !(
@@ -489,7 +490,10 @@
 
 
 
-
+    $: notesContainerHeight = Math.max(
+        (textField?.scrollHeight || textEditorField?.scrollHeight || 0) + 20,
+        50
+    )
 
 
 
@@ -511,6 +515,7 @@
     class="notes-viewer graph-{graph.id}"
     class:on-mobile={onMobile()}
     class:outline-format={outlineFormat}
+    class:make-room-for-thing-text={makeRoomForThingText}
     class:off-axis={graph.offAxis}
 
     style="background-color: {$uITrimColorStore};"
@@ -548,9 +553,7 @@
             ${
                 onMobile() ? "font-size: 0.5rem; padding: 0.25rem 0.5rem 0.25rem 0.5rem;" : ""
             }${
-                !graph.offAxis && outlineFormat ? `flex: 1 1 ${
-                    Math.max((textField?.scrollHeight || 0), 10)
-                }px;` : "flex: 1 1;"
+                !graph.offAxis && outlineFormat ? `flex: 1 1 ${notesContainerHeight}px;` : "flex: 1 1;"
             }
         `}
         
@@ -586,12 +589,14 @@
             </div>
 
             <!-- Jump-to-top/bottom buttons. -->
-            <TopBottomJumpButtons
-                scrollableDiv={textField}
-                scrollableDivScrollTop={textFieldScrollTop}
-                scrollableDivClientHeight={textFieldClientHeight}
-                scrollableDivScrollHeight={textFieldScrollHeight}
-            />
+            {#if !outlineFormat}
+                <TopBottomJumpButtons
+                    scrollableDiv={textField}
+                    scrollableDivScrollTop={textFieldScrollTop}
+                    scrollableDivClientHeight={textFieldClientHeight}
+                    scrollableDivScrollHeight={textFieldScrollHeight}
+                />
+            {/if}
         {/if}
 
         <!-- Saving indicator. -->
@@ -602,7 +607,7 @@
     </div>
 
     <!-- Edit button. -->
-    {#if !$readOnlyMode}
+    {#if !(outlineFormat || $readOnlyMode)}
         <div
             class="edit-button"
             class:editing
@@ -664,7 +669,7 @@
     }
 
     .notes-viewer.outline-format {
-        outline: solid 1px grey;
+        border: solid 1px silver;
 
         padding: 0;
         gap: 0;
@@ -762,7 +767,13 @@
     }
 
     .notes-viewer.outline-format .notes-display {
-        padding: 0rem 0.5rem 0rem 0.5rem;
+        border-radius: 0;
+
+        padding: 0rem 1rem 0rem 1rem;
+    }
+
+    .notes-viewer.outline-format.make-room-for-thing-text .notes-display {        
+        padding: 20px 1rem 0rem 1rem;
     }
 
     :global(.notes-display li > p) {

@@ -56,58 +56,46 @@
     <!-- Relationships Outline Widget. -->
     <div
         class="relationships-outline-widget"
-
-        style="
-            width: {
-                directionWidgetIsRotated ? directionWidgetHeight + 4 :
-                directionWidgetWidth + 4
-            }px;
-        "
-    />
-
-    <!-- Direction text. -->
-    <div
-        class="direction-widget-container"
-        bind:clientWidth={directionWidgetWidth}
-        bind:clientHeight={directionWidgetHeight}
-
-        style="transform: rotate({directionWidgetRotation}deg) translate(-{directionWidgetTranslation}px, 0px);"
+        class:off-axis={graph.offAxis}
     >
-        {#if direction}
-            <DirectionWidget
-                startingDirection={direction}
-                {halfAxisId}
-                {graphWidgetStyle}
-                interactionDisabled={true}
-                optionClickedFunction={(_, __, ___) => {}}
-            />
-        {/if}
+        <!-- Direction text. -->
+        <div
+            class="direction-widget-container"
+
+            bind:clientWidth={directionWidgetWidth}
+            bind:clientHeight={directionWidgetHeight}
+
+            style="
+                transform:
+                    rotate({directionWidgetRotation}deg)
+                    translate(-{directionWidgetTranslation}px, 0px)
+            "
+        >
+            {#if direction}
+                <DirectionWidget
+                    startingDirection={direction}
+                    {halfAxisId}
+                    {graphWidgetStyle}
+                    partOpaque={true}
+                    interactionDisabled={true}
+                    optionClickedFunction={(_, __, ___) => {}}
+                />
+            {/if}
+        </div>
     </div>
 {/if}
 
 
 <style>
     .relationships-outline-widget {
-        height: 100%;
-
-        opacity: 0.25;
+        padding: 3px;
     }
 
-    .relationships-outline-widget:hover {
-        opacity: 0.5;
-    }
-
-    .relationships-outline-widget:active {
-        opacity: 1.0;
+    .relationships-outline-widget.off-axis {
+        padding: 3px 0 3px 3px;
     }
 
     .direction-widget-container {
-        position: absolute;
-        left: 4px;
-        top: 4px;
-        width: 100px;
-        z-index: 1;
-
         transform-origin: top left;
     }
 </style>
