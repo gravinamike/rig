@@ -7,7 +7,9 @@
     // Import stores.
     import {
         readOnlyMode, hoveredThingIdStore, hoveredRelationshipTarget,
-        relationshipBeingCreatedInfoStore, setRelationshipBeingCreatedDestThingId, disableRelationshipBeingCreated
+        relationshipBeingCreatedInfoStore, setRelationshipBeingCreatedDestThingId, disableRelationshipBeingCreated, titleFontStore, titleFontWeightStore
+
+
     } from "$lib/stores"
 
     // Import widget controller.
@@ -178,6 +180,11 @@
                 class:box={!graph.offAxis}
                 class:highlighted
 
+                style="
+                    font-family: {$titleFontStore || "Arial"};
+                    font-weight: {$titleFontWeightStore ?? 600};
+                "
+
                 on:click={ () => {
                     if ($relationshipBeingCreatedInfoStore.sourceThingId === null) rePerspectToThingId(thingId)
                 } }
@@ -283,7 +290,6 @@
         transform: translate(-50%, -50%);
 
         white-space: nowrap;
-        font-weight: 600;
     }
 
     .thing-outline-widget:not(.off-axis) .thing-text {

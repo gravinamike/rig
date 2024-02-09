@@ -61,6 +61,8 @@
         flex-direction: column;
         padding: 0.25rem;
         gap: 0.25rem;
+
+        overflow: visible;
     }
 
     .cohort-outline-widget:not(.off-axis) {

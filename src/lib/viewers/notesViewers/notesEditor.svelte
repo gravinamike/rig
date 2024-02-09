@@ -38,6 +38,7 @@
     export let textField: Element
     export let fullSize: boolean
     export let outlineFormat: boolean
+    export let makeRoomForThingText = false
     export let activeNotesEditorForOutliner: Editor | null
 
 
@@ -245,6 +246,7 @@
     class="notes-editor"
     class:on-mobile={onMobile()}
     class:outline-format={outlineFormat}
+    class:make-room-for-thing-text={makeRoomForThingText}
 
     bind:this={editorElement}
 >
@@ -356,6 +358,41 @@
 
         font-size: 0.85rem;
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+    :global(.notes-editor.outline-format .text-field .ProseMirror) {
+        padding: 0rem 1rem 0rem 1rem;
+    }
+
+    :global(.notes-editor.outline-format.make-room-for-thing-text .text-field .ProseMirror) {
+        padding: 20px 1rem 0rem 1rem;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     :global(.text-field.on-mobile ul) {
         padding-left: 1.5rem;

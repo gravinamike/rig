@@ -572,6 +572,7 @@
                 bind:textField={textEditorField}
                 {fullSize}
                 {outlineFormat}
+                {makeRoomForThingText}
                 bind:activeNotesEditorForOutliner
             />
 

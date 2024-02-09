@@ -46,6 +46,13 @@
 
     // Whether the expand-/collapse-Clade toggle is hovered.
     let toggleHovered = false
+
+
+
+
+
+    let rootThingHovered = false
+
 </script>
 
 
@@ -78,7 +85,12 @@
     {#if showCladeRootThing}
             
             <!-- Root Thing. -->
-            <div class="root-thing-container">
+            <div
+                class="root-thing-container"
+
+                on:mouseenter={() => rootThingHovered = true}
+                on:mouseleave={() => rootThingHovered = false}
+            >
                 <!-- If the root Thing is specified, show a Thing Widget. -->
                 {#if rootThing?.id}
                     <ThingOutlineWidget
@@ -100,7 +112,7 @@
                 {/if}
 
                 <!-- Child Things indicator/toggle. -->
-                {#if showCladeRootThing && expandable}
+                {#if showCladeRootThing && rootThingHovered && expandable}
                     <div
                         class="children-indicator-container"
 
@@ -115,12 +127,9 @@
                         {/if}
 
                         <!-- Expand/collapse toggle. -->
-                        {#if showToggle}
-                            <svg class="relationship-arrow-root">
-                                <path d="M 16 32 A 16 16 0 0 1 32 16" />
-                                {#if !expanded}
-                                    <polygon points="11.5,30 21.5,30 16.5,35" />
-                                {/if}
+                        {#if showToggle && expanded}
+                            <svg class="relationship-toggle-arrow">
+                                <path d="M 4 7 L 10 13 L 16 7" />
                             </svg>
                         {/if}
                     </div>
@@ -173,7 +182,6 @@
                     <!-- Relationship Cohort outline widget. -->
                     <RelationshipCohortOutlineWidget
                         {thingCohort}
-                        directionWidgetIsRotated={thingCohort.members.length >= 3}
                         bind:graph
                         {graphWidgetStyle}
                     />
@@ -205,12 +213,12 @@
 
         box-sizing: border-box;
         width: 100%;
-
-        overflow: hidden;
     }
 
     .clade-outline-widget:not(.off-axis) {
         border-radius: 0;
+
+        overflow: visible;
     }
 
     .clade-outline-widget.expanded.has-children {
@@ -225,20 +233,36 @@
         flex: 1 1 0;
 
         position: relative;
+
+        overflow: visible;
     }
 
     .children-indicator-container {
+        border-radius: 50%;
+
         position: absolute;
-        left: 0;
-        top: 100%;
-        width: 30px;
+        left: 33px;
+        top: calc(100%);
+        width: 20px;
+        height: 20px;
+        transform: translate(-50%, -50%);
         z-index: 1;
+        background-color: silver;
+        opacity: 50%;
 
         display: flex;
         align-items: center;
         justify-content: center;
 
         cursor: pointer;
+    }
+
+    .children-indicator-container:hover {
+        opacity: 80%;
+    }
+
+    .children-indicator-container:active {
+        opacity: 100%;
     }
 
     .relationships-and-child-cohorts-outer-container {
@@ -263,24 +287,17 @@
         min-height: 1.05rem;
     }
 
-    .relationship-arrow-root {
+    .relationship-toggle-arrow {
         position: absolute;
-        width: 32px;
-        height: 32px;
+        width: 20px;
+        height: 20px;
+        transform: scale(1, -1);
         
         stroke: dimgrey;
-        fill: dimgrey;
-        opacity: 0.5;
+        stroke-width: 3;
+        fill: transparent;
 
         overflow: visible;
-    }
-
-    .relationship-arrow-root path {
-        stroke-width: 10;
-    }
-
-    .relationship-arrow-root polygon {
-        stroke-width: 3;
     }
 
     .relationship-color-field {
@@ -312,12 +329,16 @@
         min-height: 100%;
         transform: scale(1);
 
-        display: inline;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
     }
 
     .relationships-and-child-cohorts-outer-container:hover
     > .relationships-and-child-cohorts-inner-container
     > .relationships-outline-widget-container {
-        display: inline;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
     }
 </style>

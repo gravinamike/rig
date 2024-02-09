@@ -172,6 +172,8 @@
     }
 
     .root-thing-cohort-container {
+        height: 100%;
+
         overflow-x: visible;
         overflow-y: auto; 
         scrollbar-width: thin;

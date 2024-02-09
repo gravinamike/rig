@@ -15,7 +15,6 @@
 
 
     export let thingCohort: ThingCohort
-    export let directionWidgetIsRotated = true
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
 
@@ -28,11 +27,6 @@
     // Attributes managed by widget controller.
     let direction: Direction
     let halfAxisId: HalfAxisId | null
-
-
-    // Rotation and translation of the Direction widget.
-    $: directionWidgetRotation = directionWidgetIsRotated ? -90 : 0
-    $: directionWidgetTranslation = directionWidgetIsRotated ? directionWidgetWidth : 0
 
     
     // Set up flag for whether the component has finished mounting. 
@@ -64,12 +58,6 @@
 
             bind:clientWidth={directionWidgetWidth}
             bind:clientHeight={directionWidgetHeight}
-
-            style="
-                transform:
-                    rotate({directionWidgetRotation}deg)
-                    translate(-{directionWidgetTranslation}px, 0px)
-            "
         >
             {#if direction}
                 <DirectionWidget
