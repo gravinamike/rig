@@ -487,19 +487,22 @@
 
 
 
+    let notesContainerHeight = 1
+    $: {
+        editorTextEditedButNotSynced
 
+        notesContainerHeight =
+            Math.max(
+                (
+                    editing ? textEditorField?.scrollHeight ?? 0 :
+                    textField?.scrollHeight ?? 0
+                ),
+                65
+            )
+    }
+    
 
-
-
-
-
-    $: notesContainerHeight = Math.max(
-        (textField?.scrollHeight || textEditorField?.scrollHeight || 0) + 20,
-        50
-    )
-
-
-
+    
 
 
 

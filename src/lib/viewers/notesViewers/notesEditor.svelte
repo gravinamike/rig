@@ -85,8 +85,8 @@
 
     // Set up hotkeys for Thing-linking and hyperlinking.
     window.addEventListener("keydown", (event)=> {
-        // If the editor is null, abort.
-        if (editor === null) return
+        // If the editor or editor HTML element are null or undefined, abort.
+        if (!editor || !editorElement ) return
 
         // If the editor isn't focused, abort.
         if (event.target !== editorElement && !editorElement.contains(event.target as Node)) {
