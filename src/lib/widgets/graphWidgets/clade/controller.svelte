@@ -63,6 +63,7 @@
     export let expanded = false
     export let toggleHovered = false
     export let showToggle = false
+    export let cladeControlsOpened = false
 
     export let overlapMarginStyleText: string = ""
     export let rootThingOffsetFromCenterOfThingCohort = 0
@@ -114,7 +115,7 @@
         rootThing.address?.generationId === 0
         || (
             graph.rePerspectInProgressThingId === null
-            && hoveredForHalfSecond
+            && cladeControlsOpened
         )
     )
 

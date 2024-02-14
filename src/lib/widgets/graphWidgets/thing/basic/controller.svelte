@@ -67,7 +67,7 @@
     export let onClick: (event: MouseEvent) => void = () => {}
     export let onMouseUp: () => void = () => {}
     export let onTouchEnd: (event: TouchEvent) => void = () => {}
-    export let openCommandPalette: (event: MouseEvent) => void = () => {}
+    export let openCommandPalette: (position: [number, number]) => void = () => {}
     export let startDelete: () => void = () => {}
     export let completeDelete: () => void = () => {}
     export let toggleSlider: () => void = () => {}
@@ -415,12 +415,9 @@
     /**
      * Open a context command palette for this Thing.
      * 
-     * @param event - The right-click mouse event that triggered the context command palette.
+     * @param thingWidgetDiv - The Thing widget's main div.
      */
-    openCommandPalette = (event: MouseEvent) => {
-        // Get the position of the right-click event.
-        const position = [event.clientX, event.clientY] as [number, number]
-
+    openCommandPalette = (position: [number, number]) => {
         // Configure the buttons for the context menu.
         const buttonInfos =[
             {

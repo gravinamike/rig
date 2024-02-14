@@ -58,7 +58,7 @@
     let handleMouseDown: (event: MouseEvent | TouchEvent) => void
     let handleMouseDrag: (event: MouseEvent | TouchEvent) => void
     let onBodyMouseUp: (event: MouseEvent | TouchEvent) => void
-    let openCommandPalette: (event: MouseEvent) => void
+    let openCommandPalette: (position: [number, number]) => void
     let startDelete: () => void
     let completeDelete: () => void
 
@@ -152,7 +152,9 @@
                 disableRelationshipBeingCreated()
             }
         } }
-        on:contextmenu|preventDefault={ (event) => {if (!$readOnlyMode) openCommandPalette(event)} }
+        on:contextmenu|preventDefault={ (event) => {if (!$readOnlyMode) openCommandPalette(
+            [event.clientX, event.clientY]
+        )} }
     >
         {#if showNote}
             <!-- If this is the root Thing in a Thing outliner, expand the bottom by 1 pixel to

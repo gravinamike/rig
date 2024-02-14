@@ -36,10 +36,14 @@
     export let thingHeight: number
     export let perspectiveTexts: {[thingId: string]: string}
     export let showAsCollapsed: boolean
+    export let cladeControlsOpened = false
     export let rePerspectToThingId: (id: number) => Promise<void>
 
         
 
+    //
+    let thingWidgetDiv: HTMLElement
+    
     // Attributes handled by the widget controller.
     let thingWidgetId: string
     let text: string
@@ -73,7 +77,7 @@
     let onClick: (event: MouseEvent) => void
     let onMouseUp: () => void
     let onTouchEnd: (event: TouchEvent) => void
-    let openCommandPalette: (event: MouseEvent) => void
+    let openCommandPalette: (position: [number, number]) => void
     let startDelete: () => void
     let completeDelete: () => void
     let toggleSlider: () => void
@@ -145,6 +149,7 @@
 <svelte:body
     on:mousemove={ event => { if (!$readOnlyMode) handleMouseDrag(event) } }
     on:touchmove={ event => { if (!$readOnlyMode) handleMouseDrag(event) } }
+    on:click={ _ => {cladeControlsOpened = false} }
     on:mouseup={onBodyMouseUp}
     on:touchend={onBodyMouseUp}
 />
@@ -156,6 +161,8 @@
         id="{thingWidgetId}"
         class="thing-widget"
         class:highlighted
+
+        bind:this={thingWidgetDiv}
 
         style="
             border-radius: {10 + 4 * encapsulatingDepth}px;
@@ -181,7 +188,15 @@
         on:keydown={()=>{}}
         on:mouseup={onMouseUp}
         on:touchend={ event => { onTouchEnd(event) } }
-        on:contextmenu|preventDefault={ (event) => {if (!$readOnlyMode) openCommandPalette(event)} }
+        on:contextmenu|preventDefault={ _ => {
+            if (!$readOnlyMode) {
+                const boundingRect = thingWidgetDiv.getBoundingClientRect()
+                openCommandPalette(
+                    [boundingRect.right, boundingRect.bottom]
+                )
+                cladeControlsOpened = true
+            }
+        } }
     >
 
         <!-- Perspective-text slider. -->
