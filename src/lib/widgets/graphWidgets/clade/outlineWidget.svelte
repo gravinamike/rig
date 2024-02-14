@@ -213,6 +213,8 @@
 
         box-sizing: border-box;
         width: 100%;
+
+        overflow: hidden;
     }
 
     .clade-outline-widget:not(.off-axis) {

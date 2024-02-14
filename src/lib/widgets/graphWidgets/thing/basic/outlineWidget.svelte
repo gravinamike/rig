@@ -164,7 +164,7 @@
             <!-- Note viewer. -->
             <NotesViewer
                 {graph}
-                {thing}
+                bind:thing
                 outlineFormat={true}
                 makeRoomForThingText={!isRootClade}
                 fullSize={false}
