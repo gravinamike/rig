@@ -140,13 +140,14 @@
 
     // Update the Thing that the Notes are based on when the Graph or its Perspective
     // Thing change.
-    $: updateThing(thing ?? graph.pThing)
+    $: if (outlineFormat && thing) updateThing(thing)
+    $: if (!outlineFormat && graph.pThing) updateThing(graph.pThing)
 
 
     /* Text-related variables. */
 
     // Note title (Thing text).
-    $: title = thing?.text ?? "THING NOT FOUND IN STORE"
+    $: title = thingToUse?.text ?? "THING NOT FOUND IN STORE"
 
     // Raw Note text.
     let currentThingNoteText: string | null = null
@@ -158,15 +159,15 @@
     let currentEditorTextContent: string | null = null
 
     // If the Thing or its Note text changes, set variables that reference it to null.
-    $: if (thing?.note?.text) {
+    $: if (thingToUse?.note?.text) {
         currentThingNoteText = null
         viewerDisplayText = null
     }
 
     // When the Thing changes, update the raw and display text to match (or, if the Thing doesn't
     // yet have a Note, set blank text).
-    $: if (typeof thing?.note?.text === "string") {
-        updateFrontEndTexts(thing.note.text, true)
+    $: if (typeof thingToUse?.note?.text === "string") {
+        updateFrontEndTexts(thingToUse.note.text, true)
     } else {
         updateFrontEndTexts("", true)
     }
@@ -196,8 +197,8 @@
      * @param newThing - The new Thing.
      */
     function updateThing(newThing: Thing | null) {
-        if (newThing !== thing) {
-            thing = newThing
+        if (newThing !== thingToUse) {
+            thingToUse = newThing
             thingNoteId = newThing?.note?.id || null
         }
     }
@@ -288,10 +289,10 @@
      */
     async function createNoteIfNecessary(): Promise<number | false> {
         // If there is no Thing ID to create a Note for, abort.
-        if (!thing?.id) return false
+        if (!thingToUse?.id) return false
 
         // Create a new Note.
-        const createdNoteId = await addNoteToThingOrGetExistingNoteId(thing.id)
+        const createdNoteId = await addNoteToThingOrGetExistingNoteId(thingToUse.id)
         
         // Return the ID of the new Note, or false if no Note was created.
         if (!createdNoteId) return false
@@ -336,8 +337,8 @@
         thingNoteId = noteId
 
         // Update the Note in the stores and the Graph.
-        if (thing?.id) await storeGraphDbModels<ThingDbModel>("Thing",thing.id, true)
-        if (outlineFormat && thing?.note) thing.note.text = newText
+        if (thingToUse?.id) await storeGraphDbModels<ThingDbModel>("Thing", thingToUse.id, true)
+        if (outlineFormat && thingToUse?.note) thingToUse.note.text = newText
         viewerDisplayText = textForDisplay(newText)
 
         // Update the Note search list.
