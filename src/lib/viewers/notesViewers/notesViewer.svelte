@@ -337,7 +337,7 @@
 
         // Update the Note in the stores and the Graph.
         if (thing?.id) await storeGraphDbModels<ThingDbModel>("Thing",thing.id, true)
-        if (thing?.note) thing.note.text = newText
+        if (outlineFormat && thing?.note) thing.note.text = newText
         viewerDisplayText = textForDisplay(newText)
 
         // Update the Note search list.

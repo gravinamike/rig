@@ -77,17 +77,15 @@
     // Right side-menu configuration.
     $: subMenuInfos = [
         [
-            $devMode ?
-                {
-                    name: "Outline",
-                    icon: "outline",
-                    tooltipText: "Outline"
-                } :
-                null,
             {
                 name: "Notes",
                 icon: "notes",
                 tooltipText: "Notes"
+            },
+            {
+                name: "Outline",
+                icon: "outline",
+                tooltipText: "Outline"
             },
             $devMode ?
                 {
