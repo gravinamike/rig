@@ -1,12 +1,11 @@
 <script lang="ts">
     // Import types.
-    import type { Graph, ThingSearchListItem } from "$lib/models/constructModels"
+    import type { ThingSearchListItem } from "$lib/models/constructModels"
     import type { SearchOption } from "$lib/widgets/navWidgets/searchWidget"
 
     // Import stores.
     import {
-        thingSearchListStore, addGraph, removeGraph,
-        graphIdsNeedingViewerRefresh, addGraphIdsNeedingViewerRefresh, removeGraphIdsNeedingViewerRefresh, landscapeOrientation
+        thingSearchListStore, landscapeOrientation
 
     } from "$lib/stores"
 
@@ -21,7 +20,6 @@
     // The method to be executed when a Thing is selected.
     export let submitMethod: (selectedItem: SearchOption | null, matchedItems: SearchOption[]) => void
     // The widget's internal Graph (distinct from the Graph in a regular Graph Viewer).
-    export let graph: Graph | null = null
 
 
     // Attributes related to screen orientation.
@@ -41,25 +39,6 @@
     let unfilteredArray: {id: number, thingText: string, noteText: string | null}[] = []
     $: buildUnfilteredArray($thingSearchListStore)
 
-    // Set up Graph creation and removal in response to changes in the
-    // specified Perspective Thing ID.
-    $: if (thingIdToShowGraphFor) {
-        createGraph(thingIdToShowGraphFor)
-    }
-    $: if (!thingIdToShowGraphFor) {
-        if (graph !== null) removeGraph(graph)
-        graph = null
-    }
-
-    // Set up Graph refreshing.
-    $: if (
-        graph?.lifecycleStatus === "built"
-        && $graphIdsNeedingViewerRefresh.includes(graph.id)
-    ) {
-        removeGraphIdsNeedingViewerRefresh(graph.id)
-        graph = graph // Needed for reactivity.
-        allowZoomAndScrollToFit = true
-    }
 
 
     /**
@@ -81,21 +60,15 @@
         }
     }
     
-    /**
-     * Create-Graph method.
-     * 
-     * Replaces any existing Graph in this widget with a new Graph.
-     * @param thingIdToShowGraphFor = The ID of the Perspective Thing of the to-be-created Graph.
-     */
-    async function createGraph(thingIdToShowGraphFor: number) {
-        // Close any existing Graph.
-        if (graph !== null) await removeGraph(graph)
-        // Open and build the new Graph.
-        graph = await addGraph([thingIdToShowGraphFor], 1, null, false, true, null)
-        graphWidgetStyle.animateZoomAndScroll = false
-        // Refresh the Graph viewer.
-        addGraphIdsNeedingViewerRefresh(graph.id)
-    }
+    
+    
+
+
+    //////////////////////graphWidgetStyle.animateZoomAndScroll = false
+
+
+
+
 
     /**
      * Focus method.
@@ -131,10 +104,12 @@
 
     <!-- Graph visualizer for Thing search. -->
     <div class="graph-container">
-        {#if graph}
+        {#if thingIdToShowGraphFor}
             <GraphWidget
-                bind:graph
+                pThingIds={[thingIdToShowGraphFor]}
+                depth={1}
                 {graphWidgetStyle}
+                showGraph={true}
                 bind:allowZoomAndScrollToFit
                 bind:allowScrollToThingId
                 bind:thingIdToScrollTo

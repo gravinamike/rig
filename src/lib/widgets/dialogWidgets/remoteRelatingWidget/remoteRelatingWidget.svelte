@@ -107,7 +107,6 @@
         <!-- Remote-Thing-selecting widget. -->
         <RemoteSelectingWidget
             {submitMethod}
-            bind:graph
         /> 
     </div>
 {/if}

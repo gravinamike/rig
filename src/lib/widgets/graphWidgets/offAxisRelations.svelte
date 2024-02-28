@@ -27,6 +27,8 @@
     export let rePerspectToThingId: (thingId: number) => Promise<void>
 
     
+    let graphWidgetStyle = {...defaultGraphWidgetStyle}
+
     // ID of the widget's parent Thing.
     $: parentThingId = parentThing.id as number
 
@@ -99,54 +101,7 @@
             && thingCohort.members.length
         )
     ).length !== 0
-
-
-    /* Sub-Graph related attributes. */
-
-    // The off-axis-relations Graph is created and removed when the toggle is
-    // expanded and collapsed, respectively.
-    let graph: Graph | null = null
-    async function createGraph() {
-        // Close any existing Graph.
-        if (graph !== null) await removeGraph(graph)
-
-        // Open and build the new Graph.
-        const parentGraphSpace = parentGraph.pThing?.space as Space
-        graph = await addGraph([parentThingId], 1, parentGraph, true, false, parentGraphSpace)
-        graphWidgetStyle = {...defaultGraphWidgetStyle}
-
-        // Configure style for off-axis styling, if applicable.
-        graphWidgetStyle.excludePerspectiveThing = true
-        graphWidgetStyle.excludeCartesianAxes = true
-        graphWidgetStyle.excludeNonAxisThingCohorts = numberOfNonCartesianAxisRelations !== 0
-
-        // Refresh the Graph viewers.
-        addGraphIdsNeedingViewerRefresh(graph.id)
-    }
-    $: if (expanded) {
-        createGraph()
-    }
-    $: if (!expanded) {
-        if (graph !== null) removeGraph(graph)
-        graph = null
-    }
-
-    // Set up Graph refreshing.
-    $: if ( graph?.lifecycleStatus === "built" && $graphIdsNeedingViewerRefresh.includes(graph.id) ) {
-        removeGraphIdsNeedingViewerRefresh(graph.id)
-        graph = graph // Needed for reactivity.
-    }
-
-    // Rebuild-Graph method.
-    async function rebuildGraph() {
-        if (!graph) return
-        await graph.build()
-        addGraphIdsNeedingViewerRefresh(graph.id)
-    }
-
-    // Graph outline widget style.
-    let graphWidgetStyle: GraphWidgetStyle = {...defaultGraphWidgetStyle}
-
+    
 
     /* Non-axis-toggle-related attributes. */
 
@@ -162,6 +117,16 @@
         )
         || !graphWidgetStyle.excludeNonAxisThingCohorts
     $: showNonAxisNumberOfRelationsIndicator = graphWidgetStyle.excludeNonAxisThingCohorts && numberOfOffAxisRelations
+
+
+
+
+
+    $: spaceToUse =
+        parentGraph.startingSpace ? parentGraph.startingSpace :
+        parentGraph.pThing?.space || null
+
+    
 </script>
 
 
@@ -215,26 +180,15 @@
             on:wheel|stopPropagation
         >
             <!-- Graph outline widget. -->
-            {#if graph && graph.lifecycleStatus === "built"}
+            {#if spaceToUse}
                 <GraphOutlineWidget
-                    bind:graph
+                    space={spaceToUse}
+                    pThingIds={[parentThingId]}
+                    depth={parentGraph.depth}
                     fullSize={false}
+                    offAxis={true}
                     bind:graphWidgetStyle
                     {rePerspectToThingId}
-                />
-
-            <!-- Waiting indicator. -->
-            {:else}
-                <WaitingIndicator
-                    states={
-                        {
-                            waiting: {
-                                text: "",
-                                imageName: "waiting"
-                            },
-                        }
-                    }
-                    currentStateName={"waiting"}
                 />
             {/if}
         </div>
@@ -250,7 +204,6 @@
                 on:mouseleave={()=>{nonAxisToggleHovered = false}}
                 on:click={() => {
                     graphWidgetStyle.excludeNonAxisThingCohorts = !graphWidgetStyle.excludeNonAxisThingCohorts
-                    rebuildGraph()
                 }}
                 on:keydown={()=>{}}
             >

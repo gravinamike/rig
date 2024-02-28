@@ -1,36 +1,41 @@
 <script lang="ts">
     // Import types.
     import type { Editor } from "@tiptap/core"
-    import type { Graph } from "$lib/models/constructModels"
+    import type { Graph, Space } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
+    // Import SvelteKit framework resources.
+    import { onDestroy } from "svelte"
+
     // Import stores.
-    import { landscapeOrientation, titleFontStore, titleFontWeightStore, uITrimColorStore } from "$lib/stores"
+    import { addGraph, landscapeOrientation, removeGraph, titleFontStore, titleFontWeightStore, uITrimColorStore, addGraphIdsNeedingViewerRefresh } from "$lib/stores"
 
     // Import utility functions.
     import { onMobile } from "$lib/shared/utility"
 
     // Import related widgets.
-    import { ThingCohortOutlineWidget } from "$lib/widgets/graphWidgets"
+    import { defaultGraphWidgetStyle, ThingCohortOutlineWidget } from "$lib/widgets/graphWidgets"
     import NotesToolbar from "$lib/viewers/notesViewers/notesToolbar.svelte"
+
+    // Import API functions.
+    import { markThingsVisited } from "$lib/db/makeChanges"
     
 
 
-    /**
-     * @param graph - The Graph that the widget is based on.
-     * @param graphWidgetStyle - Controls the style of the widget.
-     * @param fullSize: Whether the widget's menu is opened to full-size.
-     * @param rePerspectToThingId - Method to re-Perspect the Graph to a new Thing ID.
-     */
-    export let graph: Graph
-    export let graphWidgetStyle: GraphWidgetStyle
+    export let space: Space
+    export let pThingIds: (number | null)[]
+    export let depth: number
+    export let graphWidgetStyle: GraphWidgetStyle = {...defaultGraphWidgetStyle}
+    export let offAxis = false
     export let fullSize: boolean
     export let rePerspectToThingId: (thingId: number) => Promise<void>
 
 
 
     // Outline title (root Thing text).
-    $: title = graph.rootCohort?.members[0].thing?.text ?? "THING NOT FOUND IN STORE"
+    $: title =
+        graph === null ? "" :
+        graph.rootCohort?.members[0].thing?.text ?? "THING NOT FOUND IN STORE"
 
 
 
@@ -78,17 +83,74 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+    let graph: Graph | null = null
+
+
+
+
+    /**
+     * Build-and-refresh method.
+     * Replaces any existing Graph with a new one, builds the new Graph, then
+     * refreshes the viewers.
+     */
+    async function buildAndRefresh() {
+        // Close any existing Graph.
+        if (graph) {
+            removeGraph(graph)
+            graph = null
+        }
+        
+        // Open and build the new Graph.
+        graph = await addGraph(pThingIds as number[], depth, null, true, offAxis, space)
+        graphWidgetStyle = {...defaultGraphWidgetStyle}
+
+        // Configure style for off-axis styling, if applicable.
+        graph.offAxis = offAxis
+        if (offAxis) {
+            graphWidgetStyle.excludePerspectiveThing = true
+            graphWidgetStyle.excludeCartesianAxes = true
+            graphWidgetStyle.excludeNonAxisThingCohorts = true
+        }
+        
+        await markThingsVisited(pThingIds as number[])
+
+        // Refresh the Graph viewers.
+        addGraphIdsNeedingViewerRefresh(graph.id)
+    }
+
+    buildAndRefresh()
+
+
+
+    
+
+    onDestroy(() => {
+        if (graph) removeGraph(graph)
+    })
 </script>
 
 
 <!-- Graph outline widget. -->
 <div
     class="graph-outline-widget"
-    class:off-axis={graph.offAxis}
+    class:off-axis={offAxis}
 
-    style={graph.offAxis ? "" : `background-color: ${$uITrimColorStore};`}
+    style={offAxis ? "" : `background-color: ${$uITrimColorStore};`}
 >
-    {#if !graph.offAxis}
+    {#if !offAxis}
         <!-- Title. -->
         <div
             class="title"
@@ -114,7 +176,7 @@
 
     <!-- Root Thing Cohort widget (from which the rest of the Graph Outline automatically "grows"). -->
     <div class="root-thing-cohort-container">
-        {#if graph.rootCohort}
+        {#if graph?.rootCohort}
             <ThingCohortOutlineWidget
                 thingCohort={graph.rootCohort}
                 {graph}

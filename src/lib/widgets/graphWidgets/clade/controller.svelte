@@ -203,7 +203,11 @@
      * 
      * The Thing Cohorts in the order they are to be displayed in the outline version of the widget.
      */
-    $: orderedThingCohorts = getOrderedThingCohorts(rootThing)
+    $: {
+        graphWidgetStyle.excludeNonAxisThingCohorts
+
+        orderedThingCohorts = getOrderedThingCohorts(rootThing)
+    }
 
     /**
      * Ordered Thing Cohorts with members.

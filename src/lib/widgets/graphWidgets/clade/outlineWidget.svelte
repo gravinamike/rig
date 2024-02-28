@@ -161,24 +161,6 @@
                     class:expanded
                     class:has-children={thingCohort.members.length}
                 >
-                    <!-- Relationship arrow segment. 
-                    {#if !graph.offAxis}
-                        <div
-                            class="relationship-arrow-segment"
-
-                            style="
-                                height: {
-                                    (
-                                        isFinalClade
-                                        && i === orderedThingCohortsWithMembers.length - 1
-                                    ) ? "10px" :
-                                    "100%"
-                                };
-                                background-color: {relationshipColorByHalfAxisId[thingCohort.halfAxisId] || "dimgrey"}; 
-                            "
-                        />
-                    {/if}-->
-
                     <!-- Relationship Cohort outline widget. -->
                     <RelationshipCohortOutlineWidget
                         {thingCohort}

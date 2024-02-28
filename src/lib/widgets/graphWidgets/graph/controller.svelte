@@ -36,7 +36,7 @@
      * @param handleMouseMove - Function to mouse-drag the widget.
      * @param handleWheelScroll - Function to scroll-zoom the widget.
      */
-    export let graph: Graph
+    export let graph: Graph | null
     export let widget: HTMLElement | null
     export let centralAnchor: Element | null
     export let widgetWidth: number
@@ -45,7 +45,6 @@
     export let graphWidgetStyle: GraphWidgetStyle
     
     export let currentSpace: Space | null
-    export let showPlaneControls: boolean
     export let scale: number
     export let tweenedScale: Tweened<number>
     export let zoomBounds: Rectangle
@@ -67,19 +66,8 @@
      * Perspective Thing's Space is used (or null if there isn't one).
      */
     $: currentSpace =
-        graph.startingSpace ? graph.startingSpace :
-        graph.pThing?.space || null
-
-    /**
-     * Show-Plane-controls flag.
-     * 
-     * This attribute controls whether the Plane controls widget is displayed,
-     * and is true if there are any Planes besides the Plane of the Perspective
-     * Thing.
-     */
-    $: showPlaneControls =
-        Object.keys(graph.planes._members).length > 1 ? true :
-        false
+        graph?.startingSpace ? graph.startingSpace :
+        graph?.pThing?.space || null
 
     /**
      * Scale.
@@ -221,7 +209,7 @@
     /* --------------- Initialization. --------------- */
 
     // Configure style for off-axis styling, if applicable.
-    if (graph.offAxis) {
+    if (graph?.offAxis) {
         graphWidgetStyle.excludePerspectiveThing = true
         graphWidgetStyle.excludeCartesianAxes = true
     }
@@ -286,7 +274,7 @@
      */
     async function scrollToThingId( thingId: number ): Promise<void> {
         // Get the HTML element for the given Thing ID.
-        const thingWidgetId = `graph#${ graph.id }-thing#${ thingId }`
+        const thingWidgetId = `graph#${ graph?.id }-thing#${ thingId }`
         let thingWidget = document.getElementById(thingWidgetId)
 
         // If no such element exists for that ID, get the HTML element for the
