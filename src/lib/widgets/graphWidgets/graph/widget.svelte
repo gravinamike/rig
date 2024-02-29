@@ -52,7 +52,7 @@
     let zoomBoundsDiv: Element | null = null
 
     // Perspective-dependent Thing-texts.
-    let perspectiveTexts = legacyPerspectiveThingsParse(graph?.pThing?.perspectivetexts || "{}")
+    $: perspectiveTexts = legacyPerspectiveThingsParse(graph?.pThing?.perspectivetexts || "{}")
 
     
     // Auto-center the current focal point after resizing the Graph.
