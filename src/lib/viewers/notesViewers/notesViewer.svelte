@@ -48,6 +48,7 @@
     export let outlineFormat = false
     export let makeRoomForThingText = false
     export let fullSize: boolean
+    export let outlinerIsEditing = false
     export let activeNotesEditorForOutliner: Editor | null
     export let rePerspectToThingId: (thingId: number) => Promise<void>
 
@@ -60,7 +61,7 @@
     let textFieldScrollTop = 0
     let textFieldClientHeight = 0
     let textFieldScrollHeight = 0
-    let textEditorField: Element
+    let textEditorField: HTMLElement
 
 
     /* UI-state-related variables. */
@@ -69,7 +70,7 @@
     let editing = $notesEditorLockedStore
 
     // Whether the viewer is locked in editing mode.
-    let editingLocked = $notesEditorLockedStore
+    let editingLocked = !outlineFormat
 
     // Show the edit-lock icon in the edit button if...
     $: showEditingLockedIcon = (
@@ -379,8 +380,7 @@
             && !notesContainer.contains(event.target as Node)
 
             // ...or the edit button or any part of it...
-            && event.target !== editButton 
-            && !(editButton !== null && editButton.contains(event.target as Node))
+            && !findAncestorWithClassName(event.target as HTMLElement, "edit-button")
 
             // ...or the Thing-linking widget...
             && !(
@@ -390,13 +390,33 @@
                     || thingLinkingWidget.contains(event.target as Node)
                 )
             )
-
+            
             // ...and the viewer isn't locked in editing mode,
             && !editingLocked
 
         // Disable editing.
-        ) editing = false
+        ) {
+            editing = false
+        }
 	}
+
+
+
+    function findAncestorWithClassName(element: HTMLElement | null, className: string) {
+        while (element) {
+            element = element.parentElement
+            if (element === null) return null
+            if (element.className.indexOf(className) >= 0) return element
+        }
+    }
+
+
+
+
+
+
+
+
 
     /**
      * Handle-escape method.
@@ -505,7 +525,7 @@
     
 
     
-
+    let editor: Editor
 
 
 </script>
@@ -565,8 +585,15 @@
             }
         `}
         
-        
-        on:dblclick={ () => {editing = true} }
+        on:click={ async () => {
+            await sleep(50) // To prevent conflict with outside-click-handler.
+            if (outlinerIsEditing) editing = true
+        } }
+        on:dblclick={ () => {
+            editing = true
+            outlinerIsEditing = true
+        } }
+        on:keydown={()=>{}}
     >
         <!-- Note editor. -->
         {#if !$readOnlyMode && editing}
@@ -578,6 +605,7 @@
                 {fullSize}
                 {outlineFormat}
                 {makeRoomForThingText}
+                bind:editor
                 bind:activeNotesEditorForOutliner
             />
 

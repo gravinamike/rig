@@ -39,12 +39,12 @@
     export let fullSize: boolean
     export let outlineFormat: boolean
     export let makeRoomForThingText = false
+    export let editor: Editor
     export let activeNotesEditorForOutliner: Editor | null
 
 
 
     // HTML element handles.
-    let editor: Editor
     let editorElement: HTMLElement
     let textFieldScrollTop = 0
     let textFieldClientHeight = 0
@@ -219,8 +219,6 @@
     // Perspective Thing's Note text.
     onMount(() => {
         setContent(currentPThingNoteText || "")
-
-        activeNotesEditorForOutliner = editor
     })
 
     // When the editor component is destroyed, also destroy the Tiptap editor.

@@ -8,7 +8,7 @@
     import { onDestroy } from "svelte"
 
     // Import stores.
-    import { addGraph, landscapeOrientation, removeGraph, titleFontStore, titleFontWeightStore, uITrimColorStore, addGraphIdsNeedingViewerRefresh } from "$lib/stores"
+    import { addGraph, landscapeOrientation, removeGraph, titleFontStore, titleFontWeightStore, uITrimColorStore, addGraphIdsNeedingViewerRefresh, readOnlyMode, notesEditorLockedStore } from "$lib/stores"
 
     // Import utility functions.
     import { onMobile } from "$lib/shared/utility"
@@ -16,9 +16,11 @@
     // Import related widgets.
     import { defaultGraphWidgetStyle, ThingCohortOutlineWidget } from "$lib/widgets/graphWidgets"
     import NotesToolbar from "$lib/viewers/notesViewers/notesToolbar.svelte"
+    import { Tooltip } from "$lib/widgets/layoutWidgets"
 
     // Import API functions.
     import { markThingsVisited } from "$lib/db/makeChanges"
+    import { saveGraphConfig } from "$lib/shared/config";
     
 
 
@@ -32,6 +34,8 @@
 
 
 
+    let graphOutlineWidget: HTMLElement
+    
     // Outline title (root Thing text).
     $: title =
         graph === null ? "" :
@@ -135,6 +139,103 @@
 
 
 
+
+
+
+
+
+    // Handles for HTML elements.
+    let editButton: Element | null = null
+
+    // Whether Notes are displayed as plain HTML or as an editable interface.
+    let editing = $notesEditorLockedStore
+
+    // Whether the viewer is locked in editing mode.
+    let editingLocked = $notesEditorLockedStore
+
+    // Show the edit-lock icon in the edit button if...
+    $: showEditingLockedIcon = (
+        (
+            // The viewer is in editing mode, but not locked in that mode, and...
+            editing
+            && !editingLocked
+
+            // The app is not on mobile, the mouse is hovering over the button, and the lock wasn't
+            // just toggled...
+            && (!onMobile() && editButtonHovered && !editingLockJustToggled)
+        )
+
+        // ...or...
+        || (
+            // The viewer is in editing mode, is locked in that mode, and the editing lock was just
+            // toggled...
+            editing
+            && editingLocked
+            && editingLockJustToggled
+        )
+
+        // ...or...
+        || (
+            // The viewer is locked in editing mode and the mouse is not hovering over the button.
+            editingLocked
+            && !editButtonHovered
+        )
+    ) ? true :
+    false
+
+    // Flags for interactions with the editing button.
+    let editButtonHovered = false
+    let editingLockJustToggled = false
+
+    /**
+     * Handle-edit-button method.
+     * 
+     * Called when the edit button is toggled, either turning on editing mode or turning it off
+     * and handling related actions (like saving the Graph configuration).
+     */
+    function handleEditButton() {
+        if (editing === false) {
+            editing = true
+        } else {
+            editingLocked = !editingLocked
+            editingLockJustToggled = true
+            notesEditorLockedStore.set(editingLocked)
+            saveGraphConfig()
+        }
+    }
+
+    /**
+     * Handle-possible-outside-click method.
+     * 
+     * Checks whether a mouse click happened outside of the editor, and if so,
+     * disables editing.
+     * @param event - The mouse click that activated the method.
+     */
+	function handlePossibleOutsideClick(event: MouseEvent) {
+        // If...
+		if (
+            // ...the click wasn't on the Notes container or any part of it...
+            event.target !== graphOutlineWidget
+            && !graphOutlineWidget.contains(event.target as Node)
+            
+            // ...and the viewer isn't locked in editing mode,
+            && !editingLocked
+
+        // Disable editing.
+        ) {
+            editing = false
+        }
+	}
+
+
+
+
+
+
+
+
+
+
     
 
     onDestroy(() => {
@@ -143,10 +244,20 @@
 </script>
 
 
+
+<!-- Page body click and escape handlers. -->
+<svelte:body
+    on:click={handlePossibleOutsideClick}
+/>
+
+
+
 <!-- Graph outline widget. -->
 <div
     class="graph-outline-widget"
     class:off-axis={offAxis}
+
+    bind:this={graphOutlineWidget}
 
     style={offAxis ? "" : `background-color: ${$uITrimColorStore};`}
 >
@@ -181,6 +292,7 @@
                 thingCohort={graph.rootCohort}
                 {graph}
                 {graphWidgetStyle}
+                bind:editingNotes={editing}
                 bind:activeNotesEditorForOutliner={editor}
                 {rePerspectToThingId}
             />
@@ -194,6 +306,46 @@
             focusEditorMethod={focusEditor}
             isThingLinkMethod={isThingLink}
         />
+    {/if}
+
+    <!-- Edit button. -->
+    {#if !$readOnlyMode && !offAxis}
+        <div
+            class="edit-button"
+            class:editing
+            class:editingLocked
+            class:on-mobile={onMobile()}
+            bind:this={editButton}
+
+            on:mouseenter={() => {editButtonHovered = true}}
+            on:mouseleave={() => {
+                editButtonHovered = false
+                editingLockJustToggled = false
+            }}
+            on:click={handleEditButton}
+            on:keydown={()=>{}}
+        >
+            <!-- Editing status icon. -->
+            <img
+                src={
+                    showEditingLockedIcon ? "./icons/lock-edit.png" : "./icons/edit.png" }
+                alt={
+                    showEditingLockedIcon ? "Lock Notes in editing mode" : "Edit Notes" }
+                width=28px
+                height=28px
+            >
+
+            <!-- Tooltip. -->
+            <Tooltip
+                text={
+                    editing === false ? "Edit Notes." :
+                    editingLocked === false ? "Lock in edit mode." :
+                    "Un-lock edit mode."
+                }
+                direction={"up"}
+                lean={"left"}
+            />
+        </div>
     {/if}
 </div>
 
@@ -239,5 +391,44 @@
         overflow-x: visible;
         overflow-y: auto; 
         scrollbar-width: thin;
+    }
+
+    .edit-button {
+		border-radius: 5px;
+
+		box-sizing: border-box;
+        position: absolute;
+        bottom: 21px;
+        right: 20px;
+        opacity: 0.25;
+
+		display: flex;
+		justify-content: center;
+		align-items: center;
+        padding: 5px;
+
+		cursor: default;
+    }
+
+    .edit-button.editing {
+        outline: solid 1px lightgrey;
+		outline-offset: -1px;
+
+        right: 20px;
+        bottom: 21px;
+
+        background-color: white;
+        opacity: 0.5;
+    }
+
+    .edit-button:hover {
+        outline: solid 1px grey;
+
+        background-color: gainsboro;
+        opacity: 1;
+    }
+
+    .edit-button:active {
+        background-color: lightgrey;
     }
 </style>

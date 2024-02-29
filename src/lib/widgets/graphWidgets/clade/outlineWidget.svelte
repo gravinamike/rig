@@ -28,6 +28,7 @@
     export let rootThing: Thing
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
+    export let editingNotes: boolean
     export let activeNotesEditorForOutliner: Editor | null
     export let rePerspectToThingId: (id: number) => Promise<void>
     
@@ -98,6 +99,7 @@
                         thing={rootThing}
                         {graph}
                         {graphWidgetStyle}
+                        bind:editingNotes
                         bind:activeNotesEditorForOutliner
                         {rePerspectToThingId}
                     />
@@ -179,6 +181,7 @@
                         {thingCohort}
                         bind:graph
                         bind:graphWidgetStyle
+                        bind:editingNotes
                         bind:activeNotesEditorForOutliner
                         {rePerspectToThingId}
                     />

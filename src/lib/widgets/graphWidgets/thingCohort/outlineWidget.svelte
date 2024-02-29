@@ -18,6 +18,7 @@
     export let thingCohort: ThingCohort
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
+    export let editingNotes: boolean
     export let activeNotesEditorForOutliner: Editor | null
     export let rePerspectToThingId: (thingId: number) => Promise<void>
 </script>
@@ -44,6 +45,7 @@
                     rootThing={cohortMember.thing}
                     {graph}
                     {graphWidgetStyle}
+                    bind:editingNotes
                     bind:activeNotesEditorForOutliner
                     {rePerspectToThingId}
                 />

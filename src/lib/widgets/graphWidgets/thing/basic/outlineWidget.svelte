@@ -32,6 +32,7 @@
     export let thing: Thing | null = null
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
+    export let editingNotes: boolean
     export let activeNotesEditorForOutliner: Editor | null
     export let rePerspectToThingId: (id: number) => Promise<void>
 
@@ -170,6 +171,7 @@
                 outlineFormat={true}
                 makeRoomForThingText={!isRootClade}
                 fullSize={false}
+                bind:outlinerIsEditing={editingNotes}
                 bind:activeNotesEditorForOutliner
                 {rePerspectToThingId}
             />
