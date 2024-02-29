@@ -48,6 +48,7 @@
     export let outlineFormat = false
     export let makeRoomForThingText = false
     export let fullSize: boolean
+    export let editing = false
     export let outlinerIsEditing = false
     export let activeNotesEditorForOutliner: Editor | null
     export let rePerspectToThingId: (thingId: number) => Promise<void>
@@ -67,7 +68,7 @@
     /* UI-state-related variables. */
     
     // Whether Notes are displayed as plain HTML or as an editable interface.
-    let editing = $notesEditorLockedStore
+    editing = $notesEditorLockedStore
 
     // Whether the viewer is locked in editing mode.
     let editingLocked = !outlineFormat
@@ -545,6 +546,7 @@
     class:outline-format={outlineFormat}
     class:make-room-for-thing-text={makeRoomForThingText}
     class:off-axis={graph.offAxis}
+    class:editing
 
     style="background-color: {$uITrimColorStore};"
 >
@@ -712,6 +714,10 @@
 
         padding: 0;
         gap: 0;
+    }
+
+    .notes-viewer.outline-format.editing {
+        border: solid 1px black;
     }
 
     .edit-button {

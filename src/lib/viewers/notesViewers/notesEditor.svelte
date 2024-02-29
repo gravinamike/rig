@@ -329,6 +329,8 @@
     }
 
     .notes-editor.outline-format .text-field {
+        outline: unset;
+        outline-offset: unset;
         border-radius: 0;
     }
 

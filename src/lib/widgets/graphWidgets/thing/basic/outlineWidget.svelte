@@ -75,7 +75,7 @@
 
     $: isRootClade = thingId === graph.rootCohort?.members[0].thing?.id
 
-
+    let editingNoteForThisThing = false
 
 </script>
 
@@ -117,6 +117,7 @@
         class:box={graph.offAxis}
         class:off-axis={graph.offAxis}
         class:highlighted
+        class:editing-note={editingNoteForThisThing}
 
         bind:clientWidth={width}
         bind:clientHeight={height}
@@ -171,6 +172,7 @@
                 outlineFormat={true}
                 makeRoomForThingText={!isRootClade}
                 fullSize={false}
+                bind:editing={editingNoteForThisThing}
                 bind:outlinerIsEditing={editingNotes}
                 bind:activeNotesEditorForOutliner
                 {rePerspectToThingId}
@@ -236,6 +238,10 @@
         padding: 0rem;
     }
 
+    .thing-outline-widget.editing-note {
+        z-index: 1;
+    }
+
     .root-clade-extender {
         width: 100%;
         height: 1px;
@@ -256,7 +262,7 @@
     }
 
     .box.highlighted {
-        box-shadow: 1px 1px 2px 1px silver;
+        box-shadow: 1px 1px 2px 1px dimgrey;
 
         background-color: #f7f7f7;
     }
