@@ -152,7 +152,7 @@ export class Graph {
     async setPThingIds(pThingIds: number[], updateHistory=true): Promise<void> {
         // Set the Perspective Thing IDs.
         this.#pThingIds = pThingIds
-
+        
         // Rebuild the Graph.
         await this.build(false, updateHistory)
     }

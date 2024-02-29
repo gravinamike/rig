@@ -27,6 +27,7 @@
     export let depth: number
     export let graph: Graph | null = null
     export let graphWidgetStyle: GraphWidgetStyle
+    export let allowDirectChangesToPThingIds = false
     export let showGraph: boolean
     export let rePerspectToThingId: (thingId: number, updateHistory?: boolean, zoomAndScroll?: boolean) => Promise<void>
     export let allowZoomAndScrollToFit: boolean
@@ -99,9 +100,15 @@
 
 
 
-    $: if ($loadingState === "graphLoaded" && pThingIds) {
+    $: if ($loadingState === "graphLoaded") {
         buildAndRefresh()
     }
+
+    $: if (allowDirectChangesToPThingIds && pThingIds) {
+        buildAndRefresh()
+    }
+
+
     // ...or a refresh of the specific Graph ID is called for.
     $: if ( graph && $graphIdsNeedingViewerRefresh.includes(graph.id) ) {
         removeGraphIdsNeedingViewerRefresh(graph.id)
@@ -132,7 +139,7 @@
             removeGraph(graph)
             graph = null
         }
-        
+
         // Get information about which Space to use from the URL.
         const urlHashParams = urlHashToObject($urlStore.hash)
         const spaceIdToUse =
@@ -144,7 +151,7 @@
         if (spaceIdToUse && !spaceToUse) {
             alert(`No Space with ID ${spaceIdToUse} was found. Using default Space instead.`)
         }
-        
+
         // Open and build the new Graph.
         graph = await addGraph(pThingIds as number[], depth, null, false, false, spaceToUse)
         graphWidgetStyle = {...defaultGraphWidgetStyle}
@@ -152,7 +159,7 @@
 
         // Refresh the Graph viewers.
         showGraph = true
-        addGraphIdsNeedingViewerRefresh(graph.id)
+        if (graph) addGraphIdsNeedingViewerRefresh(graph.id)
     }
 
 

@@ -109,6 +109,7 @@
                 pThingIds={[thingIdToShowGraphFor]}
                 depth={1}
                 {graphWidgetStyle}
+                allowDirectChangesToPThingIds={true}
                 showGraph={true}
                 bind:allowZoomAndScrollToFit
                 bind:allowScrollToThingId
