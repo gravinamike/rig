@@ -61,18 +61,15 @@
                 && $remoteRelatingInfoStore.sourceThingId !== destThingId
             ) ? true :
             false
-
+        
         // If there is a valid destination Thing ID and the Graph currently has a
         // root Thing,
         if (
             destThingId
             && relatableForCurrentDrag
-            && graph?.rootCohort?.members[0]
         ) {
             // Set the destination Thing ID in the store to the root Thing's ID.
-            setRelationshipBeingCreatedDestThingId(
-                graph.rootCohort.members[0].thingId
-            )
+            setRelationshipBeingCreatedDestThingId(destThingId)
         }
     }
 </script>

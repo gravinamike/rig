@@ -26,13 +26,14 @@
     export let pThingIds: (number | null)[]
     export let depth: number
     export let graph: Graph | null = null
-    export let graphWidgetStyle: GraphWidgetStyle
+    export let graphWidgetStyle = {...defaultGraphWidgetStyle}
     export let allowDirectChangesToPThingIds = false
     export let showGraph: boolean
     export let rePerspectToThingId: (thingId: number, updateHistory?: boolean, zoomAndScroll?: boolean) => Promise<void>
     export let allowZoomAndScrollToFit: boolean
     export let allowScrollToThingId: boolean
     export let thingIdToScrollTo: number | null
+    export let animateZoomAndScroll = true
 
 
 
@@ -155,6 +156,7 @@
         // Open and build the new Graph.
         graph = await addGraph(pThingIds as number[], depth, null, false, false, spaceToUse)
         graphWidgetStyle = {...defaultGraphWidgetStyle}
+        graphWidgetStyle.animateZoomAndScroll = animateZoomAndScroll
         await markThingsVisited(pThingIds as number[])
 
         // Refresh the Graph viewers.

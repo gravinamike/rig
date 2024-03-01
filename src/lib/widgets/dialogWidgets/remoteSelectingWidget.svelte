@@ -10,7 +10,7 @@
     } from "$lib/stores"
 
     // Import related widgets.
-    import { defaultGraphWidgetStyle, GraphWidget, type GraphWidgetStyle } from "$lib/widgets/graphWidgets"
+    import { GraphWidget } from "$lib/widgets/graphWidgets"
     import { SearchWidget } from "$lib/widgets/navWidgets"
     import { onMobile } from "$lib/shared/utility"
 
@@ -26,7 +26,6 @@
     $: portraitOrientation = onMobile() && !$landscapeOrientation
     
     // Attributes related to the Graph configuration.
-    let graphWidgetStyle: GraphWidgetStyle = {...defaultGraphWidgetStyle}
     let thingIdToShowGraphFor: number | null = null
 
     // Attributes related to scrolling and zooming.
@@ -61,10 +60,6 @@
     }
     
     
-    
-
-
-    //////////////////////graphWidgetStyle.animateZoomAndScroll = false
 
 
 
@@ -108,7 +103,6 @@
             <GraphWidget
                 pThingIds={[thingIdToShowGraphFor]}
                 depth={1}
-                {graphWidgetStyle}
                 allowDirectChangesToPThingIds={true}
                 showGraph={true}
                 bind:allowZoomAndScrollToFit
