@@ -115,6 +115,7 @@
 
     // Whether the Note text has been edited in the editor.
     let editorTextEditedButNotSynced = false
+    let unresolvedEditorSyncAttempts: Date[] = []
 
     // If the Notes have been changed in the editor but haven't been synced yet, sync them with the
     // local proxies and the back-end database.
@@ -204,6 +205,8 @@
             thingToUse = newThing
             thingNoteId = newThing?.note?.id || null
         }
+
+        unresolvedEditorSyncAttempts = []
     }
 
     /**
@@ -221,7 +224,8 @@
         await createAndUpdateNoteInDatabase(currentEditorTextContent)
 
         // Note that the text has been synced.
-        editorTextEditedButNotSynced = false///////////////////
+        editorTextEditedButNotSynced = false
+        unresolvedEditorSyncAttempts.shift()
     }
 
     /**
@@ -618,6 +622,7 @@
                 currentPThingNoteText={currentThingNoteText}
                 bind:currentEditorTextContent
                 bind:editorTextEditedButNotSynced
+                bind:unresolvedEditorSyncAttempts
                 bind:textField={textEditorField}
                 {fullSize}
                 {outlineFormat}

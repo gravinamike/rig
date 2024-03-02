@@ -35,6 +35,7 @@
     export let currentPThingNoteText: string | null
     export let currentEditorTextContent: string | null
     export let editorTextEditedButNotSynced: boolean
+    export let unresolvedEditorSyncAttempts: Date[]
     export let textField: Element
     export let fullSize: boolean
     export let outlineFormat: boolean
@@ -150,9 +151,8 @@
      * @param content - The string which is to be the new content.
      */
     function setContent(content: string) {
-        console.log("SETTING CONTENT")
-        if (editorTextEditedButNotSynced) return
-        console.log("------")
+        if (unresolvedEditorSyncAttempts.length > 0) return
+
         // If a Tiptap editor exists, destroy it.
         editor?.destroy()
 
@@ -196,6 +196,9 @@
 
         // Set the flag that indicates the text needs to be synced on the back-end.
         editorTextEditedButNotSynced = true
+
+        // Add a timestamp for an unresolved editor sync attempt to the tracker array.
+        unresolvedEditorSyncAttempts = [...unresolvedEditorSyncAttempts, new Date()]
 
         // Scroll the text field if necessary.
         await tick()
