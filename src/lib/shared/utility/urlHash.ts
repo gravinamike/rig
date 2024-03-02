@@ -50,13 +50,10 @@ export function updateUrlHash(paramsToChange: { [key: string]: string | null }) 
     
     // Parse the URL string to an object.
     const urlHashParams = urlHashToObject(url.hash)
-
     // Update the object's entries based on the parameters-to-change object.
     for (const [key, value] of Object.entries(paramsToChange)) {
         if (value !== null) {
             urlHashParams[key] = value
-        } else {
-            delete urlHashParams[key]
         }
     }
 

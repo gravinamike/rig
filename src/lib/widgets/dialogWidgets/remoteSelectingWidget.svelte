@@ -108,6 +108,7 @@
                 bind:allowZoomAndScrollToFit
                 bind:allowScrollToThingId
                 bind:thingIdToScrollTo
+                isForRemoteSelecting={true}
                 rePerspectToThingId={async () => {}}
             />
         {/if}

@@ -2,14 +2,13 @@
     // Import types.
     import type { Tweened } from "svelte/motion"
     import type { Graph, Space } from "$lib/models/constructModels"
-    import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
     // Import constants and utility functions.
     import { tweened } from "svelte/motion"
     import { stringRepresentsInteger, urlHashToObject, legacyPerspectiveThingsParse, Rectangle } from "$lib/shared/utility"
 
     // Import stores.
-    import { urlStore, graphBackgroundColorStore, lightenOrDarkenColorString, loadingState, openGraphStore, getGraphConstructs, addGraph, removeGraph, graphIdsNeedingViewerRefresh, addGraphIdsNeedingViewerRefresh, removeGraphIdsNeedingViewerRefresh, relationshipBeingCreatedInfoStore } from "$lib/stores"
+    import { urlStore, graphBackgroundColorStore, lightenOrDarkenColorString, loadingState, getGraphConstructs, addGraph, removeGraph, graphIdsNeedingViewerRefresh, addGraphIdsNeedingViewerRefresh, removeGraphIdsNeedingViewerRefresh, relationshipBeingCreatedInfoStore } from "$lib/stores"
 
     // Import widget controller.
     import GraphWidgetController from "./controller.svelte"
@@ -34,6 +33,7 @@
     export let allowScrollToThingId: boolean
     export let thingIdToScrollTo: number | null
     export let animateZoomAndScroll = true
+    export let isForRemoteSelecting = false
 
 
 
@@ -142,15 +142,18 @@
         }
 
         // Get information about which Space to use from the URL.
-        const urlHashParams = urlHashToObject($urlStore.hash)
-        const spaceIdToUse =
-            "spaceId" in urlHashParams && stringRepresentsInteger(urlHashParams["spaceId"]) ? parseInt(urlHashParams["spaceId"]) :
-            null
-        const spaceToUse =
-            spaceIdToUse !== null ? getGraphConstructs("Space", spaceIdToUse) as Space :
-            null
-        if (spaceIdToUse && !spaceToUse) {
-            alert(`No Space with ID ${spaceIdToUse} was found. Using default Space instead.`)
+        let spaceToUse = null
+        if (!isForRemoteSelecting) {
+            const urlHashParams = urlHashToObject($urlStore.hash)
+            const spaceIdToUse =
+                "spaceId" in urlHashParams && stringRepresentsInteger(urlHashParams["spaceId"]) ? parseInt(urlHashParams["spaceId"]) :
+                null
+            spaceToUse =
+                spaceIdToUse !== null ? getGraphConstructs("Space", spaceIdToUse) as Space :
+                null
+            if (spaceIdToUse && !spaceToUse) {
+                alert(`No Space with ID ${spaceIdToUse} was found. Using default Space instead.`)
+            }
         }
 
         // Open and build the new Graph.
