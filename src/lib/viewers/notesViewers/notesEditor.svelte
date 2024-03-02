@@ -150,8 +150,9 @@
      * @param content - The string which is to be the new content.
      */
     function setContent(content: string) {
+        console.log("SETTING CONTENT")
         if (editorTextEditedButNotSynced) return
-
+        console.log("------")
         // If a Tiptap editor exists, destroy it.
         editor?.destroy()
 

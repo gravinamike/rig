@@ -5,7 +5,7 @@
     import type { Graph, Thing } from "$lib/models/constructModels"
 
     // Import SvelteKit framework resources.
-    import { tick } from "svelte"
+    import { onMount, tick } from "svelte"
 
     // Import constants.
     import { hyperlinkProtocols } from "$lib/shared/constants"
@@ -139,6 +139,7 @@
     // refreshed.
     let thingToUse = thing === null ? graph.pThing : thing
     let thingNoteId = thingToUse?.note?.id ?? null
+    
 
     // Update the Thing that the Notes are based on when the Graph or its Perspective
     // Thing change.
@@ -220,7 +221,7 @@
         await createAndUpdateNoteInDatabase(currentEditorTextContent)
 
         // Note that the text has been synced.
-        editorTextEditedButNotSynced = false
+        editorTextEditedButNotSynced = false///////////////////
     }
 
     /**
@@ -529,6 +530,20 @@
     let editor: Editor
 
 
+
+
+
+
+
+
+    
+    // When the menu is rendered, refresh the Graph-folders store.
+    onMount(async () => {
+        if (thingToUse?.guid) {
+            const newThing = (await getThingsByGuid([thingToUse.guid]))[0]
+            updateThing(newThing)
+        }
+    })
 </script>
 
 
