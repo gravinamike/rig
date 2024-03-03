@@ -43,7 +43,7 @@
 
 
 
-
+        
 
 
 
@@ -135,7 +135,11 @@
         addGraphIdsNeedingViewerRefresh(graph.id)
     }
 
-    buildAndRefresh()
+    $: {
+        pThingIds
+        
+        buildAndRefresh()
+    }
 
 
 
