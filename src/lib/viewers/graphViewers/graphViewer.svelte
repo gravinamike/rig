@@ -13,7 +13,8 @@
         urlStore, loadingState, rightSideMenuStore, openGraphStore, addGraph, removeGraph,
         getGraphConstructs, graphIdsNeedingViewerRefresh, addGraphIdsNeedingViewerRefresh,
         removeGraphIdsNeedingViewerRefresh, homeThingIdStore,
-        perspectiveThingIdStore, perspectiveSpaceIdStore, hoveredThingIdStore
+        perspectiveThingIdStore, perspectiveSpaceIdStore, hoveredThingIdStore, storeGraphDbModels
+
     } from "$lib/stores"
 
     // Import layout elements.
@@ -25,8 +26,10 @@
     import { NotesViewer } from "$lib/viewers/notesViewers"
 
     // Import API functions.
-    import { markThingsVisited } from "$lib/db/makeChanges"
+    import { markThingsVisited, updateThingDefaultContentViewer } from "$lib/db/makeChanges"
     import { saveGraphConfig } from "$lib/shared/config"    
+    import NotesEditor from "../notesViewers/notesEditor.svelte";
+    import type { ThingDbModel } from "$lib/models/dbModels";
 
 
     
@@ -161,6 +164,13 @@
             await markThingsVisited(pThingIds as number[])
             perspectiveThingIdStore.set(thingId)
 
+            // Set the content pane to the default content viewer for the Perspective Thing.
+            openedSubMenuName =
+                graph.pThing?.defaultcontentviewer === "notes" ? "Notes" :
+                graph.pThing?.defaultcontentviewer === "outline" ? "Outline" :
+                graph.pThing?.defaultcontentviewer === "attachments" ? "Attachments" :
+                null
+
             // Set the Graph's original starting Space to null.
             graph.originalStartingSpace = null
 
@@ -244,6 +254,27 @@
         graph?.startingSpace ? graph.startingSpace :
         graph?.pThing?.space || null
 
+
+
+
+    async function updateDefaultContentViewerForPThing(openedSubMenuName: string | null) {
+        if (!graph?.pThing?.id) return
+
+        if (openedSubMenuName === "Notes" && graph.pThing.defaultcontentviewer !== "notes") {
+            graph.pThing.defaultcontentviewer = "notes"
+            await updateThingDefaultContentViewer(graph.pThing.id, "notes")
+            await storeGraphDbModels<ThingDbModel>("Thing", graph.pThing.id, true)
+        } else if (openedSubMenuName === "Outline" && graph.pThing.defaultcontentviewer !== "outline") {
+            graph.pThing.defaultcontentviewer = "outline"
+            await updateThingDefaultContentViewer(graph.pThing.id, "outline")
+            await storeGraphDbModels<ThingDbModel>("Thing", graph.pThing.id, true)
+        } else if (openedSubMenuName === "Attachments" && graph.pThing.defaultcontentviewer !== "attachments") {
+            graph.pThing.defaultcontentviewer = "attachments"
+            await updateThingDefaultContentViewer(graph.pThing.id, "attachments")
+            await storeGraphDbModels<ThingDbModel>("Thing", graph.pThing.id, true)
+        }
+    }
+    $: updateDefaultContentViewerForPThing(openedSubMenuName)
 
 </script>
 

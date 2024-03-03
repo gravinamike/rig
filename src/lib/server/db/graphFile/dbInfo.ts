@@ -121,6 +121,7 @@ export function getDbInfo(): DbInfo {
                 "perspectivetexts": "clob(2147483647)",
                 "defaultplane": "integer",
                 "perspectivedepths": "clob(2147483647)",
+                "defaultcontentviewer": "varchar(255)",
                 "whencreated": "timestamp",
                 "whenvisited": "timestamp",
                 "whenmodded": "timestamp"
@@ -133,13 +134,14 @@ export function getDbInfo(): DbInfo {
                 "text": noneText,
                 "perspectivetexts": emptyObjectText,
                 "defaultplane": 0,
+                "defaultcontentviewer": "notes",
                 "perspectivedepths": emptyObjectText,
                 "whenvisited": "NULL",
                 "whenmodded": "NULL"
             },
             'entries': [
                 [
-                    1, uuidv4(), "First Thing", emptyObjectText, 1, emptyObjectText, dateTimeStamp, null, dateTimeStamp
+                    1, uuidv4(), "First Thing", emptyObjectText, 1, emptyObjectText, "notes", dateTimeStamp, null, dateTimeStamp
                 ]
             ]
         },

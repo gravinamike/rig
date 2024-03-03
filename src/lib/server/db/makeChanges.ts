@@ -857,6 +857,54 @@ export async function updateThingDefaultSpace(
 }
 
 /*
+ * Update a Thing's default content viewer.
+ */
+export async function updateThingDefaultContentViewer(
+    graphName: string | null,
+    thingId: number,
+    defaultContentViewer: string
+): Promise<boolean> {
+    try { 
+        // Get parameters for SQL query.
+        const whenModded = (new Date()).toISOString()
+
+        // Construct and run SQL query.
+        const knex = Model.knex()
+        await knex.transaction(async (transaction: Knex.Transaction) => {
+            // Update the Note.
+            await RawThingDbModel.query()
+                .patch({ defaultcontentviewer: defaultContentViewer, whenmodded: whenModded })
+                .where('id', thingId)
+                .transacting(transaction)
+            
+            return
+        })
+        
+        logger.debug(
+            {
+                graphName,
+                thingId,
+                defaultContentViewer
+            },
+            "Thing's default content viewer updated."
+        )
+        return true
+
+    } catch(err) {
+        logServerError(
+            "An error occurred while attempting to update Thing default content viewer.",
+            {
+                graphName,
+                thingId,
+                defaultContentViewer
+            },
+            err as Error
+        )
+        return false
+    }
+}
+
+/*
  * Add a Note to a Thing.
  */
 export async function addNoteToThingOrGetExistingNoteId(

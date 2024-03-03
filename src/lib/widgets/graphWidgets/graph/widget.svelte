@@ -161,7 +161,7 @@
         graphWidgetStyle = {...defaultGraphWidgetStyle}
         graphWidgetStyle.animateZoomAndScroll = animateZoomAndScroll
         await markThingsVisited(pThingIds as number[])
-
+        
         // Refresh the Graph viewers.
         showGraph = true
         if (graph) addGraphIdsNeedingViewerRefresh(graph.id)

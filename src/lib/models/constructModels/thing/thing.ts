@@ -60,6 +60,9 @@ export class Thing {
     // Perspective depths (not yet in use).
     perspectivedepths = "{}"// Default is "{}"
 
+    // Default content viewer.
+    defaultcontentviewer: string | null = null
+
 
     /* Structures that the Thing is part of. */
 
@@ -114,6 +117,7 @@ export class Thing {
             this.defaultSpaceId = dbModel.defaultplane
             this.perspectivedepths = dbModel.perspectivedepths
             this.perspectivetexts = dbModel.perspectivetexts
+            this.defaultcontentviewer = dbModel.defaultcontentviewer
 
             // Its related structures.
             this.note = dbModel.note ? new Note(dbModel.note) : null
