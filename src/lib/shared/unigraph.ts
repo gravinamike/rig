@@ -28,7 +28,7 @@ import { storeGraphConfig } from "$lib/shared/config"
  * @param pThingId - The ID of the Thing, if any, that should first be used for Perspective when the Graph opens.
  * @param updateUrlHash - Whether to update the URL hash after opening the Graph.
  */
-export async function openGraphFile(username: string, folderName: string, pThingId: number | null = null, updateUrlHash = false): Promise<void> {
+export async function openGraphFile(username: string, folderName: string, pThingId: number | null = null, updateUrlHash = false, urlChanged=false): Promise<void> {
     loadingState.set("graphLoading")
     
     // Close any existing Graph.
@@ -71,7 +71,6 @@ export async function openGraphFile(username: string, folderName: string, pThing
     document.cookie = `graphName-for-sessionUuid-${get(sessionUuidStore)}=${username}/${folderName}; path=/; SameSite=Strict;`
     openGraphStore.set(`${username}/${folderName}`)
     
-    
     // Try to determine if the Graph is updated. If there's an error connecting
     // to the database, inform the user and abort.
     const isUpdated = await graphIsUpdated()
@@ -113,7 +112,6 @@ export async function openGraphFile(username: string, folderName: string, pThing
 
 
 
-
     // Load the Graph configuration into stores, overwriting Perspective Thing
     // ID store if parameter was included in the URL hash.
     await storeGraphConfig(pThingId)
@@ -128,7 +126,8 @@ export async function openGraphFile(username: string, folderName: string, pThing
     if (updateUrlHash) updateUrlHashMethod({
         graph: `${username}/${folderName}`,
         thingId: get(perspectiveThingIdStore) ? String(get(perspectiveThingIdStore)) : null,
-        spaceId: get(perspectiveSpaceIdStore) ? String(get(perspectiveSpaceIdStore)) : null
+        spaceId: get(perspectiveSpaceIdStore) ? String(get(perspectiveSpaceIdStore)) : (urlChanged ? null : false)
+        /////////////// SHOULD BE FALSE IF OPENING VIA THE MENU. SHOULD BE NULL IF OPENING VIA URL.
     })
 
     loadingState.set("graphLoaded")
