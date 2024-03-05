@@ -15,4 +15,5 @@ export interface DirectionToSpaceDbModel {
     directionid: string | number | null
     spaceid: string | number | null
     halfaxisid: string | number | null
+    onewayaxisinoutline: boolean | null
 }

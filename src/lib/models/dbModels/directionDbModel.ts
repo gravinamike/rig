@@ -6,4 +6,5 @@ export interface DirectionDbModel {
     directionorder: number | null
     linkerid: number | null
     halfaxisid: number | null
+    onewayaxisinoutline: boolean | null
 }

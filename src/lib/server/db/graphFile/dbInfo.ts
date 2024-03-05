@@ -93,23 +93,25 @@ export function getDbInfo(): DbInfo {
                 "id": "bigint",
                 "directionid": "integer",
                 "spaceid": "integer",
-                "halfaxisid": "integer"
+                "halfaxisid": "integer",
+                "onewayaxisinoutline": "boolean"
             },
             "constraints": {
                 "id": "IDENTITY PRIMARY KEY"
             },
             "defaultValues": {
-                "halfaxisid": 1
+                "halfaxisid": 1,
+                "onewayaxisinoutline": "FALSE"
             },
             'entries': [
-                [1, 7, 1, 1],
-                [2, 5, 1, 3],
+                [1, 7, 1, 1, "FALSE"],
+                [2, 5, 1, 3, "FALSE"],
 
-                [3, 8, 2, 1],
-                [4, 7, 2, 3],
+                [3, 8, 2, 1, "FALSE"],
+                [4, 7, 2, 3, "FALSE"],
 
-                [5, 7, 3, 1],
-                [6, 11, 3, 3],
+                [5, 7, 3, 1, "FALSE"],
+                [6, 11, 3, 3, "FALSE"],
             ]
         },
 

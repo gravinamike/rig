@@ -339,9 +339,10 @@ export async function createSpace(
             for (const [index, halfAxisIdAndDirection] of halfAxisIdsAndDirections.entries()) if (halfAxisIdAndDirection[1]?.id) {
                 const halfAxisId = halfAxisIdAndDirection[0]
                 const directionId = halfAxisIdAndDirection[1].id
+                const onewayaxisinoutline = halfAxisIdAndDirection[1].onewayaxisinoutline
                 const querystring = newSpaceDbModel
                     .$relatedQuery('directions')
-                    .relate({id: directionId, linkerid: newStartingDirectionToSpaceId + index, halfaxisid: halfAxisId})
+                    .relate({id: directionId, linkerid: newStartingDirectionToSpaceId + index, halfaxisid: halfAxisId, onewayaxisinoutline: onewayaxisinoutline})
                     .toKnexQuery().toString()
                 await alterQuerystringForH2AndRun(querystring, transaction, "", "DirectionToSpace")
             }
@@ -407,9 +408,10 @@ export async function updateSpace(
             for (const halfAxisIdAndDirection of halfAxisIdsAndDirections) if (halfAxisIdAndDirection[1]?.id) {
                 const halfAxisId = halfAxisIdAndDirection[0]
                 const directionId = halfAxisIdAndDirection[1].id
+                const onewayaxisinoutline = halfAxisIdAndDirection[1].onewayaxisinoutline
                 const querystring = spaceToAddDirectionsTo
                     .$relatedQuery('directions')
-                    .relate({id: directionId,  halfaxisid: halfAxisId})
+                    .relate({id: directionId, halfaxisid: halfAxisId, onewayaxisinoutline: onewayaxisinoutline})
                     .toKnexQuery().toString()
                 await alterQuerystringForH2AndRun(querystring, transaction, "", "DirectionToSpace")
             }

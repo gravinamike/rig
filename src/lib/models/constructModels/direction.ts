@@ -15,6 +15,7 @@ export class Direction {
     nameforobjects!: string | null
     directionorder!: number | null
     halfaxisid!: number | null
+    onewayaxisinoutline!: boolean | null
 
     constructor(dbModel: DirectionDbModel) {
         this.dbModel = dbModel
@@ -25,6 +26,7 @@ export class Direction {
         this.nameforobjects = dbModel.nameforobjects
         this.directionorder = dbModel.directionorder
         this.halfaxisid = dbModel.halfaxisid
+        this.onewayaxisinoutline = dbModel.onewayaxisinoutline
     }
 }
 
