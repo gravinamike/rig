@@ -157,7 +157,7 @@
         }
 
         // Open and build the new Graph.
-        graph = await addGraph(pThingIds as number[], depth, null, false, false, spaceToUse)
+        graph = await addGraph(pThingIds as number[], depth, null, false, false, false, spaceToUse)
         graphWidgetStyle = {...defaultGraphWidgetStyle}
         graphWidgetStyle.animateZoomAndScroll = animateZoomAndScroll
         await markThingsVisited(pThingIds as number[])

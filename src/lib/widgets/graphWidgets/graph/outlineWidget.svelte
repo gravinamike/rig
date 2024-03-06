@@ -118,7 +118,7 @@
         }
         
         // Open and build the new Graph.
-        graph = await addGraph(pThingIds as number[], depth, null, true, offAxis, space)
+        graph = await addGraph(pThingIds as number[], depth, null, true, offAxis, false, space)
         graphWidgetStyle = {...defaultGraphWidgetStyle}
 
         // Configure style for off-axis styling, if applicable.

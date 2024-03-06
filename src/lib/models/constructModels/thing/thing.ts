@@ -328,9 +328,20 @@ export class Thing {
      * array of Relationship infos.
      */
     get relatedThingIds(): (number | null)[] {
+
+
+        const directionIdsToSkip: number[] = []
+        if (this.graph?.isOutline && this.space) {
+            for (const direction of this.space.directions) {
+                if (direction.onewayaxisinoutline && direction.oppositeid) directionIdsToSkip.push(direction.oppositeid)
+            }
+        }
+
+
+        
         const relatedThingIds: (number | null)[] = []
         for (const info of this.relationshipInfos) {
-            relatedThingIds.push(info.relatedThingId)
+            if (!directionIdsToSkip.includes(info.directionId)) relatedThingIds.push(info.relatedThingId)
         }
         return relatedThingIds
     }
