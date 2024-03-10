@@ -302,7 +302,7 @@
             />
         {/if}
     </div>
-
+    FOO {editor}
     {#if editor}
         <NotesToolbar
             {editor}
@@ -314,6 +314,8 @@
 
     <button
         class="copy-outline-text-button"
+
+        style={editing ? "bottom: 90px;" : ""}
 
         on:click={() => {
             const outlineText = graph?.rootCohort?.members[0].thing?.outlineText ?? ""
@@ -431,7 +433,6 @@
         position: absolute;
         bottom: 22px;
         left: 20px;
-        opacity: 0.25;
 
         display: flex;
 		justify-content: center;
@@ -440,12 +441,19 @@
 		cursor: default;
     }
 
+    .copy-outline-text-button img {
+        opacity: 0.25;
+    }
+
     .copy-outline-text-button:hover {
         background: none;
+    }
+
+    .copy-outline-text-button:hover img {
         opacity: 0.75;
     }
 
-    .copy-outline-text-button:active {
+    .copy-outline-text-button:active img {
         opacity: 1;
     }
 

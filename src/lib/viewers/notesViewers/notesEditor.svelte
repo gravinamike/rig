@@ -163,6 +163,7 @@
             content: content,
             autofocus: onMobile() ? false : true,
             onTransaction: () => {
+                console.log("TRANSACTION")
                 editor = editor // Force re-render so `editor.isActive` works correctly.
             },
             onUpdate: onContentEdited,
@@ -222,15 +223,17 @@
     // When the editor component is created, set its text content based on the
     // Perspective Thing's Note text.
     onMount(() => {
+        console.log("MOUNT")
+        activeNotesEditorForOutliner = editor
         setContent(currentPThingNoteText || "")
     })
 
     // When the editor component is destroyed, also destroy the Tiptap editor.
     onDestroy(() => {
-        if (editor) editor.destroy()
-
-        if (activeNotesEditorForOutliner === editor) {
+        if (editor) {
             activeNotesEditorForOutliner = null
+
+            editor.destroy()
         }
     })
 </script>
