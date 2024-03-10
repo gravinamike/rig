@@ -206,7 +206,12 @@
     $: {
         graphWidgetStyle.excludeNonAxisThingCohorts
 
-        orderedThingCohorts = getOrderedThingCohorts(rootThing)
+        //orderedThingCohorts = getOrderedThingCohorts(rootThing)////////////////////////////
+        orderedThingCohorts = rootThing.getOrderedThingCohorts(
+            graphWidgetStyle.excludeCartesianAxes,
+            graphWidgetStyle.excludeNonCartesianAxes,
+            graphWidgetStyle.excludeNonAxisThingCohorts
+        )
     }
 
     /**
@@ -215,7 +220,7 @@
      * Same as ordered Thing Cohorts, but including only those Cohorts that have
      * members (aren't empty).
      */
-     $: orderedThingCohortsWithMembers = orderedThingCohorts.filter(
+    $: orderedThingCohortsWithMembers = orderedThingCohorts.filter(
         thingCohort => thingCohort.members.length
     )
 
@@ -303,7 +308,7 @@
      * 2. Then those on the other half-axes,
      * 3. Then all those not on a half-axis.
      */
-    function getOrderedThingCohorts( thing: Thing ): ThingCohort[] {
+    /*function getOrderedThingCohorts( thing: Thing ): ThingCohort[] {
 
         // If the reordering process should include the "Cartesian" half-axes
         // (Down, Up, Right, Left), add all Thing Cohorts which *are* on
@@ -370,5 +375,5 @@
 
         // Return the combined array.
         return orderedThingCohorts
-    }
+    }*//////////////////////////////////////////////////////////////////////////////////////////
 </script>

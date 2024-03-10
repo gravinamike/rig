@@ -312,6 +312,32 @@
         />
     {/if}
 
+    <button
+        class="copy-outline-text-button"
+
+        on:click={() => {
+            const outlineText = graph?.rootCohort?.members[0].thing?.outlineText ?? ""
+            const outlineTextBlob = new Blob([outlineText], {type: "text/html"})
+            const outlineTextClipboardItem = new ClipboardItem({"text/html": outlineTextBlob})
+            navigator.clipboard.write([outlineTextClipboardItem])
+        } }
+        on:keydown={()=>{}}
+    >
+        <img
+            src="./icons/copy.png"
+            alt="Copy icon"
+            width=30px
+            height=30px
+        >
+
+        <!-- Tooltip. -->
+        <Tooltip
+            text={"Copy outline text."}
+            direction={"up"}
+            lean={"right"}
+        />
+    </button>
+
     <!-- Edit button. -->
     {#if !$readOnlyMode && !offAxis}
         <div
@@ -375,6 +401,7 @@
     .title {
         flex: 0 0 34px;
 
+        position: relative;
         height: 34px;
 
         display: flex;
@@ -395,6 +422,31 @@
         overflow-x: visible;
         overflow-y: auto; 
         scrollbar-width: thin;
+    }
+
+    .copy-outline-text-button {
+        border-radius: 5px;
+        border: none;
+
+        position: absolute;
+        bottom: 22px;
+        left: 20px;
+        opacity: 0.25;
+
+        display: flex;
+		justify-content: center;
+		align-items: center;
+
+		cursor: default;
+    }
+
+    .copy-outline-text-button:hover {
+        background: none;
+        opacity: 0.75;
+    }
+
+    .copy-outline-text-button:active {
+        opacity: 1;
     }
 
     .edit-button {

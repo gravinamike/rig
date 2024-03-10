@@ -4,7 +4,7 @@ import type { ThingDbModel } from "$lib/models/dbModels"
 import type { ThingAddress, RelationshipInfo } from "./types"
 
 // Import constants and stores.
-import { oddHalfAxisIds, cartesianHalfAxisIds } from "$lib/shared/constants"
+import { oddHalfAxisIds, cartesianHalfAxisIds, orderedCartesianHalfAxisIds, orderedNonCartesianHalfAxisIds } from "$lib/shared/constants"
 import { graphDbModelInStore, getGraphConstructs } from "$lib/stores"
 
 // Import utility functions.
@@ -536,5 +536,150 @@ export class Thing {
 
         // Return the half-axis/Thing-Cohort mappings object.
         return childThingCohortByHalfAxisId
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /**
+     * Ordering Thing Cohorts.
+     * 
+     * Thing Cohorts are ordered in a specific way:
+     * 1. First those on the "Cartesian" half-axes, from top to bottom and left
+     *    to right,
+     * 2. Then those on the other half-axes,
+     * 3. Then all those not on a half-axis.
+     */
+    getOrderedThingCohorts(
+        excludeCartesianAxes: boolean,
+        excludeNonCartesianAxes: boolean,
+        excludeNonAxisThingCohorts: boolean
+    ): ThingCohort[] {
+
+        // If the reordering process should include the "Cartesian" half-axes
+        // (Down, Up, Right, Left), add all Thing Cohorts which *are* on
+        // those main half-axes to an array.
+        const thingCohortsOnCartesianHalfAxes: ThingCohort[] = []
+        if (!excludeCartesianAxes) {
+
+            // Get an array of IDs for all Cartesian half-axes in this Clade that currently
+            // have Thing Cohorts, in the desired order for an outline.
+            const orderedCartesianHalfAxisIdsWithThings = orderedCartesianHalfAxisIds.filter(
+                id => id in this.childThingCohortByHalfAxisId
+            )
+
+            // For every half-axis ID in that array, add the corresponding Thing
+            // Cohort from the Clade's root Thing to the array of Thing Cohorts
+            // that are on the Cartesian half-axes.
+            for (const halfAxisId of orderedCartesianHalfAxisIdsWithThings) {
+                thingCohortsOnCartesianHalfAxes.push(this.childThingCohortByHalfAxisId[halfAxisId])
+            }
+        }
+
+        // If the reordering process should include Thing Cohorts on the
+        // non-Cartesian half-axes,
+        const thingCohortsOnNonCartesianHalfAxes: ThingCohort[] = []
+        if (!excludeNonCartesianAxes) {
+            // Get an array of IDs for all non-Cartesian half-axes in this Clade that currently
+            // have Thing Cohorts, in the desired order for an outline.
+            const orderedNonCartesianHalfAxisIdsWithThings = orderedNonCartesianHalfAxisIds.filter(
+                id => id in this.childThingCohortByHalfAxisId
+            )
+
+            // For every half-axis ID in that array, add the corresponding Thing
+            // Cohort from the Clade's root Thing to the array of Thing Cohorts
+            // that are on the non-Cartesian half-axes.
+            for (const halfAxisId of orderedNonCartesianHalfAxisIdsWithThings) {
+                thingCohortsOnNonCartesianHalfAxes.push(this.childThingCohortByHalfAxisId[halfAxisId])
+            }
+        }
+
+        // If the reordering process should include Thing Cohorts not on
+        // a half-axis,
+        const thingCohortsNotOnHalfAxes: ThingCohort[] = []
+        if (!excludeNonAxisThingCohorts) {
+            // Add all Thing Cohorts which *are not* on half-axes to an array.
+            thingCohortsNotOnHalfAxes.push(
+                ...this.childThingCohorts
+                    .filter(cohort => {
+                        return (
+                            !orderedCartesianHalfAxisIds.includes(cohort.halfAxisId)
+                            && !orderedNonCartesianHalfAxisIds.includes(cohort.halfAxisId)
+                        )
+                    })
+            )
+        }
+
+        // Combine the arrays to produce a single array of all Thing Cohorts for
+        // this Clade, starting with those on the half-axes in the desired
+        // order, and followed by those not on the main half-axes.
+        const allCohortGroups: ThingCohort[][] = []
+        allCohortGroups.push(thingCohortsOnCartesianHalfAxes)
+        allCohortGroups.push(thingCohortsOnNonCartesianHalfAxes)
+        allCohortGroups.push(thingCohortsNotOnHalfAxes)
+        const orderedThingCohorts = allCohortGroups.flat()
+
+        // Return the combined array.
+        return orderedThingCohorts
+    }
+
+
+
+
+
+    
+
+
+
+    /**
+     * Get-outline-text method.
+     * 
+     * Assembles the texts (name texts and Notes) from this Thing and its descendants, ordered
+     * according to the hierarchy of the Graph, into a single continuous text.
+     */
+    get outlineText(): string {
+        if (!(this.address && this.graph)) return ""
+
+        let outlineText = this.note?.text ?? ""
+
+        if (this.address.generationId === this.graph.generations.asArray.length - 1) return outlineText
+
+        const orderedThingCohorts = this.getOrderedThingCohorts(false, false, false)
+        for (const thingCohort of orderedThingCohorts) {
+            for (const member of thingCohort.members) {
+                if (member.thing) {
+                    outlineText = outlineText.concat(member.thing.outlineText)
+                }
+            }
+        }
+
+        return outlineText
     }
 }
