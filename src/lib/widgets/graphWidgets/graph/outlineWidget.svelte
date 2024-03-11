@@ -315,7 +315,7 @@
     <button
         class="copy-outline-text-button"
 
-        style={editing ? "bottom: 90px;" : ""}
+        style={editor ? "bottom: 90px;" : ""}
 
         on:click={() => {
             const outlineText = graph?.rootCohort?.members[0].thing?.outlineText ?? ""

@@ -172,7 +172,7 @@
                 outlineFormat={true}
                 makeRoomForThingText={!isRootClade}
                 fullSize={false}
-                bind:editing={editingNotes}
+                bind:editing={editingNoteForThisThing}
                 bind:outlinerIsEditing={editingNotes}
                 bind:editor={notesEditor}
                 {rePerspectToThingId}
