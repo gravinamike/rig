@@ -33,7 +33,7 @@
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
     export let editingNotes: boolean
-    export let activeNotesEditorForOutliner: Editor | null
+    export let notesEditor: Editor | null
     export let rePerspectToThingId: (id: number) => Promise<void>
 
 
@@ -172,9 +172,9 @@
                 outlineFormat={true}
                 makeRoomForThingText={!isRootClade}
                 fullSize={false}
-                bind:editing={editingNoteForThisThing}
+                bind:editing={editingNotes}
                 bind:outlinerIsEditing={editingNotes}
-                bind:activeNotesEditorForOutliner
+                bind:editor={notesEditor}
                 {rePerspectToThingId}
             />
         {/if}

@@ -297,12 +297,12 @@
                 {graph}
                 {graphWidgetStyle}
                 bind:editingNotes={editing}
-                bind:activeNotesEditorForOutliner={editor}
+                bind:notesEditor={editor}
                 {rePerspectToThingId}
             />
         {/if}
     </div>
-    FOO {editor}
+
     {#if editor}
         <NotesToolbar
             {editor}
@@ -431,8 +431,9 @@
         border: none;
 
         position: absolute;
-        bottom: 22px;
+        bottom: 25px;
         left: 20px;
+        background: none;
 
         display: flex;
 		justify-content: center;

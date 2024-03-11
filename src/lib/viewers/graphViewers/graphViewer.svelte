@@ -342,7 +342,7 @@
                 <NotesViewer
                     {graph}
                     fullSize={sideMenuFullSize}
-                    activeNotesEditorForOutliner={null}
+                    editor={null}
                     {rePerspectToThingId}
                 />
             {/if}

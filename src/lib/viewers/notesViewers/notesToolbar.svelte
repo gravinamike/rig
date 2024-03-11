@@ -24,7 +24,7 @@
     export let focusEditorMethod: () => void
     export let isThingLinkMethod: () => boolean
 
-    $: console.log("FOO")
+
 
     // HTML handles for toolbar elements.
     let colorPicker: HTMLInputElement
@@ -91,12 +91,7 @@
             iconName: null,
             iconHtml: `<span style="font-weight: bold;">B</span>`,
             isActive: editor.isActive('bold'),
-            onClick: () => {
-                console.log(editor.getHTML())
-                console.log(editor.isActive('bold'))
-                console.log(editor.view.state.selection)
-                editor.chain().focus().toggleBold().run()
-            }
+            onClick: () => editor.chain().focus().toggleBold().run()
         },
         {
             text: `Italic (${nameForModKey}+I)`,

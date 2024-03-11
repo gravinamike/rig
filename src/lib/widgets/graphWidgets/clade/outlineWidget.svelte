@@ -22,14 +22,13 @@
      * @param rootThing - The Thing that forms the root of the Clade.
      * @param graph - The Graph that the Clade is in.
      * @param graphWidgetStyle - Controls the visual styling of the Graph widget.
-     * @param activeNotesEditorForOutliner - The active Tiptap editor (if any) for the Graph outline widget this belongs to.
      * @param rePerspectToThingId - A function that re-perspects the Graph to a given Thing ID.
      */
     export let rootThing: Thing
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
     export let editingNotes: boolean
-    export let activeNotesEditorForOutliner: Editor | null
+    export let notesEditor: Editor | null
     export let rePerspectToThingId: (id: number) => Promise<void>
     
 
@@ -100,7 +99,7 @@
                         {graph}
                         {graphWidgetStyle}
                         bind:editingNotes
-                        bind:activeNotesEditorForOutliner
+                        bind:notesEditor
                         {rePerspectToThingId}
                     />
 
@@ -182,7 +181,7 @@
                         bind:graph
                         bind:graphWidgetStyle
                         bind:editingNotes
-                        bind:activeNotesEditorForOutliner
+                        bind:notesEditor
                         {rePerspectToThingId}
                     />
                 {/if}

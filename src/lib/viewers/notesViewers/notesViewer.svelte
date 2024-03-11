@@ -40,7 +40,7 @@
      * @param thing - The Thing that this widget is displaying Notes for. (If null, defaults to the Perspective Thing of the Graph.)
      * @param outlineFormat - Whether to format the viewer for use in a Graph outline widget.
      * @param fullSize: Whether the viewer's menu is opened to full-size.
-     * @param activeNotesEditorForOutliner - The active Tiptap editor (if any) for the Graph outline widget this belongs to (if any).
+     * @param editor - The TipTap editor associated with this viewer (if it is in editing mode).
      * @param rePerspectToThingId - Method to re-Perspect the Graph to a given Thing ID.
      */
     export let graph: Graph
@@ -50,7 +50,7 @@
     export let fullSize: boolean
     export let editing = false
     export let outlinerIsEditing = false
-    export let activeNotesEditorForOutliner: Editor | null
+    export let editor: Editor | null
     export let rePerspectToThingId: (thingId: number) => Promise<void>
 
     
@@ -534,10 +534,7 @@
                 65
             )
     }
-    
 
-    
-    let editor: Editor
 
 
 
@@ -634,7 +631,6 @@
                 {outlineFormat}
                 {makeRoomForThingText}
                 bind:editor
-                bind:activeNotesEditorForOutliner
             />
 
         <!-- Note display. -->

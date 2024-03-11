@@ -30,7 +30,6 @@
      * @param textField - The HTML Element of the text field.
      * @param fullSize: Whether the viewer's menu is opened to full-size.
      * @param outlineFormat - Whether the Notes editor that this toolbar is part of is in a Graph outline widget.
-     * @param activeNotesEditorForOutliner - The active Tiptap editor (if any) for the Graph outline widget this belongs to (if any).
      */
     export let currentPThingNoteText: string | null
     export let currentEditorTextContent: string | null
@@ -40,8 +39,7 @@
     export let fullSize: boolean
     export let outlineFormat: boolean
     export let makeRoomForThingText = false
-    export let editor: Editor
-    export let activeNotesEditorForOutliner: Editor | null
+    export let editor: Editor | null
 
 
 
@@ -139,7 +137,7 @@
      * Gives the Tiptap editor keyboard focus.
      */
     function focusEditor() {
-        const editorElement = editor.view.dom as HTMLElement
+        const editorElement = editor?.view.dom as HTMLElement
         if (editorElement !== document.activeElement) editorElement.focus()
     }
 
@@ -163,7 +161,6 @@
             content: content,
             autofocus: onMobile() ? false : true,
             onTransaction: () => {
-                console.log("TRANSACTION")
                 editor = editor // Force re-render so `editor.isActive` works correctly.
             },
             onUpdate: onContentEdited,
@@ -193,7 +190,7 @@
     async function onContentEdited() {
         // Update the `currentEditorTextContent` variable to reflect the HTML content of the
         // editor.
-        currentEditorTextContent = editor.getHTML()
+        currentEditorTextContent = editor?.getHTML() ?? ""
 
         // Set the flag that indicates the text needs to be synced on the back-end.
         editorTextEditedButNotSynced = true
@@ -213,7 +210,8 @@
      */
     function isThingLink(): boolean {
         return (
-            editor.isActive('link')
+            editor
+            && editor.isActive('link')
             && editor.getAttributes("link").href.startsWith("graph://")
         )
     }
@@ -223,17 +221,14 @@
     // When the editor component is created, set its text content based on the
     // Perspective Thing's Note text.
     onMount(() => {
-        console.log("MOUNT")
-        activeNotesEditorForOutliner = editor
-        setContent(currentPThingNoteText || "")
+        setContent(currentPThingNoteText || "") 
     })
 
     // When the editor component is destroyed, also destroy the Tiptap editor.
     onDestroy(() => {
         if (editor) {
-            activeNotesEditorForOutliner = null
-
             editor.destroy()
+            editor = null
         }
     })
 </script>

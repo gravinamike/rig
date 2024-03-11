@@ -12,14 +12,14 @@
      * @param thingCohort - The Thing Cohort used to set up this widget.
      * @param graph - The Graph that the Thing Cohort is in.
      * @param graphWidgetStyle - Controls the visual styling of the Graph.
-     * @param activeNotesEditorForOutliner - The active Tiptap editor (if any) for the Graph outline widget this belongs to.
+     * @param notesEditor - The active Tiptap editor (if any) for the Graph outline widget this belongs to.
      * @param rePerspectToThingId - A function that re-Perspects the Graph to a given Thing ID.
      */
     export let thingCohort: ThingCohort
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
     export let editingNotes: boolean
-    export let activeNotesEditorForOutliner: Editor | null
+    export let notesEditor: Editor | null
     export let rePerspectToThingId: (thingId: number) => Promise<void>
 </script>
 
@@ -46,7 +46,7 @@
                     {graph}
                     {graphWidgetStyle}
                     bind:editingNotes
-                    bind:activeNotesEditorForOutliner
+                    bind:notesEditor
                     {rePerspectToThingId}
                 />
             {/if}
