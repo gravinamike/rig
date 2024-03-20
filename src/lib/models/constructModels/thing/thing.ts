@@ -8,7 +8,7 @@ import { oddHalfAxisIds, cartesianHalfAxisIds, orderedCartesianHalfAxisIds, orde
 import { graphDbModelInStore, getGraphConstructs } from "$lib/stores"
 
 // Import utility functions.
-import { readOnlyArrayToArray } from "$lib/shared/utility"
+import { htmlToPlainText, readOnlyArrayToArray } from "$lib/shared/utility"
 
 // Import Graph constructs.
 import {
@@ -664,10 +664,11 @@ export class Thing {
      * Assembles the texts (name texts and Notes) from this Thing and its descendants, ordered
      * according to the hierarchy of the Graph, into a single continuous text.
      */
-    get outlineText(): string {
+    outlineText(plainText=false): string {
         if (!(this.address && this.graph)) return ""
 
         let outlineText = this.note?.text ?? ""
+        if (plainText) outlineText = htmlToPlainText(outlineText)
 
         if (this.address.generationId === this.graph.generations.asArray.length - 1) return outlineText
 
@@ -675,7 +676,9 @@ export class Thing {
         for (const thingCohort of orderedThingCohorts) {
             for (const member of thingCohort.members) {
                 if (member.thing) {
-                    outlineText = outlineText.concat(member.thing.outlineText)
+                    outlineText = outlineText.concat(
+                        `\n${member.thing.outlineText(plainText)}`
+                    )
                 }
             }
         }

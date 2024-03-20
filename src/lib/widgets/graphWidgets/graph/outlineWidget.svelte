@@ -11,7 +11,7 @@
     import { addGraph, landscapeOrientation, removeGraph, titleFontStore, titleFontWeightStore, uITrimColorStore, addGraphIdsNeedingViewerRefresh, readOnlyMode, notesEditorLockedStore } from "$lib/stores"
 
     // Import utility functions.
-    import { onMobile } from "$lib/shared/utility"
+    import { onMobile, writePlainTextToClipboard } from "$lib/shared/utility"
 
     // Import related widgets.
     import { defaultGraphWidgetStyle, ThingCohortOutlineWidget } from "$lib/widgets/graphWidgets"
@@ -231,7 +231,20 @@
         }
 	}
 
+    function copyOutlineTextToClipboard() {
+        try {
+            const outlineText = graph?.rootCohort?.members[0].thing?.outlineText() ?? ""
+            const outlineTextBlob = new Blob([outlineText], {type: "text/html"})
+            const outlineTextClipboardItem = new ClipboardItem({"text/html": outlineTextBlob})
+            navigator.clipboard.write([outlineTextClipboardItem])
+        } catch {
+            console.log(`Couldn't copy outline rich text to clipboard. Falling back to plain text (this may contain errors due to translation from HTML). If you are using Firefox this may be due to lack of support for the clipboard copy function. You can enable experimental support by navigating to "about:config", searching for "dom.events.asyncClipboard.clipboardItem", and setting its value to "true".`)
+            const outlineText = graph?.rootCohort?.members[0].thing?.outlineText(true) ?? ""
+            writePlainTextToClipboard(outlineText)
+        }
+    }
 
+        
 
 
 
@@ -317,12 +330,7 @@
 
         style={editor ? "bottom: 90px;" : ""}
 
-        on:click={() => {
-            const outlineText = graph?.rootCohort?.members[0].thing?.outlineText ?? ""
-            const outlineTextBlob = new Blob([outlineText], {type: "text/html"})
-            const outlineTextClipboardItem = new ClipboardItem({"text/html": outlineTextBlob})
-            navigator.clipboard.write([outlineTextClipboardItem])
-        } }
+        on:click={copyOutlineTextToClipboard}
         on:keydown={()=>{}}
     >
         <img
