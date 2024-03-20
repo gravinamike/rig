@@ -8,7 +8,7 @@ import { oddHalfAxisIds, cartesianHalfAxisIds, orderedCartesianHalfAxisIds, orde
 import { graphDbModelInStore, getGraphConstructs } from "$lib/stores"
 
 // Import utility functions.
-import { htmlToPlainText, readOnlyArrayToArray } from "$lib/shared/utility"
+import { htmlToPlainText, incrementDownHeaderTags, readOnlyArrayToArray } from "$lib/shared/utility"
 
 // Import Graph constructs.
 import {
@@ -666,9 +666,14 @@ export class Thing {
      */
     outlineText(plainText=false): string {
         if (!(this.address && this.graph)) return ""
-
-        let outlineText = this.note?.text ?? ""
-        if (plainText) outlineText = htmlToPlainText(outlineText)
+        
+        const noteText =
+            plainText ? htmlToPlainText(this.note?.text ?? "") :
+            incrementDownHeaderTags(this.note?.text ?? "")
+        const thingHeaderText =
+            plainText ? `${this.text ?? ""}\n\n` :
+            `<h1>${this.text ?? ""}</h1>`
+        let outlineText = `${thingHeaderText}${noteText}`
 
         if (this.address.generationId === this.graph.generations.asArray.length - 1) return outlineText
 
@@ -677,7 +682,7 @@ export class Thing {
             for (const member of thingCohort.members) {
                 if (member.thing) {
                     outlineText = outlineText.concat(
-                        `\n${member.thing.outlineText(plainText)}`
+                        `${plainText ? "\n\n" : "<br><br>"}${member.thing.outlineText(plainText)}`
                     )
                 }
             }

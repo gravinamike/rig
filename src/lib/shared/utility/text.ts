@@ -39,7 +39,6 @@ export function capitalizeFirstLetter(stringToCapitalize: string) {
 
 export function htmlToPlainText(htmlString: string) {
     const divElement = document.createElement("div")
-    console.log(htmlString)
     divElement.innerHTML = htmlString
         .replace(/<br>/g, "\n")
         .replace(/<\/p>/g, "\n")
@@ -65,4 +64,20 @@ export function writePlainTextToClipboard(text: string) {
     textArea.select()
     document.execCommand("copy")
     document.body.removeChild(textArea)
+}
+
+export function incrementDownHeaderTags(html: string) {
+    return html
+        .replace(/<h6>/g, "<strong>")
+        .replace(/<\/h6>/g, "</strong>")
+        .replace(/<h5>/g, "<h6>")
+        .replace(/<\/h5>/g, "</h6>")
+        .replace(/<h4>/g, "<h5>")
+        .replace(/<\/h4>/g, "</h5>")
+        .replace(/<h3>/g, "<h4>")
+        .replace(/<\/h3>/g, "</h4>")
+        .replace(/<h2>/g, "<h3>")
+        .replace(/<\/h2>/g, "</h3>")
+        .replace(/<h1>/g, "<h2>")
+        .replace(/<\/h1>/g, "</h2>")
 }
