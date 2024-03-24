@@ -28,7 +28,6 @@
 </script>
 
 
-
 <!-- Widget controller. -->
 <ThingAlreadyRenderedWidgetController
     {thingId}
@@ -47,16 +46,14 @@
 <!-- Thing-already-rendered widget (outline version). -->
 <div
     class="thing-outline-already-rendered-widget"
+    class:hovered-thing={thingId === $hoveredThingIdStore}
     
     style="
         {overlapMarginStyleText}
-        {
-            thingId === $hoveredThingIdStore ?
-                `border: solid 1px ${relationshipColor}; border-style: dashed; ` :
-                ""
-        }
+        {thingId === $hoveredThingIdStore ? `border: solid 1px ${relationshipColor};` : ""}
         border-radius: {10 + 4 * encapsulatingDepth}px;
-        width: {thingWidth}px; height: {thingHeight}px;
+        width: {thingWidth}px;
+        height: {thingHeight}px;
     "
 
     on:mouseenter={()=>{hoveredThingIdStore.set(thingId)}}
@@ -78,5 +75,9 @@
         font-weight: 400;
 
         pointer-events: auto;
+    }
+
+    .thing-outline-already-rendered-widget.hovered-thing {
+        border-style: dashed;
     }
 </style>

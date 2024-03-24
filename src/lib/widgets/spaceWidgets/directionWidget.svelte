@@ -8,8 +8,8 @@
     import { onMount } from "svelte"
 
     // Import constants and stores.
-    import { relationshipColorByHalfAxisId } from "$lib/shared/constants"
-    import { directionDbModelsStore, directionSelectionInfoStore, getGraphConstructs, openDirectionSelectionDropdownMenu, readOnlyMode } from "$lib/stores"
+    import { directionWidgetCircularDiameter, relationshipColorByHalfAxisId } from "$lib/shared/constants"
+    import { directionSelectionInfoStore, openDirectionSelectionDropdownMenu, readOnlyMode } from "$lib/stores"
 
     // Import related UI elements.
     import { TextFittingDiv } from "$lib/widgets/layoutWidgets"
@@ -92,8 +92,8 @@
     bind:this={directionWidget}
 
     style="
-        width: {circularOrRectangular === "circular" ? "60px": "100%"};
-        height: {circularOrRectangular === "circular" ? "60px": `${height}px`};
+        width: {circularOrRectangular === "circular" ? `${directionWidgetCircularDiameter}px`: "100%"};
+        height: {circularOrRectangular === "circular" ? `${directionWidgetCircularDiameter}px`: `${height}px`};
     "
 >
     <!-- Colored backfield. -->

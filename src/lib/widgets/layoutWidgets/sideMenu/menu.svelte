@@ -27,7 +27,7 @@
      * @param close - Method to close the side-menu.
      */
     export let subMenuInfos: { name: MenuName, icon: string, tooltipText: string | null }[][]
-    export let defaultOpenSubMenuName: string
+    export let defaultOpenSubMenuName: string | null
     export let openedSubMenuName: string | null
     export let open: boolean = false
     export let lockedOpen = false

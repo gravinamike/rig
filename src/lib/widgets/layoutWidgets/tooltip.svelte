@@ -93,7 +93,7 @@
             }
         "
     >
-        <strong>{text}</strong>
+        <strong>{@html text}</strong>
     </div>
 {/if}
 
@@ -127,6 +127,7 @@
 
         padding: 5px 7px 5px 7px;
 
+        text-align: left;
         font-size: 10px !important;
         font-weight: 400 !important;
         color: white;

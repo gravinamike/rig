@@ -29,17 +29,21 @@
      * @param editorTextEditedButNotSynced - Indicates whether the editor's text content has been changed (excluding complete replacement because of a re-Perspect).
      * @param textField - The HTML Element of the text field.
      * @param fullSize: Whether the viewer's menu is opened to full-size.
+     * @param outlineFormat - Whether the Notes editor that this toolbar is part of is in a Graph outline widget.
      */
     export let currentPThingNoteText: string | null
     export let currentEditorTextContent: string | null
     export let editorTextEditedButNotSynced: boolean
+    export let unresolvedEditorSyncAttempts: Date[]
     export let textField: Element
     export let fullSize: boolean
+    export let outlineFormat: boolean
+    export let makeRoomForThingText = false
+    export let editor: Editor | null
 
 
 
     // HTML element handles.
-    let editor: Editor
     let editorElement: HTMLElement
     let textFieldScrollTop = 0
     let textFieldClientHeight = 0
@@ -80,6 +84,9 @@
 
     // Set up hotkeys for Thing-linking and hyperlinking.
     window.addEventListener("keydown", (event)=> {
+        // If the editor or editor HTML element are null or undefined, abort.
+        if (!editor || !editorElement ) return
+
         // If the editor isn't focused, abort.
         if (event.target !== editorElement && !editorElement.contains(event.target as Node)) {
             return
@@ -130,7 +137,7 @@
      * Gives the Tiptap editor keyboard focus.
      */
     function focusEditor() {
-        const editorElement = editor.view.dom as HTMLElement
+        const editorElement = editor?.view.dom as HTMLElement
         if (editorElement !== document.activeElement) editorElement.focus()
     }
 
@@ -142,7 +149,7 @@
      * @param content - The string which is to be the new content.
      */
     function setContent(content: string) {
-        if (editorTextEditedButNotSynced) return
+        if (unresolvedEditorSyncAttempts.length > 0) return
 
         // If a Tiptap editor exists, destroy it.
         editor?.destroy()
@@ -183,10 +190,13 @@
     async function onContentEdited() {
         // Update the `currentEditorTextContent` variable to reflect the HTML content of the
         // editor.
-        currentEditorTextContent = editor.getHTML()
+        currentEditorTextContent = editor?.getHTML() ?? ""
 
         // Set the flag that indicates the text needs to be synced on the back-end.
         editorTextEditedButNotSynced = true
+
+        // Add a timestamp for an unresolved editor sync attempt to the tracker array.
+        unresolvedEditorSyncAttempts = [...unresolvedEditorSyncAttempts, new Date()]
 
         // Scroll the text field if necessary.
         await tick()
@@ -200,7 +210,8 @@
      */
     function isThingLink(): boolean {
         return (
-            editor.isActive('link')
+            editor
+            && editor.isActive('link')
             && editor.getAttributes("link").href.startsWith("graph://")
         )
     }
@@ -210,12 +221,15 @@
     // When the editor component is created, set its text content based on the
     // Perspective Thing's Note text.
     onMount(() => {
-        setContent(currentPThingNoteText || "")
+        setContent(currentPThingNoteText || "") 
     })
 
     // When the editor component is destroyed, also destroy the Tiptap editor.
     onDestroy(() => {
-        if (editor) editor.destroy()
+        if (editor) {
+            editor.destroy()
+            editor = null
+        }
     })
 </script>
 
@@ -231,6 +245,8 @@
 <div
     class="notes-editor"
     class:on-mobile={onMobile()}
+    class:outline-format={outlineFormat}
+    class:make-room-for-thing-text={makeRoomForThingText}
 
     bind:this={editorElement}
 >
@@ -268,7 +284,7 @@
     </div>
 
     <!-- Editor toolbar. -->
-    {#if editor}
+    {#if !outlineFormat && editor}
         <NotesToolbar
             {editor}
             {fullSize}
@@ -314,6 +330,12 @@
         text-align: left;
     }
 
+    .notes-editor.outline-format .text-field {
+        outline: unset;
+        outline-offset: unset;
+        border-radius: 0;
+    }
+
     .text-field.has-background-image {
         background-size: 100% 100vh;
     }
@@ -338,6 +360,41 @@
 
         font-size: 0.85rem;
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+    :global(.notes-editor.outline-format .text-field .ProseMirror) {
+        padding: 0rem 1rem 0rem 1rem;
+    }
+
+    :global(.notes-editor.outline-format.make-room-for-thing-text .text-field .ProseMirror) {
+        padding: 20px 1rem 0rem 1rem;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     :global(.text-field.on-mobile ul) {
         padding-left: 1.5rem;

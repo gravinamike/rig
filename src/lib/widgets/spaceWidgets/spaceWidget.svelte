@@ -10,7 +10,7 @@
     import { capitalizeFirstLetter, onMobile, sleep } from "$lib/shared/utility"
 
     // Import stores.
-    import { addGraphIdsNeedingViewerRefresh, addSpaceIdToEditingInProgressStore, getGraphConstructs, readOnlyMode, removeSpaceIdFromEditingInProgressStore, spaceDbModelsStore, storeGraphDbModels } from "$lib/stores"
+    import { addGraphIdsNeedingViewerRefresh, addSpaceIdToEditingInProgressStore, directionDbModelsStore, getGraphConstructs, readOnlyMode, removeSpaceIdFromEditingInProgressStore, spaceDbModelsStore, storeGraphDbModels } from "$lib/stores"
 
     // Import related widgets.
     import { DirectionMenuWidget } from "./directionMenuWidget"
@@ -233,8 +233,6 @@
 	}
 
 
-
-
     async function cancel() {
         // Reset the half-axis infos.
         buildHalfAxisInfos()
@@ -332,6 +330,26 @@
 
         style="gap: {interactionMode === "display" ? 1 : 0.4}rem;"
     >
+        {#if interactionMode !== "display"}
+            <div
+                style="width: 100%; display: flex; justify-content: flex-end; text-align: right; font-size: 0.5rem;"
+            >
+                <div
+                    style="position: relative;"
+                >
+                    No opposite<br>in Outline?
+
+                    <Tooltip
+                        text={
+                            "Check to show only the Direction<br>in Outline view, and not its opposite."
+                        }
+                        direction={"down"}
+                        lean={"left"}
+                    />
+                </div>
+            </div>
+        {/if}
+
         {#each halfAxisInfosAsArray as [halfAxisId, info]}
 
             <!-- Direction name. -->
@@ -354,36 +372,52 @@
             {:else}
                 {#if info.formDirection}
                     <div
-                        class="direction-dropdown-container"
+                        class="direction-info-container"
                     >
-                        <DirectionWidget
-                            startingDirection={info.formDirection !== "blank" ? info.direction : null}
-                            halfAxisId={halfAxisId}
-                            {graphWidgetStyle}
-                            circularOrRectangular={"rectangular"}
-                            forceFullyOpaque={true}
-                            optionClickedFunction={(direction, _, __) => {
-                                info.formDirection = direction
-                                info.direction = direction
-                            }}
-                            optionHoveredFunction={async () => {
-                            }}
-                            exitOptionHoveredFunction={async () => {
-                            }}
-                        />
-
-                        {#if info.direction}
-                            <DeleteWidget
-                                showDeleteButton={true}
-                                confirmDeleteBoxOpen={false}
-                                thingWidth={50}
-                                thingHeight={50}
-                                encapsulatingDepth={0}
-                                distanceFromTop={4}
-                                startDelete={() => {setDirectionNullByHalfAxisId(halfAxisId)}}
-                                completeDelete={()=>{}}
+                        <div
+                            class="direction-dropdown-container"
+                        >
+                            <DirectionWidget
+                                startingDirection={info.formDirection !== "blank" ? info.direction : null}
+                                halfAxisId={halfAxisId}
+                                {graphWidgetStyle}
+                                circularOrRectangular={"rectangular"}
+                                forceFullyOpaque={true}
+                                optionClickedFunction={(direction, _, __) => {
+                                    info.formDirection = direction
+                                    info.direction = direction
+                                }}
+                                optionHoveredFunction={async () => {
+                                }}
+                                exitOptionHoveredFunction={async () => {
+                                }}
                             />
-                        {/if}
+
+                            {#if info.direction}
+                                <DeleteWidget
+                                    showDeleteButton={true}
+                                    confirmDeleteBoxOpen={false}
+                                    thingWidth={50}
+                                    thingHeight={50}
+                                    encapsulatingDepth={0}
+                                    distanceFromTop={4}
+                                    startDelete={() => {setDirectionNullByHalfAxisId(halfAxisId)}}
+                                    completeDelete={()=>{}}
+                                />
+                            {/if}
+                        </div>
+
+                        <div
+                            style="flex: 0 0 20px; position: relative; width: 20px;"
+                        >
+                            {#if info.formDirection && info.formDirection !== "blank"}
+                                <input
+                                    type="checkbox"
+                                    id={`space-${space?.id}-direction-${info.formDirection.id}-one-way-axis-in-outline-checkbox`}
+                                    bind:checked={info.formDirection.onewayaxisinoutline}
+                                />
+                            {/if}
+                        </div>
                     </div>
                 {:else}
                     <div
@@ -627,7 +661,17 @@
         overflow: visible;
     }
 
+    .direction-info-container {
+        position: relative;
+
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+    }
+
     .direction-dropdown-container {
+        flex: 1 1 0;
+
         position: relative;
     }
 
@@ -767,7 +811,7 @@
         margin-bottom: 0;
     }
 
-    .space-build-method input:checked {
+    .space-build-method input:checked, input[type="checkbox"]:checked {
         accent-color: dimgrey;
     }
 </style>

@@ -6,14 +6,16 @@
     // Import SvelteKit framework resources.
     import { tick } from "svelte"
 
-    // Import utility functions.
-    import { readOnlyArrayToArray, sleep } from "$lib/shared/utility"
-
     // Import constants.
     import {
             cartesianHalfAxisIds, orderedCartesianHalfAxisIds, orderedNonCartesianHalfAxisIds
     } from "$lib/shared/constants"
     
+    // Import stores.
+    import { reorderingInfoStore } from "$lib/stores"
+
+    // Import utility functions.
+    import { readOnlyArrayToArray, sleep } from "$lib/shared/utility"
 
     
 
@@ -59,6 +61,9 @@
     export let showCladeRootThing = true
     export let expandable = false
     export let expanded = false
+    export let toggleHovered = false
+    export let showToggle = false
+    export let cladeControlsOpened = false
 
     export let overlapMarginStyleText: string = ""
     export let rootThingOffsetFromCenterOfThingCohort = 0
@@ -110,7 +115,7 @@
         rootThing.address?.generationId === 0
         || (
             graph.rePerspectInProgressThingId === null
-            && hoveredForHalfSecond
+            && cladeControlsOpened
         )
     )
 
@@ -198,7 +203,16 @@
      * 
      * The Thing Cohorts in the order they are to be displayed in the outline version of the widget.
      */
-    $: orderedThingCohorts = getOrderedThingCohorts(rootThing)
+    $: {
+        graphWidgetStyle.excludeNonAxisThingCohorts
+
+        //orderedThingCohorts = getOrderedThingCohorts(rootThing)////////////////////////////
+        orderedThingCohorts = rootThing.getOrderedThingCohorts(
+            graphWidgetStyle.excludeCartesianAxes,
+            graphWidgetStyle.excludeNonCartesianAxes,
+            graphWidgetStyle.excludeNonAxisThingCohorts
+        )
+    }
 
     /**
      * Ordered Thing Cohorts with members.
@@ -206,7 +220,7 @@
      * Same as ordered Thing Cohorts, but including only those Cohorts that have
      * members (aren't empty).
      */
-     $: orderedThingCohortsWithMembers = orderedThingCohorts.filter(
+    $: orderedThingCohortsWithMembers = orderedThingCohorts.filter(
         thingCohort => thingCohort.members.length
     )
 
@@ -234,7 +248,6 @@
         false :
         true
 
-
     /**
      * Expandable flag.
      * 
@@ -261,8 +274,26 @@
     $: expanded =
         expandable && rootThing.address?.generationId === 0 ? true :
         false
-    
-    
+
+    /**
+     * Show-toggle flag.
+     * 
+     * Determines whether to show the expand/collapse toggle. (Currently only applies for outline
+     * widgets).
+     */
+    $: showToggle = (
+        // Show the toggle if...
+        (
+            // ...there is no reordering operation in progress and the toggle is hovered, or...
+            !$reorderingInfoStore.reorderInProgress
+            && toggleHovered
+        )
+        // ...the Clade is currently expanded.
+        || expanded
+    )
+
+
+
     /* --------------- Supporting attributes. --------------- */
     
 
@@ -277,7 +308,7 @@
      * 2. Then those on the other half-axes,
      * 3. Then all those not on a half-axis.
      */
-    function getOrderedThingCohorts( thing: Thing ): ThingCohort[] {
+    /*function getOrderedThingCohorts( thing: Thing ): ThingCohort[] {
 
         // If the reordering process should include the "Cartesian" half-axes
         // (Down, Up, Right, Left), add all Thing Cohorts which *are* on
@@ -344,5 +375,5 @@
 
         // Return the combined array.
         return orderedThingCohorts
-    }
+    }*//////////////////////////////////////////////////////////////////////////////////////////
 </script>

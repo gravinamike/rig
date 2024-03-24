@@ -38,6 +38,7 @@ export const graphsStore = writable( [] as Graph[] )
  * @param pThingIds - The IDs of the Perspective Things for the new Graph.
  * @param depth - The desired relational depth for the new Graph.
  * @param parentGraph - The Graph that is the parent of the new Graph, if any.
+ * @param isOutline - Whether the Graph is formatted as an outline.
  * @param offAxis - Whether the Graph is the "off-axis" relationships for a Thing in another Graph.
  * @param startingSpace - The top-level Space that the Graph is rendered into.
  * @returns - The new Graph.
@@ -46,6 +47,7 @@ export async function addGraph(
     pThingIds: number[],
     depth: number,
     parentGraph: (Graph | null) = null,
+    isOutline=false,
     offAxis=false,
     isSearchMenu=false,
     startingSpace: (Space | null) = null
@@ -57,7 +59,7 @@ export async function addGraph(
     const newGraphId = allGraphIds.length ? Math.max(...allGraphIds) + 1 : 1
 
     // Create and build the new Graph.
-    const graph = new Graph(newGraphId, parentGraph, offAxis, isSearchMenu, pThingIds, startingSpace, depth)
+    const graph = new Graph(newGraphId, parentGraph, isOutline, offAxis, isSearchMenu, pThingIds, startingSpace, depth)
     await graph.build()
 
     // Add the Graph to the Graphs store if it's not already there.

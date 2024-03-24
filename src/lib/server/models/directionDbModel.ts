@@ -17,6 +17,7 @@ export class RawDirectionDbModel extends Model {
     directionorder!: number | null
     linkerid!: number | null
     halfaxisid!: number | null
+    onewayaxisinoutline!: boolean | null
 
 
     static get relationMappings(): RelationMappings | RelationMappingsThunk {
@@ -81,7 +82,8 @@ export function stripDirectionDbModels(models: RawDirectionDbModel[]): Direction
                 nameforobjects: model.nameforobjects,
                 directionorder: model.directionorder,
                 linkerid: model.linkerid,
-                halfaxisid: model.halfaxisid
+                halfaxisid: model.halfaxisid,
+                onewayaxisinoutline: model.onewayaxisinoutline
             }
         )
     }

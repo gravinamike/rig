@@ -13,6 +13,7 @@ export interface ThingDbModel {
     defaultplane: number | null//CAN WE RENAME TO DEFAULTSPACEID?
     perspectivedepths: string// Default is "{}"
     perspectivetexts: string// Default is "{}"
+    defaultcontentviewer: string
 
     note: NoteDbModel | null
     folder: FolderDbModel | null

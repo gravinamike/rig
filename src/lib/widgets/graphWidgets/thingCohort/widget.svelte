@@ -124,7 +124,8 @@
 >
     <!-- Thing Cohort bounding border. -->
     {#if
-        showMembers
+        graph.pThing?.space?.buildmethod === "grid"
+        && showMembers
         && thingCohortMembersToDisplay
             .filter(thingCohortMemberToDisplay => thingCohortMemberToDisplay.alreadyRendered === false)
             .length > 1

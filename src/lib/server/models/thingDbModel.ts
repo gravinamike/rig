@@ -24,6 +24,7 @@ export class RawThingDbModel extends Model {
     defaultplane!: number | null//CAN WE RENAME TO DEFAULTSPACEID?
     perspectivedepths!: string// Default is "{}"
     perspectivetexts!: string// Default is "{}"
+    defaultcontentviewer!: string
 
     note!: RawNoteDbModel | null
     folder!: RawFolderDbModel | null
@@ -111,6 +112,7 @@ export function stripThingDbModels(models: RawThingDbModel[]): ThingDbModel[] {
                 defaultplane: model.defaultplane,
                 perspectivedepths: model.perspectivedepths,
                 perspectivetexts: model.perspectivetexts,
+                defaultcontentviewer: model.defaultcontentviewer,
 
                 note: stripNoteDbModels([model.note])[0],
                 folder: stripFolderDbModels([model.folder])[0],
@@ -137,7 +139,8 @@ interface NewThingInfo {
     whenvisited: null,
     defaultplane: number,
     perspectivedepths: "{}",
-    perspectivetexts: "{}"
+    perspectivetexts: "{}",
+    defaultcontentviewer: string
 }
 
 export function getNewThingInfo(text: string, whenCreated: string, defaultSpace: number): NewThingInfo {
@@ -149,7 +152,8 @@ export function getNewThingInfo(text: string, whenCreated: string, defaultSpace:
         whenvisited: null,
         defaultplane: defaultSpace,
         perspectivedepths: "{}" as const,
-        perspectivetexts: "{}" as const
+        perspectivetexts: "{}" as const,
+        defaultcontentviewer: "notes"
     }
 
     return newThingInfo

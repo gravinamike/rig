@@ -339,9 +339,10 @@ export async function createSpace(
             for (const [index, halfAxisIdAndDirection] of halfAxisIdsAndDirections.entries()) if (halfAxisIdAndDirection[1]?.id) {
                 const halfAxisId = halfAxisIdAndDirection[0]
                 const directionId = halfAxisIdAndDirection[1].id
+                const onewayaxisinoutline = halfAxisIdAndDirection[1].onewayaxisinoutline
                 const querystring = newSpaceDbModel
                     .$relatedQuery('directions')
-                    .relate({id: directionId, linkerid: newStartingDirectionToSpaceId + index, halfaxisid: halfAxisId})
+                    .relate({id: directionId, linkerid: newStartingDirectionToSpaceId + index, halfaxisid: halfAxisId, onewayaxisinoutline: onewayaxisinoutline})
                     .toKnexQuery().toString()
                 await alterQuerystringForH2AndRun(querystring, transaction, "", "DirectionToSpace")
             }
@@ -407,9 +408,10 @@ export async function updateSpace(
             for (const halfAxisIdAndDirection of halfAxisIdsAndDirections) if (halfAxisIdAndDirection[1]?.id) {
                 const halfAxisId = halfAxisIdAndDirection[0]
                 const directionId = halfAxisIdAndDirection[1].id
+                const onewayaxisinoutline = halfAxisIdAndDirection[1].onewayaxisinoutline
                 const querystring = spaceToAddDirectionsTo
                     .$relatedQuery('directions')
-                    .relate({id: directionId,  halfaxisid: halfAxisId})
+                    .relate({id: directionId, halfaxisid: halfAxisId, onewayaxisinoutline: onewayaxisinoutline})
                     .toKnexQuery().toString()
                 await alterQuerystringForH2AndRun(querystring, transaction, "", "DirectionToSpace")
             }
@@ -849,6 +851,54 @@ export async function updateThingDefaultSpace(
                 graphName,
                 thingId,
                 spaceId
+            },
+            err as Error
+        )
+        return false
+    }
+}
+
+/*
+ * Update a Thing's default content viewer.
+ */
+export async function updateThingDefaultContentViewer(
+    graphName: string | null,
+    thingId: number,
+    defaultContentViewer: string
+): Promise<boolean> {
+    try { 
+        // Get parameters for SQL query.
+        const whenModded = (new Date()).toISOString()
+
+        // Construct and run SQL query.
+        const knex = Model.knex()
+        await knex.transaction(async (transaction: Knex.Transaction) => {
+            // Update the Note.
+            await RawThingDbModel.query()
+                .patch({ defaultcontentviewer: defaultContentViewer, whenmodded: whenModded })
+                .where('id', thingId)
+                .transacting(transaction)
+            
+            return
+        })
+        
+        logger.debug(
+            {
+                graphName,
+                thingId,
+                defaultContentViewer
+            },
+            "Thing's default content viewer updated."
+        )
+        return true
+
+    } catch(err) {
+        logServerError(
+            "An error occurred while attempting to update Thing default content viewer.",
+            {
+                graphName,
+                thingId,
+                defaultContentViewer
             },
             err as Error
         )

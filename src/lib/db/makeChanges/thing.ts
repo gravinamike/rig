@@ -122,6 +122,34 @@ export async function updateThingDefaultSpace(
 }
 
 /*
+ * Update a Thing's default content viewer.
+ */
+export async function updateThingDefaultContentViewer(
+    thingId: number, defaultContentViewer: "notes" | "outline" | "attachments"
+): Promise<boolean> {
+    // Post to the update-Thing-default-Space API.
+    const res = await fetch(
+        `api/db/graphManipulation/updateThingDefaultContentViewer`,
+        {
+            method: "POST",
+
+            body: JSON.stringify({
+                thingId: thingId,
+                defaultContentViewer: defaultContentViewer
+            })
+        }
+    )
+
+    // Report on the response.
+    if (res.ok) {
+        return true
+    } else {
+        res.text().then(text => {throw Error(text)})
+        return false
+    }
+}
+
+/*
  * Add a Folder to a Thing.
  */
 export async function addFolderToThing( thingId: number ): Promise<boolean> {

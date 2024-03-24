@@ -13,7 +13,8 @@
         urlStore, loadingState, rightSideMenuStore, openGraphStore, addGraph, removeGraph,
         getGraphConstructs, graphIdsNeedingViewerRefresh, addGraphIdsNeedingViewerRefresh,
         removeGraphIdsNeedingViewerRefresh, homeThingIdStore,
-        perspectiveThingIdStore, perspectiveSpaceIdStore, hoveredThingIdStore
+        perspectiveThingIdStore, perspectiveSpaceIdStore, hoveredThingIdStore, storeGraphDbModels
+
     } from "$lib/stores"
 
     // Import layout elements.
@@ -25,8 +26,10 @@
     import { NotesViewer } from "$lib/viewers/notesViewers"
 
     // Import API functions.
-    import { markThingsVisited } from "$lib/db/makeChanges"
+    import { markThingsVisited, updateThingDefaultContentViewer } from "$lib/db/makeChanges"
     import { saveGraphConfig } from "$lib/shared/config"    
+    import NotesEditor from "../notesViewers/notesEditor.svelte";
+    import type { ThingDbModel } from "$lib/models/dbModels";
 
 
     
@@ -77,17 +80,15 @@
     // Right side-menu configuration.
     $: subMenuInfos = [
         [
-            $devMode ?
-                {
-                    name: "Outline",
-                    icon: "outline",
-                    tooltipText: "Outline"
-                } :
-                null,
             {
                 name: "Notes",
                 icon: "notes",
                 tooltipText: "Notes"
+            },
+            {
+                name: "Outline",
+                icon: "outline",
+                tooltipText: "Outline"
             },
             $devMode ?
                 {
@@ -111,73 +112,23 @@
         usePortraitLayout ? window.innerHeight :
         onMobile() ? width :
         null
-    
 
-    // Refresh the viewer whenever...
-    // ...a Graph is opened...
     $: if ($loadingState === "graphLoaded") {
         $openGraphStore
 
-        buildAndRefresh()
-    }
-    // ...or a refresh of the specific Graph ID is called for.
-    $: if ( graph && $graphIdsNeedingViewerRefresh.includes(graph.id) ) {
-        removeGraphIdsNeedingViewerRefresh(graph.id)
-        graph = graph // Needed for reactivity.
-        allowZoomAndScrollToFit = true
+        initializeSideMenusForGraph()
     }
 
-    // If the position in the Perspective History has changed, re-Perspect the Graph.
-    $: if (graph) {
-        const selectedHistoryThingId = graph.history.entryAtPosition.thingId
-        
-        if (
-            !graph.rePerspectInProgressThingId
-            && selectedHistoryThingId !== graph.pThingIds[0]
-        ) rePerspectToThingId(selectedHistoryThingId, false, false)
-    }
-
-
-    /**
-     * Build-and-refresh method.
-     * Replaces any existing Graph with a new one, builds the new Graph, then
-     * refreshes the viewers.
-     */
-    async function buildAndRefresh() {
-        // Close any existing Graph.
-        if (graph) {
-            removeGraph(graph)
-            graph = null
-        }
-
-        // Get information about which Space to use from the URL.
-        const urlHashParams = urlHashToObject($urlStore.hash)
-        const spaceIdToUse =
-            "spaceId" in urlHashParams && stringRepresentsInteger(urlHashParams["spaceId"]) ? parseInt(urlHashParams["spaceId"]) :
-            null
-        const spaceToUse =
-            spaceIdToUse !== null ? getGraphConstructs("Space", spaceIdToUse) as Space :
-            null
-        if (spaceIdToUse && !spaceToUse) {
-            alert(`No Space with ID ${spaceIdToUse} was found. Using default Space instead.`)
-        }
-        
-        // Open and build the new Graph.
-        graph = await addGraph(pThingIds as number[], depth, null, false, false, spaceToUse)
-        graphWidgetStyle = {...defaultGraphWidgetStyle}
-        await markThingsVisited(pThingIds as number[])
-
+    function initializeSideMenusForGraph() {
         // Set information about the state of the side-menus.
         rightMenuOpen = !!$rightSideMenuStore
         rightMenuLockedOpen = !!$rightSideMenuStore
         openedSubMenuName = $rightSideMenuStore || "Notes"
         lockedSubMenuName = $rightSideMenuStore
-        await sleep(500) // Allow side-menu to open.
-
-        // Refresh the Graph viewers.
-        showGraph = true
-        addGraphIdsNeedingViewerRefresh(graph.id)
     }
+
+
+
 
     /**
      * Re-Perspect-to-Thing-ID method.
@@ -212,6 +163,13 @@
             // Update Thing-visit records in the database, History, store and Graph configuration.
             await markThingsVisited(pThingIds as number[])
             perspectiveThingIdStore.set(thingId)
+
+            // Set the content pane to the default content viewer for the Perspective Thing.
+            openedSubMenuName =
+                graph.pThing?.defaultcontentviewer === "notes" ? "Notes" :
+                graph.pThing?.defaultcontentviewer === "outline" ? "Outline" :
+                graph.pThing?.defaultcontentviewer === "attachments" ? "Attachments" :
+                null
 
             // Set the Graph's original starting Space to null.
             graph.originalStartingSpace = null
@@ -289,6 +247,35 @@
             addGraphIdsNeedingViewerRefresh(graph.id)
         }
     }
+
+
+
+    $: spaceToUseForGraphOutliner =
+        graph?.startingSpace ? graph.startingSpace :
+        graph?.pThing?.space || null
+
+
+
+
+    async function updateDefaultContentViewerForPThing(openedSubMenuName: string | null) {
+        if (!graph?.pThing?.id) return
+
+        if (openedSubMenuName === "Notes" && graph.pThing.defaultcontentviewer !== "notes") {
+            graph.pThing.defaultcontentviewer = "notes"
+            await updateThingDefaultContentViewer(graph.pThing.id, "notes")
+            await storeGraphDbModels<ThingDbModel>("Thing", graph.pThing.id, true)
+        } else if (openedSubMenuName === "Outline" && graph.pThing.defaultcontentviewer !== "outline") {
+            graph.pThing.defaultcontentviewer = "outline"
+            await updateThingDefaultContentViewer(graph.pThing.id, "outline")
+            await storeGraphDbModels<ThingDbModel>("Thing", graph.pThing.id, true)
+        } else if (openedSubMenuName === "Attachments" && graph.pThing.defaultcontentviewer !== "attachments") {
+            graph.pThing.defaultcontentviewer = "attachments"
+            await updateThingDefaultContentViewer(graph.pThing.id, "attachments")
+            await storeGraphDbModels<ThingDbModel>("Thing", graph.pThing.id, true)
+        }
+    }
+    $: updateDefaultContentViewerForPThing(openedSubMenuName)
+
 </script>
 
 
@@ -305,16 +292,17 @@
     <div
         class="graph-widget-container"
     >
-        {#if graph && showGraph}
-            <GraphWidget
-                bind:graph
-                bind:graphWidgetStyle
-                {rePerspectToThingId}
-                bind:allowZoomAndScrollToFit
-                bind:allowScrollToThingId
-                bind:thingIdToScrollTo
-            />
-        {/if}
+        <GraphWidget
+            bind:pThingIds
+            bind:depth
+            bind:graph
+            bind:graphWidgetStyle
+            bind:showGraph
+            {rePerspectToThingId}
+            bind:allowZoomAndScrollToFit
+            bind:allowScrollToThingId
+            bind:thingIdToScrollTo
+        />
     </div>
 
     <!-- Content side-menu. -->
@@ -337,10 +325,12 @@
         <!-- Outline viewer. -->
         {#if openedSubMenuName === "Outline"}
             <div class="graph-outline-widget-container">
-                {#if graph && showGraph}
+                {#if spaceToUseForGraphOutliner}
                     <GraphOutlineWidget
-                        bind:graph
-                        {graphWidgetStyle}
+                        space={spaceToUseForGraphOutliner}
+                        {pThingIds}
+                        {depth}
+                        fullSize={sideMenuFullSize}
                         {rePerspectToThingId}
                     />
                 {/if}
@@ -352,6 +342,7 @@
                 <NotesViewer
                     {graph}
                     fullSize={sideMenuFullSize}
+                    editor={null}
                     {rePerspectToThingId}
                 />
             {/if}

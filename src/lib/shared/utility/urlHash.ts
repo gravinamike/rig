@@ -38,9 +38,9 @@ export function urlHashToObject(hash: string): { [key: string]: string } {
  * Update-URL-hash method.
  * 
  * 
- * @param paramsToChange - Object containing key-value pairs to update.
+ * @param paramsToChange - Object containing key-value pairs to update. If a value is set to null, the previous value will be kept. If the value is set to false, the key-value pair will be removed from the URL. 
  */
-export function updateUrlHash(paramsToChange: { [key: string]: string | null }) {
+export function updateUrlHash(paramsToChange: { [key: string]: string | null | false }) {
     // Array containing parameter keys which are allowed in the hash. Other
     // keys will be ignored/removed.
     const allowedHashKeys = ["graph", "thingId", "spaceId"]
@@ -50,13 +50,12 @@ export function updateUrlHash(paramsToChange: { [key: string]: string | null }) 
     
     // Parse the URL string to an object.
     const urlHashParams = urlHashToObject(url.hash)
-
     // Update the object's entries based on the parameters-to-change object.
     for (const [key, value] of Object.entries(paramsToChange)) {
-        if (value !== null) {
-            urlHashParams[key] = value
-        } else {
+        if (value === false) {
             delete urlHashParams[key]
+        } else if (value !== null) {
+            urlHashParams[key] = value
         }
     }
 

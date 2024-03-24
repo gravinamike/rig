@@ -74,7 +74,7 @@
     function openGraphWhenURLChanges(urlUsernameAndGraphFolder: string | null) {
         if (urlUsernameAndGraphFolder === null || urlUsernameAndGraphFolder === $openGraphStore) return
         const [username, graphFolder] = urlUsernameAndGraphFolder.split("/")
-        openGraph(username, graphFolder)
+        openGraph(username, graphFolder, null, true)
     }
     $: openGraphWhenURLChanges(urlUsernameAndGraphFolder)
         
@@ -199,14 +199,14 @@
      * @param graphName - The name of the Graph file to be opened.
      * @param pThingId - The ID of the Perspective Thing to start on, if not the Graph's default.
      */
-    async function openGraph(username: string, graphName: string, pThingId: number | null = null) {
+    async function openGraph(username: string, graphName: string, pThingId: number | null = null, urlChanged=false) {
         if (!mounted) return
 
         // Close any existing Graph.
         graph = null
 
         // Open the Graph.
-        await openGraphFile(username, graphName, pThingId, true)
+        await openGraphFile(username, graphName, pThingId, true, true)
     }
 
 

@@ -53,22 +53,6 @@
     $: commandButtonInfos = [
         // Linking.
         {
-            text: `Thing link (${nameForModKey}+L)`,
-            iconName: "thing-link",
-            iconHtml: null,
-            isActive: (
-                editor.isActive('link')
-                && isThingLinkMethod()
-            ),
-            onClick: () => {
-                if (editor.isActive('link') && isThingLinkMethod()) {
-                    editor.chain().focus().unsetLink().run()
-                } else {
-                    enableThingLinking(editor, focusEditorMethod)
-                }
-            }
-        },
-        {
             text: `Hyperlink (${nameForModKey}+K)`,
             iconName: "link",
             iconHtml: null,
@@ -81,6 +65,22 @@
                     editor.chain().focus().unsetLink().run()
                 } else {
                     enableTextHyperlinking(editor, focusEditorMethod)
+                }
+            }
+        },
+        {
+            text: `Thing link (${nameForModKey}+L)`,
+            iconName: "thing-link",
+            iconHtml: null,
+            isActive: (
+                editor.isActive('link')
+                && isThingLinkMethod()
+            ),
+            onClick: () => {
+                if (editor.isActive('link') && isThingLinkMethod()) {
+                    editor.chain().focus().unsetLink().run()
+                } else {
+                    enableThingLinking(editor, focusEditorMethod)
                 }
             }
         },

@@ -1,13 +1,11 @@
 <script lang="ts">    
     // Import types.
+    import type { Editor } from "@tiptap/core"
     import type { Graph, ThingCohort, Thing } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
-    // Import constants and utility functions.
+    // Import constants.
     import { relationshipColorByHalfAxisId } from "$lib/shared/constants"
-
-    // Import stores.
-    import { reorderingInfoStore } from "$lib/stores"
 
     // Import widget controller.
     import CladeWidgetController from "./controller.svelte"
@@ -19,19 +17,21 @@
     } from "$lib/widgets/graphWidgets"
     
 
+
     /**
-     * @param {Thing} rootThing - The Thing that forms the root of the Clade.
-     * @param {Graph} graph - The Graph that the Clade is in.
-     * @param {GraphWidgetStyle} graphWidgetStyle - Controls the visual styling of the Graph widget.
-     * @param {boolean} isFinalClade - Whether this is the final Clade for this parent Thing.
-     * @param {(thingId: number) => Promise<void>} rePerspectToThingId - A function that re-perspects the Graph to a given Thing ID.
+     * @param rootThing - The Thing that forms the root of the Clade.
+     * @param graph - The Graph that the Clade is in.
+     * @param graphWidgetStyle - Controls the visual styling of the Graph widget.
+     * @param rePerspectToThingId - A function that re-perspects the Graph to a given Thing ID.
      */
     export let rootThing: Thing
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
-    export let isFinalClade = false
+    export let editingNotes: boolean
+    export let notesEditor: Editor | null
     export let rePerspectToThingId: (id: number) => Promise<void>
     
+
 
     // Attributes managed by widget controller.
     let thingCohorts: ThingCohort[] = []
@@ -41,17 +41,18 @@
     let showCladeRootThing: boolean
     let expandable: boolean
     let expanded: boolean
+    let showToggle: boolean
     
 
-    // Toggle-state attributes.
+    // Whether the expand-/collapse-Clade toggle is hovered.
     let toggleHovered = false
-    $: showToggle = (
-        (
-            !$reorderingInfoStore.reorderInProgress
-            && toggleHovered
-        )
-        || expanded
-    )
+
+
+
+
+
+    let rootThingHovered = false
+
 </script>
 
 
@@ -60,6 +61,7 @@
     {graph}
     {rootThing}
     {graphWidgetStyle}
+    {toggleHovered}
 
     bind:thingCohorts
     bind:orderedThingCohorts
@@ -68,49 +70,27 @@
     bind:showCladeRootThing
     bind:expandable
     bind:expanded
+    bind:showToggle
 />
 
 
 <!-- Clade outline widget.-->
 <div
     class="clade-outline-widget"
+    class:off-axis={graph.offAxis}
     class:expanded
-    class:has-children={thingCohorts.length}
+    class:has-children={thingCohorts.length > 0}
 >
-
     <!-- Root Thing (and indicator of its child Things). -->
     {#if showCladeRootThing}
-        <div class="root-thing-and-children-indicator-container">
-
-            <!-- Child Things indicator/toggle. -->
-            {#if showCladeRootThing && expandable}
-                <div
-                    class="children-indicator-container"
-
-                    on:click={() => expanded = !expanded}
-                    on:keyup={() => {}}
-                    on:mouseenter={() => toggleHovered = true}
-                    on:mouseleave={() => toggleHovered = false}
-                >
-                    <!-- Children-Things quantity indicator. -->
-                    {#if !expanded}
-                        +{childThings.length}
-                    {/if}
-
-                    <!-- Expand/collapse toggle. -->
-                    {#if showToggle}
-                        <svg class="relationship-arrow-root">
-                            <path d="M 16 32 A 16 16 0 0 1 32 16" />
-                            {#if !expanded}
-                                <polygon points="11.5,30 21.5,30 16.5,35" />
-                            {/if}
-                        </svg>
-                    {/if}
-                </div>
-            {/if}
             
             <!-- Root Thing. -->
-            <div class="root-thing-container">
+            <div
+                class="root-thing-container"
+
+                on:mouseenter={() => rootThingHovered = true}
+                on:mouseleave={() => rootThingHovered = false}
+            >
                 <!-- If the root Thing is specified, show a Thing Widget. -->
                 {#if rootThing?.id}
                     <ThingOutlineWidget
@@ -118,6 +98,8 @@
                         thing={rootThing}
                         {graph}
                         {graphWidgetStyle}
+                        bind:editingNotes
+                        bind:notesEditor
                         {rePerspectToThingId}
                     />
 
@@ -129,15 +111,37 @@
                         {graphWidgetStyle}
                     />
                 {/if}
+
+                <!-- Child Things indicator/toggle. -->
+                {#if showCladeRootThing && rootThingHovered && expandable}
+                    <div
+                        class="children-indicator-container"
+
+                        on:click={() => expanded = !expanded}
+                        on:keyup={() => {}}
+                        on:mouseenter={() => toggleHovered = true}
+                        on:mouseleave={() => toggleHovered = false}
+                    >
+                        <!-- Children-Things quantity indicator. -->
+                        {#if !expanded}
+                            +{childThings.length}
+                        {/if}
+
+                        <!-- Expand/collapse toggle. -->
+                        {#if showToggle && expanded}
+                            <svg class="relationship-toggle-arrow">
+                                <path d="M 4 7 L 10 13 L 16 7" />
+                            </svg>
+                        {/if}
+                    </div>
+                {/if}
             </div>
 
-        </div> 
     {/if}
 
-    <!-- The Thing's Relationships and child Cohorts (outer containers). -->
+    <!-- The Thing's Relationships and child Thing Cohorts (outer containers). -->
     {#each orderedThingCohortsWithMembers as thingCohort, i (thingCohort.address)}  
         <div class="relationships-and-child-cohorts-outer-container">
-
             <!-- Relationship color field. -->
             <div
                 class="relationship-color-field"
@@ -145,7 +149,7 @@
                 style="background-color: {relationshipColorByHalfAxisId[thingCohort.halfAxisId] || "dimgrey"};"
             />
 
-            <!-- The Thing's Relationships and child Cohorts (inner container). -->
+            <!-- The Thing's Relationships and child Thing Cohorts (inner container). -->
             <div
                 class="relationships-and-child-cohorts-inner-container"
                 
@@ -158,28 +162,9 @@
                     class:expanded
                     class:has-children={thingCohort.members.length}
                 >
-                    <!-- Relationship arrow segment. -->
-                    {#if !graph.offAxis}
-                        <div
-                            class="relationship-arrow-segment"
-
-                            style="
-                                height: {
-                                    (
-                                        isFinalClade
-                                        && i === orderedThingCohortsWithMembers.length - 1
-                                    ) ? "10px" :
-                                    "100%"
-                                };
-                                background-color: {relationshipColorByHalfAxisId[thingCohort.halfAxisId] || "dimgrey"}; 
-                            "
-                        />
-                    {/if}
-
                     <!-- Relationship Cohort outline widget. -->
                     <RelationshipCohortOutlineWidget
                         {thingCohort}
-                        directionWidgetIsRotated={thingCohort.members.length >= 3}
                         bind:graph
                         {graphWidgetStyle}
                     />
@@ -195,12 +180,12 @@
                         {thingCohort}
                         bind:graph
                         bind:graphWidgetStyle
+                        bind:editingNotes
+                        bind:notesEditor
                         {rePerspectToThingId}
                     />
                 {/if}
-                
             </div>
-        
         </div>
     {/each}
 </div>
@@ -208,7 +193,7 @@
 
 <style>
     .clade-outline-widget {
-        border-radius: 10px;
+        border-radius: 7px;
 
         box-sizing: border-box;
         width: 100%;
@@ -216,27 +201,54 @@
         overflow: hidden;
     }
 
+    .clade-outline-widget:not(.off-axis) {
+        border-radius: 0;
+
+        overflow: visible;
+    }
+
     .clade-outline-widget.expanded.has-children {
         border-radius: 6px;
     }
 
-    .root-thing-and-children-indicator-container {
-        display: flex;
-        flex-direction: row;
+    .clade-outline-widget.expanded:not(.off-axis).has-children {
+        border-radius: 0;
     }
 
     .root-thing-container {
         flex: 1 1 0;
+
+        position: relative;
+
+        overflow: visible;
     }
 
     .children-indicator-container {
-        width: 30px;
+        border-radius: 50%;
+
+        position: absolute;
+        left: 33px;
+        top: calc(100%);
+        width: 20px;
+        height: 20px;
+        transform: translate(-50%, -50%);
+        z-index: 1;
+        background-color: silver;
+        opacity: 50%;
 
         display: flex;
         align-items: center;
         justify-content: center;
 
         cursor: pointer;
+    }
+
+    .children-indicator-container:hover {
+        opacity: 80%;
+    }
+
+    .children-indicator-container:active {
+        opacity: 100%;
     }
 
     .relationships-and-child-cohorts-outer-container {
@@ -261,39 +273,22 @@
         min-height: 1.05rem;
     }
 
-    .relationship-arrow-root {
+    .relationship-toggle-arrow {
         position: absolute;
-        width: 32px;
-        height: 32px;
+        width: 20px;
+        height: 20px;
+        transform: scale(1, -1);
         
         stroke: dimgrey;
-        fill: dimgrey;
-        opacity: 0.5;
+        stroke-width: 3;
+        fill: transparent;
 
         overflow: visible;
     }
 
-    .relationship-arrow-root path {
-        stroke-width: 10;
-    }
-
-    .relationship-arrow-root polygon {
-        stroke-width: 3;
-    }
-
-    .relationship-arrow-segment {
-        position: absolute;
-        left: 10px;
-        width: 10px;
-        opacity: 0.5;
-    }
-
     .relationship-color-field {
-        border-radius: 5px;
-
         position: absolute;
-        top: 1.5px;
-        height: calc(100% - 2px);
+        height: 100%;
         width: 100%;
         opacity: 0.25;
     }
@@ -320,10 +315,16 @@
         min-height: 100%;
         transform: scale(1);
 
-        display: inline;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
     }
 
-    .relationships-and-child-cohorts-outer-container:hover > .relationships-and-child-cohorts-inner-container > .relationships-outline-widget-container {
-        display: inline;
+    .relationships-and-child-cohorts-outer-container:hover
+    > .relationships-and-child-cohorts-inner-container
+    > .relationships-outline-widget-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
     }
 </style>

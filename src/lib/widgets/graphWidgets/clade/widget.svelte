@@ -56,6 +56,13 @@
     // Attributes managed by sub-widgets.
     let rootThingWidth: number = 0
     let rootThingHeight: number = 0
+
+
+
+
+
+
+    let cladeControlsOpened = false
 </script>
 
 
@@ -71,6 +78,7 @@
     {rootThingHeight}
     {rootThingThingCohortMembers}
     {rootThingThingCohortExpanded}
+    {cladeControlsOpened}
 
     bind:overlapMarginStyleText
     bind:rootThingOffsetFromCenterOfThingCohort
@@ -106,6 +114,7 @@
             {graphWidgetStyle}
             bind:perspectiveTexts
             {showAsCollapsed}
+            bind:cladeControlsOpened
             {rePerspectToThingId}
             bind:thingWidth={rootThingWidth}
             bind:thingHeight={rootThingHeight}
@@ -141,7 +150,7 @@
                 parentThingCohortExpanded={rootThingThingCohortExpanded}
                 parentCladeOffsetFromCenterOfThingCohort={rootThingOffsetFromCenterOfThingCohort}
                 bind:perspectiveTexts
-                cladeHovered={hoveredForHalfSecond}
+                cladeHovered={cladeControlsOpened}
                 {rePerspectToThingId}
             />
         {/if}

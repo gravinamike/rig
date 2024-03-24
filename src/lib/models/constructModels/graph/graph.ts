@@ -37,6 +37,9 @@ export class Graph {
     // Array of Graphs that this Graph contains, if any.
     childGraphs: Graph[] = []
 
+    // Whether the Graph is formatted as an outline.
+    isOutline: boolean
+
     // Whether the Graph is part of a list of a Thing's off-axis relations.
     offAxis: boolean
 
@@ -97,6 +100,7 @@ export class Graph {
      * Creates a new Graph.
      * @param pThingIds - IDs for the Graph's starting Perspective Things.
      * @param parentGraph - The Graph that contains this Graph, if any.
+     * @param isOutline - Whether the Graph is formatted as an outline.
      * @param offAxis - Whether the Graph is part of a list of a Thing's off-axis relations.
      * @param inSearchMenu - Whether the Graph is being used as the visualizer in a search interface.
      * @param pThingIds - The IDs of the Graph's Perspective Things (currently there should only be 1 Perspective Thing).
@@ -106,6 +110,7 @@ export class Graph {
     constructor(
         id: number,
         parentGraph: (Graph | null)=null,
+        isOutline=false,
         offAxis=false,
         inSearchMenu=false,
         pThingIds: number[],
@@ -115,6 +120,7 @@ export class Graph {
         this.id = id
         this.parentGraph = parentGraph
         this.parentGraph?.childGraphs.push(this)
+        this.isOutline = isOutline
         this.offAxis = offAxis
         this.inSearchMenu = inSearchMenu
         this.#pThingIds = pThingIds
