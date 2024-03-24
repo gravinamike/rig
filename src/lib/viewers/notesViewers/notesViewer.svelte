@@ -362,7 +362,7 @@
      */
     function textForDisplay(text: string) {
         return text
-            .replace(/<br><\/p><\/li>/gi, "<br><br></p></li>")
+            .replace(/<br><\/p>/gi, "<br><br></p>")
             .replace(/<p><\/p>/gi, "<p>&nbsp;</p>")
     }
 
