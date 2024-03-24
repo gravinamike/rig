@@ -5,7 +5,7 @@ import type { ThingAddress, RelationshipInfo } from "./types"
 
 // Import constants and stores.
 import { oddHalfAxisIds, cartesianHalfAxisIds, orderedCartesianHalfAxisIds, orderedNonCartesianHalfAxisIds } from "$lib/shared/constants"
-import { graphDbModelInStore, getGraphConstructs } from "$lib/stores"
+import { graphDbModelInStore, getGraphConstructs, titleFontStore, titleFontWeightStore, defaultFontStore } from "$lib/stores"
 
 // Import utility functions.
 import { htmlToPlainText, incrementDownHeaderTags, readOnlyArrayToArray } from "$lib/shared/utility"
@@ -14,6 +14,7 @@ import { htmlToPlainText, incrementDownHeaderTags, readOnlyArrayToArray } from "
 import {
     Graph, Space, ThingCohort, Relationship, Note, NoteToThing, Folder, FolderToThing
 } from "$lib/models/constructModels"
+import { get } from "svelte/store"
 
 
 
@@ -666,13 +667,13 @@ export class Thing {
      */
     outlineText(plainText=false): string {
         if (!(this.address && this.graph)) return ""
-        
+
         const noteText =
             plainText ? htmlToPlainText(this.note?.text ?? "") :
             incrementDownHeaderTags(this.note?.text ?? "")
         const thingHeaderText =
             plainText ? `${this.text ?? ""}\n\n` :
-            `<h1>${this.text ?? ""}</h1>`
+            `<h1 style="font-family: ${get(titleFontStore) ?? "Arial"}; font-weight: ${get(titleFontWeightStore) ?? 600};">${this.text ?? ""}</h1>`
         let outlineText = `${thingHeaderText}${noteText}`
 
         if (this.address.generationId === this.graph.generations.asArray.length - 1) return outlineText
@@ -687,6 +688,8 @@ export class Thing {
                 }
             }
         }
+
+        if (!plainText) outlineText = `<div style="font-family: ${get(defaultFontStore) ?? "Arial"};">${outlineText}</div>`
 
         return outlineText
     }
