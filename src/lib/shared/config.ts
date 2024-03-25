@@ -13,7 +13,7 @@ import {
     uITrimColorStore, mobileMenuTrimColorStore, graphBackgroundImageStore, graphBackgroundColorStore,
     notesBackgroundImageStore, defaultFontStore, titleFontStore, titleFontWeightStore,
     readOnlyMode as readOnlyModeStore, notesEditorLockedStore,
-    homeThingIdStore, pinIdsStore, perspectiveThingIdStore
+    homeThingIdStore, pinIdsStore, perspectiveThingIdStore, canAccessFileMenuStore
 } from "$lib/stores"
 
 // Import API methods.
@@ -36,6 +36,11 @@ export async function storeAppConfig(): Promise<AppConfig> {
     // Set the back-end stores.
     await setDbPort()
     await setGraphsBaseFolder()
+    
+    // Set the front-end stores.
+    if ("canAccessFileMenu" in appConfig && Array.isArray(appConfig["canAccessFileMenu"])) {
+        canAccessFileMenuStore.set(appConfig["canAccessFileMenu"] as string[])
+    }
 
     return appConfig
 }

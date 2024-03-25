@@ -44,6 +44,15 @@ export const devMode = writable( false )
 
 
 /**
+ * Can-access-file-menu store.
+ * 
+ * Holds an array of usernames that have access to the File menu.
+ */
+export const canAccessFileMenuStore = writable( [] as string[] )
+
+
+
+/**
  * Loading state store.
  * 
  * Holds a string specifying the current loading state of the app.

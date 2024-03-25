@@ -5,7 +5,7 @@
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
     // Import stores.
-    import { leftSideMenuStore, mobileMenuTrimColorStore, uITrimColorStore } from "$lib/stores"
+    import { leftSideMenuStore, mobileMenuTrimColorStore, uITrimColorStore, userIdStore, canAccessFileMenuStore } from "$lib/stores"
 
     // Import page controller.
     import LeftSideMenuController from "./controller.svelte"
@@ -59,7 +59,10 @@
     let searchType: "thing" | "note" = "thing"
     let searchBoxFocused = false
 
-
+    $: showFileMenu = (
+        $canAccessFileMenuStore.includes("all")
+        || ($userIdStore && $canAccessFileMenuStore.includes($userIdStore))
+    )
 
 
     
@@ -286,17 +289,21 @@
 
                 <TabBlock>
                     <TabFlaps>
-                        <TabFlap><span class="tab-flap-span">File</span></TabFlap>
+                        {#if showFileMenu}
+                            <TabFlap><span class="tab-flap-span">File</span></TabFlap>
+                        {/if}
                         <TabFlap><span class="tab-flap-span">User</span></TabFlap>
                         <TabFlap><span class="tab-flap-span">About</span></TabFlap>
                     </TabFlaps>
 
                     <!-- File menu tab. -->
-                    <TabBody>
-                        <FileMenu
-                            bind:currentlyOpenGraph={graph}
-                        />
-                    </TabBody>
+                    {#if showFileMenu}
+                        <TabBody>
+                            <FileMenu
+                                bind:currentlyOpenGraph={graph}
+                            />
+                        </TabBody>
+                    {/if}
                 
                     <!-- Users tab. --> 
                     <TabBody>
