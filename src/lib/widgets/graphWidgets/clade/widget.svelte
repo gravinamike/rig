@@ -7,7 +7,7 @@
     import CladeWidgetController from "./controller.svelte"
 
     // Import related widgets.
-    import { HalfAxisWidget, ThingWidget, ThingFormWidget, OffAxisRelationsWidget } from "$lib/widgets/graphWidgets"
+    import { UnshownRelationsIndicator, HalfAxisWidget, ThingWidget, ThingFormWidget, OffAxisRelationsWidget } from "$lib/widgets/graphWidgets"
     import { relationshipBeingCreatedInfoStore } from "$lib/stores";
     
     
@@ -132,6 +132,14 @@
 
     <!-- The Thing's child Thing and Relationship Cohorts. -->
     {#each cartesianThingCohorts as thingCohort (thingCohort.address)}
+        <UnshownRelationsIndicator
+            parentThing={rootThing}
+            directionId={thingCohort.direction?.id ?? 0}
+            halfAxisId={thingCohort.halfAxisId}
+            {thingCohort}
+            thingSize={rootThingWidth}
+        />
+
         {#if
             forceShowHalfAxisWidgets
             || thingCohort.members.length !== 0

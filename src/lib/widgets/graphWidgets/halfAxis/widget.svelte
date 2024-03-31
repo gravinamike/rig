@@ -53,7 +53,6 @@
     bind:getThingOverlapMarginStyleText
 />
 
-
 <!-- Relationship Cohort Widgets (only for Cartesian axes). -->
 {#if [1, 2, 3, 4].includes(thingCohort.halfAxisId)}
     <RelationshipCohortWidget
