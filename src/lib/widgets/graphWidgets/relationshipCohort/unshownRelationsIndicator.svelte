@@ -3,8 +3,9 @@
     import type { HalfAxisId } from "$lib/shared/constants"
     import type { Thing, ThingCohort } from "$lib/models/constructModels"
 
-    import { offsetsByHalfAxisId } from "$lib/shared/constants"
-
+    import { offsetsByHalfAxisId, zoomBase } from "$lib/shared/constants"
+    import { Tooltip } from "$lib/widgets/layoutWidgets"
+    import type { GraphWidgetStyle } from "../graph";
 
 
     export let parentThing: Thing
@@ -12,7 +13,7 @@
     export let halfAxisId: HalfAxisId
     export let thingCohort: ThingCohort
     export let thingSize: number
-
+    export let graphWidgetStyle: GraphWidgetStyle
 
 
 
@@ -55,6 +56,8 @@
         "white"
     
 
+    $: scale = zoomBase ** (graphWidgetStyle?.zoom || 1)
+
 
 
 </script>
@@ -72,6 +75,15 @@
         background-color: {indicatorColor};
     "
 >
+    {#key numberOfUnshownRelations}
+        <Tooltip
+            text={`Show ${numberOfUnshownRelations} collapsed relation${numberOfUnshownRelations > 1 ? "s" : ""}.`}
+            direction={"up"}
+            delay={1000}
+            {scale}
+        />
+    {/key}
+
     {#each [1, 2, 3, 4, 5, 6, 7, 8, 9] as symbolId}
         <div
             class="nested-square"
@@ -85,7 +97,7 @@
 
 <style>
     .unshown-relations-indicator {
-        box-sizing: border-box;
+        outline: solid 1px lightgrey;
         border-radius: 10%;
 
         position: absolute;
@@ -96,7 +108,7 @@
 
         display: flex;
         flex-wrap: wrap;
-        padding: 1px;
+        padding: 1.5px;
         gap: 1px;
 
         pointer-events: auto;
@@ -108,10 +120,12 @@
     }
 
     .unshown-relations-indicator:hover {
+        outline: solid 1px silver;
         opacity: 0.75;
     }
 
     .unshown-relations-indicator:active {
+        outline: solid 2px silver;
         opacity: 1;
     }
 

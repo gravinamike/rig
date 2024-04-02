@@ -138,6 +138,7 @@
             halfAxisId={thingCohort.halfAxisId}
             {thingCohort}
             thingSize={rootThingWidth}
+            {graphWidgetStyle}
         />
 
         {#if

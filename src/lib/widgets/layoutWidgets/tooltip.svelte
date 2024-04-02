@@ -7,6 +7,7 @@
     export let lean: "left" | "right" | "up" | "down" | null = null
     export let offset = 12
     export let delay = 750
+    export let scale = 1
 
 
     let hovered = false
@@ -14,7 +15,7 @@
 
     async function onMouseEnter() {
         if (onMobile()) return
-
+        
         hovered = true
         await sleep(delay)
         if (hovered) show = true
@@ -39,61 +40,67 @@
 />
 
 {#if show}
-    <svg
-        class="tooltip-pointer"
-
-        style="{
-                direction === "left" ? "right" :
-                direction === "right" ? "left" :
-                direction === "up" ? "bottom" :
-                "top"
-            }: calc(100% + 1px);
-
-            {
-                direction === "down" || direction === "up" ? "left: 50%;" :
-                "top: 50%;"
-            }
-            width: {offset * 1.25}px;
-            height: {offset}px;
-            transform: 
-            {
-                direction === "down" || direction === "up" ? "translate(-50%, 0)" :
-                "translate(0, -50%)"
-            }
-            rotate({
-                direction === "left" ? 90 :
-                direction === "right" ? 270 :
-                direction === "up" ? 180 :
-                0
-            }deg);
-        "
-    >
-        <polygon points="{offset * 1.25 / 2},1 0,{offset} {offset * 1.25},{offset}" />
-    </svg>
-
     <div
-        class="tooltip-bubble"
+        class="tooltip"
 
-        style="
-            {
-                direction === "left" ? "right" :
-                direction === "right" ? "left" :
-                direction === "up" ? "bottom" :
-                "top"
-            }: calc(100% + {offset}px);
-            {
-                lean === "left" ? "right: -3px;" :
-                lean === "right" ? "left: -3px;" :
-                lean === "up" ? "bottom: -3px;" :
-                lean === "down" ? "top: -3px;" :
-                (
-                    direction === "down" || direction === "up" ? "left: 50%; transform: translate(-50%, 0);" :
-                    "top: 50%; transform: translate(0, -50%);"
-                )
-            }
-        "
+        style="transform: scale({1/scale});"
     >
-        <strong>{@html text}</strong>
+        <svg
+            class="tooltip-pointer"
+
+            style="{
+                    direction === "left" ? "right" :
+                    direction === "right" ? "left" :
+                    direction === "up" ? "bottom" :
+                    "top"
+                }: calc(100% + 1px);
+
+                {
+                    direction === "down" || direction === "up" ? "left: 50%;" :
+                    "top: 50%;"
+                }
+                width: {offset * 1.25}px;
+                height: {offset}px;
+                transform:
+                {
+                    direction === "down" || direction === "up" ? "translate(-50%, 0)" :
+                    "translate(0, -50%)"
+                }
+                rotate({
+                    direction === "left" ? 90 :
+                    direction === "right" ? 270 :
+                    direction === "up" ? 180 :
+                    0
+                }deg);
+            "
+        >
+            <polygon points="{offset * 1.25 / 2},2 0,{offset} {offset * 1.25},{offset}" />
+        </svg>
+
+        <div
+            class="tooltip-bubble"
+
+            style="
+                {
+                    direction === "left" ? "right" :
+                    direction === "right" ? "left" :
+                    direction === "up" ? "bottom" :
+                    "top"
+                }: calc(100% + {offset}px);
+                {
+                    lean === "left" ? "right: -3px;" :
+                    lean === "right" ? "left: -3px;" :
+                    lean === "up" ? "bottom: -3px;" :
+                    lean === "down" ? "top: -3px;" :
+                    (
+                        direction === "down" || direction === "up" ? "left: 50%; transform: translate(-50%, 0);" :
+                        "top: 50%; transform: translate(0, -50%);"
+                    )
+                }
+            "
+        >
+            <strong>{@html text}</strong>
+        </div>
     </div>
 {/if}
 
@@ -107,19 +114,27 @@
         height: 100%;
     }
 
+    .tooltip {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        transform-origin: top center;
+
+        pointer-events: none;
+    }
+
     .tooltip-pointer {
         position: absolute;
         z-index: 2;
         
         stroke: dimgrey;
         fill: dimgrey;
-
-        pointer-events: none;
     }
 
     .tooltip-bubble {
         border-radius: 3px;
-        outline: solid 1px dimgrey;
 
         position: absolute;
         z-index: 2;
@@ -132,7 +147,5 @@
         font-weight: 400 !important;
         color: white;
         white-space: pre;
-
-        pointer-events: none;
     }
 </style>
