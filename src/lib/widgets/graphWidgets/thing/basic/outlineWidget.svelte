@@ -6,7 +6,7 @@
 
     // Import stores.
     import {
-        readOnlyMode, hoveredThingIdStore, hoveredRelationshipTarget,
+        preventEditing, hoveredThingIdStore, hoveredRelationshipTarget,
         relationshipBeingCreatedInfoStore, setRelationshipBeingCreatedDestThingId, disableRelationshipBeingCreated, titleFontStore, titleFontWeightStore
 
 
@@ -154,7 +154,7 @@
                 disableRelationshipBeingCreated()
             }
         } }
-        on:contextmenu|preventDefault={ (event) => {if (!$readOnlyMode) openCommandPalette(
+        on:contextmenu|preventDefault={ (event) => {if (!$preventEditing) openCommandPalette(
             [event.clientX, event.clientY]
         )} }
     >
@@ -209,16 +209,18 @@
         
 
         <!-- Delete controls. -->
-        <DeleteWidget
-            {showDeleteButton}
-            {confirmDeleteBoxOpen}
-            thingWidth={width}
-            thingHeight={height}
-            {encapsulatingDepth}
-            trashIcon={true}
-            {startDelete}
-            {completeDelete}
-        />
+        {#if !$preventEditing}
+            <DeleteWidget
+                {showDeleteButton}
+                {confirmDeleteBoxOpen}
+                thingWidth={width}
+                thingHeight={height}
+                {encapsulatingDepth}
+                trashIcon={true}
+                {startDelete}
+                {completeDelete}
+            />
+        {/if}
     </div>
 {/if}
 

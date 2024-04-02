@@ -7,7 +7,7 @@
     // Import related widgets.
     import { DirectionWidget } from "$lib/widgets/spaceWidgets"
     import RelationshipLeafWidgetController from "./controller.svelte"
-    import { readOnlyMode } from "$lib/stores";
+    import { preventEditing } from "$lib/stores";
     import { onMobile } from "$lib/shared/utility";
 
 
@@ -106,7 +106,7 @@
             class="leaf-hover-zone"
             class:rowCohort={ thingCohort?.rowOrColumn() === "row" }
             class:columnCohort={ thingCohort?.rowOrColumn() === "column" }
-            class:read-only-mode={$readOnlyMode}
+            class:read-only-mode={$preventEditing}
 
             x1="{leafGeometry.bottomMidline}" y1="{leafGeometry.bottom - 10}"
             x2="{leafGeometry.topMidline}" y2="{leafGeometry.top}"
@@ -124,7 +124,7 @@
             }}
             on:mouseup={()=>{leafClicked = false}}
             on:touchend={()=>{leafClicked = false}}
-            on:contextmenu|preventDefault={ (event) => {if (onMobile() && !$readOnlyMode) openCommandPalette(event)} }
+            on:contextmenu|preventDefault={ (event) => {if (onMobile() && !$preventEditing) openCommandPalette(event)} }
         />
 
         <!-- Visual image of leaf. -->

@@ -7,7 +7,7 @@
     import { onMount } from "svelte"
 
     /* Import stores. */
-    import { readOnlyMode, homeThingIdStore, titleFontStore, titleFontWeightStore } from "$lib/stores"
+    import { preventEditing, homeThingIdStore, titleFontStore, titleFontWeightStore } from "$lib/stores"
 
     /* Import related widgets. */
     import ThingWidgetController from "./controller.svelte"
@@ -147,8 +147,8 @@
 
 <!-- Set up mouse-event handlers on page body. -->
 <svelte:body
-    on:mousemove={ event => { if (!$readOnlyMode) handleMouseDrag(event) } }
-    on:touchmove={ event => { if (!$readOnlyMode) handleMouseDrag(event) } }
+    on:mousemove={ event => { if (!$preventEditing) handleMouseDrag(event) } }
+    on:touchmove={ event => { if (!$preventEditing) handleMouseDrag(event) } }
     on:click={ _ => {cladeControlsOpened = false} }
     on:mouseup={onBodyMouseUp}
     on:touchend={onBodyMouseUp}
@@ -189,7 +189,7 @@
         on:mouseup={onMouseUp}
         on:touchend={ event => { onTouchEnd(event) } }
         on:contextmenu|preventDefault={ _ => {
-            if (!$readOnlyMode) {
+            if (!$preventEditing) {
                 const boundingRect = thingWidgetDiv.getBoundingClientRect()
                 openCommandPalette(
                     [boundingRect.right, boundingRect.bottom]
@@ -254,16 +254,18 @@
                 />
 
                 <!-- Delete controls. -->
-                <DeleteWidget
-                    {showDeleteButton}
-                    {confirmDeleteBoxOpen}
-                    {thingWidth}
-                    {thingHeight}
-                    {encapsulatingDepth}
-                    trashIcon={true}
-                    {startDelete}
-                    {completeDelete}
-                />
+                {#if !$preventEditing}
+                    <DeleteWidget
+                        {showDeleteButton}
+                        {confirmDeleteBoxOpen}
+                        {thingWidth}
+                        {thingHeight}
+                        {encapsulatingDepth}
+                        trashIcon={true}
+                        {startDelete}
+                        {completeDelete}
+                    />
+                {/if}
 
             {/if}
 

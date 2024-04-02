@@ -7,7 +7,7 @@
     import {
         relationshipBeingCreatedInfoStore, enableRelationshipBeingCreated,
         setRelationshipBeingCreatedDestThingId, hoveredRelationshipTarget,
-        disableRelationshipBeingCreated, reorderingInfoStore, readOnlyMode
+        disableRelationshipBeingCreated, reorderingInfoStore, preventEditing
     } from "$lib/stores"
 
     // Import utility functions.
@@ -108,7 +108,7 @@
         fill: {relationshipColor};
     "
     
-    on:click={ () => { if (!$readOnlyMode) addThingForm() } }
+    on:click={ () => { if (!$preventEditing) addThingForm() } }
     on:keydown={()=>{}}
 >
 
@@ -116,7 +116,7 @@
     <g
         class="stem-hover-zone"
         class:hidden={!showStem}
-        class:readOnlyMode={$readOnlyMode}
+        class:readOnlyMode={$preventEditing}
 
         on:mouseenter={ () => {
             stemHovered = true

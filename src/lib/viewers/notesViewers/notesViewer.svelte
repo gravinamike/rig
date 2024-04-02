@@ -12,7 +12,7 @@
 
     // Import stores.
     import {
-        landscapeOrientation, readOnlyMode,
+        landscapeOrientation, preventEditing,
         notesBackgroundImageStore, uITrimColorStore, titleFontStore, titleFontWeightStore,
         notesEditorLockedStore, storeGraphDbModels, updateNoteSearchListStore
     } from "$lib/stores"
@@ -620,7 +620,7 @@
         on:keydown={()=>{}}
     >
         <!-- Note editor. -->
-        {#if !$readOnlyMode && editing}
+        {#if !$preventEditing && editing}
             <NotesEditor
                 currentPThingNoteText={currentThingNoteText}
                 bind:currentEditorTextContent
@@ -670,7 +670,7 @@
     </div>
 
     <!-- Edit button. -->
-    {#if !(outlineFormat || $readOnlyMode)}
+    {#if !(outlineFormat || $preventEditing)}
         <div
             class="edit-button"
             class:editing

@@ -10,7 +10,7 @@
     // Import constants and stores.
     import { zoomBase } from "$lib/shared/constants"
     import {
-        addGraph, removeGraph, reorderingInfoStore, readOnlyMode,
+        addGraph, removeGraph, reorderingInfoStore, preventEditing,
         graphIdsNeedingViewerRefresh, addGraphIdsNeedingViewerRefresh,
         removeGraphIdsNeedingViewerRefresh
     } from "$lib/stores"
@@ -75,7 +75,7 @@
     )
     $: offAxisToggleNoMouseEvents =
         (
-            $readOnlyMode
+            $preventEditing
             && !(numberOfNonCartesianAxisRelations + numberOfOffAxisRelations)
         )
         || (

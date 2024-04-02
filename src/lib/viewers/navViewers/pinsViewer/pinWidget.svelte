@@ -4,7 +4,7 @@
 
     /* Import stores. */
     import {
-        uITrimColorStore, lightenOrDarkenColorString, readOnlyMode,
+        uITrimColorStore, lightenOrDarkenColorString, preventEditing,
         removePin, homeThingIdStore, setHomeThingId, removeHomeThing,
         hoveredThingIdStore, openContextCommandPalette
     } from "$lib/stores"
@@ -88,7 +88,7 @@
     on:mouseleave={()=>{hoveredThingIdStore.set(null)}}
     on:click={ () => { if (thing) rePerspectToThingId(thingId) } }
     on:keydown={()=>{}}
-    on:contextmenu|preventDefault={ (event) => {if (!$readOnlyMode) openPinContextCommandPalette(event)} }
+    on:contextmenu|preventDefault={ (event) => {if (!$preventEditing) openPinContextCommandPalette(event)} }
 >
     <!-- Home-Thing icon. -->
     {#if thingId === $homeThingIdStore}

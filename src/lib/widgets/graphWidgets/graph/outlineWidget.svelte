@@ -8,7 +8,7 @@
     import { onDestroy } from "svelte"
 
     // Import stores.
-    import { addGraph, landscapeOrientation, removeGraph, titleFontStore, titleFontWeightStore, uITrimColorStore, addGraphIdsNeedingViewerRefresh, readOnlyMode, notesEditorLockedStore } from "$lib/stores"
+    import { addGraph, landscapeOrientation, removeGraph, titleFontStore, titleFontWeightStore, uITrimColorStore, addGraphIdsNeedingViewerRefresh, preventEditing, notesEditorLockedStore } from "$lib/stores"
 
     // Import utility functions.
     import { onMobile, writePlainTextToClipboard } from "$lib/shared/utility"
@@ -349,7 +349,7 @@
     </button>
 
     <!-- Edit button. -->
-    {#if !$readOnlyMode && !offAxis}
+    {#if !$preventEditing && !offAxis}
         <div
             class="edit-button"
             class:editing

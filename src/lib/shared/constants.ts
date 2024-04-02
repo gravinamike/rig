@@ -116,6 +116,7 @@ export interface GraphConfig {
     titleFont?: string | null
     titleFontWeight?: number | null
     readOnlyMode: boolean
+    canEdit: string[]
     hideMenus: MenuName[]
     leftSideMenu: string | null
     rightSideMenu: string | null

@@ -12,8 +12,8 @@ import {
     leftSideMenuStore, rightSideMenuStore, hideMenusStore,
     uITrimColorStore, mobileMenuTrimColorStore, graphBackgroundImageStore, graphBackgroundColorStore,
     notesBackgroundImageStore, defaultFontStore, titleFontStore, titleFontWeightStore,
-    readOnlyMode as readOnlyModeStore, notesEditorLockedStore,
-    homeThingIdStore, pinIdsStore, perspectiveThingIdStore, canAccessFileMenuStore
+    readOnlyMode as readOnlyModeStore, canEdit as canEditStore, preventEditing as preventEditingStore, notesEditorLockedStore,
+    homeThingIdStore, pinIdsStore, perspectiveThingIdStore, canAccessFileMenuStore, userIdStore, canEdit
 } from "$lib/stores"
 
 // Import API methods.
@@ -79,6 +79,14 @@ export async function storeGraphConfig(pThingId: number | null = null): Promise<
         graphConfig.titleFontWeight || null
     )
     readOnlyModeStore.set(graphConfig.readOnlyMode)
+    canEdit.set(graphConfig.canEdit)
+    preventEditingStore.set(
+        !(
+            graphConfig.canEdit.includes("all")
+            || (get(userIdStore) !== null && graphConfig.canEdit.includes(get(userIdStore) as string))
+        )
+        || graphConfig.readOnlyMode === true
+    )
     hideMenusStore.set(graphConfig.hideMenus)
     leftSideMenuStore.set(graphConfig.leftSideMenu)
     rightSideMenuStore.set(graphConfig.rightSideMenu)
@@ -119,6 +127,7 @@ export async function saveGraphConfig(): Promise<void> {
     const titleFont = get(titleFontStore)
     const titleFontWeight = get(titleFontWeightStore)
     const readOnlyMode = get(readOnlyModeStore)
+    const canEdit = get(canEditStore)
     const hideMenus = get(hideMenusStore)
     const leftSideMenu = get(leftSideMenuStore)
     const rightSideMenu = get(rightSideMenuStore)
@@ -138,6 +147,7 @@ export async function saveGraphConfig(): Promise<void> {
         titleFont: titleFont,
         titleFontWeight: titleFontWeight,
         readOnlyMode: readOnlyMode,
+        canEdit: canEdit,
         hideMenus: hideMenus,
         leftSideMenu: leftSideMenu,
         rightSideMenu: rightSideMenu,

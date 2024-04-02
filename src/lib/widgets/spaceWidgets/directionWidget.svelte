@@ -9,7 +9,7 @@
 
     // Import constants and stores.
     import { directionWidgetCircularDiameter, relationshipColorByHalfAxisId } from "$lib/shared/constants"
-    import { directionSelectionInfoStore, openDirectionSelectionDropdownMenu, readOnlyMode } from "$lib/stores"
+    import { directionSelectionInfoStore, openDirectionSelectionDropdownMenu, preventEditing } from "$lib/stores"
 
     // Import related UI elements.
     import { TextFittingDiv } from "$lib/widgets/layoutWidgets"
@@ -87,7 +87,7 @@
     class:fully-opaque={fullyOpaque}
     class:square-bottom-corners={squareBottomCorners}
     class:square-top-corners={squareTopCorners}
-    class:interaction-disabled={$readOnlyMode || interactionDisabled}
+    class:interaction-disabled={$preventEditing || interactionDisabled}
     
     bind:this={directionWidget}
 

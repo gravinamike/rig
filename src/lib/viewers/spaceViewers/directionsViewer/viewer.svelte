@@ -10,7 +10,7 @@
 
     // Import stores.
     import {
-        uIBackgroundColorStore, readOnlyMode, 
+        uIBackgroundColorStore, preventEditing, 
         getGraphConstructs, storeGraphDbModels,
         directionDbModelsStoreAsArray, directionEditingInProgressIdStore
     } from "$lib/stores"
@@ -152,10 +152,10 @@
         {#each directions as direction, index (direction?.id || -index)}
             <!-- Direction widget. -->
             <div
-                draggable={ $readOnlyMode || $directionEditingInProgressIdStore.size ? false : true }
+                draggable={ $preventEditing || $directionEditingInProgressIdStore.size ? false : true }
                 animate:flip={{ duration: 250 }}
 
-                on:dragstart={ (event) => {if (!$readOnlyMode) startDragDirection(event, index)} }
+                on:dragstart={ (event) => {if (!$preventEditing) startDragDirection(event, index)} }
                 on:dragover|preventDefault
                 on:drop|preventDefault={ (event) => dropDirection(event, index) }
             >

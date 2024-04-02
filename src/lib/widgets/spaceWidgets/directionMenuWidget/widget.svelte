@@ -6,7 +6,7 @@
 
     // Import stores and utility functions.
     import {
-        addGraphIdsNeedingViewerRefresh, directionDbModelsStore, getGraphConstructs, readOnlyMode, addDirectionIdToEditingInProgressStore, removeDirectionIdFromEditingInProgressStore, storeGraphDbModels
+        addGraphIdsNeedingViewerRefresh, directionDbModelsStore, getGraphConstructs, preventEditing, addDirectionIdToEditingInProgressStore, removeDirectionIdFromEditingInProgressStore, storeGraphDbModels
     } from "$lib/stores"
     import { onMobile, sleep } from "$lib/shared/utility"
 
@@ -257,7 +257,7 @@
         confirmDeleteBoxOpen = false
     }}
     on:dblclick={() => {
-        if (!$readOnlyMode && interactionMode === "display" && editable && !confirmDeleteBoxOpen) handleButton()
+        if (!$preventEditing && interactionMode === "display" && editable && !confirmDeleteBoxOpen) handleButton()
     }}
 >
     <!-- Direction icon. -->
@@ -347,7 +347,7 @@
     {/if}
 
     <!-- Edit button. -->
-    {#if !$readOnlyMode}
+    {#if !$preventEditing}
 
         
         {#if
@@ -379,7 +379,7 @@
     {/if}
 
     <!-- Delete-Space widget. -->
-    {#if editable}
+    {#if editable && !$preventEditing}
         <DeleteWidget
             {showDeleteButton}
             bind:confirmDeleteBoxOpen

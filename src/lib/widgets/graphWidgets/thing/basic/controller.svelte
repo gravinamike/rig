@@ -10,7 +10,7 @@
     // Import stores.
     import {
         graphDbModelInStore, storeGraphDbModels, unstoreGraphDbModels,
-        readOnlyMode, hoveredThingIdStore, reorderingInfoStore,
+        preventEditing, hoveredThingIdStore, reorderingInfoStore,
         openContextCommandPalette, pinIdsStore, addPin, removePin, homeThingIdStore, setHomeThingId, removeHomeThing,
         removeIdsFromThingSearchListStore, removeIdsFromNoteSearchListStore,
         relationshipBeingCreatedInfoStore, enableRelationshipBeingCreated, setRelationshipBeingCreatedTrackingMouse,
@@ -228,7 +228,7 @@
      * operation in progress, and the confirm-delete operation has not been
      * started.
      */
-    $: showDeleteButton = !onMobile() && !$readOnlyMode && isHoveredWidget && !$reorderingInfoStore.reorderInProgress && !confirmDeleteBoxOpen
+    $: showDeleteButton = !onMobile() && !$preventEditing && isHoveredWidget && !$reorderingInfoStore.reorderInProgress && !confirmDeleteBoxOpen
 
     /**
      * Text-being-edited.
