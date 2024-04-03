@@ -7,7 +7,7 @@
     import { onMount } from "svelte"
 
     /* Import stores. */
-    import { preventEditing, homeThingIdStore, titleFontStore, titleFontWeightStore } from "$lib/stores"
+    import { preventEditing, homeThingIdStore, titleFontStore, titleFontWeightStore, thingColorStore, lightenOrDarkenColorString } from "$lib/stores"
 
     /* Import related widgets. */
     import ThingWidgetController from "./controller.svelte"
@@ -160,7 +160,6 @@
     <div
         id="{thingWidgetId}"
         class="thing-widget"
-        class:highlighted
 
         bind:this={thingWidgetDiv}
 
@@ -171,6 +170,10 @@
                 `box-shadow: 1px 1px ${showAsCollapsed ? 2 : 1}px 0px ${shadowColor};`
             }
             width: {thingWidth}px; height: {thingHeight}px;
+            background-color: {
+                highlighted ? lightenOrDarkenColorString($thingColorStore, "darker", 3) :
+                $thingColorStore
+            };
             opacity: {opacity};
             font-family: {$titleFontStore || "Arial"};
             font-weight: {$titleFontWeightStore ?? 600};
@@ -207,6 +210,10 @@
 
                 style="
                     width: {sliderPercentage}%;
+                    background-color: {
+                        highlighted ? lightenOrDarkenColorString($thingColorStore, "darker", 7) :
+                        lightenOrDarkenColorString($thingColorStore, "darker", 4)
+                    };
                 "
             />
 
@@ -217,6 +224,10 @@
                 style="
                     border-radius: {Math.floor(thingHeight * 0.04)}px;
                     left: {sliderPercentage + 3}%;
+                    background-color: {
+                        highlighted ? lightenOrDarkenColorString($thingColorStore, "darker", 3) :
+                        $thingColorStore
+                    };
                 "
 
                 on:click|stopPropagation={toggleSlider}
@@ -306,14 +317,9 @@
         position: relative;
         box-sizing: border-box;
         height: max-content;
-        background-color: white;
 
         pointer-events: auto;
         cursor: default;
-    }
-
-    .highlighted {
-        background-color: #f7f7f7;
     }
 
     .slider-backfield {
@@ -326,7 +332,6 @@
         left: 6%;
         top: 6%;
         height: 86%;
-        background-color: #fbfbfb;
     }
 
     .slider-toggle {
@@ -339,7 +344,6 @@
         top: 5%;
         width: 6%;
         height: 89%;
-        background-color: white;
 
         cursor: pointer;
     }

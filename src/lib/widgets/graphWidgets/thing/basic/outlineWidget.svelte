@@ -7,9 +7,7 @@
     // Import stores.
     import {
         preventEditing, hoveredThingIdStore, hoveredRelationshipTarget,
-        relationshipBeingCreatedInfoStore, setRelationshipBeingCreatedDestThingId, disableRelationshipBeingCreated, titleFontStore, titleFontWeightStore
-
-
+        relationshipBeingCreatedInfoStore, setRelationshipBeingCreatedDestThingId, disableRelationshipBeingCreated, titleFontStore, titleFontWeightStore, thingColorStore, lightenOrDarkenColorString
     } from "$lib/stores"
 
     // Import widget controller.
@@ -122,6 +120,11 @@
         bind:clientWidth={width}
         bind:clientHeight={height}
 
+        style="background-color: {
+            highlighted ? lightenOrDarkenColorString($thingColorStore, "darker", 5) :
+            $thingColorStore
+        };"
+
         on:mouseenter={()=>{
             hoveredThingIdStore.set(thingId)
             isHoveredWidget = true, hoveredRelationshipTarget.set(thing)
@@ -189,6 +192,10 @@
                 style="
                     font-family: {$titleFontStore || "Arial"};
                     font-weight: {$titleFontWeightStore ?? 600};
+                    background-color: {
+                        highlighted ? lightenOrDarkenColorString($thingColorStore, "darker", 4) :
+                        $thingColorStore
+                    };
                 "
 
                 on:click={ () => {
@@ -256,7 +263,6 @@
         border-radius: 2px;
 
         height: max-content;
-        background-color: white;
 
         padding: 1rem;
 
@@ -265,8 +271,6 @@
 
     .box.highlighted {
         box-shadow: 1px 1px 2px 1px dimgrey;
-
-        background-color: #f7f7f7;
     }
 
     .thing-outline-widget:not(.off-axis) .box {

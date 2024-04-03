@@ -41,6 +41,7 @@ export interface ServerConfig {
  */
 export const defaultUITrimColor = "#E8E8E8"
 export const defaultMobileMenuTrimColor = "#787878"
+export const defaultThingColor = "#FFFFFF"
 
 
 /**
@@ -110,6 +111,7 @@ export interface GraphConfig {
     uITrimColor?: string
     mobileMenuTrimColor?: string
     graphBackgroundColor?: string
+    thingColor?: string
     graphBackgroundImage?: string | null
     notesBackgroundImage?: string | null
     defaultFont?: string | null
