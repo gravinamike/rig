@@ -9,7 +9,7 @@
 
     // Import constants and stores.
     import { directionWidgetCircularDiameter, relationshipColorByHalfAxisId } from "$lib/shared/constants"
-    import { directionSelectionInfoStore, openDirectionSelectionDropdownMenu, preventEditing } from "$lib/stores"
+    import { directionSelectionInfoStore, lightenOrDarkenColorString, openDirectionSelectionDropdownMenu, preventEditing, thingColorStore } from "$lib/stores"
 
     // Import related UI elements.
     import { TextFittingDiv } from "$lib/widgets/layoutWidgets"
@@ -62,6 +62,8 @@
         
 
 
+    let highlighted = false
+
 
 
 
@@ -95,10 +97,18 @@
         width: {circularOrRectangular === "circular" ? `${directionWidgetCircularDiameter}px`: "100%"};
         height: {circularOrRectangular === "circular" ? `${directionWidgetCircularDiameter}px`: `${height}px`};
     "
+
+    on:mouseenter={() => highlighted = true}
+    on:mouseleave={() => highlighted = false}
 >
     <!-- Colored backfield. -->
     <div
         class="direction-widget-backfield"
+
+        style="background-color: {
+            highlighted ? lightenOrDarkenColorString($thingColorStore, "darker", 3) :
+            $thingColorStore
+        };"
     />
 
     <!-- Direction text. -->
@@ -155,12 +165,7 @@
         top: 0;
         width: 100%;
         height: 100%;
-        background-color: white;
         opacity: 0.25;
-    }
-
-    .direction-widget:active .direction-widget-backfield {
-        background-color: whitesmoke;
     }
 
     .direction-widget:not(.rectangular):hover .direction-widget-backfield {

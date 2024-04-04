@@ -13,9 +13,10 @@ import { Thing, ThingCohort } from "$lib/models/constructModels"
 
 
 
+
 /**
- * Generation member (a wrapper for Things that also contains their IDs and
- * whether or not they have been rendered in the Graph yet).
+ * Generation member (a wrapper for Things that also contains their IDs and whether or not they
+ * have been rendered in the Graph yet).
  */
 export interface GenerationMember {
     thingId: number | null
@@ -26,8 +27,8 @@ export interface GenerationMember {
 /**
  * Generation class.
  * 
- * Represents one of a Graph's Generations, meaning sets of Things that are
- * added step-wise to the Graph as it is built out from the Perspective Thing.
+ * Represents one of a Graph's Generations, meaning sets of Things that are added step-wise to the
+ * Graph as it is built out from the Perspective Thing.
  */
 export class Generation {
     // String identifier for this type of Graph construct.
@@ -50,12 +51,13 @@ export class Generation {
     lifecycleStatus: "new" | "building" | "built" | "stripping" | "stripped" = "new"
 
 
+
     /**
      * Generation constructor.
      * 
      * Creates a Generation.
-     * @param id - The ID of the Generation.
-     * @param graph - The Graph that the Generation belongs to.
+     * @param id - The ID of the new Generation.
+     * @param graph - The Graph that the new Generation belongs to.
      */
     constructor(id: number, graph: Graph) {
         this.id = id
@@ -63,11 +65,11 @@ export class Generation {
     }
 
 
+
     /**
-     * Is-Relationships-only getter.
+     * Generation-is-Relationships-only getter.
      * 
-     * Gets whether the Generation is the last, Relationships-only Generation,
-     * as an attribute.
+     * Gets whether the Generation is the last, Relationships-only Generation, as an attribute.
      * @returns - Whether the Generation is the last, Relationships-only Generation.
      */
     get isRelationshipsOnly(): boolean {
@@ -77,8 +79,7 @@ export class Generation {
     /**
      * Is-Relationships-only setter.
      * 
-     * Sets whether the Generation is the last, Relationships-only Generation,
-     * as an attribute.
+     * Sets whether the Generation is the last, Relationships-only Generation, as an attribute.
      */
     set isRelationshipsOnly(isRelationshipsOnly: boolean) {
         this.#isRelationshipsOnly = isRelationshipsOnly

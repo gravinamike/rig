@@ -305,6 +305,7 @@
         width: 100%; 
         transform: translate(-50%, -50%);
 
+        line-height: 18px;
         white-space: nowrap;
     }
 
