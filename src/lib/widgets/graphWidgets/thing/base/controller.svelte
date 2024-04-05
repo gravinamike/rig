@@ -3,18 +3,14 @@
     import type { Graph, Thing } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets" 
 
-    import { planePadding } from "$lib/shared/constants"
-
     /**
      * Create a Thing Base Widget Model.
      * @param {number | null} thingId - The ID of the Thing the widget is based on
      * @param {GraphWidgetModel} graphWidgetModel - The model of the Graph that the widget is in.
      */
     export let thing: Thing | null = null
-    export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
 
-    export let planeId: number | null = null
     export let encapsulatingDepth: number
     export let thingSize: number = 0
     export let thingWidth: number = 0
@@ -25,22 +21,9 @@
     export let halfAxisId: HalfAxisId | null = null
     export let elongationCategory: "vertical" | "horizontal" | "neutral" = "neutral"
     export let encapsulatingPadding: number = 0
-    export let distanceFromFocalPlane: number = 0
 
     
     /* --------------- Output attributes. --------------- */
-
-    /**
-     * Plane ID.
-     * 
-     * The ID of the Plane which the Thing Widget is in.
-     */
-    $: planeId =
-        // If the Thing is on the encapsulating axis and has a parent Thing,
-        // inherit the Plane from the Thing's parent Thing.
-        halfAxisId && [7, 8].includes(halfAxisId) && thing?.parentThing ? thing.parentThing.parentThingCohort?.plane?.id || 0 :
-        // Otherwise, use the Thing's own Plane.
-        thing?.parentThingCohort?.plane?.id || 0
 
     /**
      * Encapsulating depth.
@@ -59,12 +42,10 @@
      * Thing size.
      * 
      * The base size of the Thing is the default Thing size for the Graph, plus
-     * the by-Plane padding times the plane ID, plus the by-encapsulation-depth
-     * padding times the encapsulation depth.
+     * the by-encapsulation-depth padding times the encapsulation depth.
      */
     $: thingSize = (
         graphWidgetStyle.thingSize
-        + planePadding * (planeId || 0)
         + encapsulatingPadding * encapsulatingDepth
     )
 
@@ -159,6 +140,4 @@
      * (no elongation).
      */
     $: elongation = thing?.parentThingCohort?.axialElongation || 1
-
-    $: distanceFromFocalPlane = planeId ? planeId - graph.planes.focalPlaneId : 0
 </script>

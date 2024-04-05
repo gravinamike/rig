@@ -38,7 +38,6 @@
      * @param zIndex - The stacking order of the widget relative to other HTML elements.
      * @param widgetWidth - The pre-rotation width of the widget in pixels.
      * @param widgetHeight - The pre-rotation height of the widget in pixels.
-     * @param opacity - The opacity of the widget.
      * @param rotatedWidth - The width of the widget after it has been rotated based on its half-axis.
      * @param rotatedHeight - The height of the widget after it has been rotated based on its half-axis.
      * @param mirroring - Whether the content of the widget is flipped relative to the Graph centerline.
@@ -74,7 +73,6 @@
     export let zIndex = 0
     export let widgetWidth = 0
     export let widgetHeight = 0
-    export let opacity = 1
     export let rotatedWidth = 0
     export let rotatedHeight = 0
     export let mirroring: 1 | -1 = 1
@@ -148,22 +146,6 @@
     $: widgetHeight =
         halfAxisId && [1, 2].includes(halfAxisId) ? relationshipsLength :
         relationshipsWidth
-
-
-    /**
-     * Opacity.
-     * 
-     * The opacity of the widget. Decreases with distance from the focal plane,
-     * and does so quicker on the "Towards" half-axis.
-     */
-    $: opacity =
-    1 / (
-        1 + (
-            distanceFromFocalPlane < 0 ? 1 :
-            distanceFromFocalPlane > 0 ? 2 :
-            0
-        ) * Math.abs(distanceFromFocalPlane)
-    )
 
     /**
      * Rotated width.
@@ -470,14 +452,6 @@
     $: generationId = thingCohort.address.generationId
 
     /**
-     * Distance from focal Plane.
-     * 
-     * The number of Planes between the Plane the Relationship Cohort is in and
-     * the Graph's current focal Plane.
-     */
-    $: distanceFromFocalPlane = planeId - graph.planes.focalPlaneId
-
-    /**
      * Parent Thing.
      * 
      * The Thing which is at the root of the Relationships in this Relationship
@@ -545,14 +519,6 @@
             return offsetToGrandparentThing
         }
     }
-    
-    /**
-     * Plane ID.
-     * 
-     * The ID of the Plane that the Relationship Cohort is in. Taken from the
-     * associated Thing Cohort's attribute (defaults to 0 if there is none).
-     */
-    $: planeId = thingCohort.plane?.id || 0
     
     /**
      * Scale.

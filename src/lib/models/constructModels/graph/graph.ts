@@ -8,7 +8,6 @@ import { perspectiveSpaceIdStore, storeGraphDbModels, unstoreGraphDbModels, getG
 // Import Graph-related structures.
 import { Generations } from "./generations"
 import { GridLayers } from "./gridLayers"
-import { Planes } from "./planes"
 import { PerspectiveHistory } from "./history"
 
 // Import utility functions.
@@ -79,10 +78,6 @@ export class Graph {
     // when it is built using the "grid" method.
     gridLayers: GridLayers
 
-    // The Graph's Planes, flat surfaces perpendicular to the screen which contain all the Things
-    // at that visual distance.
-    planes: Planes
-
     // The current stage of the Graph's lifecycle.
     lifecycleStatus: "new" | "building" | "built" | "cleared" = "new"
 
@@ -129,7 +124,6 @@ export class Graph {
         this.#depth = depth
         this.generations = new Generations(this)
         this.gridLayers = new GridLayers(this)
-        this.planes = new Planes(this)
         this.history = new PerspectiveHistory()
         this.formActive = false
     }
@@ -239,7 +233,6 @@ export class Graph {
         this.rootCohort = null
         this.generations.reset()
         this.gridLayers.reset()
-        this.planes.reset()
         if (!keepCurrentSpace) this.#startingSpace = this.originalStartingSpace
         this.formActive = false
         this.lifecycleStatus = "cleared"

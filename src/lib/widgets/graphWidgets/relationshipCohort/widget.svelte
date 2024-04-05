@@ -47,7 +47,6 @@
     let zIndex = 0
     let widgetWidth = 0
     let widgetHeight = 0
-    let opacity = 1
     let rotatedWidth = 0
     let rotatedHeight = 0
     let mirroring: 1 | -1 = 1
@@ -137,7 +136,6 @@
     bind:zIndex
     bind:widgetWidth
     bind:widgetHeight
-    bind:opacity
     bind:rotatedWidth
     bind:rotatedHeight
     bind:mirroring
@@ -170,7 +168,6 @@
         z-index: {zIndex};
         width: {widgetWidth}px;
         height: {widgetHeight}px;
-        opacity: {opacity};
     "
 >
     <!-- Inner "rotator" which is rotated according to the Half-Axis. -->

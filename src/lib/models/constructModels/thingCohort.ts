@@ -1,7 +1,7 @@
 // Import types.
 import type { HalfAxisId } from "$lib/shared/constants"
 import type {
-    Direction, Space, Graph, Generation, GenerationMember, Plane, Thing
+    Direction, Space, Graph, Generation, GenerationMember, Thing
 } from "$lib/models/constructModels"
 // Import constants.
 import { offsetsByHalfAxisId } from "$lib/shared/constants"
@@ -67,10 +67,6 @@ export class ThingCohort {
     // a Thing. (Not currently in use.)
     encapsulatingDepth: number
 
-    // The visual plane (perpendicular to the screen) that the Thing Cohort
-    // belongs to.
-    plane: Plane | null = null
-
     // The axial elongation factor, which controls how much longer or taller
     // the Thing Cohort is than its smaller dimension.
     axialElongation = 1
@@ -103,25 +99,6 @@ export class ThingCohort {
             this.address.graph.generations.byId(this.address.generationId)
         // Add this Thing Cohort to that Generation.
         this.generation?.thingCohorts.push(this)
-
-        // Set the Thing Cohort's Plane ID.
-        let planeId: number
-        // If there is no address set, set the Plane ID to 0.
-        if (!this.address) {
-            planeId = 0
-        // Otherwise, calculate the Plane ID from the parent Thing Cohort's
-        // Plane ID and the Thing Cohort's Direction.
-        } else {
-            const parentPlaneId = this.parentThingCohort()?.plane?.id || 0
-            const changeInPlane = offsetsByHalfAxisId[this.halfAxisId || 0][2]
-            planeId = parentPlaneId + changeInPlane
-        }
-        // If the Generation isn't the Relationships-only Generation, add this
-        // Thing Cohort to the Plane.
-        if (
-            this.generation
-            && !this.generation.isRelationshipsOnly
-        ) this.address.graph.planes.addCohortToPlane(this, planeId)
 
         // Calculate the encapsulating depth from the parent Thing Cohort's
         // encapsulating depth and the Thing Cohort's Direction.
@@ -340,8 +317,5 @@ export class ThingCohort {
         // If the Thing Cohort is part of a Grid Layer, remove it from that
         // Grid Layer.
         if (this.gridLayer) this.address.graph.gridLayers.removeThingCohortFromGridLayer(this, this.gridLayer.id)
-
-        // If this Thing Cohort is part of a Plane, remove it from that Plane.
-        if (this.plane) this.plane.removeCohort(this)
     }
 }

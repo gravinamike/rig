@@ -1,12 +1,8 @@
 <script lang="ts">
-    import type { Graph } from "$lib/models/constructModels";
-    import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets";
+    import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
     import { ThingBaseWidgetController } from "../base"
 
-    export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
-
-    export let planeId: number
     export let encapsulatingDepth: number
     export let thingSize: number
     export let thingWidth: number
@@ -18,10 +14,8 @@
 
 <ThingBaseWidgetController
     thing={null}
-    {graph}
     {graphWidgetStyle}
 
-    bind:planeId
     bind:encapsulatingDepth
     bind:thingSize
     bind:thingWidth

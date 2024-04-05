@@ -35,7 +35,6 @@
                 <ThingOutlineAlreadyRenderedWidget
                     thingId={cohortMember.thingId}
                     thing={cohortMember.thing}
-                    {graph}
                     {graphWidgetStyle}
                 />
 

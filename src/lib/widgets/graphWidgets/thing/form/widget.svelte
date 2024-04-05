@@ -51,7 +51,6 @@
     bind:encapsulatingDepth
     bind:thingWidth
     bind:thingHeight
-    bind:distanceFromFocalPlane
     bind:textFontSize
     bind:submitted
     bind:submit

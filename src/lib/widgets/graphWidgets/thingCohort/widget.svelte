@@ -67,7 +67,6 @@
 <ThingCohortWidgetController
     {thingCohort}
     graphWidgetStyle={graphWidgetStyle}
-    planesOffsets={graph.planes.offsets}
     {offsetToAlignToGrid}
     {expanded}
     
@@ -163,7 +162,6 @@
             {#if member.thingId && !member.thing?.id}
                 <ThingMissingFromStoreWidget
                     thingId={member.thingId}
-                    {graph}
                     {graphWidgetStyle}
                 />
 
@@ -171,7 +169,6 @@
             {:else if member.thingId && member.alreadyRendered === true}
                 <ThingAlreadyRenderedWidget
                     thingId={member.thingId}
-                    {graph}
                     {graphWidgetStyle}
                     {getThingOverlapMarginStyleText}
                     {thingOverlapMargin}

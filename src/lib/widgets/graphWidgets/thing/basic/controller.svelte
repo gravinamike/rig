@@ -78,7 +78,6 @@
     
 
     // Attributes handled by the base widget controller.
-    let planeId: number | null = null
     let cohortSize: number = 0
     let halfAxisId: HalfAxisId = 0
     let distanceFromFocalPlane: number = 0
@@ -602,14 +601,11 @@
 <!-- Base widget controller. -->
 <ThingBaseWidgetController
     {thing}
-    {graph}
     {graphWidgetStyle}
 
-    bind:planeId
     bind:encapsulatingDepth
     bind:thingWidth
     bind:thingHeight
     bind:cohortSize
-    bind:distanceFromFocalPlane
     bind:elongationCategory
 />

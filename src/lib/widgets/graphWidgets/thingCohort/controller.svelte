@@ -16,7 +16,6 @@
      * Create a Graph Widget Model.
      * @param thingcohort - The Thing Cohort that the widget is based on.
      * @param graphWidgetStyle - Controls the style of the Graph widget.
-     * @param planesOffsets - The per-Plane X and Y offsets.
      * @param offsetToAlignToGrid - The offset, in pixels, needed to align the Relationships to the grid (if in use).
      * @param expanded - Whether the Thing Cohort is expanded or collapsed.
      * @param xYOffsets - The X and Y offsets of the widget relative to its parent Clade widget.
@@ -33,7 +32,6 @@
     // Input props.
     export let thingCohort: ThingCohort
     export let graphWidgetStyle: GraphWidgetStyle
-    export let planesOffsets: [number, number]
     export let offsetToAlignToGrid: number
     export let expanded = false
 
@@ -69,14 +67,11 @@
         {
             x: (
                 // ...the "orbit" distance of related Things from their
-                // parents, in the appropriate direction for the half-axis...
+                // parents, in the appropriate direction for the half-axis.
                 (graphWidgetStyle.relationDistance + offsetToAlignToGrid) * offsetSigns[0]
-                // ...plus any offset for the Plane the Thing is in.
-                + planesOffsets[0] * planeId
             ),
             y: (
                 (graphWidgetStyle.relationDistance + offsetToAlignToGrid) * offsetSigns[1]
-                + planesOffsets[1] * planeId
             )
         }
 
@@ -215,13 +210,6 @@
      * positive (1). Offset signs are specific to a half-axis.
      */
     $: offsetSigns = offsetsByHalfAxisId[thingCohort.halfAxisId]
-
-    /*
-     * Plane ID.
-     *
-     * Plane ID is taken from the Thing Cohort's Plane ID (with default 0).
-     */
-    $: planeId = thingCohort.plane?.id || 0
 
     /*
      * Grandparent Thing ID.

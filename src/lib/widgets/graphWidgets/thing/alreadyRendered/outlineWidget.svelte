@@ -13,7 +13,6 @@
 
     export let thingId: number
     export let thing: Thing | null
-    export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
     
 
@@ -32,7 +31,6 @@
 <ThingAlreadyRenderedWidgetController
     {thingId}
     {thing}
-    {graph}
     {graphWidgetStyle}
 
     bind:encapsulatingDepth

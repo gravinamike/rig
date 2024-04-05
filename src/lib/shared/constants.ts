@@ -159,11 +159,6 @@ export type GraphConstruct = Direction | Space | Thing | Relationship
  */
 export const maxThingsToStore = 500
 
-/**
- * Plane padding.
- */
-export const planePadding = 20
-
 
 /* Relationships interfaces and types. */
 
