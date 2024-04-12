@@ -6,7 +6,7 @@ import type {
 // Import constants.
 import { offsetsByHalfAxisId } from "$lib/shared/constants"
 // Import stores.
-import { getGraphConstructs } from "$lib/stores"
+import { getGraphConstructs, graphDbModelInStore } from "$lib/stores"
 import type { GridLayer } from "./gridLayer"
 
 
@@ -317,5 +317,41 @@ export class ThingCohort {
         // If the Thing Cohort is part of a Grid Layer, remove it from that
         // Grid Layer.
         if (this.gridLayer) this.address.graph.gridLayers.removeThingCohortFromGridLayer(this, this.gridLayer.id)
+    }
+
+
+
+
+
+
+    build(thingIds: number[], thingIdsForNextGeneration: number[], graph: Graph) {
+        // Get the IDs of the Things for that half-axis' Thing Cohort.
+        const thingIdsForChildThingCohort =
+            thingIds.length ? thingIdsForNextGeneration
+                .filter( thingIdForNextGeneration => {if (thingIds.includes(thingIdForNextGeneration)) return true} ) :
+            []
+
+        // For each of those Thing IDs, create a corresponding Generation Member and add it to
+        // that Thing Cohort.
+        for (const thingId of thingIdsForChildThingCohort) {
+            // Construct a new Thing, based on the ThingDBModel in the store for
+            // that ID (or null if there is none).
+            const thing =
+                graphDbModelInStore("Thing", thingId) ? getGraphConstructs<Thing>("Thing", thingId) :
+                null
+
+            // Determine if the new Thing already exists in the Graph.
+            const alreadyRendered = graph.thingIdsAlreadyInGraph.includes(thingId) ?? false
+            
+            // Wrap the new Thing in a Generation member object.
+            const member: GenerationMember = {
+                thingId: thingId,
+                thing: thing,
+                alreadyRendered: alreadyRendered
+            }
+
+            // Add the Generation member to the child Thing Cohort.
+            this.addMember(member)
+        }
     }
 }

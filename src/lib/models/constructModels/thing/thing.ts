@@ -1,7 +1,11 @@
 // Import types.
 import type { HalfAxisId } from "$lib/shared/constants"
 import type { ThingDbModel } from "$lib/models/dbModels"
+import type { GridCoordinates } from "$lib/models/constructModels"
 import type { ThingAddress, RelationshipInfo } from "./types"
+
+// Import SvelteKit framework resources.
+import { get } from "svelte/store"
 
 // Import constants and stores.
 import { oddHalfAxisIds, cartesianHalfAxisIds, orderedCartesianHalfAxisIds, orderedNonCartesianHalfAxisIds } from "$lib/shared/constants"
@@ -12,9 +16,9 @@ import { htmlToPlainText, incrementDownHeaderTags, readOnlyArrayToArray } from "
 
 // Import Graph constructs.
 import {
-    Graph, Space, ThingCohort, Relationship, Note, NoteToThing, Folder, FolderToThing
+    Graph, Space, ThingCohort, Relationship, Note, NoteToThing, Folder, FolderToThing,
 } from "$lib/models/constructModels"
-import { get } from "svelte/store"
+
 
 
 
@@ -93,6 +97,12 @@ export class Thing {
 
     // The Thing's child Thing Cohorts, sorted by the ID of their Direction.
     childThingCohortsByDirectionId: { [directionId: number]: ThingCohort } = {}
+
+
+    /* Lifecycle information. */
+
+    // Which lifecycle stage the Thing is currently in.
+    lifecycleStatus: "new" | "building" | "built" | "stripping" | "stripped" = "new"
 
 
 
@@ -692,5 +702,181 @@ export class Thing {
         if (!plainText) outlineText = `<div style="font-family: ${get(defaultFontStore) ?? "Arial"};">${outlineText}</div>`
 
         return outlineText
+    }
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+    /**
+     * Build-Thing method.
+     * 
+     * Builds the Thing from an empty state, hooking it up to the parent Things of the previous
+     * Generation.
+     * @param nextGenerationId - The ID of the generation following the one this Thing is part of.
+     * @param thingIdsForNextGeneration - The IDs of all the member Things in the generation following the one this Thing is part of.
+     * @param nextGenerationIsRelationshipsOnly - Whether this next Generation is the final, Relationships-only Generation.
+     */
+    async build(
+        nextGenerationId: number,
+        thingIdsForNextGeneration: number[],
+        nextGenerationIsRelationshipsOnly=false
+    ): Promise<void> {
+        
+        if (this.graph === null || this.id === null) return
+
+        this.lifecycleStatus = "building"
+
+        // Get the IDs of the Directions on that Thing's "Cartesian" axes (1, 2, 3, 4).
+        const cartesianDirectionIds: number[] = []
+        for (const cartesianHalfAxisId of cartesianHalfAxisIds) {
+            const cartesianDirectionId = (this.space as Space).directionIdByHalfAxisId[cartesianHalfAxisId]
+            if (cartesianDirectionId) cartesianDirectionIds.push(cartesianDirectionId)
+        }
+
+        // Get the IDs of the Directions in which the Thing has related Things, plus any "empty"
+        // Cartesian-half axes.
+        const directionIdsForCohorts = [
+            ...new Set([
+                ...this.relatedThingDirectionIds,
+                ...cartesianDirectionIds
+            ])
+        ]
+
+        // For each of these Direction IDs, build that Direction of this Thing.
+        for (const directionId of directionIdsForCohorts) {
+            this.buildOneDirection(
+                directionId,
+                nextGenerationId,
+                thingIdsForNextGeneration,
+                nextGenerationIsRelationshipsOnly
+            )
+        }
+
+        // Mark the Thing as built.
+        this.lifecycleStatus = "built"
+    }
+
+
+
+
+    /**
+     * Build-one-Direction-from-this-Thing method.
+     * 
+     * Builds one Direction from this Thing from an empty state, hooking it up to the parent Things
+     * of the previous Generation.
+     * @param directionId - The ID of the Direction to build.
+     * @param nextGenerationId - The ID of the generation following the one this Thing is part of.
+     * @param thingIdsForNextGeneration - The IDs of all the member Things in the generation following the one this Thing is part of.
+     * @param nextGenerationIsRelationshipsOnly - Whether this next Generation is the final, Relationships-only Generation.
+     */
+    async buildOneDirection(
+        directionId: number,
+        nextGenerationId: number,
+        thingIdsForNextGeneration: number[],
+        nextGenerationIsRelationshipsOnly=false
+    ): Promise<void> {
+        if (this.graph === null) return
+
+        // Get the address for that half-axis' Thing Cohort.
+        const addressForCohort = {
+            graph: this.graph,
+            generationId: nextGenerationId,
+            parentThingId: this.id,
+            directionId: directionId
+        }
+
+        // Get the grid coordinates for that half-axis' Thing Cohort.
+        const gridBuildInfo = this.gridBuildInfoByDirectionId(directionId)
+
+        // If...
+        if (
+            // ...this is the Relationships-only Generation, or...
+            nextGenerationIsRelationshipsOnly
+
+            // ...the Graph is using the radial build method, or...
+            || this.graph.pThing?.space?.buildmethod === "radial"
+
+            // ...the Graph is using the grid build method, and needs to be built according to the
+            // grid logic of that method,
+            || (
+                this.graph.pThing?.space?.buildmethod === "grid"
+                && gridBuildInfo.needsBuildIfGridBuildMethod
+            )
+        ) {
+            // Add a new, empty Thing Cohort on that half-axis.
+            const childThingCohort = new ThingCohort(addressForCohort, gridBuildInfo.gridCoordinatesForCohort, [])
+            
+            // Get the IDs of the Things for that Thing Cohort, and build it.
+            const childThingCohortThingIds = this.relatedThingIdsByDirectionId[directionId] || []
+            childThingCohort.build(
+                childThingCohortThingIds,
+                thingIdsForNextGeneration,
+                this.graph
+            )
+            
+            // Add the new Thing Cohort to the previous Thing, keyed by Direction ID.
+            this.childThingCohortByDirectionID(directionId, childThingCohort)
+
+            // Add the new Thing Cohort to the appropriate Grid Layer.
+            const childThingCohortGridLayerId = Math.max(
+                ...gridBuildInfo.gridCoordinatesForCohort.map(coordinate => Math.abs(coordinate))
+            )
+            await this.graph.gridLayers.addThingCohortToGridLayer(childThingCohort, childThingCohortGridLayerId)
+        }
+    }
+
+
+
+
+    gridBuildInfoByDirectionId(directionId: number) {
+        // Get the grid coordinates for that half-axis' Thing Cohort.
+        const parentThingsThingCohort = this.parentThingCohort
+        const parentThingsThingCohortGridCoordinates = parentThingsThingCohort?.gridCoordinates as GridCoordinates
+        const halfAxisId = this.space?.halfAxisIdByDirectionId[directionId] as HalfAxisId
+        const coordinateIndexToUpdate =
+            [1, 2].includes(halfAxisId) ? 0 :
+            [3, 4].includes(halfAxisId) ? 1 :
+            [5, 6].includes(halfAxisId) ? 2 :
+            [7, 8].includes(halfAxisId) ? 3 :
+            0
+        const coordinateIncrement = halfAxisId % 2 !== 0 ? 1 : -1
+        const gridCoordinatesForCohort = [...parentThingsThingCohortGridCoordinates] as GridCoordinates
+        gridCoordinatesForCohort[coordinateIndexToUpdate] += coordinateIncrement
+
+
+
+        const needsBuildIfGridBuildMethod = (
+            // The absolute value of the grid coordinate for this grid axis
+            // is greater than the absolute value of the parent Thing Cohort's
+            // grid coordinate for this grid axis,
+            (
+                Math.abs(gridCoordinatesForCohort[coordinateIndexToUpdate])
+                > Math.abs(parentThingsThingCohortGridCoordinates[coordinateIndexToUpdate])
+            )
+
+            // ...none of the Grid coordinates are outside of the Graph's
+            // depth,
+            && Math.max(
+                ...gridCoordinatesForCohort.map(coordinate => Math.abs(coordinate))
+            ) <= (this.graph as Graph).depth
+        ) ? true :
+        false
+
+
+        return {
+            gridCoordinatesForCohort,
+            needsBuildIfGridBuildMethod
+        }
+        
     }
 }

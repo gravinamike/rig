@@ -28,7 +28,7 @@
     let readOnlyMode = false
     $: readOnlyMode = $readOnlyModeStore
 
-    // Proxy variable for the Graph's relational depth.
+    // Proxy variable for the Graph's relational depth.//////////////////////// MOVE ALL OF THIS INTO GRAPHWIDGET AND GRAPHOUTLINEWIDGET.
     let graphDepth = graph.depth
 
 
