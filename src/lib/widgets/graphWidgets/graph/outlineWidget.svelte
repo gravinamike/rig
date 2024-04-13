@@ -21,6 +21,7 @@
     // Import API functions.
     import { markThingsVisited } from "$lib/db/makeChanges"
     import { saveGraphConfig } from "$lib/shared/config";
+    import DepthControl from "./depthControl.svelte";
     
 
 
@@ -137,6 +138,7 @@
 
     $: {
         pThingIds
+        depth
         
         buildAndRefresh()
     }
@@ -323,30 +325,40 @@
             focusEditorMethod={focusEditor}
             isThingLinkMethod={isThingLink}
         />
-    {/if}
+    {:else}
+         <!-- Depth control. -->
+        <div class="depth-control-container">
+            <DepthControl
+                bind:depth
+            />
 
-    <button
-        class="copy-outline-text-button"
+            <div
+                class="depth-control-container-backfield"
 
-        style={editor ? "bottom: 90px;" : ""}
+                style="background-color: {$uITrimColorStore};"
+            />
+        </div>
 
-        on:click={copyOutlineTextToClipboard}
-        on:keydown={()=>{}}
-    >
-        <img
-            src="./icons/copy.png"
-            alt="Copy icon"
-            width=30px
-            height=30px
+        <button
+            class="copy-outline-text-button"
+
+            on:click={copyOutlineTextToClipboard}
+            on:keydown={()=>{}}
         >
+            <img
+                src="./icons/copy.png"
+                alt="Copy icon"
+                width=30px
+                height=30px
+            >
 
-        <!-- Tooltip. -->
-        <Tooltip
-            text={"Copy outline text."}
-            direction={"up"}
-            lean={"right"}
-        />
-    </button>
+            <!-- Tooltip. -->
+            <Tooltip
+                text={"Copy outline text."}
+                direction={"up"}
+            />
+        </button>
+    {/if}
 
     <!-- Edit button. -->
     {#if !$preventEditing && !offAxis}
@@ -434,13 +446,40 @@
         scrollbar-width: thin;
     }
 
+    .depth-control-container {
+        margin: 5px;
+
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        z-index: 2;
+
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 5px;
+    }
+
+    .depth-control-container-backfield {
+        border-radius: 5px;
+
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        background-color: lightgrey;
+    }
+
     .copy-outline-text-button {
         border-radius: 5px;
         border: none;
 
         position: absolute;
-        bottom: 25px;
-        left: 20px;
+        bottom: 24px;
+        right: 60px;
         background: none;
 
         display: flex;

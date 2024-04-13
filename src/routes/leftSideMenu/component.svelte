@@ -35,7 +35,6 @@
     export let height: number
     export let graph: Graph | null
     export let graphWidgetStyle: GraphWidgetStyle = {...defaultGraphWidgetStyle}
-    export let allowZoomAndScrollToFit: boolean
     export let leftMenuOpen: boolean
     export let leftMenuLockedOpen: boolean
     export let openedSubMenuName: string | null
@@ -274,7 +273,6 @@
             <GraphSettingsViewer
                 bind:graph
                 bind:graphWidgetStyle
-                bind:allowZoomAndScrollToFit
             />
         {/if}
     

@@ -317,7 +317,11 @@
                 bind:depth={graphDepth}
             />
 
-            <div class="depth-control-container-backfield" />
+            <div
+                class="depth-control-container-backfield"
+
+                style="background-color: {$uITrimColorStore};"
+            />
         </div>
     </div>
 
@@ -477,6 +481,7 @@
     }
 
     .depth-control-container-backfield {
+        box-shadow: 0px 1px 2px 1px silver;
         border-radius: 5px;
 
         position: absolute;
@@ -486,7 +491,7 @@
         height: 100%;
         z-index: -1;
         background-color: lightgrey;
-        opacity: 40%;
+        opacity: 75%;
     }
 
     .nav-buttons {

@@ -268,12 +268,9 @@
      * Expanded flag.
      * 
      * Determines whether the Clade is collapsed to hide children or expanded
-     * to show them. Starts true for the Generation 0 Clade, otherwise starts
-     * false.
+     * to show them. Starts true if the `expandable` flag is true.
      */
-    $: expanded =
-        expandable && rootThing.address?.generationId === 0 ? true :
-        false
+    $: expanded = expandable ? true : false
 
     /**
      * Show-toggle flag.

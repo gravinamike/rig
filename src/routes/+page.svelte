@@ -156,7 +156,6 @@
         {height}
         bind:graph
         {graphWidgetStyle}
-        {allowZoomAndScrollToFit}
         {leftMenuOpen}
         {leftMenuLockedOpen}
         bind:openedSubMenuName

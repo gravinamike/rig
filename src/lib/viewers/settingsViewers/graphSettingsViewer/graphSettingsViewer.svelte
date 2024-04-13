@@ -21,15 +21,11 @@
 
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
-    export let allowZoomAndScrollToFit: boolean
 
 
     // Proxy flag for read-only mode.
     let readOnlyMode = false
     $: readOnlyMode = $readOnlyModeStore
-
-    // Proxy variable for the Graph's relational depth.//////////////////////// MOVE ALL OF THIS INTO GRAPHWIDGET AND GRAPHOUTLINEWIDGET.
-    let graphDepth = graph.depth
 
 
     /**
@@ -41,21 +37,6 @@
     async function updateReadOnlyMode() {
         readOnlyModeStore.set(readOnlyMode)
         await saveGraphConfig()
-    }
-    
-    /**
-     * Set-Graph-depth method.
-     * 
-     * Sets the Graph's depth based on the proxy variable in this component,
-     * then refreshes the Graph.
-     */
-    async function setGraphDepth() {
-        // Set the Graph's depth.
-        await graph.setDepth(graphDepth)
-
-        // Refresh the Graph.
-        allowZoomAndScrollToFit = true
-        addGraphIdsNeedingViewerRefresh(graph.id)
     }
 
     /**
@@ -96,16 +77,6 @@
                 bind:boundValue={readOnlyMode}
                 tooltipText={"Disables editing the Graph."}
                 onChangeFunction={updateReadOnlyMode}
-            />
-            
-            <!-- Graph depth. -->
-            <SettingWidget
-                labelText={"Graph Depth"}
-                bind:boundValue={graphDepth}
-                minValue={0}
-                maxValue={3}
-                tooltipText={`How many Relationship "steps"\nto render from the central Thing.`}
-                onChangeFunction={setGraphDepth}
             />
 
             <!-- Zoom level. -->
