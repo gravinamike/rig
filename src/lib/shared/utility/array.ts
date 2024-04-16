@@ -1,13 +1,17 @@
 /**
  * Remove-item-from-array method.
  * 
- * Removes the first instance of a given item from a given array.
+ * Removes the a given item from a given array.
  * @param array - The array to remove the item from.
  * @param item - The item to remove from the array.
+ * @param onlyFirstInstance - Whether to only remove the first instance, or all instances.
  */
-export function removeItemFromArray<Type>( array: Type[], item: Type ): void {
-    const index = array.indexOf(item)
-    if (index !== -1) array.splice(index, 1)
+export function removeItemFromArray<Type>( array: Type[], item: Type, onlyFirstInstance=true ): void {
+    while (array.includes(item)) {
+        const index = array.indexOf(item)
+        if (index !== -1) array.splice(index, 1)
+        if (onlyFirstInstance) break
+    }
 }
 
 /**

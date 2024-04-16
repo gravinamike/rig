@@ -2,7 +2,7 @@ module.exports = {
 	apps: [
 		{
 			name: "rig",
-			script: "node build/index.js"
+			script: "node -r dotenv/config build/index.js"
 		},
 		{
 			name: "rig_db",

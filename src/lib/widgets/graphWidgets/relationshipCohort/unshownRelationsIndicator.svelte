@@ -5,7 +5,12 @@
 
     import { offsetsByHalfAxisId, zoomBase } from "$lib/shared/constants"
     import { Tooltip } from "$lib/widgets/layoutWidgets"
+    import { removeItemFromArray } from "$lib/shared/utility"
+    // Import API functions.
+    import { updateThingPerspectiveExpansions } from "$lib/db/makeChanges"
     import type { GraphWidgetStyle } from "../graph";
+    import { addGraphIdsNeedingViewerRefresh, preventEditing, storeGraphDbModels } from "$lib/stores";
+    import type { ThingDbModel } from "$lib/models/dbModels";
 
 
     export let parentThing: Thing
@@ -25,10 +30,8 @@
 
 
 
-    $: xOffset = (0.5 * thingSize + 20) * offsetsByHalfAxisId[halfAxisId || 0][0]
-    $: yOffset = (0.5 * thingSize + 20) * offsetsByHalfAxisId[halfAxisId || 0][1]
-
-
+    $: xOffset = (0.5 * thingSize + 15) * offsetsByHalfAxisId[halfAxisId || 0][0]
+    $: yOffset = (0.5 * thingSize + 15) * offsetsByHalfAxisId[halfAxisId || 0][1]
 
 
 
@@ -60,12 +63,122 @@
 
 
 
+
+
+
+    async function onClick() {
+        if ($preventEditing) return
+
+        const perspectiveThing = parentThing.graph?.rootCohort?.members[0].thing as Thing
+        const perspectiveThingId = parentThing.graph?.rootCohort?.members[0].thing?.id as number
+
+        const updatedPerspectiveExpansions = updatePerspectiveExpansions(
+            perspectiveThing,
+            parentThing.id as number,
+            directionId
+        )
+    
+        console.log(
+            perspectiveThingId,
+            updatedPerspectiveExpansions
+        )
+
+        await updateThingPerspectiveExpansions(
+            perspectiveThingId,
+            updatedPerspectiveExpansions
+        )
+
+        await storeGraphDbModels<ThingDbModel>("Thing", perspectiveThingId as number, true)
+        await parentThing.graph?.build()
+        addGraphIdsNeedingViewerRefresh(parentThing.graph?.id as number)
+    }
+
+
+
+
+
+    interface PerspectiveExpansions {
+        [spaceId: string]: {
+            [thingId: string]: number[]
+        }
+    }
+
+    function updatePerspectiveExpansions(
+        perspectiveThing: Thing,
+        thingId: number,
+        directionId: number
+    ) {
+
+        console.log("STARTING WITH:", perspectiveThing.perspectiveexpansions)
+        const perspectiveExpansionsString = perspectiveThing.perspectiveexpansions
+        const spaceId = perspectiveThing.space?.id as number
+
+        const perspectiveExpansions = JSON.parse(perspectiveExpansionsString) as PerspectiveExpansions
+
+        if (!(String(spaceId) in perspectiveExpansions)) {
+            perspectiveExpansions[spaceId] = {}
+        }
+
+        if (!(String(thingId) in perspectiveExpansions[spaceId])) {
+            perspectiveExpansions[spaceId][thingId] = []
+        }
+
+        if (!(perspectiveExpansions[spaceId][thingId].includes(directionId))) {
+            perspectiveExpansions[spaceId][thingId].push(directionId)
+        } else {
+            removeItemFromArray(perspectiveExpansions[spaceId][thingId], directionId, false)
+
+            if (perspectiveExpansions[spaceId][thingId].length === 0) {
+                delete perspectiveExpansions[spaceId][thingId]
+
+                if (Object.keys(perspectiveExpansions[spaceId]).length === 0) {
+                    delete perspectiveExpansions[spaceId]
+                }
+            }
+        }
+
+        return JSON.stringify(perspectiveExpansions)
+    }
+
+
+
+
+
+
+    function getIsExpanded(
+        perspectiveThing: Thing,
+        thingId: number,
+        directionId: number
+    ) {
+        const perspectiveExpansionsString = perspectiveThing.perspectiveexpansions
+        const spaceId = perspectiveThing.space?.id as number
+        const perspectiveExpansions = JSON.parse(perspectiveExpansionsString) as PerspectiveExpansions
+
+        const isExpanded = (
+            String(spaceId) in perspectiveExpansions
+            && String(thingId) in perspectiveExpansions[spaceId]
+            && perspectiveExpansions[spaceId][thingId].includes(directionId)
+        )
+
+        return isExpanded
+    }
+    
+    const isExpanded = getIsExpanded(
+        parentThing.graph?.rootCohort?.members[0].thing as Thing,
+        parentThing.id as number,
+        directionId
+    )
+    
+
+
+
 </script>
 
 
 <div
     class="unshown-relations-indicator"
     class:hidden={numberOfUnshownRelations === 0}
+    class:prevent-editing={$preventEditing}
 
     style="
         left: calc(50% + {xOffset}px);
@@ -74,16 +187,19 @@
         height: {indicatorSize}px;
         background-color: {indicatorColor};
     "
+
+    on:click={onClick}
+    on:keydown={()=>{}}
 >
     {#key numberOfUnshownRelations}
         <Tooltip
-            text={`Show ${numberOfUnshownRelations} collapsed relation${numberOfUnshownRelations > 1 ? "s" : ""}.`}
+            text={`${$preventEditing ? "" : "Show "}${numberOfUnshownRelations} collapsed relation${numberOfUnshownRelations > 1 ? "s" : ""}.`}
             direction={"up"}
             delay={1000}
             {scale}
         />
     {/key}
-
+    
     {#each [1, 2, 3, 4, 5, 6, 7, 8, 9] as symbolId}
         <div
             class="nested-square"
@@ -92,6 +208,14 @@
             style="background-color: {symbolColor};"
         />
     {/each}
+
+    <div class="expand-collapse-icon">
+        {#if isExpanded}
+            {"> <"}
+        {:else}
+            {"< >"}
+        {/if}
+    </div>
 </div>
 
 
@@ -113,6 +237,10 @@
 
         pointer-events: auto;
         cursor: pointer;
+    }
+
+    .unshown-relations-indicator.prevent-editing {
+        cursor: default;
     }
 
     .unshown-relations-indicator.hidden {
@@ -137,5 +265,23 @@
 
     .nested-square.hidden {
         visibility: hidden;
+    }
+
+    .expand-collapse-icon {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 200%;
+        height: 100%;
+        transform: rotate(90deg) translate(0, 64%) scale(100%, 155%) ;
+
+        text-align: center;
+        font-weight: 600;
+
+        pointer-events: none;
+    }
+
+    .unshown-relations-indicator:not(:hover) .expand-collapse-icon {
+        display: none;
     }
 </style>

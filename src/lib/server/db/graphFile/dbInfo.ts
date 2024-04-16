@@ -122,7 +122,7 @@ export function getDbInfo(): DbInfo {
                 "text": "varchar(255)",
                 "perspectivetexts": "clob(2147483647)",
                 "defaultplane": "integer",
-                "perspectivedepths": "clob(2147483647)",
+                "perspectiveexpansions": "clob(2147483647)",
                 "defaultcontentviewer": "varchar(255)",
                 "whencreated": "timestamp",
                 "whenvisited": "timestamp",
@@ -137,7 +137,7 @@ export function getDbInfo(): DbInfo {
                 "perspectivetexts": emptyObjectText,
                 "defaultplane": 0,
                 "defaultcontentviewer": "notes",
-                "perspectivedepths": emptyObjectText,
+                "perspectiveexpansions": emptyObjectText,
                 "whenvisited": "NULL",
                 "whenmodded": "NULL"
             },

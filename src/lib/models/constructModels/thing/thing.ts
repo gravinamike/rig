@@ -62,8 +62,8 @@ export class Thing {
     // texts when this Thing is the Perspective Thing).
     perspectivetexts = "{}"// Default is "{}"
 
-    // Perspective depths (not yet in use).
-    perspectivedepths = "{}"// Default is "{}"
+    // Perspective expansions.
+    perspectiveexpansions = "{}"// Default is "{}"
 
     // Default content viewer.
     defaultcontentviewer: string | null = null
@@ -126,7 +126,7 @@ export class Thing {
             this.whenmodded = dbModel.whenmodded ? new Date(dbModel.whenmodded): null
             this.whenvisited = dbModel.whenvisited ? new Date(dbModel.whenvisited): null
             this.defaultSpaceId = dbModel.defaultplane
-            this.perspectivedepths = dbModel.perspectivedepths
+            this.perspectiveexpansions = dbModel.perspectiveexpansions
             this.perspectivetexts = dbModel.perspectivetexts
             this.defaultcontentviewer = dbModel.defaultcontentviewer
 
