@@ -62,9 +62,6 @@
         (
             (
                 ofPerspectiveThing
-                || thingCohort.members
-                    .filter(thingCohortMember => thingCohortMember.alreadyRendered === false)
-                    .length > 1
                 || cladeHovered
                 || stemHovered
             )
