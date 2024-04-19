@@ -35,7 +35,6 @@
     
     /**
      * @param pThingIds - The IDs of the Graph's Perspective Things.
-     * @param depth - The number of "steps" (related Things) to take when rendering the Graph.
      * @param graph - The Graph that the viewer is displaying.
      * @param graphWidgetStyle - Controls the visual style of the Graph.
      * @param allowZoomAndScrollToFit - Whether or not to allow reactive zooming and scrolling after a re-Perspect.
@@ -47,7 +46,6 @@
      * @param setGraphSpace - Method to rebuild the Graph in a new Space.
      */
     export let pThingIds: (number | null)[]
-    export let depth: number
 
     export let graph: Graph | null = null
     export let graphWidgetStyle: GraphWidgetStyle = {...defaultGraphWidgetStyle}
@@ -349,7 +347,7 @@
                     <GraphOutlineWidget
                         space={spaceToUseForGraphOutliner}
                         {pThingIds}
-                        {depth}
+                        depth={3}
                         fullSize={sideMenuFullSize}
                         {rePerspectToThingId}
                     />

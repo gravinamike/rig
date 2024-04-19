@@ -168,7 +168,6 @@
     {#if $loadingState === "graphLoaded"}
         <GraphViewer
             pThingIds={[$perspectiveThingIdStore]}
-            depth={startingGraphDepth}
             bind:graph
             bind:graphWidgetStyle
             bind:allowZoomAndScrollToFit

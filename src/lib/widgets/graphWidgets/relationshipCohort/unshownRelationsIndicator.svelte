@@ -1,6 +1,6 @@
 <script lang="ts">
     // Import types.
-    import type { HalfAxisId } from "$lib/shared/constants"
+    import type { HalfAxisId, PerspectiveExpansions } from "$lib/shared/constants"
     import type { Thing, ThingCohort } from "$lib/models/constructModels"
 
     import { offsetsByHalfAxisId, zoomBase } from "$lib/shared/constants"
@@ -69,8 +69,8 @@
     async function onClick() {
         if ($preventEditing) return
 
-        const perspectiveThing = parentThing.graph?.rootCohort?.members[0].thing as Thing
-        const perspectiveThingId = parentThing.graph?.rootCohort?.members[0].thing?.id as number
+        const perspectiveThing = parentThing.graph?.perspectiveThing as Thing
+        const perspectiveThingId = perspectiveThing.id as number
 
         const updatedPerspectiveExpansions = updatePerspectiveExpansions(
             perspectiveThing,
@@ -97,11 +97,7 @@
 
 
 
-    interface PerspectiveExpansions {
-        [spaceId: string]: {
-            [thingId: string]: number[]
-        }
-    }
+    
 
     function updatePerspectiveExpansions(
         perspectiveThing: Thing,
@@ -143,28 +139,8 @@
 
 
 
-
-
-    function getIsExpanded(
-        perspectiveThing: Thing,
-        thingId: number,
-        directionId: number
-    ) {
-        const perspectiveExpansionsString = perspectiveThing.perspectiveexpansions
-        const spaceId = perspectiveThing.space?.id as number
-        const perspectiveExpansions = JSON.parse(perspectiveExpansionsString) as PerspectiveExpansions
-
-        const isExpanded = (
-            String(spaceId) in perspectiveExpansions
-            && String(thingId) in perspectiveExpansions[spaceId]
-            && perspectiveExpansions[spaceId][thingId].includes(directionId)
-        )
-
-        return isExpanded
-    }
     
-    const isExpanded = getIsExpanded(
-        parentThing.graph?.rootCohort?.members[0].thing as Thing,
+    const isExpanded = parentThing.graph?.directionFromThingIsExpanded(
         parentThing.id as number,
         directionId
     )

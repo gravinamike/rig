@@ -286,3 +286,18 @@ export const hyperlinkProtocols = [
     "news",
     "telnet"
 ]
+
+
+
+
+
+
+
+
+
+
+export interface PerspectiveExpansions {
+    [spaceId: string]: {
+        [thingId: string]: number[]
+    }
+}

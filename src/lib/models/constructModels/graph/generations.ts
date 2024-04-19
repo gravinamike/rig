@@ -102,17 +102,12 @@ export class Generations {
     /* Methods to access information for building/stripping the Generations. */
 
     /**
-     * Generations-need-build-strip-or-neither method.
+     * Generations-need-build method.
      * 
-     * Given a specific Graph depth, determines whether the Generations need to be built, stripped,
-     * or neither to match that depth.
-     * @param depth - The depth against which to check the Generations.
-     * @returns - Whether to build the Generations, strip them, or do neither.
+     * Determines whether the Generations need to be built or not, as an attribute.
+     * @returns - Whether to build the Generations or not.
      */
-    needBuildStripOrNeither(depth: number) {
-        // Get the difference between the Graph's current depth and its specified depth.
-        const difference = this.#members.length - (depth + 1)
-
+    get needBuild() {
         // If...
         if (
             // The Graph does not yet have a Perspective Thing, or...
@@ -121,7 +116,10 @@ export class Generations {
             // ...the build mode is "radial" there are fewer Generations than specified, or...
             ||(
                 this.#graph.pThing?.space?.buildmethod === "radial"
-                && difference < 0
+                && (
+                    this.#members.length === 0
+                    || this.seedGenerationThings.length > 0
+                )
             )
 
             // ...the build mode is "grid" and either Generation 0 is being built or the previous,
@@ -136,24 +134,11 @@ export class Generations {
 
         // ...build a new Generation.
         ) {
-            return "build"
+            return true
 
-        // Otherwise,
+        // Otherwise, don't build a new Generation.
         } else {
-
-            // If the build mode is "radial" there are more Generations than specified,
-            if (
-                this.#graph.pThing?.space?.buildmethod === "radial"
-                && difference > 0
-
-            // ...strip the latest Generation.
-            ) {
-                return "strip"
-
-            // Otherwise, make no adjustment.
-            } else {
-                return "neither"
-            }
+            return false
         }
     }
 
@@ -386,16 +371,16 @@ export class Generations {
      * 
      * Either build or strip Generations as needed to bring the Graph to its specified depth.
      */
-    async adjustToDepth(depth: number): Promise<void> {
+    async adjustToDepth(): Promise<void> {
         // While the the difference between the Graph's current depth and its specified depth
         // still exists, correct it.
-        let buildStripOrNeither = this.needBuildStripOrNeither(depth)
-        while (buildStripOrNeither !== "neither") {
-            if (buildStripOrNeither === "build") await this.buildGeneration()
+        let buildOrNot = this.needBuild
+        while (buildOrNot) {
+            if (buildOrNot) await this.buildGeneration()
             else await this.stripGeneration()
-            buildStripOrNeither = this.needBuildStripOrNeither(depth)
+            buildOrNot = this.needBuild
         }
-
+        
         // If the last Generation added was empty (which can happen when using the Grid build
         // method), strip it.
         if (this.seedGeneration && !this.seedGeneration.thingCohorts.length) await this.stripGeneration()

@@ -797,20 +797,24 @@ export class Thing {
 
         // Get the grid coordinates for that half-axis' Thing Cohort.
         const gridBuildInfo = this.gridBuildInfoByDirectionId(directionId)
-
+        console.log(addressForCohort, this.needsBuildIfRadialBuildMethod(directionId))
         // If...
         if (
             // ...this is the Relationships-only Generation, or...
             nextGenerationIsRelationshipsOnly
 
-            // ...the Graph is using the radial build method, or...
-            || this.graph.pThing?.space?.buildmethod === "radial"
+            // ...the Graph is using the radial build method, and needs to be built according to
+            // the logic of that method,
+            || (
+                this.graph.pThing?.space?.buildmethod === "radial"
+                && this.needsBuildIfRadialBuildMethod(directionId)
+            )
 
             // ...the Graph is using the grid build method, and needs to be built according to the
             // grid logic of that method,
             || (
                 this.graph.pThing?.space?.buildmethod === "grid"
-                && gridBuildInfo.needsBuildIfGridBuildMethod
+                && gridBuildInfo.needsBuildIfGridBuildMethod//////////////////////////////////////
             )
         ) {
             // Add a new, empty Thing Cohort on that half-axis.
@@ -835,6 +839,22 @@ export class Thing {
         }
     }
 
+
+
+
+
+    needsBuildIfRadialBuildMethod(directionId: number) {
+        if (this.id === null || this.address === null || this.graph === null) return false
+
+
+        const thingIsBelowDepth = this.address.generationId < this.graph.depth
+
+        const directionIsExpanded = this.graph.directionFromThingIsExpanded(this.id, directionId)
+
+        const needsBuildIfRadialBuildMethod = thingIsBelowDepth || directionIsExpanded
+        
+        return needsBuildIfRadialBuildMethod
+    }
 
 
 

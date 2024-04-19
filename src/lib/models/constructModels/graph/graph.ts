@@ -15,6 +15,7 @@ import { updateUrlHash } from "$lib/shared/utility"
 
 // Import API methods.
 import { deleteThing, deleteRelationship } from "$lib/db/makeChanges"
+import type { PerspectiveExpansions } from "$lib/shared/constants"
 
 
 
@@ -202,7 +203,7 @@ export class Graph {
         this.#depth = depth
 
         // Adjust the Graph's generations based on the new depth.
-        await this.generations.adjustToDepth(this.#depth)
+        await this.generations.adjustToDepth()
     }    
 
     /**
@@ -239,7 +240,7 @@ export class Graph {
 
         // Adjust (build) the Generations to the Graph's specified Depth.
         this.lifecycleStatus = "building"
-        await this.generations.adjustToDepth(this.#depth)
+        await this.generations.adjustToDepth()
         
         // If the Graph is the top-level Graph (rather than a child Graph or a
         // search-interface Graph),
@@ -315,5 +316,53 @@ export class Graph {
 
         // Rebuild the Graph.
         await this.build()
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    get perspectiveThing() {
+        const perspectiveThing = this.rootCohort?.members[0].thing as Thing
+        return perspectiveThing
+    }
+
+
+    directionFromThingIsExpanded(
+        thingId: number,
+        directionId: number
+    ) {
+
+        
+        const perspectiveExpansionsString = this.perspectiveThing.perspectiveexpansions
+        const spaceId = this.perspectiveThing.space?.id as number
+        const perspectiveExpansions = JSON.parse(perspectiveExpansionsString) as PerspectiveExpansions
+
+        const isExpanded = (
+            String(spaceId) in perspectiveExpansions
+            && String(thingId) in perspectiveExpansions[spaceId]
+            && perspectiveExpansions[spaceId][thingId].includes(directionId)
+        )
+
+        return isExpanded
     }
 }
