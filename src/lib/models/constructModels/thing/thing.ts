@@ -797,7 +797,7 @@ export class Thing {
 
         // Get the grid coordinates for that half-axis' Thing Cohort.
         const gridBuildInfo = this.gridBuildInfoByDirectionId(directionId)
-        console.log(addressForCohort, this.needsBuildIfRadialBuildMethod(directionId))
+
         // If...
         if (
             // ...this is the Relationships-only Generation, or...
@@ -814,7 +814,7 @@ export class Thing {
             // grid logic of that method,
             || (
                 this.graph.pThing?.space?.buildmethod === "grid"
-                && gridBuildInfo.needsBuildIfGridBuildMethod//////////////////////////////////////
+                && gridBuildInfo.needsBuildIfGridBuildMethod
             )
         ) {
             // Add a new, empty Thing Cohort on that half-axis.
@@ -899,4 +899,21 @@ export class Thing {
         }
         
     }
+
+
+
+
+
+
+
+
+    get isBranchTerminatingThing() {
+        const isBranchTerminatingThing = Object.keys(this.childThingCohortsByDirectionId).length === 0
+        return isBranchTerminatingThing
+    }
+
+
+
+
+
 }

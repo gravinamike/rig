@@ -1,7 +1,7 @@
 <script lang="ts">
     // Import types.
     import type { HalfAxisId, PerspectiveExpansions } from "$lib/shared/constants"
-    import type { Thing, ThingCohort } from "$lib/models/constructModels"
+    import type { Graph, Thing, ThingCohort } from "$lib/models/constructModels"
 
     import { offsetsByHalfAxisId, zoomBase } from "$lib/shared/constants"
     import { Tooltip } from "$lib/widgets/layoutWidgets"
@@ -40,7 +40,16 @@
             .filter(relationship => relationship.direction === directionId)
             .length
 
-    $: numberOfShownRelations = thingCohort.members.length
+    $: numberOfShownRelations =
+        (
+            thingCohort.address.generationId <= (parentThing.graph as Graph).depth
+            || isExpanded
+        ) ? thingCohort.members.length :
+        0 + (
+                thingCohort.isRetrograde ? 1 :
+                0
+            )
+        
     $: numberOfUnshownRelations = numberOfRelations - numberOfShownRelations
 
     $: numberOfSymbolsToShow =

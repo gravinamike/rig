@@ -223,10 +223,17 @@ export class Generation {
         // For all Generations after 0, hook up that Generation's members, packaged in Thing
         // Cohorts, to the parent Things of the previous Generation.
         } else {
+
+
+            const thingsToBuild =
+                this.isRelationshipsOnly ? this.graph.generations.branchTerminatingThings :
+                this.parentGeneration?.things() ?? []
+
+
             // For each Thing in the previous Generation (excluding null "placeholders"),
-            for (const prevThing of this.parentGeneration?.things() || []) {
+            for (const thingToBuild of thingsToBuild) {
                 // Build that Thing, hooking it up to the new Things in the to-be-built Generation.
-                await prevThing.build(this.id, thingIdsForGeneration, this.isRelationshipsOnly)
+                await thingToBuild.build(this.id, thingIdsForGeneration, this.isRelationshipsOnly)
             }
         }
 

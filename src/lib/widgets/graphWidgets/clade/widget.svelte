@@ -143,7 +143,20 @@
 
         {#if
             forceShowHalfAxisWidgets
-            || thingCohort.members.length !== 0
+            || (/////////////////////////////////////////////////////////////////////// THIS PARENTHETICAL SHOULD BE EXTRACTED TO A NEW VARIABLE.
+                (
+                    thingCohort.address.generationId <= graph.depth
+                    || (
+                        rootThing.id
+                        && thingCohort.direction?.id
+                        && graph.directionFromThingIsExpanded(
+                            rootThing.id,
+                            thingCohort.direction.id
+                        )
+                    )
+            )
+                && thingCohort.members.length !== 0
+            )
             || (
                 $relationshipBeingCreatedInfoStore.sourceThingId === thingCohort.parentThingId
                 && $relationshipBeingCreatedInfoStore.sourceHalfAxisId === thingCohort.halfAxisId
