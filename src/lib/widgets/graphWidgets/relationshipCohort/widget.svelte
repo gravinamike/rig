@@ -217,7 +217,11 @@
             <!-- Relationship image. -->    
             {#if showRelationships}
                 {#each Array.from(thingCohortMembersToDisplay.entries()) as [index, member]}
-                    {#if thingCohort.indexOfGrandparentThing !== index}<!-- Don't re-draw the existing Relationship to a parent Thing. -->                
+                    {#if
+                        thingCohort.indexOfGrandparentThing !== index
+                        && !(thingCohort.generation?.isRelationshipsOnly && !member.alreadyRendered)
+                    }<!-- Don't re-draw the existing Relationship to a parent Thing, and don't show Relationships
+                          in the Relationships-only Generation if the Thing doesn't already exist in the Graph -->                
                         <RelationshipWidget
                             thingCohortMemberWithIndex={ {index: index, member: member} }
                             {thingCohort}

@@ -226,7 +226,7 @@ export class Generation {
 
 
             const thingsToBuild =
-                this.isRelationshipsOnly ? this.graph.generations.branchTerminatingThings :
+                this.isRelationshipsOnly ? this.graph.generations.things :
                 this.parentGeneration?.things() ?? []
 
 

@@ -46,9 +46,8 @@
             || isExpanded
         ) ? thingCohort.members.length :
         0 + (
-                thingCohort.isRetrograde ? 1 :
-                0
-            )
+            thingCohort.members.filter(member => member.alreadyRendered).length
+        )
         
     $: numberOfUnshownRelations = numberOfRelations - numberOfShownRelations
 

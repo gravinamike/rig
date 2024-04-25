@@ -143,9 +143,13 @@
 
         {#if
             forceShowHalfAxisWidgets
-            || (/////////////////////////////////////////////////////////////////////// THIS PARENTHETICAL SHOULD BE EXTRACTED TO A NEW VARIABLE.
+            || (/////////////////////////////////////////////// THIS PARENTHETICAL SHOULD BE EXTRACTED TO A NEW VARIABLE.
                 (
-                    thingCohort.address.generationId <= graph.depth
+                    (
+                        thingCohort.generation?.isRelationshipsOnly
+                        && thingCohort.members.some(member => member.alreadyRendered)
+                    )
+                    || thingCohort.address.generationId <= graph.depth
                     || (
                         rootThing.id
                         && thingCohort.direction?.id

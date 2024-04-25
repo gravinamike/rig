@@ -157,9 +157,12 @@
     {#if showMembers}
 
         {#each thingCohortMembersToDisplay as member}
-
-            <!-- If no Thing was found in the store for the Thing ID, show a Thing Missing From Store Widget. -->
-            {#if member.thingId && !member.thing?.id}
+            <!-- If this is the Relationships-only generation and the member is not already present in the Graph, -->
+            {#if (thingCohort.generation?.isRelationshipsOnly && !member.alreadyRendered)}
+                <!-- Show nothing. -->
+        
+            <!-- Else, if no Thing was found in the store for the Thing ID, show a Thing Missing From Store Widget. -->
+            {:else if member.thingId && !member.thing?.id}
                 <ThingMissingFromStoreWidget
                     thingId={member.thingId}
                     {graphWidgetStyle}

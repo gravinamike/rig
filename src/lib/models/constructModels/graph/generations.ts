@@ -277,15 +277,14 @@ export class Generations {
         // Get an array of the new Generation Thing IDs.
         const newGenerationThingIds =
             // For the final, Relationships-only Generation, start from the IDs of Things that are
-            // related to branch-terminating Things.
-            this.#relationshipsOnlyMember ? this.branchTerminatingThingsRelatedThingIds :
+            // related to any Things in the Graph.
+            this.#relationshipsOnlyMember ? this.thingsRelatedThingIds :
             // For generation 0, start from the Perspective Thing IDs.
             this.generationIdToBuild === 0 ? this.#graph.pThingIds :
             // For generations 1 and above, start from the IDs of the last
             // generation's Relation Things.
             this.seedGenerationRelatedThingIds
         
-
 
 
 
@@ -318,6 +317,28 @@ export class Generations {
      */
     get things(): Thing[] {
         return this.#members.map(member => member.things()).flat()
+    }
+
+    /**
+     * Things-related-Thing-IDs getter.
+     * 
+     * Gets an array of IDs for the related Things of all Things in the Graph.
+     * @returns - An array of IDs for the related Things of all Things in the Graph.
+     */
+    get thingsRelatedThingIds(): number[] {
+        // Get an array of Things that are related to the Things in the Graph.
+        const thingsRelatedThingIdsAndNulls = makeArrayUnique(
+            this.things
+                .map(thing => thing.relatedThingIds)
+                .flat()
+        )
+        
+        // Get an array of IDs for those Things.
+        const thingsRelatedThingIds =
+            thingsRelatedThingIdsAndNulls.filter(id => !!id) as number[]
+
+        // Return that array.
+        return thingsRelatedThingIds
     }
 
 

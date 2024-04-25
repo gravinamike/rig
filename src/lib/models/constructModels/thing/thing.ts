@@ -745,12 +745,26 @@ export class Thing {
 
         // Get the IDs of the Directions in which the Thing has related Things, plus any "empty"
         // Cartesian-half axes.
-        const directionIdsForCohorts = [
+        let directionIdsForCohorts = [
             ...new Set([
                 ...this.relatedThingDirectionIds,
                 ...cartesianDirectionIds
             ])
         ]
+
+
+
+        // If this is the Relationships-only Generation, remove IDs of any Directions that have
+        // already been built in previous Generations.
+        if (nextGenerationIsRelationshipsOnly) {
+            directionIdsForCohorts = directionIdsForCohorts.filter(
+                directionId => !Object.keys(this.childThingCohortsByDirectionId).map(key => Number(key)).includes(directionId)
+            )
+        }
+
+
+
+
 
         // For each of these Direction IDs, build that Direction of this Thing.
         for (const directionId of directionIdsForCohorts) {
