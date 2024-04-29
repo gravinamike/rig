@@ -132,15 +132,6 @@
 
     <!-- The Thing's child Thing and Relationship Cohorts. -->
     {#each cartesianThingCohorts as thingCohort (thingCohort.address)}
-        <UnshownRelationsIndicator
-            parentThing={rootThing}
-            directionId={thingCohort.direction?.id ?? 0}
-            halfAxisId={thingCohort.halfAxisId}
-            {thingCohort}
-            thingSize={rootThingWidth}
-            {graphWidgetStyle}
-        />
-
         {#if
             forceShowHalfAxisWidgets
             || (/////////////////////////////////////////////// THIS PARENTHETICAL SHOULD BE EXTRACTED TO A NEW VARIABLE.
@@ -180,6 +171,15 @@
                 {rePerspectToThingId}
             />
         {/if}
+
+        <UnshownRelationsIndicator
+            parentThing={rootThing}
+            directionId={thingCohort.direction?.id ?? 0}
+            halfAxisId={thingCohort.halfAxisId}
+            {thingCohort}
+            thingSize={rootThingWidth}
+            {graphWidgetStyle}
+        />
     {/each}
 
     <!--- Off-axis relations widget. -->

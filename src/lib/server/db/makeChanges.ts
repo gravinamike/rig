@@ -866,7 +866,6 @@ export async function updateThingPerspectiveExpansions(
     thingId: number,
     perspectiveExpansionsString: string
 ): Promise<boolean> {
-    console.log(graphName, thingId, perspectiveExpansionsString)
     try { 
         // Get parameters for SQL query.
         const whenModded = (new Date()).toISOString()

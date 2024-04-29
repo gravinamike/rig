@@ -26,12 +26,13 @@
 
 
 
-    const indicatorSize = 20
+    const baseIndicatorSize = 20
+    $: indicatorSize = isExpanded ? baseIndicatorSize * 0.75 : baseIndicatorSize
 
 
-
-    $: xOffset = (0.5 * thingSize + 15) * offsetsByHalfAxisId[halfAxisId || 0][0]
-    $: yOffset = (0.5 * thingSize + 15) * offsetsByHalfAxisId[halfAxisId || 0][1]
+    $: offSetSize = isExpanded ? 10 : 15
+    $: xOffset = (0.5 * thingSize + offSetSize) * offsetsByHalfAxisId[halfAxisId || 0][0]
+    $: yOffset = (0.5 * thingSize + offSetSize) * offsetsByHalfAxisId[halfAxisId || 0][1]
 
 
 
@@ -57,11 +58,13 @@
         Math.floor(numberOfUnshownRelations / 100)
 
     $: indicatorColor =
+        isExpanded ? "white" :
         numberOfUnshownRelations < 10 ? "white" :
         numberOfUnshownRelations < 100 ? "grey" :
         "black"
 
     $: symbolColor =
+        isExpanded ? "grey" :
         numberOfUnshownRelations < 10 ? "grey" :
         numberOfUnshownRelations < 100 ? "gainsboro" :
         "white"
@@ -85,11 +88,6 @@
             parentThing.id as number,
             directionId
         )
-    
-        console.log(
-            perspectiveThingId,
-            updatedPerspectiveExpansions
-        )
 
         await updateThingPerspectiveExpansions(
             perspectiveThingId,
@@ -112,8 +110,6 @@
         thingId: number,
         directionId: number
     ) {
-
-        console.log("STARTING WITH:", perspectiveThing.perspectiveexpansions)
         const perspectiveExpansionsString = perspectiveThing.perspectiveexpansions
         const spaceId = perspectiveThing.space?.id as number
 
@@ -161,7 +157,11 @@
 
 <div
     class="unshown-relations-indicator"
-    class:hidden={numberOfUnshownRelations === 0}
+    class:expanded={isExpanded}
+    class:hidden={
+        (!isExpanded && numberOfUnshownRelations === 0)
+        || (isExpanded && $preventEditing)
+    }
     class:prevent-editing={$preventEditing}
 
     style="
@@ -174,32 +174,46 @@
 
     on:click={onClick}
     on:keydown={()=>{}}
->
-    {#key numberOfUnshownRelations}
+>    
+    {#if !isExpanded}
+        {#each [1, 2, 3, 4, 5, 6, 7, 8, 9] as symbolId}
+            <div
+                class="nested-square"
+                class:hidden={symbolId > numberOfSymbolsToShow}
+                
+                style="background-color: {symbolColor};"
+            />
+        {/each}
+    {:else}
+        <div
+            style="
+                width: 100%;
+                height: 100%;
+                transform: rotate({
+                    halfAxisId === 1 ? 180 :
+                    halfAxisId === 2 ? 0 :
+                    halfAxisId === 3 ? 90 :
+                    270
+                }deg);
+            "
+        >
+            <div class="collapse-icon">
+                v
+            </div>
+        </div>
+    {/if}
+
+    {#key [isExpanded, numberOfUnshownRelations]}
         <Tooltip
-            text={`${$preventEditing ? "" : "Show "}${numberOfUnshownRelations} collapsed relation${numberOfUnshownRelations > 1 ? "s" : ""}.`}
+            text={
+                isExpanded ? "Collapse relations." :
+                `${$preventEditing ? "" : "Show "}${numberOfUnshownRelations} collapsed relation${numberOfUnshownRelations > 1 ? "s" : ""}.`
+            }
             direction={"up"}
             delay={1000}
             {scale}
         />
     {/key}
-    
-    {#each [1, 2, 3, 4, 5, 6, 7, 8, 9] as symbolId}
-        <div
-            class="nested-square"
-            class:hidden={symbolId > numberOfSymbolsToShow}
-            
-            style="background-color: {symbolColor};"
-        />
-    {/each}
-
-    <div class="expand-collapse-icon">
-        {#if isExpanded}
-            {"> <"}
-        {:else}
-            {"< >"}
-        {/if}
-    </div>
 </div>
 
 
@@ -209,8 +223,6 @@
         border-radius: 10%;
 
         position: absolute;
-        width: 10px;
-        height: 10px;
         transform: translate(-50%, -50%);
         opacity: 0.5;
 
@@ -221,6 +233,15 @@
 
         pointer-events: auto;
         cursor: pointer;
+    }
+
+    .unshown-relations-indicator.expanded {
+        border-radius: 50%;
+
+        opacity: 0;
+
+        align-items: center;
+        justify-content: center;
     }
 
     .unshown-relations-indicator.prevent-editing {
@@ -251,21 +272,14 @@
         visibility: hidden;
     }
 
-    .expand-collapse-icon {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 200%;
+    .collapse-icon {
+        margin: auto;
+        width: 100%;
         height: 100%;
-        transform: rotate(90deg) translate(0, 64%) scale(100%, 155%) ;
+        transform: scale(1.45, 0.85) translate(-0.35px, -3px);
 
         text-align: center;
         font-weight: 600;
-
-        pointer-events: none;
-    }
-
-    .unshown-relations-indicator:not(:hover) .expand-collapse-icon {
-        display: none;
+        color: grey;
     }
 </style>
