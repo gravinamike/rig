@@ -2,15 +2,25 @@
     // Import types.
     import type { HalfAxisId, PerspectiveExpansions } from "$lib/shared/constants"
     import type { Graph, Thing, ThingCohort } from "$lib/models/constructModels"
+    import type { ThingDbModel } from "$lib/models/dbModels"
+    import type { GraphWidgetStyle } from "../graph"
 
+    // Import constants.
     import { offsetsByHalfAxisId, zoomBase } from "$lib/shared/constants"
-    import { Tooltip } from "$lib/widgets/layoutWidgets"
+
+    // Import stores.
+    import { preventEditing, storeGraphDbModels, addGraphIdsNeedingViewerRefresh } from "$lib/stores"
+
+    // Import utility functions.
     import { removeItemFromArray } from "$lib/shared/utility"
+
+    // Import UI components.
+    import { Tooltip } from "$lib/widgets/layoutWidgets"
+    
     // Import API functions.
     import { updateThingPerspectiveExpansions } from "$lib/db/makeChanges"
-    import type { GraphWidgetStyle } from "../graph";
-    import { addGraphIdsNeedingViewerRefresh, preventEditing, storeGraphDbModels } from "$lib/stores";
-    import type { ThingDbModel } from "$lib/models/dbModels";
+    
+    
 
 
     export let parentThing: Thing
@@ -23,145 +33,120 @@
 
 
 
+    // Graph scale (for counter-scaling the tooltip).
+    $: scale = zoomBase ** (graphWidgetStyle?.zoom || 1)
+    
+
+    // Whether the indicator (and by extension, the half-axis it models) is expanded or not.
+    const isExpanded = parentThing.graph?.directionFromThingIsExpanded(
+        parentThing.id as number,
+        directionId
+    ) ?? false
+
+    // Whether the indicator is visually hidden. (This is the case for non-expanded half-axes with
+    // no relations, and expanded half-axes when editing is disabled.)
+    $: isHidden = (
+        (!isExpanded && numberOfUnshownRelations === 0)
+        || (isExpanded && $preventEditing)
+    )
 
 
-
-    const baseIndicatorSize = 20
-    $: indicatorSize = isExpanded ? baseIndicatorSize * 0.75 : baseIndicatorSize
-
-
+    // Basic indicator geometry.
     $: offSetSize = isExpanded ? 10 : 15
     $: xOffset = (0.5 * thingSize + offSetSize) * offsetsByHalfAxisId[halfAxisId || 0][0]
     $: yOffset = (0.5 * thingSize + offSetSize) * offsetsByHalfAxisId[halfAxisId || 0][1]
+    const baseIndicatorSize = 20
+    $: indicatorSize = isExpanded ? baseIndicatorSize * 0.75 : baseIndicatorSize
 
-
-
-    $: numberOfRelations =
-        parentThing.b_relationships
-            .filter(relationship => relationship.direction === directionId)
-            .length
-
-    $: numberOfShownRelations =
-        (
-            thingCohort.address.generationId <= (parentThing.graph as Graph).depth
-            || isExpanded
-        ) ? thingCohort.members.length :
-        0 + (
-            thingCohort.members.filter(member => member.alreadyRendered).length
-        )
-        
-    $: numberOfUnshownRelations = numberOfRelations - numberOfShownRelations
-
-    $: numberOfSymbolsToShow =
-        numberOfUnshownRelations < 10 ? numberOfUnshownRelations :
-        numberOfUnshownRelations < 100 ? Math.floor(numberOfUnshownRelations / 10) :
-        Math.floor(numberOfUnshownRelations / 100)
-
+    // Indicator background color.
     $: indicatorColor =
         isExpanded ? "white" :
         numberOfUnshownRelations < 10 ? "white" :
         numberOfUnshownRelations < 100 ? "grey" :
         "black"
 
+    // Relation symbol (pip) color.
     $: symbolColor =
         isExpanded ? "grey" :
         numberOfUnshownRelations < 10 ? "grey" :
         numberOfUnshownRelations < 100 ? "gainsboro" :
         "white"
+
+
+    // How many relations the parent Thing has in this Direction.
+    $: numberOfRelations =
+        parentThing.b_relationships
+            .filter(relationship => relationship.direction === directionId)
+            .length
+
+    // How many of those relations are shown.
+    $: numberOfShownRelations =
+        // If the Thing Cohort for this half-axis is within the Graph's Depth, or if the half-axis
+        // is expanded,
+        (
+            thingCohort.address.generationId <= (parentThing.graph as Graph).depth
+            || isExpanded
+        ) ?
+            // All the relations are shown.
+            thingCohort.members.length :
+
+            // Otherwise, only those relations with the "alreadyRendered" flag set are shown.
+            thingCohort.members.filter(member => member.alreadyRendered).length
+        
+    // How many of those relations are unshown.
+    $: numberOfUnshownRelations = numberOfRelations - numberOfShownRelations
+
+
+
+    // The number of relation symbols (pips) to show is based on the number of unshown relations.
+    // Pips represent single relations if the number is less than 10, tens of relations if the
+    // number is between 10 and 99, and hundreds of relations if the number is above that.
+    $: numberOfSymbolsToShow =
+        numberOfUnshownRelations < 10 ? numberOfUnshownRelations :
+        numberOfUnshownRelations < 100 ? Math.floor(numberOfUnshownRelations / 10) :
+        Math.floor(numberOfUnshownRelations / 100)
+
+
     
-
-    $: scale = zoomBase ** (graphWidgetStyle?.zoom || 1)
-
-
-
-
-
-
+    /**
+     * On-click method.
+     * 
+     * Toggles the Perspective Expansion of the corresponding half-axis.
+     */
     async function onClick() {
+        // If editing is disabled, abort.
         if ($preventEditing) return
 
+        // Get info about the Perspective Thing.
         const perspectiveThing = parentThing.graph?.perspectiveThing as Thing
         const perspectiveThingId = perspectiveThing.id as number
 
-        const updatedPerspectiveExpansions = updatePerspectiveExpansions(
-            perspectiveThing,
+        // Get the string representing the Perspective Expansions after the current Direction's
+        // expansion state is toggled.
+        const updatedPerspectiveExpansions = perspectiveThing.updatePerspectiveExpansions(
             parentThing.id as number,
             directionId
         )
 
+        // Update the Perspective Expansions based on that string.
         await updateThingPerspectiveExpansions(
             perspectiveThingId,
             updatedPerspectiveExpansions
         )
 
+        // Refresh the stores, Graph and Graph viewer.
         await storeGraphDbModels<ThingDbModel>("Thing", perspectiveThingId as number, true)
         await parentThing.graph?.build()
         addGraphIdsNeedingViewerRefresh(parentThing.graph?.id as number)
     }
-
-
-
-
-
-    
-
-    function updatePerspectiveExpansions(
-        perspectiveThing: Thing,
-        thingId: number,
-        directionId: number
-    ) {
-        const perspectiveExpansionsString = perspectiveThing.perspectiveexpansions
-        const spaceId = perspectiveThing.space?.id as number
-
-        const perspectiveExpansions = JSON.parse(perspectiveExpansionsString) as PerspectiveExpansions
-
-        if (!(String(spaceId) in perspectiveExpansions)) {
-            perspectiveExpansions[spaceId] = {}
-        }
-
-        if (!(String(thingId) in perspectiveExpansions[spaceId])) {
-            perspectiveExpansions[spaceId][thingId] = []
-        }
-
-        if (!(perspectiveExpansions[spaceId][thingId].includes(directionId))) {
-            perspectiveExpansions[spaceId][thingId].push(directionId)
-        } else {
-            removeItemFromArray(perspectiveExpansions[spaceId][thingId], directionId, false)
-
-            if (perspectiveExpansions[spaceId][thingId].length === 0) {
-                delete perspectiveExpansions[spaceId][thingId]
-
-                if (Object.keys(perspectiveExpansions[spaceId]).length === 0) {
-                    delete perspectiveExpansions[spaceId]
-                }
-            }
-        }
-
-        return JSON.stringify(perspectiveExpansions)
-    }
-
-
-
-
-    
-    const isExpanded = parentThing.graph?.directionFromThingIsExpanded(
-        parentThing.id as number,
-        directionId
-    )
-    
-
-
-
 </script>
 
 
+<!-- Unshown-relations indicator. -->
 <div
     class="unshown-relations-indicator"
     class:expanded={isExpanded}
-    class:hidden={
-        (!isExpanded && numberOfUnshownRelations === 0)
-        || (isExpanded && $preventEditing)
-    }
+    class:hidden={isHidden}
     class:prevent-editing={$preventEditing}
 
     style="
@@ -175,7 +160,9 @@
     on:click={onClick}
     on:keydown={()=>{}}
 >    
+    <!-- If the half-axis is not expanded, -->
     {#if !isExpanded}
+        <!-- Show pips for unshown relations. -->
         {#each [1, 2, 3, 4, 5, 6, 7, 8, 9] as symbolId}
             <div
                 class="nested-square"
@@ -184,11 +171,12 @@
                 style="background-color: {symbolColor};"
             />
         {/each}
+    
+    <!-- Otherwise format the indicator as a collapse button. -->
     {:else}
         <div
+            class="perspective-expansion-collapser-button"
             style="
-                width: 100%;
-                height: 100%;
                 transform: rotate({
                     halfAxisId === 1 ? 180 :
                     halfAxisId === 2 ? 0 :
@@ -203,6 +191,7 @@
         </div>
     {/if}
 
+    <!-- Tooltip. -->
     {#key [isExpanded, numberOfUnshownRelations]}
         <Tooltip
             text={
@@ -270,6 +259,11 @@
 
     .nested-square.hidden {
         visibility: hidden;
+    }
+
+    .perspective-expansion-collapser-button {
+        width: 100%;
+        height: 100%;
     }
 
     .collapse-icon {

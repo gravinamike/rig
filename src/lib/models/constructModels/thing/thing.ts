@@ -1,5 +1,5 @@
 // Import types.
-import type { HalfAxisId } from "$lib/shared/constants"
+import type { HalfAxisId, PerspectiveExpansions } from "$lib/shared/constants"
 import type { ThingDbModel } from "$lib/models/dbModels"
 import type { GridCoordinates } from "$lib/models/constructModels"
 import type { ThingAddress, RelationshipInfo } from "./types"
@@ -12,7 +12,7 @@ import { oddHalfAxisIds, cartesianHalfAxisIds, orderedCartesianHalfAxisIds, orde
 import { graphDbModelInStore, getGraphConstructs, titleFontStore, titleFontWeightStore, defaultFontStore } from "$lib/stores"
 
 // Import utility functions.
-import { htmlToPlainText, incrementDownHeaderTags, readOnlyArrayToArray } from "$lib/shared/utility"
+import { htmlToPlainText, incrementDownHeaderTags, readOnlyArrayToArray, removeItemFromArray } from "$lib/shared/utility"
 
 // Import Graph constructs.
 import {
@@ -925,6 +925,53 @@ export class Thing {
         const isBranchTerminatingThing = Object.keys(this.childThingCohortsByDirectionId).length === 0
         return isBranchTerminatingThing
     }
+
+
+
+
+
+
+
+
+
+
+
+    updatePerspectiveExpansions(
+        thingId: number,
+        directionId: number
+    ) {
+        const perspectiveExpansionsString = this.perspectiveexpansions
+        const spaceId = this.space?.id as number
+
+        const perspectiveExpansions = JSON.parse(perspectiveExpansionsString) as PerspectiveExpansions
+
+        if (!(String(spaceId) in perspectiveExpansions)) {
+            perspectiveExpansions[spaceId] = {}
+        }
+
+        if (!(String(thingId) in perspectiveExpansions[spaceId])) {
+            perspectiveExpansions[spaceId][thingId] = []
+        }
+
+        if (!(perspectiveExpansions[spaceId][thingId].includes(directionId))) {
+            perspectiveExpansions[spaceId][thingId].push(directionId)
+        } else {
+            removeItemFromArray(perspectiveExpansions[spaceId][thingId], directionId, false)
+
+            if (perspectiveExpansions[spaceId][thingId].length === 0) {
+                delete perspectiveExpansions[spaceId][thingId]
+
+                if (Object.keys(perspectiveExpansions[spaceId]).length === 0) {
+                    delete perspectiveExpansions[spaceId]
+                }
+            }
+        }
+
+        return JSON.stringify(perspectiveExpansions)
+    }
+
+
+
 
 
 

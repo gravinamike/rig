@@ -12,6 +12,7 @@
 
 
 
+
     export let thingCohort: ThingCohort
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
@@ -22,6 +23,7 @@
     export let perspectiveTexts: {[thingId: string]: string}
     export let cladeHovered: boolean
     export let rePerspectToThingId: (id: number) => Promise<void>
+
 
 
         
@@ -56,14 +58,14 @@
 <!-- Relationship Cohort Widgets (only for Cartesian axes). -->
 {#if [1, 2, 3, 4].includes(thingCohort.halfAxisId)}
     <RelationshipCohortWidget
-        bind:thingCohort
-        {thingCohortMembersToDisplay}
         bind:graph
         {graphWidgetStyle}
+        {cladeHovered}
+        bind:thingCohort
+        {thingCohortMembersToDisplay}
+        {thingCohortExpanded}
         thingWidth={rootThingWidth}
         thingHeight={rootThingHeight}
-        {cladeHovered}
-        {thingCohortExpanded}
         offsetToAlignToGrid={$tweenedOffsetToAlignToGrid}
     />
 {/if}

@@ -269,7 +269,7 @@
         opacity: 0;
 
         pointer-events: auto;
-        cursor: pointer;
+        cursor: cell;
     }
 
     .stem-hover-zone.hidden {

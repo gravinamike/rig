@@ -48,6 +48,7 @@
         thingOverlapMargin: number,
         thingCohortRowOrColumn: "row" | "column"
     ) => string = () => ""
+    export let parentThingCohortMemberOnTopIndex = 0
     export let rootThing: Thing
     export let graphWidgetStyle: GraphWidgetStyle
     export let rootThingWidth = 0
@@ -67,6 +68,7 @@
 
     export let overlapMarginStyleText: string = ""
     export let rootThingOffsetFromCenterOfThingCohort = 0
+    export let onTopInThingCohort = false
     export let cartesianThingCohorts: ThingCohort[] = []
     export let showAsCollapsed = false
     export let hoveredForHalfSecond = false
@@ -170,6 +172,14 @@
                 + graphWidgetStyle.betweenThingSpacing
             )
         )
+
+    /**
+     * Clade-on-top-in-Thing-Cohort indicator.
+     * 
+     * Indicates whether the Clade's root Thing is visually in front of the other Things in its
+     * Thing Cohort.
+     */
+    $: onTopInThingCohort = parentThingCohortMemberOnTopIndex === rootThing.address?.indexInCohort as number
 
     /**
      * Cartesian Thing Cohorts.

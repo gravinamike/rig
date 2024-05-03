@@ -354,4 +354,60 @@ export class ThingCohort {
             this.addMember(member)
         }
     }
+
+
+
+
+
+
+
+
+    /**
+     * Should-be-rendered attribute.
+     * 
+     * Indicates whether the Thing Cohort should be rendered in the Graph, as an attribute.
+     */
+    get shouldBeRendered() {
+        if (
+            this.parentThing === null
+            || this.parentThing.id == null
+            || this.parentThing.graph === null
+            || this.generation === null
+            || this.direction === null
+            || this.direction.id === null
+        ) return false
+
+        // The Thing Cohort should be rendered if...
+        const shouldBeRendered = (
+            // ...the Thing Cohort isn't empty, and...
+            this.members.length !== 0
+
+            && (
+                // ...the Thing Cohort's Generation is less than or equal to the Graph's Depth,
+                // or...
+                this.address.generationId <= this.parentThing.graph.depth
+
+                // ...the Direction of the Thing Cohort from its root Thing is flagged as expanded,
+                // or...
+                || this.parentThing.graph.directionFromThingIsExpanded(
+                    this.parentThing.id,
+                    this.direction.id
+                )
+
+                // ...it's the last, Relationships-only Generation and at least some of the
+                // Relationships in it are to Things that are already rendered in the Graph
+                // (versus to Things that are "over the horizon" of the Graph's Depth).
+                || (
+                    this.generation.isRelationshipsOnly
+                    && this.members.some(member => member.alreadyRendered)
+                )
+            )
+        )
+
+        // Return whether the Thing Cohort should be rendered.
+        return shouldBeRendered
+    }
+
+
+    
 }

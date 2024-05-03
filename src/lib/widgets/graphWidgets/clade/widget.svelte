@@ -2,13 +2,18 @@
     // Import types.
     import type { GenerationMember, Graph, ThingCohort, Thing } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
+
+    // Import stores.
+    import { relationshipBeingCreatedInfoStore } from "$lib/stores"
     
     // Import widget controller.
     import CladeWidgetController from "./controller.svelte"
 
     // Import related widgets.
-    import { UnshownRelationsIndicator, HalfAxisWidget, ThingWidget, ThingFormWidget, OffAxisRelationsWidget } from "$lib/widgets/graphWidgets"
-    import { relationshipBeingCreatedInfoStore } from "$lib/stores";
+    import {
+        UnshownRelationsIndicator, HalfAxisWidget, ThingWidget, ThingFormWidget, OffAxisRelationsWidget
+    } from "$lib/widgets/graphWidgets"
+
     
     
 
@@ -44,9 +49,11 @@
 
 
     // Attributes managed by the widget controller.
+    let cladeControlsOpened = false
     let cartesianThingCohorts: ThingCohort[] = []
     let overlapMarginStyleText = ""
     let rootThingOffsetFromCenterOfThingCohort: number
+    let onTopInThingCohort: boolean
     let showAsCollapsed: boolean
     let hoveredForHalfSecond: boolean
     let forceShowHalfAxisWidgets: boolean
@@ -56,13 +63,6 @@
     // Attributes managed by sub-widgets.
     let rootThingWidth: number = 0
     let rootThingHeight: number = 0
-
-
-
-
-
-
-    let cladeControlsOpened = false
 </script>
 
 
@@ -71,6 +71,7 @@
     {graph}
     {thingOverlapMargin}
     {parentThingCohortRowOrColumn}
+    {parentThingCohortMemberOnTopIndex}
     {getThingOverlapMarginStyleText}
     {rootThing}
     {graphWidgetStyle}
@@ -82,6 +83,7 @@
 
     bind:overlapMarginStyleText
     bind:rootThingOffsetFromCenterOfThingCohort
+    bind:onTopInThingCohort
     bind:cartesianThingCohorts
     bind:showAsCollapsed
     bind:hoveredForHalfSecond
@@ -94,14 +96,14 @@
 <!-- Clade widget.-->
 <div
     class="clade-widget"
-    class:on-top-in-thing-cohort={parentThingCohortMemberOnTopIndex === rootThing.address?.indexInCohort || 0}
+    class:on-top-in-thing-cohort={onTopInThingCohort}
 
     style="{overlapMarginStyleText}"
 
     on:mouseenter={async () => {
-        parentThingCohortMemberOnTopIndex = rootThing.address?.indexInCohort || 0
+        parentThingCohortMemberOnTopIndex = rootThing.address?.indexInCohort ?? 0
         trackTimeHovered(true)
-    }}
+    } }
     
     on:mouseleave={stopTrackingTimeHovered}
 >
@@ -130,28 +132,18 @@
         />
     {/if}
 
-    <!-- The Thing's child Thing and Relationship Cohorts. -->
+    <!-- One half-axis widget for each of the Clade's Cartesian-Direction Thing Cohorts. -->
     {#each cartesianThingCohorts as thingCohort (thingCohort.address)}
         {#if
+            // Render the half-axis widget if...
+
+            // ...the Clade's forceShowHalfAxisWidgets flag is set, or...
             forceShowHalfAxisWidgets
-            || (/////////////////////////////////////////////// THIS PARENTHETICAL SHOULD BE EXTRACTED TO A NEW VARIABLE.
-                (
-                    (
-                        thingCohort.generation?.isRelationshipsOnly
-                        && thingCohort.members.some(member => member.alreadyRendered)
-                    )
-                    || thingCohort.address.generationId <= graph.depth
-                    || (
-                        rootThing.id
-                        && thingCohort.direction?.id
-                        && graph.directionFromThingIsExpanded(
-                            rootThing.id,
-                            thingCohort.direction.id
-                        )
-                    )
-            )
-                && thingCohort.members.length !== 0
-            )
+
+            // ...the Thing Cohort's `shouldBeRendered` flag is set, or...
+            || thingCohort.shouldBeRendered
+
+            // ... there is a drag-relate operation in progress from that half-axis.
             || (
                 $relationshipBeingCreatedInfoStore.sourceThingId === thingCohort.parentThingId
                 && $relationshipBeingCreatedInfoStore.sourceHalfAxisId === thingCohort.halfAxisId
@@ -172,6 +164,7 @@
             />
         {/if}
 
+        <!-- Unshown-relations indicator. -->
         <UnshownRelationsIndicator
             parentThing={rootThing}
             directionId={thingCohort.direction?.id ?? 0}
@@ -182,7 +175,7 @@
         />
     {/each}
 
-    <!--- Off-axis relations widget. -->
+    <!--- Off-axis relations indicator. -->
     <OffAxisRelationsWidget
         parentThing={rootThing}
         parentGraph={graph}
