@@ -100,6 +100,8 @@
                         thing={rootThing}
                         {graph}
                         {graphWidgetStyle}
+                        {outlineScrollAreaTop}
+                        {outlineScrollTime}
                         bind:editingNotes
                         bind:notesEditor
                         {rePerspectToThingId}

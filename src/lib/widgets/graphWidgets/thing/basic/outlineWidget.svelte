@@ -6,8 +6,9 @@
 
     // Import stores.
     import {
+        titleFontStore, titleFontWeightStore, thingColorStore, lightenOrDarkenColorString,
         preventEditing, hoveredThingIdStore, hoveredRelationshipTarget,
-        relationshipBeingCreatedInfoStore, setRelationshipBeingCreatedDestThingId, disableRelationshipBeingCreated, titleFontStore, titleFontWeightStore, thingColorStore, lightenOrDarkenColorString
+        relationshipBeingCreatedInfoStore, setRelationshipBeingCreatedDestThingId, disableRelationshipBeingCreated
     } from "$lib/stores"
 
     // Import widget controller.
@@ -19,20 +20,26 @@
 
 
 
+
     /**
      * @param thingID - The ID of the Thing that this widget is based on.
      * @param thing - The Thing that this widget is based on.
      * @param graph - The Graph that the Thing is in.
      * @param graphWidgetStyle - Controls the visual style of the Graph.
+     * @param editingNotes - Whether any Notes for this outliner are currently in editing mode.
+     * @param notesEditor - The Notes TipTap editor for this Thing.
      * @param rePerspectToThingId - A function that re-perspects the Graph to a given Thing ID.
      */
     export let thingId: number
     export let thing: Thing | null = null
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
+    export let outlineScrollAreaTop: number
+    export let outlineScrollTime: Date | null
     export let editingNotes: boolean
     export let notesEditor: Editor | null
     export let rePerspectToThingId: (id: number) => Promise<void>
+
 
 
 
@@ -74,6 +81,100 @@
     $: isRootClade = thingId === graph.rootCohort?.members[0].thing?.id
 
     let editingNoteForThisThing = false
+
+
+
+
+
+    function onThingMouseEnter() {
+        hoveredThingIdStore.set(thingId)
+        isHoveredWidget = true, hoveredRelationshipTarget.set(thing)
+    }
+
+    function onThingMouseLeave() {
+        hoveredThingIdStore.set(null)
+        isHoveredWidget = false
+        confirmDeleteBoxOpen = false, hoveredRelationshipTarget.set(null)
+    }
+
+    function onThingClick() {
+        if (
+            graph.offAxis
+            && $relationshipBeingCreatedInfoStore.sourceThingId === null
+        ) rePerspectToThingId(thingId)
+    }
+
+    function onThingMouseUp() {
+        if (relatableForCurrentDrag) {
+            setRelationshipBeingCreatedDestThingId(thingId)
+        } else {
+            disableRelationshipBeingCreated()
+        }
+    }
+
+    function onThingTouchEnd() {
+        if (relatableForCurrentDrag) {
+            setRelationshipBeingCreatedDestThingId(thingId)
+        } else {
+            disableRelationshipBeingCreated()
+        }
+    }
+
+    const onThingContextMenu = (event: MouseEvent) => {
+        if (!$preventEditing) openCommandPalette(
+            [event.clientX, event.clientY]
+        )
+    }
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+
+    let thingOutlineWidget: HTMLElement | null = null
+
+    let thingTextContainerStickyOffset = 0
+
+
+
+
+    function getThingTextContainerStickyOffset() {
+        const relationshipsOutlineWidgetTop = thingOutlineWidget?.getBoundingClientRect().top ?? 0
+        const thingTextContainerStickyOffset =
+            Math.min(
+                Math.max(
+                    outlineScrollAreaTop - relationshipsOutlineWidgetTop + (
+                        // Allowance for Thing name widgets of the previous Generations.
+                        24 * ((thing?.address?.generationId ?? 0) - 1)
+                    ),
+                    0
+                ),
+                (thingOutlineWidget?.parentElement?.parentElement?.getBoundingClientRect().height ?? 0) - 28
+            )
+        console.log(thing?.text, thingTextContainerStickyOffset)
+        return thingTextContainerStickyOffset
+    }
+
+    $: {
+        outlineScrollTime
+
+        thingTextContainerStickyOffset = getThingTextContainerStickyOffset()
+    }
+
+
+
+
+
 
 </script>
 
@@ -117,6 +218,7 @@
         class:highlighted
         class:editing-note={editingNoteForThisThing}
 
+        bind:this={thingOutlineWidget}
         bind:clientWidth={width}
         bind:clientHeight={height}
 
@@ -125,41 +227,15 @@
             $thingColorStore
         };"
 
-        on:mouseenter={()=>{
-            hoveredThingIdStore.set(thingId)
-            isHoveredWidget = true, hoveredRelationshipTarget.set(thing)
-        }}
-        on:mouseleave={()=>{
-            hoveredThingIdStore.set(null)
-            isHoveredWidget = false
-            confirmDeleteBoxOpen = false, hoveredRelationshipTarget.set(null)
-        }}
+        on:mouseenter={onThingMouseEnter}
+        on:mouseleave={onThingMouseLeave}
         on:mousedown={ event => {if (event.button === 0) {}}}
-        on:touchstart={ () => {}}
-        on:click={ () => {
-            if (
-                graph.offAxis
-                && $relationshipBeingCreatedInfoStore.sourceThingId === null
-            ) rePerspectToThingId(thingId)
-        } }
+        on:touchstart={()=>{}}
+        on:click={onThingClick}
         on:keydown={()=>{}}
-        on:mouseup={ () => {
-            if (relatableForCurrentDrag) {
-                setRelationshipBeingCreatedDestThingId(thingId)
-            } else {
-                disableRelationshipBeingCreated()
-            }
-        } }
-        on:touchend={ () => {
-            if (relatableForCurrentDrag) {
-                setRelationshipBeingCreatedDestThingId(thingId)
-            } else {
-                disableRelationshipBeingCreated()
-            }
-        } }
-        on:contextmenu|preventDefault={ (event) => {if (!$preventEditing) openCommandPalette(
-            [event.clientX, event.clientY]
-        )} }
+        on:mouseup={onThingMouseUp}
+        on:touchend={onThingTouchEnd}
+        on:contextmenu|preventDefault={onThingContextMenu}
     >
         {#if showNote}
             <!-- If this is the root Thing in a Thing outliner, expand the bottom by 1 pixel to
@@ -190,6 +266,11 @@
                 class:highlighted
 
                 style="
+                    {!graph.offAxis ? `top: ${4 + thingTextContainerStickyOffset}px;` : "" }
+                    
+
+
+
                     font-family: {$titleFontStore || "Arial"};
                     font-weight: {$titleFontWeightStore ?? 600};
                     background-color: {
@@ -288,10 +369,10 @@
 
     .thing-outline-widget:not(.off-axis) .text-container {
         position: absolute;
-        left: 5px;
-        top: 5px;
+        left: 4px;
         width: unset;
         height: 20px;
+        z-index: 1;
 
         padding: 0 0.25rem 0 0.25rem;
     }

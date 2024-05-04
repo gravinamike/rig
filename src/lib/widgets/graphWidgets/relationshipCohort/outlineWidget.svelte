@@ -59,7 +59,7 @@
                 Math.max(
                     outlineScrollAreaTop - relationshipsOutlineWidgetTop + (
                         // Allowance for Thing name widget.
-                        20 * ((thingCohort.generation?.id ?? 0) - 1)
+                        24 * ((thingCohort.generation?.id ?? 0) - 1)
                     ),
                     0
                 ),
