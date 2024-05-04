@@ -25,6 +25,7 @@
     export let halfAxisId: HalfAxisId | null
     export let graphWidgetStyle: GraphWidgetStyle
     export let askingForDirection = false
+    export let diameter: number | null = null
     export let height = 26
     export let fontSize: number | null = null
     export let circularOrRectangular: "circular" | "rectangular" = "circular"
@@ -94,8 +95,8 @@
     bind:this={directionWidget}
 
     style="
-        width: {circularOrRectangular === "circular" ? `${directionWidgetCircularDiameter}px`: "100%"};
-        height: {circularOrRectangular === "circular" ? `${directionWidgetCircularDiameter}px`: `${height}px`};
+        width: {circularOrRectangular === "circular" ? `${diameter || directionWidgetCircularDiameter}px`: "100%"};
+        height: {circularOrRectangular === "circular" ? `${diameter || directionWidgetCircularDiameter}px`: `${height}px`};
     "
 
     on:mouseenter={() => highlighted = true}

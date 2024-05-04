@@ -27,6 +27,8 @@
     export let rootThing: Thing
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
+    export let outlineScrollAreaTop: number
+    export let outlineScrollTime: Date | null
     export let editingNotes: boolean
     export let notesEditor: Editor | null
     export let rePerspectToThingId: (id: number) => Promise<void>
@@ -167,6 +169,8 @@
                         {thingCohort}
                         bind:graph
                         {graphWidgetStyle}
+                        {outlineScrollAreaTop}
+                        {outlineScrollTime}
                     />
                 </div>
 
@@ -180,6 +184,8 @@
                         {thingCohort}
                         bind:graph
                         bind:graphWidgetStyle
+                        {outlineScrollAreaTop}
+                        {outlineScrollTime}
                         bind:editingNotes
                         bind:notesEditor
                         {rePerspectToThingId}
@@ -317,7 +323,7 @@
 
         display: flex;
         flex-direction: column;
-        justify-content: center;
+        justify-content: flex-start;
     }
 
     .relationships-and-child-cohorts-outer-container:hover
@@ -325,6 +331,6 @@
     > .relationships-outline-widget-container {
         display: flex;
         flex-direction: column;
-        justify-content: center;
+        justify-content: flex-start;
     }
 </style>

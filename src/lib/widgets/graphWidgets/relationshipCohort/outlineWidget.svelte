@@ -17,6 +17,8 @@
     export let thingCohort: ThingCohort
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
+    export let outlineScrollAreaTop = 0
+    export let outlineScrollTime: Date | null = null
 
 
     // Handles for HTML element dimensions.
@@ -32,6 +34,47 @@
     // Set up flag for whether the component has finished mounting. 
     let mounted = false
     onMount(async () => { mounted = true })
+
+
+
+
+
+
+
+
+
+
+
+    let relationshipsOutlineWidget: HTMLElement | null = null
+
+    let directionWidgetContainerStickyOffset = 0
+
+
+
+
+    function getDirectionWidgetContainerStickyOffset() {
+        const relationshipsOutlineWidgetTop = relationshipsOutlineWidget?.getBoundingClientRect().top ?? 0
+        const directionWidgetContainerStickyOffset =
+            Math.min(
+                Math.max(
+                    outlineScrollAreaTop - relationshipsOutlineWidgetTop + (
+                        // Allowance for Thing name widget.
+                        20 * ((thingCohort.generation?.id ?? 0) - 1)
+                    ),
+                    0
+                ),
+                (relationshipsOutlineWidget?.parentElement?.getBoundingClientRect().height ?? 0) - 46
+            )
+
+        return directionWidgetContainerStickyOffset
+    }
+
+    $: {
+        outlineScrollTime
+
+        directionWidgetContainerStickyOffset = getDirectionWidgetContainerStickyOffset()
+    }
+
 </script>
 
 
@@ -51,10 +94,14 @@
     <div
         class="relationships-outline-widget"
         class:off-axis={graph.offAxis}
+
+        bind:this={relationshipsOutlineWidget}
     >
         <!-- Direction text. -->
         <div
             class="direction-widget-container"
+
+            style="position: relative; top: {directionWidgetContainerStickyOffset}px;"
 
             bind:clientWidth={directionWidgetWidth}
             bind:clientHeight={directionWidgetHeight}
@@ -64,6 +111,7 @@
                     startingDirection={direction}
                     {halfAxisId}
                     {graphWidgetStyle}
+                    diameter={40}
                     partOpaque={true}
                     interactionDisabled={true}
                     optionClickedFunction={(_, __, ___) => {}}

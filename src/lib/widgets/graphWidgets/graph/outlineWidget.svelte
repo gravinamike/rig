@@ -251,9 +251,14 @@
 
 
 
-
-
-
+    let outlineScrollArea: HTMLElement | null = null
+    let outlineScrollAreaTop = 0
+    let outlineScrollTime: Date | null = null
+    function onOutlineScroll() {
+        outlineScrollAreaTop = (outlineScrollArea as HTMLElement).getBoundingClientRect().top
+        outlineScrollTime = new Date()
+    }
+    
 
     
 
@@ -305,12 +310,19 @@
     {/if}
 
     <!-- Root Thing Cohort widget (from which the rest of the Graph Outline automatically "grows"). -->
-    <div class="root-thing-cohort-container">
+    <div
+        class="root-thing-cohort-container"
+        
+        on:scroll={onOutlineScroll}
+        bind:this={outlineScrollArea}
+    >
         {#if graph?.rootCohort}
             <ThingCohortOutlineWidget
                 thingCohort={graph.rootCohort}
                 {graph}
                 {graphWidgetStyle}
+                {outlineScrollAreaTop}
+                {outlineScrollTime}
                 bind:editingNotes={editing}
                 bind:notesEditor={editor}
                 {rePerspectToThingId}
