@@ -13,7 +13,7 @@
     // Import related widgets.
     import {
         RelationshipCohortOutlineWidget, ThingCohortOutlineWidget,
-        ThingOutlineWidget, ThingFormOutlineWidget
+        ThingOutlineWidget, ThingFormOutlineWidget, UnshownRelationsIndicator
     } from "$lib/widgets/graphWidgets"
     
 
@@ -174,6 +174,17 @@
                             {graphWidgetStyle}
                             {outlineScrollAreaTop}
                             {outlineScrollTime}
+                        />
+
+
+                        <!-- Unshown-relations indicator. -->
+                        <UnshownRelationsIndicator
+                            parentThing={rootThing}
+                            directionId={thingCohort.direction?.id ?? 0}
+                            halfAxisId={thingCohort.halfAxisId}
+                            thingCohorts={[thingCohort]}
+                            thingSize={20}
+                            {graphWidgetStyle}
                         />
                     </div>
 

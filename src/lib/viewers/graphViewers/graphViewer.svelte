@@ -347,7 +347,7 @@
                     <GraphOutlineWidget
                         space={spaceToUseForGraphOutliner}
                         {pThingIds}
-                        depth={3}
+                        depth={1}
                         fullSize={sideMenuFullSize}
                         {rePerspectToThingId}
                     />

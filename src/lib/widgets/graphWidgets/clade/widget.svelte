@@ -169,7 +169,7 @@
             parentThing={rootThing}
             directionId={thingCohort.direction?.id ?? 0}
             halfAxisId={thingCohort.halfAxisId}
-            {thingCohort}
+            thingCohorts={[thingCohort]}
             thingSize={rootThingWidth}
             {graphWidgetStyle}
         />

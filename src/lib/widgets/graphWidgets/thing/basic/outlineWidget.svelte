@@ -161,7 +161,6 @@
                 ),
                 (thingOutlineWidget?.parentElement?.parentElement?.getBoundingClientRect().height ?? 0) - 28
             )
-        console.log(thing?.text, thingTextContainerStickyOffset)
         return thingTextContainerStickyOffset
     }
 

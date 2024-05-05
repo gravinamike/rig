@@ -1,6 +1,6 @@
 <script lang="ts">
     // Import types.
-    import type { HalfAxisId, PerspectiveExpansions } from "$lib/shared/constants"
+    import type { HalfAxisId } from "$lib/shared/constants"
     import type { Graph, Thing, ThingCohort } from "$lib/models/constructModels"
     import type { ThingDbModel } from "$lib/models/dbModels"
     import type { GraphWidgetStyle } from "../graph"
@@ -10,9 +10,6 @@
 
     // Import stores.
     import { preventEditing, storeGraphDbModels, addGraphIdsNeedingViewerRefresh } from "$lib/stores"
-
-    // Import utility functions.
-    import { removeItemFromArray } from "$lib/shared/utility"
 
     // Import UI components.
     import { Tooltip } from "$lib/widgets/layoutWidgets"
@@ -26,7 +23,7 @@
     export let parentThing: Thing
     export let directionId: number
     export let halfAxisId: HalfAxisId
-    export let thingCohort: ThingCohort
+    export let thingCohorts: ThingCohort[]
     export let thingSize: number
     export let graphWidgetStyle: GraphWidgetStyle
 
@@ -81,17 +78,21 @@
 
     // How many of those relations are shown.
     $: numberOfShownRelations =
-        // If the Thing Cohort for this half-axis is within the Graph's Depth, or if the half-axis
-        // is expanded,
-        (
-            thingCohort.address.generationId <= (parentThing.graph as Graph).depth
-            || isExpanded
-        ) ?
-            // All the relations are shown.
-            thingCohort.members.length :
+        thingCohorts.map(
+            (thingCohort) => {
+                // If the Thing Cohort for this half-axis is within the Graph's Depth, or if the half-axis
+                // is expanded,
+                return (
+                    thingCohort.address.generationId <= (parentThing.graph as Graph).depth
+                    || isExpanded
+                ) ?
+                    // All the relations are shown.
+                    thingCohort.members.length :
 
-            // Otherwise, only those relations with the "alreadyRendered" flag set are shown.
-            thingCohort.members.filter(member => member.alreadyRendered).length
+                    // Otherwise, only those relations with the "alreadyRendered" flag set are shown.
+                    thingCohort.members.filter(member => member.alreadyRendered).length
+            }
+        ).reduce((a, b) => a + b, 0)
         
     // How many of those relations are unshown.
     $: numberOfUnshownRelations = numberOfRelations - numberOfShownRelations
@@ -159,7 +160,7 @@
 
     on:click={onClick}
     on:keydown={()=>{}}
->    
+>
     <!-- If the half-axis is not expanded, -->
     {#if !isExpanded}
         <!-- Show pips for unshown relations. -->
