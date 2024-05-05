@@ -172,7 +172,7 @@
     }
 
 
-
+    $: thingTextContainerZIndex = 15 - (thing?.address?.generationId ?? 0)
 
 
 
@@ -266,7 +266,10 @@
                 class:highlighted
 
                 style="
-                    {!graph.offAxis ? `top: ${4 + thingTextContainerStickyOffset}px;` : "" }
+                    {
+                        !graph.offAxis ? `top: ${4 + thingTextContainerStickyOffset}px; z-index: ${thingTextContainerZIndex};` :
+                        ""
+                    }
                     
 
 
@@ -372,7 +375,6 @@
         left: 4px;
         width: unset;
         height: 20px;
-        z-index: 1;
 
         padding: 0 0.25rem 0 0.25rem;
     }

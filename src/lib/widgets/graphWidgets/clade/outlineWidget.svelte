@@ -144,57 +144,59 @@
     {/if}
 
     <!-- The Thing's Relationships and child Thing Cohorts (outer containers). -->
-    {#each orderedThingCohortsWithMembers as thingCohort, i (thingCohort.address)}  
-        <div class="relationships-and-child-cohorts-outer-container">
-            <!-- Relationship color field. -->
-            <div
-                class="relationship-color-field"
-
-                style="background-color: {relationshipColorByHalfAxisId[thingCohort.halfAxisId] || "dimgrey"};"
-            />
-
-            <!-- The Thing's Relationships and child Thing Cohorts (inner container). -->
-            <div
-                class="relationships-and-child-cohorts-inner-container"
-                
-                style="flex-direction: { expanded ? "row" : "column" };"
-            >
-
-                <!-- Relationship Cohort Widget. -->
+    {#each orderedThingCohortsWithMembers as thingCohort (thingCohort.address)}
+        {#if !thingCohort.isRetrograde}
+            <div class="relationships-and-child-cohorts-outer-container">
+                <!-- Relationship color field. -->
                 <div
-                    class="relationships-outline-widget-container"
-                    class:expanded
-                    class:has-children={thingCohort.members.length}
-                >
-                    <!-- Relationship Cohort outline widget. -->
-                    <RelationshipCohortOutlineWidget
-                        {thingCohort}
-                        bind:graph
-                        {graphWidgetStyle}
-                        {outlineScrollAreaTop}
-                        {outlineScrollTime}
-                    />
-                </div>
+                    class="relationship-color-field"
 
-                <!-- Thing Cohort Widget. -->
-                {#if (
-                    thingCohort.members.length
-                    && thingCohort.generation
-                    && !thingCohort.generation.isRelationshipsOnly
-                )}
-                    <ThingCohortOutlineWidget
-                        {thingCohort}
-                        bind:graph
-                        bind:graphWidgetStyle
-                        {outlineScrollAreaTop}
-                        {outlineScrollTime}
-                        bind:editingNotes
-                        bind:notesEditor
-                        {rePerspectToThingId}
-                    />
-                {/if}
+                    style="background-color: {relationshipColorByHalfAxisId[thingCohort.halfAxisId] || "dimgrey"};"
+                />
+
+                <!-- The Thing's Relationships and child Thing Cohorts (inner container). -->
+                <div
+                    class="relationships-and-child-cohorts-inner-container"
+                    
+                    style="flex-direction: { expanded ? "row" : "column" };"
+                >
+
+                    <!-- Relationship Cohort Widget. -->
+                    <div
+                        class="relationships-outline-widget-container"
+                        class:expanded
+                        class:has-children={thingCohort.members.length}
+                    >
+                        <!-- Relationship Cohort outline widget. -->
+                        <RelationshipCohortOutlineWidget
+                            {thingCohort}
+                            bind:graph
+                            {graphWidgetStyle}
+                            {outlineScrollAreaTop}
+                            {outlineScrollTime}
+                        />
+                    </div>
+
+                    <!-- Thing Cohort Widget. -->
+                    {#if (
+                        thingCohort.members.length
+                        && thingCohort.generation
+                        && !thingCohort.generation.isRelationshipsOnly
+                    )}
+                        <ThingCohortOutlineWidget
+                            {thingCohort}
+                            bind:graph
+                            bind:graphWidgetStyle
+                            {outlineScrollAreaTop}
+                            {outlineScrollTime}
+                            bind:editingNotes
+                            bind:notesEditor
+                            {rePerspectToThingId}
+                        />
+                    {/if}
+                </div>
             </div>
-        </div>
+        {/if}
     {/each}
 </div>
 
