@@ -298,6 +298,6 @@ export const hyperlinkProtocols = [
 
 export interface PerspectiveExpansions {
     [spaceId: string]: {
-        [thingId: string]: number[]
+        [thingId: string]: (number | "Space" | "all")[]
     }
 }

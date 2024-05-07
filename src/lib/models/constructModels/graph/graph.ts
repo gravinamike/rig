@@ -349,7 +349,7 @@ export class Graph {
 
     directionFromThingIsExpanded(
         thingId: number,
-        directionId: number
+        directionId: number | "Space" | "all"
     ) {
 
         

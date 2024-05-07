@@ -4,16 +4,12 @@
     import type { Graph, ThingCohort, Thing } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
-    // Import constants.
-    import { relationshipColorByHalfAxisId } from "$lib/shared/constants"
-
     // Import widget controller.
     import CladeWidgetController from "./controller.svelte"
 
     // Import related widgets.
     import {
-        RelationshipCohortOutlineWidget, ThingCohortOutlineWidget,
-        ThingOutlineWidget, ThingFormOutlineWidget, UnshownRelationsIndicator
+        HalfAxisOutlineWidget, ThingOutlineWidget, ThingFormOutlineWidget, UnshownRelationsIndicator
     } from "$lib/widgets/graphWidgets"
     
 
@@ -86,137 +82,112 @@
     <!-- Root Thing (and indicator of its child Things). -->
     {#if showCladeRootThing}
             
-            <!-- Root Thing. -->
-            <div
-                class="root-thing-container"
+        <!-- Root Thing. -->
+        <div
+            class="root-thing-container"
 
-                on:mouseenter={() => rootThingHovered = true}
-                on:mouseleave={() => rootThingHovered = false}
-            >
-                <!-- If the root Thing is specified, show a Thing Widget. -->
-                {#if rootThing?.id}
-                    <ThingOutlineWidget
-                        thingId={rootThing.id}
-                        thing={rootThing}
-                        {graph}
-                        {graphWidgetStyle}
-                        {outlineScrollAreaTop}
-                        {outlineScrollTime}
-                        bind:editingNotes
-                        bind:notesEditor
-                        {rePerspectToThingId}
-                    />
+            on:mouseenter={() => rootThingHovered = true}
+            on:mouseleave={() => rootThingHovered = false}
+        >
+            <!-- If the root Thing is specified, show a Thing Widget. -->
+            {#if rootThing?.id}
+                <ThingOutlineWidget
+                    thingId={rootThing.id}
+                    thing={rootThing}
+                    {graph}
+                    {graphWidgetStyle}
+                    {outlineScrollAreaTop}
+                    {outlineScrollTime}
+                    bind:editingNotes
+                    bind:notesEditor
+                    {rePerspectToThingId}
+                />
 
-                <!-- Otherwise, show a Thing-Form Widget. -->
-                {:else}
-                    <ThingFormOutlineWidget
-                        thing={rootThing}
-                        bind:graph
-                        {graphWidgetStyle}
-                    />
-                {/if}
+            <!-- Otherwise, show a Thing-Form Widget. -->
+            {:else}
+                <ThingFormOutlineWidget
+                    thing={rootThing}
+                    bind:graph
+                    {graphWidgetStyle}
+                />
+            {/if}
 
-                <!-- Child Things indicator/toggle. -->
-                {#if showCladeRootThing && rootThingHovered && expandable}
-                    <div
-                        class="children-indicator-container"
+            <!-- Child Things indicator/toggle. -->
+            {#if showCladeRootThing && rootThingHovered && expandable}
+                <div
+                    class="children-indicator-container"
 
-                        on:click={() => expanded = !expanded}
-                        on:keyup={() => {}}
-                        on:mouseenter={() => toggleHovered = true}
-                        on:mouseleave={() => toggleHovered = false}
-                    >
-                        <!-- Children-Things quantity indicator. -->
-                        {#if !expanded}
-                            +{childThings.length}
-                        {/if}
+                    on:click={() => expanded = !expanded}
+                    on:keyup={() => {}}
+                    on:mouseenter={() => toggleHovered = true}
+                    on:mouseleave={() => toggleHovered = false}
+                >
+                    <!-- Children-Things quantity indicator. -->
+                    {#if !expanded}
+                        +{childThings.length}
+                    {/if}
 
-                        <!-- Expand/collapse toggle. -->
-                        {#if showToggle && expanded}
-                            <svg class="relationship-toggle-arrow">
-                                <path d="M 4 7 L 10 13 L 16 7" />
-                            </svg>
-                        {/if}
-                    </div>
-                {/if}
-            </div>
-
+                    <!-- Expand/collapse toggle. -->
+                    {#if showToggle && expanded}
+                        <svg class="relationship-toggle-arrow">
+                            <path d="M 4 7 L 10 13 L 16 7" />
+                        </svg>
+                    {/if}
+                </div>
+            {/if}
+        </div>
     {/if}
 
     <!-- The Thing's Relationships and child Thing Cohorts (outer containers). -->
     {#each orderedThingCohortsWithMembers as thingCohort (thingCohort.address)}
-        {#if !thingCohort.isRetrograde}
-            <div class="relationships-and-child-cohorts-outer-container">
-                <!-- Relationship color field. -->
-                <div
-                    class="relationship-color-field"
-
-                    style="background-color: {relationshipColorByHalfAxisId[thingCohort.halfAxisId] || "dimgrey"};"
-                />
-
-                <!-- The Thing's Relationships and child Thing Cohorts (inner container). -->
-                <div
-                    class="relationships-and-child-cohorts-inner-container"
-                    
-                    style="flex-direction: { expanded ? "row" : "column" };"
-                >
-
-                    <!-- Relationship Cohort Widget. -->
-                    <div
-                        class="relationships-outline-widget-container"
-                        class:expanded
-                        class:has-children={thingCohort.members.length}
-                    >
-                        <!-- Relationship Cohort outline widget. -->
-                        <RelationshipCohortOutlineWidget
-                            {thingCohort}
-                            bind:graph
-                            {graphWidgetStyle}
-                            {outlineScrollAreaTop}
-                            {outlineScrollTime}
-                        />
-
-
-                        <!-- Unshown-relations indicator. -->
-                        <UnshownRelationsIndicator
-                            parentThing={rootThing}
-                            directionId={thingCohort.direction?.id ?? 0}
-                            halfAxisId={thingCohort.halfAxisId}
-                            thingCohorts={[thingCohort]}
-                            thingSize={20}
-                            {graphWidgetStyle}
-                        />
-                    </div>
-
-                    <!-- Thing Cohort Widget. -->
-                    {#if (
-                        thingCohort.members.length
-                        && thingCohort.generation
-                        && !thingCohort.generation.isRelationshipsOnly
-                    )}
-                        <ThingCohortOutlineWidget
-                            {thingCohort}
-                            bind:graph
-                            bind:graphWidgetStyle
-                            {outlineScrollAreaTop}
-                            {outlineScrollTime}
-                            bind:editingNotes
-                            bind:notesEditor
-                            {rePerspectToThingId}
-                        />
-                    {/if}
-                </div>
-            </div>
-        {/if}
+        <!-- Half-axis widget. -->
+        <HalfAxisOutlineWidget
+            {thingCohort}
+            bind:graph
+            {graphWidgetStyle}
+            {expanded}
+            {outlineScrollAreaTop}
+            {outlineScrollTime}
+            {editingNotes}
+            {notesEditor}
+            {rePerspectToThingId}
+        />
     {/each}
+
+
+
+
+
+    
+
+    <!-- Unshown-relations indicator (Space). ////////////////////// EXTRACT THE VISUAL PART, COMBINE THESE INTO TWO. -->
+    <UnshownRelationsIndicator
+        parentThing={rootThing}
+        directionId={"all"}
+        halfAxisId={null}
+        thingCohorts={orderedThingCohortsWithMembers}
+        thingSize={null}
+        {graphWidgetStyle}
+    />
+
+    <!-- Unshown-relations indicator (all). -->
+    <UnshownRelationsIndicator
+        parentThing={rootThing}
+        directionId={"Space"}
+        halfAxisId={null}
+        thingCohorts={orderedThingCohortsWithMembers}
+        thingSize={null}
+        {graphWidgetStyle}
+    />
 </div>
 
 
 <style>
     .clade-outline-widget {
         border-radius: 7px;
-
+        
         box-sizing: border-box;
+        position: relative;
         width: 100%;
 
         overflow: hidden;
@@ -272,28 +243,6 @@
         opacity: 100%;
     }
 
-    .relationships-and-child-cohorts-outer-container {
-        border-radius: 5px;
-
-        position: relative;
-        min-height: 0.5rem;
-
-        display: none;
-    }
-
-    .clade-outline-widget.expanded > .relationships-and-child-cohorts-outer-container {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .relationships-and-child-cohorts-outer-container:hover {
-        position: relative;
-    }
-
-    .relationships-and-child-cohorts-outer-container:hover {
-        min-height: 1.05rem;
-    }
-
     .relationship-toggle-arrow {
         position: absolute;
         width: 20px;
@@ -305,47 +254,5 @@
         fill: transparent;
 
         overflow: visible;
-    }
-
-    .relationship-color-field {
-        position: absolute;
-        height: 100%;
-        width: 100%;
-        opacity: 0.25;
-    }
-
-    .relationships-and-child-cohorts-inner-container {
-        display: flex;
-        flex: 1 1 auto;
-    }
-
-    .relationships-outline-widget-container {
-        position: relative;
-        transform: scale(0.5);
-        transform-origin: left;
-
-        display: none;
-    }
-
-    .relationships-outline-widget-container:not(.expanded.has-children) {
-        width: 100%;
-    }
-
-    .relationships-outline-widget-container.expanded.has-children {
-        width: fit-content;
-        min-height: 100%;
-        transform: scale(1);
-
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-    }
-
-    .relationships-and-child-cohorts-outer-container:hover
-    > .relationships-and-child-cohorts-inner-container
-    > .relationships-outline-widget-container {
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
     }
 </style>

@@ -1,7 +1,7 @@
 <script lang="ts">
     // Import types.
     import type { HalfAxisId } from "$lib/shared/constants"
-    import type { Graph, Thing, ThingCohort } from "$lib/models/constructModels"
+    import type { Graph, Space, Thing, ThingCohort } from "$lib/models/constructModels"
     import type { ThingDbModel } from "$lib/models/dbModels"
     import type { GraphWidgetStyle } from "../graph"
 
@@ -21,17 +21,23 @@
 
 
     export let parentThing: Thing
-    export let directionId: number
-    export let halfAxisId: HalfAxisId
+    export let directionId: number | "Space" | "all"
+    export let halfAxisId: HalfAxisId | null
     export let thingCohorts: ThingCohort[]
-    export let thingSize: number
+    export let thingSize: number | null
     export let graphWidgetStyle: GraphWidgetStyle
 
 
 
 
+
+    const inOutline = (["Space", "all"] as (number | "Space" | "all")[]).includes(directionId)
+
+
+
+
     // Graph scale (for counter-scaling the tooltip).
-    $: scale = zoomBase ** (graphWidgetStyle?.zoom || 1)
+    $: scale = inOutline ? 1 : zoomBase ** (graphWidgetStyle?.zoom || 1)
     
 
     // Whether the indicator (and by extension, the half-axis it models) is expanded or not.
@@ -50,9 +56,13 @@
 
     // Basic indicator geometry.
     $: offSetSize = isExpanded ? 10 : 15
-    $: xOffset = (0.5 * thingSize + offSetSize) * offsetsByHalfAxisId[halfAxisId || 0][0]
-    $: yOffset = (0.5 * thingSize + offSetSize) * offsetsByHalfAxisId[halfAxisId || 0][1]
-    const baseIndicatorSize = 20
+    $: xOffset =
+        thingSize === null ? 0 :
+        (0.5 * thingSize + offSetSize) * offsetsByHalfAxisId[halfAxisId || 0][0]
+    $: yOffset =
+        thingSize === null ? 0 :
+        (0.5 * thingSize + offSetSize) * offsetsByHalfAxisId[halfAxisId || 0][1]
+    const baseIndicatorSize = inOutline ? 15 : 20
     $: indicatorSize = isExpanded ? baseIndicatorSize * 0.75 : baseIndicatorSize
 
     // Indicator background color.
@@ -73,7 +83,19 @@
     // How many relations the parent Thing has in this Direction.
     $: numberOfRelations =
         parentThing.b_relationships
-            .filter(relationship => relationship.direction === directionId)
+            .filter(
+                relationship => {return (
+                    relationship.direction === directionId
+                    || directionId === "all"
+                    || (
+                        directionId === "Space"
+                        && (parentThing.space as Space).directions
+                            .map(direction => direction.id)
+                            .includes(relationship.direction)
+                    ) ? true :
+                    false
+                )}
+            )
             .length
 
     // How many of those relations are shown.
@@ -151,8 +173,12 @@
     class:prevent-editing={$preventEditing}
 
     style="
-        left: calc(50% + {xOffset}px);
-        top: calc(50% + {yOffset}px);
+        {
+            directionId === "Space" ? "bottom: 3px; left: 3px;" :
+            directionId === "all" ? "bottom: 3px; left: 24px;" :
+            `left: calc(50% + ${xOffset}px); top: calc(50% + ${yOffset}px); transform: translate(-50%, -50%);`
+        }
+        
         width: {indicatorSize}px;
         height: {indicatorSize}px;
         background-color: {indicatorColor};
@@ -197,9 +223,9 @@
         <Tooltip
             text={
                 isExpanded ? "Collapse relations." :
-                `${$preventEditing ? "" : "Show "}${numberOfUnshownRelations} collapsed relation${numberOfUnshownRelations > 1 ? "s" : ""}.`
+                `${$preventEditing ? "" : "Show "}${directionId === "all" ? "all " : ""}${numberOfUnshownRelations} collapsed ${directionId === "Space" ? "in-Space " : ""}relation${numberOfUnshownRelations > 1 ? "s" : ""}.`
             }
-            direction={"up"}
+            direction={inOutline ? "right" : "up"}
             delay={1000}
             {scale}
         />
@@ -213,7 +239,6 @@
         border-radius: 10%;
 
         position: absolute;
-        transform: translate(-50%, -50%);
         opacity: 0.5;
 
         display: flex;
