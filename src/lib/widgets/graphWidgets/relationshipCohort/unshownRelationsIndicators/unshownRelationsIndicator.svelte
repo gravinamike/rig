@@ -1,12 +1,12 @@
 <script lang="ts">
     // Import types.
     import type { HalfAxisId } from "$lib/shared/constants"
-    import type { Graph, Space, Thing, ThingCohort } from "$lib/models/constructModels"
+    import type { Thing } from "$lib/models/constructModels"
     import type { ThingDbModel } from "$lib/models/dbModels"
-    import type { GraphWidgetStyle } from "../graph"
+    import type { GraphWidgetStyle } from "../../graph"
 
     // Import constants.
-    import { offsetsByHalfAxisId, zoomBase } from "$lib/shared/constants"
+    import { zoomBase } from "$lib/shared/constants"
 
     // Import stores.
     import { preventEditing, storeGraphDbModels, addGraphIdsNeedingViewerRefresh } from "$lib/stores"
@@ -23,8 +23,10 @@
     export let parentThing: Thing
     export let directionId: number | "Space" | "all"
     export let halfAxisId: HalfAxisId | null
-    export let thingCohorts: ThingCohort[]
-    export let thingSize: number | null
+    export let relationsCount: number
+    export let shownRelationsCount: number
+    export let unshownRelationsCount: number
+    export let symbolsToShowCount: number
     export let graphWidgetStyle: GraphWidgetStyle
 
 
@@ -49,85 +51,31 @@
     // Whether the indicator is visually hidden. (This is the case for non-expanded half-axes with
     // no relations, and expanded half-axes when editing is disabled.)
     $: isHidden = (
-        (!isExpanded && numberOfUnshownRelations === 0)
+        (!isExpanded && unshownRelationsCount === 0)
         || (isExpanded && $preventEditing)
     )
 
 
     // Basic indicator geometry.
-    $: offSetSize = isExpanded ? 10 : 15
-    $: xOffset =
-        thingSize === null ? 0 :
-        (0.5 * thingSize + offSetSize) * offsetsByHalfAxisId[halfAxisId || 0][0]
-    $: yOffset =
-        thingSize === null ? 0 :
-        (0.5 * thingSize + offSetSize) * offsetsByHalfAxisId[halfAxisId || 0][1]
     const baseIndicatorSize = inOutline ? 15 : 20
     $: indicatorSize = isExpanded ? baseIndicatorSize * 0.75 : baseIndicatorSize
 
     // Indicator background color.
     $: indicatorColor =
         isExpanded ? "white" :
-        numberOfUnshownRelations < 10 ? "white" :
-        numberOfUnshownRelations < 100 ? "grey" :
+        unshownRelationsCount < 10 ? "white" :
+        unshownRelationsCount < 100 ? "grey" :
         "black"
 
     // Relation symbol (pip) color.
     $: symbolColor =
         isExpanded ? "grey" :
-        numberOfUnshownRelations < 10 ? "grey" :
-        numberOfUnshownRelations < 100 ? "gainsboro" :
+        unshownRelationsCount < 10 ? "grey" :
+        unshownRelationsCount < 100 ? "gainsboro" :
         "white"
 
 
-    // How many relations the parent Thing has in this Direction.
-    $: numberOfRelations =
-        parentThing.b_relationships
-            .filter(
-                relationship => {return (
-                    relationship.direction === directionId
-                    || directionId === "all"
-                    || (
-                        directionId === "Space"
-                        && (parentThing.space as Space).directions
-                            .map(direction => direction.id)
-                            .includes(relationship.direction)
-                    ) ? true :
-                    false
-                )}
-            )
-            .length
-
-    // How many of those relations are shown.
-    $: numberOfShownRelations =
-        thingCohorts.map(
-            (thingCohort) => {
-                // If the Thing Cohort for this half-axis is within the Graph's Depth, or if the half-axis
-                // is expanded,
-                return (
-                    thingCohort.address.generationId <= (parentThing.graph as Graph).depth
-                    || isExpanded
-                ) ?
-                    // All the relations are shown.
-                    thingCohort.members.length :
-
-                    // Otherwise, only those relations with the "alreadyRendered" flag set are shown.
-                    thingCohort.members.filter(member => member.alreadyRendered).length
-            }
-        ).reduce((a, b) => a + b, 0)
-        
-    // How many of those relations are unshown.
-    $: numberOfUnshownRelations = numberOfRelations - numberOfShownRelations
-
-
-
-    // The number of relation symbols (pips) to show is based on the number of unshown relations.
-    // Pips represent single relations if the number is less than 10, tens of relations if the
-    // number is between 10 and 99, and hundreds of relations if the number is above that.
-    $: numberOfSymbolsToShow =
-        numberOfUnshownRelations < 10 ? numberOfUnshownRelations :
-        numberOfUnshownRelations < 100 ? Math.floor(numberOfUnshownRelations / 10) :
-        Math.floor(numberOfUnshownRelations / 100)
+    
 
 
     
@@ -173,14 +121,9 @@
     class:prevent-editing={$preventEditing}
 
     style="
-        {
-            directionId === "Space" ? "bottom: 3px; left: 3px;" :
-            directionId === "all" ? "bottom: 3px; left: 24px;" :
-            `left: calc(50% + ${xOffset}px); top: calc(50% + ${yOffset}px); transform: translate(-50%, -50%);`
-        }
-        
         width: {indicatorSize}px;
         height: {indicatorSize}px;
+        {directionId === "Space" ? "z-index: 1;" : ""}
         background-color: {indicatorColor};
     "
 
@@ -193,7 +136,7 @@
         {#each [1, 2, 3, 4, 5, 6, 7, 8, 9] as symbolId}
             <div
                 class="nested-square"
-                class:hidden={symbolId > numberOfSymbolsToShow}
+                class:hidden={symbolId > symbolsToShowCount}
                 
                 style="background-color: {symbolColor};"
             />
@@ -219,11 +162,11 @@
     {/if}
 
     <!-- Tooltip. -->
-    {#key [isExpanded, numberOfUnshownRelations]}
+    {#key [isExpanded, unshownRelationsCount]}
         <Tooltip
             text={
                 isExpanded ? "Collapse relations." :
-                `${$preventEditing ? "" : "Show "}${directionId === "all" ? "all " : ""}${numberOfUnshownRelations} collapsed ${directionId === "Space" ? "in-Space " : ""}relation${numberOfUnshownRelations > 1 ? "s" : ""}.`
+                `${$preventEditing ? "" : "Show "}${directionId === "all" ? "all " : ""}${unshownRelationsCount} collapsed ${directionId === "Space" ? "in-Space " : ""}relation${unshownRelationsCount > 1 ? "s" : ""}.`
             }
             direction={inOutline ? "right" : "up"}
             delay={1000}
@@ -238,7 +181,7 @@
         outline: solid 1px lightgrey;
         border-radius: 10%;
 
-        position: absolute;
+        position: relative;
         opacity: 0.5;
 
         display: flex;

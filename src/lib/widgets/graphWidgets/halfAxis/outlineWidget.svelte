@@ -75,13 +75,6 @@
         class="relationships-and-child-cohorts-outer-container"
         class:expanded
     >
-        <!-- Relationship color field. -->
-        <div
-            class="relationship-color-field"
-
-            style="background-color: {relationshipColorByHalfAxisId[thingCohort.halfAxisId] || "dimgrey"};"
-        />
-
         <!-- The Thing's Relationships and child Thing Cohorts (inner container). -->
         <div
             class="relationships-and-child-cohorts-inner-container"
@@ -95,6 +88,13 @@
                 class:expanded
                 class:has-children={thingCohort.members.length}
             >
+                <!-- Relationship color field. -->
+                <div
+                    class="relationship-color-field"
+
+                    style="background-color: {relationshipColorByHalfAxisId[thingCohort.halfAxisId] || "dimgrey"};"
+                />
+
                 <!-- Relationship Cohort outline widget. -->
                 <RelationshipCohortOutlineWidget
                     {thingCohort}
@@ -102,10 +102,7 @@
                     {graphWidgetStyle}
                     {outlineScrollAreaTop}
                     {outlineScrollTime}
-                />
-
-
-                
+                />                
             </div>
 
             <!-- Thing Cohort Widget. -->
@@ -154,6 +151,8 @@
     }
 
     .relationship-color-field {
+        box-shadow: 1px 0 1px 0 grey;
+
         position: absolute;
         height: 100%;
         width: 100%;

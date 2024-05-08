@@ -9,7 +9,7 @@
 
     // Import related widgets.
     import {
-        HalfAxisOutlineWidget, ThingOutlineWidget, ThingFormOutlineWidget, UnshownRelationsIndicator
+        HalfAxisOutlineWidget, ThingOutlineWidget, ThingFormOutlineWidget, UnshownRelationsIndicators
     } from "$lib/widgets/graphWidgets"
     
 
@@ -160,20 +160,10 @@
 
     
 
-    <!-- Unshown-relations indicator (Space). ////////////////////// EXTRACT THE VISUAL PART, COMBINE THESE INTO TWO. -->
-    <UnshownRelationsIndicator
+    <!-- Unshown-relations indicators. -->
+    <UnshownRelationsIndicators
         parentThing={rootThing}
-        directionId={"all"}
-        halfAxisId={null}
-        thingCohorts={orderedThingCohortsWithMembers}
-        thingSize={null}
-        {graphWidgetStyle}
-    />
-
-    <!-- Unshown-relations indicator (all). -->
-    <UnshownRelationsIndicator
-        parentThing={rootThing}
-        directionId={"Space"}
+        directionId={"outline"}
         halfAxisId={null}
         thingCohorts={orderedThingCohortsWithMembers}
         thingSize={null}

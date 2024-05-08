@@ -11,7 +11,7 @@
 
     // Import related widgets.
     import {
-        UnshownRelationsIndicator, HalfAxisWidget, ThingWidget, ThingFormWidget, OffAxisRelationsWidget
+        UnshownRelationsIndicators, HalfAxisWidget, ThingWidget, ThingFormWidget, OffAxisRelationsWidget
     } from "$lib/widgets/graphWidgets"
 
     
@@ -165,7 +165,7 @@
         {/if}
 
         <!-- Unshown-relations indicator. -->
-        <UnshownRelationsIndicator
+        <UnshownRelationsIndicators
             parentThing={rootThing}
             directionId={thingCohort.direction?.id ?? 0}
             halfAxisId={thingCohort.halfAxisId}
