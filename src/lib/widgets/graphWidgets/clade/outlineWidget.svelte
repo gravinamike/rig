@@ -37,13 +37,7 @@
     let orderedThingCohortsWithMembers: ThingCohort[] = []
     let childThings: Thing[] = []
     let showCladeRootThing: boolean
-    let expandable: boolean
-    let expanded: boolean
-    let showToggle: boolean
     
-
-    // Whether the expand-/collapse-Clade toggle is hovered.
-    let toggleHovered = false
 
 
 
@@ -59,16 +53,12 @@
     {graph}
     {rootThing}
     {graphWidgetStyle}
-    {toggleHovered}
 
     bind:thingCohorts
     bind:orderedThingCohorts
     bind:orderedThingCohortsWithMembers
     bind:childThings
     bind:showCladeRootThing
-    bind:expandable
-    bind:expanded
-    bind:showToggle
 />
 
 
@@ -76,7 +66,6 @@
 <div
     class="clade-outline-widget"
     class:off-axis={graph.offAxis}
-    class:expanded
     class:has-children={thingCohorts.length > 0}
 >
     <!-- Root Thing (and indicator of its child Things). -->
@@ -111,54 +100,28 @@
                     {graphWidgetStyle}
                 />
             {/if}
-
-            <!-- Child Things indicator/toggle. -->
-            {#if showCladeRootThing && rootThingHovered && expandable}
-                <div
-                    class="children-indicator-container"
-
-                    on:click={() => expanded = !expanded}
-                    on:keyup={() => {}}
-                    on:mouseenter={() => toggleHovered = true}
-                    on:mouseleave={() => toggleHovered = false}
-                >
-                    <!-- Children-Things quantity indicator. -->
-                    {#if !expanded}
-                        +{childThings.length}
-                    {/if}
-
-                    <!-- Expand/collapse toggle. -->
-                    {#if showToggle && expanded}
-                        <svg class="relationship-toggle-arrow">
-                            <path d="M 4 7 L 10 13 L 16 7" />
-                        </svg>
-                    {/if}
-                </div>
-            {/if}
         </div>
     {/if}
 
     <!-- The Thing's Relationships and child Thing Cohorts (outer containers). -->
     {#each orderedThingCohortsWithMembers as thingCohort (thingCohort.address)}
-        <!-- Half-axis widget. -->
-        <HalfAxisOutlineWidget
-            {thingCohort}
-            bind:graph
-            {graphWidgetStyle}
-            {expanded}
-            {outlineScrollAreaTop}
-            {outlineScrollTime}
-            {editingNotes}
-            {notesEditor}
-            {rePerspectToThingId}
-        />
+        {#if
+            // Render the half-axis widget if the Thing Cohort's `shouldBeRendered` flag is set.
+            thingCohort.shouldBeRendered
+        }
+            <!-- Half-axis widget. -->
+            <HalfAxisOutlineWidget
+                {thingCohort}
+                bind:graph
+                {graphWidgetStyle}
+                {outlineScrollAreaTop}
+                {outlineScrollTime}
+                {editingNotes}
+                {notesEditor}
+                {rePerspectToThingId}
+            />
+        {/if}
     {/each}
-
-
-
-
-
-    
 
     <!-- Unshown-relations indicators. -->
     <UnshownRelationsIndicators
@@ -189,59 +152,10 @@
         overflow: visible;
     }
 
-    .clade-outline-widget.expanded.has-children {
-        border-radius: 6px;
-    }
-
-    .clade-outline-widget.expanded:not(.off-axis).has-children {
-        border-radius: 0;
-    }
-
     .root-thing-container {
         flex: 1 1 0;
 
         position: relative;
-
-        overflow: visible;
-    }
-
-    .children-indicator-container {
-        border-radius: 50%;
-
-        position: absolute;
-        left: 33px;
-        top: calc(100%);
-        width: 20px;
-        height: 20px;
-        transform: translate(-50%, -50%);
-        z-index: 1;
-        background-color: silver;
-        opacity: 50%;
-
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        cursor: pointer;
-    }
-
-    .children-indicator-container:hover {
-        opacity: 80%;
-    }
-
-    .children-indicator-container:active {
-        opacity: 100%;
-    }
-
-    .relationship-toggle-arrow {
-        position: absolute;
-        width: 20px;
-        height: 20px;
-        transform: scale(1, -1);
-        
-        stroke: dimgrey;
-        stroke-width: 3;
-        fill: transparent;
 
         overflow: visible;
     }

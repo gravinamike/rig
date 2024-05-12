@@ -18,7 +18,6 @@
     export let thingCohort: ThingCohort
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
-    export let expanded: boolean
     export let outlineScrollAreaTop: number
     export let outlineScrollTime: Date | null
     export let editingNotes: boolean
@@ -69,23 +68,24 @@
 
 
 
-
-{#if !thingCohort.isRetrograde}
-    <div
-        class="relationships-and-child-cohorts-outer-container"
-        class:expanded
-    >
+{#if !(
+    thingCohort.isRetrograde
+    || (
+        thingCohort.generation
+        && thingCohort.generation.isRelationshipsOnly
+    )
+) }
+    <div class="relationships-and-child-cohorts-outer-container">
         <!-- The Thing's Relationships and child Thing Cohorts (inner container). -->
         <div
             class="relationships-and-child-cohorts-inner-container"
             
-            style="flex-direction: { expanded ? "row" : "column" };"
+            style="flex-direction: row;"
         >
 
             <!-- Relationship Cohort Widget. -->
             <div
                 class="relationships-outline-widget-container"
-                class:expanded
                 class:has-children={thingCohort.members.length}
             >
                 <!-- Relationship color field. -->
@@ -132,22 +132,10 @@
         border-radius: 5px;
 
         position: relative;
-        min-height: 0.5rem;
+        min-height: 1.05rem;
 
-        display: none;
-    }
-
-    .expanded.relationships-and-child-cohorts-outer-container {
         display: flex;
         flex-direction: column;
-    }
-
-    .relationships-and-child-cohorts-outer-container:hover {
-        position: relative;
-    }
-
-    .relationships-and-child-cohorts-outer-container:hover {
-        min-height: 1.05rem;
     }
 
     .relationship-color-field {
@@ -172,11 +160,7 @@
         display: none;
     }
 
-    .relationships-outline-widget-container:not(.expanded.has-children) {
-        width: 100%;
-    }
-
-    .relationships-outline-widget-container.expanded.has-children {
+    .relationships-outline-widget-container.has-children {
         width: fit-content;
         min-height: 100%;
         transform: scale(1);

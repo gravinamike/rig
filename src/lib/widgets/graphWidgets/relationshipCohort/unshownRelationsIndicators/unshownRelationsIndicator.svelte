@@ -23,8 +23,6 @@
     export let parentThing: Thing
     export let directionId: number | "Space" | "all"
     export let halfAxisId: HalfAxisId | null
-    export let relationsCount: number
-    export let shownRelationsCount: number
     export let unshownRelationsCount: number
     export let symbolsToShowCount: number
     export let graphWidgetStyle: GraphWidgetStyle
@@ -58,7 +56,7 @@
 
     // Basic indicator geometry.
     const baseIndicatorSize = inOutline ? 15 : 20
-    $: indicatorSize = isExpanded ? baseIndicatorSize * 0.75 : baseIndicatorSize
+    $: indicatorSize = isExpanded && !inOutline ? baseIndicatorSize * 0.75 : baseIndicatorSize
 
     // Indicator background color.
     $: indicatorColor =
@@ -148,16 +146,16 @@
             class="perspective-expansion-collapser-button"
             style="
                 transform: rotate({
-                    halfAxisId === 1 ? 180 :
+                    halfAxisId === null || halfAxisId === 1 ? 180 :
                     halfAxisId === 2 ? 0 :
                     halfAxisId === 3 ? 90 :
                     270
                 }deg);
             "
         >
-            <div class="collapse-icon">
-                v
-            </div>
+            <svg class="collapse-icon">
+                <path d="M 3 6.5 L 9 12.5 L 15 6.5" />
+            </svg>
         </div>
     {/if}
 
@@ -165,7 +163,7 @@
     {#key [isExpanded, unshownRelationsCount]}
         <Tooltip
             text={
-                isExpanded ? "Collapse relations." :
+                isExpanded ? `Collapse ${directionId === "Space" ? "all " : "non-Space"}relations.` :
                 `${$preventEditing ? "" : "Show "}${directionId === "all" ? "all " : ""}${unshownRelationsCount} collapsed ${directionId === "Space" ? "in-Space " : ""}relation${unshownRelationsCount > 1 ? "s" : ""}.`
             }
             direction={inOutline ? "right" : "up"}
@@ -196,7 +194,7 @@
     .unshown-relations-indicator.expanded {
         border-radius: 50%;
 
-        opacity: 0;
+        opacity: 0.15;
 
         align-items: center;
         justify-content: center;
@@ -231,18 +229,20 @@
     }
 
     .perspective-expansion-collapser-button {
+        position: absolute;
         width: 100%;
         height: 100%;
     }
 
     .collapse-icon {
-        margin: auto;
+        position: absolute;
         width: 100%;
         height: 100%;
-        transform: scale(1.45, 0.85) translate(-0.35px, -3px);
+        
+        stroke: dimgrey;
+        stroke-width: 3;
+        fill: transparent;
 
-        text-align: center;
-        font-weight: 600;
-        color: grey;
+        overflow: visible;
     }
 </style>

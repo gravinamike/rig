@@ -938,7 +938,7 @@ export class Thing {
 
     updatePerspectiveExpansions(
         thingId: number,
-        directionId: number
+        directionId: number | "Space" | "all"
     ) {
         const perspectiveExpansionsString = this.perspectiveexpansions
         const spaceId = this.space?.id as number
@@ -954,6 +954,18 @@ export class Thing {
         }
 
         if (!(perspectiveExpansions[spaceId][thingId].includes(directionId))) {
+
+            if (
+                directionId === "Space"
+                && perspectiveExpansions[spaceId][thingId].includes("all")
+            ) removeItemFromArray(perspectiveExpansions[spaceId][thingId], "all")
+
+            if (
+                directionId === "all"
+                && perspectiveExpansions[spaceId][thingId].includes("Space")
+            ) removeItemFromArray(perspectiveExpansions[spaceId][thingId], "Space")
+
+
             perspectiveExpansions[spaceId][thingId].push(directionId)
         } else {
             removeItemFromArray(perspectiveExpansions[spaceId][thingId], directionId, false)

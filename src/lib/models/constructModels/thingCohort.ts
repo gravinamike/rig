@@ -377,6 +377,17 @@ export class ThingCohort {
             || this.direction.id === null
         ) return false
 
+
+
+        const directionIdToCheck =
+            this.parentThing.graph.isOutline ? (
+                this.parentThing.graph.startingSpace?.includesDirectionId(this.direction.id) ? "Space" :
+                "all" 
+            ) :
+            this.direction.id
+
+
+
         // The Thing Cohort should be rendered if...
         const shouldBeRendered = (
             // ...the Thing Cohort isn't empty, and...
@@ -391,7 +402,7 @@ export class ThingCohort {
                 // or...
                 || this.parentThing.graph.directionFromThingIsExpanded(
                     this.parentThing.id,
-                    this.direction.id
+                    directionIdToCheck
                 )
 
                 // ...it's the last, Relationships-only Generation and at least some of the

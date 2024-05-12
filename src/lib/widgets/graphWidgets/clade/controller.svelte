@@ -34,8 +34,6 @@
      * @param orderedThingCohortsWithMembers - The ordered Thing Cohorts that have members.
      * @param childThings - All child Things in the Clade.
      * @param showCladeRootThing - Whether to display the root Thing of the Clade.
-     * @param expandable - Whether the Clade can be collapsed to hide children or expanded to show them.
-     * @param expanded - Whether the Clade is collapsed to hide children or expanded to show them.
      * @param rootThingOffsetFromCenterOfThingCohort - The offset (in pixels) betwen the root Thing and the center of its Thing Cohort.
      * @param cartesianThingCohorts - The Thing Cohorts that are on the Cartesian half-axes.
      * @param showAsCollapsed - Whether to format the Clade widget to indicate its parent Thing Cohort is collapsed.
@@ -60,10 +58,6 @@
     export let orderedThingCohortsWithMembers: ThingCohort[] = []
     export let childThings: Thing[] = []
     export let showCladeRootThing = true
-    export let expandable = false
-    export let expanded = false
-    export let toggleHovered = false
-    export let showToggle = false
     export let cladeControlsOpened = false
 
     export let overlapMarginStyleText: string = ""
@@ -257,47 +251,6 @@
     ) ?
         false :
         true
-
-    /**
-     * Expandable flag.
-     * 
-     * Determines whether the Clade can be collapsed to hide children or
-     * expanded to show them.
-     */
-    $: expandable = (
-        // The Clade is expandable if there are Thing Cohorts...
-        thingCohorts.length
-        // ... the Cohorts have a Generation...
-        && thingCohorts[0].generation
-        // ...and that Generation is not a Relationships-only Generation.
-        && !thingCohorts[0].generation.isRelationshipsOnly
-    ) ? true :
-    false
-
-    /**
-     * Expanded flag.
-     * 
-     * Determines whether the Clade is collapsed to hide children or expanded
-     * to show them. Starts true if the `expandable` flag is true.
-     */
-    $: expanded = expandable ? true : false
-
-    /**
-     * Show-toggle flag.
-     * 
-     * Determines whether to show the expand/collapse toggle. (Currently only applies for outline
-     * widgets).
-     */
-    $: showToggle = (
-        // Show the toggle if...
-        (
-            // ...there is no reordering operation in progress and the toggle is hovered, or...
-            !$reorderingInfoStore.reorderInProgress
-            && toggleHovered
-        )
-        // ...the Clade is currently expanded.
-        || expanded
-    )
 
 
 

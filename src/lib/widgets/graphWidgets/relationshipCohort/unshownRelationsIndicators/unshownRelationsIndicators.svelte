@@ -200,8 +200,6 @@
             {parentThing}
             directionId={indicatorInfo.directionId}
             {halfAxisId}
-            relationsCount={indicatorInfo.relationsCount}
-            shownRelationsCount={indicatorInfo.shownRelationsCount}
             unshownRelationsCount={indicatorInfo.unshownRelationsCount}
             symbolsToShowCount={indicatorInfo.symbolsToShowCount}
             {graphWidgetStyle}
