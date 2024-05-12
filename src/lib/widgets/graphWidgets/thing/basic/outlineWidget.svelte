@@ -143,7 +143,7 @@
 
     let thingOutlineWidget: HTMLElement | null = null
 
-    let thingTextContainerStickyOffset = 0
+    let thingTextContainerStickyOffset = getThingTextContainerStickyOffset()
 
 
 

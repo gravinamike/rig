@@ -8,7 +8,7 @@
     import { onDestroy } from "svelte"
 
     // Import stores.
-    import { addGraph, landscapeOrientation, removeGraph, titleFontStore, titleFontWeightStore, uITrimColorStore, addGraphIdsNeedingViewerRefresh, preventEditing, notesEditorLockedStore } from "$lib/stores"
+    import { addGraph, landscapeOrientation, removeGraph, titleFontStore, titleFontWeightStore, uITrimColorStore, addGraphIdsNeedingViewerRefresh, preventEditing, notesEditorLockedStore, hoveredThingIdStore, lightenOrDarkenColorString, thingColorStore, relationshipBeingCreatedInfoStore } from "$lib/stores"
 
     // Import utility functions.
     import { onMobile, writePlainTextToClipboard } from "$lib/shared/utility"
@@ -260,6 +260,34 @@
     }
     
 
+
+
+
+
+
+
+    function onThingMouseEnter() {
+        if (graph) hoveredThingIdStore.set(graph?.pThingIds[0])
+    }
+
+    function onThingMouseLeave() {
+        hoveredThingIdStore.set(null)
+    }
+
+    function onThingClick() {
+        if (graph) {
+            rePerspectToThingId(graph?.pThingIds[0])
+            pThingIds = graph?.pThingIds
+        }
+    }
+
+
+
+
+
+
+
+
     
 
     onDestroy(() => {
@@ -291,7 +319,8 @@
             class="title"
 
             style="
-                margin-left: {onMobile() && !$landscapeOrientation ? 60 : 8}px;
+                {pThingIds[0] === $hoveredThingIdStore ? "box-shadow: 1px 1px 2px 1px dimgrey;" : ""}
+                margin-left: {onMobile() && !$landscapeOrientation ? 60 : 1}px;
                 margin-right: {onMobile() ? 45 : 0}px;
                 {
                     onMobile() ? (
@@ -301,9 +330,18 @@
 
                     ""
                 }
+                background-color: {
+                    pThingIds[0] === $hoveredThingIdStore ? lightenOrDarkenColorString($thingColorStore, "darker", 4) :
+                    $thingColorStore
+                };
                 font-family: {$titleFontStore ?? "Arial"};
                 font-weight: {$titleFontWeightStore ?? 600};
             "
+
+            on:mouseenter={onThingMouseEnter}
+            on:mouseleave={onThingMouseLeave}
+            on:click={onThingClick}
+            on:keydown={()=>{}}
         >
             <div>{title}</div>
         </div>
@@ -423,7 +461,7 @@
         display: flex;
         flex-direction: column;
         padding: 0.5rem;
-        gap: 0.5rem;
+        gap: 1px;
         
         user-select: none;
     }
@@ -435,12 +473,29 @@
     .title {
         flex: 0 0 34px;
 
+        box-shadow: 1px 1px 1px 0px silver;
+        outline: solid 0.25px lightgrey;
+        outline-offset: -0.25px;
+        border-radius: 4px;
+
         position: relative;
+        width: fit-content;
         height: 34px;
+        z-index: 1;
 
         display: flex;
+        padding: 0.25rem 0.5rem 0.25rem 0.5rem;
         align-items: center;
     }
+
+
+
+
+
+
+
+
+
 
     .title div {
         margin: 0;
