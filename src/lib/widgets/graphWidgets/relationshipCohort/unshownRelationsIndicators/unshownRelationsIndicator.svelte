@@ -2,31 +2,28 @@
     // Import types.
     import type { HalfAxisId } from "$lib/shared/constants"
     import type { Thing } from "$lib/models/constructModels"
-    import type { ThingDbModel } from "$lib/models/dbModels"
     import type { GraphWidgetStyle } from "../../graph"
 
     // Import constants.
     import { zoomBase } from "$lib/shared/constants"
 
     // Import stores.
-    import { preventEditing, storeGraphDbModels, addGraphIdsNeedingViewerRefresh } from "$lib/stores"
+    import { preventEditing } from "$lib/stores"
 
     // Import UI components.
     import { Tooltip } from "$lib/widgets/layoutWidgets"
     
-    // Import API functions.
-    import { updateThingPerspectiveExpansions } from "$lib/db/makeChanges"
-    
     
 
 
-    export let parentThing: Thing
     export let directionId: number | "Space" | "all"
     export let halfAxisId: HalfAxisId | null
+    export let offAxis = false
     export let unshownRelationsCount: number
     export let symbolsToShowCount: number
+    export let isExpanded: boolean
     export let graphWidgetStyle: GraphWidgetStyle
-
+    export let onClick: () => void
 
 
 
@@ -38,13 +35,6 @@
 
     // Graph scale (for counter-scaling the tooltip).
     $: scale = inOutline ? 1 : zoomBase ** (graphWidgetStyle?.zoom || 1)
-    
-
-    // Whether the indicator (and by extension, the half-axis it models) is expanded or not.
-    const isExpanded = parentThing.graph?.directionFromThingIsExpanded(
-        parentThing.id as number,
-        directionId
-    ) ?? false
 
     // Whether the indicator is visually hidden. (This is the case for non-expanded half-axes with
     // no relations, and expanded half-axes when editing is disabled.)
@@ -55,8 +45,8 @@
 
 
     // Basic indicator geometry.
-    const baseIndicatorSize = inOutline ? 15 : 20
-    $: indicatorSize = isExpanded && !inOutline ? baseIndicatorSize * 0.75 : baseIndicatorSize
+    const baseIndicatorSize = inOutline && !offAxis ? 15 : 20
+    $: indicatorSize = isExpanded && !(inOutline && !offAxis) ? baseIndicatorSize * 0.75 : baseIndicatorSize
 
     // Indicator background color.
     $: indicatorColor =
@@ -71,43 +61,7 @@
         unshownRelationsCount < 10 ? "grey" :
         unshownRelationsCount < 100 ? "gainsboro" :
         "white"
-
-
     
-
-
-    
-    /**
-     * On-click method.
-     * 
-     * Toggles the Perspective Expansion of the corresponding half-axis.
-     */
-    async function onClick() {
-        // If editing is disabled, abort.
-        if ($preventEditing) return
-
-        // Get info about the Perspective Thing.
-        const perspectiveThing = parentThing.graph?.perspectiveThing as Thing
-        const perspectiveThingId = perspectiveThing.id as number
-
-        // Get the string representing the Perspective Expansions after the current Direction's
-        // expansion state is toggled.
-        const updatedPerspectiveExpansions = perspectiveThing.updatePerspectiveExpansions(
-            parentThing.id as number,
-            directionId
-        )
-
-        // Update the Perspective Expansions based on that string.
-        await updateThingPerspectiveExpansions(
-            perspectiveThingId,
-            updatedPerspectiveExpansions
-        )
-
-        // Refresh the stores, Graph and Graph viewer.
-        await storeGraphDbModels<ThingDbModel>("Thing", perspectiveThingId as number, true)
-        await parentThing.graph?.build()
-        addGraphIdsNeedingViewerRefresh(parentThing.graph?.id as number)
-    }
 </script>
 
 
@@ -130,6 +84,7 @@
 >
     <!-- If the half-axis is not expanded, -->
     {#if !isExpanded}
+
         <!-- Show pips for unshown relations. -->
         {#each [1, 2, 3, 4, 5, 6, 7, 8, 9] as symbolId}
             <div
@@ -146,6 +101,7 @@
             class="perspective-expansion-collapser-button"
             style="
                 transform: rotate({
+                    offAxis ? 135 :
                     halfAxisId === null || halfAxisId === 1 ? 180 :
                     halfAxisId === 2 ? 0 :
                     halfAxisId === 3 ? 90 :
@@ -163,7 +119,7 @@
     {#key [isExpanded, unshownRelationsCount]}
         <Tooltip
             text={
-                isExpanded ? `Collapse ${directionId === "Space" ? "all " : "non-Space"}relations.` :
+                isExpanded ? `Collapse ${directionId === "Space" ? "all " : "non-Space "}relations.` :
                 `${$preventEditing ? "" : "Show "}${directionId === "all" ? "all " : ""}${unshownRelationsCount} collapsed ${directionId === "Space" ? "in-Space " : ""}relation${unshownRelationsCount > 1 ? "s" : ""}.`
             }
             direction={inOutline ? "right" : "up"}

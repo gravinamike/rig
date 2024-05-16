@@ -9,6 +9,11 @@
     
     // Import related components.
     import UnshownRelationsIndicator from "./unshownRelationsIndicator.svelte"
+    import { addGraphIdsNeedingViewerRefresh, preventEditing, storeGraphDbModels } from "$lib/stores"
+
+    // Import API functions.
+    import { updateThingPerspectiveExpansions } from "$lib/db/makeChanges"
+    import type { ThingDbModel } from "$lib/models/dbModels";
     
 
 
@@ -71,6 +76,7 @@
         shownRelationsCount: number
         unshownRelationsCount: number
         symbolsToShowCount: number
+        isExpanded: boolean
     }
 
     let indicatorInfos: IndicatorInfo[] = []
@@ -146,14 +152,15 @@
                 unshownRelationsCount < 100 ? Math.floor(unshownRelationsCount / 10) :
                 Math.floor(unshownRelationsCount / 100)
 
-
             const indicatorInfo = {
                 directionId: id,
                 relationsCount,
                 shownRelationsCount,
                 unshownRelationsCount,
-                symbolsToShowCount
+                symbolsToShowCount,
+                isExpanded
             }
+
 
             if (!(i === 1 && indicatorInfo.unshownRelationsCount === indicatorInfos[0].unshownRelationsCount)) {
                 indicatorInfos.push(indicatorInfo)
@@ -179,7 +186,37 @@
 
 
 
-    
+    /**
+     * On-click method.
+     * 
+     * Toggles the Perspective Expansion of the corresponding half-axis.
+     */
+    async function onIndicatorClick(directionId: number | "Space" | "all") {
+        // If editing is disabled, abort.
+        if ($preventEditing) return
+
+        // Get info about the Perspective Thing.
+        const perspectiveThing = parentThing.graph?.perspectiveThing as Thing
+        const perspectiveThingId = perspectiveThing.id as number
+
+        // Get the string representing the Perspective Expansions after the current Direction's
+        // expansion state is toggled.
+        const updatedPerspectiveExpansions = perspectiveThing.updatePerspectiveExpansions(
+            parentThing.id as number,
+            directionId
+        )
+
+        // Update the Perspective Expansions based on that string.
+        await updateThingPerspectiveExpansions(
+            perspectiveThingId,
+            updatedPerspectiveExpansions
+        )
+
+        // Refresh the stores, Graph and Graph viewer.
+        await storeGraphDbModels<ThingDbModel>("Thing", perspectiveThingId as number, true)
+        await parentThing.graph?.build()
+        addGraphIdsNeedingViewerRefresh(parentThing.graph?.id as number)
+    }
 
 
 
@@ -197,12 +234,13 @@
 >
     {#each indicatorInfos as indicatorInfo}
         <UnshownRelationsIndicator
-            {parentThing}
             directionId={indicatorInfo.directionId}
             {halfAxisId}
             unshownRelationsCount={indicatorInfo.unshownRelationsCount}
             symbolsToShowCount={indicatorInfo.symbolsToShowCount}
+            bind:isExpanded={indicatorInfo.isExpanded}
             {graphWidgetStyle}
+            onClick={() => {onIndicatorClick(indicatorInfo.directionId)}}
         />
     {/each}
 </div>

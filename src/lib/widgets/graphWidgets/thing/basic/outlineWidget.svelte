@@ -327,6 +327,9 @@
     .thing-outline-widget:not(.off-axis) {
         margin-top: -1px;
 
+        outline: solid 0.25px lightgrey;
+        outline-offset: -0.25px;
+
         padding: 0rem;
     }
 
@@ -341,8 +344,6 @@
 
     .box {
         box-shadow: 1px 1px 1px 0px silver;
-        outline: solid 0.25px lightgrey;
-        outline-offset: -0.25px;
         border-radius: 2px;
 
         height: max-content;

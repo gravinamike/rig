@@ -17,7 +17,7 @@
 
     // Import related widgets.
     import { WaitingIndicator } from "$lib/widgets/layoutWidgets"
-    import { GraphOutlineWidget } from "$lib/widgets/graphWidgets"
+    import { GraphOutlineWidget, UnshownRelationsIndicator } from "$lib/widgets/graphWidgets"
     import { defaultGraphWidgetStyle } from "./graph"
 
 
@@ -29,6 +29,7 @@
     
     let graphWidgetStyle = {...defaultGraphWidgetStyle}
 
+    
     // ID of the widget's parent Thing.
     $: parentThingId = parentThing.id as number
 
@@ -66,13 +67,7 @@
 
     // Off-axis toggle state attributes.
     let offAxisToggleToggleHovered = false
-    $: showOffAxisToggle = (
-        (
-            !$reorderingInfoStore.reorderInProgress
-            && offAxisToggleToggleHovered
-        )
-        || showOffAxisRelations
-    )
+    $: showOffAxisToggle = showOffAxisRelations
     $: offAxisToggleNoMouseEvents =
         (
             $preventEditing
@@ -82,9 +77,6 @@
             parentThing.address?.generationId === 0
             && nonCartesianAxesContainThings
         )
-    $: showOffAxisNumberOfRelationsIndicator =
-        (numberOfNonCartesianAxisRelations + numberOfOffAxisRelations)
-        && !expanded
 
     // Scale-related attributes.
     $: scale = zoomBase ** parentGraphWidgetStyle.zoom
@@ -126,6 +118,16 @@
         parentGraph.startingSpace ? parentGraph.startingSpace :
         parentGraph.pThing?.space || null
 
+
+
+
+    $: unshownRelationsCount = numberOfNonCartesianAxisRelations + numberOfOffAxisRelations
+
+    $: symbolsToShowCount = 
+        unshownRelationsCount < 10 ? unshownRelationsCount :
+        unshownRelationsCount < 100 ? Math.floor(unshownRelationsCount / 10) :
+        Math.floor(unshownRelationsCount / 100)
+
     
 </script>
 
@@ -140,8 +142,6 @@
 
     on:mouseenter={()=>{offAxisToggleToggleHovered = true}}
     on:mouseleave={()=>{offAxisToggleToggleHovered = false}}
-    on:click={() => {expanded = !expanded}}
-    on:keydown={()=>{}}
 >
     
     <!-- Visible toggle image. -->
@@ -167,10 +167,18 @@
     {/if}
 
     <!-- Number-of-off-axis-relations indicator. -->
-    {#if showOffAxisNumberOfRelationsIndicator}
-        <div>+{numberOfNonCartesianAxisRelations + numberOfOffAxisRelations}</div>
-    {/if}
+    <UnshownRelationsIndicator
+        directionId={"all"}
+        halfAxisId={null}
+        offAxis={true}
+        {unshownRelationsCount}
+        {symbolsToShowCount}
+        {graphWidgetStyle}
+        isExpanded={expanded}
+        onClick={() => {expanded = !expanded}}
+    />
 </div>
+
 
 <!-- Off-axis-relations display. -->
 {#if showOffAxisRelations}

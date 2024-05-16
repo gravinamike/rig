@@ -11,6 +11,7 @@
     import { RelationshipCohortOutlineWidget, ThingCohortOutlineWidget } from "$lib/widgets/graphWidgets"
     import { relationshipColorByHalfAxisId } from "$lib/shared/constants";
     import type { Editor } from "@tiptap/core";
+    import { lightenOrDarkenColorString, uITrimColorStore } from "$lib/stores";
 
 
 
@@ -80,7 +81,13 @@
         <div
             class="relationships-and-child-cohorts-inner-container"
             
-            style="flex-direction: row;"
+            style="
+                flex-direction: row;
+                {
+                    graph.offAxis ? `background-color: ${lightenOrDarkenColorString($uITrimColorStore, "darker", 5)};` :
+                    ""
+                }
+            "
         >
 
             <!-- Relationship Cohort Widget. -->
@@ -102,7 +109,7 @@
                     {graphWidgetStyle}
                     {outlineScrollAreaTop}
                     {outlineScrollTime}
-                />                
+                />
             </div>
 
             <!-- Thing Cohort Widget. -->

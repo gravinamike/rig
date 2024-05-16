@@ -124,14 +124,16 @@
     {/each}
 
     <!-- Unshown-relations indicators. -->
-    <UnshownRelationsIndicators
-        parentThing={rootThing}
-        directionId={"outline"}
-        halfAxisId={null}
-        thingCohorts={orderedThingCohortsWithMembers}
-        thingSize={null}
-        {graphWidgetStyle}
-    />
+    {#if !graph.offAxis}
+        <UnshownRelationsIndicators
+            parentThing={rootThing}
+            directionId={"outline"}
+            halfAxisId={null}
+            thingCohorts={orderedThingCohortsWithMembers}
+            thingSize={null}
+            {graphWidgetStyle}
+        />
+    {/if}
 </div>
 
 

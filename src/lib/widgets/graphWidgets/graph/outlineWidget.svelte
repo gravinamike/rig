@@ -5,13 +5,13 @@
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
     // Import SvelteKit framework resources.
-    import { onDestroy } from "svelte"
+    import { onMount, onDestroy } from "svelte"
 
     // Import stores.
     import { addGraph, landscapeOrientation, removeGraph, titleFontStore, titleFontWeightStore, uITrimColorStore, addGraphIdsNeedingViewerRefresh, preventEditing, notesEditorLockedStore, hoveredThingIdStore, lightenOrDarkenColorString, thingColorStore, relationshipBeingCreatedInfoStore } from "$lib/stores"
 
     // Import utility functions.
-    import { onMobile, writePlainTextToClipboard } from "$lib/shared/utility"
+    import { onMobile, sleep, writePlainTextToClipboard } from "$lib/shared/utility"
 
     // Import related widgets.
     import { defaultGraphWidgetStyle, ThingCohortOutlineWidget } from "$lib/widgets/graphWidgets"
@@ -127,7 +127,7 @@
         if (offAxis) {
             graphWidgetStyle.excludePerspectiveThing = true
             graphWidgetStyle.excludeCartesianAxes = true
-            graphWidgetStyle.excludeNonAxisThingCohorts = true
+            graphWidgetStyle.excludeNonAxisThingCohorts = false
         }
         
         await markThingsVisited(pThingIds as number[])
@@ -288,7 +288,10 @@
 
 
 
-    
+    onMount(async () => {
+        await sleep(1)
+        onOutlineScroll()
+    })
 
     onDestroy(() => {
         if (graph) removeGraph(graph)
@@ -375,8 +378,8 @@
             focusEditorMethod={focusEditor}
             isThingLinkMethod={isThingLink}
         />
-    {:else}
-         <!-- Depth control. -->
+    {:else if !offAxis}
+        <!-- Depth control. -->
         <div class="depth-control-container">
             <DepthControl
                 bind:depth
