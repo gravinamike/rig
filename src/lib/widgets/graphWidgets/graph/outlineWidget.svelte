@@ -28,10 +28,16 @@
     export let space: Space
     export let pThingIds: (number | null)[]
     export let depth: number
-    export let graphWidgetStyle: GraphWidgetStyle = {...defaultGraphWidgetStyle}
+    export let graphWidgetStyle: GraphWidgetStyle
     export let offAxis = false
     export let fullSize: boolean
     export let rePerspectToThingId: (thingId: number) => Promise<void>
+
+
+
+
+    const startingGraphWidgetStyle = {...graphWidgetStyle}
+
 
 
 
@@ -120,15 +126,11 @@
         
         // Open and build the new Graph.
         graph = await addGraph(pThingIds as number[], depth, null, true, offAxis, false, space)
-        graphWidgetStyle = {...defaultGraphWidgetStyle}
+        graphWidgetStyle = {...startingGraphWidgetStyle}
 
         // Configure style for off-axis styling, if applicable.
         graph.offAxis = offAxis
-        if (offAxis) {
-            graphWidgetStyle.excludePerspectiveThing = true
-            graphWidgetStyle.excludeCartesianAxes = true
-            graphWidgetStyle.excludeNonAxisThingCohorts = false
-        }
+
         
         await markThingsVisited(pThingIds as number[])
 
