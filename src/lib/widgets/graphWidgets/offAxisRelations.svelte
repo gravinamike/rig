@@ -134,7 +134,10 @@
 
         graphWidgetStyle.excludeNonAxisThingCohorts = !graphWidgetStyle.excludeNonAxisThingCohorts
         
-        if (!(numberOfNonCartesianAxisRelations > 0)) {
+        if (
+            !(numberOfNonCartesianAxisRelations > 0)
+            || (parentThing.address?.generationId ?? 0) > 0
+        ) {
             expanded = !expanded
         }
 
