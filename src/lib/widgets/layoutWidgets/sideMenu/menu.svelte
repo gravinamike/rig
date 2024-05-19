@@ -53,7 +53,7 @@
     const buttonSize = 30
 
     // Initialize the open submenu to the default.
-    $: openedSubMenuName = defaultOpenSubMenuName
+    //$: openedSubMenuName = defaultOpenSubMenuName
 
     // Mouse-pressed flag tracks whether the mouse button is currently being held down.
     let mousePressed = false

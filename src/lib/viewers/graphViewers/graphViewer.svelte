@@ -113,7 +113,7 @@
 
     $: if ($loadingState === "graphLoaded") {
         $openGraphStore
-
+        
         initializeSideMenusForGraph()
     }
 
@@ -124,9 +124,6 @@
         openedSubMenuName = $rightSideMenuStore || "Notes"
         lockedSubMenuName = $rightSideMenuStore
     }
-
-
-
 
     /**
      * Re-Perspect-to-Thing-ID method.

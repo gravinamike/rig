@@ -14,7 +14,7 @@
     import { onMobile, sleep, writePlainTextToClipboard } from "$lib/shared/utility"
 
     // Import related widgets.
-    import { defaultGraphWidgetStyle, ThingCohortOutlineWidget } from "$lib/widgets/graphWidgets"
+    import { ThingCohortOutlineWidget, defaultGraphWidgetStyle } from "$lib/widgets/graphWidgets"
     import NotesToolbar from "$lib/viewers/notesViewers/notesToolbar.svelte"
     import { Tooltip } from "$lib/widgets/layoutWidgets"
 
@@ -28,14 +28,14 @@
     export let space: Space
     export let pThingIds: (number | null)[]
     export let depth: number
-    export let graphWidgetStyle: GraphWidgetStyle
+    export let graphWidgetStyle: GraphWidgetStyle = {...defaultGraphWidgetStyle}
     export let offAxis = false
     export let fullSize: boolean
     export let rePerspectToThingId: (thingId: number) => Promise<void>
 
 
 
-
+    
     const startingGraphWidgetStyle = {...graphWidgetStyle}
 
 
