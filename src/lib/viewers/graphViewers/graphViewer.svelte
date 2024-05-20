@@ -323,7 +323,6 @@
     <!-- Content side-menu. -->
     <SideMenu
         {subMenuInfos}
-        {defaultOpenSubMenuName}
         bind:openedSubMenuName
         bind:open={rightMenuOpen}
         bind:lockedOpen={rightMenuLockedOpen}

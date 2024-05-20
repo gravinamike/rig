@@ -83,7 +83,6 @@
 <!-- Left side-menu. -->
 <SideMenu
     {subMenuInfos}
-    {defaultOpenSubMenuName}
     bind:openedSubMenuName
     bind:open={leftMenuOpen}
     bind:lockedOpen={leftMenuLockedOpen}

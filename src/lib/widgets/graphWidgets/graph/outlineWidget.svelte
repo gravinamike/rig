@@ -513,7 +513,7 @@
     .root-thing-cohort-container {
         height: 100%;
 
-        overflow-x: visible;
+        overflow-x: hidden;
         overflow-y: auto; 
         scrollbar-width: thin;
     }

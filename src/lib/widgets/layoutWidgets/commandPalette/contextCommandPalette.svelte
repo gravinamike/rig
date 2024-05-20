@@ -48,6 +48,6 @@
 <style>
     .command-palette-container {
         position: absolute;
-        z-index: 10;
+        z-index: 100;
     }
 </style>
