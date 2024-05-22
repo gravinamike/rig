@@ -28,21 +28,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     // Offsets from parent element.
     const offSetSize = 15
     $: xOffset =
@@ -172,14 +157,12 @@
     }
 
 
-    buildIndicatorInfos()
 
+    $: {
+        thingCohorts
 
-
-
-
-
-
+        buildIndicatorInfos()
+    }
     
 
 
@@ -232,6 +215,17 @@
         `left: calc(50% + ${xOffset}px); top: calc(50% + ${yOffset}px); transform: translate(-50%, -50%);`
     }
 >
+    <!--{parentThing.perspectiveexpansions}-->
+    <!--{indicatorInfos.map(info => info.shownRelationsCount)}-->
+    <!--{
+        thingCohorts
+                    .filter(
+                        // Filter out retrograde Thing Cohorts.
+                        thingCohort => {return !thingCohort.isRetrograde}
+                    ).map(
+                        thingCohort => thingCohort.members.length
+                    )
+    }-->
     {#each indicatorInfos as indicatorInfo}
         <UnshownRelationsIndicator
             directionId={indicatorInfo.directionId}

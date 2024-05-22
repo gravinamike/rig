@@ -371,6 +371,8 @@
                 {rePerspectToThingId}
             />
         {/if}
+
+        <div class="bottom-spacer" />
     </div>
 
     {#if editor}
@@ -409,7 +411,7 @@
 
             <!-- Tooltip. -->
             <Tooltip
-                text={"Copy outline text."}
+                text={"Copy outline as text."}
                 direction={"up"}
             />
         </button>
@@ -516,6 +518,10 @@
         overflow-x: hidden;
         overflow-y: auto; 
         scrollbar-width: thin;
+    }
+
+    .bottom-spacer {
+        height: 32px;
     }
 
     .depth-control-container {

@@ -12,6 +12,7 @@
 
     // Import related widgets.
     import { DirectionWidget } from "$lib/widgets/spaceWidgets"
+    import { sleep } from "$lib/shared/utility";
 
 
     export let thingCohort: ThingCohort
@@ -47,7 +48,7 @@
 
     let relationshipsOutlineWidget: HTMLElement | null = null
 
-    let directionWidgetContainerStickyOffset = 0
+    let directionWidgetContainerStickyOffset = getDirectionWidgetContainerStickyOffset()
 
 
 
@@ -63,11 +64,12 @@
                     ),
                     0
                 ),
-                (relationshipsOutlineWidget?.parentElement?.getBoundingClientRect().height ?? 0) - 46
+                (relationshipsOutlineWidget?.parentElement?.getBoundingClientRect().height ?? 46) - 46
             )
-
         return directionWidgetContainerStickyOffset
     }
+
+
 
     $: {
         outlineScrollTime
@@ -75,6 +77,10 @@
         directionWidgetContainerStickyOffset = getDirectionWidgetContainerStickyOffset()
     }
 
+    onMount(async () => {
+        await sleep(1)
+        directionWidgetContainerStickyOffset = getDirectionWidgetContainerStickyOffset()
+	})
 </script>
 
 

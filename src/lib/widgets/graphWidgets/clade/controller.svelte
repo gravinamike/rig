@@ -7,15 +7,14 @@
     import { tick } from "svelte"
 
     // Import constants.
-    import {
-            cartesianHalfAxisIds, orderedCartesianHalfAxisIds, orderedNonCartesianHalfAxisIds
-    } from "$lib/shared/constants"
+    import { cartesianHalfAxisIds } from "$lib/shared/constants"
     
     // Import stores.
     import { reorderingInfoStore } from "$lib/stores"
 
     // Import utility functions.
     import { readOnlyArrayToArray, sleep } from "$lib/shared/utility"
+    import About from "$lib/menus/about.svelte";
 
     
 
@@ -56,6 +55,7 @@
     export let thingCohorts: ThingCohort[] = []
     export let orderedThingCohorts: ThingCohort[] = []
     export let orderedThingCohortsWithMembers: ThingCohort[] = []
+    export let orderedThingCohortsWithMembersReady = false
     export let childThings: Thing[] = []
     export let showCladeRootThing = true
     export let cladeControlsOpened = false
@@ -202,31 +202,39 @@
      */
     $: thingCohorts = rootThing.childThingCohorts
 
-    /**
-     * Ordered Thing Cohorts.
-     * 
-     * The Thing Cohorts in the order they are to be displayed in the outline version of the widget.
-     */
-    $: {
-        graphWidgetStyle.excludeNonAxisThingCohorts
 
-        //orderedThingCohorts = getOrderedThingCohorts(rootThing)////////////////////////////
+
+
+    function generateOrderedThingCohortsWithMembers() {
+
+        // The Thing Cohorts in the order they are to be displayed in the outline version of the widget.
         orderedThingCohorts = rootThing.getOrderedThingCohorts(
             graphWidgetStyle.excludeCartesianAxes,
             graphWidgetStyle.excludeNonCartesianAxes,
             graphWidgetStyle.excludeNonAxisThingCohorts
         )
+
+        // Same as ordered Thing Cohorts, but including only those Cohorts that have
+        orderedThingCohortsWithMembers = orderedThingCohorts.filter(
+            thingCohort => thingCohort.members.length
+        )
+
+        orderedThingCohortsWithMembersReady = true
     }
 
-    /**
-     * Ordered Thing Cohorts with members.
-     * 
-     * Same as ordered Thing Cohorts, but including only those Cohorts that have
-     * members (aren't empty).
-     */
-    $: orderedThingCohortsWithMembers = orderedThingCohorts.filter(
-        thingCohort => thingCohort.members.length
-    )
+    $: excludeCartesianAxes = graphWidgetStyle.excludeCartesianAxes
+    $: excludeNonCartesianAxes = graphWidgetStyle.excludeNonCartesianAxes
+    $: excludeNonAxisThingCohorts = graphWidgetStyle.excludeNonAxisThingCohorts
+    $: {
+        excludeCartesianAxes
+        excludeNonCartesianAxes
+        excludeNonAxisThingCohorts
+
+        generateOrderedThingCohortsWithMembers()
+    }
+    
+
+
 
     /**
      * Array of all Things across all the Thing Cohorts in the Clade.

@@ -279,6 +279,23 @@
 
     let graphDepth = 1
 
+
+
+
+
+
+
+
+
+
+
+
+    let outlineGraphWidgetStyle = {...defaultGraphWidgetStyle}
+    outlineGraphWidgetStyle.excludePerspectiveThing = false
+    outlineGraphWidgetStyle.excludeCartesianAxes = false
+    outlineGraphWidgetStyle.excludeNonCartesianAxes = false
+    outlineGraphWidgetStyle.excludeNonAxisThingCohorts = true
+
 </script>
 
 
@@ -345,6 +362,7 @@
                         {pThingIds}
                         depth={1}
                         fullSize={sideMenuFullSize}
+                        graphWidgetStyle={outlineGraphWidgetStyle}
                         {rePerspectToThingId}
                     />
                 {/if}

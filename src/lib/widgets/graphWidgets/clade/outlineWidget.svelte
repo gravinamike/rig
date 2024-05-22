@@ -35,6 +35,7 @@
     let thingCohorts: ThingCohort[] = []
     let orderedThingCohorts: ThingCohort[] = []
     let orderedThingCohortsWithMembers: ThingCohort[] = []
+    let orderedThingCohortsWithMembersReady = false
     let childThings: Thing[] = []
     let showCladeRootThing: boolean
     
@@ -57,6 +58,7 @@
     bind:thingCohorts
     bind:orderedThingCohorts
     bind:orderedThingCohortsWithMembers
+    bind:orderedThingCohortsWithMembersReady
     bind:childThings
     bind:showCladeRootThing
 />
@@ -107,7 +109,7 @@
     {#each orderedThingCohortsWithMembers as thingCohort (thingCohort.address)}
         {#if
             // Render the half-axis widget if the Thing Cohort's `shouldBeRendered` flag is set.
-            thingCohort.shouldBeRendered
+            thingCohort.shouldBeRendered && orderedThingCohortsWithMembersReady
         }
             <!-- Half-axis widget. -->
             <HalfAxisOutlineWidget
@@ -124,7 +126,7 @@
     {/each}
 
     <!-- Unshown-relations indicators. -->
-    {#if !graph.offAxis}
+    {#if !graph.offAxis && orderedThingCohortsWithMembersReady}
         <UnshownRelationsIndicators
             parentThing={rootThing}
             directionId={"outline"}

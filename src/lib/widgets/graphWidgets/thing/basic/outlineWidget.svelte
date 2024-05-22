@@ -4,6 +4,9 @@
     import type { Graph, Thing } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets/graph"
 
+    // Import SvelteKit framework resources.
+    import { onMount } from "svelte"
+
     // Import stores.
     import {
         titleFontStore, titleFontWeightStore, thingColorStore, lightenOrDarkenColorString,
@@ -164,17 +167,24 @@
         return thingTextContainerStickyOffset
     }
 
-    $: {
-        outlineScrollTime
-
-        thingTextContainerStickyOffset = getThingTextContainerStickyOffset()
-    }
+    
 
 
     $: thingTextContainerZIndex = 15 - (thing?.address?.generationId ?? 0)
 
 
 
+    
+
+    $: {
+        outlineScrollTime
+
+        thingTextContainerStickyOffset = getThingTextContainerStickyOffset()
+    }
+
+    onMount(async () => {
+        thingTextContainerStickyOffset = getThingTextContainerStickyOffset()
+	})
 </script>
 
 
