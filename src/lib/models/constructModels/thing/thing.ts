@@ -594,6 +594,10 @@ export class Thing {
         excludeNonAxisThingCohorts: boolean
     ): ThingCohort[] {
 
+        if (!this.id || !this.graph) return []
+
+
+
         // If the reordering process should include the "Cartesian" half-axes
         // (Down, Up, Right, Left), add all Thing Cohorts which *are* on
         // those main half-axes to an array.
@@ -617,7 +621,14 @@ export class Thing {
         // If the reordering process should include Thing Cohorts on the
         // non-Cartesian half-axes,
         const thingCohortsOnNonCartesianHalfAxes: ThingCohort[] = []
-        if (!excludeNonCartesianAxes) {
+        if (
+            !excludeNonCartesianAxes
+        
+            || this.graph?.directionFromThingIsExpanded(
+                this.id,
+                "Space"
+            )
+        ) {
             // Get an array of IDs for all non-Cartesian half-axes in this Clade that currently
             // have Thing Cohorts, in the desired order for an outline.
             const orderedNonCartesianHalfAxisIdsWithThings = orderedNonCartesianHalfAxisIds.filter(
@@ -635,7 +646,14 @@ export class Thing {
         // If the reordering process should include Thing Cohorts not on
         // a half-axis,
         const thingCohortsNotOnHalfAxes: ThingCohort[] = []
-        if (!excludeNonAxisThingCohorts) {
+        if (
+            !excludeNonAxisThingCohorts
+        
+            || this.graph?.directionFromThingIsExpanded(
+                this.id,
+                "all"
+            )
+        ) {
             // Add all Thing Cohorts which *are not* on half-axes to an array.
             thingCohortsNotOnHalfAxes.push(
                 ...this.childThingCohorts

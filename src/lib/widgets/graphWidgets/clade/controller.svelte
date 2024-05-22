@@ -8,13 +8,9 @@
 
     // Import constants.
     import { cartesianHalfAxisIds } from "$lib/shared/constants"
-    
-    // Import stores.
-    import { reorderingInfoStore } from "$lib/stores"
 
     // Import utility functions.
     import { readOnlyArrayToArray, sleep } from "$lib/shared/utility"
-    import About from "$lib/menus/about.svelte";
 
     
 
@@ -206,14 +202,13 @@
 
 
     function generateOrderedThingCohortsWithMembers() {
-
         // The Thing Cohorts in the order they are to be displayed in the outline version of the widget.
         orderedThingCohorts = rootThing.getOrderedThingCohorts(
             graphWidgetStyle.excludeCartesianAxes,
             graphWidgetStyle.excludeNonCartesianAxes,
             graphWidgetStyle.excludeNonAxisThingCohorts
         )
-
+        
         // Same as ordered Thing Cohorts, but including only those Cohorts that have
         orderedThingCohortsWithMembers = orderedThingCohorts.filter(
             thingCohort => thingCohort.members.length
