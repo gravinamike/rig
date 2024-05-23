@@ -8,7 +8,7 @@
     import { onMount, onDestroy } from "svelte"
 
     // Import stores.
-    import { addGraph, landscapeOrientation, removeGraph, titleFontStore, titleFontWeightStore, uITrimColorStore, addGraphIdsNeedingViewerRefresh, preventEditing, notesEditorLockedStore, hoveredThingIdStore, lightenOrDarkenColorString, thingColorStore, relationshipBeingCreatedInfoStore } from "$lib/stores"
+    import { addGraph, landscapeOrientation, removeGraph, titleFontStore, titleFontWeightStore, uITrimColorStore, addGraphIdsNeedingViewerRefresh, preventEditing, notesEditorLockedStore, hoveredThingIdStore, lightenOrDarkenColorString, thingColorStore, relationshipBeingCreatedInfoStore, graphIdsNeedingViewerRefresh, removeGraphIdsNeedingViewerRefresh } from "$lib/stores"
 
     // Import utility functions.
     import { onMobile, sleep, writePlainTextToClipboard } from "$lib/shared/utility"
@@ -133,9 +133,6 @@
 
         
         await markThingsVisited(pThingIds as number[])
-
-        // Refresh the Graph viewers.
-        addGraphIdsNeedingViewerRefresh(graph.id)
     }
 
     $: {
@@ -145,6 +142,19 @@
         buildAndRefresh()
     }
 
+
+
+    function respondToGraphRefreshSignal() {
+        if (graph && $graphIdsNeedingViewerRefresh.includes(graph.id)) {
+            removeGraphIdsNeedingViewerRefresh(graph.id)
+            buildAndRefresh()
+        }
+    }
+    $: {
+        $graphIdsNeedingViewerRefresh
+
+        respondToGraphRefreshSignal()
+    }
 
 
 

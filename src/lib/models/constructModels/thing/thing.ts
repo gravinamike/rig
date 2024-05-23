@@ -1017,7 +1017,7 @@ export class Thing {
                 }
             }
         }
-        console.log(JSON.stringify(perspectiveExpansions))
+
         return JSON.stringify(perspectiveExpansions)
     }
 
