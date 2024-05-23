@@ -379,12 +379,12 @@ export class ThingCohort {
 
 
 
-        const directionIdToCheck =
+        const directionIdsToCheck: (number | "Space" | "all")[] =
             this.parentThing.graph.isOutline ? (
-                this.parentThing.graph.startingSpace?.includesDirectionId(this.direction.id) ? "Space" :
-                "all" 
+                this.parentThing.graph.startingSpace?.includesDirectionId(this.direction.id) ? ["Space", "all"] :
+                ["all"]
             ) :
-            this.direction.id
+            [this.direction.id]
 
 
 
@@ -400,9 +400,11 @@ export class ThingCohort {
 
                 // ...the Direction of the Thing Cohort from its root Thing is flagged as expanded,
                 // or...
-                || this.parentThing.graph.directionFromThingIsExpanded(
-                    this.parentThing.id,
-                    directionIdToCheck
+                || directionIdsToCheck.some(
+                    directionIdToCheck => (this.parentThing?.graph as Graph).directionFromThingIsExpanded(
+                        (this.parentThing?.id as number),
+                        directionIdToCheck
+                    )
                 )
 
                 // ...it's the last, Relationships-only Generation and at least some of the

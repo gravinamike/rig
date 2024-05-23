@@ -208,7 +208,7 @@
             graphWidgetStyle.excludeNonCartesianAxes,
             graphWidgetStyle.excludeNonAxisThingCohorts
         )
-        
+
         // Same as ordered Thing Cohorts, but including only those Cohorts that have
         orderedThingCohortsWithMembers = orderedThingCohorts.filter(
             thingCohort => thingCohort.members.length

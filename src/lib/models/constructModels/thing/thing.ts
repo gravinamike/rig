@@ -596,8 +596,6 @@ export class Thing {
 
         if (!this.id || !this.graph) return []
 
-
-
         // If the reordering process should include the "Cartesian" half-axes
         // (Down, Up, Right, Left), add all Thing Cohorts which *are* on
         // those main half-axes to an array.
@@ -881,7 +879,30 @@ export class Thing {
 
         const thingIsBelowDepth = this.address.generationId < this.graph.depth
 
-        const directionIsExpanded = this.graph.directionFromThingIsExpanded(this.id, directionId)
+
+
+
+
+
+
+
+        const directionIdsToCheck: (number | "Space" | "all")[] =
+            this.graph.isOutline ? (
+                this.graph.startingSpace?.includesDirectionId(directionId) ? ["Space", "all"] :
+                ["all"]
+            ) :
+            [directionId]
+
+
+        const directionIsExpanded = directionIdsToCheck.some(
+            directionIdToCheck => (this.graph as Graph).directionFromThingIsExpanded(
+                (this.id as number),
+                directionIdToCheck
+            )
+        )
+
+
+
 
         const needsBuildIfRadialBuildMethod = thingIsBelowDepth || directionIsExpanded
         
@@ -996,7 +1017,7 @@ export class Thing {
                 }
             }
         }
-
+        console.log(JSON.stringify(perspectiveExpansions))
         return JSON.stringify(perspectiveExpansions)
     }
 
