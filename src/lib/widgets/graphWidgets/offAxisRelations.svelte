@@ -130,8 +130,6 @@
 
     function onUnshownRelationsIndicatorClick() {
 
-        console.log(graphWidgetStyle.excludeNonAxisThingCohorts)
-
         graphWidgetStyle.excludeNonAxisThingCohorts = !graphWidgetStyle.excludeNonAxisThingCohorts
         
         if (
@@ -142,9 +140,6 @@
         }
 
         showIndicatorAsExpanded = !showIndicatorAsExpanded
-
-
-        console.log(graphWidgetStyle.excludeNonAxisThingCohorts, numberOfOffAxisRelations)
     }
 
 

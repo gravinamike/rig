@@ -62,6 +62,7 @@
         unshownRelationsCount: number
         symbolsToShowCount: number
         isExpanded: boolean
+        show: boolean
     }
 
     let indicatorInfos: IndicatorInfo[] = []
@@ -72,7 +73,7 @@
             directionId === "outline" ? ["Space", "all"] :
             [directionId]
 
-        for (const [i, id] of directionIds.entries()) {
+        for (const id of directionIds) {
 
             // Whether the indicator (and by extension, the half-axis it models) is expanded or not.
             const isExpanded = parentThing.graph?.directionFromThingIsExpanded(
@@ -143,16 +144,35 @@
                 shownRelationsCount,
                 unshownRelationsCount,
                 symbolsToShowCount,
-                isExpanded
+                isExpanded,
+                show: true
             }
 
-
-            if (!(i === 1 && indicatorInfo.unshownRelationsCount === indicatorInfos[0].unshownRelationsCount)) {
-                indicatorInfos.push(indicatorInfo)
-            }
+            indicatorInfos.push(indicatorInfo)
         }
 
-
+        for (const [i, indicatorInfo] of indicatorInfos.entries()) {
+            if (
+                !indicatorInfo.isExpanded
+                && (
+                    (
+                        indicatorInfo.unshownRelationsCount <= 0
+                    )
+                    || (
+                        i === 0
+                        && indicatorInfos.length > 1
+                        && indicatorInfos[1].isExpanded
+                    )
+                    || (
+                        i === 1
+                        && indicatorInfo.unshownRelationsCount === indicatorInfos[0].unshownRelationsCount
+                    )
+                )
+            ) {
+                indicatorInfo.show = false
+            }
+        }
+        
         
     }
 
@@ -215,27 +235,18 @@
         `left: calc(50% + ${xOffset}px); top: calc(50% + ${yOffset}px); transform: translate(-50%, -50%);`
     }
 >
-    <!--{parentThing.perspectiveexpansions}-->
-    <!--{indicatorInfos.map(info => info.shownRelationsCount)}-->
-    <!--{
-        thingCohorts
-                    .filter(
-                        // Filter out retrograde Thing Cohorts.
-                        thingCohort => {return !thingCohort.isRetrograde}
-                    ).map(
-                        thingCohort => thingCohort.members.length
-                    )
-    }-->
     {#each indicatorInfos as indicatorInfo}
-        <UnshownRelationsIndicator
-            directionId={indicatorInfo.directionId}
-            {halfAxisId}
-            unshownRelationsCount={indicatorInfo.unshownRelationsCount}
-            symbolsToShowCount={indicatorInfo.symbolsToShowCount}
-            bind:isExpanded={indicatorInfo.isExpanded}
-            {graphWidgetStyle}
-            onClick={() => {onIndicatorClick(indicatorInfo.directionId)}}
-        />
+        {#if indicatorInfo.show}
+            <UnshownRelationsIndicator
+                directionId={indicatorInfo.directionId}
+                {halfAxisId}
+                unshownRelationsCount={indicatorInfo.unshownRelationsCount}
+                symbolsToShowCount={indicatorInfo.symbolsToShowCount}
+                bind:isExpanded={indicatorInfo.isExpanded}
+                {graphWidgetStyle}
+                onClick={() => {onIndicatorClick(indicatorInfo.directionId)}}
+            />
+        {/if}
     {/each}
 </div>
 
