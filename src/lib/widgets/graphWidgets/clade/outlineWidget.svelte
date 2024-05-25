@@ -119,7 +119,7 @@
                 {outlineScrollAreaTop}
                 {outlineScrollTime}
                 {editingNotes}
-                {notesEditor}
+                bind:notesEditor
                 {rePerspectToThingId}
             />
         {/if}
