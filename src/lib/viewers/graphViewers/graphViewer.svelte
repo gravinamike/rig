@@ -165,6 +165,7 @@
                 graph.pThing?.defaultcontentviewer === "outline" ? "Outline" :
                 graph.pThing?.defaultcontentviewer === "attachments" ? "Attachments" :
                 null
+            lockedSubMenuName = openedSubMenuName
 
             // Set the Graph's original starting Space to null.
             graph.originalStartingSpace = null
