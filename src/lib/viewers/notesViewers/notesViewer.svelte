@@ -836,11 +836,11 @@
     .notes-viewer.outline-format .notes-display {
         border-radius: 0;
 
-        padding: 0rem 1rem 0rem 1rem;
+        padding: 0.25rem 1.5rem 0.75rem 1.5rem;
     }
 
     .notes-viewer.outline-format.make-room-for-thing-text .notes-display {        
-        padding: 20px 1rem 0rem 1rem;
+        padding: calc(0.25rem + 20px) 1.5rem 0.75rem 1.5rem;
     }
 
     :global(.notes-display li > p) {
