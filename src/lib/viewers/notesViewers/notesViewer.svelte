@@ -610,12 +610,16 @@
         `}
         
         on:click={ async () => {
-            await sleep(50) // To prevent conflict with outside-click-handler.
-            if (outlinerIsEditing) editing = true
+            if (!preventEditing) {
+                await sleep(50) // To prevent conflict with outside-click-handler.
+                if (outlinerIsEditing) editing = true
+            }
         } }
         on:dblclick={ () => {
-            editing = true
-            outlinerIsEditing = true
+            if (!preventEditing) {
+                editing = true
+                outlinerIsEditing = true
+            }
         } }
         on:keydown={()=>{}}
     >
