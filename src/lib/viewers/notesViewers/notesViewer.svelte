@@ -610,13 +610,13 @@
         `}
         
         on:click={ async () => {
-            if (!preventEditing) {
+            if (!$preventEditing) {
                 await sleep(50) // To prevent conflict with outside-click-handler.
                 if (outlinerIsEditing) editing = true
             }
         } }
         on:dblclick={ () => {
-            if (!preventEditing) {
+            if (!$preventEditing) {
                 editing = true
                 outlinerIsEditing = true
             }
