@@ -38,16 +38,16 @@ export const graphFoldersStore = writable( {} as {[username: string]: string[]} 
 /**
  * Refresh-Graph-folders-store method.
  * 
- * Gets an object listing all valid Graph folders for the given user (if any) in addition to common
+ * Gets an object listing all valid Graph folders for the given user (if any) in addition to public
  * Graph folders.
  * @param username - The username to request a list of Graph folders for.
- * @returns - An object listing all valid Graph folders for the given user (if any) in addition to common Graph folders.
+ * @returns - An object listing all valid Graph folders for the given user (if any) in addition to public Graph folders.
  */
 export async function refreshGraphFoldersStore(username: string | null = null): Promise< void > {
     // Initialize a new, empty Graph-folder-by-username object.
     const graphFoldersByUsername: {[username: string]: string[]} = {}
     
-    // Get the listing of common Graph folder names and add it to the object.
+    // Get the listing of public Graph folder names and add it to the object.
     await fetch(`/api/file/graphFolders-all`)
         .then(response => {return (response.json() as unknown) as string[]})
         .then(data => graphFoldersByUsername["all"] = data)
