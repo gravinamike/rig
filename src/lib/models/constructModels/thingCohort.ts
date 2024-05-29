@@ -150,10 +150,8 @@ export class ThingCohort {
     get isRetrograde(): boolean {
         // The Thing Cohort is retrograde if...
         const isRetrograde = (
-            // ...It only has one member, and...
-            this.members.length === 1
-            // it contains the Thing Cohort's grandparent Thing.
-            && this.indexOfGrandparentThing !== null
+            // ...it contains the Thing Cohort's grandparent Thing.
+            this.indexOfGrandparentThing !== null
             && this.indexOfGrandparentThing !== -1
         )
 

@@ -68,6 +68,7 @@
     let indicatorInfos: IndicatorInfo[] = []
 
     function buildIndicatorInfos() {
+        indicatorInfos = []
         
         const directionIds: (number | "Space" | "all")[] =
             directionId === "outline" ? ["Space", "all"] :
@@ -93,11 +94,13 @@
                     )
                     .filter(
                         relationship => {return (
-                            relationship.direction === id
-                            || id === "all"
-                            || (
-                                id === "Space"
-                                && (parentThing?.graph?.startingSpace as Space).includesDirectionId(relationship.direction)
+                            (
+                                relationship.direction === id
+                                || id === "all"
+                                || (
+                                    id === "Space"
+                                    && (parentThing?.graph?.startingSpace as Space).includesDirectionId(relationship.direction)
+                                )
                             ) ? true :
                             false
                         )}
@@ -126,7 +129,7 @@
                                 thingCohort.members.filter(member => member.alreadyRendered).length
                         }
                     ).reduce((a, b) => a + b, 0)
-
+            
             // How many of those relations are unshown.
             const unshownRelationsCount = relationsCount - shownRelationsCount
 
