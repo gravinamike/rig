@@ -63,6 +63,7 @@
         symbolsToShowCount: number
         isExpanded: boolean
         show: boolean
+        isOnlyShownIndicator: boolean
     }
 
     let indicatorInfos: IndicatorInfo[] = []
@@ -148,7 +149,8 @@
                 unshownRelationsCount,
                 symbolsToShowCount,
                 isExpanded,
-                show: true
+                show: true,
+                isOnlyShownIndicator: false
             }
 
             indicatorInfos.push(indicatorInfo)
@@ -175,8 +177,12 @@
                 indicatorInfo.show = false
             }
         }
-        
-        
+
+        if (indicatorInfos.filter(indicatorInfo => indicatorInfo.show === true).length === 1) {
+            for (const indicatorInfo of indicatorInfos) {
+                if (indicatorInfo.show) indicatorInfo.isOnlyShownIndicator = true
+            }
+        }
     }
 
 
@@ -246,6 +252,7 @@
                 unshownRelationsCount={indicatorInfo.unshownRelationsCount}
                 symbolsToShowCount={indicatorInfo.symbolsToShowCount}
                 bind:isExpanded={indicatorInfo.isExpanded}
+                isOnlyShownIndicator={indicatorInfo.isOnlyShownIndicator}
                 {graphWidgetStyle}
                 onClick={() => {onIndicatorClick(indicatorInfo.directionId)}}
             />

@@ -1,7 +1,6 @@
 <script lang="ts">
     // Import types.
     import type { HalfAxisId } from "$lib/shared/constants"
-    import type { Thing } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "../../graph"
 
     // Import constants.
@@ -22,6 +21,7 @@
     export let unshownRelationsCount: number
     export let symbolsToShowCount: number
     export let isExpanded: boolean
+    export let isOnlyShownIndicator: boolean
     export let graphWidgetStyle: GraphWidgetStyle
     export let onClick: () => void
 
@@ -62,6 +62,43 @@
         unshownRelationsCount < 100 ? "gainsboro" :
         "white"
     
+
+
+
+
+
+
+    $: tooltipRelationsText = unshownRelationsCount > 1 ? "relations" : "relation"
+
+    $: tooltipText = 
+        isExpanded ? (
+            $preventEditing ? "" :
+            (
+                directionId === "all" && !isOnlyShownIndicator ? `Collapse non-Space relations.` :
+                directionId === "Space" ? `Collapse all relations.` :
+                `Collapse relations.`
+            )
+        ) :
+        (
+            $preventEditing ? (
+                directionId === "all" && !isOnlyShownIndicator ? `All ${unshownRelationsCount} collapsed ${tooltipRelationsText}.` :
+                directionId === "Space" ? `${unshownRelationsCount} collapsed in-Space ${tooltipRelationsText}.` :
+                `${unshownRelationsCount} collapsed ${tooltipRelationsText}.`
+            ) :
+            (
+                directionId === "all" && !isOnlyShownIndicator ? `Show all ${unshownRelationsCount} collapsed ${tooltipRelationsText}.` :
+                directionId === "Space" ? `Show ${unshownRelationsCount} collapsed in-Space ${tooltipRelationsText}.` :
+                `Show ${unshownRelationsCount} collapsed ${tooltipRelationsText}.`
+            )
+        )
+
+
+
+
+
+
+
+
 </script>
 
 
@@ -116,12 +153,9 @@
     {/if}
 
     <!-- Tooltip. -->
-    {#key [isExpanded, unshownRelationsCount]}
+    {#key tooltipText}
         <Tooltip
-            text={
-                isExpanded ? `Collapse ${directionId === "Space" ? "all " : "non-Space "}relations.` :
-                `${$preventEditing ? "" : "Show "}${directionId === "all" ? "all " : ""}${unshownRelationsCount} collapsed ${directionId === "Space" ? "in-Space " : ""}relation${unshownRelationsCount > 1 ? "s" : ""}.`
-            }
+            text={tooltipText}
             direction={inOutline ? "right" : "up"}
             delay={1000}
             {scale}

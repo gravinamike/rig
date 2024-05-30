@@ -208,6 +208,7 @@
         {symbolsToShowCount}
         {graphWidgetStyle}
         isExpanded={showIndicatorAsExpanded}
+        isOnlyShownIndicator={true}
         onClick={onUnshownRelationsIndicatorClick}
     />
 </div>
