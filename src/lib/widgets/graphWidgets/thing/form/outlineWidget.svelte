@@ -3,7 +3,6 @@
     import type { Graph, Space, Thing } from "$lib/models/constructModels"
 
     // Graph widget imports.
-    import { planePadding } from "$lib/shared/constants"
     import { XButton } from "$lib/widgets/layoutWidgets"
 
     import { createNewRelatedThing } from "$lib/db"
@@ -18,12 +17,8 @@
 
     let textField: HTMLTextAreaElement
 
-    // Variables situating the Thing in its spatial context (Half-Axis, Plane)
+    // Variables situating the Thing in its spatial context (Half-Axis)
     $: halfAxisId = thing?.parentThingCohort?.halfAxisId || 0
-    $: planeId = [7, 8].includes(halfAxisId) ?
-        thing?.parentThing?.parentThingCohort?.plane?.id || 0 :
-        thing?.parentThingCohort?.plane?.id || 0
-    $: distanceFromFocalPlane = planeId - graph.planes.focalPlaneId
     
     // Variables dealing with encapsulation (Things containing other Things).
     $: encapsulatingDepth = thing?.parentThingCohort?.encapsulatingDepth || 0
@@ -48,7 +43,7 @@
 
     // Variables dealing with Thing sizing.
     $: cohortSize = thing?.parentThingCohort?.members.length || 1
-    $: thingSize = graphWidgetStyle.thingSize + planePadding * planeId + encapsulatingPadding * encapsulatingDepth
+    $: thingSize = graphWidgetStyle.thingSize + encapsulatingPadding * encapsulatingDepth
     $: thingWidth = thingSize * XYElongation.x
     $: thingHeight = encapsulatingDepth >= 0 ? thingSize * XYElongation.y : thingSize * XYElongation.y / cohortSize - 2
     
@@ -81,7 +76,7 @@
     style="
         border-radius: {10 + 4 * encapsulatingDepth}px;
         width: {thingWidth}px; height: {thingHeight}px;
-        pointer-events: {distanceFromFocalPlane === 0 ? "auto" : "none"};
+        pointer-events: auto;
     "
     on:keypress={(event) => {if (event.key === "Enter") submit()}}
 >    

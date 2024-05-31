@@ -11,7 +11,7 @@ export interface ThingDbModel {
     whenmodded: string | null
     whenvisited: string | null
     defaultplane: number | null//CAN WE RENAME TO DEFAULTSPACEID?
-    perspectivedepths: string// Default is "{}"
+    perspectiveexpansions: string// Default is "{}"
     perspectivetexts: string// Default is "{}"
     defaultcontentviewer: string
 

@@ -12,7 +12,7 @@
 
     // Import stores.
     import {
-        landscapeOrientation, readOnlyMode,
+        landscapeOrientation, preventEditing,
         notesBackgroundImageStore, uITrimColorStore, titleFontStore, titleFontWeightStore,
         notesEditorLockedStore, storeGraphDbModels, updateNoteSearchListStore
     } from "$lib/stores"
@@ -610,17 +610,21 @@
         `}
         
         on:click={ async () => {
-            await sleep(50) // To prevent conflict with outside-click-handler.
-            if (outlinerIsEditing) editing = true
+            if (!$preventEditing) {
+                await sleep(50) // To prevent conflict with outside-click-handler.
+                if (outlinerIsEditing) editing = true
+            }
         } }
         on:dblclick={ () => {
-            editing = true
-            outlinerIsEditing = true
+            if (!$preventEditing) {
+                editing = true
+                outlinerIsEditing = true
+            }
         } }
         on:keydown={()=>{}}
     >
         <!-- Note editor. -->
-        {#if !$readOnlyMode && editing}
+        {#if !$preventEditing && editing}
             <NotesEditor
                 currentPThingNoteText={currentThingNoteText}
                 bind:currentEditorTextContent
@@ -670,7 +674,7 @@
     </div>
 
     <!-- Edit button. -->
-    {#if !(outlineFormat || $readOnlyMode)}
+    {#if !(outlineFormat || $preventEditing)}
         <div
             class="edit-button"
             class:editing
@@ -836,11 +840,11 @@
     .notes-viewer.outline-format .notes-display {
         border-radius: 0;
 
-        padding: 0rem 1rem 0rem 1rem;
+        padding: 0.25rem 1.5rem 0.75rem 1.5rem;
     }
 
     .notes-viewer.outline-format.make-room-for-thing-text .notes-display {        
-        padding: 20px 1rem 0rem 1rem;
+        padding: calc(0.25rem + 20px) 1.5rem 0.75rem 1.5rem;
     }
 
     :global(.notes-display li > p) {

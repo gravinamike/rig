@@ -37,7 +37,6 @@
     export let encapsulatingDepth = 0
     export let thingWidth = 0
     export let thingHeight = 0
-    export let distanceFromFocalPlane = 0
     export let textFontSize = 10
     export let submitted = false
     export let submit: () => void
@@ -45,7 +44,6 @@
 
 
     // Attributes handled by base widget controller.
-    let planeId: number
     let halfAxisId: HalfAxisId
     let cohortSize: number = 0
 
@@ -116,14 +114,11 @@
 
 <ThingBaseWidgetController
     {thing}
-    {graph}
     {graphWidgetStyle}
 
-    bind:planeId
     bind:encapsulatingDepth
     bind:thingWidth
     bind:thingHeight
     bind:cohortSize
-    bind:distanceFromFocalPlane
     bind:halfAxisId
 />

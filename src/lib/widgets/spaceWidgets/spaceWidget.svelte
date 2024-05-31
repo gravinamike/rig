@@ -10,7 +10,7 @@
     import { capitalizeFirstLetter, onMobile, sleep } from "$lib/shared/utility"
 
     // Import stores.
-    import { addGraphIdsNeedingViewerRefresh, addSpaceIdToEditingInProgressStore, directionDbModelsStore, getGraphConstructs, readOnlyMode, removeSpaceIdFromEditingInProgressStore, spaceDbModelsStore, storeGraphDbModels } from "$lib/stores"
+    import { addGraphIdsNeedingViewerRefresh, addSpaceIdToEditingInProgressStore, directionDbModelsStore, getGraphConstructs, preventEditing, removeSpaceIdFromEditingInProgressStore, spaceDbModelsStore, storeGraphDbModels } from "$lib/stores"
 
     // Import related widgets.
     import { DirectionMenuWidget } from "./directionMenuWidget"
@@ -306,7 +306,7 @@
         confirmDeleteBoxOpen = false
     }}
     on:click={handleClick}
-    on:dblclick={() => { if (!$readOnlyMode && interactionMode === "display" && !confirmDeleteBoxOpen) handleButton() }}
+    on:dblclick={() => { if (!$preventEditing && interactionMode === "display" && !confirmDeleteBoxOpen) handleButton() }}
     on:keydown={()=>{}}
 >
     <!-- Space name or name-input field. -->
@@ -393,7 +393,7 @@
                                 }}
                             />
 
-                            {#if info.direction}
+                            {#if info.direction && !$preventEditing}
                                 <DeleteWidget
                                     showDeleteButton={true}
                                     confirmDeleteBoxOpen={false}
@@ -486,13 +486,13 @@
     {/if}
 
     <!-- Perspective-Space button. -->
-    {#if interactionMode === "display" && (defaultPerspectiveSpace || (!$readOnlyMode && isHovered))}
+    {#if interactionMode === "display" && (defaultPerspectiveSpace || (!$preventEditing && isHovered))}
         <div
             class="perspective-space-button"
             class:is-default-perspective={defaultPerspectiveSpace}
-            class:read-only-mode={$readOnlyMode}
+            class:read-only-mode={$preventEditing}
 
-            on:click|stopPropagation={ () => { if (!$readOnlyMode) setPerspectiveThingDefaultSpace() } }
+            on:click|stopPropagation={ () => { if (!$preventEditing) setPerspectiveThingDefaultSpace() } }
             on:keydown={()=>{}}
         >
             <img
@@ -536,7 +536,7 @@
     {/if}
 
     <!-- Mode button. -->
-    {#if !$readOnlyMode && isHovered || (interactionMode === "editing" || interactionMode === "create")}
+    {#if !$preventEditing && isHovered || (interactionMode === "editing" || interactionMode === "create")}
         <div
             class="container button-container"
             class:editing={interactionMode === "editing"}
@@ -557,27 +557,29 @@
 
 
     <!-- Delete-Space widget. -->
-    <DeleteWidget
-        {showDeleteButton}
-        bind:confirmDeleteBoxOpen
-        thingWidth={spaceWidgetWidth}
-        thingHeight={spaceWidgetHeight}
-        encapsulatingDepth={0}
-        trashIcon={interactionMode !== "editing"}
-        tooltipText={
-            interactionMode === "display" ? "Delete Space." :
-            interactionMode === "editing" ? "Cancel editing." :
-            null
-        }
-        startDelete={() => {
-            if (interactionMode === "editing") {
-                cancel()
-            } else {
-                confirmDeleteBoxOpen = true
+    {#if !$preventEditing}
+        <DeleteWidget
+            {showDeleteButton}
+            bind:confirmDeleteBoxOpen
+            thingWidth={spaceWidgetWidth}
+            thingHeight={spaceWidgetHeight}
+            encapsulatingDepth={0}
+            trashIcon={interactionMode !== "editing"}
+            tooltipText={
+                interactionMode === "display" ? "Delete Space." :
+                interactionMode === "editing" ? "Cancel editing." :
+                null
             }
-        } }
-        {completeDelete}
-    />
+            startDelete={() => {
+                if (interactionMode === "editing") {
+                    cancel()
+                } else {
+                    confirmDeleteBoxOpen = true
+                }
+            } }
+            {completeDelete}
+        />
+    {/if}
 
 
 

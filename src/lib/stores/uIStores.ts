@@ -1,5 +1,5 @@
 // Import constants.
-import { defaultUITrimColor, defaultMobileMenuTrimColor, defaultGraphBackgroundColor } from "$lib/shared/constants"
+import { defaultUITrimColor, defaultMobileMenuTrimColor, defaultGraphBackgroundColor, defaultThingColor } from "$lib/shared/constants"
 
 // Import SvelteKit framework resources.
 import { writable, derived } from "svelte/store"
@@ -12,7 +12,7 @@ import { clampNumber } from "$lib/shared/utility"
 /* UI stores. */
 
 // UI color stores hold the hex-strings for the UI's trim, background, header, mobile menu trim,
-// and graph-background colors.
+// graph-background, and thing colors.
 export const uITrimColorStore = writable( defaultUITrimColor )
 export const uIBackgroundColorStore = derived(
     uITrimColorStore,
@@ -24,6 +24,7 @@ export const uIHeaderColorStore = derived(
 )
 export const mobileMenuTrimColorStore = writable( defaultMobileMenuTrimColor )
 export const graphBackgroundColorStore = writable( defaultGraphBackgroundColor )
+export const thingColorStore = writable( defaultThingColor )
 
 // Background image stores hold the paths for the Graph and Notes background images.
 export const graphBackgroundImageStore = writable( null as string | null )

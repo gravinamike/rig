@@ -102,12 +102,16 @@
 
 
     $: if ($loadingState === "graphLoaded") {
+        depth
+
         buildAndRefresh()
     }
 
     $: if (allowDirectChangesToPThingIds && pThingIds) {
         buildAndRefresh()
     }
+
+
 
 
     // ...or a refresh of the specific Graph ID is called for.

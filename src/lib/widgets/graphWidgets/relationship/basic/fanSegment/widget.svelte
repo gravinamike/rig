@@ -3,7 +3,7 @@
     import type { GenerationMember, Thing } from "$lib/models/constructModels"
 
     // Import stores.
-    import { readOnlyMode, relationshipBeingCreatedInfoStore, reorderingInfoStore } from "$lib/stores"
+    import { preventEditing, relationshipBeingCreatedInfoStore, reorderingInfoStore } from "$lib/stores"
 
     // Import widget controller.
     import RelationshipFanSegmentWidgetController from "./controller.svelte"
@@ -82,7 +82,8 @@
     >
         {#if (
             // Show delete button if the Relationship is hovered, except those relating to Thing Forms.
-            !($relationshipBeingCreatedInfoStore.sourceThingId && !relatableForCurrentDrag)
+            !$preventEditing
+            && !($relationshipBeingCreatedInfoStore.sourceThingId && !relatableForCurrentDrag)
             && !$reorderingInfoStore.reorderInProgress
             && relationshipHovered
             && thingCohortMemberWithIndex.member
@@ -114,7 +115,7 @@
     <!-- Hoverable zone of fan segment. -->
     <line
         class="fan-segment-hover-zone"
-        class:read-only-mode={$readOnlyMode}
+        class:read-only-mode={$preventEditing}
 
         x1="{midline}" y1="{fanBottom}"
         x2="{leafGeometry.bottomMidline}" y2="{leafGeometry.bottom}"
@@ -126,7 +127,7 @@
         on:touchstart={()=>{fanSegmentClicked = true}}
         on:mouseup={()=>{fanSegmentClicked = false}}
         on:touchend={()=>{fanSegmentClicked = false}}
-        on:contextmenu|preventDefault={ (event) => {if (onMobile() && !$readOnlyMode) openCommandPalette(event)} }
+        on:contextmenu|preventDefault={ (event) => {if (onMobile() && !$preventEditing) openCommandPalette(event)} }
     />
 
     <!-- Visual image of fan segment. -->

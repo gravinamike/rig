@@ -186,7 +186,7 @@ export async function createNewGraphFile(username: string | null, folderName: st
     // Create the config file.
     await fsPromises.writeFile(
         destConfigFilePath,
-        `{"readOnlyMode":false,"leftSideMenu":null,"rightSideMenu":null,"notesEditorLocked":null,"homeThingId":null,"pinIds":[1],"perspectiveThingId":1}`,
+        `{"readOnlyMode":false,"canEdit":["all"],"leftSideMenu":null,"rightSideMenu":null,"notesEditorLocked":null,"homeThingId":null,"pinIds":[1],"perspectiveThingId":1}`,
         "utf8"
     )
 

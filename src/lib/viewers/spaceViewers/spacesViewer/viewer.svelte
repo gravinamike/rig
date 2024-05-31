@@ -18,7 +18,7 @@
 
     // Import API methods.
     import { reorderSpace } from "$lib/db"
-    import { readOnlyMode, spaceEditingInProgressIdStore, uIBackgroundColorStore } from "$lib/stores"
+    import { preventEditing, spaceEditingInProgressIdStore, uIBackgroundColorStore } from "$lib/stores"
 
 
 
@@ -136,10 +136,10 @@
         {#each spaces as space, index (space?.id || -1)}
             <!-- Space widget. -->
             <div
-                draggable={ $readOnlyMode || $spaceEditingInProgressIdStore.size ? false : true }
+                draggable={ $preventEditing || $spaceEditingInProgressIdStore.size ? false : true }
                 animate:flip={{ duration: 250 }}
 
-                on:dragstart={ (event) => { if (!$readOnlyMode) startDragSpace(event, index) } }
+                on:dragstart={ (event) => { if (!$preventEditing) startDragSpace(event, index) } }
                 on:dragover|preventDefault
                 on:drop|preventDefault={ (event) => dropSpace(event, index) }
             >

@@ -31,7 +31,6 @@
      */
     export let thingId: number
     export let thing: Thing | null
-    export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
     export let thingCohortRowOrColumn: "row" | "column" = "row"
     export let thingOverlapMargin: number = 0
@@ -89,7 +88,6 @@
 <!-- Base Thing widget controller. -->
 <ThingBaseWidgetController
     {thing}
-    {graph}
     {graphWidgetStyle}
 
     bind:encapsulatingDepth

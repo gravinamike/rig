@@ -859,6 +859,54 @@ export async function updateThingDefaultSpace(
 }
 
 /*
+ * Update a Thing's Perspective Expansions.
+ */
+export async function updateThingPerspectiveExpansions(
+    graphName: string | null,
+    thingId: number,
+    perspectiveExpansionsString: string
+): Promise<boolean> {
+    try { 
+        // Get parameters for SQL query.
+        const whenModded = (new Date()).toISOString()
+
+        // Construct and run SQL query.
+        const knex = Model.knex()
+        await knex.transaction(async (transaction: Knex.Transaction) => {
+            // Update the Note.
+            await RawThingDbModel.query()
+                .patch({ perspectiveexpansions: perspectiveExpansionsString, whenmodded: whenModded })
+                .where('id', thingId)
+                .transacting(transaction)
+            
+            return
+        })
+        
+        logger.debug(
+            {
+                graphName,
+                thingId,
+                perspectiveExpansionsString
+            },
+            "Thing's Perspective Expansions updated."
+        )
+        return true
+
+    } catch(err) {
+        logServerError(
+            "An error occurred while attempting to update Thing Perspective Expansions.",
+            {
+                graphName,
+                thingId,
+                perspectiveExpansionsString
+            },
+            err as Error
+        )
+        return false
+    }
+}
+
+/*
  * Update a Thing's default content viewer.
  */
 export async function updateThingDefaultContentViewer(

@@ -5,15 +5,15 @@ import type { AppConfig, GraphConfig } from "$lib/shared/constants"
 import { get } from "svelte/store"
 
 // Import constants.
-import { defaultUITrimColor, defaultGraphBackgroundColor } from "$lib/shared/constants"
+import { defaultUITrimColor, defaultGraphBackgroundColor, defaultThingColor } from "$lib/shared/constants"
 
 // Import stores.
 import {
     leftSideMenuStore, rightSideMenuStore, hideMenusStore,
-    uITrimColorStore, mobileMenuTrimColorStore, graphBackgroundImageStore, graphBackgroundColorStore,
+    uITrimColorStore, mobileMenuTrimColorStore, graphBackgroundImageStore, graphBackgroundColorStore, thingColorStore,
     notesBackgroundImageStore, defaultFontStore, titleFontStore, titleFontWeightStore,
-    readOnlyMode as readOnlyModeStore, notesEditorLockedStore,
-    homeThingIdStore, pinIdsStore, perspectiveThingIdStore, canAccessFileMenuStore
+    readOnlyMode as readOnlyModeStore, canEdit as canEditStore, preventEditing as preventEditingStore, notesEditorLockedStore,
+    homeThingIdStore, pinIdsStore, perspectiveThingIdStore, canAccessFileMenuStore, userIdStore, canEdit
 } from "$lib/stores"
 
 // Import API methods.
@@ -66,6 +66,9 @@ export async function storeGraphConfig(pThingId: number | null = null): Promise<
     graphBackgroundColorStore.set(
         graphConfig.graphBackgroundColor || defaultGraphBackgroundColor
     )
+    thingColorStore.set(
+        graphConfig.thingColor || defaultThingColor
+    )
     notesBackgroundImageStore.set(
         graphConfig.notesBackgroundImage || null
     )
@@ -79,6 +82,14 @@ export async function storeGraphConfig(pThingId: number | null = null): Promise<
         graphConfig.titleFontWeight || null
     )
     readOnlyModeStore.set(graphConfig.readOnlyMode)
+    canEdit.set(graphConfig.canEdit)
+    preventEditingStore.set(
+        !(
+            graphConfig.canEdit.includes("all")
+            || (get(userIdStore) !== null && graphConfig.canEdit.includes(get(userIdStore) as string))
+        )
+        || graphConfig.readOnlyMode === true
+    )
     hideMenusStore.set(graphConfig.hideMenus)
     leftSideMenuStore.set(graphConfig.leftSideMenu)
     rightSideMenuStore.set(graphConfig.rightSideMenu)
@@ -113,12 +124,14 @@ export async function saveGraphConfig(): Promise<void> {
     const uITrimColor = get(uITrimColorStore)
     const mobileMenuTrimColor = get(mobileMenuTrimColorStore)
     const graphBackgroundColor = get(graphBackgroundColorStore)
+    const thingColor = get(thingColorStore)
     const graphBackgroundImage = get(graphBackgroundImageStore)
     const notesBackgroundImage = get(notesBackgroundImageStore)
     const defaultFont = get(defaultFontStore)
     const titleFont = get(titleFontStore)
     const titleFontWeight = get(titleFontWeightStore)
     const readOnlyMode = get(readOnlyModeStore)
+    const canEdit = get(canEditStore)
     const hideMenus = get(hideMenusStore)
     const leftSideMenu = get(leftSideMenuStore)
     const rightSideMenu = get(rightSideMenuStore)
@@ -132,12 +145,14 @@ export async function saveGraphConfig(): Promise<void> {
         uITrimColor: uITrimColor,
         mobileMenuTrimColor: mobileMenuTrimColor,
         graphBackgroundColor: graphBackgroundColor,
+        thingColor: thingColor,
         graphBackgroundImage: graphBackgroundImage,
         notesBackgroundImage: notesBackgroundImage,
         defaultFont: defaultFont,
         titleFont: titleFont,
         titleFontWeight: titleFontWeight,
         readOnlyMode: readOnlyMode,
+        canEdit: canEdit,
         hideMenus: hideMenus,
         leftSideMenu: leftSideMenu,
         rightSideMenu: rightSideMenu,

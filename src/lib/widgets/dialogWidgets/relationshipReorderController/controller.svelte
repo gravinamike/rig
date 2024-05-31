@@ -15,7 +15,7 @@
 
     $: scale = zoomBase ** ($reorderingInfoStore.graphWidgetStyle?.zoom || 1)
     const tweenedScale = tweened( 1, { duration: 100, easing: cubicOut } )
-    $: tweenedScale.set(scale)   
+    $: tweenedScale.set(scale)
 
 
 

@@ -8,7 +8,7 @@
     // Import stores.
     import {
         uITrimColorStore, uIBackgroundColorStore, uIHeaderColorStore, lightenOrDarkenColorString,
-        titleFontStore, titleFontWeightStore, readOnlyMode,
+        titleFontStore, titleFontWeightStore, preventEditing,
         pinIdsStore, addPin, removePin, homeThingIdStore, setHomeThingId, removeHomeThing,
         hoveredThingIdStore, openContextCommandPalette
     } from "$lib/stores"
@@ -181,7 +181,7 @@
                         ) rePerspectToThingId(entryOrDivider.thingId)
                     } }
                     on:contextmenu|preventDefault={ (event) => {
-                        if (!$readOnlyMode && "thingId" in entryOrDivider) {
+                        if (!$preventEditing && "thingId" in entryOrDivider) {
                             openHistoryContextCommandPalette(event, entryOrDivider.thingId)
                         }
                     } }

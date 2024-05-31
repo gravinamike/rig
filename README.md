@@ -109,7 +109,11 @@ Or, on RHEL/CentOS:
 
 ### Running the application
 
-#### As a website
+#### Building the site
+
+Before running the application as either a website or a desktop application, it has to be built. Go to the top-level folder of the repository and run the following command: `npm run build`.
+
+#### Running as a website
 
 If you are setting up on a Linux system, we recommend using [pm2](https://pm2.keymetrics.io/) to manage both the the front-end and back-end processes.  
 
@@ -117,7 +121,7 @@ Once pm2 has been installed, copy and paste the file named `/static/app/start_db
 
 To start both the frontend and backend processes, run `pm2 start pm2.config.cjs` from the base folder of the repository.
 
-#### As a desktop application
+#### Running as a desktop application
 
 To run Rig as a desktop application (Windows only), execute the batch file located at `/static/app/start.bat`. (You can create a shortcut to this file if you want.)
 

@@ -49,6 +49,7 @@ export async function getGraphConfig(): Promise<GraphConfig | false> {
         // If the config is from an older version that doesn't contain certain
         // keys, add these keys.
         if (!("readOnlyMode" in graphConfig)) graphConfig["readOnlyMode"] = false
+        if (!("canEdit" in graphConfig)) graphConfig["canEdit"] = ["all"]
         if (!("hideMenus" in graphConfig)) graphConfig["hideMenus"] = []
         if (!("leftSideMenu" in graphConfig)) graphConfig["leftSideMenu"] = null
         if (!("rightSideMenu" in graphConfig)) graphConfig["rightSideMenu"] = null

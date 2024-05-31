@@ -41,6 +41,7 @@ export interface ServerConfig {
  */
 export const defaultUITrimColor = "#E8E8E8"
 export const defaultMobileMenuTrimColor = "#787878"
+export const defaultThingColor = "#FFFFFF"
 
 
 /**
@@ -110,12 +111,14 @@ export interface GraphConfig {
     uITrimColor?: string
     mobileMenuTrimColor?: string
     graphBackgroundColor?: string
+    thingColor?: string
     graphBackgroundImage?: string | null
     notesBackgroundImage?: string | null
     defaultFont?: string | null
     titleFont?: string | null
     titleFontWeight?: number | null
     readOnlyMode: boolean
+    canEdit: string[]
     hideMenus: MenuName[]
     leftSideMenu: string | null
     rightSideMenu: string | null
@@ -155,11 +158,6 @@ export type GraphConstruct = Direction | Space | Thing | Relationship
  * Maximum number of Things to store in the Thing store before trimming.
  */
 export const maxThingsToStore = 500
-
-/**
- * Plane padding.
- */
-export const planePadding = 20
 
 
 /* Relationships interfaces and types. */
@@ -288,3 +286,18 @@ export const hyperlinkProtocols = [
     "news",
     "telnet"
 ]
+
+
+
+
+
+
+
+
+
+
+export interface PerspectiveExpansions {
+    [spaceId: string]: {
+        [thingId: string]: (number | "Space" | "all")[]
+    }
+}

@@ -7,12 +7,7 @@
     import { tick } from "svelte"
 
     // Import constants.
-    import {
-            cartesianHalfAxisIds, orderedCartesianHalfAxisIds, orderedNonCartesianHalfAxisIds
-    } from "$lib/shared/constants"
-    
-    // Import stores.
-    import { reorderingInfoStore } from "$lib/stores"
+    import { cartesianHalfAxisIds } from "$lib/shared/constants"
 
     // Import utility functions.
     import { readOnlyArrayToArray, sleep } from "$lib/shared/utility"
@@ -34,8 +29,6 @@
      * @param orderedThingCohortsWithMembers - The ordered Thing Cohorts that have members.
      * @param childThings - All child Things in the Clade.
      * @param showCladeRootThing - Whether to display the root Thing of the Clade.
-     * @param expandable - Whether the Clade can be collapsed to hide children or expanded to show them.
-     * @param expanded - Whether the Clade is collapsed to hide children or expanded to show them.
      * @param rootThingOffsetFromCenterOfThingCohort - The offset (in pixels) betwen the root Thing and the center of its Thing Cohort.
      * @param cartesianThingCohorts - The Thing Cohorts that are on the Cartesian half-axes.
      * @param showAsCollapsed - Whether to format the Clade widget to indicate its parent Thing Cohort is collapsed.
@@ -48,6 +41,7 @@
         thingOverlapMargin: number,
         thingCohortRowOrColumn: "row" | "column"
     ) => string = () => ""
+    export let parentThingCohortMemberOnTopIndex = 0
     export let rootThing: Thing
     export let graphWidgetStyle: GraphWidgetStyle
     export let rootThingWidth = 0
@@ -57,16 +51,14 @@
     export let thingCohorts: ThingCohort[] = []
     export let orderedThingCohorts: ThingCohort[] = []
     export let orderedThingCohortsWithMembers: ThingCohort[] = []
+    export let orderedThingCohortsWithMembersReady = false
     export let childThings: Thing[] = []
     export let showCladeRootThing = true
-    export let expandable = false
-    export let expanded = false
-    export let toggleHovered = false
-    export let showToggle = false
     export let cladeControlsOpened = false
 
     export let overlapMarginStyleText: string = ""
     export let rootThingOffsetFromCenterOfThingCohort = 0
+    export let onTopInThingCohort = false
     export let cartesianThingCohorts: ThingCohort[] = []
     export let showAsCollapsed = false
     export let hoveredForHalfSecond = false
@@ -172,6 +164,14 @@
         )
 
     /**
+     * Clade-on-top-in-Thing-Cohort indicator.
+     * 
+     * Indicates whether the Clade's root Thing is visually in front of the other Things in its
+     * Thing Cohort.
+     */
+    $: onTopInThingCohort = parentThingCohortMemberOnTopIndex === rootThing.address?.indexInCohort as number
+
+    /**
      * Cartesian Thing Cohorts.
      * 
      * Same as the Thing Cohorts, but only those that are on the "Cartesian"
@@ -198,31 +198,38 @@
      */
     $: thingCohorts = rootThing.childThingCohorts
 
-    /**
-     * Ordered Thing Cohorts.
-     * 
-     * The Thing Cohorts in the order they are to be displayed in the outline version of the widget.
-     */
-    $: {
-        graphWidgetStyle.excludeNonAxisThingCohorts
 
-        //orderedThingCohorts = getOrderedThingCohorts(rootThing)////////////////////////////
+
+
+    function generateOrderedThingCohortsWithMembers() {
+        // The Thing Cohorts in the order they are to be displayed in the outline version of the widget.
         orderedThingCohorts = rootThing.getOrderedThingCohorts(
             graphWidgetStyle.excludeCartesianAxes,
             graphWidgetStyle.excludeNonCartesianAxes,
             graphWidgetStyle.excludeNonAxisThingCohorts
         )
+
+        // Same as ordered Thing Cohorts, but including only those Cohorts that have
+        orderedThingCohortsWithMembers = orderedThingCohorts.filter(
+            thingCohort => thingCohort.members.length
+        )
+
+        orderedThingCohortsWithMembersReady = true
     }
 
-    /**
-     * Ordered Thing Cohorts with members.
-     * 
-     * Same as ordered Thing Cohorts, but including only those Cohorts that have
-     * members (aren't empty).
-     */
-    $: orderedThingCohortsWithMembers = orderedThingCohorts.filter(
-        thingCohort => thingCohort.members.length
-    )
+    $: excludeCartesianAxes = graphWidgetStyle.excludeCartesianAxes
+    $: excludeNonCartesianAxes = graphWidgetStyle.excludeNonCartesianAxes
+    $: excludeNonAxisThingCohorts = graphWidgetStyle.excludeNonAxisThingCohorts
+    $: {
+        excludeCartesianAxes
+        excludeNonCartesianAxes
+        excludeNonAxisThingCohorts
+
+        generateOrderedThingCohortsWithMembers()
+    }
+    
+
+
 
     /**
      * Array of all Things across all the Thing Cohorts in the Clade.
@@ -247,50 +254,6 @@
     ) ?
         false :
         true
-
-    /**
-     * Expandable flag.
-     * 
-     * Determines whether the Clade can be collapsed to hide children or
-     * expanded to show them.
-     */
-    $: expandable = (
-        // The Clade is expandable if there are Thing Cohorts...
-        thingCohorts.length
-        // ... the Cohorts have a Generation...
-        && thingCohorts[0].generation
-        // ...and that Generation is not a Relationships-only Generation.
-        && !thingCohorts[0].generation.isRelationshipsOnly
-    ) ? true :
-    false
-
-    /**
-     * Expanded flag.
-     * 
-     * Determines whether the Clade is collapsed to hide children or expanded
-     * to show them. Starts true for the Generation 0 Clade, otherwise starts
-     * false.
-     */
-    $: expanded =
-        expandable && rootThing.address?.generationId === 0 ? true :
-        false
-
-    /**
-     * Show-toggle flag.
-     * 
-     * Determines whether to show the expand/collapse toggle. (Currently only applies for outline
-     * widgets).
-     */
-    $: showToggle = (
-        // Show the toggle if...
-        (
-            // ...there is no reordering operation in progress and the toggle is hovered, or...
-            !$reorderingInfoStore.reorderInProgress
-            && toggleHovered
-        )
-        // ...the Clade is currently expanded.
-        || expanded
-    )
 
 
 
@@ -375,5 +338,5 @@
 
         // Return the combined array.
         return orderedThingCohorts
-    }*//////////////////////////////////////////////////////////////////////////////////////////
+    }*/
 </script>

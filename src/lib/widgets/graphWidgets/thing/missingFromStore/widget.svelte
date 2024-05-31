@@ -4,12 +4,10 @@
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
     // Import constants.
-    import { planePadding } from "$lib/shared/constants"
     import ThingMissingFromStoreWidgetController from "./controller.svelte"
     
 
     export let thingId: number
-    export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
 
 
@@ -24,7 +22,7 @@
     $: encapsulatingPadding = encapsulatingDepth >= 0 ? 40 : 20
 
     /* Variables dealing with Thing sizing. */
-    $: thingSize = graphWidgetStyle.thingSize + planePadding * planeId + encapsulatingPadding * encapsulatingDepth
+    $: thingSize = graphWidgetStyle.thingSize + encapsulatingPadding * encapsulatingDepth
     $: thingWidth = thingSize * xYElongation.x
     $: thingHeight = encapsulatingDepth >= 0 ? thingSize * xYElongation.y : thingSize * xYElongation.y / cohortSize - 2
 </script>
@@ -32,10 +30,8 @@
 
 
 <ThingMissingFromStoreWidgetController
-    {graph}
     {graphWidgetStyle}
 
-    bind:planeId
     bind:encapsulatingDepth
     bind:thingSize
     bind:thingWidth

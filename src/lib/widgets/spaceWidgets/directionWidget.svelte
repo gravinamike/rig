@@ -9,7 +9,7 @@
 
     // Import constants and stores.
     import { directionWidgetCircularDiameter, relationshipColorByHalfAxisId } from "$lib/shared/constants"
-    import { directionSelectionInfoStore, openDirectionSelectionDropdownMenu, readOnlyMode } from "$lib/stores"
+    import { directionSelectionInfoStore, lightenOrDarkenColorString, openDirectionSelectionDropdownMenu, preventEditing, thingColorStore } from "$lib/stores"
 
     // Import related UI elements.
     import { TextFittingDiv } from "$lib/widgets/layoutWidgets"
@@ -25,6 +25,7 @@
     export let halfAxisId: HalfAxisId | null
     export let graphWidgetStyle: GraphWidgetStyle
     export let askingForDirection = false
+    export let diameter: number | null = null
     export let height = 26
     export let fontSize: number | null = null
     export let circularOrRectangular: "circular" | "rectangular" = "circular"
@@ -62,6 +63,8 @@
         
 
 
+    let highlighted = false
+
 
 
 
@@ -87,18 +90,26 @@
     class:fully-opaque={fullyOpaque}
     class:square-bottom-corners={squareBottomCorners}
     class:square-top-corners={squareTopCorners}
-    class:interaction-disabled={$readOnlyMode || interactionDisabled}
+    class:interaction-disabled={$preventEditing || interactionDisabled}
     
     bind:this={directionWidget}
 
     style="
-        width: {circularOrRectangular === "circular" ? `${directionWidgetCircularDiameter}px`: "100%"};
-        height: {circularOrRectangular === "circular" ? `${directionWidgetCircularDiameter}px`: `${height}px`};
+        width: {circularOrRectangular === "circular" ? `${diameter || directionWidgetCircularDiameter}px`: "100%"};
+        height: {circularOrRectangular === "circular" ? `${diameter || directionWidgetCircularDiameter}px`: `${height}px`};
     "
+
+    on:mouseenter={() => highlighted = true}
+    on:mouseleave={() => highlighted = false}
 >
     <!-- Colored backfield. -->
     <div
         class="direction-widget-backfield"
+
+        style="background-color: {
+            highlighted ? lightenOrDarkenColorString($thingColorStore, "darker", 3) :
+            $thingColorStore
+        };"
     />
 
     <!-- Direction text. -->
@@ -155,12 +166,7 @@
         top: 0;
         width: 100%;
         height: 100%;
-        background-color: white;
         opacity: 0.25;
-    }
-
-    .direction-widget:active .direction-widget-backfield {
-        background-color: whitesmoke;
     }
 
     .direction-widget:not(.rectangular):hover .direction-widget-backfield {

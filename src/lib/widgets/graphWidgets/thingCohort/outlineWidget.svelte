@@ -18,6 +18,8 @@
     export let thingCohort: ThingCohort
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
+    export let outlineScrollAreaTop: number
+    export let outlineScrollTime: Date | null
     export let editingNotes: boolean
     export let notesEditor: Editor | null
     export let rePerspectToThingId: (thingId: number) => Promise<void>
@@ -28,30 +30,30 @@
     class="cohort-outline-widget"
     class:off-axis={graph.offAxis}
 >
-    {#if !thingCohort.isRetrograde}
-        {#each thingCohort.members as cohortMember, i}
-            <!-- If the Thing already exists in the Graph, render a Thing-already-rendered widget. -->
-            {#if cohortMember.alreadyRendered && cohortMember.thingId}
-                <ThingOutlineAlreadyRenderedWidget
-                    thingId={cohortMember.thingId}
-                    thing={cohortMember.thing}
-                    {graph}
-                    {graphWidgetStyle}
-                />
+    {#each thingCohort.members as cohortMember}
+        <!-- If the Thing already exists in the Graph (and the Graph isn't formatted as an
+             outline), render a Thing-already-rendered widget. -->
+        {#if (cohortMember.alreadyRendered && !graph.isOutline) && cohortMember.thingId}
+            <ThingOutlineAlreadyRenderedWidget
+                thingId={cohortMember.thingId}
+                thing={cohortMember.thing}
+                {graphWidgetStyle}
+            />
 
-            <!-- Otherwise render a Clade widget with the Thing as its root. -->
-            {:else if cohortMember.thing}
-                <CladeOutlineWidget
-                    rootThing={cohortMember.thing}
-                    {graph}
-                    {graphWidgetStyle}
-                    bind:editingNotes
-                    bind:notesEditor
-                    {rePerspectToThingId}
-                />
-            {/if}
-        {/each}
-    {/if}
+        <!-- Otherwise render a Clade widget with the Thing as its root. -->
+        {:else if cohortMember.thing}
+            <CladeOutlineWidget
+                rootThing={cohortMember.thing}
+                {graph}
+                {graphWidgetStyle}
+                {outlineScrollAreaTop}
+                {outlineScrollTime}
+                bind:editingNotes
+                bind:notesEditor
+                {rePerspectToThingId}
+            />
+        {/if}
+    {/each}
 </div>
 
 

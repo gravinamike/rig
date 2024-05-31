@@ -5,22 +5,23 @@
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
     // Import SvelteKit framework resources.
-    import { onDestroy } from "svelte"
+    import { onMount, onDestroy } from "svelte"
 
     // Import stores.
-    import { addGraph, landscapeOrientation, removeGraph, titleFontStore, titleFontWeightStore, uITrimColorStore, addGraphIdsNeedingViewerRefresh, readOnlyMode, notesEditorLockedStore } from "$lib/stores"
+    import { addGraph, landscapeOrientation, removeGraph, titleFontStore, titleFontWeightStore, uITrimColorStore, addGraphIdsNeedingViewerRefresh, preventEditing, notesEditorLockedStore, hoveredThingIdStore, lightenOrDarkenColorString, thingColorStore, relationshipBeingCreatedInfoStore, graphIdsNeedingViewerRefresh, removeGraphIdsNeedingViewerRefresh } from "$lib/stores"
 
     // Import utility functions.
-    import { onMobile, writePlainTextToClipboard } from "$lib/shared/utility"
+    import { onMobile, sleep, writePlainTextToClipboard } from "$lib/shared/utility"
 
     // Import related widgets.
-    import { defaultGraphWidgetStyle, ThingCohortOutlineWidget } from "$lib/widgets/graphWidgets"
+    import { ThingCohortOutlineWidget, defaultGraphWidgetStyle } from "$lib/widgets/graphWidgets"
     import NotesToolbar from "$lib/viewers/notesViewers/notesToolbar.svelte"
     import { Tooltip } from "$lib/widgets/layoutWidgets"
 
     // Import API functions.
     import { markThingsVisited } from "$lib/db/makeChanges"
     import { saveGraphConfig } from "$lib/shared/config";
+    import DepthControl from "./depthControl.svelte";
     
 
 
@@ -31,6 +32,12 @@
     export let offAxis = false
     export let fullSize: boolean
     export let rePerspectToThingId: (thingId: number) => Promise<void>
+
+
+
+    
+    const startingGraphWidgetStyle = {...graphWidgetStyle}
+
 
 
 
@@ -119,28 +126,35 @@
         
         // Open and build the new Graph.
         graph = await addGraph(pThingIds as number[], depth, null, true, offAxis, false, space)
-        graphWidgetStyle = {...defaultGraphWidgetStyle}
+        graphWidgetStyle = {...startingGraphWidgetStyle}
 
         // Configure style for off-axis styling, if applicable.
         graph.offAxis = offAxis
-        if (offAxis) {
-            graphWidgetStyle.excludePerspectiveThing = true
-            graphWidgetStyle.excludeCartesianAxes = true
-            graphWidgetStyle.excludeNonAxisThingCohorts = true
-        }
+
         
         await markThingsVisited(pThingIds as number[])
-
-        // Refresh the Graph viewers.
-        addGraphIdsNeedingViewerRefresh(graph.id)
     }
 
     $: {
         pThingIds
+        depth
         
         buildAndRefresh()
     }
 
+
+
+    function respondToGraphRefreshSignal() {
+        if (graph && $graphIdsNeedingViewerRefresh.includes(graph.id)) {
+            removeGraphIdsNeedingViewerRefresh(graph.id)
+            buildAndRefresh()
+        }
+    }
+    $: {
+        $graphIdsNeedingViewerRefresh
+
+        respondToGraphRefreshSignal()
+    }
 
 
 
@@ -249,11 +263,47 @@
 
 
 
-
-
-
-
+    let outlineScrollArea: HTMLElement | null = null
+    let outlineScrollAreaTop = 0
+    let outlineScrollTime: Date | null = null
+    function onOutlineScroll() {
+        outlineScrollAreaTop = (outlineScrollArea as HTMLElement).getBoundingClientRect().top
+        outlineScrollTime = new Date()
+    }
     
+
+
+
+
+
+
+
+    function onThingMouseEnter() {
+        if (graph) hoveredThingIdStore.set(graph?.pThingIds[0])
+    }
+
+    function onThingMouseLeave() {
+        hoveredThingIdStore.set(null)
+    }
+
+    function onThingClick() {
+        if (graph) {
+            rePerspectToThingId(graph?.pThingIds[0])
+            pThingIds = graph?.pThingIds
+        }
+    }
+
+
+
+
+
+
+
+
+    onMount(async () => {
+        await sleep(1)
+        onOutlineScroll()
+    })
 
     onDestroy(() => {
         if (graph) removeGraph(graph)
@@ -284,7 +334,8 @@
             class="title"
 
             style="
-                margin-left: {onMobile() && !$landscapeOrientation ? 60 : 8}px;
+                {pThingIds[0] === $hoveredThingIdStore ? "box-shadow: 1px 1px 2px 1px dimgrey;" : ""}
+                margin-left: {onMobile() && !$landscapeOrientation ? 60 : 1}px;
                 margin-right: {onMobile() ? 45 : 0}px;
                 {
                     onMobile() ? (
@@ -294,26 +345,44 @@
 
                     ""
                 }
+                background-color: {
+                    pThingIds[0] === $hoveredThingIdStore ? lightenOrDarkenColorString($thingColorStore, "darker", 4) :
+                    $thingColorStore
+                };
                 font-family: {$titleFontStore ?? "Arial"};
                 font-weight: {$titleFontWeightStore ?? 600};
             "
+
+            on:mouseenter={onThingMouseEnter}
+            on:mouseleave={onThingMouseLeave}
+            on:click={onThingClick}
+            on:keydown={()=>{}}
         >
             <div>{title}</div>
         </div>
     {/if}
 
     <!-- Root Thing Cohort widget (from which the rest of the Graph Outline automatically "grows"). -->
-    <div class="root-thing-cohort-container">
+    <div
+        class="root-thing-cohort-container"
+        
+        on:scroll={onOutlineScroll}
+        bind:this={outlineScrollArea}
+    >
         {#if graph?.rootCohort}
             <ThingCohortOutlineWidget
                 thingCohort={graph.rootCohort}
                 {graph}
                 {graphWidgetStyle}
+                {outlineScrollAreaTop}
+                {outlineScrollTime}
                 bind:editingNotes={editing}
                 bind:notesEditor={editor}
                 {rePerspectToThingId}
             />
         {/if}
+
+        <div class="bottom-spacer" />
     </div>
 
     {#if editor}
@@ -323,33 +392,43 @@
             focusEditorMethod={focusEditor}
             isThingLinkMethod={isThingLink}
         />
+    {:else if !offAxis}
+        <!-- Depth control. -->
+        <div class="depth-control-container">
+            <DepthControl
+                bind:depth
+            />
+
+            <div
+                class="depth-control-container-backfield"
+
+                style="background-color: {$uITrimColorStore};"
+            />
+        </div>
+
+        <button
+            class="copy-outline-text-button"
+
+            on:click={copyOutlineTextToClipboard}
+            on:keydown={()=>{}}
+        >
+            <img
+                src="./icons/copy.png"
+                alt="Copy icon"
+                width=30px
+                height=30px
+            >
+
+            <!-- Tooltip. -->
+            <Tooltip
+                text={"Copy outline as text."}
+                direction={"up"}
+            />
+        </button>
     {/if}
 
-    <button
-        class="copy-outline-text-button"
-
-        style={editor ? "bottom: 90px;" : ""}
-
-        on:click={copyOutlineTextToClipboard}
-        on:keydown={()=>{}}
-    >
-        <img
-            src="./icons/copy.png"
-            alt="Copy icon"
-            width=30px
-            height=30px
-        >
-
-        <!-- Tooltip. -->
-        <Tooltip
-            text={"Copy outline text."}
-            direction={"up"}
-            lean={"right"}
-        />
-    </button>
-
     <!-- Edit button. -->
-    {#if !$readOnlyMode && !offAxis}
+    {#if !$preventEditing && !offAxis}
         <div
             class="edit-button"
             class:editing
@@ -399,7 +478,7 @@
         display: flex;
         flex-direction: column;
         padding: 0.5rem;
-        gap: 0.5rem;
+        gap: 1px;
         
         user-select: none;
     }
@@ -411,12 +490,29 @@
     .title {
         flex: 0 0 34px;
 
+        box-shadow: 1px 1px 1px 0px silver;
+        outline: solid 0.25px lightgrey;
+        outline-offset: -0.25px;
+        border-radius: 4px;
+
         position: relative;
+        width: fit-content;
         height: 34px;
+        z-index: 1;
 
         display: flex;
+        padding: 0.25rem 0.5rem 0.25rem 0.5rem;
         align-items: center;
     }
+
+
+
+
+
+
+
+
+
 
     .title div {
         margin: 0;
@@ -429,9 +525,40 @@
     .root-thing-cohort-container {
         height: 100%;
 
-        overflow-x: visible;
+        overflow-x: hidden;
         overflow-y: auto; 
         scrollbar-width: thin;
+    }
+
+    .bottom-spacer {
+        height: 32px;
+    }
+
+    .depth-control-container {
+        margin: 5px;
+
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        z-index: 2;
+
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 5px;
+    }
+
+    .depth-control-container-backfield {
+        border-radius: 5px;
+
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        background-color: lightgrey;
     }
 
     .copy-outline-text-button {
@@ -439,8 +566,8 @@
         border: none;
 
         position: absolute;
-        bottom: 25px;
-        left: 20px;
+        bottom: 24px;
+        right: 60px;
         background: none;
 
         display: flex;

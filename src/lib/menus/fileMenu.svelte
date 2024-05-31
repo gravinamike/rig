@@ -69,7 +69,7 @@
 
                     style="background-color: {$uIHeaderColorStore};"
                 >
-                    {username === "all" ? "Common Graphs": `${username}'s Graphs`}:
+                    {username === "all" ? "Public Graphs": `${username}'s Graphs`}:
                 </div>
 
                 <!-- Buttons for that user's Graph folders. -->

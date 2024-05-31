@@ -30,9 +30,9 @@ export async function sessionSpecificFetch(
     // Graph to use and whether the route is prohibited), add the session UUID as a route param at
     // the end. Otherwise, use the supplied route.
     const inputToUse =
-    isGraphRestrictedRoute(String(input)) ? `${input}--${get(sessionUuidStore)}` :
+        isGraphRestrictedRoute(String(input)) ? `${input}--${get(sessionUuidStore)}` :
         input
-    
+
     // Get a response using the window's native fetch.
     const res = await fetch(inputToUse, init)
 

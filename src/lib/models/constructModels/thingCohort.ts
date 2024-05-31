@@ -1,12 +1,12 @@
 // Import types.
 import type { HalfAxisId } from "$lib/shared/constants"
 import type {
-    Direction, Space, Graph, Generation, GenerationMember, Plane, Thing
+    Direction, Space, Graph, Generation, GenerationMember, Thing
 } from "$lib/models/constructModels"
 // Import constants.
 import { offsetsByHalfAxisId } from "$lib/shared/constants"
 // Import stores.
-import { getGraphConstructs } from "$lib/stores"
+import { getGraphConstructs, graphDbModelInStore } from "$lib/stores"
 import type { GridLayer } from "./gridLayer"
 
 
@@ -67,10 +67,6 @@ export class ThingCohort {
     // a Thing. (Not currently in use.)
     encapsulatingDepth: number
 
-    // The visual plane (perpendicular to the screen) that the Thing Cohort
-    // belongs to.
-    plane: Plane | null = null
-
     // The axial elongation factor, which controls how much longer or taller
     // the Thing Cohort is than its smaller dimension.
     axialElongation = 1
@@ -103,25 +99,6 @@ export class ThingCohort {
             this.address.graph.generations.byId(this.address.generationId)
         // Add this Thing Cohort to that Generation.
         this.generation?.thingCohorts.push(this)
-
-        // Set the Thing Cohort's Plane ID.
-        let planeId: number
-        // If there is no address set, set the Plane ID to 0.
-        if (!this.address) {
-            planeId = 0
-        // Otherwise, calculate the Plane ID from the parent Thing Cohort's
-        // Plane ID and the Thing Cohort's Direction.
-        } else {
-            const parentPlaneId = this.parentThingCohort()?.plane?.id || 0
-            const changeInPlane = offsetsByHalfAxisId[this.halfAxisId || 0][2]
-            planeId = parentPlaneId + changeInPlane
-        }
-        // If the Generation isn't the Relationships-only Generation, add this
-        // Thing Cohort to the Plane.
-        if (
-            this.generation
-            && !this.generation.isRelationshipsOnly
-        ) this.address.graph.planes.addCohortToPlane(this, planeId)
 
         // Calculate the encapsulating depth from the parent Thing Cohort's
         // encapsulating depth and the Thing Cohort's Direction.
@@ -173,10 +150,8 @@ export class ThingCohort {
     get isRetrograde(): boolean {
         // The Thing Cohort is retrograde if...
         const isRetrograde = (
-            // ...It only has one member, and...
-            this.members.length === 1
-            // it contains the Thing Cohort's grandparent Thing.
-            && this.indexOfGrandparentThing !== null
+            // ...it contains the Thing Cohort's grandparent Thing.
+            this.indexOfGrandparentThing !== null
             && this.indexOfGrandparentThing !== -1
         )
 
@@ -340,8 +315,110 @@ export class ThingCohort {
         // If the Thing Cohort is part of a Grid Layer, remove it from that
         // Grid Layer.
         if (this.gridLayer) this.address.graph.gridLayers.removeThingCohortFromGridLayer(this, this.gridLayer.id)
-
-        // If this Thing Cohort is part of a Plane, remove it from that Plane.
-        if (this.plane) this.plane.removeCohort(this)
     }
+
+
+
+
+
+
+    build(thingIds: number[], thingIdsForNextGeneration: number[], graph: Graph) {
+        // Get the IDs of the Things for that half-axis' Thing Cohort.
+        const thingIdsForChildThingCohort =
+            thingIds.length ? thingIdsForNextGeneration
+                .filter( thingIdForNextGeneration => {if (thingIds.includes(thingIdForNextGeneration)) return true} ) :
+            []
+
+        // For each of those Thing IDs, create a corresponding Generation Member and add it to
+        // that Thing Cohort.
+        for (const thingId of thingIdsForChildThingCohort) {
+            // Construct a new Thing, based on the ThingDBModel in the store for
+            // that ID (or null if there is none).
+            const thing =
+                graphDbModelInStore("Thing", thingId) ? getGraphConstructs<Thing>("Thing", thingId) :
+                null
+
+            // Determine if the new Thing already exists in the Graph.
+            const alreadyRendered = graph.thingIdsAlreadyInGraph.includes(thingId) ?? false
+            
+            // Wrap the new Thing in a Generation member object.
+            const member: GenerationMember = {
+                thingId: thingId,
+                thing: thing,
+                alreadyRendered: alreadyRendered
+            }
+
+            // Add the Generation member to the child Thing Cohort.
+            this.addMember(member)
+        }
+    }
+
+
+
+
+
+
+
+
+    /**
+     * Should-be-rendered attribute.
+     * 
+     * Indicates whether the Thing Cohort should be rendered in the Graph, as an attribute.
+     */
+    get shouldBeRendered() {
+        if (
+            this.parentThing === null
+            || this.parentThing.id == null
+            || this.parentThing.graph === null
+            || this.generation === null
+            || this.direction === null
+            || this.direction.id === null
+        ) return false
+
+
+
+        const directionIdsToCheck: (number | "Space" | "all")[] =
+            this.parentThing.graph.isOutline ? (
+                this.parentThing.graph.startingSpace?.includesDirectionId(this.direction.id) ? ["Space", "all"] :
+                ["all"]
+            ) :
+            [this.direction.id]
+
+
+
+        // The Thing Cohort should be rendered if...
+        const shouldBeRendered = (
+            // ...the Thing Cohort isn't empty, and...
+            this.members.length !== 0
+
+            && (
+                // ...the Thing Cohort's Generation is less than or equal to the Graph's Depth,
+                // or...
+                this.address.generationId <= this.parentThing.graph.depth
+
+                // ...the Direction of the Thing Cohort from its root Thing is flagged as expanded,
+                // or...
+                || directionIdsToCheck.some(
+                    directionIdToCheck => (this.parentThing?.graph as Graph).directionFromThingIsExpanded(
+                        (this.parentThing?.id as number),
+                        directionIdToCheck
+                    )
+                )
+
+                // ...it's the last, Relationships-only Generation and at least some of the
+                // Relationships in it are to Things that are already rendered in the Graph
+                // (versus to Things that are "over the horizon" of the Graph's Depth).
+                || (
+                    this.generation.isRelationshipsOnly
+                    && this.members.some(member => member.alreadyRendered)
+                )
+            )
+        )
+
+        // Return whether the Thing Cohort should be rendered.
+        return shouldBeRendered
+    }
+
+
+    
 }

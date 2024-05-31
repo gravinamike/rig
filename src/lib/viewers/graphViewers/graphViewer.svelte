@@ -1,18 +1,18 @@
 <script lang="ts">
     // Import types.
     import type { MenuName } from "$lib/shared/constants"
+    import type { ThingDbModel } from "$lib/models/dbModels"
     import type { Graph, Space } from "$lib/models/constructModels"
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
     
     // Import utility functions.
-    import { onMobile, stringRepresentsInteger, sleep, urlHashToObject, updateUrlHash } from "$lib/shared/utility"
+    import { onMobile, sleep, updateUrlHash } from "$lib/shared/utility"
 
     // Import stores.
     import {
         devMode, landscapeOrientation, uITrimColorStore, uIHeaderColorStore, graphBackgroundImageStore,
-        urlStore, loadingState, rightSideMenuStore, openGraphStore, addGraph, removeGraph,
-        getGraphConstructs, graphIdsNeedingViewerRefresh, addGraphIdsNeedingViewerRefresh,
-        removeGraphIdsNeedingViewerRefresh, homeThingIdStore,
+        loadingState, rightSideMenuStore, openGraphStore,
+        getGraphConstructs, addGraphIdsNeedingViewerRefresh, homeThingIdStore,
         perspectiveThingIdStore, perspectiveSpaceIdStore, hoveredThingIdStore, storeGraphDbModels
 
     } from "$lib/stores"
@@ -27,15 +27,14 @@
 
     // Import API functions.
     import { markThingsVisited, updateThingDefaultContentViewer } from "$lib/db/makeChanges"
-    import { saveGraphConfig } from "$lib/shared/config"    
-    import NotesEditor from "../notesViewers/notesEditor.svelte";
-    import type { ThingDbModel } from "$lib/models/dbModels";
+    import { saveGraphConfig } from "$lib/shared/config"
+    import DepthControl from "$lib/widgets/graphWidgets/graph/depthControl.svelte";
+    
 
 
     
     /**
      * @param pThingIds - The IDs of the Graph's Perspective Things.
-     * @param depth - The number of "steps" (related Things) to take when rendering the Graph.
      * @param graph - The Graph that the viewer is displaying.
      * @param graphWidgetStyle - Controls the visual style of the Graph.
      * @param allowZoomAndScrollToFit - Whether or not to allow reactive zooming and scrolling after a re-Perspect.
@@ -47,7 +46,6 @@
      * @param setGraphSpace - Method to rebuild the Graph in a new Space.
      */
     export let pThingIds: (number | null)[]
-    export let depth: number
 
     export let graph: Graph | null = null
     export let graphWidgetStyle: GraphWidgetStyle = {...defaultGraphWidgetStyle}
@@ -64,7 +62,7 @@
     // Component dimensions.
     let width = 1
 
-
+    
     // Show-Graph flag. This is a kludge, to ensure that the Graph widgets are
     // completely replaced at each re-Perspect to prevent retention of state
     // information.
@@ -115,7 +113,7 @@
 
     $: if ($loadingState === "graphLoaded") {
         $openGraphStore
-
+        
         initializeSideMenusForGraph()
     }
 
@@ -126,9 +124,6 @@
         openedSubMenuName = $rightSideMenuStore || "Notes"
         lockedSubMenuName = $rightSideMenuStore
     }
-
-
-
 
     /**
      * Re-Perspect-to-Thing-ID method.
@@ -170,6 +165,7 @@
                 graph.pThing?.defaultcontentviewer === "outline" ? "Outline" :
                 graph.pThing?.defaultcontentviewer === "attachments" ? "Attachments" :
                 null
+            lockedSubMenuName = openedSubMenuName
 
             // Set the Graph's original starting Space to null.
             graph.originalStartingSpace = null
@@ -276,6 +272,31 @@
     }
     $: updateDefaultContentViewerForPThing(openedSubMenuName)
 
+
+
+
+
+
+
+    let graphDepth = 1
+
+
+
+
+
+
+
+
+
+
+
+
+    let outlineGraphWidgetStyle = {...defaultGraphWidgetStyle}
+    outlineGraphWidgetStyle.excludePerspectiveThing = false
+    outlineGraphWidgetStyle.excludeCartesianAxes = false
+    outlineGraphWidgetStyle.excludeNonCartesianAxes = false
+    outlineGraphWidgetStyle.excludeNonAxisThingCohorts = true
+
 </script>
 
 
@@ -287,14 +308,13 @@
 
     style="flex-direction: {usePortraitLayout ? "column-reverse" : "row"};"
 >
-
     <!-- Graph Widget -->
     <div
         class="graph-widget-container"
     >
         <GraphWidget
             bind:pThingIds
-            bind:depth
+            bind:depth={graphDepth}
             bind:graph
             bind:graphWidgetStyle
             bind:showGraph
@@ -303,12 +323,24 @@
             bind:allowScrollToThingId
             bind:thingIdToScrollTo
         />
+
+        <!-- Depth control. -->
+        <div class="depth-control-container">
+            <DepthControl
+                bind:depth={graphDepth}
+            />
+
+            <div
+                class="depth-control-container-backfield"
+
+                style="background-color: {$uITrimColorStore};"
+            />
+        </div>
     </div>
 
     <!-- Content side-menu. -->
     <SideMenu
         {subMenuInfos}
-        {defaultOpenSubMenuName}
         bind:openedSubMenuName
         bind:open={rightMenuOpen}
         bind:lockedOpen={rightMenuLockedOpen}
@@ -329,8 +361,9 @@
                     <GraphOutlineWidget
                         space={spaceToUseForGraphOutliner}
                         {pThingIds}
-                        {depth}
+                        depth={1}
                         fullSize={sideMenuFullSize}
+                        graphWidgetStyle={outlineGraphWidgetStyle}
                         {rePerspectToThingId}
                     />
                 {/if}
@@ -436,11 +469,42 @@
     }
 
     .graph-widget-container {
+        position: relative;
+
         flex: 1 1 0;
         min-width: 0;
         min-height: 0;
 
         position: relative;
+    }
+
+    .depth-control-container {
+        margin: 5px;
+
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        z-index: 110;
+
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 5px;
+    }
+
+    .depth-control-container-backfield {
+        box-shadow: 0px 1px 2px 1px silver;
+        border-radius: 5px;
+
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        background-color: lightgrey;
+        opacity: 75%;
     }
 
     .nav-buttons {

@@ -122,6 +122,34 @@ export async function updateThingDefaultSpace(
 }
 
 /*
+ * Update a Thing's Perspective Expansions.
+ */
+export async function updateThingPerspectiveExpansions(
+    thingId: number, perspectiveExpansionsString: string
+): Promise<boolean> {
+    // Post to the update-Thing-Perspective-Expansions API.
+    const res = await fetch(
+        `api/db/graphManipulation/updateThingPerspectiveExpansions`,
+        {
+            method: "POST",
+
+            body: JSON.stringify({
+                thingId: thingId,
+                perspectiveExpansionsString: perspectiveExpansionsString
+            })
+        }
+    )
+
+    // Report on the response.
+    if (res.ok) {
+        return true
+    } else {
+        res.text().then(text => {throw Error(text)})
+        return false
+    }
+}
+
+/*
  * Update a Thing's default content viewer.
  */
 export async function updateThingDefaultContentViewer(

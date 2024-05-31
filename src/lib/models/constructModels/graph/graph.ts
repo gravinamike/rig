@@ -8,7 +8,6 @@ import { perspectiveSpaceIdStore, storeGraphDbModels, unstoreGraphDbModels, getG
 // Import Graph-related structures.
 import { Generations } from "./generations"
 import { GridLayers } from "./gridLayers"
-import { Planes } from "./planes"
 import { PerspectiveHistory } from "./history"
 
 // Import utility functions.
@@ -16,6 +15,7 @@ import { updateUrlHash } from "$lib/shared/utility"
 
 // Import API methods.
 import { deleteThing, deleteRelationship } from "$lib/db/makeChanges"
+import type { PerspectiveExpansions } from "$lib/shared/constants"
 
 
 
@@ -79,10 +79,6 @@ export class Graph {
     // when it is built using the "grid" method.
     gridLayers: GridLayers
 
-    // The Graph's Planes, flat surfaces perpendicular to the screen which contain all the Things
-    // at that visual distance.
-    planes: Planes
-
     // The current stage of the Graph's lifecycle.
     lifecycleStatus: "new" | "building" | "built" | "cleared" = "new"
 
@@ -129,7 +125,6 @@ export class Graph {
         this.#depth = depth
         this.generations = new Generations(this)
         this.gridLayers = new GridLayers(this)
-        this.planes = new Planes(this)
         this.history = new PerspectiveHistory()
         this.formActive = false
     }
@@ -208,7 +203,7 @@ export class Graph {
         this.#depth = depth
 
         // Adjust the Graph's generations based on the new depth.
-        await this.generations.adjustToDepth(this.#depth)
+        await this.generations.adjustToDepth()
     }    
 
     /**
@@ -239,14 +234,13 @@ export class Graph {
         this.rootCohort = null
         this.generations.reset()
         this.gridLayers.reset()
-        this.planes.reset()
         if (!keepCurrentSpace) this.#startingSpace = this.originalStartingSpace
         this.formActive = false
         this.lifecycleStatus = "cleared"
 
         // Adjust (build) the Generations to the Graph's specified Depth.
         this.lifecycleStatus = "building"
-        await this.generations.adjustToDepth(this.#depth)
+        await this.generations.adjustToDepth()
         
         // If the Graph is the top-level Graph (rather than a child Graph or a
         // search-interface Graph),
@@ -322,5 +316,53 @@ export class Graph {
 
         // Rebuild the Graph.
         await this.build()
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    get perspectiveThing() {
+        const perspectiveThing = this.rootCohort?.members[0].thing as Thing
+        return perspectiveThing
+    }
+
+
+    directionFromThingIsExpanded(
+        thingId: number,
+        directionId: number | "Space" | "all"
+    ) {
+
+        
+        const perspectiveExpansionsString = this.perspectiveThing.perspectiveexpansions
+        const spaceId = this.perspectiveThing.space?.id as number
+        const perspectiveExpansions = JSON.parse(perspectiveExpansionsString) as PerspectiveExpansions
+
+        const isExpanded = (
+            String(spaceId) in perspectiveExpansions
+            && String(thingId) in perspectiveExpansions[spaceId]
+            && perspectiveExpansions[spaceId][thingId].includes(directionId)
+        )
+
+        return isExpanded
     }
 }

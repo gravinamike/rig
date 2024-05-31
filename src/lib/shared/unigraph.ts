@@ -7,7 +7,7 @@ import {
     loadingState, openGraphStore, storeThingSearchList, storeNotesSearchList,
     clearThingSearchList, clearNoteSearchList,
     perspectiveThingIdStore, perspectiveSpaceIdStore, 
-    storeGraphDbModels, clearGraphDbModelStore, sessionUuidStore, rightSideMenuStore, notesEditorLockedStore, homeThingIdStore, pinIdsStore, readOnlyMode, userIdStore
+    storeGraphDbModels, clearGraphDbModelStore, sessionUuidStore, rightSideMenuStore, notesEditorLockedStore, homeThingIdStore, pinIdsStore, readOnlyMode, canEdit, userIdStore
 } from "$lib/stores"
 
 // Import utility methods.
@@ -150,6 +150,7 @@ export async function closeGraphFile(updateUrlHash = false): Promise<void> {
 
     // Set front-end stores.
     readOnlyMode.set(false)
+    canEdit.set([])
     rightSideMenuStore.set(null)
     notesEditorLockedStore.set(false)
     homeThingIdStore.set(null)

@@ -10,7 +10,7 @@
     // Import stores.
     import {
         graphDbModelInStore, storeGraphDbModels, unstoreGraphDbModels,
-        readOnlyMode, hoveredThingIdStore, reorderingInfoStore,
+        preventEditing, hoveredThingIdStore, reorderingInfoStore,
         openContextCommandPalette, pinIdsStore, addPin, removePin, homeThingIdStore, setHomeThingId, removeHomeThing,
         removeIdsFromThingSearchListStore, removeIdsFromNoteSearchListStore,
         relationshipBeingCreatedInfoStore, enableRelationshipBeingCreated, setRelationshipBeingCreatedTrackingMouse,
@@ -78,7 +78,6 @@
     
 
     // Attributes handled by the base widget controller.
-    let planeId: number | null = null
     let cohortSize: number = 0
     let halfAxisId: HalfAxisId = 0
     let distanceFromFocalPlane: number = 0
@@ -228,7 +227,7 @@
      * operation in progress, and the confirm-delete operation has not been
      * started.
      */
-    $: showDeleteButton = !onMobile() && !$readOnlyMode && isHoveredWidget && !$reorderingInfoStore.reorderInProgress && !confirmDeleteBoxOpen
+    $: showDeleteButton = !onMobile() && !$preventEditing && isHoveredWidget && !$reorderingInfoStore.reorderInProgress && !confirmDeleteBoxOpen
 
     /**
      * Text-being-edited.
@@ -602,14 +601,11 @@
 <!-- Base widget controller. -->
 <ThingBaseWidgetController
     {thing}
-    {graph}
     {graphWidgetStyle}
 
-    bind:planeId
     bind:encapsulatingDepth
     bind:thingWidth
     bind:thingHeight
     bind:cohortSize
-    bind:distanceFromFocalPlane
     bind:elongationCategory
 />

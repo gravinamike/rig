@@ -76,6 +76,23 @@ export class Space {
         }
         return halfAxisIdByDirectionId
     }
+
+
+
+
+    includesDirectionId(directionId: number) {
+        const directionIds = this.directions.map(direction => direction.id)
+        const oppositeDirectionIds = this.directions.map(direction => direction.oppositeid)
+        const directionAndOppositeDirectionIds =
+            directionIds.concat(oppositeDirectionIds).filter(id => id !== null)
+
+        const includesDirectionId = directionAndOppositeDirectionIds.includes(directionId)
+
+        return includesDirectionId
+    }
+
+
+
 }
 
 /*

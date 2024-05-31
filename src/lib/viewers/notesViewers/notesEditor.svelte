@@ -374,11 +374,11 @@
 
 
     :global(.notes-editor.outline-format .text-field .ProseMirror) {
-        padding: 0rem 1rem 0rem 1rem;
+        padding: 0.25rem 1.5rem 0.75rem 1.5rem;
     }
 
     :global(.notes-editor.outline-format.make-room-for-thing-text .text-field .ProseMirror) {
-        padding: 20px 1rem 0rem 1rem;
+        padding: calc(0.25rem + 20px) 1.5rem 0.75rem 1.5rem;
     }
 
 

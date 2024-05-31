@@ -9,15 +9,10 @@
 
     // Import constants and stores.
     import { zoomBase } from "$lib/shared/constants"
-    import {
-        addGraph, removeGraph, reorderingInfoStore, readOnlyMode,
-        graphIdsNeedingViewerRefresh, addGraphIdsNeedingViewerRefresh,
-        removeGraphIdsNeedingViewerRefresh
-    } from "$lib/stores"
+    import { preventEditing } from "$lib/stores"
 
     // Import related widgets.
-    import { WaitingIndicator } from "$lib/widgets/layoutWidgets"
-    import { GraphOutlineWidget } from "$lib/widgets/graphWidgets"
+    import { GraphOutlineWidget, UnshownRelationsIndicator } from "$lib/widgets/graphWidgets"
     import { defaultGraphWidgetStyle } from "./graph"
 
 
@@ -28,13 +23,30 @@
 
     
     let graphWidgetStyle = {...defaultGraphWidgetStyle}
-
+    graphWidgetStyle.excludePerspectiveThing = true
+    graphWidgetStyle.excludeCartesianAxes = true
+    graphWidgetStyle.excludeNonCartesianAxes = false
+    graphWidgetStyle.excludeNonAxisThingCohorts = true
+    
+    
     // ID of the widget's parent Thing.
     $: parentThingId = parentThing.id as number
 
     // Information about related Things.
     $: numberOfOffAxisRelations = parentThing.offAxisRelatedThingIds((parentThing.space as Space)).length
     $: numberOfNonCartesianAxisRelations = parentThing.nonCartesianAxisRelatedThingIds((parentThing.space as Space)).length
+
+
+    
+
+
+    // Whether there are related Things in the non-Cartesian axes.
+    const nonCartesianAxesContainThings = parentThing.childThingCohorts.filter(
+        thingCohort => (
+            [5, 6, 7, 8].includes(thingCohort.halfAxisId)
+            && thingCohort.members.length
+        )
+    ).length !== 0
 
 
     /* Whole-widget-related attributes. */
@@ -44,17 +56,11 @@
 
     // Start expanded if parent Thing is Generation 0 and has
     // non-Cartesian axis relations to display.
-    $: if (parentThing.address?.generationId === 0 && nonCartesianAxesContainThings) {
+    if (parentThing.address?.generationId === 0 && nonCartesianAxesContainThings) {
         expanded = true
     }
 
-    // Whether to show the off-axis relations.
-    $: showOffAxisRelations =
-        (
-            numberOfOffAxisRelations
-            || numberOfNonCartesianAxisRelations
-        )
-        && expanded
+
 
 
     /* Off-axis toggle-related attributes. */
@@ -66,25 +72,16 @@
 
     // Off-axis toggle state attributes.
     let offAxisToggleToggleHovered = false
-    $: showOffAxisToggle = (
-        (
-            !$reorderingInfoStore.reorderInProgress
-            && offAxisToggleToggleHovered
-        )
-        || showOffAxisRelations
-    )
+    $: showOffAxisToggle = showOffAxisRelations
     $: offAxisToggleNoMouseEvents =
         (
-            $readOnlyMode
+            $preventEditing
             && !(numberOfNonCartesianAxisRelations + numberOfOffAxisRelations)
         )
         || (
             parentThing.address?.generationId === 0
             && nonCartesianAxesContainThings
         )
-    $: showOffAxisNumberOfRelationsIndicator =
-        (numberOfNonCartesianAxisRelations + numberOfOffAxisRelations)
-        && !expanded
 
     // Scale-related attributes.
     $: scale = zoomBase ** parentGraphWidgetStyle.zoom
@@ -92,31 +89,8 @@
     $: tweenedScale.set(scale)
 
 
-    /* Off-axis-relations-related attributes. */
 
-    // Whether there are related Things in the non-Cartesian axes.
-    $: nonCartesianAxesContainThings = parentThing.childThingCohorts.filter(
-        thingCohort => (
-            [5, 6, 7, 8].includes(thingCohort.halfAxisId)
-            && thingCohort.members.length
-        )
-    ).length !== 0
-    
 
-    /* Non-axis-toggle-related attributes. */
-
-    // Non-axis toggle arrow geometry.
-    let nonAxisToggleSize = 25
-
-    // Off-axis toggle state attributes.
-    let nonAxisToggleHovered = false
-    $: showNonAxisToggle =
-        (
-            !$reorderingInfoStore.reorderInProgress
-            && nonAxisToggleHovered
-        )
-        || !graphWidgetStyle.excludeNonAxisThingCohorts
-    $: showNonAxisNumberOfRelationsIndicator = graphWidgetStyle.excludeNonAxisThingCohorts && numberOfOffAxisRelations
 
 
 
@@ -126,24 +100,83 @@
         parentGraph.startingSpace ? parentGraph.startingSpace :
         parentGraph.pThing?.space || null
 
+
+
+
+    $: unshownRelationsCount = numberOfNonCartesianAxisRelations + numberOfOffAxisRelations
+
+    $: symbolsToShowCount = 
+        unshownRelationsCount < 10 ? unshownRelationsCount :
+        unshownRelationsCount < 100 ? Math.floor(unshownRelationsCount / 10) :
+        Math.floor(unshownRelationsCount / 100)
+
     
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    let showIndicatorAsExpanded = false
+
+    function onUnshownRelationsIndicatorClick() {
+
+        graphWidgetStyle.excludeNonAxisThingCohorts = !graphWidgetStyle.excludeNonAxisThingCohorts
+        
+        if (
+            !(numberOfNonCartesianAxisRelations > 0)
+            || (parentThing.address?.generationId ?? 0) > 0
+        ) {
+            expanded = !expanded
+        }
+
+        showIndicatorAsExpanded = !showIndicatorAsExpanded
+    }
+
+
+
+
+    // Whether there are any off-axis Relations that need showing.
+    $: relationsNeedShowing = (
+        (
+            numberOfNonCartesianAxisRelations > 0
+        )
+        || (
+            numberOfOffAxisRelations > 0
+        )
+    )
+
+    // Whether to show the off-axis relations.
+    $: showOffAxisRelations = relationsNeedShowing && expanded
+
+
+
+
+
+
 </script>
 
 
 <!-- Off-axis relations toggle. -->
 <div
     class="off-axis-relations-toggle"
-    class:expanded
+    class:expanded={relationsNeedShowing}
     class:no-mouse-events={offAxisToggleNoMouseEvents}
 
     style="width: {offAxisToggleSize}px; height: {offAxisToggleSize}px;"
 
     on:mouseenter={()=>{offAxisToggleToggleHovered = true}}
     on:mouseleave={()=>{offAxisToggleToggleHovered = false}}
-    on:click={() => {expanded = !expanded}}
-    on:keydown={()=>{}}
 >
-    
     <!-- Visible toggle image. -->
     {#if showOffAxisToggle}
         <svg
@@ -167,10 +200,19 @@
     {/if}
 
     <!-- Number-of-off-axis-relations indicator. -->
-    {#if showOffAxisNumberOfRelationsIndicator}
-        <div>+{numberOfNonCartesianAxisRelations + numberOfOffAxisRelations}</div>
-    {/if}
+    <UnshownRelationsIndicator
+        directionId={"all"}
+        halfAxisId={null}
+        offAxis={true}
+        {unshownRelationsCount}
+        {symbolsToShowCount}
+        {graphWidgetStyle}
+        isExpanded={showIndicatorAsExpanded}
+        isOnlyShownIndicator={true}
+        onClick={onUnshownRelationsIndicatorClick}
+    />
 </div>
+
 
 <!-- Off-axis-relations display. -->
 {#if showOffAxisRelations}
@@ -187,55 +229,11 @@
                     depth={parentGraph.depth}
                     fullSize={false}
                     offAxis={true}
-                    bind:graphWidgetStyle
+                    {graphWidgetStyle}
                     {rePerspectToThingId}
                 />
             {/if}
         </div>
-
-        <!-- Non-axis relations toggle. -->
-        {#if numberOfNonCartesianAxisRelations !== 0}
-            <div
-                class="non-axis-relations-toggle"
-
-                style="width: {nonAxisToggleSize}px; height: {nonAxisToggleSize}px;"
-
-                on:mouseenter={()=>{nonAxisToggleHovered = true}}
-                on:mouseleave={()=>{nonAxisToggleHovered = false}}
-                on:click={() => {
-                    graphWidgetStyle.excludeNonAxisThingCohorts = !graphWidgetStyle.excludeNonAxisThingCohorts
-                }}
-                on:keydown={()=>{}}
-            >
-                <!-- Visible toggle image. -->
-                {#if showNonAxisToggle}
-                    <svg
-                        style="
-                            width: {nonAxisToggleSize}px; height: {nonAxisToggleSize}px;
-                            transform: rotate({
-                                graphWidgetStyle.excludeNonAxisThingCohorts ? 0 :
-                                180
-                            }deg);
-                        "
-                    >
-                        <polygon
-                            points="
-                                2, 0
-                                {offAxisToggleSize - 2}, 0
-                                {offAxisToggleSize / 2}, {offAxisToggleSize / 2}
-                            "
-                            style="stroke-width: {3 / $tweenedScale};"
-                        />
-                    </svg>
-                {/if}
-
-                <!-- Number-of-off-axis-relations indicator. -->
-                {#if showNonAxisNumberOfRelationsIndicator}
-                    <div>+{numberOfOffAxisRelations}</div>
-                {/if}
-            </div>
-        {/if}
-        
     </div>
 {/if}
 
@@ -289,19 +287,5 @@
         
         pointer-events: auto;
         cursor: default;
-    }
-
-    .non-axis-relations-toggle {
-        pointer-events: auto;
-        cursor: pointer;
-    }
-
-    .non-axis-relations-toggle svg {
-        position: absolute;
-        z-index: -1;
-        
-        stroke: dimgrey;
-        fill: dimgrey;
-        opacity: 0.5;
     }
 </style>

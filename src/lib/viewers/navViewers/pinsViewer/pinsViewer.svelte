@@ -12,7 +12,7 @@
     // Import stores.
     import {
         uIBackgroundColorStore, uIHeaderColorStore, titleFontStore, titleFontWeightStore,
-        readOnlyMode, pinIdsStore, setPins,
+        preventEditing, pinIdsStore, setPins,
         storeGraphDbModels, graphDbModelInStore, getGraphConstructs
     } from "$lib/stores"
 
@@ -135,10 +135,10 @@
             {#each pins as pin, index (pin.thingId)}
                 <!-- Draggable Pin widget. -->
                 <div
-                    draggable={ $readOnlyMode ? false : true }
+                    draggable={ $preventEditing ? false : true }
                     animate:flip={{ duration: 250 }}
 
-                    on:dragstart={ (event) => {if (!$readOnlyMode) startDragPin(event, index)} }
+                    on:dragstart={ (event) => {if (!$preventEditing) startDragPin(event, index)} }
                     on:dragover|preventDefault
                     on:drop|preventDefault={ (event) => dropPin(event, index) }
                 >

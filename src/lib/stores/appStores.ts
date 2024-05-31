@@ -71,6 +71,23 @@ export const loadingState = writable(
  */
 export const readOnlyMode = writable( false )
 
+/**
+ * Can-edit array store.
+ * 
+ * Holds an array of usernames that are permitted to edit the Graph.
+ */
+export const canEdit = writable( [] as string[] )
+
+
+/**
+ * Prevent-editing flag store.
+ * 
+ * Holds a boolean specifying whether the user is allowed to edit the Graph. Set based on
+ * whether `readOnlyMode` is true and the current username is included in the `canEdit` array.
+ */
+export const preventEditing = writable( false )
+
+
 
 /**
  * Hovered Thing ID store.

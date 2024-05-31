@@ -38,13 +38,13 @@
      * @param zIndex - The stacking order of the widget relative to other HTML elements.
      * @param widgetWidth - The pre-rotation width of the widget in pixels.
      * @param widgetHeight - The pre-rotation height of the widget in pixels.
-     * @param opacity - The opacity of the widget.
      * @param rotatedWidth - The width of the widget after it has been rotated based on its half-axis.
      * @param rotatedHeight - The height of the widget after it has been rotated based on its half-axis.
      * @param mirroring - Whether the content of the widget is flipped relative to the Graph centerline.
      * @param rotation - Rotation, in degrees, of the widget based on the half-axis.
      * @param showDirection - Whether to display the Direction selector widget.
      * @param direction - The Direction of the Relationship Cohort.
+     * @param directionWidgetTop - The position of the top of the Direction widget, relative to the Relationship images <div>.
      * @param directionWidgetRotation - The rotation, in degrees, of the Direction selector widget.
      * @param relationshipsWidth - The width of the Relationship Cohort widget.
      * @param relationshipsHeight - The height of the Relationship Cohort widget.
@@ -52,16 +52,22 @@
      * @param midline - The horizontal location of the Relationship stem midline (pre-rotation).
      * @param stemBottom - The vertical location of the bottom of the Relationship stem (pre-rotation).
      * @param stemTop - The vertical location of the top of the Relationship stem (pre-rotation).
+     * @param showRelationshipStem - Whether to display the Relationship Stem widget.
      * @param showRelationships - Whether to display the Relationship widgets (besides the stem).
      * @param relationshipColor - The color of the Relationship widget, determined by the half-axis.
      * @param sizeOfThingsAlongWidth - The size of a Thing widget along the "width" dimension of its Thing Cohort widget.
+     * @param addThingSymbolOffsetAlongThingCohortLength - The offset (in pixels) from the centerline of the Thing Cohort with which to render an add-Thing symbol when the add-Thing control is hovered.
      * @param relatableForCurrentDrag - Whether the Stem widget is a valid end target for an in-progress drag-relate operation.
+     * @param directionWidgetInteractionDisabled - Whether interactions are disabled on the Relationship Cohort's stem-anchored Direction widget.
+     * @param directionWidgetPartOpaque - Whether the Relationship Cohort's stem-anchored Direction widget is formatted as partly opaque.
+     * @param directionWidgetForceFullyOpaque - Whether the Relationship Cohort's stem-anchored Direction widget is formatted as fully opaque.
+     * @param showAddThingSymbol - Whether the add-Thing symbol should be shown (typically when the add-Thing control is hovered).
      * @param changeRelationshipsDirection - A function that changes the Direction of the Relationships based on the supplied ID.
+     * @param onDirectionWidgetOptionClicked - A function that determines what happens when the Relationship Cohort's stem-anchored Direction widget is clicked.
      */
     export let thingCohort: ThingCohort
     export let graph: Graph
     export let graphWidgetStyle: GraphWidgetStyle
-
     export let thingIdOfHoveredRelationship: number | null = null
     export let cladeHovered = false
     export let stemHovered = false
@@ -69,12 +75,13 @@
     export let thingWidth = 0
     export let thingHeight = 0
     export let offsetToAlignToGrid = 0
+
+    export let ofPerspectiveThing = false
     export let widgetOffsetX = 0
     export let widgetOffsetY = 0
     export let zIndex = 0
     export let widgetWidth = 0
     export let widgetHeight = 0
-    export let opacity = 1
     export let rotatedWidth = 0
     export let rotatedHeight = 0
     export let mirroring: 1 | -1 = 1
@@ -82,6 +89,7 @@
     export let showDirection = false
     export let direction: Direction | null
     export let directionWidgetRotation = 0
+    export let directionWidgetTop = 0
     export let relationshipsWidth = 0
     export let relationshipsLength = 0
     export let tweenedScale: Tweened<number> = tweened(1)
@@ -90,15 +98,31 @@
     export let stemTop = 0
     export let fanBottom = 0
     export let showRelationships = false
+    export let showRelationshipStem = false
     export let relationshipColor = "#000000"
     export let halfAxisId: HalfAxisId | null
     export let sizeOfThingsAlongWidth = 0
+    export let addThingSymbolOffsetAlongThingCohortLength = 0
     export let relatableForCurrentDrag = false
+    export let directionWidgetInteractionDisabled = false
+    export let directionWidgetPartOpaque = false
+    export let directionWidgetForceFullyOpaque = false
+    export let showAddThingSymbol = false
     export let changeRelationshipsDirection: (directionId: number) => void = () => {}
+    export let onDirectionWidgetOptionClicked: (direction: Direction | null, _: number, __: Direction) => void = () => {}
 
     
     /* --------------- Output attributes. --------------- */
 
+    /**
+     * Of-Perspective-Thing flag.
+     * 
+     * Is true if this Relationship Cohort widget belongs to the Graph's Perspective Thing.
+     */
+    $: ofPerspectiveThing =
+        thingCohort.parentThing?.address?.generationId === 0 ? true :
+        false
+    
     /**
      * Widget offset X component.
      * 
@@ -148,22 +172,6 @@
     $: widgetHeight =
         halfAxisId && [1, 2].includes(halfAxisId) ? relationshipsLength :
         relationshipsWidth
-
-
-    /**
-     * Opacity.
-     * 
-     * The opacity of the widget. Decreases with distance from the focal plane,
-     * and does so quicker on the "Towards" half-axis.
-     */
-    $: opacity =
-    1 / (
-        1 + (
-            distanceFromFocalPlane < 0 ? 1 :
-            distanceFromFocalPlane > 0 ? 2 :
-            0
-        ) * Math.abs(distanceFromFocalPlane)
-    )
 
     /**
      * Rotated width.
@@ -252,6 +260,14 @@
     $: direction = getGraphConstructs("Direction", thingCohort.address.directionId as number) as Direction
 
     /**
+     * Direction widget top.
+     * 
+     * The position of the top of the Direction widget relative to the top of the Relationship
+     * images <div>.
+     */
+    $: directionWidgetTop = 0.76 * rotatedHeight
+
+    /**
      * Direction widget rotation.
      * 
      * This specifies how much the Direction widget should be rotated, taking
@@ -260,41 +276,6 @@
      */
     $: directionWidgetRotation = -rotation
 
-    /**
-     * Change-Relationships-Direction method.
-     * 
-     * Accepts a Direction ID as input, then changes the Direction of all the
-     * Relationships in the Relationship Cohort to that Direction.
-     */
-    changeRelationshipsDirection = async (directionId: number) => {
-        // Get the IDs of the source Thing and all the destination Things.
-        const sourceThingId = parentThing.id as number
-        const destThingIds = thingCohort.members.map(member => member.thingId).filter(id => id !== null) as number[]
-
-        // Construct an array containing informational objects for each Relationship.
-        const relationshipInfos: {
-            sourceThingId: number,
-            destThingId: number,
-            directionId: number
-        }[] = []
-        for (const destThingId of destThingIds) relationshipInfos.push({
-            sourceThingId: sourceThingId,
-            destThingId: destThingId,
-            directionId: directionId
-        })
-
-        // Update the Relationships based on the Relationship info array.
-        const relationshipsUpdated = await updateRelationships(relationshipInfos)
-
-        // Update the Graph to reflect the updated Relationships.
-        if (relationshipsUpdated) {
-            // Re-store the source Thing (so that its related Things will be updated).
-            await storeGraphDbModels<ThingDbModel>("Thing", [sourceThingId].concat(destThingIds), true)
-            // Re-build and refresh the Graph.
-            await graph.build()
-            addGraphIdsNeedingViewerRefresh(graph.id)
-        }
-    }
 
     /**
      * Relationships Width.
@@ -368,7 +349,19 @@
     )
 
     /**
-     * Show-relationships flag.
+     * Show-Relationship-stem flag.
+     * 
+     * This attribute determines whether to show the Relationship stem widget. It is true if the
+     * Thing Cohort is in the first Generation, if it has Things, or if the Clade it is part of is
+     * mouse-hovered.
+     */
+    $: showRelationshipStem =
+        thingCohort.indexOfGrandparentThing === null
+        || thingCohort.members.length > 1
+        || cladeHovered
+
+    /**
+     * Show-Relationships flag.
      * 
      * This attribute determines whether to show the Relationships branch widgets
      * (though not the Relationship stem widget). It is true unless the only
@@ -399,6 +392,28 @@
         thingHeight
 
     /**
+     * Add-Thing symbol offset along Thing Cohort length.
+     * 
+     * The offset (in pixels) from the centerline of the Thing Cohort with which to render an
+     * add-Thing symbol when the add-Thing control is hovered.
+     */
+    $: addThingSymbolOffsetAlongThingCohortLength =
+        // Half of the long dimension of the Thing Cohort widget...
+        (
+            thingCohort.members.length ? (
+                thingCohort.rowOrColumn() === "row" ? widgetWidth :
+                widgetHeight
+            ) :
+            0
+        ) / 2
+
+        // ...plus the spacing between Things in a Thing Cohort (or 0 if there are no Things).
+        + (
+            thingCohort.members.length ? graphWidgetStyle.betweenThingSpacing :
+            0
+        )
+
+    /**
      * Is-relatable-for-current-drag flag.
      * 
      * Indicates whether the Relationship Cohort widget is a valid end target for
@@ -417,6 +432,97 @@
             )
         ) ? true :
         false
+
+
+    /**
+     * Direction-widget-interaction-disabled flag.
+     * 
+     * Indicates whether interactions are disabled on the Relationship Cohort's stem-anchored
+     * Direction widget.
+     */
+    $: directionWidgetInteractionDisabled =
+        !ofPerspectiveThing
+        || thingCohort.members.length === 0
+
+    /**
+     * Direction-widget-part-opaque flag.
+     * 
+     * Indicates whether the Relationship Cohort's stem-anchored Direction widget is formatted as
+     * partly opaque.
+     */
+    $: directionWidgetPartOpaque =
+        stemHovered
+        || (
+            !ofPerspectiveThing
+            && cladeHovered
+        )
+
+    /**
+     * Direction-widget-force-fully-opaque flag.
+     * 
+     * Indicates whether the Relationship Cohort's stem-anchored Direction widget is formatted as
+     * fully opaque.
+     */
+    $: directionWidgetForceFullyOpaque =
+        thingCohort.members.filter(member => !(member.alreadyRendered)).length > 0
+
+    /**
+     * Show-add-Thing-symbol flag.
+     * 
+     * Indicates whether the add-Thing symbol should be shown (typically when the add-Thing control
+     * is hovered).
+     */
+    $: showAddThingSymbol = showDirection && stemHovered && !graph.formActive
+
+    /**
+     * On-Direction-widget-option-clicked method.
+     * 
+     * Determines what happens when the Relationship Cohort's stem-anchored Direction widget is
+     * clicked. In this case, begins a change-Direction operation for the Relationships in that
+     * Direction.
+     */
+    onDirectionWidgetOptionClicked = (direction: Direction | null, _: number, __: Direction) => {
+        () => {
+            if (direction?.id) changeRelationshipsDirection(direction.id)
+        }
+    }
+
+    /**
+     * Change-Relationships-Direction method.
+     * 
+     * Accepts a Direction ID as input, then changes the Direction of all the
+     * Relationships in the Relationship Cohort to that Direction.
+     */
+     changeRelationshipsDirection = async (directionId: number) => {
+        // Get the IDs of the source Thing and all the destination Things.
+        const sourceThingId = parentThing.id as number
+        const destThingIds = thingCohort.members.map(member => member.thingId).filter(id => id !== null) as number[]
+
+        // Construct an array containing informational objects for each Relationship.
+        const relationshipInfos: {
+            sourceThingId: number,
+            destThingId: number,
+            directionId: number
+        }[] = []
+        for (const destThingId of destThingIds) relationshipInfos.push({
+            sourceThingId: sourceThingId,
+            destThingId: destThingId,
+            directionId: directionId
+        })
+
+        // Update the Relationships based on the Relationship info array.
+        const relationshipsUpdated = await updateRelationships(relationshipInfos)
+
+        // Update the Graph to reflect the updated Relationships.
+        if (relationshipsUpdated) {
+            // Re-store the source Thing (so that its related Things will be updated).
+            await storeGraphDbModels<ThingDbModel>("Thing", [sourceThingId].concat(destThingIds), true)
+            // Re-build and refresh the Graph.
+            await graph.build()
+            addGraphIdsNeedingViewerRefresh(graph.id)
+        }
+    }
+
 
     
     /* --------------- Supporting attributes. --------------- */
@@ -468,14 +574,6 @@
      * associated Thing Cohort's attribute.
      */
     $: generationId = thingCohort.address.generationId
-
-    /**
-     * Distance from focal Plane.
-     * 
-     * The number of Planes between the Plane the Relationship Cohort is in and
-     * the Graph's current focal Plane.
-     */
-    $: distanceFromFocalPlane = planeId - graph.planes.focalPlaneId
 
     /**
      * Parent Thing.
@@ -545,14 +643,6 @@
             return offsetToGrandparentThing
         }
     }
-    
-    /**
-     * Plane ID.
-     * 
-     * The ID of the Plane that the Relationship Cohort is in. Taken from the
-     * associated Thing Cohort's attribute (defaults to 0 if there is none).
-     */
-    $: planeId = thingCohort.plane?.id || 0
     
     /**
      * Scale.

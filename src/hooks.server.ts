@@ -170,7 +170,7 @@ async function requestIsForbidden(
 			|| (
 				// ...there is a Graph currently open...
 				graphName
-				// ...and that Graph is neither a common Graph nor owned by the
+				// ...and that Graph is neither a public Graph nor owned by the
 				// signed-in user,
 				&& !(
 					usernameFromGraphName === "all"
@@ -191,7 +191,7 @@ async function requestIsForbidden(
 		// Get a copy of the request body.
 		const body = await event.request.clone().json()
 
-		// If the to-be-created Graph is neither a common Graph nor one that
+		// If the to-be-created Graph is neither a public Graph nor one that
 		// belongs to the signed-in user, the request is forbidden.
 		if (
 			!(
@@ -205,7 +205,7 @@ async function requestIsForbidden(
 	}
 
 	// If the request is for the Graph-folders-list endpoint and the user to
-	// check for is neither the common user nor the signed-in user, the request
+	// check for is neither the public user nor the signed-in user, the request
 	// is forbidden.
 	if (
 		event.url.pathname.startsWith("/api/file/graphFolders-")

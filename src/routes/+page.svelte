@@ -156,7 +156,6 @@
         {height}
         bind:graph
         {graphWidgetStyle}
-        {allowZoomAndScrollToFit}
         {leftMenuOpen}
         {leftMenuLockedOpen}
         bind:openedSubMenuName
@@ -169,7 +168,6 @@
     {#if $loadingState === "graphLoaded"}
         <GraphViewer
             pThingIds={[$perspectiveThingIdStore]}
-            depth={startingGraphDepth}
             bind:graph
             bind:graphWidgetStyle
             bind:allowZoomAndScrollToFit

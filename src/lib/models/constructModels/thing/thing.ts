@@ -1,20 +1,24 @@
 // Import types.
-import type { HalfAxisId } from "$lib/shared/constants"
+import type { HalfAxisId, PerspectiveExpansions } from "$lib/shared/constants"
 import type { ThingDbModel } from "$lib/models/dbModels"
+import type { GridCoordinates } from "$lib/models/constructModels"
 import type { ThingAddress, RelationshipInfo } from "./types"
+
+// Import SvelteKit framework resources.
+import { get } from "svelte/store"
 
 // Import constants and stores.
 import { oddHalfAxisIds, cartesianHalfAxisIds, orderedCartesianHalfAxisIds, orderedNonCartesianHalfAxisIds } from "$lib/shared/constants"
 import { graphDbModelInStore, getGraphConstructs, titleFontStore, titleFontWeightStore, defaultFontStore } from "$lib/stores"
 
 // Import utility functions.
-import { htmlToPlainText, incrementDownHeaderTags, readOnlyArrayToArray } from "$lib/shared/utility"
+import { htmlToPlainText, incrementDownHeaderTags, readOnlyArrayToArray, removeItemFromArray } from "$lib/shared/utility"
 
 // Import Graph constructs.
 import {
-    Graph, Space, ThingCohort, Relationship, Note, NoteToThing, Folder, FolderToThing
+    Graph, Space, ThingCohort, Relationship, Note, NoteToThing, Folder, FolderToThing,
 } from "$lib/models/constructModels"
-import { get } from "svelte/store"
+
 
 
 
@@ -58,8 +62,8 @@ export class Thing {
     // texts when this Thing is the Perspective Thing).
     perspectivetexts = "{}"// Default is "{}"
 
-    // Perspective depths (not yet in use).
-    perspectivedepths = "{}"// Default is "{}"
+    // Perspective expansions.
+    perspectiveexpansions = "{}"// Default is "{}"
 
     // Default content viewer.
     defaultcontentviewer: string | null = null
@@ -95,6 +99,12 @@ export class Thing {
     childThingCohortsByDirectionId: { [directionId: number]: ThingCohort } = {}
 
 
+    /* Lifecycle information. */
+
+    // Which lifecycle stage the Thing is currently in.
+    lifecycleStatus: "new" | "building" | "built" | "stripping" | "stripped" = "new"
+
+
 
     /**
      * Thing constructor.
@@ -116,7 +126,7 @@ export class Thing {
             this.whenmodded = dbModel.whenmodded ? new Date(dbModel.whenmodded): null
             this.whenvisited = dbModel.whenvisited ? new Date(dbModel.whenvisited): null
             this.defaultSpaceId = dbModel.defaultplane
-            this.perspectivedepths = dbModel.perspectivedepths
+            this.perspectiveexpansions = dbModel.perspectiveexpansions
             this.perspectivetexts = dbModel.perspectivetexts
             this.defaultcontentviewer = dbModel.defaultcontentviewer
 
@@ -584,6 +594,8 @@ export class Thing {
         excludeNonAxisThingCohorts: boolean
     ): ThingCohort[] {
 
+        if (!this.id || !this.graph) return []
+
         // If the reordering process should include the "Cartesian" half-axes
         // (Down, Up, Right, Left), add all Thing Cohorts which *are* on
         // those main half-axes to an array.
@@ -607,7 +619,14 @@ export class Thing {
         // If the reordering process should include Thing Cohorts on the
         // non-Cartesian half-axes,
         const thingCohortsOnNonCartesianHalfAxes: ThingCohort[] = []
-        if (!excludeNonCartesianAxes) {
+        if (
+            !excludeNonCartesianAxes
+        
+            || this.graph?.directionFromThingIsExpanded(
+                this.id,
+                "Space"
+            )
+        ) {
             // Get an array of IDs for all non-Cartesian half-axes in this Clade that currently
             // have Thing Cohorts, in the desired order for an outline.
             const orderedNonCartesianHalfAxisIdsWithThings = orderedNonCartesianHalfAxisIds.filter(
@@ -625,7 +644,14 @@ export class Thing {
         // If the reordering process should include Thing Cohorts not on
         // a half-axis,
         const thingCohortsNotOnHalfAxes: ThingCohort[] = []
-        if (!excludeNonAxisThingCohorts) {
+        if (
+            !excludeNonAxisThingCohorts
+        
+            || this.graph?.directionFromThingIsExpanded(
+                this.id,
+                "all"
+            )
+        ) {
             // Add all Thing Cohorts which *are not* on half-axes to an array.
             thingCohortsNotOnHalfAxes.push(
                 ...this.childThingCohorts
@@ -693,4 +719,313 @@ export class Thing {
 
         return outlineText
     }
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+    /**
+     * Build-Thing method.
+     * 
+     * Builds the Thing from an empty state, hooking it up to the parent Things of the previous
+     * Generation.
+     * @param nextGenerationId - The ID of the generation following the one this Thing is part of.
+     * @param thingIdsForNextGeneration - The IDs of all the member Things in the generation following the one this Thing is part of.
+     * @param nextGenerationIsRelationshipsOnly - Whether this next Generation is the final, Relationships-only Generation.
+     */
+    async build(
+        nextGenerationId: number,
+        thingIdsForNextGeneration: number[],
+        nextGenerationIsRelationshipsOnly=false
+    ): Promise<void> {
+        
+        if (this.graph === null || this.id === null) return
+
+        this.lifecycleStatus = "building"
+
+        // Get the IDs of the Directions on that Thing's "Cartesian" axes (1, 2, 3, 4).
+        const cartesianDirectionIds: number[] = []
+        for (const cartesianHalfAxisId of cartesianHalfAxisIds) {
+            const cartesianDirectionId = (this.space as Space).directionIdByHalfAxisId[cartesianHalfAxisId]
+            if (cartesianDirectionId) cartesianDirectionIds.push(cartesianDirectionId)
+        }
+
+        // Get the IDs of the Directions in which the Thing has related Things, plus any "empty"
+        // Cartesian-half axes.
+        let directionIdsForCohorts = [
+            ...new Set([
+                ...this.relatedThingDirectionIds,
+                ...cartesianDirectionIds
+            ])
+        ]
+
+
+
+        // If this is the Relationships-only Generation, remove IDs of any Directions that have
+        // already been built in previous Generations.
+        if (nextGenerationIsRelationshipsOnly) {
+            directionIdsForCohorts = directionIdsForCohorts.filter(
+                directionId => !Object.keys(this.childThingCohortsByDirectionId).map(key => Number(key)).includes(directionId)
+            )
+        }
+
+
+
+
+
+        // For each of these Direction IDs, build that Direction of this Thing.
+        for (const directionId of directionIdsForCohorts) {
+            this.buildOneDirection(
+                directionId,
+                nextGenerationId,
+                thingIdsForNextGeneration,
+                nextGenerationIsRelationshipsOnly
+            )
+        }
+
+        // Mark the Thing as built.
+        this.lifecycleStatus = "built"
+    }
+
+
+
+
+    /**
+     * Build-one-Direction-from-this-Thing method.
+     * 
+     * Builds one Direction from this Thing from an empty state, hooking it up to the parent Things
+     * of the previous Generation.
+     * @param directionId - The ID of the Direction to build.
+     * @param nextGenerationId - The ID of the generation following the one this Thing is part of.
+     * @param thingIdsForNextGeneration - The IDs of all the member Things in the generation following the one this Thing is part of.
+     * @param nextGenerationIsRelationshipsOnly - Whether this next Generation is the final, Relationships-only Generation.
+     */
+    async buildOneDirection(
+        directionId: number,
+        nextGenerationId: number,
+        thingIdsForNextGeneration: number[],
+        nextGenerationIsRelationshipsOnly=false
+    ): Promise<void> {
+        if (this.graph === null) return
+
+        // Get the address for that half-axis' Thing Cohort.
+        const addressForCohort = {
+            graph: this.graph,
+            generationId: nextGenerationId,
+            parentThingId: this.id,
+            directionId: directionId
+        }
+
+        // Get the grid coordinates for that half-axis' Thing Cohort.
+        const gridBuildInfo = this.gridBuildInfoByDirectionId(directionId)
+
+        // If...
+        if (
+            // ...this is the Relationships-only Generation, or...
+            nextGenerationIsRelationshipsOnly
+
+            // ...the Graph is using the radial build method, and needs to be built according to
+            // the logic of that method,
+            || (
+                this.graph.pThing?.space?.buildmethod === "radial"
+                && this.needsBuildIfRadialBuildMethod(directionId)
+            )
+
+            // ...the Graph is using the grid build method, and needs to be built according to the
+            // grid logic of that method,
+            || (
+                this.graph.pThing?.space?.buildmethod === "grid"
+                && gridBuildInfo.needsBuildIfGridBuildMethod
+            )
+        ) {
+            // Add a new, empty Thing Cohort on that half-axis.
+            const childThingCohort = new ThingCohort(addressForCohort, gridBuildInfo.gridCoordinatesForCohort, [])
+            
+            // Get the IDs of the Things for that Thing Cohort, and build it.
+            const childThingCohortThingIds = this.relatedThingIdsByDirectionId[directionId] || []
+            childThingCohort.build(
+                childThingCohortThingIds,
+                thingIdsForNextGeneration,
+                this.graph
+            )
+            
+            // Add the new Thing Cohort to the previous Thing, keyed by Direction ID.
+            this.childThingCohortByDirectionID(directionId, childThingCohort)
+
+            // Add the new Thing Cohort to the appropriate Grid Layer.
+            const childThingCohortGridLayerId = Math.max(
+                ...gridBuildInfo.gridCoordinatesForCohort.map(coordinate => Math.abs(coordinate))
+            )
+            await this.graph.gridLayers.addThingCohortToGridLayer(childThingCohort, childThingCohortGridLayerId)
+        }
+    }
+
+
+
+
+
+    needsBuildIfRadialBuildMethod(directionId: number) {
+        if (this.id === null || this.address === null || this.graph === null) return false
+
+
+        const thingIsBelowDepth = this.address.generationId < this.graph.depth
+
+
+
+
+
+
+
+
+        const directionIdsToCheck: (number | "Space" | "all")[] =
+            this.graph.isOutline ? (
+                this.graph.startingSpace?.includesDirectionId(directionId) ? ["Space", "all"] :
+                ["all"]
+            ) :
+            [directionId]
+
+
+        const directionIsExpanded = directionIdsToCheck.some(
+            directionIdToCheck => (this.graph as Graph).directionFromThingIsExpanded(
+                (this.id as number),
+                directionIdToCheck
+            )
+        )
+
+
+
+
+        const needsBuildIfRadialBuildMethod = thingIsBelowDepth || directionIsExpanded
+        
+        return needsBuildIfRadialBuildMethod
+    }
+
+
+
+    gridBuildInfoByDirectionId(directionId: number) {
+        // Get the grid coordinates for that half-axis' Thing Cohort.
+        const parentThingsThingCohort = this.parentThingCohort
+        const parentThingsThingCohortGridCoordinates = parentThingsThingCohort?.gridCoordinates as GridCoordinates
+        const halfAxisId = this.space?.halfAxisIdByDirectionId[directionId] as HalfAxisId
+        const coordinateIndexToUpdate =
+            [1, 2].includes(halfAxisId) ? 0 :
+            [3, 4].includes(halfAxisId) ? 1 :
+            [5, 6].includes(halfAxisId) ? 2 :
+            [7, 8].includes(halfAxisId) ? 3 :
+            0
+        const coordinateIncrement = halfAxisId % 2 !== 0 ? 1 : -1
+        const gridCoordinatesForCohort = [...parentThingsThingCohortGridCoordinates] as GridCoordinates
+        gridCoordinatesForCohort[coordinateIndexToUpdate] += coordinateIncrement
+
+
+
+        const needsBuildIfGridBuildMethod = (
+            // The absolute value of the grid coordinate for this grid axis
+            // is greater than the absolute value of the parent Thing Cohort's
+            // grid coordinate for this grid axis,
+            (
+                Math.abs(gridCoordinatesForCohort[coordinateIndexToUpdate])
+                > Math.abs(parentThingsThingCohortGridCoordinates[coordinateIndexToUpdate])
+            )
+
+            // ...none of the Grid coordinates are outside of the Graph's
+            // depth,
+            && Math.max(
+                ...gridCoordinatesForCohort.map(coordinate => Math.abs(coordinate))
+            ) <= (this.graph as Graph).depth
+        ) ? true :
+        false
+
+
+        return {
+            gridCoordinatesForCohort,
+            needsBuildIfGridBuildMethod
+        }
+        
+    }
+
+
+
+
+
+
+
+
+    get isBranchTerminatingThing() {
+        const isBranchTerminatingThing = Object.keys(this.childThingCohortsByDirectionId).length === 0
+        return isBranchTerminatingThing
+    }
+
+
+
+
+
+
+
+
+
+
+
+    updatePerspectiveExpansions(
+        thingId: number,
+        directionId: number | "Space" | "all"
+    ) {
+        const perspectiveExpansionsString = this.perspectiveexpansions
+        const spaceId = this.space?.id as number
+
+        const perspectiveExpansions = JSON.parse(perspectiveExpansionsString) as PerspectiveExpansions
+
+        if (!(String(spaceId) in perspectiveExpansions)) {
+            perspectiveExpansions[spaceId] = {}
+        }
+
+        if (!(String(thingId) in perspectiveExpansions[spaceId])) {
+            perspectiveExpansions[spaceId][thingId] = []
+        }
+
+        if (!(perspectiveExpansions[spaceId][thingId].includes(directionId))) {
+
+            if (
+                directionId === "Space"
+                && perspectiveExpansions[spaceId][thingId].includes("all")
+            ) removeItemFromArray(perspectiveExpansions[spaceId][thingId], "all")
+
+            if (
+                directionId === "all"
+                && perspectiveExpansions[spaceId][thingId].includes("Space")
+            ) removeItemFromArray(perspectiveExpansions[spaceId][thingId], "Space")
+
+
+            perspectiveExpansions[spaceId][thingId].push(directionId)
+        } else {
+            removeItemFromArray(perspectiveExpansions[spaceId][thingId], directionId, false)
+
+            if (perspectiveExpansions[spaceId][thingId].length === 0) {
+                delete perspectiveExpansions[spaceId][thingId]
+
+                if (Object.keys(perspectiveExpansions[spaceId]).length === 0) {
+                    delete perspectiveExpansions[spaceId]
+                }
+            }
+        }
+
+        return JSON.stringify(perspectiveExpansions)
+    }
+
+
+
+
+
+
+
+
 }
