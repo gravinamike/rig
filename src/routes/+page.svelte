@@ -6,7 +6,6 @@
     import type { GraphWidgetStyle } from "$lib/widgets/graphWidgets"
 
     // Import constants and utility functions.
-    import { startingGraphDepth } from "$lib/shared/constants"
     import { onMobile } from "$lib/shared/utility"
 
     // Import stores.

@@ -34,6 +34,8 @@ export async function createNewRelationship(
     // Report on the response.
     if (res.ok) {
         return true
+    } else if (res.status === 429) {
+        return false
     } else {
         res.text().then(text => {throw Error(text)})
         return false

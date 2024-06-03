@@ -19,7 +19,6 @@
     } from "$lib/stores"
 
     // Import associated widgets.
-    import { XButton } from "$lib/widgets/layoutWidgets"
     import { DirectionWidget } from "$lib/widgets/spaceWidgets"
 
     // Import API methods.
@@ -128,6 +127,7 @@
         if (event.key === "Escape") disableRelationshipBeingCreated()
     }
 
+    let createNewRelationshipLocked = false
     async function handlePossibleNewRelationshipSpecified(
         sourceThingId: number | null,
         destThingId: number | null,
@@ -135,12 +135,17 @@
         trackingMouse: boolean
     ) {
         if (sourceThingId && destThingId && direction && !trackingMouse) {
+            if (createNewRelationshipLocked) return
+            createNewRelationshipLocked = true
+            setTimeout(() => { createNewRelationshipLocked = false }, 1000)
+
             const newRelationshipCreated = await createNewRelationship(
                 sourceThingId,
                 destThingId,
                 direction.id as number
             )
-            if (newRelationshipCreated) {
+            
+            if (newRelationshipCreated && graph !== null) {
                 await storeGraphDbModels<ThingDbModel>("Thing", [sourceThingId, destThingId], true)
                 await (graph as Graph).build()
                 addGraphIdsNeedingViewerRefresh((graph as Graph).id)

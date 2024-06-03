@@ -96,6 +96,19 @@ export function isGraphRestrictedRoute(routeFragment: string) {
     return isGraphRestrictedRoute
 }
 
+/**
+ * Minimum endpoint-path request intervals.
+ * 
+ * Object matching API routes to the minimum allowable interval between repeated requests to it
+ * from the same client session (to deal with possible API-call spam issues).
+ */
+export const minimumEndpointPathRequestIntervals = {
+    "/api/db/repairGraph": 500,
+    "/api/db/updateGraph": 500,
+    "/api/db/graphManipulation/add": 1000,
+    "/api/db/graphManipulation/create": 1000
+}
+
 
 
 /* Graph-level interfaces and types. */

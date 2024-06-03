@@ -15,7 +15,7 @@ import { isGraphRestrictedRoute } from "$lib/shared/constants"
 
 
 import { get } from "svelte/store"
-import { loggerStore } from "$lib/stores"
+import { loggerStore, recentlyCalledEndpointsStore, registerRecentlyCalledEndpoint } from "$lib/stores"
 import { getGraphNameOnServer } from "$lib/server/db/utility"
 const logger = get(loggerStore)
 
@@ -68,6 +68,26 @@ export const handle: Handle = async ({ event, resolve }) => {
 		)
 		throw error(403, "You don't have permission to access this resource.")
 	}
+
+
+	/* If the same endpoint was requested too recently (within its "minimum-endpoint-request-
+	interval"), throw a 429 error. */
+	if (get(recentlyCalledEndpointsStore).includes(event.url.pathname)) {
+		logger.info(
+			{
+				username: event.locals.user?.username || null,
+				route: event.route.id,
+				status: 429,
+				msg: "Too many requests from the same session to the same endpoint in a short time."
+			}
+		)
+		throw error(429, "Too many requests from the same session to the same endpoint in a short time.")
+	}
+
+	/* Register the endpoint request in the recently-called store (so that the above check can be
+	made on future requests). */
+	registerRecentlyCalledEndpoint(event.url.pathname)
+
 
 	/* Get a database connection. */
 
