@@ -111,6 +111,8 @@ export async function storeGraphConfig(pThingId: number | null = null): Promise<
  * Saves application config to file.
  */
 export async function saveAppConfig(): Promise<void> {
+    if (get(preventEditingStore)) return
+
     await apiSaveAppConfig()
 }
 
@@ -120,6 +122,8 @@ export async function saveAppConfig(): Promise<void> {
  * Saves Graph config to file.
  */
 export async function saveGraphConfig(): Promise<void> {
+    if (get(preventEditingStore)) return
+
     // Retrieve config info from the stores.
     const uITrimColor = get(uITrimColorStore)
     const mobileMenuTrimColor = get(mobileMenuTrimColorStore)
