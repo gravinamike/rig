@@ -175,21 +175,23 @@
 </div>
 
 <!-- Add-Direction button. -->
-<div
-    class="add-direction-button"
-    class:on-mobile={onMobile()}
+{#if !$preventEditing}
+    <div
+        class="add-direction-button"
+        class:on-mobile={onMobile()}
 
-    on:click={addDirectionForm}
-    on:keydown={()=>{}}
->
-    <strong>+</strong>
+        on:click={addDirectionForm}
+        on:keydown={()=>{}}
+    >
+        <strong>+</strong>
 
-    <Tooltip
-        text={"Create new Direction."}
-        direction={"up"}
-        lean={"left"}
-    />
-</div>
+        <Tooltip
+            text={"Create new Direction."}
+            direction={"up"}
+            lean={"left"}
+        />
+    </div>
+{/if}
 
 
 <style>

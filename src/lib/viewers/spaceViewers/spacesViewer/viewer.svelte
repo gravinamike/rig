@@ -156,21 +156,23 @@
 </div>
 
 <!-- Add-Space button. -->
-<div
-    class="add-space-button"
-    class:on-mobile={onMobile()}
+{#if !$preventEditing}
+    <div
+        class="add-space-button"
+        class:on-mobile={onMobile()}
 
-    on:click={addSpaceForm}
-    on:keydown={()=>{}}
->
-    <strong>+</strong>
+        on:click={addSpaceForm}
+        on:keydown={()=>{}}
+    >
+        <strong>+</strong>
 
-    <Tooltip
-        text={"Create new Space."}
-        direction={"up"}
-        lean={"left"}
-    />
-</div>
+        <Tooltip
+            text={"Create new Space."}
+            direction={"up"}
+            lean={"left"}
+        />
+    </div>
+{/if}
 
 
 <style>
