@@ -40,6 +40,11 @@ After cloning the Git repository, run `npm i` to install dependencies and `npm r
 Rig requires Java for its back-end database. If you don't have it, you can get it [here](https://www.java.com/).
 
 
+### Setting up WMIC
+
+If you intend to run Rig as a desktop application on Windows, you'll need WMIC enabled. Older versions of Windows have it by default, but Windows 11 and onwards do not. [Here's a guide](https://www.intowindows.com/how-to-install-wmic-in-windows-11/) for re-enabling it if necessary.
+
+
 ### Setting up the environment file
 
 The top-level folder of the repository contains a file named `env_template`. Copy and paste this without the "_template", and edit the new file to suit your needs. You can specify the desired ports for the app's main front-end server and its database server (if you need to change these to avoid conflicts with existing port usage). You will also need to supply your domain as "ORIGIN" in order to avoid cross-site errors. You can also change the port that the app runs on if you prefer.
